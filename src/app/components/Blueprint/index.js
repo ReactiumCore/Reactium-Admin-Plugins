@@ -4,8 +4,22 @@ import op from 'object-path';
 import React from 'react';
 import { useSelect } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
+import Parse from 'appdir/api';
 
 const ENUMS = {};
+
+const routerSelect = {
+    select: state => op.get(state, 'Router', {}),
+    shouldUpdate: ({ newState, prevState }) => {
+        const newPath = op.get(newState, 'pathname', '/');
+        const prevPath = op.get(prevState, 'pathname', '/');
+        const newSearch = op.get(newState, 'search', '');
+        const prevSearch = op.get(prevState, 'search', '');
+        if (newPath !== prevPath) return true;
+        if (newSearch !== prevSearch) return true;
+        return false;
+    },
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -13,7 +27,9 @@ const ENUMS = {};
  * -----------------------------------------------------------------------------
  */
 const Blueprint = () => {
-    const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
+    const Router = useSelect(routerSelect);
+    const pathname = op.get(Router, 'pathname', '/');
+
     const blueprintId = useSelect(
         state =>
             op.get(state, ['Blueprint', 'routesConfig', pathname, 'blueprint']),
@@ -52,8 +68,11 @@ const Blueprint = () => {
                                     )}>
                                     <Plugins
                                         zone={zone}
-                                        blueprintMeta={blueprintMeta}
-                                        zoneMeta={zoneMeta}
+                                        section={name}
+                                        Router={Router}
+                                        user={Parse.User.current()}
+                                        {...blueprintMeta}
+                                        {...zoneMeta}
                                     />
                                 </div>
                             ))}
