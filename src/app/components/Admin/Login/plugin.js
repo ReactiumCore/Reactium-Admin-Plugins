@@ -3,6 +3,6 @@ import Login from './index';
 export default {
     id: 'LOGIN-PAGE',
     component: Login,
-    zone: ['Login'],
+    zone: ['login'],
     order: 1,
 };
