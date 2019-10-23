@@ -124,6 +124,11 @@ const defaultManifestConfig = {
             type: 'plugin',
             pattern: /plugin.jsx?$/,
         },
+        {
+            name: 'allHooks',
+            type: 'hooks',
+            pattern: /reactium-hooks.js$/,
+        },
     ],
     sourceMappings: [
         {
@@ -204,7 +209,7 @@ const manifestConfig = manifestConfigOverride(defaultManifestConfig);
  * @type {Object}
  */
 module.exports = {
-    version: '3.1.0',
+    version: '3.1.1',
     semver: '^3.0.0',
     build: gulpConfig,
     update: {
