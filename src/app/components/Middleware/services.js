@@ -2,32 +2,8 @@ import Parse from 'appdir/api';
 import op from 'object-path';
 
 const getRoutes = async () => {
-    const limit = 1;
-    let skip = 0;
-    let allRoutes = [];
-
-    try {
-        const { total, routes } = await Parse.Cloud.run('route-retrieve', {
-            limit,
-            skip,
-        });
-        if (routes.length === total) return routes;
-
-        allRoutes = routes;
-        const pages = Math.ceil(total / limit);
-        for (let page = 1; page < pages; page++) {
-            skip = limit * page;
-            const { routes } = await Parse.Cloud.run('route-retrieve', {
-                limit,
-                skip,
-            });
-            allRoutes = allRoutes.concat(routes);
-        }
-
-        return allRoutes;
-    } catch (error) {
-        return allRoutes;
-    }
+    const { routes } = await Parse.Cloud.run('routes');
+    return routes;
 };
 
 const blueprints = async () => {
@@ -64,8 +40,7 @@ const blueprints = async () => {
 
 export default {
     getDynamicRoutes: async () => {
-        const dynamicRoutes = await getRoutes();
-        const routes = dynamicRoutes.map(route => route.toJSON());
+        const routes = await getRoutes();
 
         return {
             routesConfig: routes.reduce(
