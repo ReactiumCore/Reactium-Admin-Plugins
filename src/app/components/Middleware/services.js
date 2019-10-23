@@ -7,31 +7,16 @@ const getRoutes = async () => {
 };
 
 const blueprints = async () => {
-    const limit = 1;
-    let skip = 0;
     let allBlueprints = [];
+    const options = { limit: 1000 };
 
     try {
-        const { total, blueprints } = await Parse.Cloud.run(
-            'blueprint-retrieve',
-            {
-                limit,
-                skip,
-            },
-        );
-        if (blueprints.length === total) return blueprints;
-
-        allBlueprints = blueprints;
-        const pages = Math.ceil(total / limit);
-        for (let page = 1; page < pages; page++) {
-            skip = limit * page;
-            const { blueprints } = await Parse.Cloud.run('blueprint-retrieve', {
-                limit,
-                skip,
-            });
-            allBlueprints = allBlueprints.concat(blueprints);
+        let results = await Parse.Cloud.run('blueprint-retrieve', options);
+        while (results.blueprints.length > 0) {
+            allBlueprints = allBlueprints.concat(results.blueprints);
+            options.skip = allBlueprints.length;
+            results = await Parse.Cloud.run('blueprint-retrieve', options);
         }
-
         return allBlueprints;
     } catch (error) {
         return allBlueprints;
