@@ -16,9 +16,9 @@ const contextMode = () => {
 
 const defaultLibraryExternals = {
     Reactium: {
-        externalName: '/pluginRegistration$/',
+        externalName: '/sdk$/',
         // relative to src/manifest.js
-        requirePath: 'reactium-core/pluginRegistration',
+        requirePath: 'reactium-core/sdk',
         // to provide both es6 named exports and Reactium default alias
         defaultAlias: 'Reactium',
     },
@@ -204,7 +204,7 @@ const manifestConfig = manifestConfigOverride(defaultManifestConfig);
  * @type {Object}
  */
 module.exports = {
-    version: '3.0.20',
+    version: '3.1.0',
     semver: '^3.0.0',
     build: gulpConfig,
     update: {
@@ -267,8 +267,8 @@ module.exports = {
                 {
                     overwrite: true,
                     version: '>=2.3.16',
-                    destination: '/src/app/plugable',
-                    source: '/tmp/update/src/app/plugable',
+                    destination: '/src/app/plugable/index.js',
+                    source: '/tmp/update/src/app/plugable/index.js',
                 },
                 {
                     overwrite: false,

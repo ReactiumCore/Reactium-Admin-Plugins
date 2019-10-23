@@ -82,3 +82,6 @@ Thumbs.db
 
 # Manifest
 src/manifest.js
+
+# Feather Icons
+src/app/components/common-ui/Icon/Feather/
