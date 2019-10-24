@@ -62,7 +62,7 @@ User.logIn = User.auth;
  * @apiGroup User
  */
 User.logOut = async () => {
-    const u = Uesr.current();
+    const u = User.current();
 
     await Hook.run('user.before.logout', u);
 
@@ -85,7 +85,7 @@ User.logOut = async () => {
  */
 User.current = () => {
     const u = Parse.User.current();
-    return u ? u.toJSON() : {};
+    return u ? u.toJSON() : null;
 };
 
 /**
