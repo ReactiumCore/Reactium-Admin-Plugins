@@ -2,6 +2,7 @@ import serialize from 'serialize-javascript';
 
 module.exports = {
     version: '3.0.20',
+    includeSheets: ['admin.css'],
     template: req => {
         return `<!DOCTYPE html>
         <html>

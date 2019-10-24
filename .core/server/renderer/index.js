@@ -112,7 +112,7 @@ const sanitizeTemplateVersion = version => {
     return semver.coerce(version);
 };
 
-export default (req, res, context) => {
+module.exports = (req, res, context) => {
     req.scripts = scripts(req, res);
     req.styles = styles(req, res);
 
