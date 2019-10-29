@@ -3,7 +3,7 @@ import op from 'object-path';
 
 const getRoutes = async () => {
     const { routes } = await Parse.Cloud.run('routes');
-    return routes;
+    return routes.filter(({ blueprint }) => blueprint);
 };
 
 const blueprints = async () => {
