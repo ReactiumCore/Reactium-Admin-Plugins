@@ -36,6 +36,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
 
     useEffect(() => {
         const { status } = stateRef.current;
+
         if (status === ENUMS.STATUS.SUCCESS) {
             window.location.href = redirect;
         }
@@ -88,7 +89,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
     };
 
     const render = () => {
-        if (Reactium.User.current()) {
+        if (Reactium.User.getSessionToken()) {
             return <Redirect to={redirect} />;
         }
 

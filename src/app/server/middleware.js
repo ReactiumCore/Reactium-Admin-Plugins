@@ -1,11 +1,17 @@
 const Enums = require('reactium-core/sdk/enums').default;
-const { routes, blueprints } = require('./middlewares/config');
+const { settings, routes, blueprints } = require('./middlewares/config');
 const { forceSSL } = require('./middlewares/forceSSL');
 
 module.exports = mw => {
     mw.push({
         name: 'forceSSL',
         use: forceSSL,
+        order: Enums.priority.highest,
+    });
+
+    mw.push({
+        name: 'settings',
+        use: settings,
         order: Enums.priority.highest,
     });
 

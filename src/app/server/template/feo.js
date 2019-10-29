@@ -19,6 +19,7 @@ module.exports = {
                     window.defines = ${serialize(defines)};
                     window.restAPI = '/api';
                     window.parseAppId = '${parseAppId}';
+                    window.settings = ${serialize(req.settings)};
                     window.blueprints = ${serialize(req.blueprints)};
                     window.routesConfig = ${serialize(req.routesConfig)};
                     window.routes = ${serialize(req.routes)};
