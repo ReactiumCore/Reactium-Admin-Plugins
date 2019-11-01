@@ -46,6 +46,7 @@ const enforceBlueprintCaps = (store, history) => async location => {
                     const permitted = await Reactium.User.can(capability);
                     if (permitted) return;
                 }
+
                 history.push(login);
             }
         }

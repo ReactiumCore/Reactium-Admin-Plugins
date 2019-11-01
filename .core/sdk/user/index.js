@@ -85,7 +85,18 @@ User.logOut = async () => {
  */
 User.current = () => {
     const u = Parse.User.current();
-    return u ? u.toJSON() : null;
+    return u ? u.toJSON() : {};
+};
+
+/**
+ * @api {Function} User.getSessionToken() Get the current session token.
+ * @apiDescription If the user is logged in, get the current session token.
+ * @apiName User.getSessionToken
+ * @apiGroup User
+ */
+User.getSessionToken = () => {
+    const u = Parse.User.current();
+    return op.get(u, 'getSessionToken', () => false)();
 };
 
 /**
