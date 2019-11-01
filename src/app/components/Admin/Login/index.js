@@ -1,10 +1,10 @@
 import cn from 'classnames';
 import op from 'object-path';
+import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
+import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
-import Reactium from 'reactium-core/sdk';
-import { Redirect, Link } from 'react-router-dom';
 
 const ENUMS = {
     STATUS: {
@@ -14,6 +14,7 @@ const ENUMS = {
         SUCCESS: 'success',
     },
 };
+
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: Login
@@ -159,12 +160,12 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                     </div>
                     <div className='login-links'>
                         <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                            <Button outline block type='link' href={forgot}>
+                            <Button outline block type='link' to={forgot}>
                                 Forgot Password
                             </Button>
                         </div>
                         <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                            <Button outline block type='link' href={signup}>
+                            <Button outline block type='link' to={signup}>
                                 Create Account
                             </Button>
                         </div>

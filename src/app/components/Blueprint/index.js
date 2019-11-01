@@ -1,12 +1,18 @@
+import React from 'react';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React from 'react';
+import Parse from 'appdir/api';
+import { Link } from 'react-router-dom';
 import { useSelect } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
-import Parse from 'appdir/api';
+import { Button, WebForm } from '@atomic-reactor/reactium-ui';
 
 const ENUMS = {};
+
+Button.ENUMS.LINK = ({ children, ...props }) => (
+    <Link {...props}>{children}</Link>
+);
 
 const routerSelect = {
     select: state => op.get(state, 'Router', {}),
