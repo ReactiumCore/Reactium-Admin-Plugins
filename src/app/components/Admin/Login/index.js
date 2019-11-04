@@ -4,7 +4,7 @@ import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, WebForm } from '@atomic-reactor/reactium-ui';
+import { Button, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
 
 const ENUMS = {
     STATUS: {
@@ -12,6 +12,7 @@ const ENUMS = {
         SUBMITTING: 'submitting',
         READY: 'ready',
         SUCCESS: 'success',
+        COMPLETE: 'complete',
     },
 };
 
@@ -38,7 +39,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
     useEffect(() => {
         const { status } = stateRef.current;
 
-        if (status === ENUMS.STATUS.SUCCESS) {
+        if (status === ENUMS.STATUS.COMPLETE) {
             window.location.href = redirect;
         }
     });
@@ -55,6 +56,10 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
         return Reactium.User.auth(username, password)
             .then(user => {
                 setState({ status: ENUMS.STATUS.SUCCESS });
+                setTimeout(
+                    () => setState({ status: ENUMS.STATUS.COMPLETE }),
+                    1000,
+                );
             })
             .catch(err => {
                 const error = {
@@ -95,6 +100,17 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
         }
 
         const { username, password, error = {}, status } = stateRef.current;
+
+        if (
+            status === ENUMS.STATUS.SUCCESS ||
+            status === ENUMS.STATUS.COMPLETE
+        ) {
+            return (
+                <main className={className} role='main'>
+                    <Spinner />
+                </main>
+            );
+        }
 
         return (
             <main className={className} role='main'>
@@ -145,12 +161,13 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             <small>{error.message}</small>
                         )}
                     </div>
-                    <div>
+                    <div className='mt-xs-40'>
                         <Button
                             block
                             color='secondary'
                             size='lg'
                             type='submit'
+                            appearance='pill'
                             disabled={status === ENUMS.STATUS.SUBMITTING}>
                             {status === ENUMS.STATUS.SUBMITTING ? (
                                 <>Signing in...</>
@@ -159,16 +176,12 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             )}
                         </Button>
                     </div>
-                    <div className='login-links'>
+                    <div className='links'>
                         <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                            <Button outline block type='link' to={forgot}>
-                                Forgot Password
-                            </Button>
+                            <Link to={forgot}>Forgot Password</Link>
                         </div>
                         <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                            <Button outline block type='link' to={signup}>
-                                Create Account
-                            </Button>
+                            <Link to={signup}>Create Account</Link>
                         </div>
                     </div>
                 </WebForm>

@@ -1,4 +1,10 @@
+import { Link } from 'react-router-dom';
 import { App, AppError } from 'reactium-core/app';
+import { Button } from '@atomic-reactor/reactium-ui';
+
+Button.ENUMS.LINK = ({ children, ...props }) => (
+    <Link {...props}>{children}</Link>
+);
 
 let render = App;
 

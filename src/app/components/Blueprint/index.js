@@ -3,16 +3,10 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Parse from 'appdir/api';
-import { Link } from 'react-router-dom';
 import { useSelect } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { Button, WebForm } from '@atomic-reactor/reactium-ui';
 
 const ENUMS = {};
-
-Button.ENUMS.LINK = ({ children, ...props }) => (
-    <Link {...props}>{children}</Link>
-);
 
 const routerSelect = {
     select: state => op.get(state, 'Router', {}),
@@ -34,7 +28,7 @@ const routerSelect = {
  */
 const Blueprint = () => {
     const Router = useSelect(routerSelect);
-    const pathname = op.get(Router, 'pathname', '/');
+    const pathname = op.get(Router, 'match.path', '/');
 
     const blueprintId = useSelect(state =>
         op.get(state, ['Blueprint', 'routesConfig', pathname, 'blueprint'], ''),

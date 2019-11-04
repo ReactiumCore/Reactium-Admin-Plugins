@@ -76,6 +76,11 @@ User.logOut = async () => {
     }
 };
 
+User.forgot = email => Parse.Cloud.run('password-reset-request', { email });
+
+User.reset = (token, password) =>
+    Parse.Cloud.run('password-reset', { token, password });
+
 /**
  * @api {Function} User.current() Retrieve the current authenticated user.
  * @apiDescription Retrieve the current authenticated user.

@@ -21,9 +21,27 @@
         border-radius: 4px;
     }
 
-    &-links {
+    h1 {
+        @extend .h2;
+        @extend .mb-xs-20;
+        @extend .text-xs-center;
+    }
+
+    .links {
         @extend .row;
         width: 100%;
         max-width: 400px;
+        margin-top: 20px;
+
+        a {
+            font-size: 12px;
+            text-decoration: underline;
+            line-height: 16px;
+            color: $color-gray;
+
+            &:hover {
+                color: $color-black;
+            }
+        }
     }
 }
