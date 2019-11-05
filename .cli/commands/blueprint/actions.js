@@ -30,6 +30,28 @@ module.exports = spinner => {
             Parse.serverURL = server;
         },
 
+        config: ({ params, props }) => {
+            const { cwd } = props;
+            const { app, auth, server } = params;
+
+            const configPath = path.normalize(cwd + '/.cli/config.json');
+
+            if (!fs.existsSync(configPath)) {
+                fs.ensureFileSync(configPath);
+                fs.writeFileSync(configPath, '{}', 'utf8');
+            }
+
+            const config = require(configPath);
+
+            op.set(config, 'parse.server', server);
+            op.set(config, 'parse.app', app);
+            op.set(config, 'parse.auth', auth);
+
+            fs.writeFileSync(configPath, JSON.stringify(config), 'utf8');
+
+            return { ...props.config, ...config };
+        },
+
         options: ({ context, params }) => {
             const { auth } = params;
             return { sessionToken: auth };
@@ -78,7 +100,7 @@ module.exports = spinner => {
             return tmp ? tmp.toJSON() : defaultTemplate;
         },
 
-        blueprint: async ({ context, params, props }) => {
+        blueprint: ({ context, params, props }) => {
             message(`Creating ${chalk.cyan('blueprint')}...`);
 
             const { options = {}, template } = context;
@@ -105,7 +127,7 @@ module.exports = spinner => {
         },
 
         route: async ({ context, params }) => {
-            const { route } = params;
+            const { capabilities, route } = params;
             if (!route) {
                 return;
             }
@@ -122,7 +144,10 @@ module.exports = spinner => {
                 .first(options);
 
             routeObj = routeObj || new Parse.Object('Route');
-            routeObj.set('route', route).set('blueprint', blueprint);
+            routeObj
+                .set('route', route)
+                .set('blueprint', blueprint)
+                .set('capabilities', capabilities);
 
             return routeObj.save(null, options);
         },

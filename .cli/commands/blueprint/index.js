@@ -96,10 +96,11 @@ const CONFORM = ({ input, props }) =>
             let val = input[key];
             switch (key) {
                 case 'zones':
+                case 'capabilities':
                     val = String(val)
                         .replace(' ', '')
                         .split(',');
-                    obj[key] = val;
+                    obj[key] = _.compact(val);
                     break;
 
                 default:
@@ -128,6 +129,7 @@ Example:
  */
 const FLAGS = [
     'auth',
+    'capabilities',
     'overwrite',
     'server',
     'app',
@@ -198,6 +200,9 @@ const SCHEMA = ({ props }) => ({
         },
         route: {
             description: chalk.white('Route:'),
+        },
+        capabilities: {
+            description: chalk.white('Route Capabilities:'),
         },
     },
 });
@@ -284,6 +289,10 @@ const COMMAND = ({ program, props }) =>
         .option('-n, --name [name]', 'Unique blueprint name.')
         .option('-d, --description [description]', 'Blueprint description.')
         .option('-r, --route [route]', 'Route associated with the blueprint.')
+        .option(
+            '-c, --capabilities [capabilities]',
+            'Capabilities associated with the route.',
+        )
         .option('-s, --server [server]', 'Parse server url.')
         .option('-z, --zones [zones]', 'Blueprint zones.')
         .option('-A --app [app]', 'Parse app ID.')

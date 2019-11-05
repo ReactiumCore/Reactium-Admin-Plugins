@@ -79,6 +79,7 @@ Thumbs.db
 
 # CLI
 .cli-cache
+.cli/config.json
 
 # Manifest
 src/manifest.js
