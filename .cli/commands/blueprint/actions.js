@@ -6,6 +6,14 @@ const op = require('object-path');
 const Parse = require('parse/node');
 const defaultTemplate = require('./template/default');
 
+const configUpdate = require(path.normalize(
+    process.cwd() + '/.cli/utils/parse-config-update',
+));
+
+const parseInit = require(path.normalize(
+    process.cwd() + '/.cli/utils/parse-init',
+));
+
 module.exports = spinner => {
     const message = text => {
         if (spinner) {
@@ -22,35 +30,9 @@ module.exports = spinner => {
     };
 
     return {
-        init: ({ params }) => {
-            message(`Initializing ${chalk.cyan('Parse')}...`);
+        init: ({ params }) => parseInit({ params, Parse }),
 
-            const { app, server } = params;
-            Parse.initialize(app);
-            Parse.serverURL = server;
-        },
-
-        config: ({ params, props }) => {
-            const { cwd } = props;
-            const { app, auth, server } = params;
-
-            const configPath = path.normalize(cwd + '/.cli/config.json');
-
-            if (!fs.existsSync(configPath)) {
-                fs.ensureFileSync(configPath);
-                fs.writeFileSync(configPath, '{}', 'utf8');
-            }
-
-            const config = require(configPath);
-
-            op.set(config, 'parse.server', server);
-            op.set(config, 'parse.app', app);
-            op.set(config, 'parse.auth', auth);
-
-            fs.writeFileSync(configPath, JSON.stringify(config), 'utf8');
-
-            return { ...props.config, ...config };
-        },
+        config: configUpdate,
 
         options: ({ context, params }) => {
             const { auth } = params;
