@@ -88,9 +88,11 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             status: ENUMS.STATUS.ERROR,
         });
 
-        const elm = document.getElementById(field);
-        if (elm) {
-            elm.focus();
+        if (field) {
+            const elm = document.getElementById(field);
+            if (elm) {
+                elm.focus();
+            }
         }
     };
 
@@ -140,7 +142,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             disabled={status === ENUMS.STATUS.SUBMITTING}
                         />
                         {op.get(error, 'field') === 'username' && (
-                            <small>Enter your email address</small>
+                            <small>Enter your username</small>
                         )}
                     </div>
                     <div

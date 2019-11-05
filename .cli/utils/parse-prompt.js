@@ -22,7 +22,7 @@ const SCHEMA_SERVER = ({ override, props }) => ({
 });
 
 const SCHEMA_AUTH = ({ override, props }) => {
-    const url = op.get(override, 'server') + '/cli-auth';
+    const url = op.get(override, 'server') + '/auth';
     const link = terminalLink(url, url);
 
     return {

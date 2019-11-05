@@ -118,20 +118,20 @@ module.exports = spinner => {
 
             if (!blueprint) {
                 fail('Unable to create route');
+            } else {
+                let routeObj = await new Parse.Query('Route')
+                    .equalTo('route', route)
+                    .descending('updatedAt')
+                    .first(options);
+
+                routeObj = routeObj || new Parse.Object('Route');
+                routeObj
+                    .set('route', route)
+                    .set('blueprint', blueprint)
+                    .set('capabilities', capabilities);
+
+                return routeObj.save(null, options);
             }
-
-            let routeObj = await new Parse.Query('Route')
-                .equalTo('route', route)
-                .descending('updatedAt')
-                .first(options);
-
-            routeObj = routeObj || new Parse.Object('Route');
-            routeObj
-                .set('route', route)
-                .set('blueprint', blueprint)
-                .set('capabilities', capabilities);
-
-            return routeObj.save(null, options);
         },
     };
 };
