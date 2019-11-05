@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const _ = require('underscore');
 const op = require('object-path');
 const Parse = require('parse/node');
+const defaultTemplate = require('./template/default');
 
 module.exports = spinner => {
     const message = text => {
@@ -21,22 +22,25 @@ module.exports = spinner => {
     };
 
     return {
-        init: ({ context, params }) => {
+        init: ({ params }) => {
             message(`Initializing ${chalk.cyan('Parse')}...`);
 
-            const { app, server, auth } = params;
+            const { app, server } = params;
             Parse.initialize(app);
             Parse.serverURL = server;
-
-            context['options'] = { sessionToken: auth };
         },
 
-        check: async ({ context, params, props }) => {
+        options: ({ context, params }) => {
+            const { auth } = params;
+            return { sessionToken: auth };
+        },
+
+        blueprints: async ({ context, params, props }) => {
             let { name, overwrite } = params;
 
             const { prompt } = props;
             const { options = {} } = context;
-            let { blueprints = [] } = await Parse.Cloud.run(
+            const { blueprints = [] } = await Parse.Cloud.run(
                 'blueprint-retrieve',
                 {
                     ID: name,
@@ -53,45 +57,36 @@ module.exports = spinner => {
             }
 
             if (blueprints.length > 0 && overwrite === true) {
-                return Parse.Object.destroyAll(blueprints, options).catch(
+                await Parse.Object.destroyAll(blueprints, options).catch(
                     err => {
                         fail(err.message);
                     },
                 );
             }
+
+            return blueprints.length;
         },
 
         template: async ({ context }) => {
             message(`Retrieving ${chalk.cyan('template')}...`);
             const { options = {} } = context;
 
-            let blueprint = await Parse.Cloud.run(
-                'blueprint-retrieve',
-                {
-                    ID: 'Admin',
-                },
-                options,
-            );
+            const tmp = await new Parse.Query('Blueprint')
+                .equalTo('ID', 'Admin')
+                .first(options);
 
-            context['template'] = op.get(blueprint, 'blueprints.0');
-
-            if (!op.get(context, 'template')) {
-                fail('Unable to copy default admin blueprint');
-            }
-
-            context['template'] = op.get(context, 'template')
-                ? context.template.toJSON()
-                : {};
+            return tmp ? tmp.toJSON() : defaultTemplate;
         },
 
-        create: async ({ context, params, props }) => {
+        blueprint: async ({ context, params, props }) => {
             message(`Creating ${chalk.cyan('blueprint')}...`);
 
-            const { options = {} } = context;
+            const { options = {}, template } = context;
             const { name, description, header, sidebar, zones } = params;
 
             const blueprint = {
-                ...context.tempate,
+                meta: op.get(template, 'meta', {}),
+                sections: op.get(template, 'sections', {}),
                 ID: name,
                 description: description,
             };
@@ -106,11 +101,7 @@ module.exports = spinner => {
                 op.del(blueprint, 'sections.sidebar');
             }
 
-            context['blueprint'] = await Parse.Cloud.run(
-                'blueprint-create',
-                blueprint,
-                options,
-            );
+            return Parse.Cloud.run('blueprint-create', blueprint, options);
         },
 
         route: async ({ context, params }) => {
