@@ -286,6 +286,10 @@ const COMMAND = ({ program, props }) =>
         .description(DESC)
         .action(opt => ACTION({ opt, props }))
         .option('-a, --auth [auth]', 'Parse session token.')
+        .option(
+            '-b, --builtIn [builtIn]',
+            'Persist the blueprint by making it a built in.',
+        )
         .option('-o, --overwrite [overwrite]', 'Overwrite existing blueprint.')
         .option('-m, --masterKey [masterKey]', 'Parse masterKey.')
         .option('-n, --name [name]', 'Unique blueprint name.')
@@ -297,7 +301,7 @@ const COMMAND = ({ program, props }) =>
         )
         .option('-s, --server [server]', 'Parse server url.')
         .option('-z, --zones [zones]', 'Blueprint zones.')
-        .option('-A --app [app]', 'Parse app ID.')
+        .option('-A, --app [app]', 'Parse app ID.')
         .option('--no-header', 'Exclude the header zone')
         .option('--no-sidebar', 'Exclude the sidebar zone')
         .on('--help', HELP);
