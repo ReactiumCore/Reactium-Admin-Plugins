@@ -3,6 +3,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Parse from 'appdir/api';
+import Reactium from 'reactium-core/sdk';
 import { useSelect } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
 
@@ -68,7 +69,6 @@ const Blueprint = () => {
                                         zone={zone}
                                         section={name}
                                         Router={Router}
-                                        user={Parse.User.current()}
                                         {...blueprintMeta}
                                         {...zoneMeta}
                                     />

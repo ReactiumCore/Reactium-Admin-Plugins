@@ -5,8 +5,8 @@ const gulpConfig = require('./gulp.config');
 
 const contextMode = () => {
     if (
-        process.env.NODE_ENV !== 'development' ||
-        process.env.LAZY_GET_COMPONENTS === 'on'
+        process.env.NODE_ENV !== 'development' &&
+        process.env.LAZY_GET_COMPONENTS !== 'off'
     ) {
         return 'lazy-once';
     }
@@ -209,7 +209,7 @@ const manifestConfig = manifestConfigOverride(defaultManifestConfig);
  * @type {Object}
  */
 module.exports = {
-    version: '3.1.5',
+    version: '3.1.7',
     semver: '^3.0.0',
     build: gulpConfig,
     update: {
