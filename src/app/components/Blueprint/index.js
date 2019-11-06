@@ -3,7 +3,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Parse from 'appdir/api';
-import Sidebar from './Sidebar';
 import Reactium from 'reactium-core/sdk';
 import { useSelect } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
@@ -41,10 +40,6 @@ const Blueprint = () => {
     const blueprintMeta = op.get(blueprint, 'meta', {});
     const sections = op.get(blueprint, 'sections', {});
 
-    const sidebar = op.has(sections, 'sidebar')
-        ? { ...op.get(sections, 'sidebar') }
-        : null;
-
     // Renderer
     const render = () => (
         <main
@@ -52,61 +47,36 @@ const Blueprint = () => {
                 'blueprint',
                 `blueprint-${blueprintId.toLowerCase()}`,
             )}>
-            {sidebar && (
-                <Sidebar className={cn('section', 'section-sidebar')}>
-                    {sidebar.zones.map(zone => (
-                        <div
-                            key={zone}
-                            className={cn(
-                                'zone',
-                                `zone-${zone.toLowerCase()}`,
-                            )}>
-                            <Plugins
-                                zone={zone}
-                                section='sidebar'
-                                Router={Router}
-                                {...blueprintMeta}
-                                {...op.get(sidebar, 'meta', {})}
-                            />
-                        </div>
-                    ))}
-                </Sidebar>
-            )}
+            {Object.entries(sections).map(([name, value]) => {
+                const zones = op.get(value, 'zones', []);
+                const zoneMeta = op.get(value, 'meta', {});
 
-            <div>
-                {Object.entries(sections)
-                    .filter(([name, value]) => Boolean(name !== 'sidebar'))
-                    .map(([name, value]) => {
-                        const zones = op.get(value, 'zones', []);
-                        const zoneMeta = op.get(value, 'meta', {});
-
-                        return (
-                            <section
-                                key={name}
+                return (
+                    <section
+                        key={name}
+                        className={cn(
+                            'section',
+                            `section-${name.toLowerCase()}`,
+                        )}>
+                        {zones.map(zone => (
+                            <div
+                                key={zone}
                                 className={cn(
-                                    'section',
-                                    `section-${name.toLowerCase()}`,
+                                    'zone',
+                                    `zone-${zone.toLowerCase()}`,
                                 )}>
-                                {zones.map(zone => (
-                                    <div
-                                        key={zone}
-                                        className={cn(
-                                            'zone',
-                                            `zone-${zone.toLowerCase()}`,
-                                        )}>
-                                        <Plugins
-                                            zone={zone}
-                                            section={name}
-                                            Router={Router}
-                                            {...blueprintMeta}
-                                            {...zoneMeta}
-                                        />
-                                    </div>
-                                ))}
-                            </section>
-                        );
-                    })}
-            </div>
+                                <Plugins
+                                    zone={zone}
+                                    section={name}
+                                    Router={Router}
+                                    {...blueprintMeta}
+                                    {...zoneMeta}
+                                />
+                            </div>
+                        ))}
+                    </section>
+                );
+            })}
         </main>
     );
 
