@@ -4,22 +4,25 @@ import cn from 'classnames';
 import op from 'object-path';
 import Parse from 'appdir/api';
 import Reactium from 'reactium-core/sdk';
-import { useSelect } from 'reactium-core/easy-connect';
+import { useSelect, useStore } from 'reactium-core/easy-connect';
 import { Plugins } from 'reactium-core/components/Plugable';
 
 const ENUMS = {};
 
-const routerSelect = {
-    select: state => op.get(state, 'Router', {}),
-    shouldUpdate: ({ newState, prevState }) => {
-        const newPath = op.get(newState, 'pathname', '/');
-        const prevPath = op.get(prevState, 'pathname', '/');
-        const newSearch = op.get(newState, 'search', '');
-        const prevSearch = op.get(prevState, 'search', '');
-        if (newPath !== prevPath) return true;
-        if (newSearch !== prevSearch) return true;
-        return false;
+const blueprintSelect = {
+    select: state => {
+        const { Blueprint, Router } = state;
+
+        const pathname = op.get(Router, 'match.path', '/');
+        const blueprintId = op.get(
+            Blueprint,
+            ['routesConfig', pathname, 'blueprint'],
+            '',
+        );
+
+        return blueprintId;
     },
+    shouldUpdate: ({ newState, prevState }) => newState !== prevState,
 };
 
 /**
@@ -28,15 +31,16 @@ const routerSelect = {
  * -----------------------------------------------------------------------------
  */
 const Blueprint = () => {
-    const Router = useSelect(routerSelect);
-    const pathname = op.get(Router, 'match.path', '/');
+    const { getState } = useStore();
 
-    const blueprintId = useSelect(state =>
-        op.get(state, ['Blueprint', 'routesConfig', pathname, 'blueprint'], ''),
-    );
-    const blueprint = useSelect(state =>
-        op.get(state, ['Blueprint', 'blueprints', blueprintId]),
-    );
+    const blueprintId = useSelect(blueprintSelect);
+
+    const blueprint = op.get(getState(), [
+        'Blueprint',
+        'blueprints',
+        blueprintId,
+    ]);
+
     const blueprintMeta = op.get(blueprint, 'meta', {});
     const sections = op.get(blueprint, 'sections', {});
 
@@ -68,7 +72,6 @@ const Blueprint = () => {
                                 <Plugins
                                     zone={zone}
                                     section={name}
-                                    Router={Router}
                                     {...blueprintMeta}
                                     {...zoneMeta}
                                 />
