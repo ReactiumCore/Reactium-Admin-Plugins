@@ -1,3 +1,22 @@
 .section-sidebar {
+    background-color: red;
+    .admin-sidebar-container {
+        color: $color-sidebar-text;
+        background-color: $color-sidebar-bg;
+        font-size: $font-sidebar-size;
 
+        overflow-x: hidden;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        min-width: 320px;
+        flex-shrink: 0;
+
+        @include breakpoint(sm) {
+            max-width: 320px;
+            position: relative;
+        }
+    }
 }

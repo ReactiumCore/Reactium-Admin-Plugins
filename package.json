@@ -40,7 +40,7 @@
     "parse/node": false
   },
   "dependencies": {
-    "@atomic-reactor/reactium-ui": "0.0.52",
+    "@atomic-reactor/reactium-ui": "0.0.53",
     "@babel/cli": "^7.6.2",
     "@babel/node": "^7.6.2",
     "@loadable/component": "^5.10.3",
@@ -72,6 +72,7 @@
     "prop-types": "^15.7.2",
     "querystring-browser": "^1.0.4",
     "react": "^16.9.0",
+    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.9.0",
     "react-frame-component": "^4.1.1",
     "react-helmet": "^5.2.1",
