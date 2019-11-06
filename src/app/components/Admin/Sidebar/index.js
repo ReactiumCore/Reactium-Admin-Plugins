@@ -57,6 +57,7 @@ let Sidebar = ({ children, ...props }, ref) => {
         return (
             <div ref={containerRef} className={cx()}>
                 {children}
+                SIDEDBAR
             </div>
         );
     };
