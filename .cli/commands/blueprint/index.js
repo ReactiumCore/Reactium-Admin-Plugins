@@ -207,6 +207,7 @@ const SCHEMA = ({ props }) => ({
     },
 });
 
+const APP = props => op.get(props, 'config.parse.app');
 const AUTH = props => op.get(props, 'config.parse.auth');
 const SERVER = (props, defaultValue) =>
     op.get(props, 'config.parse.server', defaultValue);
@@ -223,6 +224,7 @@ const ACTION = async ({ opt, props }) => {
     const { cwd, prompt } = props;
     let ovr = FLAGS_TO_PARAMS({ opt });
 
+    op.set(ovr, 'app', op.get(ovr, 'app', APP(props)));
     op.set(ovr, 'auth', op.get(ovr, 'auth', AUTH(props)));
     op.set(ovr, 'server', op.get(ovr, 'server', SERVER(props)));
 

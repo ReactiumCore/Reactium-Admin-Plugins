@@ -1,6 +1,7 @@
 const path = require('path');
 const chalk = require('chalk');
 const op = require('object-path');
+const copy = require('clipboardy').writeSync;
 const terminalLink = require('terminal-link');
 const mod = path.dirname(require.main.filename);
 const { message } = require(`${mod}/lib/messenger`);
@@ -24,6 +25,7 @@ const SCHEMA_SERVER = ({ override, props }) => ({
 const SCHEMA_AUTH = ({ override, props }) => {
     const url = op.get(override, 'server') + '/auth';
     const link = terminalLink(url, url);
+    copy(url);
 
     return {
         properties: {
@@ -50,7 +52,7 @@ module.exports = async ({
     CANCELED,
 }) => {
     CANCELED = CANCELED || 'action canceled';
-    if (!op.get(ovr, 'server')) {
+    if (!op.get(ovr, 'server') || !op.get(ovr, 'app')) {
         try {
             ovr = await new Promise((resolve, reject) => {
                 prompt.get(
