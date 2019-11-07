@@ -4,7 +4,7 @@ import op from 'object-path';
 import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
-import { useSelect } from 'reactium-core/easy-connect';
+import { useSelect } from 'reactium-core/sdk';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
 

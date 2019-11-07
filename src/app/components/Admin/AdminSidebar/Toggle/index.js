@@ -1,7 +1,7 @@
 import React from 'react';
 import op from 'object-path';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { useSelect } from 'reactium-core/easy-connect';
+import { useSelect } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------

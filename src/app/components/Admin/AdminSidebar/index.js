@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Collapsible } from '@atomic-reactor/reactium-ui';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { useSelect, useStore } from 'reactium-core/easy-connect';
+import { useSelect, useStore } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,

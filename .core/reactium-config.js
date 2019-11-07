@@ -36,11 +36,6 @@ const defaultLibraryExternals = {
         externalName: '/^gsap.*$/',
         requirePath: 'gsap/umd/TweenMax',
     },
-    'reactium-core/easy-connect': {
-        externalName: '/easy-connect$/',
-        // relative to src/manifest.js
-        requirePath: 'reactium-core/easy-connect',
-    },
     underscore: {
         externalName: 'underscore',
         requirePath: 'underscore',
@@ -209,7 +204,7 @@ const manifestConfig = manifestConfigOverride(defaultManifestConfig);
  * @type {Object}
  */
 module.exports = {
-    version: '3.1.7',
+    version: '3.1.8',
     semver: '^3.0.0',
     build: gulpConfig,
     update: {

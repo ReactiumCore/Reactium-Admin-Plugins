@@ -3,7 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import Reactium from 'reactium-core/sdk';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { useSelect, useStore } from 'reactium-core/easy-connect';
+import { useSelect, useStore } from 'reactium-core/sdk';
 
 const ENUMS = {};
 
