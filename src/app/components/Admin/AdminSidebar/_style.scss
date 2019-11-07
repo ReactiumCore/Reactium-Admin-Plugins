@@ -1,50 +1,85 @@
-.section-sidebar {
-    background-color: red;
+.blueprint {
+    .section-sidebar {
+        z-index: 2;
 
-    .admin-sidebar-container {
-        color: $color-sidebar-text;
-        background-color: $color-sidebar-bg;
-        font-size: $font-sidebar-size;
+        .zone-admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
 
-        overflow-x: hidden;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        min-width: 320px;
-        flex-shrink: 0;
+            @include breakpoint(sm) {
+                position: relative;
+            }
 
-        @include breakpoint(sm) {
-            max-width: 320px;
+            .ar-collapsible {
+                display: none;
+                width: 0px;
+                min-width: 0px;
+
+                @include breakpoint(sm) {
+                    display: block;
+                    width: 80px;
+                    min-width: 80px;
+                }
+
+                &.expanded {
+                    width: auto;
+                    display: block;
+                }
+            }
+        }
+
+        .admin-sidebar-container {
+            color: $color-sidebar-text;
+            background-color: $color-sidebar-bg;
+            font-size: $font-sidebar-size;
+
+            overflow-x: hidden;
             position: relative;
+            height: 100vh;
+            max-width: 320px;
+            min-width: 320px;
+            flex-shrink: 0;
+
+            @include breakpoint(sm) {
+                position: relative;
+            }
         }
     }
-}
 
-.admin-sidebar-toggle {
+    .admin-sidebar-toggle {
+        z-index: 100000;
+        display: flex;
+        justify-content: center;
+        line-height: center;
+        padding: 0;
+        margin: 0;
+        width: 50px;
+        height: 50px;
+        position: fixed;
+        left: 5px;
+        bottom: 5px;
+        border: none;
+        border-radius: 100%;
+        background-color: $color-sidebar-bg;
+        color: $color-sidebar-text;
+        user-select: none;
 
-    display: flex;
-    justify-content: center;
-    line-height: center;
-    padding: 0;
-    margin: 0;
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    left: 0;
-    bottom: 10px;
-    border: none;
-    border-radius: 0 2px 2px 0;
-    background-color: $color-sidebar-bg;
-    color: $color-sidebar-text;
-    user-select: none;
-    
-    * {
-        pointer-events: none;
-    }
+        @include breakpoint(sm) {
+            width: 80px;
+            height: 60px;
+            left: 0;
+            bottom: 0;
+            border-radius: 0 2px 2px 0;
+        }
 
-    &:hover {
-        color: darken($color-sidebar-text, 10%);
+        * {
+            pointer-events: none;
+        }
+
+        &:hover {
+            color: darken($color-sidebar-text, 10%);
+        }
     }
 }

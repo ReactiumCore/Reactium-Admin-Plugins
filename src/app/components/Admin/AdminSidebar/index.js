@@ -6,14 +6,20 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Collapsible } from '@atomic-reactor/reactium-ui';
 import { Plugins } from 'reactium-core/components/Plugable';
+import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useImperativeHandle,
+    useLayoutEffect as useWindowEffect,
     useEffect,
     useRef,
 } from 'react';
+
+// Server-Side Render safe useLayoutEffect (useEffect when node)
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 const ENUMS = {};
 
@@ -43,6 +49,10 @@ let AdminSidebar = (
 
     const onExpand = () => dispatch(actions.status(true));
 
+    const { width } = useWindowSize();
+
+    const minSize = width > 640 ? 80 : 0;
+
     // Renderer
     const render = () => (
         <Collapsible
@@ -50,7 +60,7 @@ let AdminSidebar = (
             expanded={expanded}
             onCollapse={onCollapse}
             onExpand={onExpand}
-            minSize={80}
+            minSize={minSize}
             ref={collapsibleRef}>
             <div className={cname()}>
                 <Scrollbars
