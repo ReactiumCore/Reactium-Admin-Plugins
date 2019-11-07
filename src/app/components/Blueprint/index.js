@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Reactium from 'reactium-core/sdk';
@@ -49,6 +50,12 @@ const Blueprint = () => {
 
     const zoneMeta = value => op.get(value, 'meta', []);
 
+    const zones = () =>
+        _.chain(Object.values(sections))
+            .pluck('zones')
+            .flatten()
+            .value();
+
     // Renderer
     const render = () => (
         <main className={cname('blueprint', blueprintId)}>
@@ -57,10 +64,15 @@ const Blueprint = () => {
                     {op.get(value, 'zones', []).map(zone => (
                         <div key={zone} className={cname('zone', zone)}>
                             <Plugins
+                                blueprint={blueprint}
                                 zone={zone}
+                                zones={zones()}
                                 section={name}
-                                {...blueprintMeta}
-                                {...zoneMeta(value)}
+                                sections={Object.keys(sections)}
+                                meta={{
+                                    blueprint: blueprintMeta,
+                                    zone: zoneMeta(value),
+                                }}
                             />
                         </div>
                     ))}

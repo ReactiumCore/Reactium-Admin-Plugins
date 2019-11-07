@@ -5,22 +5,26 @@ import { useSelect } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
- * Functional Component: Toggle
+ * Component: Toggle
+ * Hide/Show the Admin Sidebar
  * -----------------------------------------------------------------------------
  */
-const Toggle = props => {
+const Toggle = ({ zones }) => {
     const expanded = useSelect(state =>
         op.get(state, 'AdminSidebar.expanded', true),
     );
 
-    return (
-        <button
-            type='button'
-            className='admin-sidebar-toggle'
-            onClick={() => window.Sidebar.toggle()}>
-            <Icon name={expanded ? 'Feather.X' : 'Feather.Menu'} />
-        </button>
-    );
+    const render = () =>
+        zones.includes('admin-sidebar') && (
+            <button
+                type='button'
+                className='admin-sidebar-toggle'
+                onClick={() => window.Sidebar.toggle()}>
+                <Icon name={expanded ? 'Feather.X' : 'Feather.Menu'} />
+            </button>
+        );
+
+    return render();
 };
 
 export { Toggle as default };

@@ -50,6 +50,7 @@ let AdminSidebar = (
             expanded={expanded}
             onCollapse={onCollapse}
             onExpand={onExpand}
+            minSize={80}
             ref={collapsibleRef}>
             <div className={cname()}>
                 <Scrollbars
