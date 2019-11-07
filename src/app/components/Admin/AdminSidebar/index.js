@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Collapsible } from '@atomic-reactor/reactium-ui';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { useSelect, useStore } from 'reactium-core/sdk';
+import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -71,15 +71,13 @@ let AdminSidebar = (
         container: collapsibleRef.current,
         expand: () => collapsibleRef.current.expand(),
         expanded,
-        ref,
         state: { expanded },
         toggle: () => collapsibleRef.current.toggle(),
     });
 
-    // External Interface
-    useImperativeHandle(ref, handle);
+    useRegisterHandle('Sidebar', handle, [expanded, ref], ref);
 
-    window.Sidebar = handle();
+    useImperativeHandle(ref, handle);
 
     // Render
     return render();

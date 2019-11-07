@@ -1,7 +1,7 @@
 import React from 'react';
 import op from 'object-path';
+import { useHandle } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { useSelect } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -9,17 +9,18 @@ import { useSelect } from 'reactium-core/sdk';
  * Hide/Show the Admin Sidebar
  * -----------------------------------------------------------------------------
  */
+
 const Toggle = ({ zones }) => {
-    const expanded = useSelect(state =>
-        op.get(state, 'AdminSidebar.expanded', true),
-    );
+    const Sidebar = useHandle('Sidebar');
+
+    const { expanded } = Sidebar;
 
     const render = () =>
         zones.includes('admin-sidebar') && (
             <button
-                type='button'
                 className='admin-sidebar-toggle'
-                onClick={() => window.Sidebar.toggle()}>
+                onClick={Sidebar.toggle}
+                type='button'>
                 <Icon name={expanded ? 'Feather.X' : 'Feather.Menu'} />
             </button>
         );
