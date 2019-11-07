@@ -2,6 +2,11 @@ html, body {
     background-color: $color-admin-bg;
 }
 
+.ar-icon {
+    fill: currentColor;
+    transition: fill .5s ease-in-out;
+}
+
 .blueprint-admin {
     min-height: 100vh;
     min-width: 100vw;
@@ -15,6 +20,7 @@ html, body {
         flex-grow: 1;
         min-width: 100vw;
         overflow-x: auto;
+        position: relative;
 
         @include breakpoint(sm) {
             min-width: 768px;
