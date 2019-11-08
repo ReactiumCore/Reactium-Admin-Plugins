@@ -4,7 +4,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { useSelect } from 'reactium-core/sdk';
+import Reactium, { useSelect } from 'reactium-core/sdk';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
 
 import React, {
@@ -24,10 +24,10 @@ const ENUMS = {
     DEBUG: false,
 };
 
-const defaultIsActive = (match, location, src) => {
-    const { isExact, url } = match;
-    const { pathname } = location;
-
+const defaultIsActive = (match = {}, location = {}, src) => {
+    const isExact = op.get(match, 'isExact', true);
+    const url = op.get(match, 'url', '/');
+    const pathname = op.get(location, 'pathname', '/');
     return isExact ? url === pathname : String(pathname).startsWith(url);
 };
 
@@ -36,7 +36,7 @@ const defaultIsActive = (match, location, src) => {
  * Hook Component: MenuItem
  * -----------------------------------------------------------------------------
  */
-let MenuItem = ({ isActive, children, ...props }, ref) => {
+let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     const match = useSelect(state => op.get(state, 'Router.match'), {});
     const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
 
@@ -182,6 +182,10 @@ let MenuItem = ({ isActive, children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
+        if (!Reactium.User.can(capabilities)) {
+            return null;
+        }
+
         const { route } = stateRef.current;
 
         return (
@@ -212,6 +216,7 @@ MenuItem.ENUMS = ENUMS;
 
 MenuItem.propTypes = {
     active: PropTypes.bool,
+    capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
     icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     id: PropTypes.string,
@@ -223,6 +228,7 @@ MenuItem.propTypes = {
 
 MenuItem.defaultProps = {
     active: false,
+    capabilities: [],
     isActive: defaultIsActive,
     namespace: 'menu-item',
 };
