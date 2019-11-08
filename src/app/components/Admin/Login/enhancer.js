@@ -12,7 +12,13 @@ Reactium.Hook.register(
     Reactium.Enums.priority.highest,
 );
 
-const enforceBlueprintCaps = (store, history) => async location => {
+const redirectLogin = async history => {
+    const context = await Reactium.Hook.run('route-unauthorized');
+    const login = op.get(context, 'loginRoute', defaultLoginRoute);
+    history.push(login);
+};
+
+const enforceBlueprintCaps = (store, history, loginPath) => async location => {
     const routes = Reactium.Routing.get();
 
     const { route, match } =
@@ -34,20 +40,18 @@ const enforceBlueprintCaps = (store, history) => async location => {
             'routesConfig',
             pathname,
         ]);
-        const context = await Reactium.Hook.run('route-unauthorized');
-        const login = op.get(context, 'loginRoute', defaultLoginRoute);
 
         if (blueprint) {
             const capabilities = op.get(blueprint, 'capabilities', []);
             // restricted route
-            if (pathname !== login && capabilities.length > 0) {
+            if (pathname !== loginPath && capabilities.length > 0) {
                 // if user has any capability, allow
                 for (let capability of capabilities) {
                     const permitted = await Reactium.User.can(capability);
                     if (permitted) return;
                 }
 
-                history.push(login);
+                await redirectLogin(history, loginPath);
             }
         }
     }
@@ -66,11 +70,31 @@ export default (enhancers = [], isServer = false) => {
                       Reactium.Hook.register(
                           'history-create',
                           async ({ history }) => {
-                              enforceBlueprintCaps(store, history)(
+                              const context = await Reactium.Hook.run(
+                                  'route-unauthorized',
+                              );
+                              const loginPath = op.get(
+                                  context,
+                                  'loginRoute',
+                                  defaultLoginRoute,
+                              );
+
+                              Reactium.Hook.register(
+                                  'user.after.logout',
+                                  async () => {
+                                      await redirectLogin(history, loginPath);
+                                  },
+                              );
+
+                              enforceBlueprintCaps(store, history, loginPath)(
                                   window.location,
                               );
                               history.listen(
-                                  enforceBlueprintCaps(store, history),
+                                  enforceBlueprintCaps(
+                                      store,
+                                      history,
+                                      loginPath,
+                                  ),
                               );
 
                               return Promise.resolve();
