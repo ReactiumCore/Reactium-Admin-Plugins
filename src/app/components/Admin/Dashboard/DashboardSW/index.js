@@ -9,7 +9,7 @@ import { Icon } from '@atomic-reactor/reactium-ui';
  */
 const SidebarWidget = props => (
     <>
-        <MenuItem label='Dashboard' route='/admin' />
+        <MenuItem label='Dashboard' route='/admin' icon='Feather.Monitor' />
         <MenuItem label='Test' icon='Feather.User' active={true} id={'test'}>
             CHILDREN
         </MenuItem>

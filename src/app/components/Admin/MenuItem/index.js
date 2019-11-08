@@ -171,13 +171,15 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const Content = () => (
-        <Collapsible
-            ref={collapsibleRef}
-            expanded={op.get(stateRef.current, 'active', true)}
-            onCollapse={onCollapse}
-            onExpand={onExpand}>
-            {children}
-        </Collapsible>
+        <div className={cname('content')}>
+            <Collapsible
+                ref={collapsibleRef}
+                expanded={op.get(stateRef.current, 'active', true)}
+                onCollapse={onCollapse}
+                onExpand={onExpand}>
+                {children}
+            </Collapsible>
+        </div>
     );
 
     // Renderer
