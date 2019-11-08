@@ -58,8 +58,7 @@ const useGreeting = user => {
     useEffect(() => {
         Reactium.Setting.get('admin.sidebar.greeting')
             .then(greeting => {
-                const role = getRole(user);
-                const name = op.get(user, 'fname', role);
+                const name = op.get(user, 'fname', user.username);
 
                 greeting = greeting || 'Hello';
                 greeting = _.compact([greeting, name]).join(' ');
