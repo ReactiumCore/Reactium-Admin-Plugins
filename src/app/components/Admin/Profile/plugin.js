@@ -1,24 +1,24 @@
-import AdminLogo from './index';
+import Profile from './index';
 
 export default {
     /**
      * Required - used as rendering key. Make this unique.
      * @type {String}
      */
-    id: 'ADMINLOGO-PLUGIN',
+    id: 'PROFILE-PLUGIN',
 
     /**
      * Component to render. May also be a string, and
      * the component will be looked up in components directory.
      * @type {Component|String}
      */
-    component: AdminLogo,
+    component: Profile,
 
     /**
      * One or more zones this component should render.
      * @type {String|Array}
      */
-    zone: ['admin-header'],
+    zone: [],
 
     /**
      * By default plugins in zone are rendering in ascending order.

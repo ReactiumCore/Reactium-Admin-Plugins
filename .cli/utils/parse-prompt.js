@@ -6,6 +6,10 @@ const terminalLink = require('terminal-link');
 const mod = path.dirname(require.main.filename);
 const { message } = require(`${mod}/lib/messenger`);
 
+const validateAuth = require(path.normalize(
+    process.cwd() + '/.cli/utils/parse-validate-auth',
+));
+
 const SCHEMA_SERVER = ({ override, props }) => ({
     properties: {
         server: {
@@ -52,6 +56,9 @@ module.exports = async ({
     CANCELED,
 }) => {
     CANCELED = CANCELED || 'action canceled';
+
+    ovr = await validateAuth(ovr);
+
     if (!op.get(ovr, 'server') || !op.get(ovr, 'app')) {
         try {
             ovr = await new Promise((resolve, reject) => {

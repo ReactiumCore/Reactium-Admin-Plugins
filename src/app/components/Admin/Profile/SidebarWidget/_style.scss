@@ -1,0 +1,91 @@
+.avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    &-image {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        overflow: hidden;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        border-radius: 100%;
+        color: $color-avatar-text;
+    }
+}
+
+.zone-admin-sidebar {
+    .avatar {
+        width: 100%;
+        padding: 14px;
+        min-width: $width-sidebar-collapsed;
+        transition: all 0.2s ease-in-out;
+        overflow-x: hidden;
+        border-bottom: 1px solid $color-sidebar-bg;
+
+        &-image {
+            min-width: 100px;
+            min-height: 100px;
+            max-width: 100px;
+            border: 2px solid $color-avatar-stroke;
+            opacity: 0;
+            transition: none;
+
+            @include breakpoint(sm) {
+                opacity: 1;
+                min-width: 52px;
+                min-height: 52px;
+            }
+        }
+
+        &-labels {
+            display: none;
+            min-width: $width-sidebar-expanded;
+            margin-top: 12px;
+            text-align: center;
+            transition: opacity 0.5s ease-in-out;
+
+            &:hover {
+                opacity: 0.5;
+                text-decoration: none;
+            }
+        }
+
+        &-greeting {
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 18px;
+            margin-bottom: 4px;
+            text-align: center;
+            color: $color-avatar-text;
+        }
+
+        &-role {
+            font-size: 12px;
+            color: $color-avatar-text;
+            text-align: center;
+        }
+    }
+
+    .expanded {
+        .avatar {
+            padding: 32px 14px;
+
+            &-image {
+                opacity: 1;
+                transition: opacity 0.5s ease-in-out;
+                margin-bottom: 8px;
+            }
+
+            &-labels {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+        }
+    }
+}

@@ -1,7 +1,9 @@
 import React from 'react';
+import cn from 'classnames';
 import op from 'object-path';
-import { useHandle, useSelect } from 'reactium-core/sdk';
+import { useHandle } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
+import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 
 /**
  * -----------------------------------------------------------------------------
@@ -10,24 +12,36 @@ import { Icon } from '@atomic-reactor/reactium-ui';
  * -----------------------------------------------------------------------------
  */
 
-const Toggle = ({ zones }) => {
-    const expanded = useSelect(state =>
-        op.get(state, 'AdminSidebar.expanded', true),
+const Toggle = ({ zones = [] }) => {
+    if (!zones.includes('admin-sidebar')) {
+        return null;
+    }
+
+    const Sidebar = useHandle('AdminSidebar');
+
+    const { expanded } = op.get(Sidebar, 'state', true);
+
+    const cname = () => cn({ 'admin-sidebar-toggle': true, expanded });
+
+    const { width } = useWindowSize();
+
+    const icon =
+        width > 640
+            ? expanded
+                ? 'Feather.MoreVertical'
+                : 'Feather.Menu'
+            : expanded
+            ? 'Feather.X'
+            : 'Feather.Menu';
+
+    const render = () => (
+        <button
+            className={cname()}
+            onClick={() => Sidebar.toggle()}
+            type='button'>
+            <Icon name={icon} />
+        </button>
     );
-
-    const Sidebar = useHandle('Sidebar');
-
-    const render = () =>
-        zones.includes('admin-sidebar') && (
-            <button
-                className='admin-sidebar-toggle'
-                onClick={() => Sidebar.toggle()}
-                type='button'>
-                <Icon
-                    name={expanded ? 'Feather.MoreVertical' : 'Feather.Menu'}
-                />
-            </button>
-        );
 
     return render();
 };

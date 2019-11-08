@@ -11,9 +11,9 @@ import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
+    useEffect,
     useImperativeHandle,
     useLayoutEffect as useWindowEffect,
-    useEffect,
     useRef,
 } from 'react';
 
@@ -29,7 +29,7 @@ const ENUMS = {};
  * -----------------------------------------------------------------------------
  */
 let AdminSidebar = (
-    { children, className, direction, namespace, Router, zone, section },
+    { children, className, direction, namespace, zone, section, ...props },
     ref,
 ) => {
     const { dispatch } = useStore();
@@ -51,7 +51,8 @@ let AdminSidebar = (
 
     const { width } = useWindowSize();
 
-    const minSize = width > 640 ? 80 : 0;
+    const maxSize = width > 640 ? 320 : width;
+    const minSize = width > 640 ? 80 : 1;
 
     // Renderer
     const render = () => (
@@ -60,18 +61,23 @@ let AdminSidebar = (
             expanded={expanded}
             onCollapse={onCollapse}
             onExpand={onExpand}
+            maxSize={maxSize}
             minSize={minSize}
             ref={collapsibleRef}>
             <div className={cname()}>
-                <Scrollbars
-                    style={{
-                        width: '100%',
-                        height: '100vh',
-                        overflowX: 'hidden',
-                    }}>
-                    <Plugins zone={[zone, 'menu'].join('-')} Router={Router} />
-                </Scrollbars>
-                <Plugins zone={[zone, 'footer'].join('-')} Router={Router} />
+                <div className='zone-admin-sidebar-header'>
+                    <Plugins zone={[zone, 'header'].join('-')} {...props} />
+                </div>
+                <div className='zone-admin-sidebar-menu'>
+                    <Scrollbars
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            overflowX: 'hidden',
+                        }}>
+                        <Plugins zone={[zone, 'menu'].join('-')} {...props} />
+                    </Scrollbars>
+                </div>
             </div>
         </Collapsible>
     );
@@ -80,12 +86,11 @@ let AdminSidebar = (
         collapse: () => collapsibleRef.current.collapse(),
         container: collapsibleRef.current,
         expand: () => collapsibleRef.current.expand(),
-        expanded,
         state: { expanded },
         toggle: () => collapsibleRef.current.toggle(),
     });
 
-    useRegisterHandle('Sidebar', handle, [expanded, ref], ref);
+    useRegisterHandle('AdminSidebar', handle, [expanded]);
 
     useImperativeHandle(ref, handle);
 
@@ -103,7 +108,7 @@ AdminSidebar.propTypes = {
 };
 
 AdminSidebar.defaultProps = {
-    namespace: 'admin-sidebar-container',
+    namespace: 'zone-admin-sidebar-container',
     direction: Collapsible.ENUMS.DIRECTION.HORIZONTAL,
 };
 

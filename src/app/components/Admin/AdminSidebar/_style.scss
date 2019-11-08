@@ -12,38 +12,33 @@
                 position: relative;
             }
 
-            .ar-collapsible {
-                display: none;
-                width: 0px;
-                min-width: 0px;
+            &-header {
+                flex-grow: 0;
+                flex-shrink: 0;
+            }
 
-                @include breakpoint(sm) {
-                    display: block;
-                    width: 80px;
-                    min-width: 80px;
-                }
+            &-menu {
+                flex-grow: 1;
+            }
 
-                &.expanded {
-                    width: auto;
-                    display: block;
-                }
+            &-container {
+                color: $color-sidebar-text;
+                background-color: $color-sidebar-bg;
+                font-size: $font-size-sidebar;
+
+                display: flex;
+                flex-direction: column;
+                overflow-x: hidden;
+                width: 100%;
+                height: 100vh;
+                flex-shrink: 0;
+                transition: background-color 0.5s ease-in-out;
             }
         }
 
-        .admin-sidebar-container {
-            color: $color-sidebar-text;
-            background-color: $color-sidebar-bg;
-            font-size: $font-sidebar-size;
-
-            overflow-x: hidden;
-            position: relative;
-            height: 100vh;
-            max-width: 320px;
-            min-width: 320px;
-            flex-shrink: 0;
-
-            @include breakpoint(sm) {
-                position: relative;
+        .expanded {
+            .zone-admin-sidebar-container {
+                background-color: lighten($color-sidebar-bg, 5%);
             }
         }
     }
@@ -58,28 +53,27 @@
         width: 50px;
         height: 50px;
         position: fixed;
-        left: 5px;
+        left: 15px;
         bottom: 5px;
         border: none;
-        border-radius: 100%;
+        border-radius: 50px;
         background-color: $color-sidebar-bg;
         color: $color-sidebar-text;
         user-select: none;
-
-        @include breakpoint(sm) {
-            width: 80px;
-            height: 60px;
-            left: 0;
-            bottom: 0;
-            border-radius: 0 2px 2px 0;
-        }
+        transition: background-color 0.5s ease-in-out,
+        border-radius 0.5s ease-in-out;
 
         * {
             pointer-events: none;
         }
 
-        &:hover {
-            color: darken($color-sidebar-text, 10%);
+        @include breakpoint(sm) {
+            border-radius: 0;
+            background-color: transparent;
+
+            &.expanded {
+                background-color: transparent;
+            }
         }
     }
 }

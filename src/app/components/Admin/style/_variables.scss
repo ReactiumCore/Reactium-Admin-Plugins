@@ -1,7 +1,13 @@
-
-$color-admin-bg: $color-white-dark !default;
+// Background
+$color-admin-bg: $color-grey-light !default;
 
 // Sidebar
 $color-sidebar-bg: $color-gray-dark !default;
 $color-sidebar-text: $color-grey-light !default;
-$font-sidebar-size: 14px !default;
+$font-size-sidebar: 14px !default;
+$width-sidebar-expanded: 320px !default;
+$width-sidebar-collapsed: 80px !default;
+
+// Avatar
+$color-avatar-stroke: $color-gray-dark !default;
+$color-avatar-text: $color-grey-light !default;
