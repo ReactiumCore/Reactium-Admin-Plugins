@@ -6,23 +6,6 @@ const getRoutes = async () => {
     return routes.filter(({ blueprint }) => blueprint);
 };
 
-const blueprints = async () => {
-    let allBlueprints = [];
-    const options = { limit: 1000 };
-
-    try {
-        let results = await Parse.Cloud.run('blueprint-retrieve', options);
-        while (results.blueprints.length > 0) {
-            allBlueprints = allBlueprints.concat(results.blueprints);
-            options.skip = allBlueprints.length;
-            results = await Parse.Cloud.run('blueprint-retrieve', options);
-        }
-        return allBlueprints;
-    } catch (error) {
-        return allBlueprints;
-    }
-};
-
 export default {
     getDynamicRoutes: async () => {
         const routes = await getRoutes();
@@ -50,12 +33,10 @@ export default {
     },
 
     getBlueprints: async () => {
-        const allBlueprints = await blueprints();
-        return allBlueprints
-            .map(blueprint => blueprint.toJSON())
-            .reduce((allById, blueprint) => {
-                allById[blueprint.ID] = blueprint;
-                return allById;
-            }, {});
+        const { blueprints } = await Parse.Cloud.run('blueprints');
+        return blueprints.reduce((allById, blueprint) => {
+            allById[blueprint.ID] = blueprint;
+            return allById;
+        }, {});
     },
 };
