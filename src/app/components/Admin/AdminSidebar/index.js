@@ -75,7 +75,12 @@ let AdminSidebar = (
                             height: '100%',
                             overflowX: 'hidden',
                         }}>
-                        <Plugins zone={[zone, 'menu'].join('-')} {...props} />
+                        <nav>
+                            <Plugins
+                                zone={[zone, 'menu'].join('-')}
+                                {...props}
+                            />
+                        </nav>
                     </Scrollbars>
                 </div>
             </div>

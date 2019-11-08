@@ -1,15 +1,18 @@
+
 // Reactium-ui
 @import '../../../node_modules/@atomic-reactor/reactium-ui/assets/style/reactium-ui.scss';
 
 // Admin variables
 @import '../../app/components/Admin/style/variables';
 
+
 // Admin Styles
 @import '../../app/components/Admin/style/layout';
 @import '../../app/components/Admin/Login/style';
 @import '../../app/components/Admin/AdminSidebar/style';
-@import '../../app/components/Password/style';
-@import '../../app/components/Admin/Profile/style';
-
-@import '../../app/components/Admin/Profile/SidebarWidget/style';
 @import '../../app/components/Admin/Dashboard/style';
+@import '../../app/components/Admin/Profile/style';
+@import '../../app/components/Admin/Profile/ProfileSW/style';
+@import '../../app/components/Password/style';
+
+@import '../../app/components/Admin/MenuItem/style';

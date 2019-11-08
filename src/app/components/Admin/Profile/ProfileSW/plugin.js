@@ -1,7 +1,7 @@
 import Plugin from './index';
 
 export default {
-    id: 'ADMIN-SIDEBAR-WIDGET-PLUGIN',
+    id: 'ADMIN-SIDEBAR-PROFILE-WIDGET',
     component: Plugin,
     zone: ['admin-sidebar-header'],
     order: -1000,
