@@ -13,13 +13,13 @@ html, body {
 
     .section-main {
         flex-grow: 1;
-        min-width: 100vw;
         overflow-x: auto;
         position: relative;
         z-index: 1;
 
         @include breakpoint(sm) {
-            min-width: 768px;
+            min-width: 320;
+            overflow-x: auto;
         }
     }
 }

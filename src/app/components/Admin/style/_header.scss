@@ -1,0 +1,26 @@
+$height-admin-header: 60px !default;
+$color-admin-header-bg: $color-white !default;
+
+.zone-admin-header {
+    width: 100%;
+    height: $height-admin-header;
+    background-color: $color-admin-header-bg;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .admin-logo {
+        width: $height-admin-header;
+        height: $height-admin-header;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        padding: 10px;
+
+        > * {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}

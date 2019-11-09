@@ -51,41 +51,44 @@ let AdminSidebar = (
 
     const { width } = useWindowSize();
 
-    const maxSize = width > 640 ? 320 : width;
-    const minSize = width > 640 ? 80 : 1;
-
     // Renderer
-    const render = () => (
-        <Collapsible
-            direction={direction}
-            expanded={expanded}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-            maxSize={maxSize}
-            minSize={minSize}
-            ref={collapsibleRef}>
-            <div className={cname()}>
-                <div className='zone-admin-sidebar-header'>
-                    <Plugins zone={[zone, 'header'].join('-')} {...props} />
+    const render = () => {
+        const maxSize = width > 720 ? 320 : width;
+        const minSize = width > 720 ? 80 : 1;
+
+        return (
+            <Collapsible
+                debug={false}
+                direction={direction}
+                expanded={expanded}
+                onCollapse={onCollapse}
+                onExpand={onExpand}
+                maxSize={maxSize}
+                minSize={minSize}
+                ref={collapsibleRef}>
+                <div className={cname()}>
+                    <div className='zone-admin-sidebar-header'>
+                        <Plugins zone={[zone, 'header'].join('-')} {...props} />
+                    </div>
+                    <div className='zone-admin-sidebar-menu'>
+                        <Scrollbars
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                overflowX: 'hidden',
+                            }}>
+                            <nav className={[zone, 'menu-items'].join('-')}>
+                                <Plugins
+                                    zone={[zone, 'menu'].join('-')}
+                                    {...props}
+                                />
+                            </nav>
+                        </Scrollbars>
+                    </div>
                 </div>
-                <div className='zone-admin-sidebar-menu'>
-                    <Scrollbars
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            overflowX: 'hidden',
-                        }}>
-                        <nav>
-                            <Plugins
-                                zone={[zone, 'menu'].join('-')}
-                                {...props}
-                            />
-                        </nav>
-                    </Scrollbars>
-                </div>
-            </div>
-        </Collapsible>
-    );
+            </Collapsible>
+        );
+    };
 
     const handle = () => ({
         collapse: () => collapsibleRef.current.collapse(),

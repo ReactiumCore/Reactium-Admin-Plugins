@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from 'components/common-ui/Logo';
 
 /**
  * -----------------------------------------------------------------------------
@@ -6,7 +7,11 @@ import React from 'react';
  * -----------------------------------------------------------------------------
  */
 const AdminLogo = props => {
-    return <>AdminLogo</>;
+    return (
+        <span className='admin-logo'>
+            <Logo />
+        </span>
+    );
 };
 
 export default AdminLogo;

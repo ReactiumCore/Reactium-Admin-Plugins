@@ -60,19 +60,17 @@
         background-color: $color-sidebar-bg;
         color: $color-sidebar-text;
         user-select: none;
-        transition: background-color 0.5s ease-in-out,
-        border-radius 0.5s ease-in-out;
+        transition: background-color 0.5s ease-in-out;
 
         * {
             pointer-events: none;
         }
 
         @include breakpoint(sm) {
-            border-radius: 0;
-            background-color: transparent;
+            background-color: $color-sidebar-bg;
 
             &.expanded {
-                background-color: transparent;
+                background-color: lighten($color-sidebar-bg, 5%);
             }
         }
     }

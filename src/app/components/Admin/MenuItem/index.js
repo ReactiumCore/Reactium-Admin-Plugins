@@ -4,7 +4,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import Reactium, { useSelect } from 'reactium-core/sdk';
+import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
 
 import React, {
@@ -26,9 +26,18 @@ const ENUMS = {
 
 const defaultIsActive = (match = {}, location = {}, src) => {
     const isExact = op.get(match, 'isExact', true);
-    const url = op.get(match, 'url', '/');
+    const url = op.get(match, 'url', '');
     const pathname = op.get(location, 'pathname', '/');
-    return isExact ? url === pathname : String(pathname).startsWith(url);
+
+    if (src && ENUMS.DEBUG === true) {
+        console.log({ url, pathname, isExact, value: url === pathname });
+    }
+
+    if (isExact) {
+        return url === pathname;
+    } else {
+        return String(pathname).startsWith(url);
+    }
 };
 
 /**
@@ -39,6 +48,8 @@ const defaultIsActive = (match = {}, location = {}, src) => {
 let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     const match = useSelect(state => op.get(state, 'Router.match'), {});
     const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
+
+    const Sidebar = useHandle('AdminSidebar');
 
     // Refs
     const containerRef = useRef();
@@ -92,7 +103,14 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
             return;
         }
 
-        collapsibleRef.current.toggle();
+        const { active } = stateRef.current;
+        const expanded = op.get(Sidebar, 'state.expanded');
+
+        if (!expanded) {
+            Sidebar.expand().then(collapsibleRef.current.expand);
+        } else {
+            collapsibleRef.current.toggle();
+        }
     };
 
     const cname = name => {
@@ -137,7 +155,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
         const Ico = icon
             ? typeof icon === 'string'
-                ? () => <Icon name={icon} />
+                ? () => <Icon name={icon} size={20} />
                 : () => icon
             : () => {
                   return null;
@@ -154,17 +172,24 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const Link = () => {
-        const { route } = stateRef.current;
+        const { exact, route } = stateRef.current;
         return (
-            <NavLink className={cname('link')} to={route} isActive={isActive}>
+            <NavLink
+                exact={exact}
+                className={cname('link')}
+                to={route}
+                isActive={isActive}>
                 <Label />
             </NavLink>
         );
     };
 
     const Heading = () => {
+        const { active } = stateRef.current;
+        const classname = cn({ [cname('link')]: true, active });
+
         return (
-            <button className={cname('link')} onClick={toggle}>
+            <button className={classname} onClick={toggle}>
                 <Label />
             </button>
         );
@@ -220,6 +245,12 @@ MenuItem.propTypes = {
     active: PropTypes.bool,
     capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
+    count: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.node,
+    ]),
+    exact: PropTypes.bool,
     icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     id: PropTypes.string,
     isActive: PropTypes.func,
@@ -231,6 +262,7 @@ MenuItem.propTypes = {
 MenuItem.defaultProps = {
     active: false,
     capabilities: [],
+    exact: true,
     isActive: defaultIsActive,
     namespace: 'menu-item',
 };
