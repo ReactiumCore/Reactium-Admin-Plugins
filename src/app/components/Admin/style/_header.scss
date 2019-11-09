@@ -1,25 +1,21 @@
-.zone-admin-header {
-    width: 100%;
+.zone {
+    &-admin-header {
+        @include admin-header-zone;
+    }
+}
+
+.admin-logo {
+    z-index: map-get($z-indexes, 'default');
+    width: $height-admin-header;
     height: $height-admin-header;
-    background-color: $color-admin-header-bg;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    padding: 0 8px;
-    border-bottom: 1px solid $color-grey-light;
+    overflow: hidden;
+    padding: 10px;
 
-    .admin-logo {
-        width: $height-admin-header;
-        height: $height-admin-header;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        padding: 10px;
-
-        > * {
-            width: 100%;
-            height: 100%;
-        }
+    > * {
+        width: 100%;
+        height: 100%;
     }
 }

@@ -10,29 +10,21 @@ html, body {
     display: flex;
     align-items: stretch;
     flex-wrap: nowrap;
+}
 
-    .section {
-        &-main {
-            flex-grow: 1;
-            min-width: 100vw;
-            max-height: 100vh;
-            height: 100%;
+.section {
+    &-main {
+        flex: 1 0;
+        max-height: 100vh;
+        height: 100%;
+        overflow-x: auto;
+        overflow-y: scroll;
+        position: relative;
+        z-index: map-get($z-indexes, 'default');
+
+        @include breakpoint(sm) {
+            min-width: 320px;
             overflow-x: auto;
-            overflow-y: scroll;
-            position: relative;
-            z-index: map-get($z-indexes, 'default');
-
-            @include breakpoint(sm) {
-                min-width: 320px;
-                overflow-x: auto;
-            }
         }
     }
-
-    .zone {
-        &-admin-header {
-            @include admin-header-zone;
-        }
-    }
-
 }

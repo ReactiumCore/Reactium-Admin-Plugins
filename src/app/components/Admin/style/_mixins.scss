@@ -1,21 +1,16 @@
-// TODO: Real admin header styles.
-$admin-header-height: 80px !default;
-$admin-header-bg-color: $color-admin-bg !default;
 @mixin admin-header-zone() {
-    background: $admin-header-bg-color;
-    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.05);
-    display: flex;
-    padding: 0 $gutter;
-    height: $admin-header-height;
-    position: fixed;
-    align-items: center;
-    top: 0;
-    width: 100%;
     z-index: map-get($z-indexes, 'header');
+    width: 100%;
+    height: $height-admin-header;
+    background-color: $color-admin-header-bg;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 8px;
+    border-bottom: 1px solid $color-grey-light;
 }
 
 @mixin admin-content-zone() {
-    margin-top: $admin-header-height;
     min-height: 100%;
     padding: $gutter;
     z-index: map-get($z-indexes, 'default');
