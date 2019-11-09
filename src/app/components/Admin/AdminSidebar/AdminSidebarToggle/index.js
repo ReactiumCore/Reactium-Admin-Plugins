@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import Reactium, { useHandle } from 'reactium-core/sdk';
@@ -19,6 +19,8 @@ const Toggle = ({ zones = [] }) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
+    const [state, setState] = useState(Sidebar.state);
+
     const expanded = () =>
         op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
 
@@ -27,23 +29,29 @@ const Toggle = ({ zones = [] }) => {
 
     const { width } = useWindowSize();
 
-    const icon =
-        Reactium.Utils.breakpoint(width) !== 'xs'
-            ? expanded()
-                ? 'Feather.MoreVertical'
-                : 'Feather.Menu'
-            : expanded()
-            ? 'Feather.X'
-            : 'Feather.Menu';
+    const icon = () => {
+        const i =
+            Reactium.Utils.breakpoint(width) !== 'xs'
+                ? expanded()
+                    ? 'Feather.MoreVertical'
+                    : 'Feather.Menu'
+                : expanded()
+                ? 'Feather.X'
+                : 'Feather.Menu';
 
-    const render = () => (
-        <button
-            className={cname()}
-            onClick={() => Sidebar.toggle()}
-            type='button'>
-            <Icon name={icon} />
-        </button>
-    );
+        return i;
+    };
+
+    const render = () => {
+        return (
+            <button
+                className={cname()}
+                onClick={() => Sidebar.toggle()}
+                type='button'>
+                <Icon name={icon()} />
+            </button>
+        );
+    };
 
     return render();
 };

@@ -44,7 +44,7 @@ let AdminSidebar = (
         status: Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
     });
 
-    const [, setNewState] = useState(stateRef.current);
+    const [state, setNewState] = useState(stateRef.current);
 
     const setState = newState => {
         stateRef.current = {
@@ -133,7 +133,7 @@ let AdminSidebar = (
     });
 
     useRegisterHandle('AdminSidebar', handle, [
-        op.get(stateRef.current, 'state.status'),
+        op.get(stateRef.current, 'status'),
     ]);
 
     useImperativeHandle(ref, handle);
