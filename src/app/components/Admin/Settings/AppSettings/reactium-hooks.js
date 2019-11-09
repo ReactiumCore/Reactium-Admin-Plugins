@@ -30,6 +30,16 @@ const appSettingsPlugin = async () => {
          */
         order: 0,
 
+        dialog: {
+            header: {
+                title: 'Application Settings',
+                elements: [],
+            },
+            dismissable: false,
+            // namespace: 'settings',
+            // className: 'app',
+        },
+
         capabilities: ['settings.app-get'],
     });
 };

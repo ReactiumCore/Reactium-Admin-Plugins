@@ -4,7 +4,7 @@
 
 // Admin variables
 @import '../../app/components/Admin/style/variables';
-
+@import '../../app/components/Admin/style/mixins';
 
 // Admin Styles
 @import '../../app/components/Admin/style/layout';
@@ -14,6 +14,7 @@
 @import '../../app/components/Admin/Dashboard/style';
 @import '../../app/components/Admin/Profile/style';
 @import '../../app/components/Admin/Profile/ProfileSW/style';
+@import '../../app/components/Admin/Settings/style';
 @import '../../app/components/Password/style';
 
 @import '../../app/components/Admin/MenuItem/style';

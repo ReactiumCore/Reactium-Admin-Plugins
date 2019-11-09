@@ -11,15 +11,28 @@ html, body {
     align-items: stretch;
     flex-wrap: nowrap;
 
-    .section-main {
-        flex-grow: 1;
-        overflow-x: auto;
-        position: relative;
-        z-index: 1;
-
-        @include breakpoint(sm) {
-            min-width: 320;
+    .section {
+        &-main {
+            flex-grow: 1;
+            min-width: 100vw;
+            max-height: 100vh;
+            height: 100%;
             overflow-x: auto;
+            overflow-y: scroll;
+            position: relative;
+            z-index: map-get($z-indexes, 'default');
+
+            @include breakpoint(sm) {
+                min-width: 320px;
+                overflow-x: auto;
+            }
         }
     }
+
+    .zone {
+        &-admin-header {
+            @include admin-header-zone;
+        }
+    }
+
 }
