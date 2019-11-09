@@ -12,10 +12,10 @@
 
 @mixin admin-content-zone() {
     min-height: 100%;
-    padding: $gutter;
+    padding: $padding-admin-content-zone;
     z-index: map-get($z-indexes, 'default');
 }
 
 @mixin settings-dialog() {
-    padding: $gutter;
+    padding: $padding-settings-dialog;
 }
