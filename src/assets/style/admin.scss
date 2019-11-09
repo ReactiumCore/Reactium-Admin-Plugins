@@ -1,9 +1,14 @@
+// Theming Default Variable Overrides
+@import './theming/variables-reactium-ui';
+@import './theming/variables-admin';
 
 // Reactium-ui
 @import '../../../node_modules/@atomic-reactor/reactium-ui/assets/style/reactium-ui.scss';
 
 // Admin variables
 @import '../../app/components/Admin/style/variables';
+
+// Admin mixins
 @import '../../app/components/Admin/style/mixins';
 
 // Admin Styles

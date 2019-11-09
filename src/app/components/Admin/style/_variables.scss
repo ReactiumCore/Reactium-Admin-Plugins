@@ -1,5 +1,7 @@
 // Spacing
-$gutter: 20px;
+$padding-default: 16px !default;
+$padding-admin-content-zone: $padding-default !default;
+$padding-settings-dialog: $padding-default !default;
 
 // Background
 $color-admin-bg: $color-grey-light !default;
