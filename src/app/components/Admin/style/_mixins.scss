@@ -1,0 +1,21 @@
+@mixin admin-header-zone() {
+    z-index: map-get($z-indexes, 'header');
+    width: 100%;
+    height: $height-admin-header;
+    background-color: $color-admin-header-bg;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 8px;
+    border-bottom: 1px solid $color-grey-light;
+}
+
+@mixin admin-content-zone() {
+    min-height: 100%;
+    padding: $gutter;
+    z-index: map-get($z-indexes, 'default');
+}
+
+@mixin settings-dialog() {
+    padding: $gutter;
+}
