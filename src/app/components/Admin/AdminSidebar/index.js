@@ -94,6 +94,8 @@ let AdminSidebar = (
                 debug={false}
                 direction={direction}
                 expanded={expanded}
+                onBeforeCollapse={onBeforeCollapse}
+                onBeforeExpand={onBeforeExpand}
                 onCollapse={onCollapse}
                 onExpand={onExpand}
                 maxSize={maxSize}
@@ -117,6 +119,9 @@ let AdminSidebar = (
                                 />
                             </nav>
                         </Scrollbars>
+                    </div>
+                    <div className='zone-admin-sidebar-footer'>
+                        <Plugins zone={[zone, 'footer'].join('-')} {...props} />
                     </div>
                 </div>
             </Collapsible>
