@@ -1,6 +1,10 @@
 // Background
 $color-admin-bg: $color-grey-light !default;
 
+// Admin Header
+$color-admin-header-bg: $color-white !default;
+$height-admin-header: 60px !default;
+
 // Sidebar
 $color-sidebar-bg: $color-gray-dark !default;
 $color-sidebar-text: $color-grey-light !default;
@@ -11,6 +15,7 @@ $width-sidebar-collapsed: 80px !default;
 // Sidebar menu
 $color-menu-item-active: $color-blue !default;
 $font-size-menu-item: 16px !default;
+$font-weight-menu-item: 500 !default;
 $width-menu-item: 50px !default;
 $height-menu-item: 60px !default;
 $height-menu-item-expanded: 40px !default;

@@ -11,7 +11,7 @@ const SidebarWidget = props => (
     <MenuItem
         label='Settings'
         route='/admin/settings'
-        icon='Feather.Settings'
+        icon='Linear.Equalizer'
     />
 );
 

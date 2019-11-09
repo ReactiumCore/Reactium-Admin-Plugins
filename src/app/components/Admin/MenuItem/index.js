@@ -4,8 +4,10 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
+import useAbbreviatedNumber from 'components/common-ui/hooks/useAbbreviatedNumber';
 
 import React, {
     forwardRef,
@@ -29,10 +31,6 @@ const defaultIsActive = (match = {}, location = {}, src) => {
     const url = op.get(match, 'url', '');
     const pathname = op.get(location, 'pathname', '/');
 
-    if (src && ENUMS.DEBUG === true) {
-        console.log({ url, pathname, isExact, value: url === pathname });
-    }
-
     if (isExact) {
         return url === pathname;
     } else {
@@ -46,10 +44,16 @@ const defaultIsActive = (match = {}, location = {}, src) => {
  * -----------------------------------------------------------------------------
  */
 let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
+    if (!Reactium.User.can(capabilities)) {
+        return null;
+    }
+
     const match = useSelect(state => op.get(state, 'Router.match'), {});
     const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
 
     const Sidebar = useHandle('AdminSidebar');
+
+    const { width } = useWindowSize();
 
     // Refs
     const containerRef = useRef();
@@ -57,6 +61,8 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     const stateRef = useRef({
         ...props,
     });
+
+    const count = useAbbreviatedNumber(op.get(stateRef.current, 'count'));
 
     // State
     const [, setNewState] = useState(stateRef.current);
@@ -106,8 +112,9 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         const { active } = stateRef.current;
         const expanded = op.get(Sidebar, 'state.expanded');
 
-        if (!expanded) {
-            Sidebar.expand().then(collapsibleRef.current.expand);
+        if (!expanded && collapsibleRef.current) {
+            collapsibleRef.current.expand();
+            Sidebar.expand();
         } else {
             collapsibleRef.current.toggle();
         }
@@ -118,8 +125,23 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         return String(_.compact([namespace, name]).join('-')).toLowerCase();
     };
 
+    const collapseSidebar = () => {
+        const expanded = op.get(Sidebar, 'state.expanded');
+
+        if (expanded === true && width <= 720) {
+            Sidebar.collapse();
+        }
+    };
+
     // Side Effects
     useEffect(() => setState(props), Object.values(props));
+
+    useEffect(() => {
+        const { count } = stateRef.current;
+
+        const countNumber = useAbbreviatedNumber(count);
+        setState({ countNumber });
+    }, [op.get(stateRef.current, 'count')]);
 
     useEffect(() => {
         let { active, id, init, route } = stateRef.current;
@@ -151,7 +173,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     ]);
 
     const Label = () => {
-        const { icon, label } = stateRef.current;
+        const { countNumber, icon, label } = stateRef.current;
 
         const Ico = icon
             ? typeof icon === 'string'
@@ -167,6 +189,9 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
                     <Ico />
                 </span>
                 <span className={cname('label')}>{label}</span>
+                {countNumber && (
+                    <span className={cname('count')}>{countNumber}</span>
+                )}
             </>
         );
     };
@@ -175,6 +200,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         const { exact, route } = stateRef.current;
         return (
             <NavLink
+                onClick={() => collapseSidebar()}
                 exact={exact}
                 className={cname('link')}
                 to={route}
@@ -185,11 +211,11 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const Heading = () => {
-        const { active } = stateRef.current;
+        const { action = toggle, active } = stateRef.current;
         const classname = cn({ [cname('link')]: true, active });
 
         return (
-            <button className={classname} onClick={toggle}>
+            <button className={classname} onClick={action}>
                 <Label />
             </button>
         );
@@ -209,10 +235,6 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        if (!Reactium.User.can(capabilities)) {
-            return null;
-        }
-
         const { route } = stateRef.current;
 
         return (
@@ -242,6 +264,7 @@ MenuItem = forwardRef(MenuItem);
 MenuItem.ENUMS = ENUMS;
 
 MenuItem.propTypes = {
+    action: PropTypes.func,
     active: PropTypes.bool,
     capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
