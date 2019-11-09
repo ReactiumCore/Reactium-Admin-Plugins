@@ -26,3 +26,16 @@ Reactium.Hook.register('init', async () => {
         }
     }
 });
+
+const settingsPlugin = async () => {
+    await Reactium.Plugin.register('SETTINGS_PLUGIN');
+
+    await Reactium.Zone.addFilter(
+        'settingsCapabilityFilter',
+        'settings-groups',
+        ({ capabilities = [], strict = false }) =>
+            Reactium.User.canSync(capabilities, undefined, strict),
+    );
+};
+
+settingsPlugin();
