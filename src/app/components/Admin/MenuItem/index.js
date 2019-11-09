@@ -7,7 +7,6 @@ import { NavLink } from 'react-router-dom';
 import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
-import useAbbreviatedNumber from 'components/common-ui/hooks/useAbbreviatedNumber';
 
 import React, {
     forwardRef,
@@ -62,8 +61,6 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         ...props,
     });
 
-    const count = useAbbreviatedNumber(op.get(stateRef.current, 'count'));
-
     // State
     const [, setNewState] = useState(stateRef.current);
 
@@ -104,15 +101,17 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         }
     };
 
+    const expanded = () =>
+        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
+
     const toggle = () => {
         if (!collapsibleRef.current) {
             return;
         }
 
         const { active } = stateRef.current;
-        const expanded = op.get(Sidebar, 'state.expanded');
 
-        if (!expanded && collapsibleRef.current) {
+        if (!expanded() && collapsibleRef.current) {
             collapsibleRef.current.expand();
             Sidebar.expand();
         } else {
@@ -128,7 +127,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     const collapseSidebar = () => {
         const expanded = op.get(Sidebar, 'state.expanded');
 
-        if (expanded === true && width <= 720) {
+        if (expanded === true && Reactium.Utils.breakpoint(width) === 'xs') {
             Sidebar.collapse();
         }
     };
@@ -139,7 +138,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     useEffect(() => {
         const { count } = stateRef.current;
 
-        const countNumber = useAbbreviatedNumber(count);
+        const countNumber = Reactium.Utils.abbreviatedNumber(count);
         setState({ countNumber });
     }, [op.get(stateRef.current, 'count')]);
 

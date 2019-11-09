@@ -177,11 +177,16 @@ User.canSync = (caps, user, strict) => {
     }
 
     if (strict === true) {
-        return _.intersection(caps, op.get(user, 'capabilities', [])).length === caps.length;
+        return (
+            _.intersection(caps, op.get(user, 'capabilities', [])).length ===
+            caps.length
+        );
     } else {
-        return _.intersection(caps, op.get(user, 'capabilities', [])).length > 0;
+        return (
+            _.intersection(caps, op.get(user, 'capabilities', [])).length > 0
+        );
     }
-}
+};
 
 /**
  * @api {Function} User.can(capabilities,userId) User.can()

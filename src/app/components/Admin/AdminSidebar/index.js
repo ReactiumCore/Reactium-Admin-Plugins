@@ -4,24 +4,28 @@ import op from 'object-path';
 import deps from 'dependencies';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { Collapsible } from '@atomic-reactor/reactium-ui';
 import { Plugins } from 'reactium-core/components/Plugable';
+import { Collapsible, Prefs } from '@atomic-reactor/reactium-ui';
 import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
-import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
+
+import Reactium, { useRegisterHandle } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useLayoutEffect as useWindowEffect,
     useRef,
+    useState,
 } from 'react';
 
-// Server-Side Render safe useLayoutEffect (useEffect when node)
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
-
-const ENUMS = {};
+const ENUMS = {
+    STATUS: {
+        COLLAPSED: 'collapsed',
+        COLLAPSING: 'collapsing',
+        EXPANDED: 'expanded',
+        EXPANDING: 'expanding',
+    },
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -32,29 +36,58 @@ let AdminSidebar = (
     { children, className, direction, namespace, zone, section, ...props },
     ref,
 ) => {
-    const { dispatch } = useStore();
-    const actions = deps().actions.AdminSidebar;
-
-    const expanded = useSelect(state =>
-        op.get(state, 'AdminSidebar.expanded', true),
-    );
-
     // Refs
     const collapsibleRef = useRef();
 
-    const cname = () =>
-        cn({ [className]: !!className, [namespace]: !!namespace });
+    const stateRef = useRef({
+        ...props,
+        status: Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
+    });
 
-    const onCollapse = () => dispatch(actions.status(false));
+    const [, setNewState] = useState(stateRef.current);
 
-    const onExpand = () => dispatch(actions.status(true));
+    const setState = newState => {
+        stateRef.current = {
+            ...stateRef.current,
+            ...newState,
+        };
+
+        setNewState(stateRef.current);
+    };
+
+    const onBeforeCollapse = () =>
+        setState({ status: ENUMS.STATUS.COLLAPSING });
+
+    const onBeforeExpand = () => setState({ status: ENUMS.STATUS.EXPANDING });
+
+    const onCollapse = () => setState({ status: ENUMS.STATUS.COLLAPSED });
+
+    const onExpand = () => setState({ status: ENUMS.STATUS.EXPANDED });
+
+    const cname = cls => {
+        const { status } = stateRef.current;
+        return cn({
+            [className]: !!className,
+            [namespace]: !!namespace,
+            [status]: !!status,
+            [cls]: !!cls,
+        });
+    };
 
     const { width } = useWindowSize();
 
+    useEffect(() => {
+        const { status } = stateRef.current;
+        Prefs.set('admin.sidebar.status', status);
+    }, [op.get(stateRef.current, 'status')]);
+
     // Renderer
     const render = () => {
-        const maxSize = width > 720 ? 320 : width;
-        const minSize = width > 720 ? 80 : 1;
+        const { status } = stateRef.current;
+        const breakpoint = Reactium.Utils.breakpoint(width);
+        const maxSize = breakpoint !== 'xs' ? 320 : width;
+        const minSize = breakpoint !== 'xs' ? 80 : 1;
+        const expanded = status === ENUMS.STATUS.EXPANDED;
 
         return (
             <Collapsible
@@ -93,12 +126,15 @@ let AdminSidebar = (
     const handle = () => ({
         collapse: () => collapsibleRef.current.collapse(),
         container: collapsibleRef.current,
+        ENUMS,
         expand: () => collapsibleRef.current.expand(),
-        state: { expanded },
+        state: stateRef.current,
         toggle: () => collapsibleRef.current.toggle(),
     });
 
-    useRegisterHandle('AdminSidebar', handle, [expanded]);
+    useRegisterHandle('AdminSidebar', handle, [
+        op.get(stateRef.current, 'state.status'),
+    ]);
 
     useImperativeHandle(ref, handle);
 

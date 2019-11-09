@@ -1,3 +1,0 @@
-export default {
-    ADMIN_SIDEBAR_TOGGLE: 'ADMIN_SIDEBAR_TOGGLE',
-};

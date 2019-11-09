@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import { useHandle } from 'reactium-core/sdk';
+import Reactium, { useHandle } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 
@@ -19,18 +19,20 @@ const Toggle = ({ zones = [] }) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
-    const { expanded } = op.get(Sidebar, 'state', true);
+    const expanded = () =>
+        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
 
-    const cname = () => cn({ 'admin-sidebar-toggle': true, expanded });
+    const cname = () =>
+        cn({ 'admin-sidebar-toggle': true, expanded: expanded() });
 
     const { width } = useWindowSize();
 
     const icon =
-        width > 640
-            ? expanded
+        Reactium.Utils.breakpoint(width) !== 'xs'
+            ? expanded()
                 ? 'Feather.MoreVertical'
                 : 'Feather.Menu'
-            : expanded
+            : expanded()
             ? 'Feather.X'
             : 'Feather.Menu';
 
