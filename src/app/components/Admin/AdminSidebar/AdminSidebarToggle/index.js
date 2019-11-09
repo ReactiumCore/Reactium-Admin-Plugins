@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { useHandle } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { useHandle } from 'reactium-core/sdk';
 import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
 
 /**
@@ -19,8 +19,6 @@ const Toggle = ({ zones = [] }) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
-    const [state, setState] = useState(Sidebar.state);
-
     const expanded = () =>
         op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
 
@@ -29,18 +27,14 @@ const Toggle = ({ zones = [] }) => {
 
     const { width } = useWindowSize();
 
-    const icon = () => {
-        const i =
-            Reactium.Utils.breakpoint(width) !== 'xs'
-                ? expanded()
-                    ? 'Feather.MoreVertical'
-                    : 'Feather.Menu'
-                : expanded()
-                ? 'Feather.X'
-                : 'Feather.Menu';
-
-        return i;
-    };
+    const icon = () =>
+        Reactium.Utils.breakpoint(width) !== 'xs'
+            ? expanded()
+                ? 'Feather.MoreVertical'
+                : 'Feather.Menu'
+            : expanded()
+            ? 'Feather.X'
+            : 'Feather.Menu';
 
     const render = () => {
         return (

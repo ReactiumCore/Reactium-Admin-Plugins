@@ -21,6 +21,17 @@
                 flex-grow: 1;
             }
 
+            &-footer {
+                flex-grow: 0;
+                flex-shrink: 0;
+                padding: 0 15px 5px 80px;
+                height: 60px;
+                
+                &:empty {
+                    display: none;
+                }
+            }
+
             &-container {
                 color: $color-sidebar-text;
                 background-color: $color-sidebar-bg;
