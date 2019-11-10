@@ -6,9 +6,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Plugins } from 'reactium-core/components/Plugable';
 import { Collapsible, Prefs } from '@atomic-reactor/reactium-ui';
-import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
-
-import Reactium, { useRegisterHandle } from 'reactium-core/sdk';
+import Reactium, { useRegisterHandle, useWindowSize } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -74,7 +72,7 @@ let AdminSidebar = (
         });
     };
 
-    const { width } = useWindowSize();
+    const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     useEffect(() => {
         const { status } = stateRef.current;
@@ -84,7 +82,6 @@ let AdminSidebar = (
     // Renderer
     const render = () => {
         const { status } = stateRef.current;
-        const breakpoint = Reactium.Utils.breakpoint(width);
         const maxSize = breakpoint !== 'xs' ? 320 : width;
         const minSize = breakpoint !== 'xs' ? 80 : 1;
         const expanded = status === ENUMS.STATUS.EXPANDED;

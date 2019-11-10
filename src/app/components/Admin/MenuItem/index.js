@@ -4,8 +4,11 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
-import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
+import Reactium, {
+    useHandle,
+    useSelect,
+    useWindowSize,
+} from 'reactium-core/sdk';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
 
 import React, {
@@ -52,7 +55,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
-    const { width } = useWindowSize();
+    const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     // Refs
     const containerRef = useRef();
@@ -125,7 +128,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const collapseSidebar = () => {
-        if (expanded() === true && Reactium.Utils.breakpoint() === 'xs') {
+        if (expanded() === true && breakpoint === 'xs') {
             Sidebar.collapse();
         }
     };
