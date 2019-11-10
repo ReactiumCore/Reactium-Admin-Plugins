@@ -2,8 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle } from 'reactium-core/sdk';
-import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
+import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -25,10 +24,10 @@ const Toggle = ({ zones = [] }) => {
     const cname = () =>
         cn({ 'admin-sidebar-toggle': true, expanded: expanded() });
 
-    const { width } = useWindowSize();
+    const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     const icon = () =>
-        Reactium.Utils.breakpoint(width) !== 'xs'
+        breakpoint !== 'xs'
             ? expanded()
                 ? 'Feather.MoreVertical'
                 : 'Feather.Menu'
