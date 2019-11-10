@@ -20,11 +20,6 @@ import React, {
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
-// Reactium.Hook.register('avatar', (avatar, user, context) => {
-//     context['avatar'] = '/assets/images/hero.png';
-//     return Promise.resolve();
-// });
-
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: SidebarWidget

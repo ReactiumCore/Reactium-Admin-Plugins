@@ -28,17 +28,17 @@
         border-bottom: 1px solid $color-sidebar-bg;
 
         &-image {
-            min-width: 100px;
-            min-height: 100px;
-            max-width: 100px;
+            width: 100%;
+            min-width: 52px;
+            min-height: 52px;
+            max-width: 52px;
             border: 2px solid $color-avatar-stroke;
-            opacity: 0;
             transition: none;
 
             @include breakpoint(sm) {
-                opacity: 1;
-                min-width: 52px;
-                min-height: 52px;
+                min-width: 100px;
+                min-height: 100px;
+                max-width: 100px;
             }
         }
     }

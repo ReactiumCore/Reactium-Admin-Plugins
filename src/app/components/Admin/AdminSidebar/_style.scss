@@ -3,7 +3,7 @@
         z-index: 2;
 
         .zone-admin-sidebar {
-            position: fixed;
+            position: relative;
             left: 0;
             top: 0;
             z-index: 1000;
@@ -26,7 +26,7 @@
                 flex-shrink: 0;
                 padding: 0 15px 5px 80px;
                 height: 60px;
-                
+
                 &:empty {
                     display: none;
                 }
