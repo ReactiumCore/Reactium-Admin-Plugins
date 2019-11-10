@@ -28,17 +28,17 @@
         border-bottom: 1px solid $color-sidebar-bg;
 
         &-image {
-            width: 100%;
-            min-width: 52px;
-            min-height: 52px;
-            max-width: 52px;
+            min-width: 100px;
+            min-height: 100px;
+            max-width: 100px;
             border: 2px solid $color-avatar-stroke;
+            opacity: 0;
             transition: none;
 
             @include breakpoint(sm) {
-                min-width: 100px;
-                min-height: 100px;
-                max-width: 100px;
+                opacity: 1;
+                min-width: 52px;
+                min-height: 52px;
             }
         }
     }
@@ -46,6 +46,7 @@
     &,
     &.collapsing {
         .avatar {
+
             &-labels {
                 display: none;
                 min-width: $width-sidebar-expanded;
@@ -71,6 +72,14 @@
                 font-size: 12px;
                 color: $color-avatar-text;
                 text-align: center;
+            }
+        }
+    }
+
+    &.collapsing {
+        .avatar {
+            &-image {
+                opacity: 1;
             }
         }
     }
