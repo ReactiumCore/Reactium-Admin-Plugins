@@ -13,7 +13,7 @@ Reactium.Plugin.register('AdminProfile').then(() => {
     Reactium.Plugin.addComponent({
         id: 'ADMIN-PROFILE-SIDEBAR-WIDGET',
         component: SidebarWidget,
-        zone: ['admin-sidebar-menu'],
+        zone: ['admin-sidebar-header'],
         order: -100000,
     });
 });
