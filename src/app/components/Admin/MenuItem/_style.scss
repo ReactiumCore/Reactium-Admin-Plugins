@@ -5,7 +5,7 @@
     .menu-break {
         display: block;
         border-bottom: 1px solid $color-sidebar-bg;
-        margin: 10px 0;
+        margin: 12px 0;
     }
 
     .menu-item {
@@ -80,7 +80,7 @@
 
 .expanded {
     .admin-sidebar-menu-items {
-        padding: 18px 0 56px 0;
+        padding: 12px 0 56px 0;
 
         .menu-item {
             &-link {
