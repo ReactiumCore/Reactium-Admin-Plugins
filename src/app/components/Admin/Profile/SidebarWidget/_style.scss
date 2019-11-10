@@ -3,6 +3,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    overflow: hidden;
 
     &-image {
         display: flex;
@@ -17,7 +18,6 @@
     }
 }
 
-
 .zone-admin-sidebar-container {
     .avatar {
         width: 100%;
@@ -28,36 +28,95 @@
         border-bottom: 1px solid $color-sidebar-bg;
 
         &-image {
-            min-width: 100px;
-            min-height: 100px;
+            width: 100%;
             max-width: 100px;
             border: 2px solid $color-avatar-stroke;
             opacity: 0;
             transition: none;
+        }
 
-            @include breakpoint(sm) {
-                opacity: 1;
-                min-width: 52px;
-                min-height: 52px;
+        &-labels {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+            min-width: $width-sidebar-expanded;
+            padding-top: 24px;
+            text-align: center;
+        }
+    }
+
+    &.collapsing {
+        .avatar {
+            &-image {
+                opacity: 0;
+
+                @include breakpoint(sm) {
+                    opacity: 1;
+                }
+            }
+
+            &-labels {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+
             }
         }
     }
 
-    &,
-    &.collapsing {
+    &.collapsed {
         .avatar {
-
             &-labels {
                 display: none;
-                min-width: $width-sidebar-expanded;
-                padding-top: 24px;
-                text-align: center;
-                transition: opacity 0.5s ease-in-out;
+            }
 
-                &:hover {
-                    opacity: 0.5;
-                    text-decoration: none;
+            &-image {
+                opacity: 0;
+                display: none;
+
+                max-width: 52px;
+
+                @include breakpoint(sm) {
+                    max-width: 100px;
+                    display: flex;
+                    opacity: 1;
                 }
+            }
+        }
+    }
+
+    &.expanding {
+        .avatar {
+            &-image {
+                display: flex;
+            }
+        }
+    }
+
+    &.expanded,
+    &.expanding {
+        .avatar {
+            padding: 32px 14px;
+
+            &-image {
+                
+                opacity: 1;
+                transition: opacity 0.5s ease-in-out;
+            }
+
+            &-labels {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                opacity: 1;
+                padding-top: 24px;
             }
 
             &-greeting {
@@ -72,45 +131,6 @@
                 font-size: 12px;
                 color: $color-avatar-text;
                 text-align: center;
-            }
-        }
-    }
-
-    &.collapsing {
-        .avatar {
-            &-image {
-                opacity: 1;
-            }
-        }
-    }
-
-    &.expanded,
-    &.expanding {
-        .avatar {
-            padding: 32px 14px;
-
-            &-image {
-                opacity: 1;
-                transition: opacity 0.5s ease-in-out;
-            }
-
-            &-labels {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                opacity: 1;
-                padding-top: 24px;
-            }
-        }
-    }
-
-    &.expanding {
-        .avatar {
-
-            &-labels {
-                display: block;
-                opacity: 0;
             }
         }
     }
