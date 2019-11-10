@@ -40,7 +40,7 @@
     "parse/node": false
   },
   "dependencies": {
-    "@atomic-reactor/reactium-ui": "0.0.70",
+    "@atomic-reactor/reactium-ui": "0.0.71",
     "@babel/cli": "^7.6.2",
     "@babel/node": "^7.6.2",
     "@loadable/component": "^5.10.3",
