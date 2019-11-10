@@ -55,6 +55,8 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
+    const Tools = useHandle('AdminTools');
+
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     // Refs
@@ -183,9 +185,18 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
                   return null;
               };
 
+        const tip = expanded()
+            ? {}
+            : {
+                  title: label,
+                  'data-tooltip': true,
+                  'data-vertical-align': 'middle',
+                  'data-align': 'right',
+              };
+
         return (
             <>
-                <span className={cname('icon')}>
+                <span className={cname('icon')} {...tip}>
                     <Ico />
                 </span>
                 <span className={cname('label')}>{label}</span>
@@ -235,7 +246,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        const { route } = stateRef.current;
+        const { label, route } = stateRef.current;
 
         return (
             <div ref={containerRef} className={cx()}>

@@ -6,6 +6,6 @@ Reactium.Plugin.register('AdminTools').then(() => {
         id: 'ADMIN-TOOLS',
         component: Tools,
         zone: ['admin-header'],
-        order: -100000000,
+        order: 1000000000,
     });
 });

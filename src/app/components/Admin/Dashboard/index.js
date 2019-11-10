@@ -62,8 +62,23 @@ let Dashboard = ({ children, ...props }, ref) => {
                     <meta charSet='utf-8' />
                     <title>Dashboard</title>
                 </Helmet>
-                <div ref={containerRef} className={cx()}>
+                <div
+                    ref={containerRef}
+                    className={cx()}
+                    style={{ minHeight: 1024, display: 'block' }}>
                     Dashboard
+                    <div
+                        data-tooltip
+                        title='test'
+                        data-align='right'
+                        data-vertical-align='middle'
+                        style={{
+                            marginTop: 600,
+                            marginLeft: 100,
+                            display: 'inline-block',
+                        }}>
+                        TEST
+                    </div>
                 </div>
             </>
         );
