@@ -6,6 +6,8 @@
         display: block;
         border-bottom: 1px solid $color-sidebar-bg;
         margin: 12px 0;
+        transition: all 0.25s ease-in-out;
+        opacity: 1;
     }
 
     .menu-item {
@@ -114,8 +116,11 @@
     }
 }
 
-.collapsed {
+.collapsed,
+.collapsing {
     .menu-break {
-        display: none;
+        height: 0;
+        opacity: 0;
+        margin: 0;
     }
 }

@@ -83,7 +83,7 @@ let AdminSidebar = (
     const render = () => {
         const { status } = stateRef.current;
         const maxSize = breakpoint !== 'xs' ? 320 : width;
-        const minSize = breakpoint !== 'xs' ? 80 : 1;
+        const minSize = ['xs', 'sm'].includes(breakpoint) ? 1 : 80;
         const expanded = status === ENUMS.STATUS.EXPANDED;
 
         return (

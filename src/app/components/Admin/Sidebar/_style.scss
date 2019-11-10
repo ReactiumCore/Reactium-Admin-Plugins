@@ -3,12 +3,12 @@
         z-index: 2;
 
         .zone-admin-sidebar {
-            position: relative;
+            position: fixed;
             left: 0;
             top: 0;
             z-index: 1000;
 
-            @include breakpoint(sm) {
+            @include breakpoint(md) {
                 position: relative;
             }
 
