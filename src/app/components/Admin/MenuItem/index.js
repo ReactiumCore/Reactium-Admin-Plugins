@@ -125,9 +125,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const collapseSidebar = () => {
-        //const expanded = op.get(Sidebar, 'state.expanded');
-
-        if (expanded() === true && Reactium.Utils.breakpoint(width) === 'xs') {
+        if (expanded() === true && Reactium.Utils.breakpoint() === 'xs') {
             Sidebar.collapse();
         }
     };

@@ -1,6 +1,8 @@
-.zone {
-    &-admin-header {
-        @include admin-header-zone;
+.admin-page {
+    .zone {
+        &-admin-header {
+            @include admin-header-zone;
+        }
     }
 }
 

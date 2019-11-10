@@ -23,6 +23,19 @@ const blueprintSelect = {
     shouldUpdate: ({ newState, prevState }) => newState !== prevState,
 };
 
+const cname = (prefix, name) =>
+    cn(prefix, `${prefix}-${String(name).toLowerCase()}`);
+
+const cx = (meta, extended) => {
+    const { className, namespace } = meta;
+
+    return cn({
+        [className]: !!className,
+        [namespace]: !!namespace,
+        [extended]: !!extended,
+    });
+};
+
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Blueprint
@@ -43,9 +56,6 @@ const Blueprint = () => {
 
     const blueprintMeta = op.get(blueprint, 'meta', {});
 
-    const cname = (prefix, name) =>
-        cn(prefix, `${prefix}-${String(name).toLowerCase()}`);
-
     const sections = op.get(blueprint, 'sections', {});
 
     const zoneMeta = value => op.get(value, 'meta', []);
@@ -58,9 +68,14 @@ const Blueprint = () => {
 
     // Renderer
     const render = () => (
-        <main className={cname('blueprint', blueprintId)}>
+        <main className={cx(blueprintMeta, cname('blueprint', blueprintId))}>
             {Object.entries(sections).map(([name, value]) => (
-                <section key={name} className={cname('section', name)}>
+                <section
+                    key={name}
+                    className={cx(
+                        op.get(value, 'meta', {}),
+                        cname('section', name),
+                    )}>
                     {op.get(value, 'zones', []).map(zone => (
                         <div key={zone} className={cname('zone', zone)}>
                             <Plugins

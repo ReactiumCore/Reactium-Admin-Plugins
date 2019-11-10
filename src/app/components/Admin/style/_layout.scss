@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     background-color: $color-admin-bg;
 }
 
@@ -12,19 +13,31 @@ html, body {
     flex-wrap: nowrap;
 }
 
-.section {
-    &-main {
-        flex: 1 0;
-        max-height: 100vh;
-        height: 100%;
-        overflow-x: auto;
-        overflow-y: scroll;
-        position: relative;
-        z-index: map-get($z-indexes, 'default');
+.admin-page {
+    .section {
+        &-main {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            position: relative;
+            z-index: map-get($z-indexes, 'default');
 
-        @include breakpoint(sm) {
-            min-width: 320px;
-            overflow-x: auto;
+            @include breakpoint(sm) {
+                min-width: 320px;
+                overflow-x: auto;
+            }
+
+            .zone-admin-content {
+                @include admin-content-zone;
+            }
+
+            .zone-admin-actions {
+                @include admin-actions-zone;
+            }
         }
     }
 }

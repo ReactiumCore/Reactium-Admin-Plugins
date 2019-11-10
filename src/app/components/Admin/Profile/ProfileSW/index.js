@@ -1,8 +1,9 @@
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { useHandle } from 'reactium-core/sdk';
+
 import {
     useAvatar,
     useGreeting,
@@ -34,6 +35,11 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         return null;
     }
 
+    const Sidebar = useHandle('AdminSidebar');
+
+    const expanded = () =>
+        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
+
     const avatar = useAvatar();
 
     const greeting = useGreeting();
@@ -49,6 +55,12 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         height: 0,
         interval: null,
     });
+
+    const collapseSidebar = () => {
+        if (expanded() === true && Reactium.Utils.breakpoint() === 'xs') {
+            Sidebar.collapse();
+        }
+    };
 
     // State
     const [, setNewState] = useState(stateRef.current);
@@ -105,12 +117,16 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
                     to='/admin/profile'
                     className='avatar-image'
                     ref={avatarRef}
+                    onClick={() => collapseSidebar()}
                     style={{
                         backgroundImage: `url(${avatar})`,
                         height,
                     }}
                 />
-                <Link to='/admin/profile' className='avatar-labels'>
+                <Link
+                    to='/admin/profile'
+                    className='avatar-labels'
+                    onClick={() => collapseSidebar()}>
                     {greeting && (
                         <span className='avatar-greeting'>{greeting}</span>
                     )}

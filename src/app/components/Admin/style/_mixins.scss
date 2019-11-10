@@ -6,14 +6,28 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    flex-shrink: 0;
+    flex-grow: 0;
     padding: 0 8px;
     border-bottom: 1px solid $color-grey-light;
 }
 
 @mixin admin-content-zone() {
-    min-height: 100%;
     padding: $padding-admin-content-zone;
+    flex-grow: 1;
+    overflow-y: scroll;
     z-index: map-get($z-indexes, 'default');
+}
+
+@mixin admin-actions-zone() {
+    flex-grow: 0;
+    flex-shrink: 0;
+    position: absolute;
+    z-index: map-get($z-indexes, 'actions');
+
+    &:empty {
+        display: none;
+    }
 }
 
 @mixin settings-dialog() {

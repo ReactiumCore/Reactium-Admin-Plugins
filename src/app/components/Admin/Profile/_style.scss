@@ -1,3 +1,9 @@
-.style {
+.zone {
+    &-admin-profile {
+        @include admin-content-zone;
+    }
 
+    &-admin-profile-actions {
+        @include admin-actions-zone;
+    }
 }
