@@ -2,6 +2,8 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
+
 import React, {
     forwardRef,
     useImperativeHandle,
@@ -55,9 +57,15 @@ let Profile = ({ children, ...props }, ref) => {
     // Renderer
     const render = () => {
         return (
-            <div ref={containerRef} className={cx()}>
-                Profile
-            </div>
+            <>
+                <Helmet>
+                    <meta charSet='utf-8' />
+                    <title>Profile</title>
+                </Helmet>
+                <div ref={containerRef} className={cx()}>
+                    Profile
+                </div>
+            </>
         );
     };
 

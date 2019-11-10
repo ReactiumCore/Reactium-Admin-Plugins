@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import { Helmet } from 'react-helmet';
 import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
@@ -110,6 +111,62 @@ let Forgot = props => {
 
         if (status === ENUMS.STATUS.SUCCESS) {
             return (
+                <>
+                    <Helmet>
+                        <meta charSet='utf-8' />
+                        <title>Forgot Password</title>
+                    </Helmet>
+                    <main className={className} role='main'>
+                        <WebForm
+                            onSubmit={onSubmit}
+                            onError={onError}
+                            value={{ email }}
+                            required={['email']}
+                            showError={false}>
+                            <div className='flex center mb-xs-40'>
+                                <Link to='/'>
+                                    <Logo width={80} height={80} />
+                                </Link>
+                            </div>
+                            <h1>Request Sent!</h1>
+                            <input type='hidden' name='email' value={email} />
+                            <p className='text-center'>
+                                Check your
+                                <br />
+                                <kbd>{email}</kbd>
+                                <br />
+                                email and follow the directions to reset your
+                                password.
+                            </p>
+                            <div className='mt-xs-40'>
+                                <Button
+                                    block
+                                    color='secondary'
+                                    size='lg'
+                                    type='submit'
+                                    appearance='pill'
+                                    disabled={
+                                        status === ENUMS.STATUS.SUBMITTING
+                                    }>
+                                    {status === ENUMS.STATUS.SUBMITTING ? (
+                                        <>Sending...</>
+                                    ) : (
+                                        <>Resend Email</>
+                                    )}
+                                </Button>
+                            </div>
+                        </WebForm>
+                    </main>
+                </>
+            );
+        }
+
+        return (
+            <>
+                <Helmet>
+                    <meta charSet='utf-8' />
+                    <title>Forgot Password</title>
+                </Helmet>
                 <main className={className} role='main'>
                     <WebForm
                         onSubmit={onSubmit}
@@ -122,16 +179,30 @@ let Forgot = props => {
                                 <Logo width={80} height={80} />
                             </Link>
                         </div>
-                        <h1>Request Sent!</h1>
-                        <input type='hidden' name='email' value={email} />
+                        <h1>Forgot your password?</h1>
                         <p className='text-center'>
-                            Check your
-                            <br />
-                            <kbd>{email}</kbd>
-                            <br />
-                            email and follow the directions to reset your
-                            password.
+                            Reset your password by entering the email address
+                            associated with your account.
                         </p>
+                        <div
+                            className={cn({
+                                'form-group': true,
+                                error: op.get(error, 'field') === 'email',
+                            })}>
+                            <input
+                                type='email'
+                                placeholder='Email Address'
+                                name='email'
+                                value={email || ''}
+                                onChange={onChange}
+                                id='email'
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            />
+                            {op.get(error, 'field') === 'email' && (
+                                <small>{error.message}</small>
+                            )}
+                        </div>
+
                         <div className='mt-xs-40'>
                             <Button
                                 block
@@ -143,77 +214,21 @@ let Forgot = props => {
                                 {status === ENUMS.STATUS.SUBMITTING ? (
                                     <>Sending...</>
                                 ) : (
-                                    <>Resend Email</>
+                                    <>Send Email</>
                                 )}
                             </Button>
                         </div>
+                        <div className='links'>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
+                                <Link to={signin}>Sign In</Link>
+                            </div>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
+                                <Link to={signup}>Create Account</Link>
+                            </div>
+                        </div>
                     </WebForm>
                 </main>
-            );
-        }
-
-        return (
-            <main className={className} role='main'>
-                <WebForm
-                    onSubmit={onSubmit}
-                    onError={onError}
-                    value={{ email }}
-                    required={['email']}
-                    showError={false}>
-                    <div className='flex center mb-xs-40'>
-                        <Link to='/'>
-                            <Logo width={80} height={80} />
-                        </Link>
-                    </div>
-                    <h1>Forgot your password?</h1>
-                    <p className='text-center'>
-                        Reset your password by entering the email address
-                        associated with your account.
-                    </p>
-                    <div
-                        className={cn({
-                            'form-group': true,
-                            error: op.get(error, 'field') === 'email',
-                        })}>
-                        <input
-                            type='email'
-                            placeholder='Email Address'
-                            name='email'
-                            value={email || ''}
-                            onChange={onChange}
-                            id='email'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}
-                        />
-                        {op.get(error, 'field') === 'email' && (
-                            <small>{error.message}</small>
-                        )}
-                    </div>
-
-                    <div className='mt-xs-40'>
-                        <Button
-                            block
-                            color='secondary'
-                            size='lg'
-                            type='submit'
-                            appearance='pill'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}>
-                            {status === ENUMS.STATUS.SUBMITTING ? (
-                                <>Sending...</>
-                            ) : (
-                                <>Send Email</>
-                            )}
-                        </Button>
-                    </div>
-                    <div className='links'>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                            <Link to={signin}>Sign In</Link>
-                        </div>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                            <Link to={signup}>Create Account</Link>
-                        </div>
-                    </div>
-                </WebForm>
-            </main>
+            </>
         );
     };
 

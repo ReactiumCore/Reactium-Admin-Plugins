@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import { Helmet } from 'react-helmet';
 import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
@@ -153,88 +154,94 @@ let Reset = props => {
                 : 'Enter your new password';
 
         return (
-            <main className={cname()} role='main'>
-                <WebForm
-                    onSubmit={onSubmit}
-                    onError={onError}
-                    value={{ password, confirm }}
-                    required={['password', 'confirm']}
-                    showError={false}>
-                    <div className='flex center mb-xs-40'>
-                        <Link to='/'>
-                            <Logo width={80} height={80} />
-                        </Link>
-                    </div>
-                    <h1>Reset Password</h1>
-                    {op.get(error, 'message') && !op.get(error, 'field') ? (
-                        <p className='text-center red'>{error.message}</p>
-                    ) : (
-                        <p className='text-center'>{msg}</p>
-                    )}
-                    <div
-                        className={cn({
-                            'form-group': true,
-                            error: op.get(error, 'field') === 'password',
-                        })}>
-                        <input
-                            type='password'
-                            placeholder='Password'
-                            name='password'
-                            id='password'
-                            autoComplete='off'
-                            value={password || ''}
-                            onChange={onChange}
-                            disabled={status === ENUMS.STATUS.SUBMITTING}
-                        />
-                        {op.get(error, 'field') === 'password' && (
-                            <small>{error.message}</small>
+            <>
+                <Helmet>
+                    <meta charSet='utf-8' />
+                    <title>Reset Password</title>
+                </Helmet>
+                <main className={cname()} role='main'>
+                    <WebForm
+                        onSubmit={onSubmit}
+                        onError={onError}
+                        value={{ password, confirm }}
+                        required={['password', 'confirm']}
+                        showError={false}>
+                        <div className='flex center mb-xs-40'>
+                            <Link to='/'>
+                                <Logo width={80} height={80} />
+                            </Link>
+                        </div>
+                        <h1>Reset Password</h1>
+                        {op.get(error, 'message') && !op.get(error, 'field') ? (
+                            <p className='text-center red'>{error.message}</p>
+                        ) : (
+                            <p className='text-center'>{msg}</p>
                         )}
-                    </div>
-                    <div
-                        className={cn({
-                            'form-group': true,
-                            error: op.get(error, 'field') === 'confirm',
-                        })}>
-                        <input
-                            type='password'
-                            placeholder='Confirm'
-                            name='confirm'
-                            id='confirm'
-                            autoComplete='off'
-                            value={confirm || ''}
-                            onChange={onChange}
-                            disabled={status === ENUMS.STATUS.SUBMITTING}
-                        />
-                        {op.get(error, 'field') === 'confirm' && (
-                            <small>{error.message}</small>
-                        )}
-                    </div>
-
-                    <div className='mt-xs-40'>
-                        <Button
-                            block
-                            color='secondary'
-                            size='lg'
-                            type='submit'
-                            appearance='pill'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}>
-                            {status === ENUMS.STATUS.SUBMITTING ? (
-                                <>Updating...</>
-                            ) : (
-                                <>Submit</>
+                        <div
+                            className={cn({
+                                'form-group': true,
+                                error: op.get(error, 'field') === 'password',
+                            })}>
+                            <input
+                                type='password'
+                                placeholder='Password'
+                                name='password'
+                                id='password'
+                                autoComplete='off'
+                                value={password || ''}
+                                onChange={onChange}
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            />
+                            {op.get(error, 'field') === 'password' && (
+                                <small>{error.message}</small>
                             )}
-                        </Button>
-                    </div>
-                    <div className='links'>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                            <Link to={signin}>Sign In</Link>
                         </div>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                            <Link to={signup}>Create Account</Link>
+                        <div
+                            className={cn({
+                                'form-group': true,
+                                error: op.get(error, 'field') === 'confirm',
+                            })}>
+                            <input
+                                type='password'
+                                placeholder='Confirm'
+                                name='confirm'
+                                id='confirm'
+                                autoComplete='off'
+                                value={confirm || ''}
+                                onChange={onChange}
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            />
+                            {op.get(error, 'field') === 'confirm' && (
+                                <small>{error.message}</small>
+                            )}
                         </div>
-                    </div>
-                </WebForm>
-            </main>
+
+                        <div className='mt-xs-40'>
+                            <Button
+                                block
+                                color='secondary'
+                                size='lg'
+                                type='submit'
+                                appearance='pill'
+                                disabled={status === ENUMS.STATUS.SUBMITTING}>
+                                {status === ENUMS.STATUS.SUBMITTING ? (
+                                    <>Updating...</>
+                                ) : (
+                                    <>Submit</>
+                                )}
+                            </Button>
+                        </div>
+                        <div className='links'>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
+                                <Link to={signin}>Sign In</Link>
+                            </div>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
+                                <Link to={signup}>Create Account</Link>
+                            </div>
+                        </div>
+                    </WebForm>
+                </main>
+            </>
         );
     };
 

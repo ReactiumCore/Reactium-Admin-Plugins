@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import op from 'object-path';
+import { Helmet } from 'react-helmet';
 import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
@@ -108,86 +109,98 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             status === ENUMS.STATUS.COMPLETE
         ) {
             return (
-                <main className={className} role='main'>
-                    <Spinner />
-                </main>
+                <>
+                    <Helmet>
+                        <meta charSet='utf-8' />
+                        <title>Signing in...</title>
+                    </Helmet>
+                    <main className={className} role='main'>
+                        <Spinner />
+                    </main>
+                </>
             );
         }
 
         return (
-            <main className={className} role='main'>
-                <WebForm
-                    onSubmit={onSubmit}
-                    onError={onError}
-                    value={{ username, password }}
-                    required={['username', 'password']}
-                    showError={false}>
-                    <div className='flex center mb-xs-40'>
-                        <Link to='/'>
-                            <Logo width={80} height={80} />
-                        </Link>
-                    </div>
-                    <div
-                        className={cn({
-                            'form-group': true,
-                            error: op.get(error, 'field') === 'username',
-                        })}>
-                        <input
-                            type='text'
-                            placeholder='Username'
-                            name='username'
-                            value={username || ''}
-                            onChange={onChange}
-                            id='username'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}
-                        />
-                        {op.get(error, 'field') === 'username' && (
-                            <small>Enter your username</small>
-                        )}
-                    </div>
-                    <div
-                        className={cn({
-                            'form-group': true,
-                            error: op.get(error, 'field') === 'password',
-                        })}>
-                        <input
-                            type='password'
-                            placeholder='Password'
-                            name='password'
-                            value={password || ''}
-                            onChange={onChange}
-                            id='password'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}
-                        />
-                        {op.get(error, 'field') === 'password' && (
-                            <small>{error.message}</small>
-                        )}
-                    </div>
-                    <div className='mt-xs-40'>
-                        <Button
-                            block
-                            color='secondary'
-                            size='lg'
-                            type='submit'
-                            appearance='pill'
-                            disabled={status === ENUMS.STATUS.SUBMITTING}>
-                            {status === ENUMS.STATUS.SUBMITTING ? (
-                                <>Signing in...</>
-                            ) : (
-                                <>Sign In</>
+            <>
+                <Helmet>
+                    <meta charSet='utf-8' />
+                    <title>Login</title>
+                </Helmet>
+                <main className={className} role='main'>
+                    <WebForm
+                        onSubmit={onSubmit}
+                        onError={onError}
+                        value={{ username, password }}
+                        required={['username', 'password']}
+                        showError={false}>
+                        <div className='flex center mb-xs-40'>
+                            <Link to='/'>
+                                <Logo width={80} height={80} />
+                            </Link>
+                        </div>
+                        <div
+                            className={cn({
+                                'form-group': true,
+                                error: op.get(error, 'field') === 'username',
+                            })}>
+                            <input
+                                type='text'
+                                placeholder='Username'
+                                name='username'
+                                value={username || ''}
+                                onChange={onChange}
+                                id='username'
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            />
+                            {op.get(error, 'field') === 'username' && (
+                                <small>Enter your username</small>
                             )}
-                        </Button>
-                    </div>
-                    <div className='links'>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                            <Link to={forgot}>Forgot Password</Link>
                         </div>
-                        <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                            <Link to={signup}>Create Account</Link>
+                        <div
+                            className={cn({
+                                'form-group': true,
+                                error: op.get(error, 'field') === 'password',
+                            })}>
+                            <input
+                                type='password'
+                                placeholder='Password'
+                                name='password'
+                                value={password || ''}
+                                onChange={onChange}
+                                id='password'
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            />
+                            {op.get(error, 'field') === 'password' && (
+                                <small>{error.message}</small>
+                            )}
                         </div>
-                    </div>
-                </WebForm>
-            </main>
+                        <div className='mt-xs-40'>
+                            <Button
+                                block
+                                color='secondary'
+                                size='lg'
+                                type='submit'
+                                appearance='pill'
+                                disabled={status === ENUMS.STATUS.SUBMITTING}>
+                                {status === ENUMS.STATUS.SUBMITTING ? (
+                                    <>Signing in...</>
+                                ) : (
+                                    <>Sign In</>
+                                )}
+                            </Button>
+                        </div>
+                        <div className='links'>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
+                                <Link to={forgot}>Forgot Password</Link>
+                            </div>
+                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
+                                <Link to={signup}>Create Account</Link>
+                            </div>
+                        </div>
+                    </WebForm>
+                </main>
+            </>
         );
     };
 
