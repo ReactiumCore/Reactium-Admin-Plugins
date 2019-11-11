@@ -2,7 +2,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle } from 'reactium-core/sdk';
+import { useHandle, useWindowSize } from 'reactium-core/sdk';
 
 import {
     useAvatar,
@@ -39,6 +39,8 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
 
     const greeting = useGreeting();
 
+    const { breakpoint } = useWindowSize();
+
     const role = useRole();
 
     const avatarRef = useRef();
@@ -52,7 +54,9 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
     });
 
     const collapseSidebar = () => {
-        if (expanded() === true && Reactium.Utils.breakpoint() === 'xs') {
+        const doCollapse = ['xs', 'sm'];
+
+        if (expanded() === true && doCollapse.includes(breakpoint)) {
             Sidebar.collapse();
         }
     };

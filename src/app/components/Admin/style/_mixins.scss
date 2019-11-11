@@ -27,6 +27,9 @@
     flex-shrink: 0;
     position: absolute;
     z-index: map-get($z-indexes, 'actions');
+    top: $height-admin-header/2;
+    transform: translateY(-50%);
+    padding-left: $padding-default;
 
     &:empty {
         display: none;
