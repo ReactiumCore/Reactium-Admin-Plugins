@@ -19,7 +19,7 @@ const Widget = () => {
 
     const showModal = () =>
         Modal.show(
-            <Confirm
+            <ConfirmBox
                 title='Sign Out'
                 message='Are you sure?'
                 onConfirm={confirm}
