@@ -35,13 +35,21 @@ const Toggle = ({ zones = [] }) => {
             ? 'Feather.X'
             : 'Feather.Menu';
 
+    const tip = () => (expanded() ? 'collapse menu' : 'expand menu');
+
     const render = () => {
         return (
             <button
                 className={cname()}
                 onClick={() => Sidebar.toggle()}
-                type='button'>
-                <Icon name={icon()} />
+                type='button'
+                title={tip()}
+                data-tooltip={tip()}
+                data-align='right'
+                data-vertical-align='middle'>
+                <div className='button'>
+                    <Icon name={icon()} />
+                </div>
             </button>
         );
     };

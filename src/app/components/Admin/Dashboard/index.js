@@ -3,6 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
+import { useHandle } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -67,18 +68,6 @@ let Dashboard = ({ children, ...props }, ref) => {
                     className={cx()}
                     style={{ minHeight: 1024, display: 'block' }}>
                     Dashboard
-                    <div
-                        data-tooltip
-                        title='test'
-                        data-align='right'
-                        data-vertical-align='middle'
-                        style={{
-                            marginTop: 600,
-                            marginLeft: 100,
-                            display: 'inline-block',
-                        }}>
-                        TEST
-                    </div>
                 </div>
             </>
         );

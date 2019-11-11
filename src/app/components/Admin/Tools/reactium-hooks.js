@@ -5,7 +5,7 @@ Reactium.Plugin.register('AdminTools').then(() => {
     Reactium.Plugin.addComponent({
         id: 'ADMIN-TOOLS',
         component: Tools,
-        zone: ['admin-header'],
+        zone: ['admin-tools'],
         order: 1000000000,
     });
 });

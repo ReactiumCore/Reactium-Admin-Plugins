@@ -1,7 +1,3 @@
-import _ from 'underscore';
-import cn from 'classnames';
-import op from 'object-path';
-import PropTypes from 'prop-types';
 import { useRegisterHandle } from 'reactium-core/sdk';
 import { Modal, Toast, Tooltip } from '@atomic-reactor/reactium-ui';
 
@@ -13,16 +9,14 @@ import React, {
     useState,
 } from 'react';
 
-/**
- * -----------------------------------------------------------------------------
- * Hook Component: Tools
- * -----------------------------------------------------------------------------
- */
 let Tools = (props, ref) => {
+    const modalRef = useRef();
     const tooltipRef = useRef();
 
     const handle = () => ({
+        Modal: modalRef.current,
         Tooltip: tooltipRef.current,
+        Toast,
     });
 
     // External Interface
@@ -32,6 +26,8 @@ let Tools = (props, ref) => {
     // Render
     return (
         <>
+            <Toast />
+            <Modal ref={modalRef} />
             <Tooltip ref={tooltipRef} />
         </>
     );

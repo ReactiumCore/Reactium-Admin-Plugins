@@ -44,4 +44,9 @@ body {
 
 .ar-tooltip {
     position: fixed;
+    z-index: map-get($z-indexes, 'overlay');
+}
+
+.ar-dialog-content {
+    background-color: $color-white;
 }

@@ -222,11 +222,11 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const Heading = () => {
-        const { action = toggle, active } = stateRef.current;
+        const { onClick = toggle, active } = stateRef.current;
         const classname = cn({ [cname('link')]: true, active });
 
         return (
-            <button className={classname} onClick={action}>
+            <button className={classname} onClick={onClick}>
                 <Label />
             </button>
         );
@@ -275,7 +275,6 @@ MenuItem = forwardRef(MenuItem);
 MenuItem.ENUMS = ENUMS;
 
 MenuItem.propTypes = {
-    action: PropTypes.func,
     active: PropTypes.bool,
     capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
@@ -290,6 +289,7 @@ MenuItem.propTypes = {
     isActive: PropTypes.func,
     label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     namespace: PropTypes.string,
+    onClick: PropTypes.func,
     route: PropTypes.string,
 };
 

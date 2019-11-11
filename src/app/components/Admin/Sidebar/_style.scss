@@ -6,7 +6,7 @@
             position: fixed;
             left: 0;
             top: 0;
-            z-index: 1000;
+            z-index: map-get($z-indexes, 'sidebar');
 
             @include breakpoint(md) {
                 position: relative;
@@ -58,29 +58,42 @@
         z-index: 100000;
         display: flex;
         justify-content: center;
-        line-height: center;
-        padding: 0;
-        margin: 0;
-        width: 50px;
-        height: 50px;
         position: fixed;
-        left: 15px;
+        left: 0;
         bottom: 5px;
+        width: $width-sidebar-collapsed;
         border: none;
-        border-radius: 50px;
-        background-color: $color-sidebar-bg;
-        color: $color-sidebar-text;
-        user-select: none;
-        transition: background-color 0.5s ease-in-out;
-
+        background-color: transparent;
+        
         * {
             pointer-events: none;
         }
 
-        @include breakpoint(sm) {
-            background-color: $color-sidebar-bg;
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: center;
+            padding: 0;
+            margin: 0;
+            width: 50px;
+            height: 50px;
 
-            &.expanded {
+            border-radius: 50px;
+            background-color: $color-sidebar-bg;
+            color: $color-sidebar-text;
+            user-select: none;
+            transition: background-color 0.5s ease-in-out;
+
+            @include breakpoint(sm) {
+                background-color: $color-sidebar-bg;
+            }
+        }
+    }
+
+    &.expanded {
+        .admin-sidebar-toggle {
+            .button {
                 background-color: lighten($color-sidebar-bg, 5%);
             }
         }
