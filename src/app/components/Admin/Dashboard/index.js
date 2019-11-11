@@ -9,14 +9,9 @@ import React, {
     forwardRef,
     useImperativeHandle,
     useEffect,
-    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
-
-// Server-Side Render safe useLayoutEffect (useEffect when node)
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 const ENUMS = {};
 

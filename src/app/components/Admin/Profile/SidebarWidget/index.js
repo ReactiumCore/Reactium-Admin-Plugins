@@ -105,7 +105,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         }
 
         return () => clearInterval(intervalRef.current);
-    }, [stateRef.current.interval]);
+    }, [op.get(stateRef.current, 'interval')]);
 
     const render = () => {
         const { height } = stateRef.current;

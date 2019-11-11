@@ -55,7 +55,7 @@ let Profile = ({ children, user, ...props }, ref) => {
     };
 
     // Side Effects
-    useEffect(() => setState(props), Object.values(props));
+    useEffect(() => setState(props), [op.get(props, 'value')]);
 
     const onSubmit = ({ value }) => {
         setState({ value });
