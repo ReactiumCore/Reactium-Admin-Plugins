@@ -47,6 +47,11 @@
             padding-top: 24px;
             text-align: center;
             overflow: hidden;
+
+            &:hover {
+                text-decoration: none;
+                opacity: 0.5 !important;
+            }
         }
     }
 
@@ -107,7 +112,6 @@
             padding: 32px 14px;
 
             &-image {
-
                 opacity: 1;
                 transition: opacity 0.5s ease-in-out;
             }
