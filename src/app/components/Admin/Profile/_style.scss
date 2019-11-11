@@ -1,6 +1,8 @@
 .zone {
     &-admin-profile {
+        @include flex-row();
         @include admin-content-zone;
+
     }
 
     &-admin-profile-actions {
