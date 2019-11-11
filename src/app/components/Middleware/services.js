@@ -16,7 +16,7 @@ export default {
                     routesConfig[route] = {
                         meta,
                         capabilities,
-                        blueprint: blueprint.ID,
+                        blueprint,
                     };
 
                     return routesConfig;
@@ -33,7 +33,7 @@ export default {
     },
 
     getBlueprints: async () => {
-        const { blueprints } = await Parse.Cloud.run('blueprints');
+        const blueprints = await Parse.Cloud.run('blueprints');
         return blueprints.reduce((allById, blueprint) => {
             allById[blueprint.ID] = blueprint;
             return allById;
