@@ -1,45 +1,33 @@
-import Reactium from 'reactium-core/sdk';
+import React from 'react';
+import Reactium, { __ } from 'reactium-core/sdk';
 import AppSettings from './index';
+import MenuItem from 'components/Admin/MenuItem';
 
+const PLUGIN = 'app-settings';
 const appSettingsPlugin = async () => {
-    await Reactium.Plugin.register('APP_SETTINGS');
+    await Reactium.Plugin.register(PLUGIN);
 
     Reactium.Plugin.addComponent({
-        /**
-         * Required - used as rendering key. Make this unique.
-         * @type {String}
-         */
-        id: 'APPSETTINGS-PLUGIN',
+        id: `${PLUGIN}-menu-item`,
+        component: () => (
+            <MenuItem label={__('Application')} route='/admin/settings' />
+        ),
+        zone: ['admin-sidebar-settings'],
+        order: Reactium.Enums.priority.highest,
+    });
 
-        /**
-         * Component to render. May also be a string, and
-         * the component will be looked up in components directory.
-         * @type {Component|String}
-         */
+    Reactium.Plugin.addComponent({
+        id: PLUGIN,
         component: AppSettings,
-
-        /**
-         * One or more zones this component should render.
-         * @type {String|Array}
-         */
         zone: ['settings-groups'],
-
-        /**
-         * By default plugins in zone are rendering in ascending order.
-         * @type {Number}
-         */
         order: 0,
-
         dialog: {
             header: {
-                title: 'Application Settings',
+                title: __('Application Settings'),
                 elements: [],
             },
             dismissable: false,
-            // namespace: 'settings',
-            // className: 'app',
         },
-
         capabilities: ['settings.app-get'],
     });
 };
