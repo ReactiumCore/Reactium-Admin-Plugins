@@ -1,6 +1,8 @@
 import React from 'react';
+import Reactium, { __ } from 'reactium-core/sdk';
+import { Plugins } from 'reactium-core/components/Plugable';
 import { Helmet } from 'react-helmet';
-import { Dialog } from '@atomic-reactor/reactium-ui';
+import { WebForm, Dialog } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -12,9 +14,22 @@ const AppSettings = ({ dialog }) => {
         <>
             <Helmet>
                 <meta charSet='utf-8' />
-                <title>Settings</title>
+                <title>
+                    {__('App')} - {__('Settings')}
+                </title>
             </Helmet>
-            <Dialog {...dialog}>AppSettings</Dialog>
+            <Dialog {...dialog}>
+                <Plugins zone={'app-settings-dialog-pre'} />
+
+                <WebForm>
+                    {
+                        // default appliation settings here
+                    }
+                    <Plugins zone={'app-settings-dialog-webform'} />
+                </WebForm>
+
+                <Plugins zone={'app-settings-dialog-post'} />
+            </Dialog>
         </>
     );
 };
