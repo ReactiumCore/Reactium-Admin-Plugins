@@ -184,7 +184,7 @@ let Reset = props => {
                             })}>
                             <input
                                 type='password'
-                                placeholder='Password'
+                                placeholder='New Password'
                                 name='password'
                                 id='password'
                                 autoComplete='off'

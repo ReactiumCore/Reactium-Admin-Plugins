@@ -3,10 +3,10 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { useAvatar } from 'components/Admin/Profile/hooks';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { Button, Icon, WebForm } from '@atomic-reactor/reactium-ui';
+import { Button, Icon, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -22,6 +22,12 @@ import React, {
  * -----------------------------------------------------------------------------
  */
 let Profile = ({ children, user, ...props }, ref) => {
+    const history = useSelect(state => op.get(state, 'Router.history'));
+
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
     const defaultAvatar = useAvatar({});
 
     const u = user || Reactium.User.current();
@@ -115,6 +121,34 @@ let Profile = ({ children, user, ...props }, ref) => {
         setState({ value });
     };
 
+    const resetPassword = async () => {
+        Modal.show(
+            <div
+                className='flex center middle bg-grey-light'
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                }}>
+                <Spinner />
+            </div>,
+        );
+
+        // // Generate token
+        const token = await Reactium.Cloud.run('token-gen');
+
+        // Logout
+        await Reactium.User.logOut();
+
+        // Redirect
+        setTimeout(() => {
+            history.replace(`/reset/${token}`);
+            Modal.hide();
+        }, 1000);
+    };
+
     // Renderer
     const render = () => {
         const { className, value = {} } = stateRef.current;
@@ -202,7 +236,8 @@ let Profile = ({ children, user, ...props }, ref) => {
                                     appearance='pill'
                                     color='tertiary'
                                     size='xs'
-                                    type='button'>
+                                    type='button'
+                                    onClick={resetPassword}>
                                     Reset
                                 </Button>
                             </div>
