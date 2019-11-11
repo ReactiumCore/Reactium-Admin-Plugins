@@ -128,10 +128,7 @@ let Profile = ({ children, user, ...props }, ref) => {
                     <title>Profile</title>
                 </Helmet>
                 <div className={className}>
-                    <WebForm
-                        value={value}
-                        ref={containerRef}
-                        className={cname()}>
+                    <WebForm ref={containerRef} className={cname()}>
                         <input
                             type='hidden'
                             name='objectId'
@@ -243,7 +240,7 @@ Profile = forwardRef(Profile);
 
 Profile.defaultProps = {
     namespace: 'zone-admin-profile-editor',
-    className: 'col-xs-12 col-sm-6 col-md-4 col-xl-2 ',
+    className: 'col-xs-12 col-sm-6 col-lg-4',
 };
 
 const AvatarButtons = ({ avatar, clear, upload }) => (
