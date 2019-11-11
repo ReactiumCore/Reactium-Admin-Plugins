@@ -130,7 +130,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     };
 
     const collapseSidebar = () => {
-        if (expanded() === true && breakpoint === 'xs') {
+        if (expanded() && ['xs', 'sm'].includes(breakpoint)) {
             Sidebar.collapse();
         }
     };

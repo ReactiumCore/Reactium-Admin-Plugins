@@ -22,7 +22,7 @@ const getRole = user => {
 const useAvatar = user => {
     user = user || Reactium.User.current() || {};
 
-    const ref = useRef(op.get(user, 'avatar', '/assets/images/hero.png'));
+    const ref = useRef(op.get(user, 'avatar', '/assets/images/avatar.png'));
     const [, updateRef] = useState(ref.current);
 
     const setState = avatar => {
