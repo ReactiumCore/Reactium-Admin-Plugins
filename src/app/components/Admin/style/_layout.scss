@@ -15,6 +15,12 @@ body {
 
 .admin-page {
     .section {
+        &-tools {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
         &-main {
             display: flex;
             flex-direction: column;

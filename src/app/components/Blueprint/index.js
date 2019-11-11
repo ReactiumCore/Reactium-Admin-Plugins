@@ -93,7 +93,6 @@ const Blueprint = () => {
                     ))}
                 </section>
             ))}
-            <Plugins zone='admin-tools' />
         </main>
     );
 
