@@ -14,7 +14,9 @@ const Widget = () => {
 
     const confirm = () => {
         Router.history.replace('/logout');
-        Modal.dismiss();
+        if (Modal) {
+            Modal.dismiss();
+        }
     };
 
     const showModal = () =>
