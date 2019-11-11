@@ -7,6 +7,7 @@ import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { useAvatar } from 'components/Admin/Profile/hooks';
 import { Plugins } from 'reactium-core/components/Plugable';
 import { Button, Icon, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
+import ConfirmBox from 'components/Admin/ConfirmBox';
 
 import React, {
     forwardRef,
@@ -122,7 +123,8 @@ let Profile = ({ children, user, ...props }, ref) => {
     };
 
     const resetPassword = async () => {
-        Modal.show(
+        // Update the modal content
+        Modal.update(
             <div
                 className='flex center middle bg-grey-light'
                 style={{
@@ -136,17 +138,35 @@ let Profile = ({ children, user, ...props }, ref) => {
             </div>,
         );
 
-        // // Generate token
+        // Generate token
         const token = await Reactium.Cloud.run('token-gen');
 
-        // Logout
+        // Sign out
         await Reactium.User.logOut();
 
-        // Redirect
-        setTimeout(() => {
-            history.replace(`/reset/${token}`);
-            Modal.hide();
-        }, 1000);
+        // Hide modal and show reset screen
+        await new Promise(resolve =>
+            setTimeout(() => {
+                Modal.hide();
+                resolve(history.replace(`/reset/${token}`));
+            }, 2000),
+        );
+    };
+
+    const resetConfirm = () => {
+        const Message = () => (
+            <>
+                <p>Resetting your password will sign you out.</p>
+                Are you sure?
+            </>
+        );
+        Modal.show(
+            <ConfirmBox
+                title='Reset Password'
+                message={<Message />}
+                onConfirm={resetPassword}
+            />,
+        );
     };
 
     // Renderer
@@ -237,7 +257,7 @@ let Profile = ({ children, user, ...props }, ref) => {
                                     color='tertiary'
                                     size='xs'
                                     type='button'
-                                    onClick={resetPassword}>
+                                    onClick={resetConfirm}>
                                     Reset
                                 </Button>
                             </div>
