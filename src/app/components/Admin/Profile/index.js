@@ -8,14 +8,37 @@ import { useAvatar } from 'components/Admin/Profile/hooks';
 import { Plugins } from 'reactium-core/components/Plugable';
 import { Button, Icon, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
 import ConfirmBox from 'components/Admin/ConfirmBox';
+import inputs from './inputs';
 
 import React, {
     forwardRef,
     useImperativeHandle,
     useEffect,
+    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
+
+const ENUMS = {
+    STATUS: {
+        COMPLETE: 'COMPLETE',
+        ERROR: 'ERROR',
+        INIT: 'INIT',
+        SAVING: 'SAVING',
+    },
+};
+
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
+
+const getValue = (value = {}) =>
+    _.chain(inputs)
+        .pluck('name')
+        .value()
+        .reduce((obj, name) => {
+            obj[name] = op.get(value, name, '');
+            return obj;
+        }, {});
 
 /**
  * -----------------------------------------------------------------------------
@@ -35,14 +58,16 @@ let Profile = ({ children, user, ...props }, ref) => {
 
     // Refs
     const containerRef = useRef();
+    const uploadRef = useRef();
     const stateRef = useRef({
         ...props,
-        value: { ...u },
+        error: {},
+        status: ENUMS.STATUS.INIT,
+        value: getValue({ ...u }),
     });
-    const uploadRef = useRef();
 
     // State
-    const [state, setNewState] = useState(stateRef.current);
+    const [, setNewState] = useState(stateRef.current);
 
     // Internal Interface
     const setState = newState => {
@@ -56,39 +81,41 @@ let Profile = ({ children, user, ...props }, ref) => {
         setNewState(stateRef.current);
     };
 
+    const disabled = () => {
+        const { status } = stateRef.current;
+        const statuses = [ENUMS.STATUS.SAVING];
+        return statuses.includes(status);
+    };
+
     const cname = cls => {
         const { namespace } = stateRef.current;
         return _.compact([namespace, cls]).join('-');
     };
 
-    // Side Effects
-    useEffect(() => setState(props), [op.get(props, 'value')]);
-
-    const onSubmit = ({ value }) => {
-        setState({ value });
-    };
-
-    const onChange = e => {
-        const { value } = stateRef.current;
-        const { name, value: val } = e.target;
-
-        value[name] = val;
-        setState({ value });
-    };
-
     const clearAvatar = () => {
+        if (disabled()) {
+            return;
+        }
+
         const { value } = stateRef.current;
+
         const avatar = op.get(value, 'avatar', '');
 
         value['avatar'] =
             String(avatar).startsWith('data:') && op.get(u, 'avatar')
                 ? u.avatar
-                : undefined;
+                : null;
 
         setState({ value });
     };
 
-    const uploadOpen = () => uploadRef.current.click();
+    const uploadOpen = () => {
+        if (disabled()) {
+            return;
+        }
+
+        uploadRef.current.click();
+    };
 
     const fileReader = file =>
         new Promise((resolve, reject) => {
@@ -148,12 +175,17 @@ let Profile = ({ children, user, ...props }, ref) => {
         await new Promise(resolve =>
             setTimeout(() => {
                 Modal.hide();
-                resolve(history.replace(`/reset/${token}`));
+                history.replace(`/reset/${token}`);
+                resolve();
             }, 2000),
         );
     };
 
     const resetConfirm = () => {
+        if (disabled()) {
+            return;
+        }
+
         const Message = () => (
             <>
                 <p>Resetting your password will sign you out.</p>
@@ -169,86 +201,149 @@ let Profile = ({ children, user, ...props }, ref) => {
         );
     };
 
+    const onSubmit = ({ value }) => {
+        if (disabled()) {
+            return;
+        }
+
+        op.del(value, 'type');
+
+        setState({ error: {}, status: ENUMS.STATUS.SAVING, value });
+    };
+
+    const onError = ({ errors }) => {
+        const error = {
+            field: op.get(errors, 'fields.0'),
+            message: op.get(errors, 'errors.0'),
+        };
+
+        error['focus'] = op.get(error, 'field');
+
+        setState({ error });
+    };
+
+    const onChange = e => {
+        if (disabled()) {
+            return;
+        }
+
+        const { value } = stateRef.current;
+        const { name, value: val } = e.target;
+
+        value[name] = val;
+        setState({ value });
+    };
+
+    const isError = name => {
+        const { error = {} } = stateRef.current;
+
+        const field = op.get(error, 'field');
+        const message = op.get(error, 'message');
+
+        return message && field === name;
+    };
+
+    const isMe = () => {
+        const { value = {} } = stateRef.current;
+        return op.get(u, 'objectId') === op.get(value, 'objectId');
+    };
+
+    const RenderInputs = () => {
+        const { error, value = {} } = stateRef.current;
+
+        return inputs.map((input, i) => {
+            const item = { ...input };
+            const key = `${cname('form-input')}-${i}`;
+
+            // Headings
+            if (op.get(item, 'type') === 'heading') {
+                const heading = { ...item };
+                op.del(heading, 'type');
+                op.del(heading, 'value');
+                op.set(heading, 'className', 'mt-xs-32 mb-xs-20');
+
+                return <h3 key={key} {...heading} />;
+            }
+
+            // Inputs
+            op.set(item, 'value', op.get(value, item.name, '') || '');
+            op.del(item, 'required');
+
+            // Hidden Inputs
+            if (op.get(item, 'type') === 'hidden') {
+                return <input key={key} {...item} />;
+            }
+
+            // Add onChange listener
+            op.set(item, 'onChange', onChange);
+
+            // Set disabled if saving
+            op.set(item, 'disabled', disabled());
+
+            // Check if it's an error input
+            const err = isError(item.name);
+
+            // Normal inputs
+            return (
+                <div
+                    key={key}
+                    className={cn({
+                        'form-group': true,
+                        error: err,
+                    })}>
+                    <input {...item} />
+                    {err && <small>{op.get(error, 'message')}</small>}
+                </div>
+            );
+        });
+    };
+
     // Renderer
     const render = () => {
-        const { className, value = {} } = stateRef.current;
-        const avatar = op.get(value, 'avatar', defaultAvatar);
-        const me = op.get(u, 'objectId') === op.get(value, 'objectId');
+        let { className, value = {} } = stateRef.current;
+        value = getValue(value);
+        const avatar = op.get(value, 'avatar', defaultAvatar) || defaultAvatar;
+
+        const required = _.chain(_.where(inputs, { required: true }))
+            .pluck('name')
+            .value();
 
         return (
             <>
                 <Helmet>
                     <meta charSet='utf-8' />
-                    <title>Profile</title>
+                    <title>
+                        {disabled() ? 'Profile | Saving...' : 'Profile'}
+                    </title>
                 </Helmet>
                 <div className={className}>
-                    <WebForm ref={containerRef} className={cname()}>
-                        <input
-                            type='hidden'
-                            name='objectId'
-                            value={op.get(value, 'objectId', '')}
-                        />
-                        <input
-                            type='hidden'
-                            name='avatar'
-                            value={op.get(value, 'avatar', '')}
-                        />
-                        <input
-                            id='avatar'
-                            type='file'
-                            hidden
-                            ref={uploadRef}
-                            onChange={selectFile}
-                        />
+                    <WebForm
+                        className={cname()}
+                        onError={onError}
+                        onSubmit={onSubmit}
+                        ref={containerRef}
+                        showError={false}
+                        value={value}
+                        required={required}>
                         <div
                             className={cname('avatar')}
                             style={{
                                 backgroundImage: `url(${avatar})`,
                             }}>
                             <AvatarButtons
-                                avatar={op.get(value, 'avatar', '')}
+                                avatar={op.get(u, 'avatar')}
                                 clear={clearAvatar}
                                 upload={uploadOpen}
                             />
                         </div>
                         <div className={cname('form')}>
-                            {!me && (
+                            {!isMe() && (
                                 <h4 className='mt-xs-20 mb-xs-40 text-center strong'>
                                     {op.get(value, 'username')}
                                 </h4>
                             )}
 
-                            <h3 className='my-xs-20'>Account Info</h3>
-                            <div className='form-group'>
-                                <input
-                                    autoComplete='off'
-                                    type='text'
-                                    name='fname'
-                                    placeholder='First Name'
-                                    value={op.get(value, 'fname', '')}
-                                    onChange={onChange}
-                                />
-                            </div>
-                            <div className='form-group'>
-                                <input
-                                    autoComplete='off'
-                                    type='text'
-                                    name='lname'
-                                    placeholder='Last Name'
-                                    value={op.get(value, 'lname', '')}
-                                    onChange={onChange}
-                                />
-                            </div>
-                            <div className='form-group'>
-                                <input
-                                    autoComplete='off'
-                                    type='email'
-                                    name='email'
-                                    placeholder='Email'
-                                    value={op.get(value, 'email', '')}
-                                    onChange={onChange}
-                                />
-                            </div>
+                            <RenderInputs />
 
                             <div className='flex middle mt-xs-40 mb-xs-20'>
                                 <h3 className='flex-grow'>Password</h3>
@@ -268,16 +363,35 @@ let Profile = ({ children, user, ...props }, ref) => {
                             <Button
                                 appearance='pill'
                                 block
+                                disabled={disabled()}
                                 size='md'
                                 type='submit'>
-                                Save Profile
+                                {disabled() ? 'Saving...' : 'Save Profile'}
                             </Button>
                         </div>
+                        <input
+                            type='file'
+                            ref={uploadRef}
+                            hidden
+                            onChange={selectFile}
+                        />
                     </WebForm>
                 </div>
             </>
         );
     };
+
+    // Side Effects
+    useEffect(() => setState(props), [op.get(props, 'value')]);
+
+    useLayoutEffect(() => {
+        const focus = op.get(stateRef.current, 'error.focus');
+        const elm = document.getElementsByName(focus)[0];
+
+        if (elm) {
+            elm.select();
+        }
+    }, [op.get(stateRef.current, 'error.focus')]);
 
     // External Interface
     useImperativeHandle(ref, () => ({

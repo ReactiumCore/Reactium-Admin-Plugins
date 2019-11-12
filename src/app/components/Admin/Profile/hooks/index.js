@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
+import inputs from '../inputs';
 import Reactium from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
 
@@ -36,7 +37,7 @@ const useAvatar = user => {
         Reactium.Hook.run('avatar', ref.current, user).then(context =>
             setState(op.get(context, 'avatar', ref.current)),
         );
-    }, [op.get(user, 'objectId')]);
+    }, [op.get(user, 'objectId'), op.get(user, 'updatedAt')]);
 
     return ref.current;
 };
@@ -44,7 +45,7 @@ const useAvatar = user => {
 const useGreeting = user => {
     user = user || Reactium.User.current() || {};
 
-    const ref = useRef();
+    const ref = useRef('Hello');
 
     const [, updateRef] = useState(ref.current);
 
@@ -74,9 +75,24 @@ const useGreeting = user => {
                     },
                 );
             });
-    }, [op.get(user, 'objectId')]);
+    }, [op.get(user, 'objectId'), op.get(user, 'updatedAt')]);
 
     return ref.current;
+};
+
+const useInputs = () => {
+    const output = Array.from(inputs);
+
+    const ref = useRef(output);
+
+    const [, updateRef] = useState(ref.current);
+
+    const setState = newState => {
+        ref.current = newState;
+        updateRef(ref.current);
+    };
+
+    useEffect(() => {});
 };
 
 const useRole = user => {
@@ -101,7 +117,7 @@ const useRole = user => {
             const { role } = context;
             setState(role || ref.current);
         });
-    }, [op.get(user, 'objectId')]);
+    }, [op.get(user, 'objectId'), op.get(user, 'updatedAt')]);
 
     return ref.current;
 };

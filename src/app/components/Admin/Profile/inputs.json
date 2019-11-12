@@ -1,0 +1,37 @@
+[
+    {
+        "type": "hidden",
+        "name": "objectId"
+    },
+    {
+        "type": "hidden",
+        "name": "avatar"
+    },
+    {
+        "type": "heading",
+        "children": "Account Info"
+    },
+    {
+        "autoComplete": "off",
+        "name": "email",
+        "placeholder": "Email Address",
+        "type": "email",
+        "required": true
+    },
+    {
+        "type": "heading",
+        "children": "Name"
+    },
+    {
+        "autoComplete": "off",
+        "name": "fname",
+        "placeholder": "First Name",
+        "type": "text"
+    },
+    {
+        "autoComplete": "off",
+        "name": "lname",
+        "placeholder": "Last Name",
+        "type": "text"
+    }
+]

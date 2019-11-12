@@ -34,9 +34,7 @@ const Logout = ({ className, redirect, ...props }) => {
         if (status === ENUMS.STATUS.READY) {
             setState({ status: ENUMS.STATUS.SUBMITTING });
 
-            Reactium.User.logOut().then(() =>
-                setState({ status: ENUMS.STATUS.SUCCESS }),
-            );
+            Reactium.User.logOut();
         }
     });
 
