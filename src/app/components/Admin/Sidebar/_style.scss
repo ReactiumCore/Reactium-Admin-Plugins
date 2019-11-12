@@ -1,6 +1,5 @@
 .blueprint {
     .section-sidebar {
-        z-index: 2;
 
         .zone-admin-sidebar {
             position: fixed;
@@ -64,7 +63,7 @@
         width: $width-sidebar-collapsed;
         border: none;
         background-color: transparent;
-        
+
         * {
             pointer-events: none;
         }

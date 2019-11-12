@@ -2,14 +2,35 @@
     z-index: map-get($z-indexes, 'header');
     width: 100%;
     height: $height-admin-header;
+    overflow-y: visible;
     background-color: $color-admin-header-bg;
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     flex-shrink: 0;
-    flex-grow: 0;
-    padding: 0 8px;
+    flex-direction: row;
+    padding: 0 8px 0 16px;
     border-bottom: 1px solid $color-grey-light;
+}
+
+@mixin admin-header-button() {
+    width: $height-admin-header-button;
+    height: $height-admin-header-button;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+    color: $color-admin-header;
+    border: none;
+
+    > * {
+        pointer-events: none;
+    }
+
+    svg {
+        fill: $color-admin-header;
+        fill: currentColor;
+    }
 }
 
 @mixin admin-content-zone() {

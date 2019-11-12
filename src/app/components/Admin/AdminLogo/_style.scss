@@ -1,0 +1,17 @@
+
+.admin-logo {
+    z-index: map-get($z-indexes, 'default');
+    min-width: $height-admin-header;
+    height: $height-admin-header;
+    display: flex;
+    justify-content: flex-end;
+    flex-grow: 1;
+    align-items: center;
+    overflow: hidden;
+    padding: 10px;
+
+    > * {
+        width: auto;
+        height: 100%;
+    }
+}

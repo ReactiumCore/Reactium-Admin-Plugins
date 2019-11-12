@@ -1,0 +1,218 @@
+$width-profile-avatar: 148px;
+$width-profile-avatar-button: 30px;
+
+
+.admin-profile-editor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: #{map-get($z-indexes, 'sidebar') + 1};
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: all 0.25s ease-in-out;
+    padding-bottom: $padding-default * 2;
+
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    &-bg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        cursor: pointer;
+        z-index: 0;
+    }
+
+    &-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: $height-admin-header + $padding-default;
+        width: 320px;
+        position: relative;
+
+        @include breakpoint(sm) {
+            width: 420px;
+        }
+    }
+
+    &-form {
+        flex-grow: 1;
+        padding-top: $width-profile-avatar/2;
+        background-color: $color-white;
+        border-radius: 24px;
+        box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.025);
+
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    &-footer {
+        width: 100%;
+        padding: 20px;
+        background-color: $color-white-dark;
+        border-top: 1px solid $color-grey-light;
+        border-radius: 0px 0px 24px 24px;
+    }
+
+    &-avatar {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: column;
+        margin-bottom: -#{$width-profile-avatar/2};
+        position: relative;
+        z-index: 2;
+
+        &-image {
+            width: $width-profile-avatar;
+            height: $width-profile-avatar;
+            background-color: $color-white;
+            border-radius: 100%;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            border: 6px solid $color-white;
+            margin-bottom: -#{$width-profile-avatar-button + 8px};
+        }
+
+        &-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: $width-profile-avatar;
+            height: $width-profile-avatar-button;
+            padding: 0 8px;
+
+            button {
+                width: $width-profile-avatar-button;
+                height: $width-profile-avatar-button;
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+    }
+
+    &-close-button {
+        position: absolute;
+        top: #{$width-profile-avatar + 10px};
+        left: 10px;
+        // top: 0;
+        z-index: 3;
+
+        button {
+            padding: 0;
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+}
+
+.admin-profile-editor-x {
+    order: -1000;
+    color: $color-gray-dark;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: visible;
+    justify-content: center;
+    align-items: center;
+
+    &-placeholder {
+        z-index: 2;
+    }
+
+
+    &-container {
+        z-index: map-get($z-indexes, 'sidebar') + 1;
+        display: block;
+        position: fixed;
+        left: 50%;
+        top: 0;
+        max-height: 100vh;
+        overflow-y: auto;
+        transform: translateX(-50%) translateY(-100%);
+        transform-origin: left top;
+        transition: all 0.25s ease-in-out;
+
+        &.visible {
+            transform: translateX(-50%)
+            translateY(#{$height-admin-header + $padding-default});
+            top: 0;
+            left: 50%;
+        }
+    }
+
+    &-form {
+        flex-grow: 1;
+        padding-top: $width-profile-avatar/2;
+        background-color: $color-white;
+        border-radius: 24px;
+        box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.025);
+        width: 320px;
+        position: relative;
+        z-index: 1;
+        @include breakpoint(sm) {
+            width: 420px;
+        }
+    }
+
+    &-footer {
+        width: 100%;
+        padding: 20px;
+        background-color: $color-white-dark;
+        border-top: 1px solid $color-grey-light;
+        border-radius: 0px 0px 24px 24px;
+    }
+
+    &-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: column;
+        margin-bottom: -#{$width-profile-avatar/2};
+        position: relative;
+        z-index: 2;
+
+        &-image {
+            width: $width-profile-avatar;
+            height: $width-profile-avatar;
+            background-color: $color-white;
+            border-radius: 100%;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            border: 6px solid $color-white;
+            margin-bottom: -#{$width-profile-avatar-button + 8px};
+        }
+
+        &-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: $width-profile-avatar;
+            height: $width-profile-avatar-button;
+            padding: 0 8px;
+
+            button {
+                width: $width-profile-avatar-button;
+                height: $width-profile-avatar-button;
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+    }
+}

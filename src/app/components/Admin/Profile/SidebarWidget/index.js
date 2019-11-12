@@ -2,12 +2,12 @@ import cn from 'classnames';
 import op from 'object-path';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { useHandle, useWindowSize } from 'reactium-core/sdk';
+import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
 
 import {
-    useAvatar,
-    useGreeting,
-    useRole,
+    useProfileAvatar,
+    useProfileGreeting,
+    useProfileRole,
 } from 'components/Admin/Profile/hooks';
 
 import React, {
@@ -20,6 +20,27 @@ import React, {
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
+const noop = () => {
+    return true;
+};
+
+Reactium.Hook.register(
+    'profile-role-name',
+    (role, user, context) => {
+        switch (role) {
+            case 'super-admin':
+                role = 'Super Admin';
+                break;
+
+            case 'administrator':
+                role = 'Administrator';
+                break;
+        }
+        context['role'] = role;
+    },
+    Reactium.Enums.priority.highest,
+);
+
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: SidebarWidget
@@ -30,36 +51,27 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         return null;
     }
 
-    const Sidebar = useHandle('AdminSidebar');
+    const Profile = useHandle('ProfileEditor');
 
-    const expanded = () =>
-        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
+    const role = useProfileRole();
 
-    const avatar = useAvatar();
+    const getAvatar = useProfileAvatar();
 
-    const greeting = useGreeting();
+    const greeting = useProfileGreeting();
 
     const { breakpoint } = useWindowSize();
 
-    const role = useRole();
-
     const avatarRef = useRef();
+
+    const containerRef = useRef();
 
     const intervalRef = useRef();
 
     const stateRef = useRef({
-        width: 50,
-        height: 0,
-        interval: null,
+        avatar: getAvatar,
     });
 
-    const collapseSidebar = () => {
-        const doCollapse = ['xs', 'sm'];
-
-        if (expanded() === true && doCollapse.includes(breakpoint)) {
-            Sidebar.collapse();
-        }
-    };
+    const toggle = () => Profile.toggle();
 
     // State
     const [, setNewState] = useState(stateRef.current);
@@ -79,58 +91,32 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
     const cname = () =>
         cn({ [className]: !!className, [namespace]: !!namespace });
 
-    const resized = () => {
-        let { height } = stateRef.current;
-
-        const elm = avatarRef.current;
-
-        if (!elm) {
-            return;
+    useEffect(() => {
+        const { avatar } = stateRef.current;
+        if (avatar !== getAvatar) {
+            setState({ avatar: getAvatar });
         }
-
-        const width = elm.offsetWidth;
-
-        if (height !== width) {
-            height = width;
-            op.set(stateRef.current, 'height', height);
-            setState({ height });
-        }
-    };
-
-    useLayoutEffect(() => {
-        resized();
-
-        if (!intervalRef.current) {
-            intervalRef.current = setInterval(resized, 1);
-        }
-
-        return () => clearInterval(intervalRef.current);
-    }, [op.get(stateRef.current, 'interval')]);
+    }, [getAvatar]);
 
     const render = () => {
-        const { height } = stateRef.current;
+        const { avatar } = stateRef.current;
 
         return (
-            <div className={cname()}>
-                <Link
-                    to='/admin/profile'
+            <div className={cname()} ref={containerRef}>
+                <button
                     className='avatar-image'
                     ref={avatarRef}
-                    onClick={() => collapseSidebar()}
+                    onClick={() => toggle()}
                     style={{
                         backgroundImage: `url(${avatar})`,
-                        height,
                     }}
                 />
-                <Link
-                    to='/admin/profile'
-                    className='avatar-labels'
-                    onClick={() => collapseSidebar()}>
+                <button className='avatar-labels' onClick={() => toggle()}>
                     {greeting && (
                         <span className='avatar-greeting'>{greeting}</span>
                     )}
                     {role && <span className='avatar-role'>{role}</span>}
-                </Link>
+                </button>
             </div>
         );
     };

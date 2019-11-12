@@ -1,5 +1,5 @@
 import op from 'object-path';
-import Profile from './index';
+import Editor from './Editor';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
 
@@ -15,8 +15,8 @@ const sidebar = [
 const editors = [
     {
         id: 'ADMIN-PROFILE',
-        component: Profile,
-        zone: ['admin-profile'],
+        component: Editor,
+        zone: ['admin-sidebar'],
     },
 ];
 

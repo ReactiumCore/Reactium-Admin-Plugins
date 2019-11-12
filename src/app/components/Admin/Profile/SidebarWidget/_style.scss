@@ -28,25 +28,30 @@
         border-bottom: 1px solid $color-sidebar-bg;
 
         &-image {
-            width: 100%;
+            width: 100px;
+            height: 100px;
             max-width: 100px;
             border: 2px solid $color-avatar-stroke;
-            opacity: 0;
-            transition: none;
+            opacity: 1;
+            transition: all 0.2s ease-in-out;
+            overflow: hidden;
         }
 
         &-labels {
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             flex-wrap: nowrap;
             opacity: 0;
-            transition: all 0.25s ease-in-out;
+            height: 0px;
+            transition: all 0.2s ease-in-out;
             min-width: $width-sidebar-expanded;
-            padding-top: 24px;
+            margin: 24px 0 0 0;
             text-align: center;
             overflow: hidden;
+            background-color: transparent;
+            border: none;
 
             &:hover {
                 text-decoration: none;
@@ -59,6 +64,8 @@
         .avatar {
             &-image {
                 opacity: 0;
+                width: 52px;
+                height: 52px;
 
                 @include breakpoint(sm) {
                     opacity: 1;
@@ -66,12 +73,9 @@
             }
 
             &-labels {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
                 opacity: 0;
                 height: 0px;
+                margin: 0;
             }
         }
     }
@@ -79,15 +83,18 @@
     &.collapsed {
         .avatar {
             &-labels {
-                display: none;
+                opacity: 0;
                 height: 0px;
+                margin: 0;
+                overflow: hidden;
             }
 
             &-image {
                 opacity: 0;
                 display: none;
 
-                max-width: 52px;
+                width: 52px;
+                height: 52px;
 
                 @include breakpoint(sm) {
                     max-width: 100px;
@@ -113,16 +120,11 @@
 
             &-image {
                 opacity: 1;
-                transition: opacity 0.5s ease-in-out;
             }
 
             &-labels {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
                 opacity: 1;
-                padding-top: 24px;
+                margin: 24px 0 0 0;
                 height: auto;
             }
 

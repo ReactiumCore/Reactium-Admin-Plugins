@@ -1,5 +1,6 @@
 $width-profile-avatar: 124px;
 
+/*
 .zone {
     &-admin-profile {
         @include flex-row();
@@ -46,6 +47,14 @@ $width-profile-avatar: 124px;
                 background-size: cover;
                 background-repeat: no-repeat;
                 border: 6px solid $color-white;
+
+                button {
+                    width: 30px;
+                    height: 30px;
+                    max-width: 30px;
+                    max-height: 30px;
+                    padding: 0;
+                }
             }
         }
     }
@@ -54,3 +63,4 @@ $width-profile-avatar: 124px;
         @include admin-actions-zone;
     }
 }
+*/
