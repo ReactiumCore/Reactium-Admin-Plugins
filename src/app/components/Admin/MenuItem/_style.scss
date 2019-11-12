@@ -6,7 +6,6 @@
         display: block;
         border-bottom: 1px solid $color-sidebar-bg;
         margin: 12px 0;
-        transition: all 0.5s ease-in-out;
         opacity: 1;
     }
 
@@ -23,7 +22,6 @@
             background-color: transparent;
             border: none;
             border-left: 2px solid transparent;
-            transition: opacity 0.5s ease-in-out, border-color 0.5s ease-in-out;
             text-align: left;
             color: $color-sidebar-text;
             padding: 0;
@@ -38,6 +36,7 @@
             &.active {
                 opacity: 1;
                 border-left: 2px solid $color-menu-item-active;
+                background-color: rgba($color-sidebar-bg, 0.5);
 
                 .menu-item-icon {
                     color: $color-menu-item-active;
@@ -52,7 +51,6 @@
             justify-content: center;
             align-items: center;
             flex-grow: 0;
-            transition: all 0.5s ease-in-out;
 
             * {
                 pointer-events: none;
@@ -92,7 +90,7 @@
         .menu-item {
             &-link {
                 padding: 0 13px;
-                margin: 6px 0;
+                // margin: 6px 0;
 
                 &:hover {
                     background-color: rgba($color-black, 0.1);
@@ -101,7 +99,7 @@
 
             &-icon {
                 width: $width-menu-item;
-                height: $height-menu-item-expanded;
+                min-height: $height-menu-item-expanded;
             }
 
             &-label {
@@ -116,6 +114,34 @@
 
             &-content {
                 display: block;
+
+                .ar-collapsible {
+                    background-color: rgba($color-sidebar-bg, 0.5);
+                    border-left: 2px solid $color-menu-item-active;
+                    padding-bottom: 8px;
+
+                    .menu-item {
+                        &-link {
+                            margin: 0;
+                            color: darken($color-sidebar-text, 10%);
+                            font-size: $font-size-menu-item - 2px;
+
+                            &:hover {
+                                background-color: transparent;
+                            }
+                            &.active {
+                                background-color: transparent;
+                                border-left: none;
+                            }
+                        }
+
+                        &-icon,
+                        &-label {
+                            height: $height-menu-item - 20px;
+                            font-size: inherit;
+                        }
+                    }
+                }
             }
         }
     }

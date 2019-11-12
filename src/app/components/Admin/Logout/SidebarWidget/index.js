@@ -33,7 +33,6 @@ const Widget = () => {
 
     const render = () => (
         <>
-            <div className='menu-break' />
             <MenuItem
                 label='Sign Out'
                 onClick={showModal}
