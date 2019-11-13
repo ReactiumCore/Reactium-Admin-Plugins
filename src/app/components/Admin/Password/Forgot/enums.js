@@ -27,10 +27,10 @@ const ENUMS = {
         ),
         MESSAGE_SUCCESS: [
             __('Check your'),
-            __('email and follow the directions to reset your password.'),
+            __('email and follow the directions to reset your password'),
         ],
-        SUCCESS: __('Request Sent!'),
-        TITLE: __('Forgot your password?'),
+        SUCCESS: __('Request Sent') + '!',
+        TITLE: __('Forgot your password') + '?',
     },
 };
 
