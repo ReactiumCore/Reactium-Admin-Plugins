@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import ENUMS from '../enums';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import AvatarButtons from './AvatarButtons';
 import ConfirmBox from 'components/Admin/ConfirmBox';
 import { Plugins } from 'reactium-core/components/Plugable';
-
 import { Button, Icon, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -27,16 +27,6 @@ import React, {
     useRef,
     useState,
 } from 'react';
-
-const ENUMS = {
-    STATUS: {
-        COMPLETE: 'COMPLETE',
-        ERROR: 'ERROR',
-        INIT: 'INIT',
-        READY: 'READY',
-        SAVING: 'SAVING',
-    },
-};
 
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
@@ -191,7 +181,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
         Toast.show({
             autoClose: 5000,
             type: Toast.TYPE.ERROR,
-            message: 'Unable to save profile',
+            message: ENUMS.TEXT.ERROR,
             icon: (
                 <Icon name='Linear.AlertOctagon' style={{ marginRight: 12 }} />
             ),
@@ -201,7 +191,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
     };
 
     // Show Success in Toast notification
-    const toastSuccess = (message = 'Profile Updated!') =>
+    const toastSuccess = (message = ENUMS.TEXT.SUCCESS) =>
         Toast.show({
             autoClose: 1000,
             icon: <Icon name='Linear.Rocket' />,
@@ -252,10 +242,10 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
                     value: getValue(userObj.toJSON()),
                 });
             } else {
-                toastError({ message: 'Unable to save profile' }, value);
+                toastError({ message: ENUMS.TEXT.ERROR }, value);
             }
         } catch (err) {
-            toastError({ message: 'Unable to save profile' }, value);
+            toastError({ message: ENUMS.TEXT.ERROR }, value);
         }
     };
 
@@ -420,7 +410,9 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
                                     disabled={disabled()}
                                     size='md'
                                     type='submit'>
-                                    {disabled() ? 'Saving...' : 'Save Profile'}
+                                    {disabled()
+                                        ? ENUMS.TEXT.SAVING
+                                        : ENUMS.TEXT.SAVE}
                                 </Button>
                             </div>
                         </div>

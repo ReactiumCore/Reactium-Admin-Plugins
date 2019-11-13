@@ -79,7 +79,7 @@ ConfirmBox.defaultProps = {
     collapsible: false,
     dismissable: true,
     title: 'Confirm',
-    message: 'Confirm something',
+    message: 'Are you sure?',
     buttons: {
         no: {
             label: 'No',

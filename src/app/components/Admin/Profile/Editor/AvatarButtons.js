@@ -1,4 +1,5 @@
 import React from 'react';
+import ENUMS from '../enums';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 export default ({ avatar, clear, defaultAvatar, upload }) => (
@@ -10,7 +11,7 @@ export default ({ avatar, clear, defaultAvatar, upload }) => (
             color='tertiary'
             onClick={upload}
             size='xs'
-            title='Upload'
+            title={ENUMS.TEXT.AVATAR.UPLOAD}
             data-tooltip
             data-vertical-align='middle'
             data-align='left'
@@ -25,7 +26,7 @@ export default ({ avatar, clear, defaultAvatar, upload }) => (
                 appearance='circle'
                 color='danger'
                 onClick={clear}
-                title='Remove'
+                title={ENUMS.TEXT.AVATAR.REMOVE}
                 data-tooltip
                 data-vertical-align='middle'
                 data-align='right'

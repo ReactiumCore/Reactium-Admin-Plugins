@@ -213,7 +213,7 @@ Reactium.Hook.register('profile-greeting', (greeting, user, context) => {
 
 /**
  * @api {Hook} profile-inputs profile-inputs
- * @apiDescription Customize the default input fields associated with the Profile Editor: `/admin/profile`.
+ * @apiDescription Customize the default input fields associated with the Profile Editor.
  * @apiName profile-inputs
  * @apiGroup Reactium.Hooks
  * @apiParam {Array} inputs Object array of input fields.
