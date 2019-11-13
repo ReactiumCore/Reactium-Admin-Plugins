@@ -11,6 +11,7 @@ import Reactium, { useRegisterHandle, useWindowSize } from 'reactium-core/sdk';
 import React, {
     forwardRef,
     useEffect,
+    useLayoutEffect as useWindowEffect,
     useImperativeHandle,
     useRef,
     useState,
@@ -24,6 +25,9 @@ const ENUMS = {
         EXPANDING: 'expanding',
     },
 };
+
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 /**
  * -----------------------------------------------------------------------------
@@ -74,23 +78,26 @@ let AdminSidebar = (
 
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
-    useEffect(() => {
+    const isDesktop = () => !['xs'].includes(breakpoint);
+
+    const isMobile = () => ['xs', 'sm'].includes(breakpoint);
+
+    const isExpanded = () => {
         const { status } = stateRef.current;
-        Prefs.set('admin.sidebar.status', status);
-    }, [op.get(stateRef.current, 'status')]);
+        return status === ENUMS.STATUS.EXPANDED;
+    };
 
     // Renderer
     const render = () => {
         const { status } = stateRef.current;
-        const maxSize = breakpoint !== 'xs' ? 320 : width;
-        const minSize = ['xs', 'sm'].includes(breakpoint) ? 1 : 80;
-        const expanded = status === ENUMS.STATUS.EXPANDED;
+        const maxSize = isDesktop() ? 320 : width;
+        const minSize = isMobile() ? 1 : 80;
 
         return (
             <Collapsible
                 debug={false}
                 direction={direction}
-                expanded={expanded}
+                expanded={isExpanded()}
                 onBeforeCollapse={onBeforeCollapse}
                 onBeforeExpand={onBeforeExpand}
                 onCollapse={onCollapse}
@@ -124,6 +131,19 @@ let AdminSidebar = (
             </Collapsible>
         );
     };
+
+    useEffect(() => {
+        const { status } = stateRef.current;
+        Prefs.set('admin.sidebar.status', status);
+    }, [op.get(stateRef.current, 'status')]);
+
+    useLayoutEffect(() => {
+        if (isMobile()) {
+            collapsibleRef.current.collapse().then(() => {
+                setState({ status: ENUMS.STATUS.COLLAPSED });
+            });
+        }
+    }, [width]);
 
     const handle = () => ({
         collapse: () => collapsibleRef.current.collapse(),
