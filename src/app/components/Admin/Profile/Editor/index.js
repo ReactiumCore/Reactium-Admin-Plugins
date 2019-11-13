@@ -6,7 +6,16 @@ import PropTypes from 'prop-types';
 import AvatarButtons from './AvatarButtons';
 import ConfirmBox from 'components/Admin/ConfirmBox';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { Button, Icon, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
+
+import {
+    Button,
+    Checkbox,
+    Icon,
+    Radio,
+    Spinner,
+    Toggle,
+    WebForm,
+} from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     useHandle,
@@ -287,10 +296,12 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
     // Render the form inputs from the inputs object
     const RenderInputs = ({ error, value = {} }) => {
         return inputs.map((input, i) => {
-            const { type } = input;
+            let { type } = input;
             if (!type) {
                 return null;
             }
+
+            type = String(type).toLowerCase();
 
             const item = { ...input };
             const key = `${cname('form-input')}-${i}`;
@@ -326,6 +337,52 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
             const className = cn({ 'form-group': true, error: err });
 
             switch (type) {
+                case 'checkbox':
+                case 'radio':
+                case 'toggle':
+                    return (
+                        <div key={key} className={className}>
+                            {type === 'checkbox' && <Checkbox {...item} />}
+                            {type === 'radio' && <Radio {...item} />}
+                            {type === 'toggle' && <Toggle {...item} />}
+                            {err && <small>{op.get(error, 'message')}</small>}
+                        </div>
+                    );
+
+                case 'select':
+                    if (!op.get(item, 'options')) {
+                        return;
+                    }
+
+                    const lbl = op.get(item, 'label');
+                    const options = Array.from(item.options);
+                    op.del(item, 'options');
+
+                    const Sel = () => (
+                        <select {...item}>
+                            {options.map(({ value, text }, i) => (
+                                <option
+                                    key={`${key}-${i}`}
+                                    value={value || text}>
+                                    {text || value}
+                                </option>
+                            ))}
+                        </select>
+                    );
+
+                    return (
+                        <div key={key} className={className}>
+                            {lbl ? (
+                                <label>
+                                    {lbl}
+                                    <Sel />
+                                </label>
+                            ) : (
+                                <Sel />
+                            )}
+                        </div>
+                    );
+
                 default:
                     return (
                         <div key={key} className={className}>
