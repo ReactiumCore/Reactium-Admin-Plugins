@@ -1,4 +1,5 @@
 import React from 'react';
+import ENUMS from './enums';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { useHandle } from 'reactium-core/sdk';
@@ -89,16 +90,16 @@ ConfirmBox.propTypes = {
 ConfirmBox.defaultProps = {
     buttons: {
         no: {
-            label: 'No',
+            label: ENUMS.TEXT.LABEL.NO,
             cancel: true,
         },
         yes: {
-            label: 'Yes',
+            label: ENUMS.TEXT.LABEL.YES,
             confirm: true,
         },
     },
-    message: 'Are you sure?',
-    title: 'Confirm',
+    message: ENUMS.TEXT.MESSAGE,
+    title: ENUMS.TEXT.TITLE,
 };
 
 export default ConfirmBox;

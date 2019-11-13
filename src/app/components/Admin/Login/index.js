@@ -1,21 +1,12 @@
 import cn from 'classnames';
+import ENUMS from './enums';
 import op from 'object-path';
 import { Helmet } from 'react-helmet';
-import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
+import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
-
-const ENUMS = {
-    STATUS: {
-        ERROR: 'error',
-        SUBMITTING: 'submitting',
-        READY: 'ready',
-        SUCCESS: 'success',
-        COMPLETE: 'complete',
-    },
-};
 
 /**
  * -----------------------------------------------------------------------------
@@ -23,6 +14,10 @@ const ENUMS = {
  * -----------------------------------------------------------------------------
  */
 const Login = ({ className, forgot, redirect, signup, ...props }) => {
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
     const stateRef = useRef({
         username: '',
         password: '',
@@ -65,7 +60,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             .catch(err => {
                 const error = {
                     field: 'password',
-                    message: 'invalid username or password',
+                    message: ENUMS.TEXT.ERROR.INVALID,
                 };
 
                 setState({ error, status: ENUMS.STATUS.ERROR });
@@ -112,7 +107,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                 <>
                     <Helmet>
                         <meta charSet='utf-8' />
-                        <title>Signing in...</title>
+                        <title>{ENUMS.TEXT.BUTTON.SIGNING_IN}...</title>
                     </Helmet>
                     <main className={className} role='main'>
                         <Spinner />
@@ -125,7 +120,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             <>
                 <Helmet>
                     <meta charSet='utf-8' />
-                    <title>Login</title>
+                    <title>{ENUMS.TEXT.TITLE}</title>
                 </Helmet>
                 <main className={className} role='main'>
                     <WebForm
@@ -146,7 +141,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             })}>
                             <input
                                 type='text'
-                                placeholder='Username'
+                                placeholder={ENUMS.TEXT.LABEL.USERNAME}
                                 name='username'
                                 value={username || ''}
                                 onChange={onChange}
@@ -154,7 +149,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                                 disabled={status === ENUMS.STATUS.SUBMITTING}
                             />
                             {op.get(error, 'field') === 'username' && (
-                                <small>Enter your username</small>
+                                <small>{ENUMS.TEXT.ERROR.USERNAME}</small>
                             )}
                         </div>
                         <div
@@ -164,7 +159,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             })}>
                             <input
                                 type='password'
-                                placeholder='Password'
+                                placeholder={ENUMS.TEXT.LABEL.PASSWORD}
                                 name='password'
                                 value={password || ''}
                                 onChange={onChange}
@@ -184,18 +179,22 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                                 appearance='pill'
                                 disabled={status === ENUMS.STATUS.SUBMITTING}>
                                 {status === ENUMS.STATUS.SUBMITTING ? (
-                                    <>Signing in...</>
+                                    <>{ENUMS.TEXT.BUTTON.SIGNING_IN}...</>
                                 ) : (
-                                    <>Sign In</>
+                                    <>{ENUMS.TEXT.BUTTON.SIGNIN}</>
                                 )}
                             </Button>
                         </div>
                         <div className='links'>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                                <Link to={forgot}>Forgot Password</Link>
+                                <Link to={forgot}>
+                                    {ENUMS.TEXT.LABEL.FORGOT}
+                                </Link>
                             </div>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                                <Link to={signup}>Create Account</Link>
+                                <Link to={signup}>
+                                    {ENUMS.TEXT.LABEL.CREATE}
+                                </Link>
                             </div>
                         </div>
                     </WebForm>

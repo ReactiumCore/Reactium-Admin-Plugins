@@ -3,7 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { useHandle } from 'reactium-core/sdk';
+import { __, useHandle } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -13,7 +13,11 @@ import React, {
     useState,
 } from 'react';
 
-const ENUMS = {};
+const ENUMS = {
+    TEXT: {
+        TITLE: __('Dashboard'),
+    },
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -52,17 +56,19 @@ let Dashboard = ({ children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
+        const { title } = stateRef.current;
+
         return (
             <>
                 <Helmet>
                     <meta charSet='utf-8' />
-                    <title>Dashboard</title>
+                    <title>{title}</title>
                 </Helmet>
                 <div
                     ref={containerRef}
                     className={cx()}
                     style={{ minHeight: 1024, display: 'block' }}>
-                    Dashboard
+                    {title}
                 </div>
             </>
         );
@@ -87,10 +93,12 @@ Dashboard.ENUMS = ENUMS;
 Dashboard.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,
+    title: PropTypes.string,
 };
 
 Dashboard.defaultProps = {
-    namespace: 'ui-component',
+    namespace: 'admin-dashboard',
+    title: ENUMS.TEXT.TITLE,
 };
 
 export { Dashboard as default };

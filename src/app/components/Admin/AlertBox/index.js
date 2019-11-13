@@ -1,5 +1,7 @@
 import React from 'react';
+import ENUMS from './enums';
 import PropTypes from 'prop-types';
+import { __ } from 'reactium-core/sdk';
 import ConfirmBox from 'components/Admin/ConfirmBox';
 
 const noop = () => {};
@@ -17,10 +19,10 @@ AlertBox.propTypes = {
 };
 
 AlertBox.defaultProps = {
-    title: 'Alert',
+    title: ENUMS.TEXT.TITLE,
     buttons: {
         ok: {
-            label: 'OK',
+            label: ENUMS.TEXT.LABEL.OK,
             cancel: true,
         },
     },

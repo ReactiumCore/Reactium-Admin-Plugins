@@ -2,11 +2,11 @@ import { __ } from 'reactium-core/sdk';
 
 const ENUMS = {
     STATUS: {
-        COMPLETE: __('COMPLETE'),
-        ERROR: __('ERROR'),
-        INIT: __('INIT'),
-        READY: __('READY'),
-        SAVING: __('SAVING'),
+        COMPLETE: 'COMPLETE',
+        ERROR: 'ERROR',
+        INIT: 'INIT',
+        READY: 'READY',
+        SAVING: 'SAVING',
     },
     TEXT: {
         AVATAR: {

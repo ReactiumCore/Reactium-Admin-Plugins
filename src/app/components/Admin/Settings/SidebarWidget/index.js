@@ -1,7 +1,7 @@
 import React from 'react';
+import { __ } from 'reactium-core/sdk';
 import MenuItem from 'components/Admin/MenuItem';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { __ } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
