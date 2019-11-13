@@ -99,23 +99,6 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
 
         const { username, password, error = {}, status } = stateRef.current;
 
-        if (
-            status === ENUMS.STATUS.SUCCESS ||
-            status === ENUMS.STATUS.COMPLETE
-        ) {
-            return (
-                <>
-                    <Helmet>
-                        <meta charSet='utf-8' />
-                        <title>{ENUMS.TEXT.BUTTON.SIGNING_IN}...</title>
-                    </Helmet>
-                    <main className={className} role='main'>
-                        <Spinner />
-                    </main>
-                </>
-            );
-        }
-
         return (
             <>
                 <Helmet>
@@ -202,6 +185,17 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             </>
         );
     };
+
+    useEffect(() => {
+        const { status } = stateRef.current;
+        if (status === ENUMS.STATUS.SUCCESS) {
+            Modal.show(
+                <div className='modal-spinner'>
+                    <Spinner />
+                </div>,
+            );
+        }
+    }, [op.get(stateRef.current, 'status')]);
 
     return render();
 };
