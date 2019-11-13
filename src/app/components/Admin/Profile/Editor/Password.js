@@ -58,9 +58,10 @@ export default ({ onClick, disabled = false, state, ...props }) => {
         Modal.show(
             <ConfirmBox
                 buttons={buttons}
-                title={ENUMS.TEXT.PASSWORD.TITLE}
                 message={<Message />}
+                onCancel={() => Modal.hide()}
                 onConfirm={resetPassword}
+                title={ENUMS.TEXT.PASSWORD.TITLE}
             />,
         );
     };
