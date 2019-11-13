@@ -2,38 +2,30 @@ import op from 'object-path';
 import Editor from './Editor';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
+import PasswordReset from './Editor/Password';
 
-const sidebar = [
+const components = [
     {
         id: 'ADMIN-PROFILE-SIDEBAR-WIDGET',
         component: SidebarWidget,
         zone: ['admin-sidebar-header'],
-        order: -100000,
+        order: Reactium.Enums.priority.highest,
     },
-];
-
-const editors = [
     {
-        id: 'ADMIN-PROFILE',
+        id: 'ADMIN-PROFILE-EDITOR',
         component: Editor,
         zone: ['admin-sidebar'],
+        order: Reactium.Enums.priority.lowest,
+    },
+    {
+        id: 'ADMIN-PROFILE-RESET-INPUT',
+        component: PasswordReset,
+        zone: ['admin-profile-editor-form'],
+        order: Reactium.Enums.priority.highest,
     },
 ];
 
 Reactium.Plugin.register('AdminProfile').then(() => {
-    // Sidebar Widget Components
-    sidebar.forEach((widget, order) =>
-        Reactium.Plugin.addComponent({
-            ...widget,
-            order: op.get(widget, 'order', order),
-        }),
-    );
-
-    // Editor Widgets
-    editors.forEach((widget, order) =>
-        Reactium.Plugin.addComponent({
-            ...widget,
-            order: op.get(widget, 'order', order),
-        }),
-    );
+    // Add components
+    components.forEach(component => Reactium.Plugin.addComponent(component));
 });

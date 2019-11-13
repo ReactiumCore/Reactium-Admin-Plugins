@@ -54,7 +54,7 @@
     }
 
     .admin-sidebar-toggle {
-        z-index: 100000;
+        z-index: map-get($z-indexes, 'sidebar') + 1;
         display: flex;
         justify-content: center;
         position: fixed;

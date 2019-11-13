@@ -1,27 +1,26 @@
 $width-profile-avatar: 148px;
 $width-profile-avatar-button: 30px;
 
-
 .admin-profile-editor {
     position: fixed;
     left: 0;
-    top: 0;
+    top: -100vh;
     width: 100vw;
     height: 100vh;
-    z-index: #{map-get($z-indexes, 'sidebar') + 1};
+    z-index: #{map-get($z-indexes, 'sidebar') + 2};
     overflow-x: hidden;
     overflow-y: auto;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    transform: translateY(-100%);
     opacity: 0;
     transition: all 0.25s ease-in-out;
+    padding: $padding-default;
     padding-bottom: $padding-default * 2;
 
     &.visible {
         opacity: 1;
-        transform: translateY(0);
+        top: 0;
     }
 
     &-bg {
@@ -39,12 +38,16 @@ $width-profile-avatar-button: 30px;
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
-        padding-top: $height-admin-header + $padding-default;
-        width: 320px;
+        padding-top: 0;
+        width: 100vw;
+        min-width: 280px;
         position: relative;
+        overflow-x: auto;
 
         @include breakpoint(sm) {
             width: 420px;
+            overflow-x: hidden;
+            padding-top: $height-admin-header + $padding-default;
         }
     }
 
@@ -108,9 +111,8 @@ $width-profile-avatar-button: 30px;
 
     &-close-button {
         position: absolute;
-        top: #{$width-profile-avatar + 10px};
-        left: 10px;
-        // top: 0;
+        top: $width-profile-avatar/2 + 28px;
+        left: 8px;
         z-index: 3;
 
         button {
@@ -118,8 +120,12 @@ $width-profile-avatar-button: 30px;
             width: 40px;
             height: 40px;
         }
-    }
 
+        @include breakpoint(sm) {
+            top: #{$width-profile-avatar + 10px};
+            left: 10px;
+        }
+    }
 }
 
 .admin-profile-editor-x {
@@ -135,7 +141,6 @@ $width-profile-avatar-button: 30px;
     &-placeholder {
         z-index: 2;
     }
-
 
     &-container {
         z-index: map-get($z-indexes, 'sidebar') + 1;

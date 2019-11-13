@@ -33,6 +33,7 @@ const ENUMS = {
         COMPLETE: 'COMPLETE',
         ERROR: 'ERROR',
         INIT: 'INIT',
+        READY: 'READY',
         SAVING: 'SAVING',
     },
 };
@@ -45,18 +46,14 @@ const useLayoutEffect =
  * Hook Component: Profile
  * -----------------------------------------------------------------------------
  */
-let Profile = ({ children, user, ...props }, ref) => {
+let Profile = ({ children, user, zone, ...props }, ref) => {
     const u = user || Reactium.User.current();
 
     const defaultAvatar = useProfileAvatar({});
 
     const inputs = useProfileInputs();
 
-    const history = useSelect(state => op.get(state, 'Router.history'));
-
     const tools = useHandle('AdminTools');
-
-    const Modal = op.get(tools, 'Modal');
 
     const Toast = op.get(tools, 'Toast');
 
@@ -169,52 +166,6 @@ let Profile = ({ children, user, ...props }, ref) => {
         elm.value = '';
 
         setState({ value });
-    };
-
-    // Kick off reset password routine.
-    const resetPassword = async () => {
-        // Update the modal content
-        Modal.update(
-            <div className='modal-spinner'>
-                <Spinner />
-            </div>,
-        );
-
-        // Generate token
-        const token = await Reactium.Cloud.run('token-gen');
-
-        // Sign out
-        await Reactium.User.logOut();
-
-        // Hide modal and show reset screen
-        await new Promise(resolve =>
-            setTimeout(() => {
-                Modal.hide();
-                history.replace(`/reset/${token}`);
-                resolve();
-            }, 3000),
-        );
-    };
-
-    // Confirm password reset
-    const resetConfirm = () => {
-        if (disabled()) {
-            return;
-        }
-
-        const Message = () => (
-            <>
-                <p>Resetting your password will sign you out.</p>
-                Are you sure?
-            </>
-        );
-        Modal.show(
-            <ConfirmBox
-                title='Reset Password'
-                message={<Message />}
-                onConfirm={resetPassword}
-            />,
-        );
     };
 
     // Hide/Show
@@ -402,12 +353,7 @@ let Profile = ({ children, user, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        let {
-            className,
-            error,
-            value = {},
-            visible = false,
-        } = stateRef.current;
+        let { error, value = {}, visible = false } = stateRef.current;
         value = getValue(value);
         const avatar = op.get(value, 'avatar', defaultAvatar) || defaultAvatar;
 
@@ -421,74 +367,71 @@ let Profile = ({ children, user, ...props }, ref) => {
         });
 
         return (
-            <WebForm
-                className={cls}
-                onError={onError}
-                onSubmit={onSubmit}
-                ref={containerRef}
-                showError={false}
-                value={value}
-                required={required}>
-                <div className={cname('bg')} onClick={hide} />
-                <div className={cname('container')}>
-                    <div className={cname('avatar')}>
-                        <div
-                            className={cname('avatar-image')}
-                            style={{
-                                backgroundImage: `url(${avatar})`,
-                            }}
-                        />
-                        <div className={cname('avatar-buttons')}>
-                            <AvatarButtons
-                                avatar={avatar}
-                                clear={clearAvatar}
-                                defaultAvatar={defaultAvatar}
-                                upload={uploadOpen}
+            <div className={cls} ref={containerRef}>
+                <WebForm
+                    className={cls}
+                    onError={onError}
+                    onSubmit={onSubmit}
+                    showError={false}
+                    value={value}
+                    required={required}>
+                    <div className={cname('bg')} onClick={hide} />
+                    <div className={cname('container')}>
+                        <div className={cname('avatar')}>
+                            <div
+                                className={cname('avatar-image')}
+                                style={{
+                                    backgroundImage: `url(${avatar})`,
+                                }}
                             />
+                            <div className={cname('avatar-buttons')}>
+                                <AvatarButtons
+                                    avatar={avatar}
+                                    clear={clearAvatar}
+                                    defaultAvatar={defaultAvatar}
+                                    upload={uploadOpen}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className={cname('form')}>
-                        <div className='mx-xs-32'>
-                            {RenderInputs({ error, value })}
+                        <div className={cname('form')}>
+                            <div className='mx-xs-32'>
+                                <input
+                                    type='file'
+                                    ref={uploadRef}
+                                    hidden
+                                    onChange={selectFile}
+                                />
 
-                            <div className='flex middle mt-xs-40 mb-xs-20'>
-                                <h3 className='flex-grow'>Password</h3>
+                                {RenderInputs({ error, value })}
+
+                                <Plugins
+                                    disabled={disabled()}
+                                    state={stateRef.current}
+                                    zone={`${cname('form')}`}
+                                />
+
+                                {children}
+                            </div>
+
+                            <div className={cname('footer')}>
                                 <Button
                                     appearance='pill'
-                                    color='tertiary'
-                                    size='xs'
-                                    type='button'
-                                    onClick={resetConfirm}>
-                                    Reset
+                                    block
+                                    disabled={disabled()}
+                                    size='md'
+                                    type='submit'>
+                                    {disabled() ? 'Saving...' : 'Save Profile'}
                                 </Button>
                             </div>
-                            <input
-                                type='file'
-                                ref={uploadRef}
-                                hidden
-                                onChange={selectFile}
-                            />
-                            <Plugins zone={cname('form')} />
                         </div>
-
-                        <div className={cname('footer')}>
-                            <Button
-                                appearance='pill'
-                                block
-                                disabled={disabled()}
-                                size='md'
-                                type='submit'>
-                                {disabled() ? 'Saving...' : 'Save Profile'}
+                        <div className={cname('close-button')}>
+                            <Button color='clear' size='xs' onClick={hide}>
+                                <Icon name='Feather.X' />
                             </Button>
                         </div>
                     </div>
-                    <div className={cname('close-button')}>
-                        <Button color='clear' size='xs' onClick={hide}>
-                            <Icon name='Feather.X' />
-                        </Button>
-                    </div>
-                </div>
-            </WebForm>
+                </WebForm>
+            </div>
         );
     };
 
@@ -504,6 +447,15 @@ let Profile = ({ children, user, ...props }, ref) => {
         }
     }, [op.get(stateRef.current, 'error.focus')]);
 
+    useLayoutEffect(() => {
+        let { status } = stateRef.current;
+
+        if (status === ENUMS.STATUS.INIT || status === ENUMS.STATUS.COMPLETE) {
+            status = ENUMS.STATUS.READY;
+            setState({ status });
+        }
+    }, [op.get(stateRef.current, 'status')]);
+
     // External Interface
     const handle = () => ({
         container: containerRef.current,
@@ -511,6 +463,7 @@ let Profile = ({ children, user, ...props }, ref) => {
         setState,
         state: stateRef.current,
         updated: op.get(u, 'updatedAt'),
+        visible: op.get(stateRef.current, 'visible'),
         toggle,
         hide,
         show,
@@ -528,7 +481,6 @@ Profile = forwardRef(Profile);
 
 Profile.defaultProps = {
     namespace: 'admin-profile-editor',
-    className: 'col-xs-12 col-sm-6 col-lg-4',
 };
 
 export { Profile as default };
