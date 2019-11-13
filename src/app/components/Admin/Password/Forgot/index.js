@@ -1,21 +1,13 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import ENUMS from './enums';
 import op from 'object-path';
 import { Helmet } from 'react-helmet';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
-
-const ENUMS = {
-    STATUS: {
-        ERROR: 'error',
-        SUBMITTING: 'submitting',
-        READY: 'ready',
-        SUCCESS: 'success',
-    },
-};
 
 /**
  * -----------------------------------------------------------------------------
@@ -114,7 +106,7 @@ let Forgot = props => {
                 <>
                     <Helmet>
                         <meta charSet='utf-8' />
-                        <title>Forgot Password</title>
+                        <title>{ENUMS.TEXT.TITLE}</title>
                     </Helmet>
                     <main className={className} role='main'>
                         <WebForm
@@ -128,15 +120,14 @@ let Forgot = props => {
                                     <Logo width={80} height={80} />
                                 </Link>
                             </div>
-                            <h1>Request Sent!</h1>
+                            <h1>{ENUMS.TEXT.SUCCESS}</h1>
                             <input type='hidden' name='email' value={email} />
                             <p className='text-center'>
-                                Check your
+                                {ENUMS.TEXT.MESSAGE_SUCCESS[0]}
                                 <br />
                                 <kbd>{email}</kbd>
                                 <br />
-                                email and follow the directions to reset your
-                                password.
+                                {ENUMS.TEXT.MESSAGE_SUCCESS[1]}
                             </p>
                             <div className='mt-xs-40'>
                                 <Button
@@ -148,11 +139,9 @@ let Forgot = props => {
                                     disabled={
                                         status === ENUMS.STATUS.SUBMITTING
                                     }>
-                                    {status === ENUMS.STATUS.SUBMITTING ? (
-                                        <>Sending...</>
-                                    ) : (
-                                        <>Resend Email</>
-                                    )}
+                                    {status === ENUMS.STATUS.SUBMITTING
+                                        ? ENUMS.TEXT.BUTTON.RESENDING
+                                        : ENUMS.TEXT.BUTTON.RESEND}
                                 </Button>
                             </div>
                         </WebForm>
@@ -165,7 +154,7 @@ let Forgot = props => {
             <>
                 <Helmet>
                     <meta charSet='utf-8' />
-                    <title>Forgot Password</title>
+                    <title>{ENUMS.TEXT.TITLE}</title>
                 </Helmet>
                 <main className={className} role='main'>
                     <WebForm
@@ -179,11 +168,8 @@ let Forgot = props => {
                                 <Logo width={80} height={80} />
                             </Link>
                         </div>
-                        <h1>Forgot your password?</h1>
-                        <p className='text-center'>
-                            Reset your password by entering the email address
-                            associated with your account.
-                        </p>
+                        <h1>{ENUMS.TEXT.TITLE}</h1>
+                        <p className='text-center'>{ENUMS.TEXT.MESSAGE}</p>
                         <div
                             className={cn({
                                 'form-group': true,
@@ -191,7 +177,7 @@ let Forgot = props => {
                             })}>
                             <input
                                 type='email'
-                                placeholder='Email Address'
+                                placeholder={ENUMS.TEXT.LABEL.EMAIL}
                                 name='email'
                                 value={email || ''}
                                 onChange={onChange}
@@ -211,19 +197,21 @@ let Forgot = props => {
                                 type='submit'
                                 appearance='pill'
                                 disabled={status === ENUMS.STATUS.SUBMITTING}>
-                                {status === ENUMS.STATUS.SUBMITTING ? (
-                                    <>Sending...</>
-                                ) : (
-                                    <>Send Email</>
-                                )}
+                                {status === ENUMS.STATUS.SUBMITTING
+                                    ? ENUMS.TEXT.BUTTON.SUBMITTING
+                                    : ENUMS.TEXT.BUTTON.SUBMIT}
                             </Button>
                         </div>
                         <div className='links'>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                                <Link to={signin}>Sign In</Link>
+                                <Link to={signin}>
+                                    {ENUMS.TEXT.LABEL.SIGNIN}
+                                </Link>
                             </div>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                                <Link to={signup}>Create Account</Link>
+                                <Link to={signup}>
+                                    {ENUMS.TEXT.LABEL.CREATE}
+                                </Link>
                             </div>
                         </div>
                     </WebForm>

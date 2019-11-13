@@ -1,24 +1,14 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import ENUMS from './enums';
 import op from 'object-path';
 import { Helmet } from 'react-helmet';
-import Reactium from 'reactium-core/sdk';
 import Logo from 'components/common-ui/Logo';
-import { Redirect, Link } from 'react-router-dom';
 import { useSelect } from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
+import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
-
-const ENUMS = {
-    DEBUG: false,
-    STATUS: {
-        ERROR: 'error',
-        SUBMITTING: 'submitting',
-        READY: 'ready',
-        SUCCESS: 'success',
-        COMPLETE: 'complete',
-    },
-};
 
 /**
  * -----------------------------------------------------------------------------
@@ -150,14 +140,14 @@ let Reset = props => {
 
         const msg =
             status === ENUMS.STATUS.SUCCESS || status === ENUMS.STATUS.COMPLETE
-                ? 'Password Reset!'
-                : 'Enter your new password';
+                ? ENUMS.TEXT.SUCCESS
+                : ENUMS.TEXT.MESSAGE;
 
         return (
             <>
                 <Helmet>
                     <meta charSet='utf-8' />
-                    <title>Reset Password</title>
+                    <title>{ENUMS.TEXT.TITLE}</title>
                 </Helmet>
                 <main className={cname()} role='main'>
                     <WebForm
@@ -171,7 +161,7 @@ let Reset = props => {
                                 <Logo width={80} height={80} />
                             </Link>
                         </div>
-                        <h1>Reset Password</h1>
+                        <h1>{ENUMS.TEXT.TITLE}</h1>
                         {op.get(error, 'message') && !op.get(error, 'field') ? (
                             <p className='text-center red'>{error.message}</p>
                         ) : (
@@ -184,7 +174,7 @@ let Reset = props => {
                             })}>
                             <input
                                 type='password'
-                                placeholder='New Password'
+                                placeholder={ENUMS.TEXT.LABEL.PASSWORD}
                                 name='password'
                                 id='password'
                                 autoComplete='off'
@@ -203,7 +193,7 @@ let Reset = props => {
                             })}>
                             <input
                                 type='password'
-                                placeholder='Confirm'
+                                placeholder={ENUMS.TEXT.LABEL.CONFIRM}
                                 name='confirm'
                                 id='confirm'
                                 autoComplete='off'
@@ -225,18 +215,22 @@ let Reset = props => {
                                 appearance='pill'
                                 disabled={status === ENUMS.STATUS.SUBMITTING}>
                                 {status === ENUMS.STATUS.SUBMITTING ? (
-                                    <>Updating...</>
+                                    <>{ENUMS.TEXT.BUTTON.SUBMITTING}...</>
                                 ) : (
-                                    <>Submit</>
+                                    <>{ENUMS.TEXT.BUTTON.SUBMIT}</>
                                 )}
                             </Button>
                         </div>
                         <div className='links'>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-left pr-xs-0 pr-sm-8 mt-xs-16'>
-                                <Link to={signin}>Sign In</Link>
+                                <Link to={signin}>
+                                    {ENUMS.TEXT.LABEL.SIGNIN}
+                                </Link>
                             </div>
                             <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                                <Link to={signup}>Create Account</Link>
+                                <Link to={signup}>
+                                    {ENUMS.TEXT.LABEL.CREATE}
+                                </Link>
                             </div>
                         </div>
                     </WebForm>
