@@ -64,10 +64,7 @@ let Dashboard = ({ children, ...props }, ref) => {
                     <meta charSet='utf-8' />
                     <title>{title}</title>
                 </Helmet>
-                <div
-                    ref={containerRef}
-                    className={cx()}
-                    style={{ minHeight: 1024, display: 'block' }}>
+                <div ref={containerRef} className={cx()}>
                     {title}
                 </div>
             </>
