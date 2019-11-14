@@ -39,10 +39,13 @@ export const useHookComponent = (
     defaultComponent = () => null,
     ...params
 ) => {
-    const component = useRef({component: defaultComponent});
+    const component = useRef({ component: defaultComponent });
     const [version, update] = useState(1);
     const setComponent = newComponent => {
-        if (newComponent && newComponent !== op.get(component, 'current.component')) {
+        if (
+            newComponent &&
+            newComponent !== op.get(component, 'current.component')
+        ) {
             op.set(component, 'current.component', newComponent);
             update(version + 1);
         }
