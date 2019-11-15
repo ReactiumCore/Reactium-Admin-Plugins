@@ -4,18 +4,14 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+
 import Reactium, {
     useHandle,
     useSelect,
     useWindowSize,
 } from 'reactium-core/sdk';
-import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
-
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
-
-const ENUMS = {
-    DEBUG: false,
-};
 
 const defaultIsActive = (match = {}, location = {}, src) => {
     const isExact = op.get(match, 'isExact', true);
@@ -199,13 +195,13 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        const { label, route } = stateRef.current;
+        const { active = true, label, route } = stateRef.current;
 
         return (
             <div ref={containerRef} className={cx()}>
                 <div className={cname('row')}>
                     {route ? <Link /> : <Heading />}
-                    {children && <Content />}
+                    {children && Content()}
                 </div>
             </div>
         );
@@ -255,8 +251,6 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 };
 
 MenuItem = forwardRef(MenuItem);
-
-MenuItem.ENUMS = ENUMS;
 
 MenuItem.propTypes = {
     active: PropTypes.bool,

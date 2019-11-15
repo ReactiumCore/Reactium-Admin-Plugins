@@ -1,5 +1,8 @@
 @mixin admin-header-zone() {
     z-index: map-get($z-indexes, 'header');
+    position: fixed;
+    top: 0px;
+    right: 0;
     width: 100%;
     height: $height-admin-header;
     overflow-y: visible;
@@ -9,7 +12,27 @@
     flex-shrink: 0;
     flex-direction: row;
     padding: 0 8px 0 16px;
-    border-bottom: 1px solid $color-grey-light;
+    border-bottom: 1px solid darken($color-grey-light, 2%);
+}
+
+@mixin admin-content-zone() {
+    padding: $padding-admin-content-zone;
+    padding-top: #{$height-admin-header + $padding-admin-content-zone};
+    z-index: map-get($z-indexes, 'default');
+}
+
+@mixin admin-actions-zone() {
+    flex-grow: 0;
+    flex-shrink: 0;
+    position: absolute;
+    z-index: map-get($z-indexes, 'actions');
+    top: $height-admin-header/2;
+    transform: translateY(-50%);
+    padding-left: $padding-default;
+
+    &:empty {
+        display: none;
+    }
 }
 
 @mixin admin-header-button() {
@@ -30,30 +53,6 @@
     svg {
         fill: $color-admin-header;
         fill: currentColor;
-    }
-}
-
-@mixin admin-content-zone() {
-    flex-grow: 1;
-    flex-shrink: 1;
-    align-items: flex-start;
-    justify-content: flex-start;
-    overflow-y: scroll;
-    padding: $padding-admin-content-zone;
-    z-index: map-get($z-indexes, 'default');
-}
-
-@mixin admin-actions-zone() {
-    flex-grow: 0;
-    flex-shrink: 0;
-    position: absolute;
-    z-index: map-get($z-indexes, 'actions');
-    top: $height-admin-header/2;
-    transform: translateY(-50%);
-    padding-left: $padding-default;
-
-    &:empty {
-        display: none;
     }
 }
 

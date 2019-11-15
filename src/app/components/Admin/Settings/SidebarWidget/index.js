@@ -12,7 +12,9 @@ const SidebarWidget = props => {
     const id = 'admin-sidebar-settings';
     return (
         <MenuItem label={__('Settings')} icon='Linear.Equalizer' id={id}>
-            <Plugins zone={id} />
+            <div>
+                <Plugins zone={id} />
+            </div>
         </MenuItem>
     );
 };

@@ -66,6 +66,19 @@ let Dashboard = ({ children, ...props }, ref) => {
                 </Helmet>
                 <div ref={containerRef} className={cx()}>
                     {title}
+
+                    <div
+                        title='tooltip'
+                        data-tooltip
+                        data-align='left'
+                        data-vertical-align='top'
+                        style={{
+                            marginTop: 1000,
+                            marginLeft: 20,
+                            marginBottom: 200,
+                        }}>
+                        Tooltip
+                    </div>
                 </div>
             </>
         );

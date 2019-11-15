@@ -1,11 +1,13 @@
 .blueprint {
     .section-sidebar {
+        background-color: lighten($color-sidebar-bg, 5%);
 
         .zone-admin-sidebar {
             position: fixed;
             left: 0;
             top: 0;
             z-index: map-get($z-indexes, 'sidebar');
+            background-color: lighten($color-sidebar-bg, 5%);
 
             @include breakpoint(md) {
                 position: relative;
@@ -33,9 +35,9 @@
 
             &-container {
                 color: $color-sidebar-text;
-                background-color: $color-sidebar-bg;
                 font-size: $font-size-sidebar;
 
+                position: sticky;
                 display: flex;
                 flex-direction: column;
                 overflow-x: hidden;
@@ -43,12 +45,6 @@
                 height: 100vh;
                 flex-shrink: 0;
                 transition: background-color 0.5s ease-in-out;
-            }
-        }
-
-        .expanded {
-            .zone-admin-sidebar-container {
-                background-color: lighten($color-sidebar-bg, 5%);
             }
         }
     }
@@ -85,7 +81,7 @@
             transition: background-color 0.5s ease-in-out;
 
             @include breakpoint(sm) {
-                background-color: $color-sidebar-bg;
+                background-color: lighten($color-sidebar-bg, 5%);
             }
         }
     }
@@ -93,7 +89,11 @@
     &.expanded {
         .admin-sidebar-toggle {
             .button {
-                background-color: lighten($color-sidebar-bg, 5%);
+                background-color: $color-sidebar-bg;
+
+                @include breakpoint(sm) {
+                    background-color: lighten($color-sidebar-bg, 5%);
+                }
             }
         }
     }

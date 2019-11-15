@@ -113,7 +113,7 @@ let AdminSidebar = (
                         <Scrollbars
                             style={{
                                 width: '100%',
-                                height: '100%',
+                                height: '100vh',
                                 overflowX: 'hidden',
                             }}>
                             <nav className={[zone, 'menu-items'].join('-')}>
