@@ -171,15 +171,19 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
 
     // Hide/Show
     const toggle = () => {
+        const value = getValue(u);
         const { visible } = stateRef.current;
-        setState({ visible: !visible });
+        setState({ value, visible: !visible });
     };
 
     // Hide Profile editor
     const hide = () => setState({ visible: false });
 
     // Show Profile editor
-    const show = () => setState({ visible: true });
+    const show = () => {
+        const value = getValue(u);
+        setState({ value, visible: true });
+    };
 
     // Determine if the user is the current user
     const isMe = () => {
