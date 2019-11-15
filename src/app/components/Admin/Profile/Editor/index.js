@@ -59,9 +59,11 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
     const getValue = (value = {}) =>
         _.chain(inputs)
             .pluck('name')
+            .compact()
+            .uniq()
             .value()
             .reduce((obj, name) => {
-                if (name !== 'type') {
+                if (name && name !== 'type') {
                     obj[name] = op.get(value, name, '');
                 }
                 return obj;
@@ -74,7 +76,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
         ...props,
         error: {},
         status: ENUMS.STATUS.INIT,
-        value: getValue({ ...u }),
+        value: getValue(u),
         visible: false,
     });
 
@@ -280,6 +282,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
         const { name, value: val } = e.target;
 
         value[name] = val;
+
         setState({ value });
     };
 

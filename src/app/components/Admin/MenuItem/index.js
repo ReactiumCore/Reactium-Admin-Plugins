@@ -195,7 +195,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        const { active = true, label, route } = stateRef.current;
+        const { label, route } = stateRef.current;
 
         return (
             <div ref={containerRef} className={cx()}>
