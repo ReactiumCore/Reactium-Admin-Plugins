@@ -170,20 +170,14 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
     };
 
     // Hide/Show
-    const toggle = () => {
-        const value = getValue(u);
-        const { visible } = stateRef.current;
-        setState({ value, visible: !visible });
-    };
+    const toggle = () =>
+        setState({ visible: !op.get(stateRef.current, 'visible') });
 
     // Hide Profile editor
     const hide = () => setState({ visible: false });
 
     // Show Profile editor
-    const show = () => {
-        const value = getValue(u);
-        setState({ value, visible: true });
-    };
+    const show = () => setState({ visible: true });
 
     // Determine if the user is the current user
     const isMe = () => {
@@ -493,6 +487,13 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
 
     // Side Effects
     useEffect(() => setState(props), [op.get(props, 'value')]);
+
+    useEffect(() => {
+        const { visible } = stateRef.current;
+        if (visible === true) {
+            setState({ value: getValue(u) });
+        }
+    }, [op.get(stateRef.current, 'visible')]);
 
     useLayoutEffect(() => {
         const focus = op.get(stateRef.current, 'error.focus');
