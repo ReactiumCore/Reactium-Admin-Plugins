@@ -2,16 +2,22 @@
     .section-sidebar {
         background-color: lighten($color-sidebar-bg, 5%);
 
+        .sidebar-placeholder {
+            display: none;
+
+            @include breakpoint(lg) {
+                display: block;
+            }
+        }
+
         .zone-admin-sidebar {
             position: fixed;
             left: 0;
             top: 0;
+            height: 100vh;
+            overflow-y: hidden;
             z-index: map-get($z-indexes, 'sidebar');
             background-color: lighten($color-sidebar-bg, 5%);
-
-            @include breakpoint(md) {
-                position: relative;
-            }
 
             &-header {
                 flex-grow: 0;
@@ -36,13 +42,10 @@
             &-container {
                 color: $color-sidebar-text;
                 font-size: $font-size-sidebar;
-
-                position: sticky;
                 display: flex;
                 flex-direction: column;
                 overflow-x: hidden;
                 width: 100%;
-                height: 100vh;
                 flex-shrink: 0;
                 transition: background-color 0.5s ease-in-out;
             }

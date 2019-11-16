@@ -1,3 +1,5 @@
+import op from 'object-path';
+
 import {
     useRegisterHandle,
     useDocument,

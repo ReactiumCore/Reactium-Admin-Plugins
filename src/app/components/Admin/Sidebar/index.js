@@ -2,11 +2,16 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import deps from 'dependencies';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Plugins } from 'reactium-core/components/Plugable';
 import { Collapsible, Prefs } from '@atomic-reactor/reactium-ui';
-import Reactium, { useRegisterHandle, useWindowSize } from 'reactium-core/sdk';
+import Reactium, {
+    useRegisterHandle,
+    useDocument,
+    useWindowSize,
+} from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -38,11 +43,15 @@ let AdminSidebar = (
     { children, className, direction, namespace, zone, section, ...props },
     ref,
 ) => {
+    const iDoc = useDocument();
+
     // Refs
     const collapsibleRef = useRef();
+    const containerRef = useRef();
 
     const stateRef = useRef({
         ...props,
+        ival: null,
         status: Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
     });
 
@@ -87,6 +96,38 @@ let AdminSidebar = (
         return status === ENUMS.STATUS.EXPANDED;
     };
 
+    const resizePlaceholder = () => {
+        const { ival } = stateRef.current;
+        const container = containerRef.current;
+        const { container: collapsible } = collapsibleRef.current;
+
+        if (!collapsible || !container) {
+            if (ival) {
+                clearInterval(ival);
+                setState({ ival: null });
+            }
+            return;
+        }
+
+        if (container.offsetWidth !== collapsible.offsetWidth) {
+            container.style.width = `${collapsible.offsetWidth}px`;
+        }
+    };
+
+    const Placeholder = () => {
+        const { status } = stateRef.current;
+        const target = iDoc.querySelector('.section-sidebar');
+
+        if (!target) {
+            return;
+        }
+
+        return ReactDOM.createPortal(
+            <div className='sidebar-placeholder' ref={containerRef} />,
+            target,
+        );
+    };
+
     // Renderer
     const render = () => {
         const { status } = stateRef.current;
@@ -105,29 +146,34 @@ let AdminSidebar = (
                 maxSize={maxSize}
                 minSize={minSize}
                 ref={collapsibleRef}>
-                <div className={cname()}>
-                    <div className='zone-admin-sidebar-header'>
-                        <Plugins zone={[zone, 'header'].join('-')} {...props} />
-                    </div>
-                    <div className='zone-admin-sidebar-menu'>
-                        <Scrollbars
-                            style={{
-                                width: '100%',
-                                height: '100vh',
-                                overflowX: 'hidden',
-                            }}>
+                {Placeholder()}
+                <Scrollbars
+                    autoHeight={true}
+                    autoHeightMax='100vh'
+                    autoHeightMin='100vh'>
+                    <div className={cname()}>
+                        <div className='zone-admin-sidebar-header'>
+                            <Plugins
+                                zone={[zone, 'header'].join('-')}
+                                {...props}
+                            />
+                        </div>
+                        <div className='zone-admin-sidebar-menu'>
                             <nav className={[zone, 'menu-items'].join('-')}>
                                 <Plugins
                                     zone={[zone, 'menu'].join('-')}
                                     {...props}
                                 />
                             </nav>
-                        </Scrollbars>
+                        </div>
+                        <div className='zone-admin-sidebar-footer'>
+                            <Plugins
+                                zone={[zone, 'footer'].join('-')}
+                                {...props}
+                            />
+                        </div>
                     </div>
-                    <div className='zone-admin-sidebar-footer'>
-                        <Plugins zone={[zone, 'footer'].join('-')} {...props} />
-                    </div>
-                </div>
+                </Scrollbars>
             </Collapsible>
         );
     };
@@ -137,13 +183,21 @@ let AdminSidebar = (
         Prefs.set('admin.sidebar.status', status);
     }, [op.get(stateRef.current, 'status')]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (isMobile()) {
             collapsibleRef.current.collapse().then(() => {
                 setState({ status: ENUMS.STATUS.COLLAPSED });
             });
         }
     }, [width]);
+
+    useLayoutEffect(() => {
+        const { ival } = stateRef.current;
+        if (!ival) {
+            resizePlaceholder();
+            setState({ ival: setInterval(resizePlaceholder, 1) });
+        }
+    }, [op.get(stateRef.current, 'ival')]);
 
     const handle = () => ({
         collapse: () => collapsibleRef.current.collapse(),
