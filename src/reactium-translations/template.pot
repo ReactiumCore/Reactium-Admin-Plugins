@@ -2,3 +2,212 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: en_US\n"
+
+#: src/app/components/Admin/Profile/enums.js:18
+msgid "Account Info"
+msgstr ""
+
+#: src/app/components/Admin/AlertBox/enums.js:8
+msgid "Alert"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/index.js:18
+msgid "App"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/reactium-hooks.js:13
+msgid "Application"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/reactium-hooks.js:26
+msgid "Application Settings"
+msgstr ""
+
+#: src/app/components/Admin/ConfirmBox/enums.js:9
+#: src/app/components/Admin/Profile/enums.js:26
+msgid "Are you sure?"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:29
+msgid "Check your"
+msgstr ""
+
+#: src/app/components/Admin/ConfirmBox/enums.js:10
+#: src/app/components/Admin/Password/Forgot/enums.js:20
+#: src/app/components/Admin/Password/Reset/enums.js:18
+msgid "Confirm"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:24
+#: src/app/components/Admin/Password/Forgot/enums.js:21
+#: src/app/components/Admin/Password/Reset/enums.js:19
+msgid "Create Account"
+msgstr ""
+
+#: src/app/components/Admin/Dashboard/index.js:18
+#: src/app/components/Admin/Dashboard/SidebarWidget/index.js:6
+msgid "Dashboard"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:19
+msgid "Email Address"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:30
+msgid "email and follow the directions to reset your password"
+msgstr ""
+
+#: src/app/components/Admin/Password/Reset/enums.js:23
+msgid "Enter your new password"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:18
+msgid "Enter your username"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:20
+msgid "First Name"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:23
+msgid "Forgot Password"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:33
+msgid "Forgot your password"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:17
+msgid "invalid username or password"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:21
+msgid "Last Name"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:26
+msgid "Login"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:22
+msgid "Name"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:22
+#: src/app/components/Admin/Password/Reset/enums.js:20
+msgid "New Password"
+msgstr ""
+
+#: src/app/components/Admin/ConfirmBox/enums.js:6
+msgid "No"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:29
+msgid "NO"
+msgstr ""
+
+#: src/app/components/Admin/AlertBox/enums.js:6
+msgid "Ok"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:22
+#: src/app/components/Admin/Profile/enums.js:28
+msgid "Password"
+msgstr ""
+
+#: src/app/components/Admin/Password/Reset/enums.js:24
+msgid "Password Reset!"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:35
+msgid "Profile Updated"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:13
+msgid "Remove"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:32
+msgid "Request Sent"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:12
+msgid "Resend Emai"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:25
+msgid "Reset"
+msgstr ""
+
+#: src/app/components/Admin/Password/Reset/enums.js:25
+#: src/app/components/Admin/Profile/enums.js:30
+msgid "Reset Password"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:25
+msgid "Reset your password by entering the email address associated with your account"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:27
+msgid "Resetting your password will sign you out."
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:34
+msgid "Save Profile"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:33
+msgid "Saving..."
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:14
+msgid "Send Email"
+msgstr ""
+
+#: src/app/components/Admin/Password/Forgot/enums.js:13
+#: src/app/components/Admin/Password/Forgot/enums.js:15
+msgid "Sending"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/index.js:18
+#: src/app/components/Admin/Settings/SidebarWidget/index.js:14
+msgid "Settings"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:13
+#: src/app/components/Admin/Password/Forgot/enums.js:23
+#: src/app/components/Admin/Password/Reset/enums.js:21
+msgid "Sign In"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:14
+msgid "Signing in"
+msgstr ""
+
+#: src/app/components/Admin/Password/Reset/enums.js:14
+msgid "Submit"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:16
+msgid "Unable to save profile"
+msgstr ""
+
+#: src/app/components/Admin/Password/Reset/enums.js:15
+msgid "Updating..."
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:14
+msgid "Upload"
+msgstr ""
+
+#: src/app/components/Admin/Login/enums.js:21
+msgid "Username"
+msgstr ""
+
+#: src/app/components/Admin/ConfirmBox/enums.js:7
+msgid "Yes"
+msgstr ""
+
+#: src/app/components/Admin/Profile/enums.js:31
+msgid "YES"
+msgstr ""
