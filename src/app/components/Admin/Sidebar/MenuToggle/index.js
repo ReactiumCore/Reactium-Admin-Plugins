@@ -27,7 +27,7 @@ const Toggle = ({ zones = [] }) => {
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     const icon = () =>
-        breakpoint !== 'xs'
+        !['xs', 'sm'].includes(breakpoint)
             ? expanded()
                 ? 'Feather.MoreVertical'
                 : 'Feather.Menu'
