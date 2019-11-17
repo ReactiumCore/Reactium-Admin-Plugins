@@ -13,6 +13,7 @@ export default (state = {}, action) => {
         case deps().actionTypes.UPDATE_ROUTE:
             return {
                 ...state,
+                focused: defaults.focused,
                 icon: defaults.icon,
                 placeholder: defaults.placeholder,
                 value: defaults.value,

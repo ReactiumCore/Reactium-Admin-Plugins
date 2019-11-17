@@ -5,7 +5,12 @@ import op from 'object-path';
 import deps from 'dependencies';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
+import {
+    useHandle,
+    useRegisterHandle,
+    useSelect,
+    useStore,
+} from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -14,6 +19,8 @@ import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
  */
 let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
     const { dispatch } = useStore();
+
+    const Tools = useHandle('AdminTools');
 
     const reduxState = useSelect(state => op.get(state, 'SearchBar'));
 
@@ -59,24 +66,42 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
         input.focus();
     };
 
-    const onFocus = e => e.target.select();
+    const onFocus = e => {
+        e.target.select();
+        Tools.Tooltip.hide(e);
+        setState({ focused: true });
+    };
+
+    const onBlur = () => setState({ focused: null });
 
     const render = () => {
         const {
+            focused,
             icon = {},
             placeholder,
             value: currentValue,
         } = stateRef.current;
 
+        const tooltip =
+            value || focused
+                ? {}
+                : {
+                      'data-tooltip': placeholder,
+                      'data-vertical-align': 'middle',
+                      'data-align': 'right',
+                  };
+
         return visible !== true ? null : (
             <div className={cname}>
                 <input
                     aria-label={ENUMS.TEXT.ARIA_SEARCH}
+                    onBlur={onBlur}
                     onChange={onChange}
                     onFocus={onFocus}
                     placeholder={placeholder}
                     ref={inputRef}
                     value={currentValue || ''}
+                    {...tooltip}
                 />
                 <Icon
                     className={cx('icon')}
@@ -87,6 +112,9 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
                         appearance='circle'
                         aria-label={ENUMS.TEXT.ARIA_CLEAR}
                         color='primary'
+                        data-align='right'
+                        data-tooltip={ENUMS.TEXT.ARIA_CLEAR}
+                        data-vertical-align='middle'
                         onClick={onClear}
                         size='xs'>
                         <Icon
@@ -127,6 +155,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
 Search = forwardRef(Search);
 
 Search.defaultProps = {
+    focused: null,
     icon: {
         clear: 'Feather.X',
         search: 'Feather.Search',
