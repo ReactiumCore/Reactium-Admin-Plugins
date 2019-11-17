@@ -11,26 +11,30 @@ import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
  * Functional Component: Search
  * -----------------------------------------------------------------------------
  */
-let Search = ({ className, namespace, placeholder, ...props }, ref) => {
+let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
     const { dispatch } = useStore();
 
     const reduxState = useSelect(state => op.get(state, 'SearchBar'));
 
     const value = op.get(reduxState, 'value');
 
-    const visible = op.get(reduxState, 'visible', false);
+    const visible = op.get(reduxState, 'visible', true);
 
     const inputRef = useRef();
 
-    const stateRef = useRef({ placeholder, value, visible, ...reduxState });
+    const stateRef = useRef({ icon, placeholder, ...reduxState });
 
     const [, setNewState] = useState(stateRef.current);
 
-    const setState = newState => {
+    const setState = (newState, caller) => {
         stateRef.current = {
             ...stateRef.current,
             ...newState,
         };
+
+        if (caller) {
+            console.log({ [caller]: stateRef.current });
+        }
 
         setNewState(stateRef.current);
         dispatch(deps().actions.SearchBar.setState(stateRef.current));
@@ -126,6 +130,7 @@ Search.defaultProps = {
         search: 'Feather.Search',
     },
     namespace: 'admin-search-bar',
+    redux: true,
     placeholder: 'Search',
 };
 

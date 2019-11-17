@@ -2,6 +2,8 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import { useHandle } from 'reactium-core/sdk';
+
 import React, {
     forwardRef,
     useImperativeHandle,
@@ -23,6 +25,8 @@ const ENUMS = {};
  * -----------------------------------------------------------------------------
  */
 let Media = ({ children, ...props }, ref) => {
+    const SearchBar = useHandle('SearchBar');
+
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
@@ -49,13 +53,17 @@ let Media = ({ children, ...props }, ref) => {
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
-    // Side Effects
-    useEffect(() => setState(props), Object.values(props));
-
     // Renderer
     const render = () => {
         return <div ref={containerRef}>Media</div>;
     };
+
+    // Side Effects
+    useEffect(() => setState(props), Object.values(props));
+
+    useEffect(() => SearchBar.setState({ visible: true }), [
+        op.get(SearchBar, 'visible'),
+    ]);
 
     // External Interface
     useImperativeHandle(ref, () => ({

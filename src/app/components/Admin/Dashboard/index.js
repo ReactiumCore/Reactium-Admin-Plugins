@@ -1,9 +1,10 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import deps from 'dependencies';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { __, useHandle } from 'reactium-core/sdk';
+import { __, useHandle, useStore } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -25,6 +26,8 @@ const ENUMS = {
  * -----------------------------------------------------------------------------
  */
 let Dashboard = ({ children, ...props }, ref) => {
+    const SearchBar = useHandle('SearchBar');
+
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
@@ -83,6 +86,10 @@ let Dashboard = ({ children, ...props }, ref) => {
             </>
         );
     };
+
+    useEffect(() => SearchBar.setState({ visible: false }), [
+        op.get(SearchBar, 'visible'),
+    ]);
 
     // External Interface
     useImperativeHandle(ref, () => ({

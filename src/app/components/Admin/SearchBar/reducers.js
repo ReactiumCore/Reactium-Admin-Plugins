@@ -7,7 +7,7 @@ export default (state = {}, action) => {
             return { ...state, ...action.state };
 
         case deps().actionTypes.UPDATE_ROUTE:
-            return { ...state, value: null, visible: true };
+            return { ...state, value: null, visible: false };
 
         default:
             return state;

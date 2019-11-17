@@ -2,5 +2,6 @@
  * Search Initial State
  */
 export default {
-    value: '',
+    value: null,
+    visible: false,
 };
