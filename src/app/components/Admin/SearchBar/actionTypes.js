@@ -1,3 +1,3 @@
 export default {
-    SEARCH_UPDATE: Symbol('SEARCH_UPDATE'),
+    SEARCH_STATE: Symbol('SEARCH_STATE'),
 };

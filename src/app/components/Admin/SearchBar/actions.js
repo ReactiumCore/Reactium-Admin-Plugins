@@ -1,9 +1,9 @@
 import deps from 'dependencies';
 
 export default {
-    update: state => dispatch => {
+    setState: state => dispatch => {
         return dispatch({
-            type: deps().actionTypes.SEARCH_UPDATE,
+            type: deps().actionTypes.SEARCH_STATE,
             state,
         });
     },

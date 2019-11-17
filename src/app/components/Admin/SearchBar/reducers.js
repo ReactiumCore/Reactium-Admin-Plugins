@@ -3,7 +3,7 @@ import deps from 'dependencies';
 
 export default (state = {}, action) => {
     switch (action.type) {
-        case deps().actionTypes.SEARCH_UPDATE:
+        case deps().actionTypes.SEARCH_STATE:
             return { ...state, ...action.state };
 
         case deps().actionTypes.UPDATE_ROUTE:

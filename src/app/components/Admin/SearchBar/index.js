@@ -22,7 +22,7 @@ let Search = ({ className, namespace, ...props }, ref) => {
 
     const inputRef = useRef();
 
-    const stateRef = useRef({ ...props, ...reduxState });
+    const stateRef = useRef({ value, visible, ...reduxState });
 
     const [, setNewState] = useState(stateRef.current);
 
@@ -33,7 +33,7 @@ let Search = ({ className, namespace, ...props }, ref) => {
         };
 
         setNewState(stateRef.current);
-        dispatch(deps().actions.SearchBar.update(stateRef.current));
+        dispatch(deps().actions.SearchBar.setState(stateRef.current));
     };
 
     const cname = cn({
