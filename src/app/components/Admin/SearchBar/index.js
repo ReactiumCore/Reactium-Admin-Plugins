@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import ENUMS from './enums';
 import op from 'object-path';
 import deps from 'dependencies';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
@@ -70,7 +71,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
         return visible !== true ? null : (
             <div className={cname}>
                 <input
-                    aria-label='search'
+                    aria-label={ENUMS.TEXT.ARIA_SEARCH}
                     onChange={onChange}
                     onFocus={onFocus}
                     placeholder={placeholder}
@@ -84,7 +85,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
                 {currentValue && (
                     <Button
                         appearance='circle'
-                        aria-label='clear search'
+                        aria-label={ENUMS.TEXT.ARIA_CLEAR}
                         color='primary'
                         onClick={onClear}
                         size='xs'>
@@ -99,6 +100,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
     };
 
     const handle = () => ({
+        ENUMS,
         input: inputRef.current,
         ref,
         setState,
@@ -130,7 +132,7 @@ Search.defaultProps = {
         search: 'Feather.Search',
     },
     namespace: 'admin-search-bar',
-    placeholder: 'Search',
+    placeholder: ENUMS.TEXT.PLACEHOLDER,
     value: null,
     visible: false,
 };
