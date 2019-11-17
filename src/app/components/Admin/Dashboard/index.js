@@ -26,8 +26,6 @@ const ENUMS = {
  * -----------------------------------------------------------------------------
  */
 let Dashboard = ({ children, ...props }, ref) => {
-    const SearchBar = useHandle('SearchBar');
-
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
@@ -69,27 +67,10 @@ let Dashboard = ({ children, ...props }, ref) => {
                 </Helmet>
                 <div ref={containerRef} className={cx()}>
                     {title}
-
-                    <div
-                        title='tooltip'
-                        data-tooltip
-                        data-align='left'
-                        data-vertical-align='top'
-                        style={{
-                            marginTop: 1000,
-                            marginLeft: 20,
-                            marginBottom: 200,
-                        }}>
-                        Tooltip
-                    </div>
                 </div>
             </>
         );
     };
-
-    useEffect(() => SearchBar.setState({ visible: false }), [
-        op.get(SearchBar, 'visible'),
-    ]);
 
     // External Interface
     useImperativeHandle(ref, () => ({
