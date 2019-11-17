@@ -18,7 +18,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
 
     const value = op.get(reduxState, 'value');
 
-    const visible = op.get(reduxState, 'visible', true);
+    const visible = op.get(reduxState, 'visible', false);
 
     const inputRef = useRef();
 
