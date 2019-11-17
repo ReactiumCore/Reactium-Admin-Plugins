@@ -1,4 +1,3 @@
-import op from 'object-path';
 import Editor from './Editor';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
