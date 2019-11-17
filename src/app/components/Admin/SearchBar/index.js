@@ -130,8 +130,9 @@ Search.defaultProps = {
         search: 'Feather.Search',
     },
     namespace: 'admin-search-bar',
-    redux: true,
     placeholder: 'Search',
+    value: null,
+    visible: false,
 };
 
 export default Search;
