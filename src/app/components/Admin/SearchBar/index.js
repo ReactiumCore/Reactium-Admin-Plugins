@@ -11,7 +11,7 @@ import { useRegisterHandle, useSelect, useStore } from 'reactium-core/sdk';
  * Functional Component: Search
  * -----------------------------------------------------------------------------
  */
-let Search = ({ className, namespace, ...props }, ref) => {
+let Search = ({ className, namespace, placeholder, ...props }, ref) => {
     const { dispatch } = useStore();
 
     const reduxState = useSelect(state => op.get(state, 'SearchBar'));
@@ -22,7 +22,7 @@ let Search = ({ className, namespace, ...props }, ref) => {
 
     const inputRef = useRef();
 
-    const stateRef = useRef({ value, visible, ...reduxState });
+    const stateRef = useRef({ placeholder, value, visible, ...reduxState });
 
     const [, setNewState] = useState(stateRef.current);
 
