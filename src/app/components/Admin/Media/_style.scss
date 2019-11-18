@@ -1,0 +1,12 @@
+.zone {
+    &-admin-media-content {
+        @include flex-row();
+        @include admin-content-zone;
+
+        color: $color-gray-dark;
+    }
+
+    &-admin-media-actions {
+        @include admin-actions-zone;
+    }
+}

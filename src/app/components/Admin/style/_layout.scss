@@ -3,6 +3,11 @@ body {
     background-color: $color-admin-bg;
 }
 
+html {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
 .blueprint {
     max-width: 100vw;
     overflow-x: hidden;

@@ -6,6 +6,6 @@ Reactium.Plugin.register('AdminLogo').then(() => {
         id: 'ADMIN-LOGO-PLUGIN',
         component: Logo,
         zone: ['admin-header'],
-        order: -1000,
+        order: Reactium.Enums.priority.highest * 10,
     });
 });

@@ -1,3 +1,6 @@
+// Colors
+$color-primary: $color-blue;
+
 // Spacing
 $padding-default: 24px !default;
 $padding-admin-content-zone: $padding-default !default;
@@ -30,6 +33,9 @@ $height-menu-item-expanded: 40px !default;
 // Avatar
 $color-avatar-stroke: $color-gray-dark !default;
 $color-avatar-text: $color-grey-light !default;
+
+// Profile
+$width-profile-avatar: 124px;
 
 $z-indexes: (
     "overlay": 10000,

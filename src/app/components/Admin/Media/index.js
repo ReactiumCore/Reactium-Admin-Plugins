@@ -1,31 +1,32 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import deps from 'dependencies';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { __, useHandle, useStore } from 'reactium-core/sdk';
+import { useHandle } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useImperativeHandle,
     useEffect,
+    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
 
-const ENUMS = {
-    TEXT: {
-        TITLE: __('Dashboard'),
-    },
-};
+// Server-Side Render safe useLayoutEffect (useEffect when node)
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
+
+const ENUMS = {};
 
 /**
  * -----------------------------------------------------------------------------
- * Hook Component: Dashboard
+ * Hook Component: Media
  * -----------------------------------------------------------------------------
  */
-let Dashboard = ({ children, ...props }, ref) => {
+let Media = ({ children, ...props }, ref) => {
+    const SearchBar = useHandle('SearchBar');
+
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
@@ -52,25 +53,17 @@ let Dashboard = ({ children, ...props }, ref) => {
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
+    // Renderer
+    const render = () => {
+        return <div ref={containerRef}>Media</div>;
+    };
+
     // Side Effects
     useEffect(() => setState(props), Object.values(props));
 
-    // Renderer
-    const render = () => {
-        const { title } = stateRef.current;
-
-        return (
-            <>
-                <Helmet>
-                    <meta charSet='utf-8' />
-                    <title>{title}</title>
-                </Helmet>
-                <div ref={containerRef} className={cx()}>
-                    {title}
-                </div>
-            </>
-        );
-    };
+    useEffect(() => SearchBar.setState({ visible: true }), [
+        op.get(SearchBar, 'visible'),
+    ]);
 
     // External Interface
     useImperativeHandle(ref, () => ({
@@ -84,19 +77,17 @@ let Dashboard = ({ children, ...props }, ref) => {
     return render();
 };
 
-Dashboard = forwardRef(Dashboard);
+Media = forwardRef(Media);
 
-Dashboard.ENUMS = ENUMS;
+Media.ENUMS = ENUMS;
 
-Dashboard.propTypes = {
+Media.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,
-    title: PropTypes.string,
 };
 
-Dashboard.defaultProps = {
-    namespace: 'admin-dashboard',
-    title: ENUMS.TEXT.TITLE,
+Media.defaultProps = {
+    namespace: 'admin-media-library',
 };
 
-export { Dashboard as default };
+export { Media as default };

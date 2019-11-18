@@ -9,6 +9,7 @@
     align-items: center;
     overflow: hidden;
     padding: 10px;
+    order: map-get($z-indexes, 'overlay');
 
     > * {
         width: auto;

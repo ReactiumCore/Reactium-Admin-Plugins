@@ -71,6 +71,15 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
+    const hideTooltip = e => {
+        if (e) {
+            const hasTooltip = !!e.target.getAttribute('data-tooltip');
+            if (hasTooltip) {
+                Tools.Tooltip.hide(e);
+            }
+        }
+    };
+
     const onCollapse = () => {
         const { id, route } = stateRef.current;
         if (!route) {
@@ -114,7 +123,9 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         return String(_.compact([namespace, name]).join('-')).toLowerCase();
     };
 
-    const collapseSidebar = () => {
+    const collapseSidebar = e => {
+        hideTooltip(e);
+
         if (expanded() && ['xs', 'sm'].includes(breakpoint)) {
             Sidebar.collapse();
         }
@@ -160,7 +171,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         const { exact, route } = stateRef.current;
         return (
             <NavLink
-                onClick={() => collapseSidebar()}
+                onClick={collapseSidebar}
                 exact={exact}
                 className={cname('link')}
                 to={route}
@@ -175,7 +186,12 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         const classname = cn({ [cname('link')]: true, active });
 
         return (
-            <button className={classname} onClick={onClick}>
+            <button
+                className={classname}
+                onClick={e => {
+                    hideTooltip(e);
+                    onClick(e);
+                }}>
                 <Label />
             </button>
         );
