@@ -1,9 +1,145 @@
+
 .zone {
     &-admin-media-content {
-        @include flex-row();
-        @include admin-content-zone;
+        &-dropzone {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: $height-admin-header;
+            color: $color-gray-dark;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
 
-        color: $color-gray-dark;
+        &-uploads {
+            flex-grow: 0;
+            display: block;
+
+            ul,
+            li {
+                list-style: none;
+                margin: 0;
+            }
+
+            ul {
+                padding: 0;
+            }
+
+            ul li {
+                @include flex-row();
+                justify-content: space-between;
+                align-items: stretch;
+            }
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        &-upload {
+            padding: $padding-admin-content-zone;
+            border-bottom: 1px solid lighten($color-grey, 10%);
+
+            &-image {
+                width: 72px;
+                height: 72px;
+                flex-shrink: 0;
+                flex-grow: 0;
+                border-radius: 4px;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: $color-grey;
+                background-position: center;
+                background-size: cover;
+
+                &.queued {
+                    opacity: 0.5;
+                }
+            }
+
+            &-name {
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                padding-left: $padding-admin-content-zone;
+                font-size: 14px;
+                font-weight: 500;
+                color: $color-gray;
+
+                &.queued {
+                    opacity: 0.5;
+                }
+            }
+
+            &-action {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                padding-left: $padding-admin-content-zone;
+
+                button {
+                    width: $width-upload-action-button;
+                    height: $width-upload-action-button;
+                    padding: 0;
+                    overflow: hidden;
+                }
+            }
+        }
+
+        &-library {
+            flex-grow: 1;
+            position: relative;
+            min-height: 500px;
+
+            &.empty {
+                padding: $padding-admin-content-zone;
+
+                &:before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: calc(100% - #{$padding-admin-content-zone * 2});
+                    height: calc(100% - #{$padding-admin-content-zone * 2});
+                    border: 3px dashed lighten($color-grey, 5%);
+                    //border-radius: 8px;
+                    transform: translateX(-50%) translateY(-50%);
+                }
+
+                div.label {
+                    content: 'Drop your files here';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0 $padding-admin-content-zone/2;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 16px;
+                    color: lighten($color-gray, 10%);
+                    transform: translateX(-50%) translateY(-50%);
+
+                    @include breakpoint(lg) {
+                        max-width: 33%;
+                        font-size: 1.5vw;
+                        padding: $padding-admin-content-zone;
+                    }
+
+                    svg {
+                        fill: $color-primary;
+                        opacity: 0.75;
+                    }
+                }
+            }
+        }
     }
 
     &-admin-media-actions {

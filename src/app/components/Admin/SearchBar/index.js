@@ -18,9 +18,9 @@ import {
  * -----------------------------------------------------------------------------
  */
 let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
-    const { dispatch } = useStore();
-
     const Tools = useHandle('AdminTools');
+
+    const { dispatch } = useStore();
 
     const reduxState = useSelect(state => op.get(state, 'SearchBar'));
 

@@ -35,7 +35,12 @@ $color-avatar-stroke: $color-gray-dark !default;
 $color-avatar-text: $color-grey-light !default;
 
 // Profile
-$width-profile-avatar: 124px;
+$width-profile-avatar: 124px !default;
+$width-profile-avatar-button: 30px !default;
+
+// Media
+$width-upload-action-button: 30px !default;
+
 
 $z-indexes: (
     "overlay": 10000,
