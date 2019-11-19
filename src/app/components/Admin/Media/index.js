@@ -1,7 +1,8 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import op from 'object-path';
 import ENUMS from './enums';
+import op from 'object-path';
+import domain from './domain';
 
 import {
     useDocument,
@@ -10,15 +11,13 @@ import {
     useSelect,
     useStore,
     useWindowSize,
+    useReduxState,
 } from 'reactium-core/sdk';
 
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Dropzone from './Dropzone';
-// import { Button, Dropzone, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dropzone, Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
-    useImperativeHandle,
     useEffect,
     useLayoutEffect as useWindowEffect,
     useRef,
@@ -39,56 +38,40 @@ let Media = ({ dropzoneProps, zone }, ref) => {
 
     const { breakpoint } = useWindowSize();
 
-    const { dispatch } = useStore();
-
-    const reduxState = useSelect(state => op.get(state, 'Media'));
+    const [state, setState] = useReduxState(domain.name);
 
     const SearchBar = useHandle('SearchBar');
 
     // Refs
     const containerRef = useRef();
     const dropzoneRef = useRef();
-    const stateRef = useRef({
-        ...reduxState,
-    });
 
-    // State
-    const [, setNewState] = useState(stateRef.current);
-
-    // Internal Interface
-    const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
-    };
-
+    // Functions
     const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
 
-    const isEmpty = () => op.get(stateRef.current, 'library', []).length < 1;
+    const isEmpty = () => op.get(state, 'library', []).length < 1;
 
-    const isUploading = () => op.get(stateRef.current, 'files', []).length > 0;
+    const isUploading = () =>
+        Object.keys(op.get(state, 'files', {})).length > 0;
 
-    const onBrowseClick = () => dropzoneRef.current.select();
+    const onBrowseClick = () => dropzoneRef.current.browseFiles();
 
-    const onFileAdded = e => {
-        const { file } = e;
+    const onFileError = evt => {
+        console.log({ error: evt.message });
 
-        const reader = new FileReader();
-        reader.onload = ({ target }) => {
-            const { files = [] } = stateRef.current;
-            file.dataURL = target.result;
-            files.push(file);
-            setState({ files });
-        };
-        reader.readAsDataURL(file);
+        setState({
+            updated: Date.now(),
+            error: { message: evt.message },
+        });
     };
 
+    const onChange = evt => setState({ files: evt.files, updated: Date.now() });
+
+    const removeFile = file => dropzoneRef.current.removeFiles(file);
+
     const Uploads = ({ files }) => {
+        files = Object.values(files);
+
         const getType = file => file.type.split('/').pop();
 
         const isImage = file =>
@@ -101,15 +84,14 @@ let Media = ({ dropzoneProps, zone }, ref) => {
             return null;
         };
 
-        // .filter(({ status }) => Boolean(status !== 'completed'))
+        const getStyle = file =>
+            isImage(file) ? { backgroundImage: `url(${file.dataURL})` } : null;
 
         return files.length < 1 ? null : (
             <ul>
                 {files.map((file, i) => {
                     const { status } = file;
-                    const style = isImage(file)
-                        ? { backgroundImage: `url(${file.dataURL})` }
-                        : null;
+                    const style = getStyle(file);
                     return (
                         <li
                             key={`media-upload-${i}`}
@@ -117,18 +99,44 @@ let Media = ({ dropzoneProps, zone }, ref) => {
                             <div
                                 className={cn(status, cx('upload-image'))}
                                 children={getIcon(file)}
-                                style={style}
+                                style={getStyle(file)}
                             />
                             <div className={cn(status, cx('upload-name'))}>
                                 {file.name}
                             </div>
+                            <div className={cn(status, cx('upload-status'))}>
+                                {status}
+                            </div>
                             <div className={cn(status, cx('upload-action'))}>
-                                <Button
-                                    size='xs'
-                                    color='danger'
-                                    appearance='circle'>
-                                    <Icon name='Feather.X' size={18} />
-                                </Button>
+                                {status === 'queued' && (
+                                    <Button
+                                        onClick={() => removeFile(file)}
+                                        size='xs'
+                                        color='danger'
+                                        appearance='circle'>
+                                        <Icon name='Feather.X' size={18} />
+                                    </Button>
+                                )}
+                                {status === 'complete' && (
+                                    <Button
+                                        size='xs'
+                                        color='primary'
+                                        appearance='circle'>
+                                        <Icon name='Feather.Check' size={18} />
+                                    </Button>
+                                )}
+                                {status === 'uploading' && (
+                                    <Button
+                                        size='xs'
+                                        color='primary'
+                                        disabled
+                                        appearance='circle'>
+                                        <Icon
+                                            name='Feather.ArrowUp'
+                                            size={18}
+                                        />
+                                    </Button>
+                                )}
                             </div>
                         </li>
                     );
@@ -157,18 +165,19 @@ let Media = ({ dropzoneProps, zone }, ref) => {
     // Renderer
     const render = () => {
         const empty = isEmpty();
-        const { files = [] } = stateRef.current;
+        const { files = {} } = state;
 
         return (
             <div ref={containerRef}>
                 <Dropzone
-                    className={cx('dropzone')}
+                    {...dropzoneProps}
                     files={files}
                     ref={dropzoneRef}
-                    {...dropzoneProps}
-                    onFileAdded={onFileAdded}>
+                    className={cx('dropzone')}
+                    onChange={onChange}
+                    onError={onFileError}>
                     <div className={cx('uploads')}>
-                        <Uploads {...stateRef.current} />
+                        <Uploads {...state} />
                     </div>
                     <div className={cn(cx('library'), { empty: !!empty })}>
                         {empty && <RenderEmpty />}
@@ -178,24 +187,19 @@ let Media = ({ dropzoneProps, zone }, ref) => {
         );
     };
 
-    useEffect(() => SearchBar.setState({ visible: !isEmpty() }), [
-        op.get(SearchBar, 'visible'),
-        op.get(stateRef.current, 'library', []).length,
-    ]);
+    useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
     // External Interface
     const handle = () => ({
         ENUMS,
         ref,
         setState,
-        state: stateRef.current,
+        state,
     });
 
-    useImperativeHandle(ref, handle);
-
     useRegisterHandle('Media', handle, [
-        op.get(stateRef.current, 'files', []).length,
-        op.get(stateRef.current, 'library', []).length,
+        op.get(state, 'files', []).length,
+        op.get(state, 'library', []).length,
     ]);
 
     // Render

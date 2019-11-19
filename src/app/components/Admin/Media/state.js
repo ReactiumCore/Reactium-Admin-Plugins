@@ -2,6 +2,6 @@
  * Media Initial State
  */
 export default {
-    files: [],
+    files: {},
     library: [],
 };

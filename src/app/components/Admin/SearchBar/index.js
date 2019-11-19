@@ -2,51 +2,23 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
+import domain from './domain';
 import deps from 'dependencies';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import {
-    useHandle,
-    useRegisterHandle,
-    useSelect,
-    useStore,
-} from 'reactium-core/sdk';
+import React, { forwardRef, useEffect, useRef } from 'react';
+import { useHandle, useRegisterHandle, useReduxState } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: Search
  * -----------------------------------------------------------------------------
  */
-let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
+let Search = ({ className, namespace, ...props }, ref) => {
+    const [state, setState] = useReduxState(domain.name);
+
     const Tools = useHandle('AdminTools');
 
-    const { dispatch } = useStore();
-
-    const reduxState = useSelect(state => op.get(state, 'SearchBar'));
-
-    const value = op.get(reduxState, 'value');
-
-    const visible = op.get(reduxState, 'visible', false);
-
     const inputRef = useRef();
-
-    const stateRef = useRef({ icon, placeholder, ...reduxState });
-
-    const [, setNewState] = useState(stateRef.current);
-
-    const setState = (newState, caller) => {
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        if (caller) {
-            console.log({ [caller]: stateRef.current });
-        }
-
-        setNewState(stateRef.current);
-        dispatch(deps().actions.SearchBar.setState(stateRef.current));
-    };
 
     const cname = cn({
         [className]: !!className,
@@ -75,12 +47,7 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
     const onBlur = () => setState({ focused: null });
 
     const render = () => {
-        const {
-            focused,
-            icon = {},
-            placeholder,
-            value: currentValue,
-        } = stateRef.current;
+        const { focused, icon = {}, placeholder, value, visible } = state;
 
         const tooltip =
             value || focused
@@ -100,14 +67,14 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
                     onFocus={onFocus}
                     placeholder={placeholder}
                     ref={inputRef}
-                    value={currentValue || ''}
+                    value={value || ''}
                     {...tooltip}
                 />
                 <Icon
                     className={cx('icon')}
                     name={op.get(icon, 'search', 'Feather.Search')}
                 />
-                {currentValue && (
+                {value && (
                     <Button
                         appearance='circle'
                         aria-label={ENUMS.TEXT.ARIA_CLEAR}
@@ -132,22 +99,15 @@ let Search = ({ className, icon, namespace, placeholder, ...props }, ref) => {
         input: inputRef.current,
         ref,
         setState,
-        state: stateRef.current,
-        value,
-        visible,
+        state,
+        value: op.get(state, 'value'),
+        visible: op.get(state, 'visible'),
     });
 
     useRegisterHandle('SearchBar', handle, [
-        op.get(stateRef.current, 'value'),
-        value,
+        op.get(state, 'value'),
+        op.get(state, 'visible'),
     ]);
-
-    useEffect(() => {
-        const { value: currentValue } = stateRef.current;
-        if (value !== currentValue) {
-            setState({ value });
-        }
-    }, [op.get(stateRef.current, 'value'), value]);
 
     return render();
 };
