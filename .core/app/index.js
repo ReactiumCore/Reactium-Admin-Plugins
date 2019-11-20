@@ -73,6 +73,8 @@ export const App = async () => {
                 </Provider>,
                 appElement,
             );
+
+            await Reactium.Hook.run('app-ready', ssr);
         }
     }
 };

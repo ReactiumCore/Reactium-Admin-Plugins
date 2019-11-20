@@ -4,7 +4,7 @@ import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 
-import {
+import Reactium, {
     useDocument,
     useHandle,
     useRegisterHandle,
@@ -189,6 +189,23 @@ let Media = ({ dropzoneProps, zone }, ref) => {
 
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
+    useEffect(() => {
+        Reactium.Pulse.register(
+            'MediaUploadQueue',
+            Media.upload,
+            {
+                attempts: 5,
+                delay: 1000,
+                repeat: 5,
+            },
+            1,
+            2,
+            3,
+        );
+
+        // return () => Reactium.Pulse.unregister('MediaUploadQueue');
+    }, [Reactium.Pulse]);
+
     // External Interface
     const handle = () => ({
         ENUMS,
@@ -207,6 +224,53 @@ let Media = ({ dropzoneProps, zone }, ref) => {
 };
 
 Media = forwardRef(Media);
+
+Media.upload = (task, ...params) =>
+    new Promise((resolve, reject) => {
+        if (1 === 1) {
+            // Forcing an error to test the retry api
+            console.log(
+                'Media.upload attempt:',
+                `${task.attempt}/${task.attempts}`,
+            );
+
+            if (task.failed) {
+                console.log('Media.upload FAILED');
+            }
+
+            return reject('no go bro');
+        }
+
+        if (task.complete) {
+            console.log('Media.upload COMPLETE');
+        }
+
+        resolve('Media.upload');
+    });
+
+// Media.upload = task => {
+//     // Forcing an error to test the retry api
+//     if (1 !== 2) {
+//         if (task.attempts > 0) {
+//             console.log(
+//                 'Media.upload attempt:',
+//                 `${task.attempt}/${task.attempts}`,
+//             );
+//         }
+//
+//         if (task.failed) {
+//             console.log('Media.upload MAX ATTEMPTS');
+//         }
+//
+//         return new Error('no go bro');
+//     }
+//
+//     if (task.complete) {
+//         console.log('Media.upload COMPLETE');
+//     }
+//
+//     return 'Media.upload';
+// };
 
 Media.ENUMS = ENUMS;
 
