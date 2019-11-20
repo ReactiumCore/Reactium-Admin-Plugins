@@ -74,6 +74,13 @@ export const App = async () => {
                 appElement,
             );
 
+            /**
+             * @api {Hook} app-ready app-ready
+             * @apiDescription Hook run after the app has been rendered.
+             * @apiName app-ready
+             * @apiGroup Reactium.Hooks
+             * @apiParam {Boolean} ssr If the app is in server-side rendering mode `true` is passed to the hook.
+             */
             await Reactium.Hook.run('app-ready', ssr);
         }
     }

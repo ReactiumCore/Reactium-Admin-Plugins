@@ -352,7 +352,9 @@ if (task.status === Pulse.ENUMS.STATUS.STOPPED) {
      * @apiDescription Force run the task without waiting for it's delay. If the task is running this is a `noop`.
      */
     async now() {
-        if (this.status === ENUMS.STATUS.RUNNING) { return; }
+        if (this.status === ENUMS.STATUS.RUNNING) {
+            return;
+        }
 
         debug('now()', this);
         this.stop();
