@@ -54,32 +54,57 @@ let Media = ({ dropzoneProps, zone }, ref) => {
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
 
+    const onChange = async evt => {
+        const directory = op.get(state, 'directory', '/assets/uploads');
+        const { files = {} } = state;
+
+        // remove files if necessary
+        const removed = op.get(evt, 'removed') || [];
+        removed.forEach(file => {
+            delete files[file.ID];
+        });
+
+        const added = op.get(evt, 'added') || [];
+        added.forEach(file => {
+            if (!files[file.ID]) {
+                files[file.ID] = file;
+                files[file.ID]['directory'] = directory;
+            }
+        });
+
+        Object.values(evt.files).forEach(file => {
+            const action = !file.action ? ENUMS.EVENT.ADDED : file.status;
+            files[file.ID]['action'] = files[file.ID].action || action;
+        });
+
+        setState({ files });
+    };
+
     const onBrowseClick = () => dropzoneRef.current.browseFiles();
 
     const onFileError = evt => {
         console.log({ error: evt.message });
 
         setState({
-            updated: Date.now(),
             error: { message: evt.message },
         });
     };
 
-    const onChange = evt => setState({ files: evt.files, updated: Date.now() });
-
     const removeFile = file => dropzoneRef.current.removeFiles(file);
+
+    const getFileStatus = file => op.get(file, 'action');
 
     const Uploads = ({ files }) => {
         files = Object.values(files);
 
-        const getType = file => file.type.split('/').pop();
+        const getType = file => file.upload.filename.split('.').pop();
 
         const isImage = file =>
             ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(file));
 
         const getIcon = file => {
             const type = getType(file);
-            const { status } = file;
+            const status = getFileStatus(file);
 
             return null;
         };
@@ -90,7 +115,7 @@ let Media = ({ dropzoneProps, zone }, ref) => {
         return files.length < 1 ? null : (
             <ul>
                 {files.map((file, i) => {
-                    const { status } = file;
+                    const status = getFileStatus(file);
                     const style = getStyle(file);
                     return (
                         <li
@@ -102,13 +127,21 @@ let Media = ({ dropzoneProps, zone }, ref) => {
                                 style={getStyle(file)}
                             />
                             <div className={cn(status, cx('upload-name'))}>
-                                {file.name}
+                                {op.get(file, 'upload.filename')}
                             </div>
                             <div className={cn(status, cx('upload-status'))}>
                                 {status}
                             </div>
                             <div className={cn(status, cx('upload-action'))}>
-                                {status === 'queued' && (
+                                {status === ENUMS.STATUS.COMPLETE && (
+                                    <Button
+                                        size='xs'
+                                        color='primary'
+                                        appearance='circle'>
+                                        <Icon name='Feather.Check' size={18} />
+                                    </Button>
+                                )}
+                                {status === ENUMS.STATUS.QUEUED && (
                                     <Button
                                         onClick={() => removeFile(file)}
                                         size='xs'
@@ -117,15 +150,8 @@ let Media = ({ dropzoneProps, zone }, ref) => {
                                         <Icon name='Feather.X' size={18} />
                                     </Button>
                                 )}
-                                {status === 'complete' && (
-                                    <Button
-                                        size='xs'
-                                        color='primary'
-                                        appearance='circle'>
-                                        <Icon name='Feather.Check' size={18} />
-                                    </Button>
-                                )}
-                                {status === 'uploading' && (
+
+                                {status === ENUMS.STATUS.UPLOADING && (
                                     <Button
                                         size='xs'
                                         color='primary'
@@ -176,9 +202,7 @@ let Media = ({ dropzoneProps, zone }, ref) => {
                     className={cx('dropzone')}
                     onChange={onChange}
                     onError={onFileError}>
-                    <div className={cx('uploads')}>
-                        <Uploads {...state} />
-                    </div>
+                    <div className={cx('uploads')}>{Uploads(state)}</div>
                     <div className={cn(cx('library'), { empty: !!empty })}>
                         {empty && <RenderEmpty />}
                     </div>
@@ -188,23 +212,6 @@ let Media = ({ dropzoneProps, zone }, ref) => {
     };
 
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
-
-    useEffect(() => {
-        Reactium.Pulse.register(
-            'MediaUploadQueue',
-            Media.upload,
-            {
-                attempts: 5,
-                delay: 1000,
-                repeat: 5,
-            },
-            1,
-            2,
-            3,
-        );
-
-        // return () => Reactium.Pulse.unregister('MediaUploadQueue');
-    }, [Reactium.Pulse]);
 
     // External Interface
     const handle = () => ({
@@ -225,59 +232,15 @@ let Media = ({ dropzoneProps, zone }, ref) => {
 
 Media = forwardRef(Media);
 
-Media.upload = (task, ...params) =>
-    new Promise((resolve, reject) => {
-        if (1 === 1) {
-            // Forcing an error to test the retry api
-            console.log(
-                'Media.upload attempt:',
-                `${task.attempt}/${task.attempts}`,
-            );
-
-            if (task.failed) {
-                console.log('Media.upload FAILED');
-            }
-
-            return reject('no go bro');
-        }
-
-        if (task.complete) {
-            console.log('Media.upload COMPLETE');
-        }
-
-        resolve('Media.upload');
-    });
-
-// Media.upload = task => {
-//     // Forcing an error to test the retry api
-//     if (1 !== 2) {
-//         if (task.attempts > 0) {
-//             console.log(
-//                 'Media.upload attempt:',
-//                 `${task.attempt}/${task.attempts}`,
-//             );
-//         }
-//
-//         if (task.failed) {
-//             console.log('Media.upload MAX ATTEMPTS');
-//         }
-//
-//         return new Error('no go bro');
-//     }
-//
-//     if (task.complete) {
-//         console.log('Media.upload COMPLETE');
-//     }
-//
-//     return 'Media.upload';
-// };
-
 Media.ENUMS = ENUMS;
 
 Media.defaultProps = {
     dropzoneProps: {
         config: {
+            chunking: true,
+            chunkSize: ENUMS.MAX_BYTES,
             clickable: true,
+            forceChunking: true,
             previewTemplate:
                 '<div class="dz-preview dz-file-preview"><span data-dz-name></div>',
         },

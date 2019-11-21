@@ -1,6 +1,7 @@
 import MediaLibrary from './index';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
+import addToQueue from './utils/addToQueue';
 
 Reactium.Plugin.register('AdminMediaLibrary').then(() => {
     Reactium.Plugin.addComponent({
@@ -17,3 +18,7 @@ Reactium.Plugin.register('AdminMediaLibrary').then(() => {
         order: 0,
     });
 });
+
+Reactium.Hook.register('app-ready', () =>
+    Reactium.Pulse.register('MediaQueueAdd', addToQueue),
+);
