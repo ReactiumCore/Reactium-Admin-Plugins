@@ -15,10 +15,14 @@ module.exports = {
 
     routes: async (req, res, next) => {
         const { routesConfig, routes } = await pageServices.getDynamicRoutes();
-
         req.routesConfig = global.routesConfig = routesConfig;
         req.routes = global.routes = routes;
+        next();
+    },
 
+    plugins: async (req, res, next) => {
+        const { plugins } = await Reactium.Cloud.run('plugins');
+        req.plugins = global.plugins = plugins;
         next();
     },
 };

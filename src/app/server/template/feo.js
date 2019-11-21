@@ -23,6 +23,7 @@ module.exports = {
                     window.blueprints = ${serialize(req.blueprints)};
                     window.routesConfig = ${serialize(req.routesConfig)};
                     window.routes = ${serialize(req.routes)};
+                    window.plugins = ${serialize(req.plugins)};
                 </script>
                 ${req.scripts}
             </body>
