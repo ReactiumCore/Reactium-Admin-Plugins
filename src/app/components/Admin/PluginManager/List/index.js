@@ -1,16 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useHookComponent } from 'reactium-core/sdk';
+import op from 'object-path';
+import _ from 'underscore';
+import Group from '../Group';
+import { Plugins } from 'reactium-core/components/Plugable';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: PluginManager
  * -----------------------------------------------------------------------------
  */
-const PluginList = props => {
-    return (
-        <div className={'plugin-manager-list'}>
-            <h1>PluginList</h1>
-        </div>
-    );
+const PluginList = ({ plugins = [], groups, idx }) => {
+    const [search, setSearch] = useState('');
+    const results = idx.search(search).map(({ ref }) => ref);
+    const pluginGroups = plugins
+        .filter(({ ID }) => results.find(ref => ref === ID))
+        .reduce(
+            (gps, plugin) => {
+                const { group, groupName } = plugin;
+                gps[group].plugins.push(plugin);
+                _.sortBy(gps[group].plugins, 'order');
+                return gps;
+            },
+            Object.entries(groups).reduce((init, [group, groupName]) => {
+                init[group] = {
+                    group,
+                    groupName,
+                    plugins: [],
+                };
+                return init;
+            }, {}),
+        );
+
+    const PluginGroup = useHookComponent('plugin-manager-plugin-group', Group);
+
+    const render = () => {
+        return (
+            <div className='plugin-manager-list'>
+                {Object.entries(pluginGroups).map(([group, pluginGroup]) => (
+                    <PluginGroup key={group} {...pluginGroup} />
+                ))}
+                <Plugins
+                    zone='plugin-manager-list'
+                    pluginGroups={pluginGroups}
+                />
+            </div>
+        );
+    };
+
+    return render();
 };
 
 export default PluginList;

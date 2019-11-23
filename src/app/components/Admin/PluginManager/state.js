@@ -1,10 +1,11 @@
+import op from 'object-path';
+
 /**
  * PluginManager Initial State
  */
 export default {
-    key: 'value',
-
-    // do not persist to local storage (default)
-    // see https://www.npmjs.com/package/redux-local-persist
-    persist: false,
+    plugins:
+        typeof window !== 'undefined'
+            ? op.get(window, 'plugins', [])
+            : op.get(global, 'plugins', []),
 };

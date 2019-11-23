@@ -1,3 +1,37 @@
 .zone-admin-plugin-manager-content {
     @include admin-content-zone;
 }
+
+.plugin-card {
+    background-color: $color-white;
+    padding: 40px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    margin: 16px;
+    flex-grow: 1;
+
+    &__graphic {
+        img {
+            width: 100%;
+        }
+    }
+
+    &__details {
+        height: 100px;
+        overflow: scroll;
+    }
+
+    &--core {
+        .plugin-card__graphic {
+            padding: 40px;
+        }
+    }
+}
+
+.plugins-group {
+    margin-top: 16px;
+
+    &-items {
+        margin: 0 -16px;
+    }
+}

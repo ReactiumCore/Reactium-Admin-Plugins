@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import op from 'object-path';
-import { useSelect } from 'reactium-core/sdk';
+import Reactium, { __, useReduxState } from 'reactium-core/sdk';
 import PluginList from './List';
 import PluginSettings from './Settings';
+import domain from './domain';
+import lunr from 'lunr';
+
+const getPlugins = async () => {
+    const { plugins } = await Reactium.Cloud.run('plugins');
+    return plugins;
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -10,17 +17,57 @@ import PluginSettings from './Settings';
  * -----------------------------------------------------------------------------
  */
 const PluginManager = props => {
-    const { id: pluginId } = useSelect(state =>
-        op.get(state, 'Router.match.params'),
-    );
+    const [state, setState] = useReduxState(state => {
+        const pluginId = op.get(state, 'Router.match.params.id');
+        const { plugins } = op.get(state, domain.name, []);
+        return { pluginId, plugins };
+    }, domain.name);
+
+    const { pluginId, plugins } = state;
+    useEffect(() => {
+        getPlugins().then(plugins => {
+            setState({ plugins });
+        });
+    }, [pluginId]);
+
+    const groups = {
+        core: __('Core'),
+        mail: __('Mailers'),
+        FilesAdapter: __('File Adapters'),
+        utilities: __('Utilties'),
+        other: __('Other'),
+    };
+    Reactium.Hook.run('plugin-group-labels', groups);
+
+    const allPlugins = plugins.map(plugin => {
+        const group = op.get(plugin, 'meta.group', 'other');
+        return {
+            ...plugin,
+            group,
+            groupName: op.get(groups, group, groups.other),
+        };
+    });
+
+    const idx = lunr(function() {
+        this.ref('ID');
+        this.field('name');
+        this.field('description');
+        allPlugins.forEach(plugin => this.add(plugin));
+    });
 
     const renderManager = () => {
-        if (!pluginId) return <PluginList />;
-        return <PluginSettings pluginId={pluginId} />;
+        if (!pluginId)
+            return (
+                <PluginList groups={groups} plugins={allPlugins} idx={idx} />
+            );
+        return (
+            <PluginSettings
+                plugin={allPlugins.find(plugin => plugin.ID === pluginId)}
+            />
+        );
     };
 
     const render = () => {
-        console.log(props);
         return <div className={'plugin-manager'}>{renderManager()}</div>;
     };
 

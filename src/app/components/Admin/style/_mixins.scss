@@ -19,6 +19,14 @@
     padding: $padding-admin-content-zone;
     padding-top: #{$height-admin-header + $padding-admin-content-zone};
     z-index: map-get($z-indexes, 'default');
+
+    @include breakpoint(md) {
+        padding-left: 100px;
+    }
+
+    @include breakpoint(lg) {
+        padding-left: $padding-admin-content-zone;
+    }
 }
 
 @mixin admin-actions-zone() {
