@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import op from 'object-path';
-import Reactium, { __, useReduxState } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useReduxState,
+    useRegisterHandle,
+} from 'reactium-core/sdk';
 import PluginList from './List';
 import PluginSettings from './Settings';
 import domain from './domain';
@@ -24,10 +28,24 @@ const PluginManager = props => {
     }, domain.name);
 
     const { pluginId, plugins } = state;
+
+    const refreshPlugins = async () => {
+        const plugins = await getPlugins();
+        setState({ plugins });
+    };
+
+    useRegisterHandle(
+        'plugin-manager.handle',
+        () => {
+            return {
+                refreshPlugins,
+            };
+        },
+        [],
+    );
+
     useEffect(() => {
-        getPlugins().then(plugins => {
-            setState({ plugins });
-        });
+        refreshPlugins();
     }, [pluginId]);
 
     const groups = {
@@ -37,6 +55,7 @@ const PluginManager = props => {
         utilities: __('Utilties'),
         other: __('Other'),
     };
+
     Reactium.Hook.run('plugin-group-labels', groups);
 
     const allPlugins = plugins.map(plugin => {
