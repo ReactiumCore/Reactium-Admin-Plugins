@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useHookComponent } from 'reactium-core/sdk';
+import React, { useEffect } from 'react';
+import { useHookComponent, useHandle } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Group from '../Group';
@@ -11,8 +11,12 @@ import { Plugins } from 'reactium-core/components/Plugable';
  * -----------------------------------------------------------------------------
  */
 const PluginList = ({ plugins = [], groups, idx }) => {
-    const [search, setSearch] = useState('');
-    const results = idx.search(search).map(({ ref }) => ref);
+    const SearchBar = useHandle('SearchBar');
+    useEffect(() => SearchBar.setState({ visible: true }));
+
+    const results = idx
+        .search(op.get(SearchBar, 'value') || '')
+        .map(({ ref }) => ref);
     const pluginGroups = plugins
         .filter(({ ID }) => results.find(ref => ref === ID))
         .reduce(
