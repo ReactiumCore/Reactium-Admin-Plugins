@@ -1,9 +1,11 @@
 import React from 'react';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Plugins } from 'reactium-core/components/Plugable';
 import op from 'object-path';
 import cn from 'classnames';
 import { Toggle } from '@atomic-reactor/reactium-ui';
+import { Link } from 'react-router-dom';
+import { Icon } from '@atomic-reactor/reactium-ui';
 
 const Card = ({ plugin }) => {
     const core =
@@ -14,8 +16,6 @@ const Card = ({ plugin }) => {
     const graphic = op.get(plugin, 'meta.graphic', defaultGraphic);
     const { name, description, active, group } = plugin;
 
-    const { refreshPlugins } = useHandle('plugin-manager.handle');
-
     const toggleActivate = async () => {
         const { ID } = plugin;
         if (plugin.active) {
@@ -24,7 +24,8 @@ const Card = ({ plugin }) => {
             await Reactium.Cloud.run('plugin-activate', { plugin: ID });
         }
 
-        await refreshPlugins();
+        // reload the page to get plugin assets
+        if (typeof window !== 'undefined') location.reload(true);
     };
 
     const renderActivation = () => {
@@ -58,6 +59,13 @@ const Card = ({ plugin }) => {
     };
 
     const render = () => {
+        const settings = op.get(plugin, 'meta.settings', false);
+        const settingsUrl = op.get(plugin, 'meta.settingsUrl');
+        const settingsTitle = __('Plugin settings for %s').replace(
+            '%s',
+            plugin.name,
+        );
+
         return (
             <div className={cn('plugin-card', { 'plugin-card--core': core })}>
                 <div className='plugin-card__graphic'>
@@ -69,6 +77,23 @@ const Card = ({ plugin }) => {
                     <Plugins zone='plugin-card-description' plugin={plugin} />
                 </div>
                 <div className='plugin-card__actions'>
+                    {plugin.active && settings && (
+                        <Link
+                            className={cn(
+                                'plugin-settings-link',
+                                `plugin-settings-link-${plugin.ID}`,
+                                'icon-link',
+                            )}
+                            to={
+                                settingsUrl
+                                    ? settingsUrl
+                                    : `/admin/plugins/${plugin.ID}`
+                            }
+                            title={settingsTitle}>
+                            <span className='sr-only'>{settingsTitle}</span>
+                            <Icon.Feather.Settings />
+                        </Link>
+                    )}
                     {renderActivation()}
                     <Plugins zone='plugin-card-actions' plugin={plugin} />
                 </div>

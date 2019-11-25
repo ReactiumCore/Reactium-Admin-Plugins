@@ -41,9 +41,12 @@ const PluginList = ({ plugins = [], groups, idx }) => {
     const render = () => {
         return (
             <div className='plugin-manager-list'>
-                {Object.entries(pluginGroups).map(([group, pluginGroup]) => (
-                    <PluginGroup key={group} {...pluginGroup} />
-                ))}
+                {Object.entries(pluginGroups).map(
+                    ([group, pluginGroup]) =>
+                        op.get(pluginGroup, 'plugins', []).length > 0 && (
+                            <PluginGroup key={group} {...pluginGroup} />
+                        ),
+                )}
                 <Plugins
                     zone='plugin-manager-list'
                     pluginGroups={pluginGroups}

@@ -3,6 +3,7 @@
 }
 
 .plugin-card {
+    position: relative;
     background-color: $color-white;
     padding: 40px;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.05);
@@ -16,7 +17,7 @@
     }
 
     &__details {
-        height: 100px;
+        height: 140px;
         overflow: scroll;
     }
 
@@ -33,4 +34,10 @@
     &-items {
         margin: 0 -16px;
     }
+}
+
+.plugin-settings-link {
+    position: absolute;
+    top: 40px;
+    right: 40px;
 }
