@@ -1,0 +1,14 @@
+a.icon-link {
+    &:hover, &:active, &:focus {
+        .icon {
+            fill: $fill-focus-icon-link;
+        }
+    }
+
+    &:focus {
+        outline: none;
+        .icon {
+            stroke: $stroke-focus-icon-link;
+        }
+    }
+}

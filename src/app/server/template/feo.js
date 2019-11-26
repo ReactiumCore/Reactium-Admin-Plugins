@@ -2,7 +2,11 @@ import serialize from 'serialize-javascript';
 
 module.exports = {
     version: '3.0.20',
-    includeSheets: ['admin.css'],
+    includeSheets: [
+        'admin.css',
+        // uncomment to test locally
+        // 'reset-plugin.css',
+    ],
     template: req => {
         return `<!DOCTYPE html>
         <html>
@@ -11,6 +15,7 @@ module.exports = {
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
                 <meta charSet='utf-8' />
                 ${req.styles}
+                ${req.pluginAssets.styles}
             </head>
             <body>
                 <Component type="DevTools"></Component>
@@ -25,8 +30,10 @@ module.exports = {
                     window.blueprints = ${serialize(req.blueprints)};
                     window.routesConfig = ${serialize(req.routesConfig)};
                     window.routes = ${serialize(req.routes)};
+                    window.plugins = ${serialize(req.plugins)};
                 </script>
                 ${req.scripts}
+                ${req.pluginAssets.scripts}
             </body>
         </html>`;
     },

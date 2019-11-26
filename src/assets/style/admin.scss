@@ -12,6 +12,7 @@
 @import '../../app/components/Admin/style/mixins';
 
 // Admin Styles
+@import '../../app/components/Admin/style/base';
 @import '../../app/components/Admin/style/layout';
 @import '../../app/components/Admin/style/header';
 @import '../../app/components/Admin/AdminLogo/style';
@@ -26,3 +27,5 @@
 @import '../../app/components/Admin/ConfirmBox/style';
 @import '../../app/components/Admin/Media/style';
 @import '../../app/components/Admin/SearchBar/style';
+
+@import '../../app/components/Admin/PluginManager/style';
