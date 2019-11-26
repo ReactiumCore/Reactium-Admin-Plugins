@@ -3,6 +3,7 @@ import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
+import { Helmet } from 'react-helmet';
 
 import Reactium, {
     useDocument,
@@ -33,7 +34,7 @@ const useLayoutEffect =
  * Hook Component: Media
  * -----------------------------------------------------------------------------
  */
-let Media = ({ dropzoneProps, zone }, ref) => {
+let Media = ({ dropzoneProps, zone, title }, ref) => {
     const iDoc = useDocument();
 
     const { breakpoint } = useWindowSize();
@@ -90,7 +91,10 @@ let Media = ({ dropzoneProps, zone }, ref) => {
         });
     };
 
-    const removeFile = file => dropzoneRef.current.removeFiles(file);
+    const removeFile = file => {
+        dropzoneRef.current.removeFiles(file);
+        Reactium.Media.removeChunks(file);
+    };
 
     const getFileStatus = file => op.get(file, 'action');
 
@@ -137,7 +141,8 @@ let Media = ({ dropzoneProps, zone }, ref) => {
                                     <Button
                                         size='xs'
                                         color='primary'
-                                        appearance='circle'>
+                                        appearance='circle'
+                                        onClick={() => removeFile(file)}>
                                         <Icon name='Feather.Check' size={18} />
                                     </Button>
                                 )}
@@ -195,6 +200,9 @@ let Media = ({ dropzoneProps, zone }, ref) => {
 
         return (
             <div ref={containerRef}>
+                <Helmet>
+                    <title>{title}</title>
+                </Helmet>
                 <Dropzone
                     {...dropzoneProps}
                     files={files}
@@ -246,6 +254,7 @@ Media.defaultProps = {
         },
         debug: false,
     },
+    title: ENUMS.TEXT.TITLE,
 };
 
 export { Media as default };

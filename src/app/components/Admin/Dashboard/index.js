@@ -62,7 +62,6 @@ let Dashboard = ({ children, ...props }, ref) => {
         return (
             <>
                 <Helmet>
-                    <meta charSet='utf-8' />
                     <title>{title}</title>
                 </Helmet>
                 <div ref={containerRef} className={cx()}>

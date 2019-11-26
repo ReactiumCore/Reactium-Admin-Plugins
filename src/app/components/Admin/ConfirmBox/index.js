@@ -19,10 +19,6 @@ const ConfirmBox = ({
     title,
     ...props
 }) => {
-    const tools = useHandle('AdminTools');
-
-    const Modal = op.get(tools, 'Modal');
-
     const _onCancel = () => {
         if (onCancel) {
             onCancel();
