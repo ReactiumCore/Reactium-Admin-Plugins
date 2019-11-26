@@ -1,5 +1,9 @@
 .zone {
     &-admin-media-content {
+        .ar-progress.xs {
+            height: 10px;
+        }
+
         &-dropzone {
             position: relative;
             display: flex;
@@ -71,10 +75,11 @@
                 }
             }
 
-            &-name {
+            &-info {
                 flex-grow: 1;
                 display: flex;
-                align-items: center;
+                flex-direction: column;
+                justify-content: center;
                 flex-wrap: nowrap;
                 overflow-x: hidden;
                 white-space: -moz-pre-wrap;
@@ -83,11 +88,22 @@
                 word-wrap: break-word;
 
                 padding-left: $padding-admin-content-zone;
-                font-weight: 600;
+                font-family: Helvetica, Arial, sans-serif;
 
                 &.queued {
                     opacity: 0.5;
                 }
+            }
+
+            &-name {
+                font-weight: 600;
+            }
+            &-size {
+                font-size: 11px;
+            }
+
+            &-url {
+                font-size: 11px;
             }
 
             &-action {

@@ -6,11 +6,22 @@ import Reactium from 'reactium-core/sdk';
 const activeUploads = files => {
     if (!files) {
         const { getState } = Reactium.Plugin.redux.store;
-        files = op.get(getState().Media, 'files', {});
+        files = op.get(getState().Media, 'uploads', {});
     }
 
     return _.chain(Array.from(Object.values(files)))
         .where({ action: ENUMS.STATUS.UPLOADING })
+        .value();
+};
+
+const completedUploads = files => {
+    if (!files) {
+        const { getState } = Reactium.Plugin.redux.store;
+        files = op.get(getState().Media, 'files', {});
+    }
+
+    return _.chain(Array.from(Object.values(files)))
+        .where({ action: ENUMS.STATUS.COMPLETE })
         .value();
 };
 
@@ -25,4 +36,4 @@ const queuedUploads = files => {
         .value();
 };
 
-export { activeUploads, queuedUploads };
+export { activeUploads, completedUploads, queuedUploads };

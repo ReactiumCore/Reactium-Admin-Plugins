@@ -4,6 +4,8 @@ import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 import { Helmet } from 'react-helmet';
+import { completedUploads } from './utils';
+import bytesConvert from './utils/bytesConvert';
 
 import Reactium, {
     useDocument,
@@ -15,7 +17,13 @@ import Reactium, {
     useReduxState,
 } from 'reactium-core/sdk';
 
-import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import {
+    Button,
+    Dropzone,
+    Icon,
+    Progress,
+    Spinner,
+} from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -63,8 +71,8 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         Object.keys(op.get(state, 'files', {})).length > 0;
 
     const onChange = async evt => {
-        const directory = op.get(state, 'directory', '/assets/uploads');
-        const { files = {} } = state;
+        const directory = op.get(state, 'directory', 'uploads');
+        const { files = {}, uploads } = state;
 
         // remove files if necessary
         const removed = op.get(evt, 'removed') || [];
@@ -81,8 +89,17 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         });
 
         Object.values(evt.files).forEach(file => {
-            const action = !file.action ? ENUMS.EVENT.ADDED : file.status;
-            files[file.ID]['action'] = files[file.ID].action || action;
+            let action = op.get(file, 'action', ENUMS.EVENT.ADDED);
+            const upload = op.get(uploads, file.ID);
+
+            if (upload) {
+                action = op.get(upload, 'action');
+                files[file.ID]['url'] = op.get(upload, 'url');
+                try {
+                } catch (err) {}
+            }
+
+            files[file.ID]['action'] = action;
         });
 
         setState({ files });
@@ -105,40 +122,63 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
 
     const getFileStatus = file => op.get(file, 'action');
 
-    const Uploads = ({ files }) => {
+    const Uploads = ({ files, uploads }) => {
         files = Object.values(files);
 
-        const getType = file => file.upload.filename.split('.').pop();
+        const getType = filename => {
+            return String(filename)
+                .split('.')
+                .pop();
+        };
 
-        const isImage = file =>
-            ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(file));
+        const isImage = filename =>
+            ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(filename));
 
-        const getIcon = file => {
-            const type = getType(file);
-            const status = getFileStatus(file);
-
+        const getIcon = (file, status) => {
+            const type = getType(file.filename);
             return null;
         };
 
-        const getStyle = file =>
-            isImage(file) ? { backgroundImage: `url(${file.dataURL})` } : null;
+        const getStyle = (file, filename) =>
+            isImage(filename)
+                ? { backgroundImage: `url(${file.dataURL})` }
+                : null;
 
         return files.length < 1 ? null : (
             <ul>
                 {files.map((file, i) => {
-                    const status = getFileStatus(file);
-                    const style = getStyle(file);
+                    const upload = op.get(uploads, file.ID, {});
+                    const filename = op.get(file, 'upload.filename');
+                    const style = getStyle(file, filename);
+                    const status = op.get(file, 'action');
+                    const progress = op.get(upload, 'progress', 0);
+                    const size = op.get(file, 'upload.total', 0);
+                    const url = op.get(file, 'url', '...');
                     return (
                         <li
                             key={`media-upload-${i}`}
                             className={cn(status, cx('upload'))}>
                             <div
                                 className={cn(status, cx('upload-image'))}
-                                children={getIcon(file)}
-                                style={getStyle(file)}
+                                style={style}
                             />
-                            <div className={cn(status, cx('upload-name'))}>
-                                {op.get(file, 'upload.filename')}
+                            <div className={cn(status, cx('upload-info'))}>
+                                <div className={cx('upload-name')}>
+                                    {filename}
+                                    {' • '}
+                                    <span className={cx('upload-size')}>
+                                        {bytesConvert(size)}
+                                    </span>
+                                </div>
+                                <div style={{ width: 150 }}>
+                                    <Progress
+                                        size='xs'
+                                        color='primary'
+                                        value={progress}
+                                        appearance='pill'
+                                    />
+                                </div>
+                                <div className={cx('upload-url')}>{url}</div>
                             </div>
                             <div className={cn(status, cx('upload-status'))}>
                                 {status}
@@ -153,6 +193,7 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                                         <Icon name='Feather.Check' size={18} />
                                     </Button>
                                 )}
+
                                 {status === ENUMS.STATUS.QUEUED && (
                                     <Button
                                         onClick={() => removeFile(file)}
@@ -213,8 +254,8 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                 {fetched && (
                     <Dropzone
                         {...dropzoneProps}
-                        files={files}
                         ref={dropzoneRef}
+                        files={files}
                         className={cx('dropzone')}
                         onChange={onChange}
                         onError={onFileError}>
@@ -241,6 +282,12 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         const search = op.get(SearchBar, 'value');
         Reactium.Media.fetch({ directory, page, search });
     }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
+
+    useEffect(() => {
+        if (!dropzoneRef.current) return;
+        const completed = completedUploads();
+        completed.forEach(removeFile);
+    }, [dropzoneRef.current]);
 
     // External Interface
     const handle = () => ({

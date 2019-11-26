@@ -6,13 +6,15 @@ import Reactium from 'reactium-core/sdk';
 const debug = (...args) =>
     ENUMS.DEBUG === true ? console.log('uploadTask', ...args) : () => {};
 
+const MediaFetch = _.throttle(Reactium.Media.fetch, 2000, { leading: false });
+
 export default async task => {
     const { getState } = Reactium.Plugin.redux.store;
 
     // 1.0 - Batch the chunks
     let { directory, page, uploads = {} } = getState().Media;
     uploads = Object.values(uploads).filter(item =>
-        Boolean(op.get(item, 'status') !== ENUMS.STATUS.COMPLETE),
+        Boolean(op.get(item, 'action') !== ENUMS.STATUS.COMPLETE),
     );
     if (uploads.length < 1) return;
 
@@ -44,7 +46,7 @@ export default async task => {
 
             if (op.get(result, 'status') === ENUMS.STATUS.COMPLETE) {
                 const { value: search } = getState().SearchBar;
-                await Reactium.Media.fetch({ directory, page, search });
+                MediaFetch({ directory, page, search });
             }
         }
     }

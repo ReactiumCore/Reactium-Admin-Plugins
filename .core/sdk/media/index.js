@@ -91,11 +91,10 @@ class Media {
 
         delete upload.chunks;
 
-        const { dispatch, getState } = Reactium.Plugin.redux.store;
-        const { files = {}, uploads = {} } = getState().Media;
-
         return Reactium.Cloud.run('upload-chunk', upload).then(result => {
             const { chunk, ID, index, total } = upload;
+            const { dispatch, getState } = Reactium.Plugin.redux.store;
+            const { completed = [], files = {}, uploads = {} } = getState().Media;
 
             const bytesSent =
                 op.get(uploads, [ID, 'bytesSent'], 0) + chunk.length;
@@ -107,15 +106,23 @@ class Media {
 
             op.set(uploads, [ID, 'bytesSent'], bytesSent);
             op.set(uploads, [ID, 'progress'], progress);
-            op.set(uploads, [ID, 'status'], status);
+            op.set(uploads, [ID, 'action'], status);
             op.set(files, [ID, 'action'], status);
+
+            if (status === ENUMS.STATUS.COMPLETE) {
+                const { file } = result;
+                op.set(uploads, [ID, 'url'], file.url);
+                op.set(files, [ID, 'url'], file.url);
+                completed.push(ID);
+            }
 
             dispatch({
                 domain: ENUMS.DOMAIN,
                 type: ENUMS.ACTION_TYPE,
-                update: { files, uploads },
+                update: { completed, files, uploads },
             });
 
+            result['upload'] = upload;
             return result;
         });
     }
