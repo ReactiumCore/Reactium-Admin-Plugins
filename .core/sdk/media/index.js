@@ -115,6 +115,8 @@ class Media {
                 type: ENUMS.ACTION_TYPE,
                 update: { files, uploads },
             });
+
+            return result;
         });
     }
 
@@ -133,19 +135,24 @@ class Media {
         });
     }
 
-    async fetch(page = 1) {
+    async fetch({ directory, page = 1, search }) {
         const { dispatch, getState } = Reactium.Plugin.redux.store;
         const { library = {} } = getState().Media;
 
-        library[page] = await Reactium.Cloud.run('media', { page });
+        const media = await Reactium.Cloud.run('media', { directory, page, search });
+        const { directories = ['uploads'], files, ...pagination } = media;
 
-        dispatch({
+        if (Object.keys(files).length > 0) {
+            library[page] = files;
+        } else {
+            delete library[page];
+        }
+
+        return await dispatch({
             domain: ENUMS.DOMAIN,
             type: ENUMS.ACTION_TYPE,
-            update: { library },
+            update: { directories, library, pagination, fetched: Date.now() },
         });
-
-        return library;
     }
 }
 

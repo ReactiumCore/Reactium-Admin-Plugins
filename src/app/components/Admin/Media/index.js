@@ -15,7 +15,7 @@ import Reactium, {
     useReduxState,
 } from 'reactium-core/sdk';
 
-import { Button, Dropzone, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -50,7 +50,14 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
     // Functions
     const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
 
-    const isEmpty = () => op.get(state, 'library', []).length < 1;
+    const isEmpty = () => {
+        const { library = {} } = state;
+        const values = _.chain(Object.values(library))
+            .flatten()
+            .compact()
+            .value();
+        return values.length < 1;
+    };
 
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
@@ -196,30 +203,44 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
     // Renderer
     const render = () => {
         const empty = isEmpty();
-        const { files = {} } = state;
+        const { fetched, files = {} } = state;
 
         return (
             <div ref={containerRef}>
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                <Dropzone
-                    {...dropzoneProps}
-                    files={files}
-                    ref={dropzoneRef}
-                    className={cx('dropzone')}
-                    onChange={onChange}
-                    onError={onFileError}>
-                    <div className={cx('uploads')}>{Uploads(state)}</div>
-                    <div className={cn(cx('library'), { empty: !!empty })}>
-                        {empty && <RenderEmpty />}
+                {fetched && (
+                    <Dropzone
+                        {...dropzoneProps}
+                        files={files}
+                        ref={dropzoneRef}
+                        className={cx('dropzone')}
+                        onChange={onChange}
+                        onError={onFileError}>
+                        <div className={cx('uploads')}>{Uploads(state)}</div>
+                        <div className={cn(cx('library'), { empty: !!empty })}>
+                            {empty && <RenderEmpty />}
+                            {!empty && <div>FILES</div>}
+                        </div>
+                    </Dropzone>
+                )}
+                {!fetched && (
+                    <div className={cx('spinner')}>
+                        <Spinner />
                     </div>
-                </Dropzone>
+                )}
             </div>
         );
     };
 
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
+
+    useEffect(() => {
+        const { directory, page = 1 } = state;
+        const search = op.get(SearchBar, 'value');
+        Reactium.Media.fetch({ directory, page, search });
+    }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
 
     // External Interface
     const handle = () => ({

@@ -10,7 +10,7 @@ export default async task => {
     const { getState } = Reactium.Plugin.redux.store;
 
     // 1.0 - Batch the chunks
-    let { uploads = {} } = getState().Media;
+    let { directory, page, uploads = {} } = getState().Media;
     uploads = Object.values(uploads).filter(item =>
         Boolean(op.get(item, 'status') !== ENUMS.STATUS.COMPLETE),
     );
@@ -43,7 +43,8 @@ export default async task => {
             const result = await Reactium.Media.uploadChunk(upload);
 
             if (op.get(result, 'status') === ENUMS.STATUS.COMPLETE) {
-                console.log(result);
+                const { value: search } = getState().SearchBar;
+                await Reactium.Media.fetch({ directory, page, search });
             }
         }
     }

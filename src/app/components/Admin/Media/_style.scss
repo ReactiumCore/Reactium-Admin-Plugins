@@ -11,6 +11,15 @@
             overflow-y: auto;
         }
 
+        &-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         &-uploads {
             flex-grow: 0;
             display: block;
