@@ -21,7 +21,7 @@ const fileUploadShim = async file => {
         total: 0,
         totalChunkCount: 0,
     };
-    
+
     const data = {
         ...uploadObj,
         filename: file.name,

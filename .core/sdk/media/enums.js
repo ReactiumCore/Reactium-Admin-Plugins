@@ -1,4 +1,3 @@
-
 const ENUMS = {
     ACTION_TYPE: 'DOMAIN_UPDATE',
     DEBUG: false,
