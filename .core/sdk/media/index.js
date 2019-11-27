@@ -34,7 +34,7 @@ class Media {
         this.fileToChunks = fileToChunks;
     }
 
-    async upload(files = [], directory = 'uploads') {
+    async upload(files = []) {
         if (reduxCheck()) return;
 
         files = valueToArray(files);
@@ -58,8 +58,6 @@ class Media {
             if (op.get(uploads, ID)) return;
 
             file.action = ENUMS.STATUS.UPLOADING;
-            file.directory =
-                file.directory || op.get(file, 'directory', directory);
 
             const obj = {
                 ID,
@@ -113,6 +111,7 @@ class Media {
                 const { file } = result;
                 op.set(uploads, [ID, 'url'], file.url);
                 op.set(files, [ID, 'url'], file.url);
+                op.set(files, [ID, 'statusAt'], Date.now());
                 completed.push(ID);
             }
 

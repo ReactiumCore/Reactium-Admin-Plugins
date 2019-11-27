@@ -1,39 +1,30 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import Empty from './Empty';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
+import Uploads from './Uploads';
 import { Helmet } from 'react-helmet';
 import { completedUploads } from './utils';
-import bytesConvert from './utils/bytesConvert';
-import Empty from './Empty';
-import onChange from './utils/onFileChange';
+import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
+import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     useDocument,
     useHandle,
+    useReduxState,
     useRegisterHandle,
     useSelect,
     useStore,
     useWindowSize,
-    useReduxState,
 } from 'reactium-core/sdk';
-
-import {
-    Button,
-    Dropdown,
-    Dropzone,
-    Icon,
-    Progress,
-    Spinner,
-} from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
     useEffect,
     useLayoutEffect as useWindowEffect,
     useRef,
-    useState,
 } from 'react';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
@@ -54,11 +45,13 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
 
     const SearchBar = useHandle('SearchBar');
 
-    const directory = op.get(state, 'directory', 'uploads');
-
     // Refs
+    const animationRef = useRef({});
     const containerRef = useRef();
+    const directoryRef = useRef(op.get(state, 'directory', 'uploads'));
     const dropzoneRef = useRef();
+    const stateRef = useRef(state);
+    const pulseRef = useRef();
 
     // Functions
     const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
@@ -77,6 +70,76 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
 
     const onBrowseClick = () => dropzoneRef.current.browseFiles();
 
+    const onChange = evt => {
+        const directory = directoryRef.current;
+        const { files = {}, uploads } = stateRef.current;
+
+        // remove files if necessary
+        const removed = op.get(evt, 'removed') || [];
+        removed.forEach(file => {
+            delete files[file.ID];
+        });
+
+        const added = op.get(evt, 'added') || [];
+        added.forEach(file => {
+            if (!files[file.ID]) {
+                files[file.ID] = file;
+                files[file.ID]['directory'] = directory;
+                files[file.ID]['action'] = ENUMS.EVENT.ADDED;
+            }
+        });
+
+        Object.values(evt.files).forEach(file => {
+            let action = op.get(file, 'action') || ENUMS.EVENT.ADDED;
+            const upload = op.get(uploads, file.ID);
+
+            if (upload) {
+                action = op.get(upload, 'action', action);
+                files[file.ID]['url'] = op.get(upload, 'url');
+                files[file.ID]['directory'] = directory;
+                uploads[file.ID]['directory'] = directory;
+            }
+
+            try {
+                files[file.ID]['action'] = action;
+            } catch (err) {}
+        });
+
+        setState({ files, uploads });
+    };
+
+    const collapse = ID => {
+        const elm = iDoc.getElementById(`upload-${ID}`);
+        if (!elm) return Promise.resolve();
+
+        animationRef.current[ID] = true;
+
+        return new Promise(resolve => {
+            elm.style.overflow = 'hidden';
+            TweenMax.to(elm, 0.5, {
+                height: 0,
+                opacity: 0,
+                ease: Power2.easeIn,
+                onComplete: () => resolve(),
+            });
+        });
+    };
+
+    const onClearUploads = () =>
+        completedUploads().forEach(file => {
+            const timestamp = moment(new Date(file.statusAt));
+            if (moment().diff(timestamp, 'seconds') >= 5) {
+                if (animationRef[file.ID]) return;
+
+                collapse(file.ID).then(() => {
+                    onRemoveFile(file);
+                    delete animationRef.current[file.ID];
+                });
+            }
+        });
+
+    const onDirectoryAddClick = () => {};
+
     const onFileError = evt => {
         console.log({ error: evt.message });
 
@@ -85,120 +148,52 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         });
     };
 
-    const onFolderSelect = dir => setState({ directory: dir });
+    const onFolderSelect = dir => {
+        directoryRef.current = dir;
+        setState({ directory: dir });
+    };
 
-    const onDirectoryAddClick = () => {};
-
-    const removeFile = file => {
+    const onRemoveFile = file => {
         dropzoneRef.current.removeFiles(file);
         Reactium.Media.removeChunks(file);
     };
 
-    const getFileStatus = file => op.get(file, 'action');
+    // Side effects
+    useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
-    const Uploads = ({ files, uploads }) => {
-        files = Object.values(files);
+    useEffect(() => {
+        const { page = 1 } = state;
+        const search = op.get(SearchBar, 'value');
+        Reactium.Media.fetch({ page, search });
+    }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
 
-        const getType = filename => {
-            return String(filename)
-                .split('.')
-                .pop();
+    useEffect(() => {
+        Reactium.Pulse.register('MediaClearInternal', onClearUploads, {
+            delay: 1000,
+        });
+        return () => {
+            Reactium.Pulse.unregister('MediaClearInternal');
         };
+    }, []);
 
-        const isImage = filename =>
-            ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(filename));
+    useEffect(() => {
+        directoryRef.current = op.get(state, 'directory', 'uploads');
+    }, [op.get(state, 'directory', 'uploads'), directoryRef.current]);
 
-        const getIcon = (file, status) => {
-            const type = getType(file.filename);
-            return null;
-        };
+    // External Interface
+    const handle = () => ({
+        ENUMS,
+        ref,
+        setState,
+        state,
+    });
 
-        const getStyle = (file, filename) =>
-            isImage(filename)
-                ? { backgroundImage: `url(${file.dataURL})` }
-                : null;
+    useRegisterHandle('Media', handle, [
+        op.get(state, 'files', []).length,
+        op.get(state, 'library', []).length,
+    ]);
 
-        return files.length < 1 ? null : (
-            <ul>
-                {files.map((file, i) => {
-                    const upload = op.get(uploads, file.ID, {});
-                    const filename = op.get(file, 'upload.filename');
-                    const style = getStyle(file, filename);
-                    const status = op.get(file, 'action');
-                    const progress = op.get(upload, 'progress', 0);
-                    const size = op.get(file, 'upload.total', 0);
-                    const url = op.get(file, 'url', '...');
-                    return (
-                        <li
-                            key={`media-upload-${i}`}
-                            className={cn(status, cx('upload'))}>
-                            <div
-                                className={cn(status, cx('upload-image'))}
-                                style={style}
-                            />
-                            <div className={cn(status, cx('upload-info'))}>
-                                <div className={cx('upload-name')}>
-                                    {filename}
-                                    {' • '}
-                                    <span className={cx('upload-size')}>
-                                        {bytesConvert(size)}
-                                    </span>
-                                </div>
-                                <div style={{ width: 150 }}>
-                                    <Progress
-                                        size='xs'
-                                        color='primary'
-                                        value={progress}
-                                        appearance='pill'
-                                    />
-                                </div>
-                                <div className={cx('upload-url')}>{url}</div>
-                            </div>
-                            <div className={cn(status, cx('upload-status'))}>
-                                {status}
-                            </div>
-                            <div className={cn(status, cx('upload-action'))}>
-                                {status === ENUMS.STATUS.COMPLETE && (
-                                    <Button
-                                        size='xs'
-                                        color='primary'
-                                        appearance='circle'
-                                        onClick={() => removeFile(file)}>
-                                        <Icon name='Feather.Check' size={18} />
-                                    </Button>
-                                )}
-
-                                {status === ENUMS.STATUS.QUEUED && (
-                                    <Button
-                                        onClick={() => removeFile(file)}
-                                        size='xs'
-                                        color='danger'
-                                        appearance='circle'>
-                                        <Icon name='Feather.X' size={18} />
-                                    </Button>
-                                )}
-
-                                {status === ENUMS.STATUS.UPLOADING && (
-                                    <Button
-                                        size='xs'
-                                        color='primary'
-                                        disabled
-                                        appearance='circle'>
-                                        <Icon
-                                            name='Feather.ArrowUp'
-                                            size={18}
-                                        />
-                                    </Button>
-                                )}
-                            </div>
-                        </li>
-                    );
-                })}
-            </ul>
-        );
-    };
-
-    // Renderer
+    // Render
     const render = () => {
         const empty = isEmpty();
         const {
@@ -207,6 +202,8 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
             files = {},
             updated,
         } = state;
+
+        const directory = directoryRef.current;
 
         return (
             <div ref={containerRef}>
@@ -219,10 +216,14 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                         ref={dropzoneRef}
                         files={files}
                         className={cx('dropzone')}
-                        onChange={onChange}
+                        onChange={e => onChange(e)}
                         onError={onFileError}>
                         <div className={cx('uploads')}>
-                            <Uploads {...state} />
+                            <Uploads
+                                {...state}
+                                zone={zone}
+                                onRemoveFile={onRemoveFile}
+                            />
                         </div>
                         <div className={cn(cx('library'), { empty: !!empty })}>
                             {empty && (
@@ -249,34 +250,6 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         );
     };
 
-    useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
-
-    useEffect(() => {
-        const { page = 1 } = state;
-        const search = op.get(SearchBar, 'value');
-        Reactium.Media.fetch({ page, search });
-    }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
-
-    useEffect(() => {
-        if (!dropzoneRef.current) return;
-        const completed = completedUploads();
-        completed.forEach(removeFile);
-    }, [dropzoneRef.current]);
-
-    // External Interface
-    const handle = () => ({
-        ENUMS,
-        ref,
-        setState,
-        state,
-    });
-
-    useRegisterHandle('Media', handle, [
-        op.get(state, 'files', []).length,
-        op.get(state, 'library', []).length,
-    ]);
-
-    // Render
     return render();
 };
 

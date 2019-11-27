@@ -7,7 +7,7 @@ import { activeUploads, queuedUploads } from './index';
 export default () => {
     // Get current state
     const { getState } = Reactium.Plugin.redux.store;
-    const { files: currentFiles = {} } = getState().Media;
+    const { directory, files: currentFiles = {} } = getState().Media;
 
     // Exit if no file objects
     if (Object.keys(currentFiles).length < 1) return;

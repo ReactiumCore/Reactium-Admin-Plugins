@@ -5,5 +5,4 @@ export default {
     files: {},
     library: [],
     uploads: {},
-    persist: ['files', 'uploads'],
 };
