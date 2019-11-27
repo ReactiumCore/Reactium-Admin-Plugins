@@ -6,7 +6,7 @@ import Reactium from 'reactium-core/sdk';
 const debug = (...args) =>
     ENUMS.DEBUG === true ? console.log('uploadTask', ...args) : () => {};
 
-const MediaFetch = _.throttle(Reactium.Media.fetch, 2000, { leading: false });
+const MediaFetch = _.throttle(Reactium.Media.fetch, 500, { trailing: false });
 
 export default async task => {
     const { getState } = Reactium.Plugin.redux.store;

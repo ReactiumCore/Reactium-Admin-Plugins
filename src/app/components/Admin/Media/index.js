@@ -6,6 +6,8 @@ import domain from './domain';
 import { Helmet } from 'react-helmet';
 import { completedUploads } from './utils';
 import bytesConvert from './utils/bytesConvert';
+import Empty from './Empty';
+import onChange from './utils/onFileChange';
 
 import Reactium, {
     useDocument,
@@ -19,6 +21,7 @@ import Reactium, {
 
 import {
     Button,
+    Dropdown,
     Dropzone,
     Icon,
     Progress,
@@ -51,6 +54,8 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
 
     const SearchBar = useHandle('SearchBar');
 
+    const directory = op.get(state, 'directory', 'uploads');
+
     // Refs
     const containerRef = useRef();
     const dropzoneRef = useRef();
@@ -70,41 +75,6 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
 
-    const onChange = async evt => {
-        const directory = op.get(state, 'directory', 'uploads');
-        const { files = {}, uploads } = state;
-
-        // remove files if necessary
-        const removed = op.get(evt, 'removed') || [];
-        removed.forEach(file => {
-            delete files[file.ID];
-        });
-
-        const added = op.get(evt, 'added') || [];
-        added.forEach(file => {
-            if (!files[file.ID]) {
-                files[file.ID] = file;
-                files[file.ID]['directory'] = directory;
-            }
-        });
-
-        Object.values(evt.files).forEach(file => {
-            let action = op.get(file, 'action', ENUMS.EVENT.ADDED);
-            const upload = op.get(uploads, file.ID);
-
-            if (upload) {
-                action = op.get(upload, 'action');
-                files[file.ID]['url'] = op.get(upload, 'url');
-                try {
-                } catch (err) {}
-            }
-
-            files[file.ID]['action'] = action;
-        });
-
-        setState({ files });
-    };
-
     const onBrowseClick = () => dropzoneRef.current.browseFiles();
 
     const onFileError = evt => {
@@ -114,6 +84,10 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
             error: { message: evt.message },
         });
     };
+
+    const onFolderSelect = dir => setState({ directory: dir });
+
+    const onDirectoryAddClick = () => {};
 
     const removeFile = file => {
         dropzoneRef.current.removeFiles(file);
@@ -224,27 +198,15 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         );
     };
 
-    const RenderEmpty = () => (
-        <div className='label'>
-            <Icon
-                name='Linear.CloudUpload'
-                size={['xs', 'sm'].includes(breakpoint) ? 96 : 128}
-            />
-            <div className='my-xs-32 my-md-40'>{ENUMS.TEXT.EMPTY}</div>
-            <Button
-                size={['xs', 'sm'].includes(breakpoint) ? 'md' : 'lg'}
-                color='primary'
-                appearance='pill'
-                onClick={onBrowseClick}>
-                {ENUMS.TEXT.BROWSE}
-            </Button>
-        </div>
-    );
-
     // Renderer
     const render = () => {
         const empty = isEmpty();
-        const { fetched, files = {} } = state;
+        const {
+            directories = ['uploads'],
+            fetched,
+            files = {},
+            updated,
+        } = state;
 
         return (
             <div ref={containerRef}>
@@ -259,9 +221,21 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                         className={cx('dropzone')}
                         onChange={onChange}
                         onError={onFileError}>
-                        <div className={cx('uploads')}>{Uploads(state)}</div>
+                        <div className={cx('uploads')}>
+                            <Uploads {...state} />
+                        </div>
                         <div className={cn(cx('library'), { empty: !!empty })}>
-                            {empty && <RenderEmpty />}
+                            {empty && (
+                                <Empty
+                                    breakpoint={breakpoint}
+                                    directory={directory}
+                                    directories={directories}
+                                    onBrowseClick={onBrowseClick}
+                                    onChange={onFolderSelect}
+                                    onDirectoryAddClick={onDirectoryAddClick}
+                                    zone={zone}
+                                />
+                            )}
                             {!empty && <div>FILES</div>}
                         </div>
                     </Dropzone>
@@ -278,9 +252,9 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
     useEffect(() => {
-        const { directory, page = 1 } = state;
+        const { page = 1 } = state;
         const search = op.get(SearchBar, 'value');
-        Reactium.Media.fetch({ directory, page, search });
+        Reactium.Media.fetch({ page, search });
     }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
 
     useEffect(() => {
@@ -326,3 +300,8 @@ Media.defaultProps = {
 };
 
 export { Media as default };
+
+/*
+WEIRD SHIT… I pass an onChange function to <Dropzone /> component. It uses it as is from the props .
+Inside my component that uses the dropzone, I have a function onChange I’m using a state value: directory and when I change that value via useReduxStore.setState() it updates the state. But when the onChange function is run, it doesn’t have the update value of directory from the state until after the onChange  is complete.
+*/

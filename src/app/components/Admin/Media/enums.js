@@ -5,6 +5,7 @@ const ENUMS = {
     TEXT: {
         BROWSE: __('Browse Files'),
         EMPTY: __('Drop your files here'),
+        NEW_FOLDER: __('New folder'),
         TITLE: __('Media Library'),
     },
 };

@@ -142,11 +142,11 @@ class Media {
         });
     }
 
-    async fetch({ directory, page = 1, search }) {
+    async fetch({ page = 1, search }) {
         const { dispatch, getState } = Reactium.Plugin.redux.store;
         const { library = {} } = getState().Media;
 
-        const media = await Reactium.Cloud.run('media', { directory, page, search });
+        const media = await Reactium.Cloud.run('media', { page, search, limit: 50 });
         const { directories = ['uploads'], files, ...pagination } = media;
 
         if (Object.keys(files).length > 0) {

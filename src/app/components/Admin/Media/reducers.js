@@ -17,7 +17,6 @@ export default (state = {}, action) => {
                     updated: Date.now(),
                 });
             }
-
             return { ...state };
 
         case deps().actionTypes.UPDATE_ROUTE:
