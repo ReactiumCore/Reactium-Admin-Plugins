@@ -6,8 +6,20 @@ const {
     plugins,
 } = require('./middlewares/config');
 const { forceSSL } = require('./middlewares/forceSSL');
+const proxy = require('http-proxy-middleware');
 
 module.exports = mw => {
+    mw.push({
+        name: 'media-proxy',
+        use: proxy('/media', {
+            target: restAPI.replace(/\/api$/, ''),
+            changeOrigin: true,
+            logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
+            ws: false,
+        }),
+        order: Enums.priority.highest,
+    });
+
     mw.push({
         name: 'forceSSL',
         use: forceSSL,

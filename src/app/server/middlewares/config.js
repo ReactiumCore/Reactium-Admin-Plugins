@@ -30,17 +30,23 @@ module.exports = {
 
         _.sortBy(plugins, 'order').forEach(plugin => {
             if (plugin.active) {
-                styles.push(op.get(plugin, 'meta.styleUrl'));
-                scripts.push(op.get(plugin, 'meta.scriptUrl'));
+                styles.push(op.get(plugin, 'meta.styleURL'));
+                scripts.push(op.get(plugin, 'meta.scriptURL'));
             }
         });
 
         req.pluginAssets = {
             styles: _.compact(styles)
-                .map(url => `<link rel="stylesheet" href="${url}" />`)
+                .map(url => {
+                    if (!/^http/.test(url)) url = '/api/' + url;
+                    return `<link rel="stylesheet" href="${url}" />`;
+                })
                 .join('\n'),
             scripts: _.compact(scripts)
-                .map(url => `<script src="url"></script>`)
+                .map(url => {
+                    if (!/^http/.test(url)) url = '/api/' + url;
+                    return `<script src="${url}"></script>`;
+                })
                 .join('\n'),
         };
 
