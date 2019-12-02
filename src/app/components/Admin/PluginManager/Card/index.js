@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Plugins } from 'reactium-core/components/Plugable';
 import op from 'object-path';
@@ -28,12 +28,19 @@ const Card = ({ plugin }) => {
         if (typeof window !== 'undefined') location.reload(true);
     };
 
+    let [hideControl, setHideControl] = setState(true);
+    useEffect(() => {
+        if (group !== 'core') {
+            Reactium.User.can(
+                ['plugin.activate', `${plugin.ID}.activate`],
+                false,
+            ).then(permitted => {
+                if (permitted) setHideControl(false);
+            });
+        }
+    }, []);
+
     const renderActivation = () => {
-        const hideControl =
-            !Reactium.User.canSync([
-                'plugin.activate',
-                `${plugin.ID}.activate`,
-            ]) || group === 'core';
         return (
             <>
                 <div className='plugin-card-status'>

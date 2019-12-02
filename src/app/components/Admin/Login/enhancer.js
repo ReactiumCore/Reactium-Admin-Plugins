@@ -46,10 +46,8 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
                 // if user has any capability, allow
-                for (let capability of capabilities) {
-                    const permitted = await Reactium.User.can(capability);
-                    if (permitted) return;
-                }
+                const permitted = await Reactium.User.can(capabilities);
+                if (permitted) return;
 
                 await redirectLogin(history, loginPath);
             }
@@ -86,9 +84,11 @@ export default (enhancers = [], isServer = false) => {
                                   },
                               );
 
-                              enforceBlueprintCaps(store, history, loginPath)(
-                                  window.location,
-                              );
+                              enforceBlueprintCaps(
+                                  store,
+                                  history,
+                                  loginPath,
+                              )(window.location);
                               history.listen(
                                   enforceBlueprintCaps(
                                       store,

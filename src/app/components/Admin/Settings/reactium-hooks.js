@@ -12,13 +12,6 @@ const settingsPlugin = async () => {
         zone: ['admin-sidebar-menu'],
         order: 1000,
     });
-
-    await Reactium.Zone.addFilter(
-        'settingsCapabilityFilter',
-        'settings-groups',
-        ({ capabilities = [], strict = false }) =>
-            Reactium.User.canSync(capabilities, undefined, strict),
-    );
 };
 
 settingsPlugin();

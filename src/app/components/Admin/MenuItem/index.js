@@ -5,7 +5,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     useHandle,
@@ -30,11 +30,7 @@ const defaultIsActive = (match = {}, location = {}, src) => {
  * Hook Component: MenuItem
  * -----------------------------------------------------------------------------
  */
-let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
-    if (!Reactium.User.can(capabilities)) {
-        return null;
-    }
-
+let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
     const match = useSelect(state => op.get(state, 'Router.match'), {});
     const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
 
@@ -223,6 +219,20 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
         );
     };
 
+    const [permitted, setPermitted] = useState(false);
+    useEffect(() => {
+        if (!capabilities || capabilities.length < 1) {
+            setPermitted(true);
+            return;
+        }
+
+        Reactium.User.can(capabilities, false).then(allowed => {
+            if (permitted !== allowed) {
+                setPermitted(allowed);
+            }
+        });
+    }, []);
+
     // Side Effects
     useEffect(() => setState(props), Object.values(props));
 
@@ -263,10 +273,8 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }, ref) => {
     ]);
 
     // Render
-    return render();
+    return permitted ? render() : null;
 };
-
-MenuItem = forwardRef(MenuItem);
 
 MenuItem.propTypes = {
     active: PropTypes.bool,
