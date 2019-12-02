@@ -27,11 +27,11 @@ export default ({ files, onRemoveFile, uploads, zone }) => {
         const type = String(getType(filename)).toUpperCase();
 
         if (ENUMS.TYPE.VIDEO.includes(type))
-            return <Icon size={18} name='Linear.FileVideo' />;
+            return <Icon size={36} name='Linear.FileVideo' />;
 
-        if (ENUMS.TYPE.PDF.includes(type)) return <PDF size={24} />;
+        if (ENUMS.TYPE.PDF.includes(type)) return <PDF size={36} />;
 
-        return <Icon name='Linear.FileEmpty' size={24} />;
+        return <Icon name='Linear.FileEmpty' size={36} />;
     };
 
     const getStyle = (file, filename) =>

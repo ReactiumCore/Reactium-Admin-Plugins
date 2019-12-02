@@ -7,7 +7,7 @@ const ENUMS = {
         REMOVED: 'cancelled',
     },
     MAX_BYTES: 10000,
-    MAX_UPLOADS: 5,
+    MAX_UPLOADS: 1,
     STATUS: {
         CANCELED: 'canceled',
         COMPLETE: 'complete',

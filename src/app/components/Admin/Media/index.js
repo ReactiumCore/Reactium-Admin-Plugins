@@ -148,6 +148,10 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         });
     };
 
+    const onFileAdded = e => {
+        console.log(e);
+    };
+
     const onFolderSelect = dir => {
         directoryRef.current = dir;
         setState({ directory: dir });
@@ -213,11 +217,11 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                 {fetched && (
                     <Dropzone
                         {...dropzoneProps}
-                        ref={dropzoneRef}
-                        files={files}
                         className={cx('dropzone')}
-                        onChange={e => onChange(e)}
-                        onError={onFileError}>
+                        files={files}
+                        onError={onFileError}
+                        onFileAdded={e => onFileAdded(e)}
+                        ref={dropzoneRef}>
                         <div className={cx('uploads')}>
                             <Uploads
                                 {...state}
@@ -273,8 +277,3 @@ Media.defaultProps = {
 };
 
 export { Media as default };
-
-/*
-WEIRD SHIT… I pass an onChange function to <Dropzone /> component. It uses it as is from the props .
-Inside my component that uses the dropzone, I have a function onChange I’m using a state value: directory and when I change that value via useReduxStore.setState() it updates the state. But when the onChange function is run, it doesn’t have the update value of directory from the state until after the onChange  is complete.
-*/

@@ -22,7 +22,7 @@ Reactium.Plugin.register('AdminMediaLibrary').then(() => {
 });
 
 Reactium.Hook.register('app-ready', () => {
-    Reactium.Pulse.register('MediaClear', clear);
-    Reactium.Pulse.register('MediaQueue', queue);
-    Reactium.Pulse.register('MediaUpload', upload);
+    // Reactium.Pulse.register('MediaClear', clear);
+    // Reactium.Pulse.register('MediaQueue', queue);
+    // Reactium.Pulse.register('MediaUpload', upload);
 });
