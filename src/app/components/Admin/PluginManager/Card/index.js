@@ -28,7 +28,7 @@ const Card = ({ plugin }) => {
         if (typeof window !== 'undefined') location.reload(true);
     };
 
-    let [hideControl, setHideControl] = setState(true);
+    let [hideControl, setHideControl] = useState(true);
     useEffect(() => {
         if (group !== 'core') {
             Reactium.User.can(
