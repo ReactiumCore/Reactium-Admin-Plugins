@@ -7,10 +7,8 @@ import op from 'object-path';
 import bytesConvert from '../utils/bytesConvert';
 import { Button, Icon, Progress } from '@atomic-reactor/reactium-ui';
 
-export default ({ files, onRemoveFile, uploads, zone }) => {
+export default ({ onRemoveFile, uploads, zone }) => {
     const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
-
-    files = Object.values(files);
 
     const getType = filename => {
         return String(filename)
@@ -34,18 +32,19 @@ export default ({ files, onRemoveFile, uploads, zone }) => {
         return <Icon name='Linear.FileEmpty' size={36} />;
     };
 
-    const getStyle = (file, filename) =>
+    const getStyle = ({ file, filename }) =>
         isImage(filename) ? { backgroundImage: `url(${file.dataURL})` } : null;
 
-    return files.length < 1 ? null : (
+    return Object.values(uploads).length < 1 ? null : (
         <ul>
-            {files.map((file, i) => {
-                const upload = op.get(uploads, file.ID, {});
-                const filename = op.get(file, 'upload.filename');
-                const style = getStyle(file, filename);
-                const status = op.get(file, 'action');
-                const size = op.get(file, 'upload.total', 0);
-                const url = op.get(file, 'url', '...');
+            {Object.values(uploads).map((upload, i) => {
+                const file = op.get(upload, 'file');
+                const filename = op.get(upload, 'filename');
+                const style = getStyle({ file, filename });
+                const status = op.get(upload, 'status');
+                const size = bytesConvert(op.get(upload, 'total', 0));
+                const url = op.get(upload, 'url', '...');
+
                 const progress =
                     status === ENUMS.STATUS.COMPLETE
                         ? 1
@@ -65,7 +64,7 @@ export default ({ files, onRemoveFile, uploads, zone }) => {
                                 {filename}
                                 {' • '}
                                 <span className={cx('upload-size')}>
-                                    {bytesConvert(size)}
+                                    {size}
                                 </span>
                             </div>
                             <div style={{ width: 150 }}>

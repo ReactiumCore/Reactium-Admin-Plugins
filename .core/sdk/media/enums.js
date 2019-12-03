@@ -1,13 +1,9 @@
 const ENUMS = {
     ACTION_TYPE: 'DOMAIN_UPDATE',
     DEBUG: false,
+    DIRECTORY: 'uploads',
     DOMAIN: 'Media',
-    EVENT: {
-        ADDED: 'queued',
-        REMOVED: 'cancelled',
-    },
-    MAX_BYTES: 10000,
-    MAX_UPLOADS: 1,
+    MAX_UPLOADS: 3,
     STATUS: {
         CANCELED: 'canceled',
         COMPLETE: 'complete',
