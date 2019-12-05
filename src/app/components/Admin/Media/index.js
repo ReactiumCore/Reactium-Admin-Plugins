@@ -5,6 +5,7 @@ import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 import Uploads from './Uploads';
+import Toolbar from './Toolbar';
 import { Helmet } from 'react-helmet';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
@@ -35,10 +36,8 @@ const useLayoutEffect =
  * Hook Component: Media
  * -----------------------------------------------------------------------------
  */
-let Media = ({ dropzoneProps, zone, title }, ref) => {
+let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     const iDoc = useDocument();
-
-    const { breakpoint } = useWindowSize();
 
     const [state, setState] = useReduxState(domain.name);
 
@@ -46,23 +45,14 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
 
     // Refs
     const animationRef = useRef({});
-    const containerRef = useRef();
     const directoryRef = useRef(op.get(state, 'directory', 'uploads'));
     const dropzoneRef = useRef();
     const stateRef = useRef(state);
-    const pulseRef = useRef();
 
     // Functions
-    const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
+    const cx = cls => _.compact([namespace, cls]).join('-');
 
-    const isEmpty = () => {
-        const { library = {} } = state;
-        const values = _.chain(Object.values(library))
-            .flatten()
-            .compact()
-            .value();
-        return values.length < 1;
-    };
+    const isEmpty = () => op.get(state, 'pagination.count', 0) < 1;
 
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
@@ -115,6 +105,7 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
     const onFileRemoved = file => {
         dropzoneRef.current.removeFiles(file);
         Reactium.Media.cancel(file);
+        Reactium.Media.fetch();
     };
 
     const onFolderSelect = dir => {
@@ -129,23 +120,33 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         const { page = 1 } = state;
         const search = op.get(SearchBar, 'value');
         Reactium.Media.fetch({ page, search });
-    }, [op.get(state, 'page'), op.get(SearchBar, 'value')]);
+    }, [
+        op.get(state, 'page'),
+        op.get(SearchBar, 'value'),
+        directoryRef.current,
+    ]);
 
     useEffect(() => {
-        directoryRef.current = op.get(state, 'directory', 'uploads');
-    }, [op.get(state, 'directory', 'uploads'), directoryRef.current]);
+        const dir = op.get(state, 'directory', 'uploads');
+        if (directoryRef.current !== dir) directoryRef.current = dir;
+    }, [directoryRef.current]);
 
     // External Interface
     const handle = () => ({
         ENUMS,
-        ref,
+        browseFiles: onBrowseClick,
+        cname: cx,
+        directory: directoryRef.current,
+        folderSelect: onFolderSelect,
+        isEmpty,
         setState,
         state,
+        zone,
     });
 
-    useRegisterHandle('Media', handle, [
-        op.get(state, 'files', []).length,
-        op.get(state, 'library', []).length,
+    useRegisterHandle(domain.name, handle, [
+        op.get(state, 'updated'),
+        isEmpty(),
     ]);
 
     // Render
@@ -161,11 +162,11 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
         const directory = directoryRef.current;
 
         return (
-            <div ref={containerRef}>
+            <>
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                {fetched && (
+                {fetched ? (
                     <Dropzone
                         {...dropzoneProps}
                         className={cx('dropzone')}
@@ -173,6 +174,7 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                         onError={onError}
                         onFileAdded={e => onFileAdded(e)}
                         ref={dropzoneRef}>
+                        <Toolbar />
                         <div className={cx('uploads')}>
                             <Uploads
                                 {...state}
@@ -180,28 +182,17 @@ let Media = ({ dropzoneProps, zone, title }, ref) => {
                                 onRemoveFile={onFileRemoved}
                             />
                         </div>
-                        <div className={cn(cx('library'), { empty: !!empty })}>
-                            {empty && (
-                                <Empty
-                                    breakpoint={breakpoint}
-                                    directory={directory}
-                                    directories={directories}
-                                    onBrowseClick={onBrowseClick}
-                                    onChange={onFolderSelect}
-                                    onDirectoryAddClick={onDirectoryAddClick}
-                                    zone={zone}
-                                />
-                            )}
+                        <div className={cn(cx('library'), { empty })}>
+                            <Empty />
                             {!empty && <div>FILES</div>}
                         </div>
                     </Dropzone>
-                )}
-                {!fetched && (
+                ) : (
                     <div className={cx('spinner')}>
                         <Spinner />
                     </div>
                 )}
-            </div>
+            </>
         );
     };
 
@@ -222,6 +213,7 @@ Media.defaultProps = {
         },
         debug: false,
     },
+    namespace: 'admin-media',
     title: ENUMS.TEXT.TITLE,
 };
 

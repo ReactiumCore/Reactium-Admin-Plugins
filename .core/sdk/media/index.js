@@ -40,6 +40,7 @@ class Media {
     constructor() {
         this.ENUMS = ENUMS;
         this.worker = null;
+        this.fetching = false;
 
         const Worker = typeof window !== 'undefined' ? window.Worker : null;
 
@@ -68,6 +69,8 @@ class Media {
             op.set(uploads, [ID, 'progress'], Number(progress));
         }
 
+        if (progress === 1) this.fetch();
+
         if (op.has(params, 'url')) {
             op.set(uploads, [ID, 'url'], params.url);
         }
@@ -90,36 +93,14 @@ class Media {
         return getState().Media;
     }
 
-    setState(newState = {}) {
-        const { dispatch } = Reactium.Plugin.redux.store;
-        dispatch({
-            type: ENUMS.ACTION_TYPE,
-            domain: ENUMS.DOMAIN,
-            update: newState,
-        });
+    get page() {
+        const { getState } = Reactium.Plugin.redux.store;
+        return Number(op.get(getState().Router, 'params.page', 1));
     }
 
-    upload(files, directory = ENUMS.DIRECTORY) {
-        // 0.0 - convert single file to array of files
-        files = paramToArray(files);
-
-        // 1.0 - Get State
-        const { uploads = {} } = this.state;
-
-        // 2.0 - Loop through files array
-        files.forEach(file => {
-            // 2.1 - Update uploads state object
-            const upload = mapFileToUpload(file);
-            upload['directory'] = directory;
-            uploads[file.ID] = upload;
-            upload['status'] = ENUMS.STATUS.QUEUED;
-
-            // 2.2 - Send file to media-upload Web Worker
-            this.worker.postMessage({ action: 'addFile', params: upload });
-        });
-
-        // 3.0 - Update State
-        this.setState({ uploads });
+    get search() {
+        const { getState } = Reactium.Plugin.redux.store;
+        return op.get(getState().SearchBar, 'value');
     }
 
     cancel(files) {
@@ -154,7 +135,6 @@ class Media {
             return diff >= expired;
         });
 
-
         completed.forEach(item => {
             changed = true;
             delete uploads[item.ID];
@@ -165,13 +145,53 @@ class Media {
         }
     }
 
-    async fetch({ page = 1, search }) {
+    setState(newState = {}) {
+        const { dispatch } = Reactium.Plugin.redux.store;
+        dispatch({
+            type: ENUMS.ACTION_TYPE,
+            domain: ENUMS.DOMAIN,
+            update: newState,
+        });
+    }
+
+    upload(files, directory = ENUMS.DIRECTORY) {
+        // 0.0 - convert single file to array of files
+        files = paramToArray(files);
+
+        // 1.0 - Get State
+        const { uploads = {} } = this.state;
+
+        // 2.0 - Loop through files array
+        files.forEach(file => {
+            // 2.1 - Update uploads state object
+            const upload = mapFileToUpload(file);
+            upload['directory'] = directory;
+            uploads[file.ID] = upload;
+            upload['status'] = ENUMS.STATUS.QUEUED;
+
+            // 2.2 - Send file to media-upload Web Worker
+            this.worker.postMessage({ action: 'addFile', params: upload });
+        });
+
+        // 3.0 - Update State
+        this.setState({ uploads });
+    }
+
+    async fetch(params) {
+        if (this.fetching) return;
+
         const { library = {} } = this.state;
+        const page = op.get(params, 'page', this.page);
+        const search = op.get(params, 'search', this.search);
+
+        this.fetching = true;
+
         const media = await Reactium.Cloud.run('media', {
             page,
             search,
             limit: 50,
         });
+
         const { directories = [ENUMS.DIRECTORY], files, ...pagination } = media;
 
         if (Object.keys(files).length > 0) {
@@ -186,6 +206,8 @@ class Media {
             pagination,
             fetched: Date.now(),
         });
+
+        this.fetching = false;
     }
 }
 

@@ -43,7 +43,7 @@
 
         @include breakpoint(sm) {
             width: 420px;
-            padding-top: $height-admin-header + $padding-default;
+            //padding-top: $height-admin-header + $padding-default;
         }
     }
 
@@ -107,7 +107,7 @@
 
     &-close-button {
         position: absolute;
-        top: $width-profile-avatar/2 + 28px;
+        top: 64px;
         left: 8px;
         z-index: 3;
 
@@ -115,11 +115,6 @@
             padding: 0;
             width: 40px;
             height: 40px;
-        }
-
-        @include breakpoint(sm) {
-            top: #{$width-profile-avatar + 10px};
-            left: 10px;
         }
     }
 }

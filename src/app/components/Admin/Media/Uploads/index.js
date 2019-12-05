@@ -8,7 +8,7 @@ import bytesConvert from '../utils/bytesConvert';
 import { Button, Icon, Progress } from '@atomic-reactor/reactium-ui';
 
 export default ({ onRemoveFile, uploads, zone }) => {
-    const cx = cls => _.compact([`zone-${zone}`, cls]).join('-');
+    const cx = cls => _.compact([`admin-media`, cls]).join('-');
 
     const getType = filename => {
         return String(filename)

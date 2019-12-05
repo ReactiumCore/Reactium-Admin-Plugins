@@ -1,215 +1,260 @@
-.zone {
-    &-admin-media-content {
+.admin-media {
+    &-dropzone {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding-top: $height-admin-header;
+        color: $color-gray-dark;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    &-spinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    &-uploads {
+        flex-grow: 0;
+        display: block;
+        z-index: 1;
+
+        ul,
+        li {
+            list-style: none;
+            margin: 0;
+        }
+
+        ul {
+            padding: 0;
+        }
+
+        ul li {
+            @include flex-row();
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+
+        &:empty {
+            display: none;
+        }
+
         .ar-progress.xs {
             height: 10px;
         }
+    }
 
-        &-directory {
-            position: absolute;
-            top: 80px;
-            right: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transform: translateX(50%);
+    &-upload {
+        font-size: 14px;
+        color: $color-gray;
+        padding: $padding-admin-content-zone;
+        border-bottom: 1px solid darken($color-admin-header-border, 2%);
 
-            @include breakpoint(md) {
-                top: 40px;
-                right: 40px;
-                transform: translateX(0%);
-            }
-
-            &-label {
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-                flex-grow: 1;
-                overflow-x: hidden;
-                flex-wrap: nowrap;
-                white-space: nowrap;
-                margin-right: 8px;
-                text-overflow: ellipsis;
-            }
-        }
-
-        &-dropzone {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding-top: $height-admin-header;
-            color: $color-gray-dark;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        &-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        &-uploads {
+        &-image {
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
             flex-grow: 0;
-            display: block;
+            border-radius: 2px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: $color-grey;
+            background-position: center;
+            background-size: cover;
+            color: $color-white;
 
-            ul,
-            li {
-                list-style: none;
-                margin: 0;
-            }
-
-            ul {
-                padding: 0;
-            }
-
-            ul li {
-                @include flex-row();
-                flex-wrap: nowrap;
-                justify-content: space-between;
-                align-items: stretch;
-            }
-
-            &:empty {
-                display: none;
+            &.queued {
+                opacity: 0.5;
             }
         }
 
-        &-upload {
-            font-size: 14px;
-            color: $color-gray;
-            padding: $padding-admin-content-zone;
-            border-bottom: 1px solid lighten($color-grey, 10%);
+        &-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+            white-space: -moz-pre-wrap;
+            white-space: -o-pre-wrap;
+            white-space: pre-wrap;
+            word-wrap: break-word;
 
-            &-image {
-                width: 72px;
-                height: 72px;
-                flex-shrink: 0;
-                flex-grow: 0;
-                border-radius: 2px;
+            padding-left: $padding-admin-content-zone;
+            font-family: Helvetica, Arial, sans-serif;
+
+            &.queued {
+                opacity: 0.5;
+            }
+        }
+
+        &-name {
+            font-weight: 600;
+        }
+
+        &-size {
+            font-size: 11px;
+        }
+
+        &-url {
+            font-size: 11px;
+        }
+
+        &-action {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-left: $padding-admin-content-zone;
+
+            button {
+                width: $width-upload-action-button;
+                height: $width-upload-action-button;
+                padding: 0;
                 overflow: hidden;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: $color-grey;
-                background-position: center;
-                background-size: cover;
-                color: $color-white;
+            }
+        }
 
-                &.queued {
-                    opacity: 0.5;
-                }
+        &-status {
+            font-size: 10px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 3px;
+            padding-left: $padding-admin-content-zone;
+        }
+    }
+
+    &-library {
+        flex-grow: 1;
+        position: relative;
+        min-height: 500px;
+        z-index: 1;
+        background-color: $color-white;
+        padding: $padding-admin-content-zone;
+
+        &.empty {
+            padding: $padding-admin-content-zone;
+
+            &:before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: calc(100% - #{$padding-admin-content-zone * 2});
+                height: calc(100% - #{$padding-admin-content-zone * 2});
+                border: 3px dashed lighten($color-grey, 5%);
+                transform: translateX(-50%) translateY(-50%);
             }
 
-            &-info {
-                flex-grow: 1;
+            div.label {
+                content: 'Drop your files here';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
                 display: flex;
                 flex-direction: column;
+                align-items: center;
                 justify-content: center;
-                flex-wrap: nowrap;
-                overflow-x: hidden;
-                white-space: -moz-pre-wrap;
-                white-space: -o-pre-wrap;
-                white-space: pre-wrap;
-                word-wrap: break-word;
+                padding: 0 $padding-admin-content-zone/2;
+                text-align: center;
+                font-weight: bold;
+                font-size: 16px;
+                color: lighten($color-gray, 10%);
+                transform: translateX(-50%) translateY(-50%);
 
-                padding-left: $padding-admin-content-zone;
-                font-family: Helvetica, Arial, sans-serif;
+                @include breakpoint(lg) {
+                    max-width: 33%;
+                    font-size: 1.5vw;
+                    padding: $padding-admin-content-zone;
+                }
 
-                &.queued {
-                    opacity: 0.5;
+                svg {
+                    fill: $color-primary;
+                    opacity: 0.75;
                 }
             }
+        }
+    }
 
-            &-name {
-                font-weight: 600;
-            }
-            &-size {
-                font-size: 11px;
-            }
+    &-directory {
+        position: absolute;
+        top: 80px;
+        right: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(50%);
 
-            &-url {
-                font-size: 11px;
-            }
+        @include breakpoint(md) {
+            top: 40px;
+            right: 40px;
+            transform: translateX(0%);
+        }
 
-            &-action {
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                padding-left: $padding-admin-content-zone;
+        &-label {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-grow: 1;
+            overflow-x: hidden;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            margin-right: 8px;
+            text-overflow: ellipsis;
+        }
+    }
 
-                button {
-                    width: $width-upload-action-button;
-                    height: $width-upload-action-button;
-                    padding: 0;
-                    overflow: hidden;
-                }
-            }
+    &-toolbar {
+        z-index: 10;
+        min-height: 100px;
+        background-color: $color-white;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: $padding-default;
+        border-bottom: 1px solid darken($color-admin-header-border, 2%);
 
-            &-status {
-                font-size: 10px;
-                text-transform: uppercase;
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                margin-top: 3px;
-                padding-left: $padding-admin-content-zone;
+        &-browse {
+            color: $color-primary;
+            padding: 0;
+
+            svg {
+                fill: currentColor;
             }
         }
 
-        &-library {
-            flex-grow: 1;
+        h2 {
+            @extend .h4;
+            font-weight: 600;
+            color: $color-gray;
+        }
+
+        .admin-media-directory {
             position: relative;
-            min-height: 500px;
+            transform: none;
+            top: auto;
+            right: auto;
 
-            &.empty {
-                padding: $padding-admin-content-zone;
-
-                &:before {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: calc(100% - #{$padding-admin-content-zone * 2});
-                    height: calc(100% - #{$padding-admin-content-zone * 2});
-                    border: 3px dashed lighten($color-grey, 5%);
-                    transform: translateX(-50%) translateY(-50%);
-                }
-
-                div.label {
-                    content: 'Drop your files here';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 0 $padding-admin-content-zone/2;
-                    text-align: center;
-                    font-weight: bold;
-                    font-size: 16px;
-                    color: lighten($color-gray, 10%);
-                    transform: translateX(-50%) translateY(-50%);
-
-                    @include breakpoint(lg) {
-                        max-width: 33%;
-                        font-size: 1.5vw;
-                        padding: $padding-admin-content-zone;
-                    }
-
-                    svg {
-                        fill: $color-primary;
-                        opacity: 0.75;
-                    }
-                }
+            @include breakpoint(md) {
+                top: auto;
+                right: auto;
+                transform: none;
             }
         }
     }
