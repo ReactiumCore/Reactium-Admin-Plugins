@@ -6,6 +6,7 @@ import op from 'object-path';
 import domain from './domain';
 import Uploads from './Uploads';
 import Toolbar from './Toolbar';
+import Directory from './Directory';
 import { Helmet } from 'react-helmet';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
@@ -58,6 +59,8 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
         Object.keys(op.get(state, 'files', {})).length > 0;
 
     const collapse = ID => {
+        if (animationRef.current[ID]) return animationRef.current[ID];
+
         const elm = iDoc.getElementById(`upload-${ID}`);
         if (!elm) return Promise.resolve();
 
@@ -65,7 +68,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
 
         return new Promise(resolve => {
             elm.style.overflow = 'hidden';
-            TweenMax.to(elm, 0.5, {
+            TweenMax.to(elm, 0.125, {
                 height: 0,
                 opacity: 0,
                 ease: Power2.easeIn,
@@ -76,18 +79,13 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
 
     const onBrowseClick = () => dropzoneRef.current.browseFiles();
 
-    const onClearUploads = () =>
-        completedUploads().forEach(file => {
-            const timestamp = moment(new Date(file.statusAt));
-            if (moment().diff(timestamp, 'seconds') >= 5) {
-                if (animationRef[file.ID]) return;
-
-                collapse(file.ID).then(() => {
-                    onFileRemoved(file);
-                    delete animationRef.current[file.ID];
-                });
-            }
-        });
+    const clearUploads = () =>
+        Reactium.Media.completed.forEach(({ ID, file }) =>
+            collapse(ID).then(() => {
+                onFileRemoved(file);
+                delete animationRef.current[ID];
+            }),
+        );
 
     const onDirectoryAddClick = () => {};
 
@@ -105,7 +103,6 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     const onFileRemoved = file => {
         dropzoneRef.current.removeFiles(file);
         Reactium.Media.cancel(file);
-        Reactium.Media.fetch();
     };
 
     const onFolderSelect = dir => {
@@ -117,19 +114,25 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
     useEffect(() => {
-        const { page = 1 } = state;
-        const search = op.get(SearchBar, 'value');
-        Reactium.Media.fetch({ page, search });
-    }, [
-        op.get(state, 'page'),
-        op.get(SearchBar, 'value'),
-        directoryRef.current,
-    ]);
-
-    useEffect(() => {
         const dir = op.get(state, 'directory', 'uploads');
         if (directoryRef.current !== dir) directoryRef.current = dir;
     }, [directoryRef.current]);
+
+    useEffect(() => {
+        const { fetched } = state;
+        if (!fetched) Reactium.Media.fetch();
+    }, [op.get(state, 'fetched')]);
+
+    useEffect(() => {
+        Reactium.Pulse.register('MediaClearUploads', () => clearUploads());
+        Reactium.Pulse.register('MediaFetch', () => Reactium.Media.fetch(), {
+            delay: 30000,
+        });
+        return () => {
+            Reactium.Pulse.unregister('MediaClearUploads');
+            Reactium.Pulse.unregister('MediaFetch');
+        };
+    }, []);
 
     // External Interface
     const handle = () => ({
@@ -150,51 +153,36 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     ]);
 
     // Render
-    const render = () => {
-        const empty = isEmpty();
-        const {
-            directories = ['uploads'],
-            fetched,
-            files = {},
-            updated,
-        } = state;
-
-        const directory = directoryRef.current;
-
-        return (
-            <>
-                <Helmet>
-                    <title>{title}</title>
-                </Helmet>
-                {fetched ? (
-                    <Dropzone
-                        {...dropzoneProps}
-                        className={cx('dropzone')}
-                        files={{}}
-                        onError={onError}
-                        onFileAdded={e => onFileAdded(e)}
-                        ref={dropzoneRef}>
-                        <Toolbar />
-                        <div className={cx('uploads')}>
-                            <Uploads
-                                {...state}
-                                zone={zone}
-                                onRemoveFile={onFileRemoved}
-                            />
-                        </div>
-                        <div className={cn(cx('library'), { empty })}>
-                            <Empty />
-                            {!empty && <div>FILES</div>}
-                        </div>
-                    </Dropzone>
-                ) : (
-                    <div className={cx('spinner')}>
-                        <Spinner />
+    const render = () => (
+        <>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+            {op.get(state, 'fetched') ? (
+                <Dropzone
+                    {...dropzoneProps}
+                    className={cx('dropzone')}
+                    files={{}}
+                    onError={onError}
+                    onFileAdded={e => onFileAdded(e)}
+                    ref={dropzoneRef}>
+                    <Toolbar />
+                    <Uploads
+                        onRemoveFile={onFileRemoved}
+                        uploads={op.get(state, 'uploads', {})}
+                    />
+                    <div className={cn(cx('library'), { empty: isEmpty() })}>
+                        <Empty />
+                        <Directory />
                     </div>
-                )}
-            </>
-        );
-    };
+                </Dropzone>
+            ) : (
+                <div className={cx('spinner')}>
+                    <Spinner />
+                </div>
+            )}
+        </>
+    );
 
     return render();
 };
