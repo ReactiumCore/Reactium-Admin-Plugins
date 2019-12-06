@@ -143,8 +143,7 @@
         position: relative;
         min-height: 500px;
         z-index: 1;
-        background-color: $color-white;
-        padding: $padding-admin-content-zone;
+        padding: $padding-admin-content-zone 0 0 $padding-admin-content-zone;
 
         &.empty {
             padding: $padding-admin-content-zone;
@@ -191,7 +190,7 @@
         }
     }
 
-    &-directory {
+    &-dir-dropdown {
         position: absolute;
         top: 80px;
         right: 50%;
@@ -245,7 +244,7 @@
             color: $color-gray;
         }
 
-        .admin-media-directory {
+        .admin-media-dir-dropdown {
             position: relative;
             transform: none;
             top: auto;

@@ -1,0 +1,103 @@
+.admin-media {
+    &-directory {
+        display: flex;
+        flex-wrap: wrap;
+
+        > div {
+            width: 100%;
+            height: 90vw;
+            flex-shrink: 0;
+            padding: 0 $padding-admin-content-zone $padding-admin-content-zone 0;
+            position: relative;
+
+            @include breakpoint(sm) {
+                width: 33%;
+                height: 30vw;
+            }
+
+            @include breakpoint(md) {
+                width: 25%;
+                height: 22vw;
+            }
+
+            div.media-card {
+                width: 100%;
+                height: 100%;
+                box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+                border-radius: 4px;
+                overflow: hidden;
+                background-color: $color-white;
+                position: relative;
+
+                &:hover {
+                    .media-actions {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            div.media-image {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-grow: 1;
+                background-position: center;
+                background-size: cover;
+                border: 4px solid $color-white;
+
+                svg {
+                    fill: $color-grey;
+                }
+            }
+
+            div.media-video {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-grow: 1;
+                background-color: $color-black;
+
+                video:focus {
+                    outline: none;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+
+            div.media-info {
+                height: 60px;
+                flex-shrink: 0;
+                color: $color-gray-dark;
+                font-size: 11px;
+                font-family: sans-serif;
+                line-height: 14px;
+                padding: 12px;
+            }
+
+            div.media-actions {
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: calc(100% - 60px);
+                padding: 4px;
+                opacity: 0;
+                transition: opacity .25s ease-in-out;
+
+                &-button {
+                    padding: 0 8px;
+                    &:not(:last-child) {
+                        margin-bottom: 8px;
+                    }
+                }
+                button {
+                    width: 40px;
+                    height: 40px;
+                    padding: 0;
+                    box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
+                }
+            }
+        }
+    }
+}

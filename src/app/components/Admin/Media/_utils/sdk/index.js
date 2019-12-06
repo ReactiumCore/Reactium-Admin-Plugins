@@ -1,11 +1,12 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import ENUMS from './enums';
-import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
-import api from 'appdir/api/config';
-import Parse from 'appdir/api';
 import moment from 'moment';
+import op from 'object-path';
+import slugify from 'slugify';
+import Parse from 'appdir/api';
+import api from 'appdir/api/config';
+import Reactium from 'reactium-core/sdk';
 
 const SCRIPT = '/assets/js/umd/media-uploader/media-uploader.js';
 
@@ -40,6 +41,7 @@ class Media {
     constructor() {
         this.ENUMS = ENUMS;
         this.worker = null;
+        this.fetching = false;
 
         const Worker = typeof window !== 'undefined' ? window.Worker : null;
 
@@ -68,6 +70,8 @@ class Media {
             op.set(uploads, [ID, 'progress'], Number(progress));
         }
 
+        if (progress === 1) this.fetch();
+
         if (op.has(params, 'url')) {
             op.set(uploads, [ID, 'url'], params.url);
         }
@@ -85,9 +89,68 @@ class Media {
         }
     }
 
+    get completed() {
+        const expired = 5;
+        return _.where(Object.values(op.get(this.state, 'uploads', {})), {
+            status: ENUMS.STATUS.COMPLETE,
+        }).filter(
+            ({ statusAt }) =>
+                moment().diff(moment(new Date(statusAt)), 'seconds') >= expired,
+        );
+    }
+
     get state() {
         const { getState } = Reactium.Plugin.redux.store;
         return getState().Media;
+    }
+
+    get page() {
+        const { getState } = Reactium.Plugin.redux.store;
+        return Number(op.get(getState().Router, 'params.page', 1));
+    }
+
+    get search() {
+        const { getState } = Reactium.Plugin.redux.store;
+        return op.get(getState().SearchBar, 'value');
+    }
+
+    cancel(files) {
+        // 0.0 - Covnert single file to array of files
+        files = paramToArray(files);
+
+        // 1.0 - Get State
+        const { uploads = {} } = this.state;
+
+        // 2.0 - Loop through files array
+        files.forEach(file => {
+            delete uploads[file.ID];
+            this.worker.postMessage({ action: 'removeFile', params: file.ID });
+        });
+
+        // 3.0 - Update State
+        this.setState({ uploads });
+    }
+
+    clear() {
+        // 0.0 - exit if we're on the /admin/media routes
+        const { getState } = Reactium.Plugin.redux.store;
+        const route = getState().Router.pathname;
+        if (String(route).startsWith('/admin/media')) return;
+
+        // 1.0 - get state
+        const { uploads = {} } = this.state;
+        const len = Object.keys(uploads).length;
+        let changed = false;
+
+        // 2.0 - Get completed uploads
+        this.completed.forEach(item => {
+            changed = true;
+            delete uploads[item.ID];
+        });
+
+        if (changed) {
+            this.setState({ uploads });
+        }
     }
 
     setState(newState = {}) {
@@ -109,68 +172,38 @@ class Media {
         // 2.0 - Loop through files array
         files.forEach(file => {
             // 2.1 - Update uploads state object
-            const upload = mapFileToUpload(file);
-            upload['directory'] = directory;
-            uploads[file.ID] = upload;
-            upload['status'] = ENUMS.STATUS.QUEUED;
+            const item = mapFileToUpload(file);
+            item['filename'] = slugify(item.filename);
+            item['directory'] = directory;
+            item['status'] = ENUMS.STATUS.QUEUED;
+
+            uploads[file.ID] = item;
 
             // 2.2 - Send file to media-upload Web Worker
-            this.worker.postMessage({ action: 'addFile', params: upload });
+            this.worker.postMessage({ action: 'addFile', params: item });
         });
 
         // 3.0 - Update State
         this.setState({ uploads });
     }
 
-    cancel(files) {
-        // 0.0 - Covnert single file to array of files
-        files = paramToArray(files);
+    async fetch(params) {
+        if (this.fetching) return;
 
-        // 1.0 - Get State
-        const { uploads = {} } = this.state;
+        const { filters: currentFilters, library = {} } = this.state;
+        const page = op.get(params, 'page', this.page);
+        const search = op.get(params, 'search', this.search);
+        const filters = op.get(params, 'filters', currentFilters);
 
-        // 2.0 - Loop through files array
-        files.forEach(file => {
-            delete uploads[file.ID];
-            this.worker.postMessage({ action: 'removeFile', params: file.ID });
-        });
+        this.fetching = true;
 
-        // 3.0 - Update State
-        this.setState({ uploads });
-    }
-
-    clear(expired = 5) {
-        // 1.0 - get state
-        const { uploads = {} } = this.state;
-        const len = Object.keys(uploads).length;
-        let changed = false;
-
-        // 2.0 - Get completed uploads
-        const completed = _.where(Object.values(uploads), {
-            status: ENUMS.STATUS.COMPLETE,
-        }).filter(item => {
-            const { ID, statusAt } = item;
-            const diff = moment().diff(moment(new Date(statusAt)), 'seconds');
-            return diff >= expired;
-        });
-
-        completed.forEach(item => {
-            changed = true;
-            delete uploads[item.ID];
-        });
-
-        if (changed) {
-            this.setState({ uploads });
-        }
-    }
-
-    async fetch({ page = 1, search }) {
-        const { library = {} } = this.state;
         const media = await Reactium.Cloud.run('media', {
+            filters,
             page,
             search,
             limit: 50,
         });
+
         const { directories = [ENUMS.DIRECTORY], files, ...pagination } = media;
 
         if (Object.keys(files).length > 0) {
@@ -185,6 +218,23 @@ class Media {
             pagination,
             fetched: Date.now(),
         });
+
+        this.fetching = false;
+    }
+
+    delete(objectId) {
+        const { library = {} } = this.state;
+
+        for (let page of Object.keys(library)) {
+            page = Number(page);
+            if (op.has(library, [page, objectId])) {
+                delete library[page][objectId];
+                this.setState({ library });
+                break;
+            }
+        }
+
+        return Reactium.Cloud.run('media-delete', { objectId });
     }
 }
 

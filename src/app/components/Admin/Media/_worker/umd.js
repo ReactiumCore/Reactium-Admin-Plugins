@@ -1,7 +1,7 @@
 const axios = require('axios');
 const _ = require('underscore');
 const op = require('object-path');
-const ENUMS = require('../../../../../../.core/sdk/media/enums').default;
+const ENUMS = require('../_utils/sdk/enums').default;
 
 class Uploader {
     constructor(worker) {

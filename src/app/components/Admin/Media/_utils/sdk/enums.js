@@ -7,11 +7,15 @@ const ENUMS = {
     STATUS: {
         CANCELED: 'canceled',
         COMPLETE: 'complete',
+        PENDING: 'pending',
+        PROCESSING: 'processing',
+        READY: 'ready',
         QUEUED: 'queued',
         UPLOADING: 'uploading',
     },
     TYPE: {
         AUDIO: ['MP3', 'OGG', 'WAV'],
+        IMAGE: ['PNG', 'SVG', 'GIF', 'JPG', 'JPEG'],
         PDF: ['PDF'],
         VIDEO: [
             'WEBM',

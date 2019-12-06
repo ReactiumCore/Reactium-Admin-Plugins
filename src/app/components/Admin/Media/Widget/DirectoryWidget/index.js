@@ -1,7 +1,7 @@
 import React from 'react';
-import ENUMS from '../enums';
 import op from 'object-path';
-import domain from '../domain';
+import ENUMS from '../../enums';
+import domain from '../../domain';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -36,7 +36,7 @@ const DirectoryWidget = props => {
     const onChange = e => Media.folderSelect(e);
 
     return (
-        <div className={Media.cname('directory')}>
+        <div className={Media.cname('dir-dropdown')}>
             <div className='btn-group'>
                 <Dropdown
                     selection={[directory]}
@@ -55,7 +55,7 @@ const DirectoryWidget = props => {
                             justifyContent: 'flex-start',
                             overflowX: 'hidden',
                         }}>
-                        <div className={Media.cname('directory-label')}>
+                        <div className={Media.cname('dir-dropdown-label')}>
                             {directory}
                         </div>
                         <Icon name='Feather.ChevronDown' size={18} />
