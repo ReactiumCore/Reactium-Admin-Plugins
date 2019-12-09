@@ -74,7 +74,14 @@ const Card = ({ plugin }) => {
         );
 
         return (
-            <div className={cn('plugin-card', { 'plugin-card--core': core })}>
+            <div
+                className={cn(
+                    'plugin-card',
+                    { 'plugin-card--core': core },
+                    `plugin-card--${plugin.ID}`
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, '-'),
+                )}>
                 <div className='plugin-card__graphic'>
                     <img src={graphic} alt={plugin.name} />
                 </div>
