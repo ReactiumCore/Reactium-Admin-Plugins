@@ -13,7 +13,7 @@ const Card = ({ plugin }) => {
     const defaultGraphic = core
         ? '/assets/images/atomic-reactor-logo.svg'
         : '/assets/images/plugin.svg';
-    const graphic = op.get(plugin, 'meta.graphic', defaultGraphic);
+    const graphic = op.get(plugin, 'meta.logoURL', defaultGraphic);
     const { name, description, active, group } = plugin;
 
     const toggleActivate = async () => {
