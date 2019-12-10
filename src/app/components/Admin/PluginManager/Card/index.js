@@ -13,7 +13,16 @@ const Card = ({ plugin }) => {
     const defaultGraphic = core
         ? '/assets/images/atomic-reactor-logo.svg'
         : '/assets/images/plugin.svg';
-    const graphic = op.get(plugin, 'meta.logoURL', defaultGraphic);
+    let graphic = op.get(plugin, 'meta.logoURL', defaultGraphic);
+    if (!/^http/.test(graphic) && graphic !== defaultGraphic) {
+        if (typeof window !== 'undefined')
+            graphic = (window.restAPI || '/api') + graphic;
+        else
+            graphic =
+                (process.env.REST_API_URL || 'http://localhost:9000/api') +
+                graphic;
+    }
+
     const { name, description, active, group } = plugin;
 
     const toggleActivate = async () => {
