@@ -2,6 +2,7 @@ import React from 'react';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
+import DirectoryEditor from 'components/Admin/Media/DirectoryEditor';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -20,20 +21,37 @@ import Reactium, {
  * -----------------------------------------------------------------------------
  */
 const DirectoryWidget = props => {
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
     const Media = useHandle(domain.name);
 
     const directories = op.get(Media.state, 'directories', ['uploads']);
 
     const directory = Media.directory;
 
-    const data = () =>
-        directories.map(item => ({
-            value: item,
-            label: item,
-            icon: 'Linear.Folder',
-        }));
+    const data = () => {
+        const dirs = [
+            {
+                value: null,
+                label: ENUMS.TEXT.FOLDER_ALL,
+            },
+        ];
+
+        return dirs.concat(
+            directories.map(item => ({
+                value: item,
+                label: item,
+            })),
+        );
+    };
 
     const onChange = e => Media.folderSelect(e);
+
+    const showEditor = () => {
+        Modal.show(<DirectoryEditor />);
+    };
 
     return (
         <div className={Media.cname('dir-dropdown')}>
@@ -56,7 +74,7 @@ const DirectoryWidget = props => {
                             overflowX: 'hidden',
                         }}>
                         <div className={Media.cname('dir-dropdown-label')}>
-                            {directory}
+                            {directory || ENUMS.TEXT.FOLDER_ALL}
                         </div>
                         <Icon name='Feather.ChevronDown' size={18} />
                     </Button>
@@ -66,12 +84,27 @@ const DirectoryWidget = props => {
                     data-tooltip={ENUMS.TEXT.NEW_FOLDER}
                     data-align='left'
                     data-vertical-align='middle'
+                    onClick={showEditor}
                     size='xs'
                     style={{
                         padding: '8px 8px 8px 9px',
                         borderLeft: '1px solid #909090',
+                        width: 38,
                     }}>
                     <Icon name='Feather.Plus' size={18} />
+                </Button>
+                <Button
+                    color='tertiary'
+                    data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
+                    data-align='left'
+                    data-vertical-align='middle'
+                    size='xs'
+                    style={{
+                        padding: '8px 8px 8px 9px',
+                        borderLeft: '1px solid #909090',
+                        width: 38,
+                    }}>
+                    <Icon name='Feather.Settings' size={16} />
                 </Button>
                 {!Media.isEmpty() && (
                     <Button
@@ -83,6 +116,7 @@ const DirectoryWidget = props => {
                         style={{
                             padding: '8px 8px 8px 9px',
                             borderLeft: '1px solid #909090',
+                            width: 38,
                         }}>
                         <Icon name='Feather.Filter' size={16} />
                     </Button>

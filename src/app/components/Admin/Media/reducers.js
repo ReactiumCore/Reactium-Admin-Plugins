@@ -21,7 +21,6 @@ export default (state = {}, action) => {
                     '/admin/media',
                 )
             ) {
-                delete state.directory;
                 delete state.fetched;
                 delete state.pagination;
                 delete state.search;

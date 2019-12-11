@@ -26,6 +26,7 @@ $border-admin-search-bar: 1px solid darken($color-grey-light, 2%);
 
         &:focus {
             color: $color-gray-dark;
+            width: 200px;
 
             @include breakpoint(sm) {
                 width: 280px;
@@ -57,6 +58,7 @@ $border-admin-search-bar: 1px solid darken($color-grey-light, 2%);
         &:focus {
             color: $color-gray-dark;
             padding: 5px 32px;
+            width: 200px;
 
             @include breakpoint(sm) {
                 width: 280px;

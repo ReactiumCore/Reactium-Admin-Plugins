@@ -14,6 +14,6 @@ Reactium.Plugin.register('AdminLogout').then(() => {
         id: 'ADMIN-LOGOUT-SIDEBAR-WIDGET',
         component: SidebarWidget,
         zone: ['admin-sidebar-menu'],
-        order: 1000,
+        order: 100000,
     });
 });

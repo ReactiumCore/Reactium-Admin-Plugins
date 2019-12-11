@@ -1,3 +1,4 @@
+import axios from 'axios';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import ENUMS from './enums';
@@ -188,16 +189,16 @@ class Media {
     }
 
     async fetch(params) {
-        if (this.fetching) return;
-
-        const { filters: currentFilters, library = {} } = this.state;
+        const library = op.get(this.state, 'library', {});
+        const currentFilters = op.get(this.state, 'filters');
+        const currentDir = op.get(this.state, 'directory', 'uploads');
         const page = op.get(params, 'page', this.page);
         const search = op.get(params, 'search', this.search);
         const filters = op.get(params, 'filters', currentFilters);
-
-        this.fetching = true;
+        const directory = op.get(params, 'directory', currentDir);
 
         const media = await Reactium.Cloud.run('media', {
+            directory,
             filters,
             page,
             search,
@@ -218,8 +219,6 @@ class Media {
             pagination,
             fetched: Date.now(),
         });
-
-        this.fetching = false;
     }
 
     delete(objectId) {
@@ -235,6 +234,46 @@ class Media {
         }
 
         return Reactium.Cloud.run('media-delete', { objectId });
+    }
+
+    file(objectId) {
+        const { library = {} } = this.state;
+
+        for (let page of Object.keys(library)) {
+            page = Number(page);
+            if (op.has(library, [page, objectId])) {
+                return library[page][objectId];
+            }
+        }
+    }
+
+    url(objectId) {
+        const file = this.file(objectId);
+        const { url } = file;
+        const uarr = [
+            window.location.protocol,
+            '//',
+            window.location.host,
+            url,
+        ];
+        return uarr.join('');
+    }
+
+    download(objectId) {
+        const url = this.url(objectId);
+        const { filename } = this.file(objectId);
+
+        return axios.get(url, { responseType: 'blob' }).then(({ data }) => {
+            const href = window.URL.createObjectURL(new Blob([data]));
+            const elm = document.createElement('a');
+
+            document.body.appendChild(elm);
+
+            elm.setAttribute('download', filename);
+            elm.setAttribute('href', href);
+            elm.click();
+            elm.remove();
+        });
     }
 }
 

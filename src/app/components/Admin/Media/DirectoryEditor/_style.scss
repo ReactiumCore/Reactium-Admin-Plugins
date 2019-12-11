@@ -1,0 +1,30 @@
+.admin-directory-editor {
+    width: 90vw;
+
+    .input-group {
+        align-items: center;
+        span {
+            width: 28px;
+            text-align: center;
+        }
+    }
+
+    input {
+        border: none !important;
+        flex-grow: 1;
+    }
+
+    @include breakpoint(sm) {
+        width: 480px;
+    }
+
+    svg {
+        fill: currentColor !important;
+    }
+
+    .permission {
+        .ar-dropdown-menu {
+            min-width: 120px;
+        }
+    }
+}

@@ -3,14 +3,15 @@ import cn from 'classnames';
 import op from 'object-path';
 import ENUMS from '../enums';
 import domain from '../domain';
+import copy from 'copy-to-clipboard';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ConfirmBox from 'components/Admin/ConfirmBox';
-import Reactium, { useHandle } from 'reactium-core/sdk';
+import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useEffect, useRef, useState } from 'react';
 
 const ActionButton = ({
-    color,
+    color = 'default',
     icon,
     iconSize = 16,
     id,
@@ -34,6 +35,8 @@ const ActionButton = ({
 );
 
 export default () => {
+    const search = useSelect(state => op.get(state, 'SearchBar.value'));
+
     const stateRef = useRef({
         status: ENUMS.STATUS.PENDING,
         actions: {},
@@ -56,6 +59,8 @@ export default () => {
 
     const Modal = op.get(tools, 'Modal');
 
+    const Toast = op.get(tools, 'Toast');
+
     const page = op.get(Media.state, 'page', 1);
 
     const library = _.sortBy(op.get(Media.state, ['library', page], {}), 'ext');
@@ -70,21 +75,69 @@ export default () => {
         const { action, file } = e.currentTarget.dataset;
 
         switch (action) {
-            case 'edit':
+            case 'copy-to-clipboard':
+                onCopyClick(file);
+                break;
+
+            case 'edit-image':
+                break;
+
+            case 'edit-other':
+                break;
+
+            case 'edit-video':
+                break;
+
+            case 'view-file':
+                onViewFile(file);
+                break;
+
+            case 'download':
+                onDownloadFile(file);
                 break;
 
             case 'delete':
-                showDelete({ action, file });
+                confirmDelete(file);
                 break;
         }
     };
 
-    const onDelete = async ({ file }) => {
-        Reactium.Media.delete(file);
-        Modal.dismiss();
+    const onDownloadFile = file => {
+        Reactium.Media.download(file);
     };
 
-    const showDelete = ({ action, file }) => {
+    const onViewFile = file => {
+        const url = Reactium.Media.url(file);
+        window.open(url, '_blank');
+    };
+
+    const onCopyClick = file => {
+        const url = Reactium.Media.url(file);
+        if (url) {
+            copy(url);
+            Toast.show({
+                icon: (
+                    <span className='mr-xs-4'>
+                        <Icon name='Linear.ClipboardCheck' />
+                    </span>
+                ),
+                message: ENUMS.TEXT.COPIED_TO_CLIPBOARD,
+                type: Toast.TYPE.INFO,
+            });
+        }
+    };
+
+    const onDelete = file => {
+        Modal.dismiss();
+        return Reactium.Media.delete(file);
+    };
+
+    const onSearch = _.throttle(params => Reactium.Media.fetch(params), 500, {
+        leading: false,
+        trailing: true,
+    });
+
+    const confirmDelete = file => {
         const { library = {} } = Media.state;
         const url = op.get(library, [page, file, 'url']);
 
@@ -92,13 +145,15 @@ export default () => {
             <ConfirmBox
                 message={
                     <>
-                        <p className='mb-xs-8'>{ENUMS.TEXT.DELETE_INFO[0]}</p>
-                        <kbd>{url}</kbd>
-                        <p className='mt-xs-8'>{ENUMS.TEXT.DELETE_INFO[1]}</p>
+                        {ENUMS.TEXT.DELETE_INFO[0]}
+                        <div className='my-xs-8'>
+                            <kbd>{url}</kbd>
+                        </div>
+                        {ENUMS.TEXT.DELETE_INFO[1]}
                     </>
                 }
                 onCancel={() => Modal.dismiss()}
-                onConfirm={e => onDelete({ action, file })}
+                onConfirm={e => onDelete(file)}
                 title={ENUMS.TEXT.CONFIRM_DELETE}
             />,
         );
@@ -109,15 +164,34 @@ export default () => {
         const { ext, file, filename, meta, objectId, url } = item;
         const edgeURL = file.url().replace('undefined', '/api');
         const bg = { backgroundImage: `url('${edgeURL}')` };
-        const acts = Object.values(actions).filter(({ types = [] }) =>
-            types.includes('image'),
-        );
+        const acts = _.sortBy(
+            Object.values(actions),
+            'order',
+        ).filter(({ types = [] }) => types.includes('image'));
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
-                    <div style={bg} className='media-image' />
-                    <div className='media-info'>{url}</div>
+                    <a
+                        href={Reactium.Media.url(objectId)}
+                        style={bg}
+                        className='media-image'
+                        target='_blank'
+                    />
+                    <div className='media-info'>
+                        <div className='text'>{url}</div>
+                        <div className='buttons'>
+                            <ActionButton
+                                color='clear'
+                                onClick={onActionClick}
+                                id='copy-to-clipboard'
+                                icon='Linear.ClipboardDown'
+                                iconSize={20}
+                                objectId={objectId}
+                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                            />
+                        </div>
+                    </div>
                     <div className='media-actions'>
                         <Scrollbars
                             style={{ height: '100%' }}
@@ -161,7 +235,20 @@ export default () => {
                             {ENUMS.TEXT.VIDEO_UNSUPPORTED}
                         </video>
                     </div>
-                    <div className='media-info'>{url}</div>
+                    <div className='media-info'>
+                        <div className='text'>{url}</div>
+                        <div className='buttons'>
+                            <ActionButton
+                                color='clear'
+                                onClick={onActionClick}
+                                id='copy-to-clipboard'
+                                icon='Linear.ClipboardDown'
+                                iconSize={20}
+                                objectId={objectId}
+                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                            />
+                        </div>
+                    </div>
                     <div className='media-actions'>
                         <Scrollbars
                             style={{ height: '100%' }}
@@ -197,10 +284,26 @@ export default () => {
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
-                    <div className='media-image'>
+                    <a
+                        className='media-image'
+                        href={Reactium.Media.url(objectId)}
+                        target='_blank'>
                         <Icon name='Linear.FileEmpty' size={96} />
+                    </a>
+                    <div className='media-info'>
+                        <div className='text'>{url}</div>
+                        <div className='buttons'>
+                            <ActionButton
+                                color='clear'
+                                onClick={onActionClick}
+                                id='copy-to-clipboard'
+                                icon='Linear.ClipboardDown'
+                                iconSize={20}
+                                objectId={objectId}
+                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                            />
+                        </div>
                     </div>
-                    <div className='media-info'>{url}</div>
                     <div className='media-actions'>
                         <Scrollbars
                             style={{ height: '100%' }}
@@ -252,6 +355,10 @@ export default () => {
             setState({ actions, status: ENUMS.STATUS.READY });
         });
     }, [op.get(stateRef.current, 'status')]);
+
+    useEffect(() => {
+        onSearch();
+    }, [search]);
 
     return render();
 };
