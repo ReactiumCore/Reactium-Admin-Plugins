@@ -8,6 +8,7 @@ import Uploads from './Uploads';
 import Toolbar from './Toolbar';
 import Directory from './Directory';
 import { Helmet } from 'react-helmet';
+import DirectoryEditor from './DirectoryEditor';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -46,7 +47,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
 
     // Refs
     const animationRef = useRef({});
-    const directoryRef = useRef(op.get(state, 'directory', 'uploads'));
+    const directoryRef = useRef(op.get(state, 'directory'));
     const dropzoneRef = useRef();
     const stateRef = useRef(state);
 
@@ -87,8 +88,6 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
             }),
         );
 
-    const onDirectoryAddClick = () => {};
-
     const onError = evt => {
         console.log({ error: evt.message });
 
@@ -97,8 +96,10 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
         });
     };
 
-    const onFileAdded = e =>
-        Reactium.Media.upload(e.added, directoryRef.current);
+    const onFileAdded = e => {
+        const directory = directoryRef.current || 'uploads';
+        return Reactium.Media.upload(e.added, directory);
+    };
 
     const onFileRemoved = file => {
         dropzoneRef.current.removeFiles(file);
@@ -114,14 +115,10 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
     useEffect(() => {
-        const dir = op.get(state, 'directory', 'uploads');
+        const dir = op.get(state, 'directory');
         if (directoryRef.current !== dir) directoryRef.current = dir;
+        Reactium.Media.fetch({ page: 1 });
     }, [directoryRef.current]);
-
-    useEffect(() => {
-        const { fetched } = state;
-        if (!fetched) Reactium.Media.fetch();
-    }, [op.get(state, 'fetched')]);
 
     useEffect(() => {
         Reactium.Pulse.register('MediaClearUploads', () => clearUploads());

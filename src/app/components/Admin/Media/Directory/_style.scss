@@ -5,19 +5,26 @@
 
         > div {
             width: 100%;
-            height: 90vw;
+            height: 80vw;
             flex-shrink: 0;
             padding: 0 $padding-admin-content-zone $padding-admin-content-zone 0;
             position: relative;
 
             @include breakpoint(sm) {
-                width: 33%;
-                height: 30vw;
+                width: 50%;
+                height: 48vw;
             }
 
             @include breakpoint(md) {
+                width: 33%;
+                height: 31vw;
+            }
+
+            @include breakpoint(xl) {
                 width: 25%;
-                height: 22vw;
+                height: 23vw;
+                max-width: 425px;
+                max-height: 425px;
             }
 
             div.media-card {
@@ -36,16 +43,29 @@
                         opacity: 1;
                     }
                 }
+
+                button {
+                    width: 40px;
+                    height: 40px;
+                    min-width: 40px;
+                    min-height: 40px;
+                    padding: 0;
+                    svg {
+                        fill: currentColor;
+                    }
+                }
+
             }
 
-            div.media-image {
+            .media-image {
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 flex-grow: 1;
                 background-position: center;
                 background-size: cover;
-                border: 4px solid $color-white;
+                height: calc(100% - 60px);
+                overflow: hidden;
 
                 svg {
                     fill: $color-grey;
@@ -58,6 +78,8 @@
                 align-items: center;
                 flex-grow: 1;
                 background-color: $color-black;
+                height: calc(100% - 60px);
+                overflow: hidden;
 
                 video:focus {
                     outline: none;
@@ -67,13 +89,31 @@
             }
 
             div.media-info {
+                display: flex;
+                align-items: center;
                 height: 60px;
+                min-height: 60px;
                 flex-shrink: 0;
                 color: $color-gray-dark;
                 font-size: 11px;
                 font-family: sans-serif;
                 line-height: 14px;
                 padding: 12px;
+
+                .buttons {
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .text {
+                    flex-grow: 1;
+                }
+
+                .media-actions-button {
+                    padding-right: 0;
+                }
             }
 
             div.media-actions {
@@ -92,9 +132,6 @@
                     }
                 }
                 button {
-                    width: 40px;
-                    height: 40px;
-                    padding: 0;
                     box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
                 }
             }

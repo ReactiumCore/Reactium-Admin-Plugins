@@ -49,15 +49,42 @@ Reactium.Plugin.register(domain.name).then(() => {
             icon: 'Feather.X',
             iconSize: 20,
             id: 'delete',
+            order: 0,
             tooltip: ENUMS.TEXT.DELETE,
             types: ['image', 'video', 'other'],
         };
 
-        actions['edit'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit',
-            tooltip: ENUMS.TEXT.EDIT,
+        actions['download'] = {
+            icon: 'Linear.CloudDownload',
+            iconSize: 20,
+            id: 'download',
+            order: 1,
+            tooltip: ENUMS.TEXT.DOWNLOAD_FILE,
             types: ['image', 'video', 'other'],
+        };
+
+        actions['edit-image'] = {
+            icon: 'Feather.Edit2',
+            id: 'edit-image',
+            order: 2,
+            tooltip: ENUMS.TEXT.EDIT,
+            types: ['image'],
+        };
+
+        actions['edit-video'] = {
+            icon: 'Feather.Edit2',
+            id: 'edit-video',
+            order: 2,
+            tooltip: ENUMS.TEXT.EDIT,
+            types: ['video'],
+        };
+
+        actions['edit-other'] = {
+            icon: 'Feather.Edit2',
+            id: 'edit-other',
+            order: 2,
+            tooltip: ENUMS.TEXT.EDIT,
+            types: ['other'],
         };
     });
 });
