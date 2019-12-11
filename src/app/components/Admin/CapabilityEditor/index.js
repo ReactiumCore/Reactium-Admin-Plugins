@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Icon, Dialog, Checkbox } from '@atomic-reactor/reactium-ui';
 import DataTable, { Column, Row } from '@atomic-reactor/reactium-ui/DataTable';
-import Reactium, { __, useRoles, useHandle } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useRoles,
+    useHandle,
+    useWindowSize,
+} from 'reactium-core/sdk';
 import op from 'object-path';
 
 const CapabilityDescription = ({
@@ -89,6 +94,25 @@ const CapabilityEditor = ({ capabilities = [] }) => {
         role => !['banned', 'super-admin', 'administrator'].includes(role.name),
     );
 
+    const { breakpoint } = useWindowSize();
+
+    let maxPermWidth;
+    switch (breakpoint) {
+        case 'xl':
+            maxPermWidth = 50;
+            break;
+
+        case 'lg':
+        case 'md':
+            maxPermWidth = 70;
+            break;
+
+        case 'xs':
+        case 'sm':
+        default:
+            maxPermWidth = 85;
+    }
+
     const loadedCaps = useRef({});
     const [updated, setUpdated] = useState(1);
     const forceRefresh = () => setUpdated(updated + 1);
@@ -122,14 +146,14 @@ const CapabilityEditor = ({ capabilities = [] }) => {
                 label: __('Capability'),
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
                 sortType: DataTable.ENUMS.SORT_TYPE.STRING,
-                width: '40vw',
+                // width: '20vw',
             },
         };
 
         roles.reduce((columns, role) => {
             columns[role.name] = {
                 label: role.label,
-                width: `${Math.floor(60 / (roles.length + 1))}vw`,
+                width: `${Math.floor(maxPermWidth / (roles.length + 1))}vw`,
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
                 textAlign: DataTable.ENUMS.TEXT_ALIGN.CENTER,
             };
