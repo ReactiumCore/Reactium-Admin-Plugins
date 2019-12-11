@@ -38,13 +38,13 @@ module.exports = {
         req.pluginAssets = {
             styles: _.compact(styles)
                 .map(url => {
-                    if (!/^http/.test(url)) url = '/api/' + url;
+                    if (!/^http/.test(url)) url = '/api' + url;
                     return `<link rel="stylesheet" href="${url}" />`;
                 })
                 .join('\n'),
             scripts: _.compact(scripts)
                 .map(url => {
-                    if (!/^http/.test(url)) url = '/api/' + url;
+                    if (!/^http/.test(url)) url = '/api' + url;
                     return `<script src="${url}"></script>`;
                 })
                 .join('\n'),

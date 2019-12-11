@@ -52,7 +52,7 @@ const PluginManager = props => {
         core: __('Core'),
         mail: __('Mailers'),
         FilesAdapter: __('File Adapters'),
-        utilities: __('Utilties'),
+        utilities: __('Utilities'),
         other: __('Other'),
     };
 
