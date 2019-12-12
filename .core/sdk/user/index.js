@@ -1,8 +1,9 @@
-import Hook from '../hook';
+import SDK from '@atomic-reactor/reactium-sdk-core';
 import _ from 'underscore';
 import op from 'object-path';
 import Parse from 'appdir/api';
 
+const { Hook, Enums, Cache } = SDK;
 const User = { Role: {} };
 
 /**
@@ -158,8 +159,32 @@ User.isRole = async (role, userId) => {
  * @apiGroup Reactium.User
  */
 User.can = async (capabilities = [], strict = true) => {
-    return Parse.Cloud.run('capability-check', { capabilities, strict });
+    // null request
+    if (!Array.isArray(capabilities) || capabilities.length < 1) {
+        return true;
+    }
+
+    // Prevent Rapid Duplicate Cap Checks from reaching server
+    const capCheckSignature = capabilities
+        .sort()
+        .concat([strict ? 'strict' : 'loose'])
+        .join('-');
+    let checking = Cache.get(capCheckSignature);
+    if (checking) return checking;
+
+    checking = Parse.Cloud.run('capability-check', { capabilities, strict });
+    Cache.set(capCheckSignature, checking, 200);
+    return checking;
 };
+
+Hook.register(
+    'capability-check',
+    async (capabilities = [], strict = true, context) => {
+        const permitted = await User.can(capabilities, strict);
+        op.set(context, 'permitted', permitted);
+    },
+    Enums.priority.highest,
+);
 
 /**
  * @api {Function} User.Role.add(role,userId) User.Role.add()

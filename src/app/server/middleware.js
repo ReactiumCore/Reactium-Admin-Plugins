@@ -1,4 +1,4 @@
-const Enums = require('reactium-core/sdk/enums').default;
+const Enums = require('@atomic-reactor/reactium-sdk-core').default.Enums;
 const {
     settings,
     routes,
