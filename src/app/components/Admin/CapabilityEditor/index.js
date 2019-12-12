@@ -77,10 +77,12 @@ const RoleControl = ({ capability, role, forceRefresh }) => {
     };
 
     return (
-        <Checkbox
-            defaultChecked={capability.allowed.includes(role.name)}
-            onChange={onChange}
-        />
+        capability.allowed && (
+            <Checkbox
+                defaultChecked={capability.allowed.includes(role.name)}
+                onChange={onChange}
+            />
+        )
     );
 };
 
@@ -166,7 +168,7 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
     const roleControls = ({ capability: cap }) => {
         const capability = op.get(loadedCaps, ['current', cap], {
-            allowed: [],
+            allowed: null,
         });
 
         return roles.reduce((controls, role) => {
