@@ -13,6 +13,7 @@ import React, {
     useState,
 } from 'react';
 
+import Reactium, { useHandle } from 'reactium-core/sdk';
 import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
@@ -25,6 +26,10 @@ const useLayoutEffect =
  * -----------------------------------------------------------------------------
  */
 let DirectoryEditor = ({ children, ...props }, ref) => {
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
@@ -69,21 +74,87 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         ];
     };
 
-    const onSelect = e => {
+    const onSearch = search => setState({ search });
+
+    const onSelectUser = e => {};
+
+    const onSelectPermission = e => {
         const { value } = e.item;
-        setState({ selection: value });
+        setState({ permission: value });
+    };
+
+    const reset = () => {
+        setState({ ...props, search: null });
+    };
+
+    const renderFolderInput = () => (
+        <div className='pl-xs-16 mb-xs-8'>
+            <label className='input-group' style={{ width: '100%' }}>
+                <span className='blue'>
+                    <Icon name='Feather.Folder' className='mr-xs-4' />
+                </span>
+                <input
+                    type='text'
+                    name='directory'
+                    placeholder={ENUMS.TEXT.FOLDER_EDITOR.DIRECTORY}
+                />
+            </label>
+        </div>
+    );
+
+    const renderUserSelect = () => {
+        const perms = permissions();
+        const { permission, search } = stateRef.current;
+        const perm = _.findWhere(perms, { value: permission });
+
+        return (
+            <div className='flex middle pl-xs-16 pr-xs-8 permission'>
+                <label className='input-group' style={{ flexGrow: 1 }}>
+                    <span className='blue'>
+                        <Icon name='Feather.User' className='mr-xs-4' />
+                    </span>
+                    <input
+                        type='text'
+                        value={search || ''}
+                        placeholder={ENUMS.TEXT.FOLDER_EDITOR.USER}
+                        onChange={e => onSearch(e.target.value)}
+                    />
+                </label>
+                <Dropdown
+                    data={perms}
+                    iconField='ico'
+                    onChange={onSelectPermission}
+                    selection={[permission]}>
+                    <Button
+                        outline
+                        color='tertiary'
+                        size='sm'
+                        style={{
+                            padding: '6px 9px',
+                            minWidth: 135,
+                            justifyContent: 'flex-start',
+                        }}
+                        data-dropdown-element>
+                        <Icon
+                            size={16}
+                            name={op.get(perm, 'icon')}
+                            style={{ marginRight: 12 }}
+                        />
+                        {op.get(perm, 'label')}
+                    </Button>
+                </Dropdown>
+            </div>
+        );
     };
 
     // Renderer
     const render = () => {
-        const perms = permissions();
-        const { selection } = stateRef.current;
-        const perm = _.findWhere(perms, { value: selection });
         return (
             <div ref={containerRef} className={cx()}>
                 <Dialog
                     collapsible={false}
                     dismissable={true}
+                    onDismiss={() => Modal.hide()}
                     footer={{
                         elements: [
                             <Button
@@ -96,69 +167,18 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                     }}
                     header={{ title: ENUMS.TEXT.FOLDER_EDITOR.TITLE }}>
                     <div className='py-xs-16'>
-                        <div className='pl-xs-16'>
-                            <label
-                                className='input-group'
-                                style={{ width: '100%' }}>
-                                <span className='blue'>
-                                    <Icon
-                                        name='Feather.Folder'
-                                        className='mr-xs-4'
-                                    />
-                                </span>
-                                <input
-                                    type='text'
-                                    name='directory'
-                                    placeholder={
-                                        ENUMS.TEXT.FOLDER_EDITOR.DIRECTORY
-                                    }
-                                />
-                            </label>
-                        </div>
-                        <div className='flex middle pl-xs-16 pr-xs-8 permission'>
-                            <label
-                                className='input-group'
-                                style={{ flexGrow: 1 }}>
-                                <span className='blue'>
-                                    <Icon
-                                        name='Feather.User'
-                                        className='mr-xs-4'
-                                    />
-                                </span>
-                                <input
-                                    type='text'
-                                    placeholder={ENUMS.TEXT.FOLDER_EDITOR.USER}
-                                />
-                            </label>
-                            <Dropdown
-                                data={perms}
-                                iconField='ico'
-                                onChange={onSelect}
-                                selection={[selection]}>
-                                <Button
-                                    outline
-                                    color='tertiary'
-                                    size='sm'
-                                    style={{
-                                        padding: '6px 9px',
-                                        minWidth: 135,
-                                        justifyContent: 'flex-start',
-                                    }}
-                                    data-dropdown-element>
-                                    <Icon
-                                        size={16}
-                                        name={op.get(perm, 'icon')}
-                                        style={{ marginRight: 12 }}
-                                    />
-                                    {op.get(perm, 'label')}
-                                </Button>
-                            </Dropdown>
-                        </div>
+                        {renderFolderInput()}
+                        {renderUserSelect()}
                     </div>
                 </Dialog>
             </div>
         );
     };
+
+    // Side effects
+    useEffect(() => {
+        const { search } = stateRef.current;
+    }, [op.get(stateRef.current, 'search')]);
 
     // External Interface
     useImperativeHandle(ref, () => ({
@@ -183,7 +203,8 @@ DirectoryEditor.propTypes = {
 
 DirectoryEditor.defaultProps = {
     namespace: 'admin-directory-editor',
-    selection: 'read',
+    permission: 'read',
+    search: null,
 };
 
 export { DirectoryEditor as default };

@@ -7,6 +7,11 @@ const ENUMS = {
         { value: 'Media.create', label: 'Can Upload' },
         { value: 'Media.all', label: 'Public View' },
     ],
+    STATUS: {
+        FETCHING: 'fetching',
+        INIT: 'init',
+        READY: 'ready',
+    },
     TEXT: {
         BROWSE: __('Browse Files'),
         CONFIRM_DELETE: __('Confirm Delete'),

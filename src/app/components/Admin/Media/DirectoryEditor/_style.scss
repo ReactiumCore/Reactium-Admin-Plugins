@@ -3,9 +3,14 @@
 
     .input-group {
         align-items: center;
+
         span {
             width: 28px;
             text-align: center;
+        }
+
+        input {
+            cursor: text;
         }
     }
 
@@ -16,10 +21,6 @@
 
     @include breakpoint(sm) {
         width: 480px;
-    }
-
-    svg {
-        fill: currentColor !important;
     }
 
     .permission {
