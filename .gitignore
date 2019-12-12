@@ -87,3 +87,6 @@ src/manifest.js
 # Feather Icons
 src/app/components/common-ui/Icon/Feather/
 src/app/toolkit/icons
+
+# Reactium UI Dev
+src/app/components/Reactium-UI/
