@@ -16,7 +16,7 @@
 
     input {
         border: none !important;
-        flex-grow: 1;
+        width: 100%;
     }
 
     @include breakpoint(sm) {
@@ -26,6 +26,24 @@
     .permission {
         .ar-dropdown-menu {
             min-width: 120px;
+        }
+    }
+
+
+    .ar-tags-input {
+        border: none !important;
+
+        input {
+            display: none;
+        }
+    }
+
+    .selections {
+        margin-top: 12px;
+        border-top: 1px solid $color-admin-header-border;
+
+        &:empty {
+            display: none;
         }
     }
 }
