@@ -14,10 +14,16 @@ import React, {
 } from 'react';
 
 import Reactium, { useHandle } from 'reactium-core/sdk';
-import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import {
+    Button,
+    Dialog,
+    Dropdown,
+    Icon,
+    TagsInput,
+} from '@atomic-reactor/reactium-ui';
 
-import Dropdown from 'components/Reactium-UI/Dropdown';
-import TagsInput from 'components/Reactium-UI/TagsInput';
+// import Dropdown from 'components/Reactium-UI/Dropdown';
+// import TagsInput from 'components/Reactium-UI/TagsInput';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
