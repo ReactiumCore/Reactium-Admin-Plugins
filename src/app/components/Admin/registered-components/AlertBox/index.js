@@ -2,7 +2,7 @@ import React from 'react';
 import ENUMS from './enums';
 import PropTypes from 'prop-types';
 import { __ } from 'reactium-core/sdk';
-import ConfirmBox from 'components/Admin/ConfirmBox';
+import ConfirmBox from '../ConfirmBox';
 
 const noop = () => {};
 /**
@@ -41,8 +41,22 @@ export default AlertBox;
  * @apiParam {Mixed} message The Alert message. The message can be any valid `PropTypes.node` value.
  * @apiParam {String} [title='Alert'] The titlebar content.
  * @apiParam {Object} [style] React style object applied to the AlertBox wrapper div.
+ * @apiExample useHookComponent() hook import
+import { useHookComponent } from 'reactium-core/sdk';
+
+const MyComponent = () => {
+    const ConfirmBox = useHookComponent('AlertBox');
+    return (
+        <AlertBox
+          message='Permission Denied!',
+          onClick={() => console.log('ok'); }
+          title='Error'
+        />
+    );
+}
+
  * @apiExample Simple Usage:
-import AlertBox from 'components/Admin/AlertBox';
+import AlertBox from 'components/Admin/registered-components/AlertBox';
 
 ...
 
@@ -53,7 +67,7 @@ import AlertBox from 'components/Admin/AlertBox';
 />
 
  * @apiExample Custom Button Label:
-import AlertBox from 'components/Admin/AlertBox';
+import AlertBox from 'components/Admin/registered-components/AlertBox';
 
 ...
 
@@ -71,8 +85,5 @@ buttons.ok.label = 'Aight den boi!';
 
 
   @apiExample Import
-import AlertBox from 'components/Admin/AlertBox';
-
-  @apiExample Dependencies
-import ConfirmBox from 'components/Admin/ConfirmBox';
+import AlertBox from 'components/Admin/registered-components/AlertBox';
 */

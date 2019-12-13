@@ -4,7 +4,6 @@ import ENUMS from '../enums';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import AvatarButtons from './AvatarButtons';
-import ConfirmBox from 'components/Admin/ConfirmBox';
 import { Plugins } from 'reactium-core/components/Plugable';
 
 import {

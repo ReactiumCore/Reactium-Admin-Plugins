@@ -1,7 +1,7 @@
 import React from 'react';
 import Reactium, { __ } from 'reactium-core/sdk';
 import AppSettings from './index';
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const PLUGIN = 'app-settings';
 const appSettingsPlugin = async () => {

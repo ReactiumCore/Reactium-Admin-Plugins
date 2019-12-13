@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from 'reactium-core/sdk';
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 import { Plugins } from 'reactium-core/components/Plugable';
 
 /**

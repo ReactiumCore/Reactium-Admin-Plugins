@@ -111,8 +111,24 @@ export default ConfirmBox;
  * @apiParam {Mixed} [message='Are you sure?'] The confirmation message. The message can be any valid `PropTypes.node` value.
  * @apiParam {Object} [style] React style object applied to the ConfirmBox wrapper div.
  * @apiParam {String} [title='Confirm'] The titlebar content.
+ * @apiExample useHookComponent() hook import
+import { useHookComponent } from 'reactium-core/sdk';
+
+const MyComponent = () => {
+    const ConfirmBox = useHookComponent('ConfirmBox');
+    return (
+        <ConfirmBox
+          buttons={buttons}
+          title='Confirm Delete'
+          message='Are you sure?'
+          onCancel={() => console.log('No')}
+          onConfirm={() => console.log('Yes')}
+        />
+    );
+}
+
  * @apiExample Simple Usage:
-import ConfirmBox from 'components/Admin/ConfirmBox';
+import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
 
 ...
 
@@ -124,8 +140,6 @@ import ConfirmBox from 'components/Admin/ConfirmBox';
 />
 
  * @apiExample Custom Button Labels:
-import ConfirmBox from 'components/Admin/ConfirmBox';
-
 ...
 
 const buttons = { ...ConfirmBox.defaultProps.buttons };
@@ -143,7 +157,6 @@ buttons.yes.label = 'Proceed';
 />
 
 @apiExample Custom Buttons:
-import ConfirmBox from 'components/Admin/ConfirmBox';
 import { Button } from '@atomic-reactor/reactium-ui';
 
 ...
@@ -177,9 +190,6 @@ const buttons = {
 // Delete a button
 const buttons = { ...ConfirmBox.defaultProps.buttons };
 delete buttons.no;
-
- @apiExample Import
-import ConfirmBox from 'components/Admin/ConfirmBox';
 
  @apiExample Dependencies
 import op from 'object-path';
