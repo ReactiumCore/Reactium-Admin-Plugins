@@ -1,12 +1,17 @@
 import React from 'react';
 import op from 'object-path';
 import ENUMS from '../enums';
-import ConfirmBox from 'components/Admin/ConfirmBox';
-import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
+import Reactium, {
+    useHandle,
+    useSelect,
+    useHookComponent,
+} from 'reactium-core/sdk';
 import { Button, Spinner } from '@atomic-reactor/reactium-ui';
 
 export default ({ onClick, disabled = false, state, ...props }) => {
     const history = useSelect(state => op.get(state, 'Router.history'));
+
+    const ConfirmBox = useHookComponent('ConfirmBox');
 
     const tools = useHandle('AdminTools');
 

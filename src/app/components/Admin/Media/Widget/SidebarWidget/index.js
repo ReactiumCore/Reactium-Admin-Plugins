@@ -1,7 +1,7 @@
 import React from 'react';
 import op from 'object-path';
 import { __ } from 'reactium-core/sdk';
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const isActive = (match = {}, location) => {
     return String(op.get(location, 'pathname', '/'))

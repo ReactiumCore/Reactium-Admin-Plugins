@@ -5,7 +5,7 @@ import ENUMS from '../enums';
 import domain from '../domain';
 import copy from 'copy-to-clipboard';
 import { Scrollbars } from 'react-custom-scrollbars';
-import ConfirmBox from 'components/Admin/ConfirmBox';
+import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
 import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useEffect, useRef, useState } from 'react';

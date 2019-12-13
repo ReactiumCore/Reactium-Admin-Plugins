@@ -11,6 +11,11 @@
 // Admin mixins
 @import '../../app/components/Admin/style/mixins';
 
+// Admin Registered Components
+@import '../../app/components/Admin/registered-components/ConfirmBox/style';
+@import '../../app/components/Admin/registered-components/CapabilityEditor/style';
+@import '../../app/components/Admin/registered-components/MenuItem/style';
+
 // Admin Styles
 @import '../../app/components/Admin/style/base';
 @import '../../app/components/Admin/style/layout';
@@ -23,11 +28,8 @@
 @import '../../app/components/Admin/Profile/Editor/style';
 @import '../../app/components/Admin/Settings/style';
 @import '../../app/components/Admin/Password/style';
-@import '../../app/components/Admin/MenuItem/style';
-@import '../../app/components/Admin/ConfirmBox/style';
 @import '../../app/components/Admin/Media/style';
 @import '../../app/components/Admin/SearchBar/style';
 @import '../../app/components/Admin/PluginManager/style';
 @import '../../app/components/Admin/Media/Directory/style';
 @import '../../app/components/Admin/Media/DirectoryEditor/style';
-@import '../../app/components/Admin/CapabilityEditor/style';

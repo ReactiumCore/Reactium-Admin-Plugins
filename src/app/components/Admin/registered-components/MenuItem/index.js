@@ -325,7 +325,7 @@ export { MenuItem as default };
  * @apiParam {String} [title] Tooltip to dislay for the MenuItem. If empty the `label` value is used.
  * @apiExample Simple Usage:
 import React from 'react';
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const SidebarWidget = () => (
   <MenuItem
@@ -336,7 +336,7 @@ const SidebarWidget = () => (
 );
 
   * @apiExample Sub MenuItems:
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const SidebarWidget = () => (
   <MenuItem
@@ -357,7 +357,7 @@ const SidebarWidget = () => (
 );
 
  * @apiExample Plugin Zone:
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 import { Plugins } from 'reactium-core/components/Plugable';
 
 const SidebarWidget = () => (
@@ -370,7 +370,7 @@ const SidebarWidget = () => (
 );
 
  * @apiExample Import
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 
  * @apiExample Dependencies
 import { NavLink } from 'react-router-dom';

@@ -1,9 +1,8 @@
 import React from 'react';
 import op from 'object-path';
-import MenuItem from 'components/Admin/MenuItem';
+import MenuItem from 'components/Admin/registered-components/MenuItem';
 import { Dialog } from '@atomic-reactor/reactium-ui';
-import ConfirmBox from 'components/Admin/ConfirmBox';
-import { useHandle, useSelect } from 'reactium-core/sdk';
+import { useHandle, useSelect, useHookComponent } from 'reactium-core/sdk';
 
 const noop = {
     dismiss: () => {},
@@ -11,6 +10,7 @@ const noop = {
 };
 
 const Widget = () => {
+    const ConfirmBox = useHookComponent('ConfirmBox');
     const Router = useSelect(state => op.get(state, 'Router'));
 
     const tools = useHandle('AdminTools');
