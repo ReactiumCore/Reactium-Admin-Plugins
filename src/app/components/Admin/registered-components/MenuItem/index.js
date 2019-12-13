@@ -307,10 +307,10 @@ MenuItem.defaultProps = {
 export { MenuItem as default };
 
 /**
- * @api {Component} <MenuItem/> MenuItem
+ * @api {RegisteredComponent} <MenuItem/> MenuItem
  * @apiDescription Component used for Sidebar elements.
  * @apiName MenuItem
- * @apiGroup Components
+ * @apiGroup Registered Component
  * @apiParam {Mixed} label The `{String}` or `PropTypes.node` to display.
  * @apiParam {Boolean} [active=false] If the MenuItem should display as an active item.
  * @apiParam {Array} [capabilities] List of capabilities that are allowed to access the MenuItem.

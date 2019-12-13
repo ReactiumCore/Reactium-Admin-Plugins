@@ -101,10 +101,10 @@ ConfirmBox.defaultProps = {
 export default ConfirmBox;
 
 /**
- * @api {Component} <ConfirmBox/> ConfirmBox
+ * @api {RegisteredComponent} <ConfirmBox/> ConfirmBox
  * @apiDescription Dialog that asks the user to confirm or cancel the current interaction.
  * @apiName ConfirmBox
- * @apiGroup Components
+ * @apiGroup Registered Component
  * @apiParam {Object} buttons The action buttons to display.
  * @apiParam {Function} onConfirm Function to execute when the interaction is confirmed.
  * @apiParam {Function} onCancel Function to execute when the interaction is canceled.
