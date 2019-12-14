@@ -230,7 +230,7 @@ let PermissionSelector = ({ children, ...props }, ref) => {
                     className='flex-grow'
                     maxHeight={250}
                     expandEvent={['focus', 'click']}>
-                    <label className='input-group' style={{ flexGrow: 1 }}>
+                    <label className='input-group' style={{ width: '100%' }}>
                         <input
                             type='text'
                             value={search || ''}
