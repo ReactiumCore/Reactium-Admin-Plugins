@@ -3,14 +3,14 @@ import Toggle from './MenuToggle';
 import Reactium from 'reactium-core/sdk';
 
 Reactium.Plugin.register('AdminSidebar').then(() => {
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'ADMIN-SIDEBAR',
         component: Sidebar,
         zone: ['admin-sidebar'],
         order: -1000,
     });
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'ADMIN-SIDEBAR-MENU-TOGGLE',
         component: Toggle,
         zone: ['admin-sidebar'],

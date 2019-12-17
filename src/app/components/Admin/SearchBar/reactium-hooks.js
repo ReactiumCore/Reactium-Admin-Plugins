@@ -12,5 +12,5 @@ const components = [
 
 Reactium.Plugin.register('AdminSearchBar').then(() => {
     // Add components
-    components.forEach(component => Reactium.Plugin.addComponent(component));
+    components.forEach(component => Reactium.Zone.addComponent(component));
 });

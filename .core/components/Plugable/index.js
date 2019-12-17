@@ -1,10 +1,6 @@
-/**
- * -----------------------------------------------------------------------------
- * Imports
- * -----------------------------------------------------------------------------
- */
-export { default as PlugableContext } from './Context';
-export { default as PlugableProvider } from './Provider';
-export { default as Zone } from './Zone';
-export { default as Plugins } from './Zone';
-export * from './Zone';
+export { Zone as Plugins } from '@atomic-reactor/reactium-sdk-core';
+export { Zone } from '@atomic-reactor/reactium-sdk-core';
+
+console.log(
+    "You imported from reactium-core/components/Plugable which is deprecated. Use useHookComponent('Zone') instead, or import { Zone } from reactium-core/components/Plugable/Zone",
+);

@@ -12,21 +12,21 @@ Reactium.Plugin.register(domain.name).then(() => {
     Reactium[domain.name] = op.get(Reactium, domain.name, MediaSdk);
 
     // Register components
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-LIBRARY',
         component: MediaLibrary,
         order: -1000,
         zone: ['admin-media-content'],
     });
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-LIBRARY-SIDEBAR-WIDGET',
         component: SidebarWidget,
         order: 0,
         zone: ['admin-sidebar-menu'],
     });
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-LIBRARY-DIRECTORY-WIDGET',
         component: DirectoryWidget,
         order: 0,
