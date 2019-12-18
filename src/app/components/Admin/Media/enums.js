@@ -26,11 +26,11 @@ const ENUMS = {
         FOLDER: __('Select folder'),
         FOLDER_ALL: __('All folders'),
         FOLDER_EDIT: __('Edit folders'),
-        FOLDER_EDITOR: {
+        FOLDER_CREATOR: {
             CAN_EDIT: __('Can Edit'),
             CAN_VIEW: __('Can View'),
             DIRECTORY: __('Folder name'),
-            TITLE: __('Folder Editor'),
+            TITLE: __('New Folder'),
             USER: __('Users or roles'),
             SAVE: __('Save Folder'),
         },

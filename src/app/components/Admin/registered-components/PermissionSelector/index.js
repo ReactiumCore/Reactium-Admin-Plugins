@@ -61,12 +61,12 @@ let PermissionSelector = ({ children, ...props }, ref) => {
     const permissions = () => {
         return [
             {
-                label: ENUMS.TEXT.FOLDER_EDITOR.CAN_VIEW,
+                label: ENUMS.TEXT.FOLDER_CREATOR.CAN_VIEW,
                 icon: 'Feather.Eye',
                 value: 'read',
             },
             {
-                label: ENUMS.TEXT.FOLDER_EDITOR.CAN_EDIT,
+                label: ENUMS.TEXT.FOLDER_CREATOR.CAN_EDIT,
                 icon: 'Feather.Edit2',
                 value: 'write',
             },
@@ -108,8 +108,9 @@ let PermissionSelector = ({ children, ...props }, ref) => {
             label = label || name;
             const item = { label, value: objectId, type: 'role' };
 
-            if (selection.includes(objectId)) selected.push(item);
-            else output.push(item);
+            // if (selection.includes(objectId)) selected.push(item);
+            // else output.push(item);
+            selected.push(item);
         });
 
         // loop through users
@@ -120,8 +121,9 @@ let PermissionSelector = ({ children, ...props }, ref) => {
             const label = fullname.length > 0 ? fullname : username;
             const item = { label, value: objectId, type: 'user' };
 
-            if (selection.includes(objectId)) selected.push(item);
-            else output.push(item);
+            // if (selection.includes(objectId)) selected.push(item);
+            // else output.push(item);
+            selected.push(item);
         });
 
         return selected.concat(output);
@@ -173,14 +175,17 @@ let PermissionSelector = ({ children, ...props }, ref) => {
             permission,
             selection,
         } = stateRef.current;
+
         let sel = permission === 'read' ? canRead : canWrite;
         sel = _.chain(sel.concat(selection))
             .compact()
             .uniq()
             .value();
 
+        if (sel.length < 1) return;
+
         setState({
-            permission: 'read',
+            permission,
             search: null,
             canWrite: permission !== 'read' ? sel : canWrite,
             canRead: permission === 'read' ? sel : canRead,
@@ -188,7 +193,7 @@ let PermissionSelector = ({ children, ...props }, ref) => {
         });
 
         userSelect.current.setState({ selection: [] });
-        permissionSelect.current.setState({ selection: ['read'] });
+        permissionSelect.current.setState({ selection: [permission] });
     };
 
     const tagFormatter = value => {
@@ -238,7 +243,7 @@ let PermissionSelector = ({ children, ...props }, ref) => {
                             placeholder={
                                 selection.length > 0
                                     ? getLabels({ selection, data })
-                                    : ENUMS.TEXT.FOLDER_EDITOR.USER
+                                    : ENUMS.TEXT.FOLDER_CREATOR.USER
                             }
                             onChange={e => onSearch(e.target.value)}
                         />

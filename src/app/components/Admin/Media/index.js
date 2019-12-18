@@ -8,7 +8,7 @@ import Uploads from './Uploads';
 import Toolbar from './Toolbar';
 import Directory from './Directory';
 import { Helmet } from 'react-helmet';
-import DirectoryEditor from './DirectoryEditor';
+import DirectoryCreator from './DirectoryCreator';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -54,7 +54,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     // Functions
     const cx = cls => _.compact([namespace, cls]).join('-');
 
-    const isEmpty = () => op.get(state, 'pagination.count', 0) < 1;
+    const isEmpty = () => op.get(state, 'pagination.empty', true);
 
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
@@ -122,12 +122,9 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
 
     useEffect(() => {
         Reactium.Pulse.register('MediaClearUploads', () => clearUploads());
-        Reactium.Pulse.register('MediaFetch', () => Reactium.Media.fetch(), {
-            delay: 30000,
-        });
+
         return () => {
             Reactium.Pulse.unregister('MediaClearUploads');
-            Reactium.Pulse.unregister('MediaFetch');
         };
     }, []);
 
