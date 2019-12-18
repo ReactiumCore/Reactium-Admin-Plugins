@@ -47,7 +47,7 @@ class Media {
         const Worker = typeof window !== 'undefined' ? window.Worker : null;
 
         if (Worker !== null) {
-            const sessionToken = Parse.User.current().getSessionToken();
+            const sessionToken = Reactium.User.getSessionToken();
 
             this.worker = new Worker(SCRIPT);
             this.worker.addEventListener('message', e =>

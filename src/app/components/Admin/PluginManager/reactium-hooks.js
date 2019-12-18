@@ -3,14 +3,14 @@ import SidebarWidget from './SidebarWidget';
 import PluginManager from './index';
 
 Reactium.Plugin.register('PluginManager').then(() => {
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'PLUGIN-MANAGER',
         component: PluginManager,
         zone: ['admin-plugin-manager-content'],
         order: -1000,
     });
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: 'PLUGIN-MANAGER-SIDEBAR-WIDGET',
         component: SidebarWidget,
         zone: ['admin-sidebar-menu'],

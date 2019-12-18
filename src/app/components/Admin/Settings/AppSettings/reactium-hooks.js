@@ -7,7 +7,7 @@ const PLUGIN = 'app-settings';
 const appSettingsPlugin = async () => {
     await Reactium.Plugin.register(PLUGIN);
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: `${PLUGIN}-menu-item`,
         component: () => (
             <MenuItem label={__('Application')} route='/admin/settings' />
@@ -16,7 +16,7 @@ const appSettingsPlugin = async () => {
         order: Reactium.Enums.priority.highest,
     });
 
-    Reactium.Plugin.addComponent({
+    Reactium.Zone.addComponent({
         id: PLUGIN,
         component: AppSettings,
         zone: ['settings-groups'],

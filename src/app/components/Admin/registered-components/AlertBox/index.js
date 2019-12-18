@@ -32,10 +32,10 @@ AlertBox.defaultProps = {
 export default AlertBox;
 
 /**
- * @api {Component} <AlertBox/> AlertBox
+ * @api {RegisteredComponent} <AlertBox/> AlertBox
  * @apiDescription Dialog that displays an alert message.
  * @apiName AlertBox
- * @apiGroup Components
+ * @apiGroup Registered Component
  * @apiParam {Object} buttons The action buttons to display.
  * @apiParam {Function} onClick Function to execute when the `ok` action button is clicked.
  * @apiParam {Mixed} message The Alert message. The message can be any valid `PropTypes.node` value.
