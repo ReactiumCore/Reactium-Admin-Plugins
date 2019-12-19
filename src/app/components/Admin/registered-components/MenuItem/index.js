@@ -325,14 +325,15 @@ export { MenuItem as default };
  * @apiParam {String} [title] Tooltip to dislay for the MenuItem. If empty the `label` value is used.
  * @apiExample Simple Usage:
 import React from 'react';
-import MenuItem from 'components/Admin/registered-components/MenuItem';
+import { useHookComponent } from 'reactium-core/sdk';
 
 const SidebarWidget = () => (
-  <MenuItem
-    label='Dashboard'
-    icon='Linear.Window'
-    route='/admin'
-  />
+    const MenuItem = useHookComponent('MenuItem');
+    <MenuItem
+        label='Dashboard'
+        icon='Linear.Window'
+        route='/admin'
+    />
 );
 
   * @apiExample Sub MenuItems:
