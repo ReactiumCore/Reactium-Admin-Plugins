@@ -346,14 +346,11 @@ export default () => {
     useEffect(() => {
         const { actions = {}, status } = stateRef.current;
 
-        if (status === ENUMS.STATUS.READY || status === ENUMS.STATUS.PROCESSING)
-            return;
-
         stateRef.current.status = ENUMS.STATUS.PROCESSING;
 
-        Reactium.Hook.run('media-file-actions', actions).then(() => {
-            setState({ actions, status: ENUMS.STATUS.READY });
-        });
+        Reactium.Hook.run('media-file-actions', actions).then(() =>
+            setState({ actions, status: ENUMS.STATUS.READY }),
+        );
     }, [op.get(stateRef.current, 'status')]);
 
     useEffect(() => {

@@ -8,43 +8,30 @@ import React, {
     forwardRef,
     useImperativeHandle,
     useEffect,
-    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
 
-import Reactium, { useHandle } from 'reactium-core/sdk';
-import {
-    Button,
-    Dialog,
-    Dropdown,
-    Icon,
-    TagsInput,
-} from '@atomic-reactor/reactium-ui';
+import Reactium, { useRegisterHandle } from 'reactium-core/sdk';
 
-// import Dropdown from 'components/Reactium-UI/Dropdown';
-// import TagsInput from 'components/Reactium-UI/TagsInput';
+import { Button, Dropdown, Icon, TagsInput } from '@atomic-reactor/reactium-ui';
 
-// Server-Side Render safe useLayoutEffect (useEffect when node)
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
+const noop = () => {};
 
 /**
  * -----------------------------------------------------------------------------
- * Hook Component: DirectoryEditor
+ * Hook Component: PermissionSelector
  * -----------------------------------------------------------------------------
  */
-let DirectoryEditor = ({ children, ...props }, ref) => {
-    const tools = useHandle('AdminTools');
-
-    const Modal = op.get(tools, 'Modal');
-
+let PermissionSelector = ({ children, ...props }, ref) => {
     // Refs
     const containerRef = useRef();
     const stateRef = useRef({
         ...props,
-        data: null,
+        canRead: [],
+        canWrite: [],
     });
+
     const permissionSelect = useRef();
     const userSelect = useRef();
 
@@ -74,14 +61,14 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
     const permissions = () => {
         return [
             {
-                label: ENUMS.TEXT.FOLDER_EDITOR.CAN_EDIT,
-                icon: 'Feather.Edit2',
-                value: 'write',
-            },
-            {
-                label: ENUMS.TEXT.FOLDER_EDITOR.CAN_VIEW,
+                label: ENUMS.TEXT.FOLDER_CREATOR.CAN_VIEW,
                 icon: 'Feather.Eye',
                 value: 'read',
+            },
+            {
+                label: ENUMS.TEXT.FOLDER_CREATOR.CAN_EDIT,
+                icon: 'Feather.Edit2',
+                value: 'write',
             },
         ];
     };
@@ -115,14 +102,15 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         let selected = [];
 
         // loop through roles
-        const roles = _.sortBy(op.get(data, 'roles', []), 'label');
+        const roles = op.get(data, 'roles', []);
         roles.forEach(role => {
             let { objectId, label, name } = role;
             label = label || name;
             const item = { label, value: objectId, type: 'role' };
 
-            if (selection.includes(objectId)) selected.push(item);
-            else output.push(item);
+            // if (selection.includes(objectId)) selected.push(item);
+            // else output.push(item);
+            selected.push(item);
         });
 
         // loop through users
@@ -133,52 +121,12 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
             const label = fullname.length > 0 ? fullname : username;
             const item = { label, value: objectId, type: 'user' };
 
-            if (selection.includes(objectId)) selected.push(item);
-            else output.push(item);
+            // if (selection.includes(objectId)) selected.push(item);
+            // else output.push(item);
+            selected.push(item);
         });
 
         return selected.concat(output);
-    };
-
-    const addUsers = () => {
-        let {
-            canEdit = [],
-            canView = [],
-            permission,
-            selection,
-        } = stateRef.current;
-        let sel = permission === 'read' ? canView : canEdit;
-        sel = _.chain(sel.concat(selection))
-            .compact()
-            .uniq()
-            .value();
-
-        setState({
-            permission: 'read',
-            search: null,
-            canEdit: permission !== 'read' ? sel : canEdit,
-            canView: permission === 'read' ? sel : canView,
-            selection: [],
-        });
-
-        userSelect.current.setState({ selection: [] });
-        permissionSelect.current.setState({ selection: ['read'] });
-    };
-
-    const tagFormatter = value => {
-        const data = getData();
-        const item = _.findWhere(data, { value });
-        return op.get(item, 'label', value);
-    };
-
-    const onTagsChange = ({ target, value }) => {
-        const name = target.name;
-        let { canEdit = [], canView = [] } = stateRef.current;
-
-        if (name === 'view') canView = value;
-        if (name === 'edit') canEdit = value;
-
-        setState({ canEdit, canView });
     };
 
     const getLabels = ({ selection, data }) =>
@@ -189,20 +137,80 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
             'label',
         ).join(', ');
 
-    const renderFolderInput = () => (
-        <div className='pl-xs-16 mb-xs-8'>
-            <label className='input-group' style={{ width: '100%' }}>
-                <span className='blue'>
-                    <Icon name='Feather.Folder' className='mr-xs-4' />
-                </span>
-                <input
-                    type='text'
-                    name='directory'
-                    placeholder={ENUMS.TEXT.FOLDER_EDITOR.DIRECTORY}
-                />
-            </label>
-        </div>
-    );
+    const getValue = () => {
+        const data = op.get(stateRef.current, 'data') || {
+            roles: [],
+            users: [],
+        };
+        const { canRead = [], canWrite = [] } = stateRef.current;
+        const selected = canRead.concat(canWrite);
+
+        const roles = data.roles
+            .filter(({ objectId }) => selected.includes(objectId))
+            .map(item => {
+                item.type = 'role';
+                item.permission = canWrite.includes(item.objectId)
+                    ? 'write'
+                    : 'read';
+                return item;
+            });
+
+        const users = data.users
+            .filter(({ objectId }) => selected.includes(objectId))
+            .map(item => {
+                item.type = 'user';
+                item.permission = canWrite.includes(item.objectId)
+                    ? 'write'
+                    : 'read';
+                return item;
+            });
+
+        return roles.concat(users);
+    };
+
+    const addItems = () => {
+        let {
+            canWrite = [],
+            canRead = [],
+            permission,
+            selection,
+        } = stateRef.current;
+
+        let sel = permission === 'read' ? canRead : canWrite;
+        sel = _.chain(sel.concat(selection))
+            .compact()
+            .uniq()
+            .value();
+
+        if (sel.length < 1) return;
+
+        setState({
+            permission,
+            search: null,
+            canWrite: permission !== 'read' ? sel : canWrite,
+            canRead: permission === 'read' ? sel : canRead,
+            selection: [],
+        });
+
+        userSelect.current.setState({ selection: [] });
+        permissionSelect.current.setState({ selection: [permission] });
+    };
+
+    const tagFormatter = value => {
+        const data = getData();
+        const item = _.findWhere(data, { value });
+        return op.get(item, 'label', value);
+    };
+
+    const onTagsChange = ({ target, value }) => {
+        const name = target.name;
+        let { canWrite = [], canRead = [] } = stateRef.current;
+
+        if (name === 'view') canRead = value;
+        if (name === 'write') canWrite = value;
+
+        setState({ canWrite, canRead });
+    };
 
     const renderUserSelect = () => {
         const perms = permissions();
@@ -227,7 +235,7 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                     className='flex-grow'
                     maxHeight={250}
                     expandEvent={['focus', 'click']}>
-                    <label className='input-group' style={{ flexGrow: 1 }}>
+                    <label className='input-group' style={{ width: '100%' }}>
                         <input
                             type='text'
                             value={search || ''}
@@ -235,7 +243,7 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                             placeholder={
                                 selection.length > 0
                                     ? getLabels({ selection, data })
-                                    : ENUMS.TEXT.FOLDER_EDITOR.USER
+                                    : ENUMS.TEXT.FOLDER_CREATOR.USER
                             }
                             onChange={e => onSearch(e.target.value)}
                         />
@@ -266,7 +274,7 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                     </Button>
                 </Dropdown>
                 <Button
-                    onClick={addUsers}
+                    onClick={addItems}
                     color='tertiary'
                     style={{
                         padding: 0,
@@ -280,9 +288,9 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         );
     };
 
-    const renderCanEdit = () => {
-        const { canEdit = [] } = stateRef.current;
-        if (canEdit.length < 1) return;
+    const renderCanWrite = () => {
+        const { canWrite = [] } = stateRef.current;
+        if (canWrite.length < 1) return;
 
         return (
             <div className='px-xs-8 pt-xs-16'>
@@ -298,8 +306,8 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                 </div>
                 <TagsInput
                     editable
-                    name='edit'
-                    value={canEdit}
+                    name='write'
+                    value={canWrite}
                     onChange={onTagsChange}
                     formatter={e => tagFormatter(e)}
                 />
@@ -307,9 +315,9 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         );
     };
 
-    const renderCanView = () => {
-        const { canView = [] } = stateRef.current;
-        if (canView.length < 1) return;
+    const renderCanRead = () => {
+        const { canRead = [] } = stateRef.current;
+        if (canRead.length < 1) return;
 
         return (
             <div className='px-xs-8 pt-xs-16'>
@@ -326,7 +334,7 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
                 <TagsInput
                     editable
                     name='view'
-                    value={canView}
+                    value={canRead}
                     onChange={onTagsChange}
                     formatter={e => tagFormatter(e)}
                 />
@@ -334,34 +342,20 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         );
     };
 
+    const cname = () => {
+        const { namespace, className } = stateRef.current;
+        return cn({ [namespace]: !!namespace, [className]: !!className });
+    };
+
     // Renderer
     const render = () => {
         return (
-            <div ref={containerRef} className={cx()}>
-                <Dialog
-                    collapsible={false}
-                    dismissable={true}
-                    onDismiss={() => Modal.hide()}
-                    footer={{
-                        elements: [
-                            <Button
-                                color='primary'
-                                size='sm'
-                                style={{ width: 175 }}>
-                                {ENUMS.TEXT.FOLDER_EDITOR.SAVE}
-                            </Button>,
-                        ],
-                    }}
-                    header={{ title: ENUMS.TEXT.FOLDER_EDITOR.TITLE }}>
-                    <div className='py-xs-16'>
-                        {renderFolderInput()}
-                        {renderUserSelect()}
-                        <div className='selections'>
-                            {renderCanEdit()}
-                            {renderCanView()}
-                        </div>
-                    </div>
-                </Dialog>
+            <div className={cname()} ref={ref}>
+                {renderUserSelect()}
+                <div className='selections'>
+                    {renderCanWrite()}
+                    {renderCanRead()}
+                </div>
             </div>
         );
     };
@@ -382,34 +376,61 @@ let DirectoryEditor = ({ children, ...props }, ref) => {
         );
     }, [op.get(stateRef.current, 'data')]);
 
+    useEffect(() => {
+        const { onChange, canWrite = [], canRead = [] } = stateRef.current;
+
+        onChange({
+            type: 'change',
+            value: getValue(),
+        });
+    }, [
+        op.get(stateRef.current, 'canRead'),
+        op.get(stateRef.current, 'canWrite'),
+    ]);
+
     // External Interface
-    useImperativeHandle(ref, () => ({
+    const handle = () => ({
         container: containerRef.current,
         ref,
         setState,
         state: stateRef.current,
-    }));
+        value: getValue(),
+    });
+
+    useRegisterHandle('PermissionSelector', handle, [
+        op.get(stateRef.current, 'canRead'),
+        op.get(stateRef.current, 'canWrite'),
+    ]);
+
+    useImperativeHandle(ref, handle);
 
     // Render
     return render();
 };
 
-DirectoryEditor = forwardRef(DirectoryEditor);
+PermissionSelector = forwardRef(PermissionSelector);
 
-DirectoryEditor.ENUMS = ENUMS;
+PermissionSelector.ENUMS = ENUMS;
 
-DirectoryEditor.propTypes = {
+PermissionSelector.propTypes = {
+    canWrite: PropTypes.array,
+    canRead: PropTypes.array,
     className: PropTypes.string,
+    data: PropTypes.object,
     namespace: PropTypes.string,
+    onChange: PropTypes.func,
+    permission: PropTypes.oneOf(['read', 'write']),
+    search: PropTypes.string,
+    selection: PropTypes.array,
 };
 
-DirectoryEditor.defaultProps = {
-    canEdit: [],
-    canView: [],
-    namespace: 'admin-directory-editor',
+PermissionSelector.defaultProps = {
+    data: null,
+    namespace: 'permission-selector',
+    onChange: noop,
     permission: 'read',
     search: null,
     selection: [],
 };
 
-export { DirectoryEditor as default };
+export { PermissionSelector as default };

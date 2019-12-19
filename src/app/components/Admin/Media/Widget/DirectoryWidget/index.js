@@ -2,7 +2,7 @@ import React from 'react';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
-import DirectoryEditor from 'components/Admin/Media/DirectoryEditor';
+import DirectoryCreator from 'components/Admin/Media/DirectoryCreator';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -50,7 +50,7 @@ const DirectoryWidget = props => {
     const onChange = e => Media.folderSelect(e);
 
     const showEditor = () => {
-        Modal.show(<DirectoryEditor />);
+        Modal.show(<DirectoryCreator />);
     };
 
     return (
