@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import domain from '../domain';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
+import domain from 'components/Admin/Media/domain';
 
 import React, {
     forwardRef,
@@ -251,4 +251,4 @@ DirectoryCreator.defaultProps = {
     permissions: {},
 };
 
-export { DirectoryCreator as default };
+export { DirectoryCreator as default, FolderInput };

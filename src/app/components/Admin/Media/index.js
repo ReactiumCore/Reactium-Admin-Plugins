@@ -8,7 +8,6 @@ import Uploads from './Uploads';
 import Toolbar from './Toolbar';
 import Directory from './Directory';
 import { Helmet } from 'react-helmet';
-import DirectoryCreator from './DirectoryCreator';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 

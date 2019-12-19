@@ -2,7 +2,8 @@ import React from 'react';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
-import DirectoryCreator from 'components/Admin/Media/DirectoryCreator';
+import Editor from 'components/Admin/Media/Directory/Editor';
+import Creator from 'components/Admin/Media/Directory/Creator';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -49,8 +50,12 @@ const DirectoryWidget = props => {
 
     const onChange = e => Media.folderSelect(e);
 
+    const showCreator = () => {
+        Modal.show(<Creator />);
+    };
+
     const showEditor = () => {
-        Modal.show(<DirectoryCreator />);
+        Modal.show(<Editor />);
     };
 
     return (
@@ -84,7 +89,7 @@ const DirectoryWidget = props => {
                     data-tooltip={ENUMS.TEXT.NEW_FOLDER}
                     data-align='left'
                     data-vertical-align='middle'
-                    onClick={showEditor}
+                    onClick={showCreator}
                     size='xs'
                     style={{
                         padding: '8px 8px 8px 9px',
@@ -98,6 +103,7 @@ const DirectoryWidget = props => {
                     data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
                     data-align='left'
                     data-vertical-align='middle'
+                    onClick={showEditor}
                     size='xs'
                     style={{
                         padding: '8px 8px 8px 9px',

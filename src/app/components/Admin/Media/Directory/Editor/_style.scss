@@ -1,0 +1,32 @@
+.media-directory-editor {
+    width: 100vw;
+    padding: 0 20px;
+
+    @include breakpoint(md) {
+        max-width: 700px;
+    }
+
+    .ar-scene {
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    .ar-dialog-content {
+        z-index: 1;
+        position: relative;
+    }
+    .ar-dialog-footer {
+        z-index: map-get($z-indexes, overlay);
+        position: relative;
+    }
+
+    .permission-selector {
+        .selections {
+            display: flex;
+            flex-wrap: nowrap;
+            > div {
+                width: 50%;
+            }
+        }
+    }
+}
