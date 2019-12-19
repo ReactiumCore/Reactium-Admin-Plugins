@@ -197,6 +197,7 @@ let AdminSidebar = (
             resizePlaceholder();
             setState({ ival: setInterval(resizePlaceholder, 1) });
         }
+
         return () => {
             clearInterval(ival);
         };

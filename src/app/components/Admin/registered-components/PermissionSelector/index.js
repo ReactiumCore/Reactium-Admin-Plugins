@@ -233,7 +233,7 @@ let PermissionSelector = ({ children, ...props }, ref) => {
                     collapseEvent='blur'
                     multiSelect
                     className='flex-grow'
-                    maxHeight={250}
+                    maxHeight={168}
                     expandEvent={['focus', 'click']}>
                     <label className='input-group' style={{ width: '100%' }}>
                         <input
