@@ -99,7 +99,7 @@ let AdminSidebar = (
     const resizePlaceholder = () => {
         const { ival } = stateRef.current;
         const container = containerRef.current;
-        const { container: collapsible } = collapsibleRef.current;
+        const { container: collapsible } = collapsibleRef.current || {};
 
         if (!collapsible || !container) {
             if (ival) {
@@ -197,6 +197,9 @@ let AdminSidebar = (
             resizePlaceholder();
             setState({ ival: setInterval(resizePlaceholder, 1) });
         }
+        return () => {
+            clearInterval(ival);
+        };
     }, [op.get(stateRef.current, 'ival')]);
 
     const handle = () => ({
