@@ -13,6 +13,7 @@ const ENUMS = {
         READY: 'ready',
     },
     TEXT: {
+        BACK: __('Back'),
         BROWSE: __('Browse Files'),
         CONFIRM_DELETE: __('Confirm Delete'),
         COPY_TO_CLIPBOARD: __('Copy to clipboard'),
@@ -34,7 +35,14 @@ const ENUMS = {
             USER: __('Users or roles'),
             SAVE: __('Save Folder'),
         },
+        FOLDER_EDITOR: {
+            DELETE: __('delete'),
+            DELETE_ALL: __('delete selected'),
+            EDIT: __('edit'),
+            TITLE: __('Folders'),
+        },
         NEW_FOLDER: __('New folder'),
+        SEARCH: __('Search'),
         TITLE: __('Media Library'),
         TOOLBAR: __('Drop your files here'),
         VIEW_FILE: __('View file'),
