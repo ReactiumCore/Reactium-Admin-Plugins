@@ -1,36 +1,30 @@
 import React from 'react';
-import Reactium, { __ } from 'reactium-core/sdk';
-import { Plugins } from 'reactium-core/components/Plugable';
-import { Helmet } from 'react-helmet';
-import { WebForm, Dialog } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import op from 'object-path';
+
+const capabilities = {};
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: AppSettings
  * -----------------------------------------------------------------------------
  */
-const AppSettings = ({ dialog }) => {
+const AppSettings = ({ appSettingProps }) => {
+    const CapabilityEditor = useHookComponent('CapabilityEditor');
+    const Zone = useHookComponent('Zone');
+    const Helmet = useHookComponent('Helmet');
+    const capabilities = op.get(appSettingProps, 'capabilities', []);
+
     return (
-        <>
+        <div className={'app-settings'}>
             <Helmet>
                 <meta charSet='utf-8' />
-                <title>
-                    {__('App')} - {__('Settings')}
-                </title>
+                <title>{__('App - Settings')}</title>
             </Helmet>
-            <Dialog {...dialog}>
-                <Plugins zone={'app-settings-dialog-pre'} />
 
-                <WebForm>
-                    {
-                        // default appliation settings here
-                    }
-                    <Plugins zone={'app-settings-dialog-webform'} />
-                </WebForm>
-
-                <Plugins zone={'app-settings-dialog-post'} />
-            </Dialog>
-        </>
+            <CapabilityEditor capabilities={capabilities} />
+            <Zone zone={'app-settings'} />
+        </div>
     );
 };
 

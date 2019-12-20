@@ -4,6 +4,7 @@ import Reactium, {
     __,
     useReduxState,
     useRegisterHandle,
+    useCapabilityCheck,
 } from 'reactium-core/sdk';
 import PluginList from './List';
 import PluginSettings from './Settings';
@@ -21,6 +22,9 @@ const getPlugins = async () => {
  * -----------------------------------------------------------------------------
  */
 const PluginManager = props => {
+    const canView = useCapabilityCheck(['plugins-ui.view']);
+    const canActivate = useCapabilityCheck(['plugins.activate']);
+
     const [state, setState] = useReduxState(state => {
         const pluginId = op.get(state, 'Router.match.params.id');
         const { plugins } = op.get(state, domain.name, []);
@@ -77,7 +81,13 @@ const PluginManager = props => {
     const renderManager = () => {
         if (!pluginId)
             return (
-                <PluginList groups={groups} plugins={allPlugins} idx={idx} />
+                <PluginList
+                    groups={groups}
+                    plugins={allPlugins}
+                    idx={idx}
+                    canView={canView}
+                    canActivate={canActivate}
+                />
             );
         return (
             <PluginSettings

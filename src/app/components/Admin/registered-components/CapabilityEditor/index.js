@@ -190,7 +190,12 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
     return (
         <Dialog header={{ title: __('Capabilities'), dismissable: false }}>
-            <DataTable columns={getColumns()} data={data} />
+            <DataTable
+                scrollable={true}
+                height={'500px'}
+                columns={getColumns()}
+                data={data}
+            />
         </Dialog>
     );
 };

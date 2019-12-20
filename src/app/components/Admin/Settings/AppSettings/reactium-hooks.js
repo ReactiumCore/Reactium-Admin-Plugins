@@ -2,10 +2,13 @@ import React from 'react';
 import Reactium, { __ } from 'reactium-core/sdk';
 import AppSettings from './index';
 import MenuItem from 'components/Admin/registered-components/MenuItem';
+import Enums from './enums';
 
 const PLUGIN = 'app-settings';
 const appSettingsPlugin = async () => {
     await Reactium.Plugin.register(PLUGIN);
+
+    await Reactium.Hook.run('app-settings-props', Enums.appSettingProps);
 
     Reactium.Zone.addComponent({
         id: `${PLUGIN}-menu-item`,
@@ -21,13 +24,7 @@ const appSettingsPlugin = async () => {
         component: AppSettings,
         zone: ['settings-groups'],
         order: 0,
-        dialog: {
-            header: {
-                title: __('Application Settings'),
-                elements: [],
-            },
-            dismissable: false,
-        },
+        appSettingProps: Enums.appSettingProps,
         capabilities: ['settings.app-get'],
     });
 };

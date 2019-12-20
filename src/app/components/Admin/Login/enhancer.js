@@ -46,10 +46,10 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
                 // if user has any capability, allow
-                const permitted = await Reactium.User.can(capabilities);
+                const permitted = await Reactium.Capability.check(capabilities);
                 if (permitted) return;
-
-                await redirectLogin(history, loginPath);
+                if (pathname === '/') await redirectLogin(history, loginPath);
+                else history.push('/');
             }
         }
     }
