@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useCapabilityCheck } from 'reactium-core/sdk';
 import { Icon, Dialog, Checkbox } from '@atomic-reactor/reactium-ui';
-import DataTable, { Column, Row } from '@atomic-reactor/reactium-ui/DataTable';
+import DataTable from '@atomic-reactor/reactium-ui/DataTable';
 
 import Reactium, {
     __,
@@ -10,11 +11,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 import op from 'object-path';
 
-const CapabilityDescription = ({
-    capability = '',
-    title = '',
-    tooltip = '',
-}) => {
+const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     return (
         <span
             title={tooltip}
@@ -27,7 +24,13 @@ const CapabilityDescription = ({
     );
 };
 
-const RoleControl = ({ capName, capability, role, forceRefresh }) => {
+const RoleControl = ({
+    canSet = false,
+    capName,
+    capability,
+    role,
+    forceRefresh,
+}) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
 
@@ -81,6 +84,7 @@ const RoleControl = ({ capName, capability, role, forceRefresh }) => {
             <Checkbox
                 defaultChecked={capability.allowed.includes(role.name)}
                 onChange={onChange}
+                disabled={!canSet}
             />
         )
     );
@@ -92,6 +96,10 @@ const RoleControl = ({ capName, capability, role, forceRefresh }) => {
  * -----------------------------------------------------------------------------
  */
 const CapabilityEditor = ({ capabilities = [] }) => {
+    const canSet = useCapabilityCheck(
+        ['Capability.create', 'Capability.update'],
+        false,
+    );
     const currentRoles = useRoles();
     const roles = Object.values(currentRoles).filter(
         role => !['banned', 'super-admin', 'administrator'].includes(role.name),
@@ -168,6 +176,7 @@ const CapabilityEditor = ({ capabilities = [] }) => {
                             capability={capability}
                             role={role}
                             forceRefresh={forceRefresh}
+                            canSet={canSet}
                         />
                     )}
                 </>
