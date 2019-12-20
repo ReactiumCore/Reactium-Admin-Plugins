@@ -19,9 +19,7 @@ export const useCapabilityCheck = (capabilities = [], strict = true) => {
     };
 
     useEffect(() => {
-        Capability.check(capabilities).then(cap =>
-            updateAllowed(cap),
-        );
+        Capability.check(capabilities).then(cap => updateAllowed(cap));
     }, [capabilities.length, strict]);
 
     return allowedRef.current;
@@ -43,9 +41,7 @@ export const useCapability = capability => {
     };
 
     useEffect(() => {
-        Capability.get(capability).then(cap =>
-            updateCapRef(cap),
-        );
+        Capability.get(capability).then(cap => updateCapRef(cap));
     }, [capability]);
 
     return ref.current;

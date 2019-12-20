@@ -79,7 +79,7 @@ User.current = (parseObject = false) => {
  */
 User.getSessionToken = () => {
     const u = Parse.User.current();
-    return op.get(u, 'getSessionToken', () => false)();
+    return u ? u.getSessionToken() : false;
 };
 
 /**
@@ -159,7 +159,8 @@ User.isRole = async (role, userId) => {
  * @apiGroup Reactium.User
  */
 User.can = async (capabilities = [], strict = true) => {
-    return Hook.run('capabilities-check', capabilities, strict);
+    const context = await Hook.run('capability-check', capabilities, strict);
+    return op.get(context, 'permitted') === true;
 };
 
 /**
