@@ -27,7 +27,7 @@ const CapabilityDescription = ({
     );
 };
 
-const RoleControl = ({ capability, role, forceRefresh }) => {
+const RoleControl = ({ capName, capability, role, forceRefresh }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
 
@@ -44,7 +44,7 @@ const RoleControl = ({ capability, role, forceRefresh }) => {
         }
 
         Reactium.Cloud.run('capability-edit', {
-            capability: capability.capability,
+            capability: capName,
             perms,
         })
             .then(() => {
@@ -119,27 +119,15 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     const loadedCaps = useRef({});
     const [updated, setUpdated] = useState(1);
     const forceRefresh = () => setUpdated(updated + 1);
-    const updateLoadedCaps = caps => {
-        loadedCaps.current = caps.reduce((loaded, cap) => {
-            loaded[cap.capability] = cap;
-            return loaded;
-        }, {});
-        forceRefresh();
-    };
     const capNames = capabilities.map(({ capability }) => capability);
-
     useEffect(() => {
         if (capNames.length > 0) {
-            Promise.all(
-                capNames.map(capability =>
-                    Reactium.Cloud.run('capability-get', { capability }).then(
-                        perm => ({
-                            ...perm,
-                            capability,
-                        }),
-                    ),
-                ),
-            ).then(updateLoadedCaps);
+            const loadCaps = async () => {
+                const caps = await Reactium.Capability.get(capNames);
+                loadedCaps.current = caps;
+                forceRefresh();
+            };
+            loadCaps();
         }
     }, [capNames.sort().join('')]);
 
@@ -173,11 +161,16 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
         return roles.reduce((controls, role) => {
             controls[role.name] = (
-                <RoleControl
-                    capability={capability}
-                    role={role}
-                    forceRefresh={forceRefresh}
-                />
+                <>
+                    {capability.allowed !== null && (
+                        <RoleControl
+                            capName={cap}
+                            capability={capability}
+                            role={role}
+                            forceRefresh={forceRefresh}
+                        />
+                    )}
+                </>
             );
             return controls;
         }, {});
