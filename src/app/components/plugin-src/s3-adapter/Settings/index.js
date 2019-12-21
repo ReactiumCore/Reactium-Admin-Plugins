@@ -51,7 +51,6 @@ const settings = {
             tooltip: __(
                 'If turned on, the URL provided will go directly to your CDN, instead of through the Parse API. If turned off, your Actinium API will serve (proxy) the file from your CDN.',
             ),
-            required: true,
             defaultValue: false,
         },
         'S3Adapter.baseUrl': {
@@ -67,10 +66,17 @@ const settings = {
 
 const capabilities = [
     {
-        capability: 's3-adapter.settings-set',
-        title: 'Setup S3 Plugin',
+        capability: 'setting.S3Adapter-get',
+        title: __('View S3 Plugin Settings'),
         tooltip: __(
-            'Provides ability to configure settings for the S3 file adapter plugin.',
+            'Able to see S3 File Adapter plugin settings, but not necessarily change them.',
+        ),
+    },
+    {
+        capability: 'setting.S3Adapter-set',
+        title: __('Edit S3 Plugin Settings'),
+        tooltip: __(
+            'Provides ability to configure settings for the S3 File Adapter plugin.',
         ),
     },
 ];

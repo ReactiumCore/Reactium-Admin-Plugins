@@ -15,9 +15,26 @@
     }
 
     &__graphic {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        height: 260px;
         margin: 20px 0;
+
+        @include breakpoint(md-down) {
+            height: auto;
+        }
+
         img {
-            width: 100%;
+            flex: 0 0;
+            height: 100%;
+
+            @include breakpoint(md-down) {
+                flex: 1 0;
+                height: auto;
+                width: 100%;
+            }
         }
     }
 
@@ -29,7 +46,10 @@
 
     &--core {
         .plugin-card__graphic {
-            padding: 40px;
+            img {
+                flex: 0 1 50%;
+                height: auto;
+            }
         }
     }
 }

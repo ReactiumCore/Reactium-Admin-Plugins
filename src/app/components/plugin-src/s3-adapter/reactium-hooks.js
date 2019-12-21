@@ -12,14 +12,14 @@
  */
 
 // UNCOMMENT ME FOR LOCAL DEVELOPMENT
-import Reactium from 'reactium-core/sdk';
-Reactium.Hook.register(
-    'plugin-dependencies',
-    async () => {
-        Reactium.Plugin.unregister('s3-adapter');
-
-        // make your edits to index.js, not here
-        require('./index');
-    },
-    Reactium.Enums.priority.highest,
-);
+// import Reactium from 'reactium-core/sdk';
+// Reactium.Hook.register(
+//     'plugin-dependencies',
+//     async () => {
+//         Reactium.Plugin.unregister('s3-adapter');
+//
+//         // make your edits to index.js, not here
+//         require('./index');
+//     },
+//     Reactium.Enums.priority.highest,
+// );

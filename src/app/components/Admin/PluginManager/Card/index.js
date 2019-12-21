@@ -7,7 +7,7 @@ import { Toggle } from '@atomic-reactor/reactium-ui';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
 
-const Card = ({ plugin }) => {
+const Card = ({ plugin, canActivate = true }) => {
     const core =
         op.get(plugin, 'meta.builtIn', false) && plugin.group === 'core';
     const defaultGraphic = core
@@ -37,18 +37,6 @@ const Card = ({ plugin }) => {
         if (typeof window !== 'undefined') location.reload(true);
     };
 
-    let [hideControl, setHideControl] = useState(true);
-    useEffect(() => {
-        if (group !== 'core') {
-            Reactium.User.can(
-                ['plugin.activate', `${plugin.ID}.activate`],
-                false,
-            ).then(permitted => {
-                if (permitted) setHideControl(false);
-            });
-        }
-    }, []);
-
     const renderActivation = () => {
         return (
             <>
@@ -57,7 +45,7 @@ const Card = ({ plugin }) => {
                         {active ? __('Plugin Active') : __('Plugin Disabled')}
                     </strong>
                 </div>
-                {!hideControl && (
+                {group !== 'core' && canActivate && (
                     <div className='plugin-card-toggle'>
                         <Toggle
                             label={

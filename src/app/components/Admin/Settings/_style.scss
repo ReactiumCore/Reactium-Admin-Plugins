@@ -1,9 +1,5 @@
 .zone {
     &-settings-groups {
         @include admin-content-zone;
-
-        .ar-dialog-content {
-            @include settings-dialog;
-        }
     }
 }

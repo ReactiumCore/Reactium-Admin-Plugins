@@ -3,7 +3,7 @@ import { useHookComponent } from 'reactium-core/sdk';
 import cn from 'classnames';
 import Card from '../Card';
 
-const Group = ({ group, groupName, plugins = [] }) => {
+const Group = ({ group, groupName, plugins = [], canActivate = true }) => {
     const PluginCard = useHookComponent(
         'plugin-manager-plugin-card',
         Card,
@@ -19,7 +19,7 @@ const Group = ({ group, groupName, plugins = [] }) => {
                     <div
                         key={plugin.ID}
                         className='col-xs-12 col-md-6 col-lg-4'>
-                        <PluginCard plugin={plugin} />
+                        <PluginCard plugin={plugin} canActivate={canActivate} />
                     </div>
                 ))}
             </div>

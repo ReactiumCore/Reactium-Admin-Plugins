@@ -1,4 +1,9 @@
-import React, { useRef } from 'react';
+import React, {
+    useRef,
+    useState,
+    useLayoutEffect as useWindowEffect,
+    useEffect,
+} from 'react';
 import { __, useSettingGroup, useHandle } from 'reactium-core/sdk';
 import {
     Dialog,
@@ -6,12 +11,16 @@ import {
     Checkbox,
     Button,
     Icon,
+    WebForm,
 } from '@atomic-reactor/reactium-ui';
-// import { WebForm } from '@atomic-reactor/reactium-ui';
-import WebForm from './WebForm';
+// import WebForm from './WebForm';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+
+// Server-Side Render safe useLayoutEffect (useEffect when node)
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 /**
  * -----------------------------------------------------------------------------
@@ -22,7 +31,20 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
     const formRef = useRef();
+    const errorsRef = useRef(null);
+    const [version, setVersion] = useState(1);
     const groupName = op.get(settings, 'group');
+
+    useLayoutEffect(() => {
+        if (errorsRef.current && formRef.current) {
+            const [field] = errorsRef.current.fields;
+            if (field) {
+                formRef.current.focus(field);
+            }
+        }
+    }, [errorsRef.current]);
+
+    // hooks above here ^
     if (!groupName) return null;
 
     const title = op.get(
@@ -54,15 +76,23 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         const sanitize = op.get(config, 'sanitize', val => val);
 
         if (type === 'checkbox' || type === 'toggle') {
-            console.log({ value, bool: value === true, str: value === 'true' });
             return value === true || value === 'true';
         } else {
             return sanitize(value, key);
         }
     };
 
-    const onSubmit = async ({ value, valid }) => {
-        if (!canSet || !valid) return;
+    const onError = ({ value, errors }) => {
+        errorsRef.current = errors;
+        setVersion(version + 1);
+        setTimeout(() => {
+            formRef.current.update(value);
+        }, 1);
+    };
+
+    const onSubmit = async ({ value }) => {
+        errorsRef.current = null;
+        if (!canSet) return;
 
         const values = formRef.current.getValue();
         const newSettingsGroup = {};
@@ -91,31 +121,45 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const renderInput = (key, config) => {
         const type = op.get(config, 'type', 'text');
-        const defaultValue = op.get(config, 'defaultValue', undefined);
-        let defaultValueProps =
-            defaultValue === undefined ? {} : { defaultValue };
+        const errorIndex = op
+            .get(errorsRef.current, ['fields'], [])
+            .findIndex(fieldName => fieldName === key);
+        const hasError = errorIndex > -1;
+        const formGroupClasses = cn('form-group', {
+            error: hasError,
+        });
+        const helpText = hasError
+            ? errorsRef.current.errors[errorIndex]
+            : config.tooltip;
 
-        console.log({ value, config });
         if (typeof type === 'string') {
             switch (type) {
                 case 'checkbox': {
                     return (
-                        <div className='form-group' key={key}>
+                        <div className={formGroupClasses} key={key}>
                             <label>
-                                {config.label}
+                                <span
+                                    data-tooltip={config.tooltip}
+                                    data-align='left'>
+                                    {config.label}
+                                </span>
                                 <Checkbox name={key} />
-                                <small>{config.tooltip}</small>
+                                <small>{helpText}</small>
                             </label>
                         </div>
                     );
                 }
                 case 'toggle': {
                     return (
-                        <div className='form-group' key={key}>
+                        <div className={formGroupClasses} key={key}>
                             <label>
-                                {config.label}
+                                <span
+                                    data-tooltip={config.tooltip}
+                                    data-align='left'>
+                                    {config.label}
+                                </span>
                                 <Toggle name={key} />
-                                <small>{config.tooltip}</small>
+                                <small>{helpText}</small>
                             </label>
                         </div>
                     );
@@ -123,17 +167,20 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                 case 'text':
                 default:
                     return (
-                        <div className='form-group' key={key}>
+                        <div className={formGroupClasses} key={key}>
                             <label>
-                                {config.label}
+                                <span
+                                    data-tooltip={config.tooltip}
+                                    data-align='left'>
+                                    {config.label}
+                                </span>
                                 <input
                                     type='text'
                                     autoComplete='off'
                                     name={key}
                                     required={op.get(config, 'required', false)}
-                                    {...defaultValueProps}
                                 />
-                                <small>{config.tooltip}</small>
+                                <small>{helpText}</small>
                             </label>
                         </div>
                     );
@@ -156,8 +203,12 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             }}>
             {
                 <WebForm
+                    onError={onError}
                     onSubmit={onSubmit}
                     noValidate={true}
+                    required={Object.entries(inputs)
+                        .filter(([key, config]) => op.get(config, 'required'))
+                        .map(([key]) => key)}
                     value={value}
                     ref={formRef}
                     className={cn(

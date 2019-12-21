@@ -99,7 +99,7 @@ let AdminSidebar = (
     const resizePlaceholder = () => {
         const { ival } = stateRef.current;
         const container = containerRef.current;
-        const { container: collapsible } = collapsibleRef.current;
+        const { container: collapsible } = collapsibleRef.current || {};
 
         if (!collapsible || !container) {
             if (ival) {

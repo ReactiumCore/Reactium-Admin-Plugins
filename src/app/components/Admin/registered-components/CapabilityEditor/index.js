@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useCapabilityCheck } from 'reactium-core/sdk';
 import { Icon, Dialog, Checkbox } from '@atomic-reactor/reactium-ui';
-import DataTable, { Column, Row } from '@atomic-reactor/reactium-ui/DataTable';
+import DataTable from '@atomic-reactor/reactium-ui/DataTable';
 
 import Reactium, {
     __,
@@ -10,11 +11,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 import op from 'object-path';
 
-const CapabilityDescription = ({
-    capability = '',
-    title = '',
-    tooltip = '',
-}) => {
+const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     return (
         <span
             title={tooltip}
@@ -27,7 +24,13 @@ const CapabilityDescription = ({
     );
 };
 
-const RoleControl = ({ capability, role, forceRefresh }) => {
+const RoleControl = ({
+    canSet = false,
+    capName,
+    capability,
+    role,
+    forceRefresh,
+}) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
 
@@ -44,7 +47,7 @@ const RoleControl = ({ capability, role, forceRefresh }) => {
         }
 
         Reactium.Cloud.run('capability-edit', {
-            capability: capability.capability,
+            capability: capName,
             perms,
         })
             .then(() => {
@@ -81,6 +84,7 @@ const RoleControl = ({ capability, role, forceRefresh }) => {
             <Checkbox
                 defaultChecked={capability.allowed.includes(role.name)}
                 onChange={onChange}
+                disabled={!canSet}
             />
         )
     );
@@ -92,6 +96,10 @@ const RoleControl = ({ capability, role, forceRefresh }) => {
  * -----------------------------------------------------------------------------
  */
 const CapabilityEditor = ({ capabilities = [] }) => {
+    const canSet = useCapabilityCheck(
+        ['Capability.create', 'Capability.update'],
+        false,
+    );
     const currentRoles = useRoles();
     const roles = Object.values(currentRoles).filter(
         role => !['banned', 'super-admin', 'administrator'].includes(role.name),
@@ -119,27 +127,15 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     const loadedCaps = useRef({});
     const [updated, setUpdated] = useState(1);
     const forceRefresh = () => setUpdated(updated + 1);
-    const updateLoadedCaps = caps => {
-        loadedCaps.current = caps.reduce((loaded, cap) => {
-            loaded[cap.capability] = cap;
-            return loaded;
-        }, {});
-        forceRefresh();
-    };
     const capNames = capabilities.map(({ capability }) => capability);
-
     useEffect(() => {
         if (capNames.length > 0) {
-            Promise.all(
-                capNames.map(capability =>
-                    Reactium.Cloud.run('capability-get', { capability }).then(
-                        perm => ({
-                            ...perm,
-                            capability,
-                        }),
-                    ),
-                ),
-            ).then(updateLoadedCaps);
+            const loadCaps = async () => {
+                const caps = await Reactium.Capability.get(capNames);
+                loadedCaps.current = caps;
+                forceRefresh();
+            };
+            loadCaps();
         }
     }, [capNames.sort().join('')]);
 
@@ -173,11 +169,17 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
         return roles.reduce((controls, role) => {
             controls[role.name] = (
-                <RoleControl
-                    capability={capability}
-                    role={role}
-                    forceRefresh={forceRefresh}
-                />
+                <>
+                    {capability.allowed !== null && (
+                        <RoleControl
+                            capName={cap}
+                            capability={capability}
+                            role={role}
+                            forceRefresh={forceRefresh}
+                            canSet={canSet}
+                        />
+                    )}
+                </>
             );
             return controls;
         }, {});
@@ -190,7 +192,12 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
     return (
         <Dialog header={{ title: __('Capabilities'), dismissable: false }}>
-            <DataTable columns={getColumns()} data={data} />
+            <DataTable
+                scrollable={true}
+                height={'500px'}
+                columns={getColumns()}
+                data={data}
+            />
         </Dialog>
     );
 };

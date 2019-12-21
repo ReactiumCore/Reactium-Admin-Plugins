@@ -3,14 +3,20 @@ import { useHookComponent, useHandle } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Group from '../Group';
-import { Plugins } from 'reactium-core/components/Plugable';
+import { Zone } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: PluginManager
  * -----------------------------------------------------------------------------
  */
-const PluginList = ({ plugins = [], groups, idx }) => {
+const PluginList = ({
+    plugins = [],
+    groups,
+    idx,
+    canView = false,
+    canActivate = false,
+}) => {
     const SearchBar = useHandle('SearchBar');
     useEffect(() => SearchBar.setState({ visible: true }));
 
@@ -38,18 +44,28 @@ const PluginList = ({ plugins = [], groups, idx }) => {
 
     const PluginGroup = useHookComponent('plugin-manager-plugin-group', Group);
 
+    if (!canView) return null;
+
     const render = () => {
         return (
             <div className='plugin-manager-list'>
                 {Object.entries(pluginGroups).map(
                     ([group, pluginGroup]) =>
                         op.get(pluginGroup, 'plugins', []).length > 0 && (
-                            <PluginGroup key={group} {...pluginGroup} />
+                            <PluginGroup
+                                key={group}
+                                {...pluginGroup}
+                                canActivate={canActivate}
+                            />
                         ),
                 )}
-                <Plugins
+                <Zone
                     zone='plugin-manager-list'
-                    pluginGroups={pluginGroups}
+                    plugins={plugins}
+                    groups={groups}
+                    idx={idx}
+                    canView={canView}
+                    canActivate={canActivate}
                 />
             </div>
         );
