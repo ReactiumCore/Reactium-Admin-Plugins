@@ -1,5 +1,3 @@
-import op from 'object-path';
-
 import {
     useRegisterHandle,
     useDocument,
@@ -76,9 +74,9 @@ let Tools = (props, ref) => {
     // Render
     return (
         <>
-            <Toast />
             <Modal ref={modalRef} />
             <Tooltip ref={tooltipRef} />
+            <Toast />
         </>
     );
 };

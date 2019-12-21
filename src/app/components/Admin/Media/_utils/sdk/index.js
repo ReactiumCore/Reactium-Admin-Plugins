@@ -191,7 +191,7 @@ class Media {
     async fetch(params) {
         const library = op.get(this.state, 'library', {});
         const currentFilters = op.get(this.state, 'filters');
-        const currentDir = op.get(this.state, 'directory', 'uploads');
+        const currentDir = op.get(this.state, 'directory');
         const page = op.get(params, 'page', this.page);
         const search = op.get(params, 'search', this.search);
         const filters = op.get(params, 'filters', currentFilters);

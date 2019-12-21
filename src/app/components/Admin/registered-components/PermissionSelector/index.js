@@ -369,11 +369,10 @@ let PermissionSelector = ({ children, ...props }, ref) => {
         const { data, fetching } = stateRef.current;
         if (data || fetching) return;
 
-        setState({ fetching: true });
+        const fetched = Reactium.Cache.get('acl-targets');
+        if (!fetched) return;
 
-        Reactium.Cloud.run('acl-targets').then(data =>
-            setState({ data, fetching: false }),
-        );
+        setState({ data: fetched });
     }, [op.get(stateRef.current, 'data')]);
 
     useEffect(() => {
@@ -391,7 +390,6 @@ let PermissionSelector = ({ children, ...props }, ref) => {
     // External Interface
     const handle = () => ({
         container: containerRef.current,
-        ref,
         setState,
         state: stateRef.current,
         value: getValue(),

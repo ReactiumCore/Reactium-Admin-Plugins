@@ -89,6 +89,9 @@ html {
             }
             line-height: 24px;
         }
+        &-container {
+            z-index: map-get($z-indexes, overlay) * 2;
+        }
     }
 }
 

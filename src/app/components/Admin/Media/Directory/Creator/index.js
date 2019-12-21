@@ -4,6 +4,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
 import domain from 'components/Admin/Media/domain';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import React, {
     forwardRef,
@@ -29,7 +30,7 @@ import {
 
 const noop = forwardRef((props, ref) => null);
 
-let FolderInput = ({ value }, ref) => (
+let FolderInput = (props, ref) => (
     <div className='pl-xs-16 mb-xs-8'>
         <label className='input-group' style={{ width: '100%' }}>
             <span className='blue'>
@@ -39,8 +40,8 @@ let FolderInput = ({ value }, ref) => (
                 type='text'
                 ref={ref}
                 name='directory'
-                defaultValue={value || ''}
                 placeholder={ENUMS.TEXT.FOLDER_CREATOR.DIRECTORY}
+                {...props}
             />
         </label>
     </div>
@@ -115,7 +116,7 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
 
         onSave({ directory, permissions });
 
-        Reactium.Cloud.run('directory-create', {
+        Reactium.Cloud.run('directory-save', {
             directory,
             permissions: permissions.value,
         })
@@ -165,13 +166,6 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
     const footer = () => ({
         elements: [
             <Button
-                color='danger'
-                outline
-                size='sm'
-                onClick={() => Modal.hide()}>
-                Cancel
-            </Button>,
-            <Button
                 color='primary'
                 size='sm'
                 onClick={save}
@@ -190,6 +184,7 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
             error,
             status,
         } = stateRef.current;
+
         return (
             <div ref={containerRef} className={cname()}>
                 <Dialog
@@ -198,34 +193,39 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
                     footer={footer()}
                     header={{ title: ENUMS.TEXT.FOLDER_CREATOR.TITLE }}
                     onDismiss={() => Modal.hide()}>
-                    <div
-                        className='py-xs-16'
-                        style={{ minHeight: 120, position: 'relative' }}>
-                        {error && (
-                            <div className='px-xs-16 py-xs-16 mt-xs--16 mb-xs-8 bg-red white text-center italic'>
-                                {op.get(error, 'message')}
+                    <div style={{ position: 'relative', height: 300 }}>
+                        <Scrollbars height={300}>
+                            {error && (
+                                <div className='px-xs-16 py-xs-16 mb-xs-8 bg-red white text-center italic'>
+                                    {op.get(error, 'message')}
+                                </div>
+                            )}
+                            <div className='py-xs-16'>
+                                <FolderInput
+                                    ref={folderRef}
+                                    defaultValue={directory}
+                                />
+                                <PermissionSelector
+                                    canRead={canRead}
+                                    canWrite={canWrite}
+                                    ref={permRef}
+                                />
                             </div>
-                        )}
-                        <FolderInput ref={folderRef} value={directory} />
-                        <PermissionSelector
-                            canRead={canRead}
-                            canWrite={canWrite}
-                            ref={permRef}
-                        />
-                        {status === ENUMS.STATUS.PROCESSING && (
-                            <div
-                                className='flex middle center'
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    zIndex: 100000,
-                                }}>
-                                <Spinner />
-                            </div>
-                        )}
+                            {status === ENUMS.STATUS.PROCESSING && (
+                                <div
+                                    className='flex middle center'
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        zIndex: 100000,
+                                    }}>
+                                    <Spinner />
+                                </div>
+                            )}
+                        </Scrollbars>
                     </div>
                 </Dialog>
             </div>
