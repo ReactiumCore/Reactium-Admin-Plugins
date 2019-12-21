@@ -2,20 +2,34 @@ import Reactium from 'reactium-core/sdk';
 import { matchPath } from 'react-router';
 import op from 'object-path';
 
+const defaultForbiddenRoute = '/forbidden';
+Reactium.Hook.register(
+    'route-forbidden',
+    async context => {
+        context.forbiddenRoute = defaultForbiddenRoute;
+    },
+    Reactium.Enums.priority.highest,
+);
+
 const defaultLoginRoute = '/login';
 Reactium.Hook.register(
     'route-unauthorized',
-    context => {
+    async context => {
         context.loginRoute = defaultLoginRoute;
-        return Promise.resolve();
     },
     Reactium.Enums.priority.highest,
 );
 
 const redirectLogin = async history => {
     const context = await Reactium.Hook.run('route-unauthorized');
-    const login = op.get(context, 'loginRoute', defaultLoginRoute);
-    history.push(login);
+    const path = op.get(context, 'loginRoute', defaultLoginRoute);
+    history.push(path);
+};
+
+const redirectForbidden = async history => {
+    const context = await Reactium.Hook.run('route-forbidden');
+    const path = op.get(context, 'forbiddenRoute', defaultLoginRoute);
+    history.push(path);
 };
 
 const enforceBlueprintCaps = (store, history, loginPath) => async location => {
@@ -44,12 +58,23 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
         if (blueprint) {
             const capabilities = op.get(blueprint, 'capabilities', []);
             // restricted route
+            const loggedIn = Reactium.User.getSessionToken();
             if (pathname !== loginPath && capabilities.length > 0) {
                 // if user has any capability, allow
+                const adminPermitted = await Reactium.Capability.check([
+                    'admin-ui.view',
+                ]);
                 const permitted = await Reactium.Capability.check(capabilities);
+
+                // permitted, proceed
                 if (permitted) return;
-                if (pathname === '/') await redirectLogin(history, loginPath);
-                else history.push('/');
+
+                if (pathname === '/') {
+                    // User is logged in, but can not access admin-ui at all
+                    if (loggedIn && !adminPermitted)
+                        await redirectForbidden(history, loginPath);
+                    else await redirectLogin(history, loginPath);
+                } else history.push('/');
             }
         }
     }
