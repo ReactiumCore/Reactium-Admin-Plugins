@@ -28,7 +28,10 @@ const DirectoryWidget = props => {
 
     const Media = useHandle(domain.name);
 
-    const directories = op.get(Media.state, 'directories', ['uploads']);
+    const directories = op.get(Media.state, 'directories', [
+        'uploads',
+        'avatars',
+    ]);
 
     const directory = Media.directory;
 
@@ -112,7 +115,7 @@ const DirectoryWidget = props => {
                     }}>
                     <Icon name='Feather.Settings' size={16} />
                 </Button>
-                {!Media.isEmpty() && (
+                {!Media.isEmpty() && props.filter === true && (
                     <Button
                         color='tertiary'
                         data-tooltip={ENUMS.TEXT.FILTER}

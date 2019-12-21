@@ -44,6 +44,10 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
 
     const SearchBar = useHandle('SearchBar');
 
+    const page = Number(
+        useSelect(state => op.get(state, 'Router.params.page', 1)),
+    );
+
     // Refs
     const animationRef = useRef({});
     const directoryRef = useRef(op.get(state, 'directory'));
@@ -116,7 +120,8 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     useEffect(() => {
         const dir = op.get(state, 'directory');
         if (directoryRef.current !== dir) directoryRef.current = dir;
-        Reactium.Media.fetch({ page: 1 });
+
+        Reactium.Media.fetch({ page });
     }, [directoryRef.current]);
 
     useEffect(() => {

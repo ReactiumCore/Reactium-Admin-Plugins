@@ -20,13 +20,8 @@
         position: relative;
     }
 
-    .permission-selector {
-        .selections {
-            display: flex;
-            flex-wrap: nowrap;
-            > div {
-                width: 50%;
-            }
-        }
+    .admin-directory-editor {
+        width: 100%;
+        padding: 16px 0;
     }
 }
