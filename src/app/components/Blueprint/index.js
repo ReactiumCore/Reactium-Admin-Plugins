@@ -4,7 +4,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import Reactium from 'reactium-core/sdk';
 import { Plugins } from 'reactium-core/components/Plugable';
-import { useSelect, useStore } from 'reactium-core/sdk';
+import { useSelect, useStore, useCapabilityCheck } from 'reactium-core/sdk';
 
 const ENUMS = {};
 
@@ -16,11 +16,11 @@ const blueprintSelect = {
                 'Blueprint',
                 'routesConfig',
                 op.get(state, 'Router.match.path', '/'),
-                'blueprint',
             ],
             '',
         ),
-    shouldUpdate: ({ newState, prevState }) => newState !== prevState,
+    shouldUpdate: ({ newState, prevState }) =>
+        newState.blueprint !== prevState.blueprint,
 };
 
 const cname = (prefix, name) =>
@@ -46,7 +46,10 @@ const Blueprint = () => {
 
     const { defaultBlueprint } = getState().Blueprint;
 
-    const blueprintId = useSelect(blueprintSelect);
+    const { blueprint: blueprintId, capabilities = [] } =
+        useSelect(blueprintSelect) || {};
+
+    const allowed = useCapabilityCheck(capabilities);
 
     const blueprint = op.get(
         getState(),
@@ -95,6 +98,8 @@ const Blueprint = () => {
             ))}
         </main>
     );
+
+    if (!allowed) return null;
 
     // Render
     return render();

@@ -18,7 +18,7 @@ export default {
                 ),
             },
             {
-                capability: 'plugins-ui.view',
+                capability: 'plugin-ui.view',
                 title: __('UI: Plugins Admin Page'),
                 tooltip: __(
                     'Able to view the plugins manager admin page when logged in.',
@@ -87,11 +87,6 @@ export default {
                 tooltip: __(
                     'Able to delete an existing capability. (Assign with caution)',
                 ),
-            },
-            {
-                capability: 'plugins-ui.view',
-                title: __('Plugins: Can view plugin manager UI.'),
-                tooltip: __('Able to view the plugin manager UI.'),
             },
         ],
     },

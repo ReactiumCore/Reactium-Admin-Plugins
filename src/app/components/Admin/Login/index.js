@@ -93,10 +93,6 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
     };
 
     const render = () => {
-        if (Reactium.User.getSessionToken()) {
-            return <Redirect to={redirect} />;
-        }
-
         const { username, password, error = {}, status } = stateRef.current;
 
         return (

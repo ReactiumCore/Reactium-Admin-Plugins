@@ -5,17 +5,16 @@ import op from 'object-path';
 const defaultLoginRoute = '/login';
 Reactium.Hook.register(
     'route-unauthorized',
-    context => {
+    async context => {
         context.loginRoute = defaultLoginRoute;
-        return Promise.resolve();
     },
     Reactium.Enums.priority.highest,
 );
 
 const redirectLogin = async history => {
     const context = await Reactium.Hook.run('route-unauthorized');
-    const login = op.get(context, 'loginRoute', defaultLoginRoute);
-    history.push(login);
+    const path = op.get(context, 'loginRoute', defaultLoginRoute);
+    history.push(path);
 };
 
 const enforceBlueprintCaps = (store, history, loginPath) => async location => {
@@ -43,11 +42,14 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
         if (blueprint) {
             const capabilities = op.get(blueprint, 'capabilities', []);
+
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
-                // if user has any capability, allow
                 const permitted = await Reactium.Capability.check(capabilities);
+
+                // permitted, proceed
                 if (permitted) return;
+
                 if (pathname === '/') await redirectLogin(history, loginPath);
                 else history.push('/');
             }
