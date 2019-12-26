@@ -3,6 +3,9 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
+import { Scrollbars } from 'react-custom-scrollbars';
+import Reactium, { useRegisterHandle } from 'reactium-core/sdk';
+import { Button, Dropdown, Icon, TagsInput } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -11,10 +14,6 @@ import React, {
     useRef,
     useState,
 } from 'react';
-
-import Reactium, { useRegisterHandle } from 'reactium-core/sdk';
-
-import { Button, Dropdown, Icon, TagsInput } from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
 
@@ -352,10 +351,12 @@ let PermissionSelector = ({ children, ...props }, ref) => {
         return (
             <div className={cname()} ref={ref}>
                 {renderUserSelect()}
-                <div className='selections'>
-                    {renderCanWrite()}
-                    {renderCanRead()}
-                </div>
+                <Scrollbars autoHeight autoHeightMax={185}>
+                    <div className='selections'>
+                        {renderCanWrite()}
+                        {renderCanRead()}
+                    </div>
+                </Scrollbars>
             </div>
         );
     };
