@@ -17,6 +17,7 @@
 @import '../../app/components/Admin/registered-components/SettingEditor/style';
 @import '../../app/components/Admin/registered-components/MenuItem/style';
 @import '../../app/components/Admin/registered-components/PermissionSelector/style';
+@import '../../app/components/Admin/registered-components/Blocker/style';
 
 // Admin Styles
 @import '../../app/components/Admin/style/base';
@@ -36,5 +37,9 @@
 @import '../../app/components/Admin/Media/Directory/style';
 @import '../../app/components/Admin/Media/Directory/Creator/style';
 @import '../../app/components/Admin/Media/Directory/Editor/style';
-
 @import '../../app/components/Admin/MediaEditor/style';
+
+@import '../../app/components/Admin/MediaEditor/ImageEditor/style';
+@import '../../app/components/Admin/MediaEditor/FileEditor/style';
+@import '../../app/components/Admin/MediaEditor/VideoEditor/style';
+@import '../../app/components/Admin/MediaEditor/AudioEditor/style';

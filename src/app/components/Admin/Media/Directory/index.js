@@ -86,9 +86,11 @@ export default () => {
                 break;
 
             case 'edit-other':
+                history.push('/admin/media/edit/' + file);
                 break;
 
             case 'edit-video':
+                history.push('/admin/media/edit/' + file);
                 break;
 
             case 'view-file':

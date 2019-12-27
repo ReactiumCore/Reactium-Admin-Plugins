@@ -9,6 +9,6 @@ Reactium.Plugin.register(domain.name).then(() => {
         id: 'ADMIN-MEDIA-EDITOR',
         component: MediaEditor,
         order: -1000,
-        zone: ['admin-media-editor-content'],
+        zone: ['admin-media-editor'],
     });
 });

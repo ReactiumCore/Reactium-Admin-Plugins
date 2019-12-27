@@ -1,18 +1,20 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import ENUMS from './_utils/enums';
 import useMediaObject from './_utils/useMediaObject';
 
 import Reactium, {
     useDerivedState,
+    useHookComponent,
     useRegisterHandle,
     useSelect,
 } from 'reactium-core/sdk';
 
 import React, { useEffect, useRef } from 'react';
-import { Button, Spinner } from '@atomic-reactor/reactium-ui';
+import { Button, Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -20,6 +22,12 @@ import { Button, Spinner } from '@atomic-reactor/reactium-ui';
  * -----------------------------------------------------------------------------
  */
 const MediaEditor = props => {
+    const AudioEditor = useHookComponent('AudioEditor');
+    const Blocker = useHookComponent('Blocker');
+    const FileEditor = useHookComponent('FileEditor');
+    const ImageEditor = useHookComponent('ImageEditor');
+    const VideoEditor = useHookComponent('VideoEditor');
+
     const [data, ID] = useMediaObject();
 
     const [state, setState] = useDerivedState({
@@ -37,8 +45,18 @@ const MediaEditor = props => {
 
     const cx = cls => _.compact([op.get(state, 'namespace'), cls]).join('-');
 
+    const onFileAdded = e => {
+        console.log(e);
+    };
+
+    const onFileError = e => {
+        console.log(e);
+    };
+
     // External Interface
     const handle = () => ({
+        ID,
+        data,
         setState,
         state,
     });
@@ -63,27 +81,17 @@ const MediaEditor = props => {
     // Renderer
     const render = () => {
         return (
-            <div className={cname()}>
-                {state.status === ENUMS.STATUS.FETCHING ? (
-                    <div className={cx('spinner')}>
-                        <Spinner />
-                    </div>
-                ) : (
-                    <div className='p-xs-40'>
-                        {data.filename}
-                        <br />
-                        {state.value.fetched}
-                        <br />
-                        <Button
-                            onClick={() => {
-                                state.value.fetched = Date.now();
-                                setState({ value: state.value });
-                            }}>
-                            Test
-                        </Button>
-                    </div>
+            <>
+                {state.status === ENUMS.STATUS.FETCHING && <Blocker />}
+                {state.status === ENUMS.STATUS.READY && (
+                    <>
+                        {data.type === 'AUDIO' && <AudioEditor />}
+                        {data.type === 'FILE' && <FileEditor />}
+                        {data.type === 'IMAGE' && <ImageEditor />}
+                        {data.type === 'VIDEO' && <VideoEditor />}
+                    </>
                 )}
-            </div>
+            </>
         );
     };
 
@@ -99,6 +107,15 @@ MediaEditor.propTypes = {
 };
 
 MediaEditor.defaultProps = {
+    dropzoneProps: {
+        config: {
+            chunking: false,
+            clickable: false,
+            previewTemplate:
+                '<div class="dz-preview dz-file-preview"><span data-dz-name></div>',
+        },
+        debug: false,
+    },
     namespace: 'admin-media-editor',
 };
 
