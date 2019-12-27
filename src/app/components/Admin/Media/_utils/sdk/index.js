@@ -247,6 +247,10 @@ class Media {
         }
     }
 
+    retrieve(objectId) {
+        return Reactium.Cloud.run('media-retrieve', { objectId });
+    }
+
     url(objectId) {
         const file = this.file(objectId);
         const { url } = file;

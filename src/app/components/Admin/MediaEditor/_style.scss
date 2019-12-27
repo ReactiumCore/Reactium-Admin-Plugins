@@ -1,0 +1,19 @@
+.zone {
+    &-admin-media-editor-content {
+        min-height: 100vh;
+        padding-top: 60px;
+        position: relative;
+    }
+
+    .admin-media-editor {
+        min-height: calc(100vh - 60px);
+        position: relative;
+
+        &-spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+    }
+}
