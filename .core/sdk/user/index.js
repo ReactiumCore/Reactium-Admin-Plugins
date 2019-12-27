@@ -94,7 +94,7 @@ User.hasValidSession = async () => {
         try {
             await Parse.Cloud.run('session-validate');
             valid = true;
-        } catch(error) {
+        } catch (error) {
             // Clear front-end cache as soon as we know session is invalid
             Cache.clear();
             valid = false;
