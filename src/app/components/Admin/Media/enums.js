@@ -7,11 +7,6 @@ const ENUMS = {
         { value: 'Media.create', label: 'Can Upload' },
         { value: 'Media.all', label: 'Public View' },
     ],
-    STATUS: {
-        FETCHING: 'fetching',
-        INIT: 'init',
-        READY: 'ready',
-    },
     TEXT: {
         BACK: __('Back'),
         BROWSE: __('Browse Files'),
@@ -51,5 +46,8 @@ const ENUMS = {
         VIDEO_UNSUPPORTED: __('Your browser does not support this video'),
     },
 };
+
+ENUMS.STATUS.FETCHING = 'fetching';
+ENUMS.STATUS.INIT = 'init';
 
 export { ENUMS as default };

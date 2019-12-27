@@ -37,18 +37,4 @@
             display: none;
         }
     }
-
-    .selections {
-        margin-top: 12px;
-        border-top: 1px solid $color-admin-header-border;
-        display: flex;
-        flex-wrap: nowrap;
-        > div {
-            width: 50%;
-        }
-
-        &:empty {
-            display: none;
-        }
-    }
 }

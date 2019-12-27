@@ -167,7 +167,11 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
             return item;
         });
 
-        setState({ directories, status: ENUMS.STATUS.READY });
+        setState({
+            directories,
+            status: ENUMS.STATUS.READY,
+            updated: Date.now(),
+        });
     };
 
     const Actions = item => {
@@ -364,7 +368,7 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
                 columns={columns()}
                 data={directories}
                 header={<TableHeader />}
-                height={300}
+                height={214}
                 id={id}
                 multiselect
                 onSelect={onItemSelect}

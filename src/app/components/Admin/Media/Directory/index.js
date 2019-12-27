@@ -37,6 +37,8 @@ const ActionButton = ({
 export default () => {
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
+    const history = useSelect(state => op.get(state, 'Router.history'));
+
     const stateRef = useRef({
         status: ENUMS.STATUS.PENDING,
         actions: {},
@@ -80,6 +82,7 @@ export default () => {
                 break;
 
             case 'edit-image':
+                history.push('/admin/media/edit/' + file);
                 break;
 
             case 'edit-other':
