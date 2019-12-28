@@ -3,6 +3,8 @@ import domain from './domain';
 import MediaEditor from './index';
 import Reactium from 'reactium-core/sdk';
 
+import { Directory, Tags } from './_utils/components';
+
 Reactium.Plugin.register(domain.name).then(() => {
     // Register components
     Reactium.Zone.addComponent({
@@ -12,3 +14,6 @@ Reactium.Plugin.register(domain.name).then(() => {
         zone: ['admin-media-editor'],
     });
 });
+
+Reactium.Component.register('MediaEditorDirectory', Directory);
+Reactium.Component.register('MediaEditorTags', Tags);

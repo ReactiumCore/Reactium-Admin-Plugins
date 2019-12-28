@@ -1,9 +1,9 @@
-import ENUMS from './enums';
 import op from 'object-path';
+import ENUMS from 'components/Admin/Media/enums';
 import React, { useEffect, useState } from 'react';
 import Reactium, { useSelect } from 'reactium-core/sdk';
 
-const useMediaObject = ID => {
+export default ID => {
     ID = ID || useSelect(state => op.get(state, 'Router.params.id'));
 
     const [state, setNewState] = useState({
@@ -31,14 +31,12 @@ const useMediaObject = ID => {
             if (data) {
                 setState({ data, status: ENUMS.STATUS.READY });
             } else {
-                Reactium.Media.retrieve(ID).then(result => {
-                    setState({ status: ENUMS.STATUS.READY, data: result });
-                });
+                Reactium.Media.retrieve(ID).then(result =>
+                    setState({ status: ENUMS.STATUS.READY, data: result }),
+                );
             }
         }
     }, [ID, op.get(state, 'data'), op.get(state, 'status')]);
 
     return [state.data, ID];
 };
-
-export default useMediaObject;
