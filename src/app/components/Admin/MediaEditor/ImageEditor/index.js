@@ -7,37 +7,39 @@ import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, { forwardRef, useEffect, useRef } from 'react';
 
+import useWorker from 'components/Admin/MediaEditor/_utils/useWorker';
+
 import Reactium, {
     useHandle,
     useHookComponent,
     useSelect,
 } from 'reactium-core/sdk';
 
-import { Button, Dropzone, TagsInput } from '@atomic-reactor/reactium-ui';
-import WebForm from 'components/Reactium-UI/WebForm';
+import { Button, Dropzone, WebForm } from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
 
 let ImageEditor = ({ children, ...props }, ref) => {
+    const Blocker = useHookComponent('Blocker');
     const Directory = useHookComponent('MediaEditorDirectory');
-
+    const Permissions = useHookComponent('MediaEditorPermissions');
     const Tags = useHookComponent('MediaEditorTags');
 
-    const { cname, cx, data, directories, state, setState } = useHandle(
+    const { Toast } = useHandle('AdminTools');
+
+    let { cname, cx, data, directories, state, setState } = useHandle(
         'MediaEditor',
     );
 
     // Refs
     const dropzoneRef = useRef();
-
     const formRef = useRef();
-
     const tagsRef = useRef();
 
     const dropzoneProps = {
         config: {
             chunking: false,
-            clickable: false,
+            clickable: true,
             previewTemplate: '<span />',
         },
         debug: false,
@@ -54,11 +56,15 @@ let ImageEditor = ({ children, ...props }, ref) => {
             : {};
     };
 
-    const onCancel = () => {
-        const { value = {} } = state;
+    const onBrowse = () => dropzoneRef.current.browseFiles();
 
-        op.set(value, 'filename', op.get(data, 'filename'));
-        op.set(value, 'meta.size', op.get(data, 'meta.size'));
+    const onCancel = () => {
+        const { initialData, status, value = {} } = state;
+
+        if (status === ENUMS.STATUS.PROCESSING) return;
+
+        op.set(value, 'filename', op.get(initialData, 'filename'));
+        op.set(value, 'meta.size', op.get(initialData, 'meta.size'));
 
         setState({ file: undefined, value });
     };
@@ -69,7 +75,11 @@ let ImageEditor = ({ children, ...props }, ref) => {
 
         if (!name) return;
 
-        const val = name !== 'meta.tags' ? e.target.value : e.value;
+        let val = name !== 'meta.tags' ? e.target.value : e.value;
+
+        if (name === 'filename') {
+            val = String(slugify(val)).toLowerCase();
+        }
 
         if (name === 'directory') {
             let { directory, url } = value;
@@ -92,6 +102,10 @@ let ImageEditor = ({ children, ...props }, ref) => {
     };
 
     const onFileAdded = async e => {
+        const { status } = state;
+
+        if (status === ENUMS.STATUS.PROCESSING) return;
+
         const file = e.added[0];
         const ext = String(
             String(file.name)
@@ -105,7 +119,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
         reader.onload = () => {
             const { value = {} } = state;
 
-            op.set(value, 'filename', file.name);
+            op.set(value, 'filename', String(slugify(file.name)).toLowerCase());
             op.set(value, 'meta.size', file.size);
 
             setState({ file, value, updated: Date.now() });
@@ -113,12 +127,54 @@ let ImageEditor = ({ children, ...props }, ref) => {
         reader.readAsText(file);
     };
 
-    const onSubmit = e => {
-        const { value } = state;
+    const onSubmit = async e => {
+        const { file, status, value } = state;
+
+        if (status === ENUMS.STATUS.PROCESSING) return;
+
         delete value.type;
-        console.log(value);
+        delete value.file;
+        delete value.createdAt;
+        delete value.updatedAt;
+        delete value.fetched;
+        delete value.user;
+        delete value.uuid;
+        delete value.capabilities;
+
+        setState({ progress: 0, status: ENUMS.STATUS.PROCESSING });
+
+        value.filename = String(slugify(value.filename)).toLowerCase();
+
+        Reactium.Media.update({ file, ...value });
     };
 
+    const onWorkerMessage = e => {
+        const { type, params } = e;
+
+        switch (type) {
+            case 'status':
+                setState(params);
+                break;
+        }
+    };
+
+    // Worker status update
+    useEffect(() => {
+        const { result, status } = state;
+
+        switch (status) {
+            case ENUMS.STATUS.COMPLETE:
+                setState({
+                    status: ENUMS.STATUS.READY,
+                    initialData: result,
+                    result: undefined,
+                    file: undefined,
+                });
+                break;
+        }
+    }, [state.status]);
+
+    // Initial image load
     useEffect(() => {
         if (!state.currentFile && state.value) {
             const img = new Image();
@@ -136,6 +192,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
         }
     }, [state.currentFile, state.value]);
 
+    // Value changes
     useEffect(() => {
         const { value } = state;
 
@@ -149,30 +206,35 @@ let ImageEditor = ({ children, ...props }, ref) => {
         }
     }, [state]);
 
+    // Register Hook
+    Reactium.Hook.register('media-worker', e => onWorkerMessage(e));
+
     // Renderer
     const render = () => {
-        return !state.value ? null : (
+        const { file, files, status, value } = state;
+
+        return !value ? null : (
             <WebForm
                 onChange={e => onChange(e)}
                 onSubmit={onSubmit}
                 ref={formRef}
-                value={state.value}>
+                value={value}>
                 <Dropzone
                     {...dropzoneProps}
                     className={cname()}
-                    files={state.files}
+                    files={files}
                     onError={e => onFileError(e)}
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
                     <div className={cx('dropzone')}>
-                        {state.file && (
+                        {file && (
                             <>
                                 <div className='mb-xs-12 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
                                 <span className={cx('image')}>
                                     <img
-                                        src={state.file.dataURL}
+                                        src={file.dataURL}
                                         style={imageStyle()}
                                     />
                                     <Button
@@ -195,6 +257,13 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                         src={state.currentFile.dataURL}
                                         style={imageStyle()}
                                     />
+                                    <Button
+                                        appearance='pill'
+                                        color='primary'
+                                        onClick={() => onBrowse()}
+                                        size='sm'>
+                                        Select Image
+                                    </Button>
                                 </span>
                             </>
                         )}
@@ -203,24 +272,43 @@ let ImageEditor = ({ children, ...props }, ref) => {
                         <div>
                             <Scrollbars>
                                 <div className='p-xs-24'>
-                                    <input name='meta.size' type='hidden' />
-                                    <Directory data={directories} />
-                                    <div className='form-group'>
-                                        <label>
-                                            URL:
-                                            <input name='url' />
-                                        </label>
-                                    </div>
+                                    <input type='hidden' name='filename' />
+                                    <input type='hidden' name='objectId' />
+                                    <input type='hidden' name='meta.size' />
+                                    <Directory
+                                        data={directories}
+                                        label='Directory:'
+                                        name='directory'
+                                        value={state.value.directory}
+                                    />
+                                    {!state.file && (
+                                        <div className='form-group'>
+                                            <label>
+                                                URL:
+                                                <input
+                                                    autoComplete='off'
+                                                    name='url'
+                                                    spellCheck={false}
+                                                    type='text'
+                                                />
+                                            </label>
+                                        </div>
+                                    )}
                                     <div className='form-group'>
                                         <label>
                                             Title:
-                                            <input name='meta.title' />
+                                            <input
+                                                autoComplete='off'
+                                                name='meta.title'
+                                                type='text'
+                                            />
                                         </label>
                                     </div>
                                     <div className='form-group'>
                                         <label>
                                             Description:
                                             <textarea
+                                                autoComplete='off'
                                                 name='meta.description'
                                                 rows={4}
                                             />
@@ -234,12 +322,19 @@ let ImageEditor = ({ children, ...props }, ref) => {
                             </Scrollbars>
                         </div>
                         <div>
-                            <Button block size='md' type='submit'>
-                                Save Image
+                            <Button
+                                block
+                                size='md'
+                                type='submit'
+                                disabled={status === ENUMS.STATUS.PROCESSING}>
+                                {status === ENUMS.STATUS.PROCESSING
+                                    ? 'Saving Image...'
+                                    : 'Save Image'}
                             </Button>
                         </div>
                     </div>
                 </Dropzone>
+                {status === ENUMS.STATUS.PROCESSING && <Blocker />}
             </WebForm>
         );
     };

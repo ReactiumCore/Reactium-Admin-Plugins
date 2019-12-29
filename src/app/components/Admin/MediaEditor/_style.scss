@@ -1,3 +1,6 @@
+$height-media-form: calc(100vh - #{$height-admin-header}) !default;
+$width-media-form: 420px !default;
+
 .zone {
     &-admin-media-editor {
         min-height: 100vh;
@@ -7,13 +10,16 @@
 
     .admin-media-editor {
         position: relative;
-        min-height: calc(100vh - #{$height-admin-header});
+        min-height: $height-media-form;
 
         @include breakpoint(md) {
             display: flex;
-            flex-direction: column;
             align-items: stretch;
             flex-direction: row;
+        }
+
+        .ar-dropdown {
+            width: 100%;
         }
 
         .ar-dropzone-input,
@@ -22,7 +28,6 @@
         }
 
         .ar-tags-input {
-            // border: 1px solid #F3F3F3;
             border: 1px solid darken($color-grey-light, 1.5%);
 
             &.focus {
@@ -39,7 +44,6 @@
             width: 100%;
             overflow-x: hidden;
             flex-grow: 1;
-            flex-shrink: 0;
             position: relative;
             padding: $padding-default;
 
@@ -47,7 +51,7 @@
                 justify-content: flex-start;
                 width: auto;
                 overflow-y: auto;
-                height: calc(100vh - #{$height-admin-header});
+                height: $height-media-form;
             }
         }
 
@@ -89,8 +93,8 @@
                 flex-grow: 0;
                 position: relative;
                 overflow: hidden;
-                width: 400px;
-                height: calc(100vh - #{$height-admin-header});
+                width: $width-media-form;
+                height: $height-media-form;
                 border-left: 1px solid $color-admin-header-border;
             }
 

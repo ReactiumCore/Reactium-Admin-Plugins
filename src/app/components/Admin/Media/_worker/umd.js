@@ -46,7 +46,7 @@ class Uploader {
 
             reader.onload = () => {
                 const bytes = new Uint8Array(reader.result);
-                resolve(bytes);
+                resolve(Object.values(bytes));
             };
 
             reader.readAsArrayBuffer(file);
@@ -73,13 +73,45 @@ class Uploader {
         delete this.uploads[ID];
     }
 
-    async upload(ID) {
-        // TODO: ERROR HANDLING
-        const file = this.queue[ID];
-        const meta = this.uploads[ID];
+    async update({ file, ...data }) {
+        if (file) {
+            data['filedata'] = await this.fileToBytes(file);
+        }
+
+        return this.req
+            .post('/functions/media-update', data, {
+                onUploadProgress: e => {
+                    const { loaded, total } = e;
+                    const progress = Math.min(loaded / total, 0.95);
+
+                    this.worker.postMessage({
+                        type: 'status',
+                        params: {
+                            progress,
+                            status: ENUMS.STATUS.UPLOADING,
+                            result: null,
+                        },
+                    });
+                },
+            })
+            .then(resp => {
+                this.worker.postMessage({
+                    type: 'status',
+                    params: {
+                        progress: 1,
+                        status: ENUMS.STATUS.COMPLETE,
+                        result: resp.data.result,
+                    },
+                });
+            });
+    }
+
+    async upload(ID, file, meta) {
+        file = file || op.get(this, ['queue', ID]);
+        meta = meta || op.get(this, ['uploads', ID]);
 
         if (!file || !meta) {
-            this.removeFile(ID);
+            if (ID) this.removeFile(ID);
             return Promise.reject();
         }
 
@@ -88,7 +120,7 @@ class Uploader {
         return this.req
             .post(
                 '/functions/media-upload',
-                { meta, data: Object.values(data) },
+                { meta, data },
                 {
                     onUploadProgress: e => {
                         const { loaded, total } = e;
@@ -116,7 +148,7 @@ class Uploader {
                     },
                 });
 
-                this.removeFile(ID);
+                if (ID) this.removeFile(ID);
             });
     }
 

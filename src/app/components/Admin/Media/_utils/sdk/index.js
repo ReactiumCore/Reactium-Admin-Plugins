@@ -64,6 +64,8 @@ class Media {
         const { uploads = {} } = this.state;
         const { ID, progress, status, url } = params;
 
+        if (!ID) return;
+
         op.set(uploads, [ID, 'status'], status);
         op.set(uploads, [ID, 'statusAt'], Date.now());
 
@@ -80,8 +82,10 @@ class Media {
         this.setState({ uploads });
     }
 
-    __onWorkerMessage(e) {
-        const { type, params } = e.data;
+    async __onWorkerMessage(e) {
+        const { params, type, ...data } = e.data;
+
+        await Reactium.Hook.run('media-worker', { data, params, type });
 
         switch (type) {
             case 'status':
@@ -163,7 +167,11 @@ class Media {
         });
     }
 
-    upload(files, directory = ENUMS.DIRECTORY) {
+    update(params) {
+        this.worker.postMessage({ action: 'update', params });
+    }
+
+    upload(files, directory = ENUMS.DIRECTORY, data = {}) {
         // 0.0 - convert single file to array of files
         files = paramToArray(files);
 
@@ -173,10 +181,11 @@ class Media {
         // 2.0 - Loop through files array
         files.forEach(file => {
             // 2.1 - Update uploads state object
-            const item = mapFileToUpload(file);
+            let item = mapFileToUpload(file);
             item['filename'] = slugify(item.filename);
             item['directory'] = directory;
             item['status'] = ENUMS.STATUS.QUEUED;
+            item = { ...item, ...data };
 
             uploads[file.ID] = item;
 

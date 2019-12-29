@@ -3,7 +3,7 @@ import domain from './domain';
 import MediaEditor from './index';
 import Reactium from 'reactium-core/sdk';
 
-import { Directory, Tags } from './_utils/components';
+import { Directory, Permissions, Tags } from './_utils/components';
 
 Reactium.Plugin.register(domain.name).then(() => {
     // Register components
@@ -17,3 +17,4 @@ Reactium.Plugin.register(domain.name).then(() => {
 
 Reactium.Component.register('MediaEditorDirectory', Directory);
 Reactium.Component.register('MediaEditorTags', Tags);
+Reactium.Component.register('MediaEditorPermissions', Permissions);

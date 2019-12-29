@@ -4,6 +4,7 @@ import op from 'object-path';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
+
 import useMediaObject from './_utils/useMediaObject';
 import useDirectories from './_utils/useDirectories';
 
@@ -17,12 +18,13 @@ import Reactium, {
 import React, { useEffect, useRef } from 'react';
 import { Spinner } from '@atomic-reactor/reactium-ui';
 
-console.log(ENUMS);
+// console.log(ENUMS);
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: MediaEditor
  * -----------------------------------------------------------------------------
  */
+
 const MediaEditor = props => {
     const AudioEditor = useHookComponent('AudioEditor');
     const Blocker = useHookComponent('Blocker');
@@ -37,11 +39,10 @@ const MediaEditor = props => {
     const [state, setState] = useDerivedState({
         ...props,
         files: {},
+        initialData: data,
         status: !ID || !data ? ENUMS.STATUS.FETCHING : ENUMS.STATUS.READY,
         value: null,
     });
-
-    // Refs
 
     const cname = () => {
         const { className, namespace } = state;
@@ -61,7 +62,12 @@ const MediaEditor = props => {
         state,
     });
 
-    useRegisterHandle('MediaEditor', handle, [ID, data, state]);
+    useRegisterHandle('MediaEditor', handle, [
+        ID,
+        data,
+        state,
+        op.get(state, 'initialData'),
+    ]);
 
     // Side effects
     useEffect(() => {
