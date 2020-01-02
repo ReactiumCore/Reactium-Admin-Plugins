@@ -1,0 +1,59 @@
+$fieldtype-icon-color: $color-gray !default;
+$fieldtype-name-input-focus: $color-blue !default;
+$fieldtype-name-icon-color: $color-white !default;
+
+.fieldtype {
+    .ar-dialog {
+        &-content {
+            padding: 20px;
+        }
+    }
+
+    &-header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-grow: 1;
+        flex-shrink: 0;
+
+        &-icon, &-name {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        svg {
+            fill: $fieldtype-icon-color;
+            width: 100%;
+        }
+
+        &-icon {
+            padding: 0 10px;
+            border-right: 1px solid $ar-dialog-color-border;
+        }
+
+        &-name {
+            padding: 0 20px;
+
+            &-icon {
+                &, &:hover, &:focus {
+                    width: 20px;
+                    padding: 0;
+                    background: none;
+                }
+            }
+
+            &-input {
+                border: none;
+                padding: 8px;
+                &:hover:not(:focus) {
+                    cursor: pointer;
+                }
+                &:focus {
+                    border-bottom: 1px solid $fieldtype-name-input-focus;
+                    outline: none;
+                }
+            }
+        }
+    }
+}
