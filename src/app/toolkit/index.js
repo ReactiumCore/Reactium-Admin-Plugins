@@ -9,7 +9,7 @@ module.exports = {
     themes: [
         {
             name: 'Default',
-            css: '/assets/style/style.css',
+            css: '/assets/style/admin.css',
             selected: true,
         },
     ],
@@ -67,5 +67,29 @@ module.exports = {
             },
         ],
     },
-    menu: {},
+    menu: {
+        components: {
+            label: 'Components',
+            route: '/toolkit/components',
+            hideEmpty: true,
+            elements: {},
+        },
+        'content-type': {
+            label: 'Content Type',
+            route: '/toolkit/content-type',
+            elements: {
+                'field-type-organism': {
+                    type: 'organism',
+                    label: 'Field Type Dialog',
+                    route: '/toolkit/content-type/field-type-organism',
+                    dna: '/toolkit/content-type/FieldTypeOrganism',
+                    component: require('appdir/toolkit/content-type/FieldTypeOrganism')
+                        .default,
+                    hideCode: true,
+                    hideDna: true,
+                    hideDocs: true,
+                },
+            },
+        },
+    },
 };
