@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Reactium, { __ } from 'reactium-core/sdk';
-import { Plugins } from 'reactium-core/components/Plugable';
+import Reactium, { __, Zone } from 'reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import { Toggle } from '@atomic-reactor/reactium-ui';
@@ -85,7 +84,7 @@ const Card = ({ plugin, canActivate = true }) => {
                 <div className='plugin-card__details'>
                     {!!name && <h3>{name}</h3>}
                     {!!description && <p className='mt-8'>{description}</p>}
-                    <Plugins zone='plugin-card-description' plugin={plugin} />
+                    <Zone zone='plugin-card-description' plugin={plugin} />
                 </div>
                 <div className='plugin-card__actions'>
                     {plugin.active && settings && (
@@ -106,7 +105,7 @@ const Card = ({ plugin, canActivate = true }) => {
                         </Link>
                     )}
                     {renderActivation()}
-                    <Plugins zone='plugin-card-actions' plugin={plugin} />
+                    <Zone zone='plugin-card-actions' plugin={plugin} />
                 </div>
             </div>
         );

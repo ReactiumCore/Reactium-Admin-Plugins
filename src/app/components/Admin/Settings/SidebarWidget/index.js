@@ -1,7 +1,6 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
+import { __, Zone } from 'reactium-core/sdk';
 import MenuItem from 'components/Admin/registered-components/MenuItem';
-import { Plugins } from 'reactium-core/components/Plugable';
 
 /**
  * -----------------------------------------------------------------------------
@@ -13,7 +12,7 @@ const SidebarWidget = props => {
     return (
         <MenuItem label={__('Settings')} icon='Linear.Equalizer' id={id}>
             <div>
-                <Plugins zone={id} />
+                <Zone zone={id} />
             </div>
         </MenuItem>
     );

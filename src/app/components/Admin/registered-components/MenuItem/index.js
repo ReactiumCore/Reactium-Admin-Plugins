@@ -357,16 +357,16 @@ const SidebarWidget = () => (
   </MenuItem>
 );
 
- * @apiExample Plugin Zone:
+ * @apiExample Component Zone:
 import MenuItem from 'components/Admin/registered-components/MenuItem';
-import { Plugins } from 'reactium-core/components/Plugable';
+import { Zone } from 'reactium-core/sdk';
 
 const SidebarWidget = () => (
   <MenuItem
     icon='Linear.Equalizer'
     id='admin-sidebar-settings'
     label='Settings' >
-    <Plugins zone='admin-sidebar-settings' />
+    <Zone zone='admin-sidebar-settings' />
   </MenuItem>
 );
 

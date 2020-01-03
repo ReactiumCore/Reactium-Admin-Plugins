@@ -4,7 +4,6 @@ import ENUMS from '../enums';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import AvatarButtons from './AvatarButtons';
-import { Plugins } from 'reactium-core/components/Plugable';
 
 import {
     Button,
@@ -20,6 +19,7 @@ import Reactium, {
     useHandle,
     useRegisterHandle,
     useSelect,
+    Zone,
 } from 'reactium-core/sdk';
 
 import {
@@ -451,7 +451,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
 
                                 {RenderInputs({ error, value })}
 
-                                <Plugins
+                                <Zone
                                     disabled={disabled()}
                                     state={stateRef.current}
                                     zone={`${cname('form')}`}
