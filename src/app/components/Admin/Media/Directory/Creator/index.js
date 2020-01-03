@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
 import domain from 'components/Admin/Media/domain';
@@ -40,6 +41,11 @@ let FolderInput = (props, ref) => (
                 type='text'
                 ref={ref}
                 name='directory'
+                onBlur={e => {
+                    e.target.value = String(
+                        slugify(e.target.value),
+                    ).toLowerCase();
+                }}
                 placeholder={ENUMS.TEXT.FOLDER_CREATOR.DIRECTORY}
                 {...props}
             />
@@ -101,9 +107,11 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
         if (status === ENUMS.STATUS.PROCESSING) return;
 
         const permissions = permRef.current;
-        const { value: directory } = folderRef.current;
+        let { value: directory } = folderRef.current;
 
         if (!directory) return;
+
+        directory = String(slugify(directory)).toLowerCase();
 
         // Optimistically update the store
         let { directories = [] } = getState;

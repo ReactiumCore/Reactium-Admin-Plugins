@@ -38,7 +38,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
         debug: false,
     };
 
-    const imageStyle = () => {
+    const previewStyle = () => {
         return state.file
             ? { maxWidth: state.file.width, maxHeight: state.file.height }
             : state.currentFile
@@ -171,7 +171,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                     <img
                                         ref={imageRef}
                                         src={file.dataURL}
-                                        style={imageStyle()}
+                                        style={previewStyle()}
                                     />
                                     <Button
                                         appearance='pill'
@@ -192,7 +192,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                 <span className={cx('image')}>
                                     <img
                                         src={state.currentFile.dataURL}
-                                        style={imageStyle()}
+                                        style={previewStyle()}
                                     />
                                     <Button
                                         appearance='pill'

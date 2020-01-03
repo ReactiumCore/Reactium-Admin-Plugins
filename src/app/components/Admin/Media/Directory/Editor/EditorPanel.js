@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import ENUMS from 'components/Admin/Media/enums';
 import domain from 'components/Admin/Media/domain';
 import { FolderInput } from 'components/Admin/Media/Directory/Creator';
@@ -64,9 +65,11 @@ const EditorPanel = forwardRef((props, ref) => {
 
         const permissions = permRef.current;
         const objectId = op.get(idRef.current, 'value');
-        const { value: directory } = folderRef.current;
+        let { value: directory } = folderRef.current;
 
         if (!directory) return;
+
+        directory = String(slugify(directory)).toLowerCase();
 
         // Save values to state
         onSave({ directory, permissions, objectId });

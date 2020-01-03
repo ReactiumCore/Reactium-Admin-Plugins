@@ -20,7 +20,9 @@ export default props => {
 
     const tagsRef = useRef();
 
-    const { directories, onError, state = {} } = useHandle('MediaEditor');
+    const { directories, onChange, onError, state = {} } = useHandle(
+        'MediaEditor',
+    );
 
     const directory = op.get(state, 'value.directory');
 
