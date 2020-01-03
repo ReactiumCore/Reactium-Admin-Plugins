@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from 'reactium-core/sdk';
-import { Button } from '@atomic-reactor/reactium-ui';
+import { Button, Prefs } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import Draggable from 'react-draggable';
 
@@ -11,7 +11,15 @@ import Draggable from 'react-draggable';
  */
 const noop = () => {};
 const Tools = ({ enums = {}, onButtonClick = noop }) => {
-    console.log({ enums });
+    const position = Prefs.get('types-tools-drag-handle.position', {
+        x: 0,
+        y: 0,
+    });
+
+    const onStop = (mouseEvent, { x, y }) => {
+        Prefs.set('types-tools-drag-handle.position', { x, y });
+    };
+
     const renderTools = () => {
         return Object.keys(enums.TYPES).map(type => {
             const tooltip = op.get(
@@ -40,7 +48,10 @@ const Tools = ({ enums = {}, onButtonClick = noop }) => {
     };
 
     return (
-        <Draggable handle='.types-tools-drag-handle'>
+        <Draggable
+            handle='.types-tools-drag-handle'
+            onStop={onStop}
+            defaultPosition={position}>
             <div className={'types-tools'}>
                 {renderTools()}
                 <div className='types-tools-drag-handle'></div>
