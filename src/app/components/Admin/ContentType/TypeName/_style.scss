@@ -1,0 +1,16 @@
+.type-name {
+    &-header, &-input {
+        padding: 20px;
+        border-bottom: 1px solid $color-grey;
+    }
+
+    &-input {
+        display: flex;
+        justify-content: space-between;
+
+        .form-group {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+    }
+}

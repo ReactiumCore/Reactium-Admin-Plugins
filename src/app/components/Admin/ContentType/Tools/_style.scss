@@ -1,0 +1,38 @@
+.types-tools {
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    background: $color-white;
+
+    button {
+        &:focus {
+            outline: 1px solid $color-grey;
+        }
+    }
+
+    &-drag-handle {
+        position: relative;
+        background: $color-blue;
+        height: 20px;
+        &:hover {
+            cursor: pointer;
+        }
+
+        &:before, &:after {
+            display: block;
+            content: ' ';
+            position: absolute;
+            border: 1px solid white;
+            border-radius: 1px;
+            left: 12px;
+            width: calc(100% - 24px);
+            height: 1px;
+        }
+        &:before {
+            top: 10px;
+        }
+        &:after {
+            top: 6px;
+        }
+    }
+}
