@@ -67,7 +67,7 @@ Reactium.Plugin.register(domain.name).then(() => {
             icon: 'Feather.Edit2',
             id: 'edit-image',
             order: 2,
-            tooltip: ENUMS.TEXT.EDIT,
+            tooltip: ENUMS.TEXT.EDIT_FILE,
             types: ['image'],
         };
 
@@ -75,7 +75,7 @@ Reactium.Plugin.register(domain.name).then(() => {
             icon: 'Feather.Edit2',
             id: 'edit-video',
             order: 2,
-            tooltip: ENUMS.TEXT.EDIT,
+            tooltip: ENUMS.TEXT.EDIT_FILE,
             types: ['video'],
         };
 
@@ -83,7 +83,7 @@ Reactium.Plugin.register(domain.name).then(() => {
             icon: 'Feather.Edit2',
             id: 'edit-other',
             order: 2,
-            tooltip: ENUMS.TEXT.EDIT,
+            tooltip: ENUMS.TEXT.EDIT_FILE,
             types: ['other'],
         };
     });

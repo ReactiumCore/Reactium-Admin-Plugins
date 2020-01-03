@@ -16,7 +16,8 @@ const ENUMS = {
         DELETE: __('Delete file'),
         DELETE_INFO: [__('Delete'), __('Are you sure?')],
         DOWNLOAD_FILE: __('Download file'),
-        EDIT: __('Edit file'),
+        EDIT: __('Edit'),
+        EDIT_FILE: __('Edit file'),
         EDITOR: {
             SUCCESS: 'Save complete!',
         },
@@ -41,6 +42,7 @@ const ENUMS = {
             EDIT: __('edit'),
             TITLE: [__('Folder'), __('Folders')],
         },
+        MEDIA: __('Media'),
         NEW_FOLDER: __('New folder'),
         SEARCH: __('Search'),
         TITLE: __('Media Library'),
