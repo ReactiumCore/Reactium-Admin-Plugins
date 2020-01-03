@@ -1,6 +1,6 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
-import { Button, Prefs } from '@atomic-reactor/reactium-ui';
+import Reactium, { __ } from 'reactium-core/sdk';
+import { Button } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import Draggable from 'react-draggable';
 
@@ -11,13 +11,13 @@ import Draggable from 'react-draggable';
  */
 const noop = () => {};
 const Tools = ({ enums = {}, onButtonClick = noop }) => {
-    const position = Prefs.get('types-tools-drag-handle.position', {
+    const position = Reactium.Prefs.get('types-tools-drag-handle.position', {
         x: 0,
         y: 0,
     });
 
     const onStop = (mouseEvent, { x, y }) => {
-        Prefs.set('types-tools-drag-handle.position', { x, y });
+        Reactium.Prefs.set('types-tools-drag-handle.position', { x, y });
     };
 
     const renderTools = () => {
