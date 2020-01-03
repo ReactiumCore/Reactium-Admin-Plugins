@@ -152,7 +152,6 @@ let ImageEditor = ({ children, ...props }, ref) => {
                 onError={e => onInputError(e)}
                 onSubmit={e => onSubmit(e)}
                 ref={formRef}
-                required={['meta.title']}
                 showError={false}
                 value={value}>
                 <Dropzone
@@ -211,17 +210,8 @@ let ImageEditor = ({ children, ...props }, ref) => {
                         <div>
                             <Scrollbars>
                                 <div className='p-xs-24'>
-                                    <Zone
-                                        data={data}
-                                        cname={cname}
-                                        cx={cx}
-                                        directories={directories}
-                                        dropzoneRef={dropzoneRef}
-                                        formRef={formRef}
-                                        onChange={onChange}
-                                        state={state}
-                                        zone='admin-media-editor-meta'
-                                    />
+                                    <Zone zone='admin-media-editor-meta' />
+                                    <Zone zone='admin-media-editor-meta-image' />
                                 </div>
                             </Scrollbars>
                         </div>

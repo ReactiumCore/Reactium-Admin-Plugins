@@ -20,11 +20,13 @@ export default props => {
 
     const tagsRef = useRef();
 
-    const { file, directories, onChange, state = { value: {} } } = props;
+    const { directories, onError, state = {} } = useHandle('MediaEditor');
 
-    const { directory } = state.value;
+    const directory = op.get(state, 'value.directory');
 
-    const { error = { fields: [], errors: [] } } = state;
+    const error = op.get(state, 'error', {});
+
+    const file = op.get(state, 'file');
 
     const focus = () => {
         if (typeof window === 'undefined') return;

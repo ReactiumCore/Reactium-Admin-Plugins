@@ -89,6 +89,7 @@ html {
             }
             line-height: 24px;
         }
+
         &-container {
             z-index: map-get($z-indexes, overlay) * 2;
         }
@@ -97,4 +98,34 @@ html {
 
 .ar-data-table-heading {
     font-weight: 500;
+}
+
+.ar-breadcrumbs {
+    display: flex;
+    align-items: center;
+
+    &,
+    li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+    }
+
+    li {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+
+        &:not(:last-child) {
+            padding-right: 8px;
+
+            &:after {
+                content: '/';
+                padding-left: 8px;
+                color: $color-gray;
+                font-size: 8px;
+            }
+        }
+    }
 }
