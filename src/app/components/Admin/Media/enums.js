@@ -17,6 +17,9 @@ const ENUMS = {
         DELETE_INFO: [__('Delete'), __('Are you sure?')],
         DOWNLOAD_FILE: __('Download file'),
         EDIT: __('Edit file'),
+        EDITOR: {
+            SUCCESS: 'Save complete!',
+        },
         EMPTY: __('Drop your files here'),
         FILTER: __('Filter'),
         FOLDER: __('Select folder'),

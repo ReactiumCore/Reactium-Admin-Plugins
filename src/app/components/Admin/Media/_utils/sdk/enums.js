@@ -3,6 +3,7 @@ const ENUMS = {
     DEBUG: false,
     DIRECTORY: 'uploads',
     DOMAIN: 'Media',
+    MAX_SIZE: 15728640,
     MAX_UPLOADS: 3,
     STATUS: {
         CANCELED: 'canceled',

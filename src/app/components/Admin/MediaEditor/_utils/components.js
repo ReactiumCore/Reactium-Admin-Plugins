@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, TagsInput } from '@atomic-reactor/reactium-ui';
 
@@ -85,12 +85,12 @@ const Permissions = forwardRef(({ onChange = noop, value = [] }, ref) => {
                     style={{ width: '100%' }}>
                     <div className='form-group mb-xs-0'>
                         <label>
-                            Can View:
+                            {__('Can View')}:
                             <input
                                 autoComplete='off'
                                 data-dropdown-element
                                 onChange={e => onSearch(e)}
-                                placeholder='Select'
+                                placeholder={__('Select')}
                                 type='text'
                                 value={state.search || ''}
                             />
@@ -107,11 +107,11 @@ const Permissions = forwardRef(({ onChange = noop, value = [] }, ref) => {
 const Tags = forwardRef(({ data = [], onChange = noop }, ref) => (
     <>
         <div className='form-group mb-xs-0'>
-            <label>Tags:</label>
+            <label>{__('Tags')}:</label>
         </div>
         <TagsInput
             ref={ref}
-            placeholder='Add tag'
+            placeholder={__('Add tag')}
             name='meta.tags'
             onChange={e => onChange(e)}
         />

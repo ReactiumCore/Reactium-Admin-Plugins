@@ -1,6 +1,3 @@
-$height-media-form: calc(100vh - #{$height-admin-header}) !default;
-$width-media-form: 420px !default;
-
 .zone {
     &-admin-media-editor {
         min-height: 100vh;
@@ -52,33 +49,6 @@ $width-media-form: 420px !default;
                 width: auto;
                 overflow-y: auto;
                 height: $height-media-form;
-            }
-        }
-
-        &-image {
-            position: relative;
-            box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
-            border: 4px solid $color-white;
-
-            img {
-                width: 100%;
-                height: auto;
-            }
-
-            button {
-                position: absolute;
-                bottom: 12px;
-                left: 50%;
-                transform: translateX(-50%);
-                box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.25);
-                opacity: 0;
-                transition: opacity 0.25s ease-in-out;
-            }
-
-            &:hover {
-                button {
-                    opacity: 1;
-                }
             }
         }
 

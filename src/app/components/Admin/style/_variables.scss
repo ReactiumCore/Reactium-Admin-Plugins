@@ -45,6 +45,8 @@ $width-profile-avatar-button: 30px !default;
 
 // Media
 $width-upload-action-button: 30px !default;
+$height-media-form: calc(100vh - #{$height-admin-header}) !default;
+$width-media-form: 420px !default;
 
 
 $z-indexes: (

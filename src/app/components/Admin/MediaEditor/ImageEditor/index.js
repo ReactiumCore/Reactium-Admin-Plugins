@@ -1,45 +1,38 @@
-import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
-import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, { forwardRef, useEffect, useRef } from 'react';
-
-import useWorker from 'components/Admin/MediaEditor/_utils/useWorker';
-
-import Reactium, {
-    useHandle,
-    useHookComponent,
-    useSelect,
-} from 'reactium-core/sdk';
-
 import { Button, Dropzone, WebForm } from '@atomic-reactor/reactium-ui';
-
-const noop = () => {};
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 let ImageEditor = ({ children, ...props }, ref) => {
     const Blocker = useHookComponent('Blocker');
-    const Directory = useHookComponent('MediaEditorDirectory');
-    const Permissions = useHookComponent('MediaEditorPermissions');
-    const Tags = useHookComponent('MediaEditorTags');
+    const Zone = useHookComponent('Zone');
 
-    const { Toast } = useHandle('AdminTools');
-
-    let { cname, cx, data, directories, state, setState } = useHandle(
-        'MediaEditor',
-    );
+    let {
+        cname,
+        cx,
+        data,
+        directories,
+        onChange,
+        onError,
+        onSubmit,
+        state = {},
+        setState,
+    } = useHandle('MediaEditor');
 
     // Refs
     const dropzoneRef = useRef();
     const formRef = useRef();
-    const tagsRef = useRef();
+    const imageRef = useRef();
 
     const dropzoneProps = {
         config: {
             chunking: false,
             clickable: true,
+            maxFiles: 1,
+            maxFilesize: ENUMS.MAX_SIZE / 1048576,
             previewTemplate: '<span />',
         },
         debug: false,
@@ -69,44 +62,17 @@ let ImageEditor = ({ children, ...props }, ref) => {
         setState({ file: undefined, value });
     };
 
-    const onChange = e => {
-        const { name } = e.target;
-        const { value } = state;
-
-        if (!name) return;
-
-        let val = name !== 'meta.tags' ? e.target.value : e.value;
-
-        if (name === 'filename') {
-            val = String(slugify(val)).toLowerCase();
-        }
-
-        if (name === 'directory') {
-            let { directory, url } = value;
-
-            directory = `/${directory}/`;
-
-            if (url) {
-                url = url.split(directory).join(`/${e.target.value}/`);
-                op.set(value, 'url', url);
-            }
-        }
-
-        op.set(value, name, val);
-
-        setState({ value });
-    };
-
-    const onFileError = e => {
-        console.log(e);
-    };
-
     const onFileAdded = async e => {
         const { status } = state;
 
         if (status === ENUMS.STATUS.PROCESSING) return;
 
         const file = e.added[0];
+
+        const { size } = file;
+
+        if (size > ENUMS.MAX_SIZE) return;
+
         const ext = String(
             String(file.name)
                 .split('.')
@@ -122,57 +88,32 @@ let ImageEditor = ({ children, ...props }, ref) => {
             op.set(value, 'filename', String(slugify(file.name)).toLowerCase());
             op.set(value, 'meta.size', file.size);
 
-            setState({ file, value, updated: Date.now() });
+            if (imageRef.current) {
+                imageRef.current.style.maxWidth = file.width;
+                imageRef.current.style.maxHeight = file.height;
+            }
+
+            setState({ file, value, update: Date.now() });
         };
         reader.readAsText(file);
     };
 
-    const onSubmit = async e => {
-        const { file, status, value } = state;
+    const onFileError = e => {
+        let { message } = e;
+        message = String(message)
+            .toLowerCase()
+            .includes('file is too big')
+            ? `Max file size ${ENUMS.MAX_SIZE / 1048576}mb`
+            : message;
 
-        if (status === ENUMS.STATUS.PROCESSING) return;
-
-        delete value.type;
-        delete value.file;
-        delete value.createdAt;
-        delete value.updatedAt;
-        delete value.fetched;
-        delete value.user;
-        delete value.uuid;
-        delete value.capabilities;
-
-        setState({ progress: 0, status: ENUMS.STATUS.PROCESSING });
-
-        value.filename = String(slugify(value.filename)).toLowerCase();
-
-        Reactium.Media.update({ file, ...value });
+        onError({ message });
     };
 
-    const onWorkerMessage = e => {
-        const { type, params } = e;
-
-        switch (type) {
-            case 'status':
-                setState(params);
-                break;
-        }
+    const onInputError = e => {
+        const { errors = [], fields = [] } = e.errors;
+        const focus = fields.length > 0 ? fields[0] : null;
+        onError({ errors, fields, focus, message: null });
     };
-
-    // Worker status update
-    useEffect(() => {
-        const { result, status } = state;
-
-        switch (status) {
-            case ENUMS.STATUS.COMPLETE:
-                setState({
-                    status: ENUMS.STATUS.READY,
-                    initialData: result,
-                    result: undefined,
-                    file: undefined,
-                });
-                break;
-        }
-    }, [state.status]);
 
     // Initial image load
     useEffect(() => {
@@ -186,28 +127,20 @@ let ImageEditor = ({ children, ...props }, ref) => {
                     name: state.value.filename,
                 };
 
-                setState({ currentFile, updated: Date.now() });
+                setState({ currentFile, update: Date.now() });
             };
             img.src = state.value.url;
         }
     }, [state.currentFile, state.value]);
 
-    // Value changes
+    // Form values change
     useEffect(() => {
         const { value } = state;
-
-        if (tagsRef.current) {
-            const tags = op.get(value, 'meta.tags');
-            if (tags) tagsRef.current.setState({ value: tags });
-        }
 
         if (formRef.current) {
             formRef.current.update(value);
         }
-    }, [state]);
-
-    // Register Hook
-    Reactium.Hook.register('media-worker', e => onWorkerMessage(e));
+    }, [state, formRef.current]);
 
     // Renderer
     const render = () => {
@@ -216,8 +149,11 @@ let ImageEditor = ({ children, ...props }, ref) => {
         return !value ? null : (
             <WebForm
                 onChange={e => onChange(e)}
-                onSubmit={onSubmit}
+                onError={e => onInputError(e)}
+                onSubmit={e => onSubmit(e)}
                 ref={formRef}
+                required={['meta.title']}
+                showError={false}
                 value={value}>
                 <Dropzone
                     {...dropzoneProps}
@@ -234,15 +170,17 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                 </div>
                                 <span className={cx('image')}>
                                     <img
+                                        ref={imageRef}
                                         src={file.dataURL}
                                         style={imageStyle()}
                                     />
                                     <Button
                                         appearance='pill'
                                         color='danger'
+                                        className='primary'
                                         onClick={() => onCancel()}
                                         size='sm'>
-                                        Cancel
+                                        {__('Cancel')}
                                     </Button>
                                 </span>
                             </>
@@ -260,9 +198,10 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                     <Button
                                         appearance='pill'
                                         color='primary'
+                                        className='primary'
                                         onClick={() => onBrowse()}
                                         size='sm'>
-                                        Select Image
+                                        {__('Select Image')}
                                     </Button>
                                 </span>
                             </>
@@ -272,51 +211,16 @@ let ImageEditor = ({ children, ...props }, ref) => {
                         <div>
                             <Scrollbars>
                                 <div className='p-xs-24'>
-                                    <input type='hidden' name='filename' />
-                                    <input type='hidden' name='objectId' />
-                                    <input type='hidden' name='meta.size' />
-                                    <Directory
-                                        data={directories}
-                                        label='Directory:'
-                                        name='directory'
-                                        value={state.value.directory}
-                                    />
-                                    {!state.file && (
-                                        <div className='form-group'>
-                                            <label>
-                                                URL:
-                                                <input
-                                                    autoComplete='off'
-                                                    name='url'
-                                                    spellCheck={false}
-                                                    type='text'
-                                                />
-                                            </label>
-                                        </div>
-                                    )}
-                                    <div className='form-group'>
-                                        <label>
-                                            Title:
-                                            <input
-                                                autoComplete='off'
-                                                name='meta.title'
-                                                type='text'
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className='form-group'>
-                                        <label>
-                                            Description:
-                                            <textarea
-                                                autoComplete='off'
-                                                name='meta.description'
-                                                rows={4}
-                                            />
-                                        </label>
-                                    </div>
-                                    <Tags
-                                        onChange={e => onChange(e)}
-                                        ref={tagsRef}
+                                    <Zone
+                                        data={data}
+                                        cname={cname}
+                                        cx={cx}
+                                        directories={directories}
+                                        dropzoneRef={dropzoneRef}
+                                        formRef={formRef}
+                                        onChange={onChange}
+                                        state={state}
+                                        zone='admin-media-editor-meta'
                                     />
                                 </div>
                             </Scrollbars>
@@ -324,12 +228,12 @@ let ImageEditor = ({ children, ...props }, ref) => {
                         <div>
                             <Button
                                 block
+                                disabled={status === ENUMS.STATUS.PROCESSING}
                                 size='md'
-                                type='submit'
-                                disabled={status === ENUMS.STATUS.PROCESSING}>
+                                type='submit'>
                                 {status === ENUMS.STATUS.PROCESSING
-                                    ? 'Saving Image...'
-                                    : 'Save Image'}
+                                    ? __('Saving Image...')
+                                    : __('Save Image')}
                             </Button>
                         </div>
                     </div>

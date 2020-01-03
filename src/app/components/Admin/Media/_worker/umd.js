@@ -103,6 +103,14 @@ class Uploader {
                         result: resp.data.result,
                     },
                 });
+            })
+            .catch(({ response }) => {
+                const { code, error: message } = response.data;
+
+                this.worker.postMessage({
+                    type: 'error',
+                    params: { code, message },
+                });
             });
     }
 
