@@ -5,12 +5,12 @@ import deps from 'dependencies';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { Plugins } from 'reactium-core/components/Plugable';
 import { Collapsible, Prefs } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     useRegisterHandle,
     useDocument,
     useWindowSize,
+    Zone,
 } from 'reactium-core/sdk';
 
 import React, {
@@ -153,21 +153,21 @@ let AdminSidebar = (
                     autoHeightMin='100vh'>
                     <div className={cname()}>
                         <div className='zone-admin-sidebar-header'>
-                            <Plugins
+                            <Zone
                                 zone={[zone, 'header'].join('-')}
                                 {...props}
                             />
                         </div>
                         <div className='zone-admin-sidebar-menu'>
                             <nav className={[zone, 'menu-items'].join('-')}>
-                                <Plugins
+                                <Zone
                                     zone={[zone, 'menu'].join('-')}
                                     {...props}
                                 />
                             </nav>
                         </div>
                         <div className='zone-admin-sidebar-footer'>
-                            <Plugins
+                            <Zone
                                 zone={[zone, 'footer'].join('-')}
                                 {...props}
                             />

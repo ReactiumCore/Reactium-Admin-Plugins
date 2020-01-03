@@ -25,13 +25,11 @@ const PluginManager = props => {
     const canView = useCapabilityCheck(['plugins-ui.view']);
     const canActivate = useCapabilityCheck(['plugins.activate']);
 
-    const [state, setState] = useReduxState(state => {
-        const pluginId = op.get(state, 'Router.match.params.id');
+    const pluginId = op.get(props, 'params.id');
+    const [plugins, setState] = useReduxState(state => {
         const { plugins } = op.get(state, domain.name, []);
-        return { pluginId, plugins };
+        return plugins;
     }, domain.name);
-
-    const { pluginId, plugins } = state;
 
     const refreshPlugins = async () => {
         const plugins = await getPlugins();
