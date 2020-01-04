@@ -1,6 +1,6 @@
 import { Icon } from '@atomic-reactor/reactium-ui';
 
-export default {
+const Enums = {
     TYPES: {
         TEXT: 'text',
         LIST: 'list',
@@ -20,3 +20,5 @@ export default {
         COLOR: Icon.Linear.Palette,
     },
 };
+
+export default Enums;

@@ -1,3 +1,13 @@
 .zone-admin-content-type-editor {
-    @include admin-content-zone;
+    padding-top: #{$height-admin-header + $padding-admin-content-zone};
+    z-index: map-get($z-indexes, 'default');
+    min-height: 120vh;
+}
+
+.type-editor {
+    .types-tools {
+        position: fixed;
+        top: 250px;
+        right: 20px;
+    }
 }
