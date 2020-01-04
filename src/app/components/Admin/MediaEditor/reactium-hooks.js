@@ -58,6 +58,8 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
             zone: ['admin-media-editor-meta-image'],
         });
 
+        // TODO: create list of image sizes that can be changed via settings and apply the ImageCrop component per eacch size.
+        /*
         Reactium.Zone.addComponent({
             id: 'ADMIN-MEDIA-IMAGE-XS-EDITOR',
             component: ImageCrop,
@@ -74,5 +76,6 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
             },
             zone: ['admin-media-editor-meta-image'],
         });
+        */
     },
 );
