@@ -2,6 +2,7 @@ import Reactium from 'reactium-core/sdk';
 import ContentTypeEditor from './index';
 import SidebarWidget from './SidebarWidget';
 import Enums from './enums';
+import FieldTypeDialog from './FieldType/Dialog';
 
 Reactium.Hook.register(
     'field-type-enums',
@@ -13,6 +14,8 @@ Reactium.Hook.register(
 
 const registerPlugin = async () => {
     await Reactium.Plugin.register('content-type');
+
+    Reactium.Component.register('FieldTypeDialog', FieldTypeDialog);
 
     const permitted = await Reactium.Capability.check(['type-ui.view']);
 

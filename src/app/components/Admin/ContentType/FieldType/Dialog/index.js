@@ -67,16 +67,16 @@ FieldTypeDialog.propTypes = {
         const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
         return regex.test(propValue[key]);
     },
-    mode: PropTypes.oneOf(Object.values(Enums.MODE)),
+    // mode: PropTypes.oneOf(Object.values(Enums.MODE)),
     fieldType: PropTypes.string.isRequired,
     Icon: PropTypes.elementType.isRequired,
     dialogProps: PropTypes.shape(Dialog.propTypes),
 };
 
 FieldTypeDialog.defaultProps = {
-    mode: Enums.MODE.NEW,
+    // mode: Enums.MODE.NEW,
     fieldType: 'text',
-    Icon: Enums.ICONS.TEXT,
+    Icon: Enums.TYPES.TEXT.icon,
     dialogProps: Dialog.defaultProps,
 };
 

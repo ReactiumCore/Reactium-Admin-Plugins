@@ -24,14 +24,16 @@ const Tools = ({ enums = {}, onButtonClick = noop }) => {
         return Object.keys(enums.TYPES).map(type => {
             const tooltip = op.get(
                 enums,
-                ['TOOLTIP', type],
-                __('Click to add %type to your content type.').replace(
+                ['TYPES', type, 'tooltip'],
+                __(
+                    'Click to add %type field type to your content type.',
+                ).replace(
                     '%type',
-                    enums.TYPES[type],
+                    op.get(enums, ['TYPES', type, 'label'], type.toLowerCase()),
                 ),
             );
 
-            const Icon = enums.ICONS[type];
+            const Icon = op.get(enums, ['TYPES', type, 'icon']);
             return (
                 <Button
                     color={Button.ENUMS.COLOR.CLEAR}

@@ -1,3 +1,32 @@
-.style {
+// container for fields
+.types-fields {
+    padding: 20px 120px 20px 20px;
+    min-height: 50vh;
 
+    @include breakpoint(md-down) {
+        padding-left: 100px;
+    }
+
+    @include breakpoint(sm-down) {
+        padding-left: 20px;
+    }
+
+    &-empty {
+        height: 75vh;
+    }
+}
+
+.empty-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: $color-white;
+    border: 1px dashed $color-grey;
+    height: 100%;
+
+    span {
+        text-align: center;
+        line-height: 1.5;
+        width: 80%;
+    }
 }
