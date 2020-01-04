@@ -1,0 +1,103 @@
+import _ from 'underscore';
+import cn from 'classnames';
+import op from 'object-path';
+import copy from 'copy-to-clipboard';
+import ENUMS from 'components/Admin/Media/enums';
+import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+
+import React, {
+    useEffect,
+    useLayoutEffect as useWindowEffect,
+    useRef,
+} from 'react';
+
+export default props => {
+    const { label, field = 'thumbnail', options, tooltip } = props;
+
+    const imageRef = useRef();
+
+    const tools = useHandle('AdminTools');
+
+    const Toast = op.get(tools, 'Toast');
+
+    const { data, setState, state = {} } = useHandle('MediaEditor');
+
+    const onCopyClick = () => {
+        const image = op.get(state.value, field);
+        const url = Reactium.Media.url(image);
+        if (url) {
+            copy(url);
+            Toast.show({
+                icon: 'Linear.ClipboardCheck',
+                message: ENUMS.TEXT.COPIED_TO_CLIPBOARD,
+                type: Toast.TYPE.INFO,
+            });
+        }
+    };
+
+    const onRefreshClick = () => {
+        const file = op.get(state.value, 'file');
+        const objectId = op.get(state.value, 'objectId');
+        const url = Reactium.Media.url(file);
+        if (url && objectId) {
+            return Reactium.Media.crop({ field, objectId, options, url }).then(
+                results => {
+                    op.set(state.value, field, results);
+                    setState({ value: state.value });
+
+                    Toast.show({
+                        icon: 'Feather.Image',
+                        message: __('Image updated!'),
+                        type: Toast.TYPE.INFO,
+                    });
+                },
+            );
+        }
+    };
+
+    const render = () => {
+        const image = op.get(state.value, field);
+        const url = image ? image.url().replace('undefined', '/api') : null;
+
+        return (
+            <div className='form-group'>
+                <label>{label}</label>
+                <div className='admin-thumbnail-meta'>
+                    {image && url && <img src={url} ref={imageRef} />}
+                    {!image && (
+                        <Icon
+                            name='Feather.Image'
+                            size={56}
+                            className='placeholder'
+                        />
+                    )}
+                    <Button
+                        appearance='pill'
+                        className='refresh'
+                        color='default'
+                        onClick={e => onRefreshClick()}
+                        data-tooltip={tooltip.generate}
+                        size='sm'
+                        type='button'>
+                        {__('Generate')}
+                    </Button>
+                    <div className='actions'>
+                        <Button
+                            color='default'
+                            type='button'
+                            appearance='circle'
+                            onClick={e => onCopyClick()}
+                            data-vertical-align='middle'
+                            data-align='left'
+                            data-tooltip={tooltip.copy}>
+                            <Icon name='Linear.ClipboardDown' size={20} />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return render();
+};

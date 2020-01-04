@@ -121,11 +121,7 @@ export default () => {
         if (url) {
             copy(url);
             Toast.show({
-                icon: (
-                    <span className='mr-xs-4'>
-                        <Icon name='Linear.ClipboardCheck' />
-                    </span>
-                ),
+                icon: 'Linear.ClipboardCheck',
                 message: ENUMS.TEXT.COPIED_TO_CLIPBOARD,
                 type: Toast.TYPE.INFO,
             });
@@ -166,13 +162,26 @@ export default () => {
 
     const renderImage = item => {
         const { actions } = stateRef.current;
-        const { ext, file, filename, meta, objectId, url } = item;
-        const edgeURL = file.url().replace('undefined', '/api');
+        const {
+            ext,
+            file,
+            filename,
+            meta = {},
+            objectId,
+            thumbnail,
+            url,
+        } = item;
+        const edgeURL = thumbnail
+            ? thumbnail.url().replace('undefined', '/api')
+            : file.url().replace('undefined', '/api');
+
         const bg = { backgroundImage: `url('${edgeURL}')` };
         const acts = _.sortBy(
             Object.values(actions),
             'order',
         ).filter(({ types = [] }) => types.includes('image'));
+
+        const title = op.get(meta, 'title', url);
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
@@ -184,7 +193,7 @@ export default () => {
                         target='_blank'
                     />
                     <div className='media-info'>
-                        <div className='text'>{url}</div>
+                        <div className='text'>{title}</div>
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'
@@ -225,11 +234,15 @@ export default () => {
 
     const renderVideo = item => {
         const { actions } = stateRef.current;
-        const { ext, file, filename, meta, objectId, url } = item;
-        const edgeURL = file.url().replace('undefined', '/api');
+        const { ext, file, filename, meta, objectId, thumbnail, url } = item;
+        const edgeURL = thumbnail
+            ? thumbnail.url().replace('undefined', '/api')
+            : file.url().replace('undefined', '/api');
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('video'),
         );
+
+        const title = op.get(meta, 'title', url);
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
@@ -241,7 +254,7 @@ export default () => {
                         </video>
                     </div>
                     <div className='media-info'>
-                        <div className='text'>{url}</div>
+                        <div className='text'>{title}</div>
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'

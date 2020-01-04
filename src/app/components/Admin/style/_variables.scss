@@ -47,7 +47,7 @@ $width-profile-avatar-button: 30px !default;
 $width-upload-action-button: 30px !default;
 $height-media-form: calc(100vh - #{$height-admin-header}) !default;
 $width-media-form: 420px !default;
-
+$shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05);
 
 $z-indexes: (
     "overlay": 10000,
