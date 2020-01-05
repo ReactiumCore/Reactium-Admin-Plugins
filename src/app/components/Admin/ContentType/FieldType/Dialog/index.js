@@ -1,15 +1,22 @@
 import React, { useRef } from 'react';
-import { __, useDerivedState } from 'reactium-core/sdk';
+import { __, useHandle } from 'reactium-core/sdk';
 import { Dialog, Icon, Button } from '@atomic-reactor/reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
+import op from 'object-path';
 import Enums from '../../enums';
 
 const uuid = require('uuid/v4');
 
 const Header = props => {
     const inputRef = useRef();
-    const { fieldType, Icon: FieldIcon, fieldName, mode } = props;
+    const {
+        type,
+        icon: FieldIcon,
+        fieldName,
+        mode,
+        draggableProps = {},
+    } = props;
 
     const editClicked = () => {
         inputRef.current.focus();
@@ -35,6 +42,12 @@ const Header = props => {
                     <Icon.Linear.Pencil />
                 </Button>
             </div>
+            <div
+                className='fieldtype-draggable'
+                tabIndex={0}
+                {...draggableProps}>
+                <span className='sr-only'>Drag handle</span>
+            </div>
         </div>
     );
 };
@@ -45,7 +58,9 @@ const Header = props => {
  * -----------------------------------------------------------------------------
  */
 const FieldTypeDialog = props => {
-    const { fieldType, dialogProps, children } = props;
+    const ContentTypeEditor = useHandle('ContentTypeEditor');
+    const removeField = op.get(ContentTypeEditor, 'removeField', () => {});
+    const { id, type, dialogProps, children } = props;
     const header = {
         elements: [<Header key='header' {...props} />],
     };
@@ -55,7 +70,8 @@ const FieldTypeDialog = props => {
             {...dialogProps}
             dismissable={true}
             header={header}
-            className={cn('fieldtype', `fieldtype-${fieldType}`)}>
+            className={cn('fieldtype', `fieldtype-${type}`)}
+            onDismiss={() => removeField(id)}>
             {children}
         </Dialog>
     );
@@ -65,18 +81,20 @@ FieldTypeDialog.propTypes = {
     // uuid/v4
     id: (propValue, key) => {
         const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-        return regex.test(propValue[key]);
+        return regex.test(propValue[key])
+            ? null
+            : new Error('Expecting id of type uuid/v4');
     },
-    // mode: PropTypes.oneOf(Object.values(Enums.MODE)),
-    fieldType: PropTypes.string.isRequired,
-    Icon: PropTypes.elementType.isRequired,
+    mode: PropTypes.oneOf(Object.values(Enums.FIELD_MODES)),
+    type: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
     dialogProps: PropTypes.shape(Dialog.propTypes),
 };
 
 FieldTypeDialog.defaultProps = {
-    // mode: Enums.MODE.NEW,
-    fieldType: 'text',
-    Icon: Enums.TYPES.TEXT.icon,
+    mode: Enums.FIELD_MODES.NEW,
+    type: Enums.TYPES.type,
+    icon: Enums.TYPES.TEXT.icon,
     dialogProps: Dialog.defaultProps,
 };
 

@@ -1,15 +1,17 @@
 import React, { useRef, useState } from 'react';
-import { __, Zone } from 'reactium-core/sdk';
+import { __, Zone, useZoneComponents } from 'reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
+import Enums from '../enums';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: Fields
  * -----------------------------------------------------------------------------
  */
-const Fields = ({ fields = {} }) => {
-    const isEmpty = Object.values(fields).length < 1;
+const Fields = props => {
+    const fields = useZoneComponents(Enums.ZONE);
+    const isEmpty = fields.length < 1;
 
     return (
         <Droppable droppableId='types-fields'>
@@ -20,7 +22,7 @@ const Fields = ({ fields = {} }) => {
                     })}
                     {...droppableProps}
                     ref={innerRef}>
-                    <Zone zone={'types-fields'}>
+                    <Zone zone={Enums.ZONE}>
                         {isEmpty && (
                             <div className='empty-message'>
                                 <span>

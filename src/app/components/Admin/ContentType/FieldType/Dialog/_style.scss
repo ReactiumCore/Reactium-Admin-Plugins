@@ -1,11 +1,40 @@
 $fieldtype-icon-color: $color-gray !default;
 $fieldtype-name-input-focus: $color-blue !default;
+$fieldtype-drag-focus: $color-gray !default;
 $fieldtype-name-icon-color: $color-white !default;
 
 .fieldtype {
     .ar-dialog {
         &-content {
             padding: 20px;
+        }
+    }
+
+    &-draggable {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 100%;
+        flex: 1 1 100%;
+
+        &:hover {
+            cursor: pointer;
+        }
+        &:focus {
+            outline: 1px solid $fieldtype-drag-focus;
+            &:before, &:after {
+                display: block;
+                content: ' ';
+                border: 1px solid $fieldtype-drag-focus;
+                border-radius: 1px;
+                width: 24px;
+                height: 1px;
+            }
+            &:after {
+                margin-top: 2px;
+            }
         }
     }
 

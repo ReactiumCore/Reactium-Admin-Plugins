@@ -1,5 +1,5 @@
 import React from 'react';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import Draggable from 'react-draggable';
@@ -9,8 +9,7 @@ import Draggable from 'react-draggable';
  * Functional Component: Tools
  * -----------------------------------------------------------------------------
  */
-const noop = () => {};
-const Tools = ({ enums = {}, onButtonClick = noop }) => {
+const Tools = ({ enums = {} }) => {
     const position = Reactium.Prefs.get('types-tools-drag-handle.position', {
         x: 0,
         y: 0,
@@ -19,6 +18,8 @@ const Tools = ({ enums = {}, onButtonClick = noop }) => {
     const onStop = (mouseEvent, { x, y }) => {
         Reactium.Prefs.set('types-tools-drag-handle.position', { x, y });
     };
+
+    const { addField } = useHandle('ContentTypeEditor');
 
     const renderTools = () => {
         return Object.keys(enums.TYPES).map(type => {
@@ -41,7 +42,7 @@ const Tools = ({ enums = {}, onButtonClick = noop }) => {
                     data-tooltip={tooltip}
                     data-align='left'
                     data-vertical-align='middle'
-                    onClick={() => onButtonClick(type)}>
+                    onClick={() => addField(type)}>
                     <span className={'sr-only'}>{tooltip}</span>
                     <Icon />
                 </Button>
@@ -64,7 +65,6 @@ const Tools = ({ enums = {}, onButtonClick = noop }) => {
 
 Tools.defaultProps = {
     enums: { TYPES: {} },
-    onButtonClick: noop,
 };
 
 export default Tools;
