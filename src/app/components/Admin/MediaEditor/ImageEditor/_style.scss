@@ -2,7 +2,7 @@
     .admin-media-editor {
         &-image {
             position: relative;
-            box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
+            box-shadow: $shadow-image;
             border: 4px solid $color-white;
 
             img {

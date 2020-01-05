@@ -84,6 +84,7 @@ const MediaEditor = props => {
             'createdAt',
             'fetched',
             'file',
+            'thumbnail',
             'type',
             'uuid',
             'updateAt',
@@ -148,6 +149,7 @@ const MediaEditor = props => {
         state,
         op.get(state, 'initialData'),
         op.get(state, 'status'),
+        op.get(state, 'updated'),
     ]);
 
     // Side effects

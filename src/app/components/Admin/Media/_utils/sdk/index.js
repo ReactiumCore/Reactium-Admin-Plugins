@@ -261,8 +261,16 @@ class Media {
     }
 
     url(objectId) {
-        const file = this.file(objectId);
-        const { url } = file;
+        let url;
+        if (typeof objectId === 'string') {
+            const file = this.file(objectId);
+            url = op.get(file, 'url');
+        } else {
+            url = objectId.url();
+        }
+
+        url = url.replace(/undefined/gi, '/api');
+
         const uarr = [
             window.location.protocol,
             '//',
@@ -286,6 +294,15 @@ class Media {
             elm.setAttribute('href', href);
             elm.click();
             elm.remove();
+        });
+    }
+
+    crop({ field = 'thumbnail', objectId, options, url }) {
+        return Reactium.Cloud.run('media-image-crop', {
+            field,
+            objectId,
+            options,
+            url,
         });
     }
 }
