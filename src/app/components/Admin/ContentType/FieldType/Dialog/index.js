@@ -10,13 +10,7 @@ const uuid = require('uuid/v4');
 
 const Header = props => {
     const inputRef = useRef();
-    const {
-        type,
-        icon: FieldIcon,
-        fieldName,
-        mode,
-        draggableProps = {},
-    } = props;
+    const { type, icon: FieldIcon, fieldName, mode, DragHandle } = props;
 
     const editClicked = () => {
         inputRef.current.focus();
@@ -42,12 +36,7 @@ const Header = props => {
                     <Icon.Linear.Pencil />
                 </Button>
             </div>
-            <div
-                className='fieldtype-draggable'
-                tabIndex={0}
-                {...draggableProps}>
-                <span className='sr-only'>Drag handle</span>
-            </div>
+            <DragHandle />
         </div>
     );
 };

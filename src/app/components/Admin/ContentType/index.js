@@ -23,7 +23,19 @@ const ContentType = props => {
     };
 
     const onDragEnd = result => {
-        console.log({ result });
+        const draggableId = op.get(result, 'draggableId');
+        const source = op.get(result, 'source.index');
+        const destination = op.get(result, 'destination.index');
+        if (source === destination) return;
+
+        const fieldIds = Reactium.Zone.getZoneComponents(Enums.ZONE).map(
+            ({ id }) => id,
+        );
+        fieldIds.splice(source, 1);
+        fieldIds.splice(destination, 0, draggableId);
+        fieldIds.forEach((id, order) =>
+            Reactium.Zone.updateComponent(id, { order }),
+        );
     };
 
     const addField = type => {
@@ -32,7 +44,7 @@ const ContentType = props => {
             Reactium.Zone.addComponent({
                 ...Enums.TYPES[type],
                 zone: Enums.ZONE,
-                order: existing.length + 1,
+                order: existing.length,
                 component: 'FieldType',
                 fieldTypeComponent: Enums.TYPES[type].component,
             });

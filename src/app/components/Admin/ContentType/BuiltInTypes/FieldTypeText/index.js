@@ -6,9 +6,13 @@ import { useHookComponent } from 'reactium-core/sdk';
  * -----------------------------------------------------------------------------
  */
 const FieldTypeText = props => {
-    const FieldTypeDialog = useHookComponent('FieldTypeDialog');
-
-    return <FieldTypeDialog {...props}>Stub FieldTypeText</FieldTypeDialog>;
+    const { DragHandle } = props;
+    const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
+    return (
+        <FieldTypeDialog {...props}>
+            Stub FieldTypeText {props.id}
+        </FieldTypeDialog>
+    );
 };
 
 export default FieldTypeText;
