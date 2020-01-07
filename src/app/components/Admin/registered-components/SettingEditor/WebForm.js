@@ -122,9 +122,7 @@ let WebForm = (props, ref) => {
         Object.entries(elements).forEach(([, element]) => {
             const name = element.name;
             const type = element.type;
-
-            // if input name is formatted as object-path, don't use it as such
-            const val = op.get(value, [name], '');
+            const val = op.get(value, name, '');
 
             if (Array.isArray(val)) {
                 // Checkbox & Radio
