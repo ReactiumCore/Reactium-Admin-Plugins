@@ -2,15 +2,16 @@ import React, { useRef, useState } from 'react';
 import { Button } from '@atomic-reactor/reactium-ui';
 import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
+import cn from 'classnames';
 
 export default props => {
     const id = op.get(props, 'id');
-    const name = op.get(props, 'name');
+    const error = op.get(props, 'error', false);
     const isNew = id === 'new';
 
     const renderNameInput = () => {
         return (
-            <div className='form-group'>
+            <div className={cn('form-group', { error })}>
                 <input
                     type='text'
                     autoComplete='off'

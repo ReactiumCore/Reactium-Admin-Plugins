@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import TypeName from './TypeName';
 import Fields from './Fields';
 import Tools from './Tools';
@@ -11,8 +11,10 @@ import cn from 'classnames';
 import slugify from 'slugify';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
+import uuid from 'uuid/v4';
 
-const getStubRef = () => ({ getValue: () => ({}) });
+const noop = () => {};
+const getStubRef = () => ({ getValue: () => ({}), update: noop });
 
 const ContentType = props => {
     const [state, setState] = useDerivedState(props, ['params.id']);
@@ -21,6 +23,8 @@ const ContentType = props => {
     const parentFormRef = useRef();
     const formsRef = useRef({});
     const formsErrors = useRef({});
+    const nameError = useRef(false);
+    const [, setVersion] = useState(uuid());
 
     const getValue = () => {
         const currentValue = {};
@@ -35,6 +39,13 @@ const ContentType = props => {
         });
 
         return currentValue;
+    };
+
+    const setValue = value => {
+        parentFormRef.current.update(value);
+        Object.entries(
+            op.get(value, 'fields', {}),
+        ).forEach(([fieldId, value]) => getFormRef(fieldId).update(value));
     };
 
     const validator = async (value, valid, errors) => {
@@ -53,6 +64,7 @@ const ContentType = props => {
                     [fieldId],
                     op.get(responseContext, [fieldId]),
                 );
+
                 const ref = op.get(formsRef.current, [fieldId], getStubRef)();
                 ref.setState(op.get(responseContext, [fieldId]));
                 valid = false;
@@ -62,8 +74,37 @@ const ContentType = props => {
         return { valid, errors };
     };
 
-    const onTypeSave = async ({ value }) => {
-        console.log('all values', getValue());
+    const onError = async ({ errors }) => {
+        if (op.get(errors, 'fields', []).includes('type')) {
+            nameError.current = true;
+        } else {
+            nameError.current = false;
+        }
+
+        updateRestore(value => {
+            // render errors
+            setVersion(uuid());
+        });
+    };
+
+    const updateRestore = async (cb = noop) => {
+        // preserve values
+        const value = getValue();
+
+        await cb(value);
+
+        // put values back in form
+        setValue(value);
+
+        return value;
+    };
+
+    const onTypeSave = async () => {
+        updateRestore(value => {
+            // render errors
+            setVersion(uuid());
+            console.log('onTypeSave', { value });
+        });
     };
 
     const saveField = (id, value) => {
@@ -97,28 +138,45 @@ const ContentType = props => {
 
     const addField = type => {
         if (op.has(Enums, ['TYPES', type])) {
-            const existing = Reactium.Zone.getZoneComponents(Enums.ZONE);
-            Reactium.Zone.addComponent({
-                ...Enums.TYPES[type],
-                zone: Enums.ZONE,
-                order: existing.length,
-                component: 'FieldType',
-                fieldTypeComponent: Enums.TYPES[type].component,
-            });
+            updateRestore(
+                value =>
+                    new Promise(resolve => {
+                        const existing = Reactium.Zone.getZoneComponents(
+                            Enums.ZONE,
+                        );
+                        Reactium.Zone.addComponent({
+                            ...Enums.TYPES[type],
+                            zone: Enums.ZONE,
+                            order: existing.length,
+                            component: 'FieldType',
+                            fieldTypeComponent: Enums.TYPES[type].component,
+                        });
+
+                        setTimeout(() => {
+                            resolve();
+                        }, 1);
+                    }),
+            );
         }
     };
 
     const removeField = id => {
-        const existing = Reactium.Zone.getZoneComponents(Enums.ZONE);
-
         // Make async so dismissable _onHide() reconciles before removing component
-        setTimeout(() => {
-            Reactium.Zone.removeComponent(id);
-            op.del(formsRef.current, [id]);
-        }, 1);
+        updateRestore(
+            value =>
+                new Promise(resolve => {
+                    setTimeout(() => {
+                        Reactium.Zone.removeComponent(id);
+                        op.del(formsRef.current, [id]);
+                        resolve();
+                    }, 1);
+                }),
+        );
     };
 
     const getFormRef = id => op.get(formsRef.current, [id], getStubRef)();
+
+    const getFormErrors = id => op.get(formsErrors.current, [id, 'errors']);
 
     useRegisterHandle(
         'ContentTypeEditor',
@@ -130,6 +188,7 @@ const ContentType = props => {
                 addFormRef,
                 removeFormRef,
                 getFormRef,
+                getFormErrors,
             };
         },
         [],
@@ -140,10 +199,11 @@ const ContentType = props => {
             <WebForm
                 ref={parentFormRef}
                 onSubmit={onTypeSave}
+                onError={onError}
                 required={['type']}
                 showError={false}
                 validator={validator}>
-                <TypeName id={id} />
+                <TypeName id={id} error={nameError.current} />
             </WebForm>
 
             <DragDropContext onDragEnd={onDragEnd}>
