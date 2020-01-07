@@ -58,7 +58,13 @@ export default props => {
 
     const render = () => {
         const image = op.get(state.value, field);
-        const url = image ? image.url().replace('undefined', '/api') : null;
+
+        let url = image
+            ? op.has(image, '__type')
+                ? image.url
+                : image.url()
+            : null;
+        url = url ? url.replace('undefined', '/api') : null;
 
         return (
             <div className='form-group'>

@@ -24,8 +24,6 @@ export default props => {
         'MediaEditor',
     );
 
-    const directory = op.get(state, 'value.directory');
-
     const error = op.get(state, 'error', {});
 
     const file = op.get(state, 'file');
@@ -107,7 +105,7 @@ export default props => {
         focus();
     }, [op.get(error, 'fields'), state.update]);
 
-    return (
+    const render = () => (
         <>
             <input type='hidden' name='filename' />
             <input type='hidden' name='objectId' />
@@ -116,7 +114,7 @@ export default props => {
                 data={directories}
                 label='Directory:'
                 name='directory'
-                value={directory}
+                value={op.get(state, 'value.directory')}
             />
             {!file && (
                 <div className={formCls('url')}>
@@ -153,4 +151,6 @@ export default props => {
             <Tags onChange={e => onChange(e)} ref={tagsRef} />
         </>
     );
+
+    return render();
 };

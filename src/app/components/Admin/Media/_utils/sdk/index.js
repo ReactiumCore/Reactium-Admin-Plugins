@@ -266,7 +266,7 @@ class Media {
             const file = this.file(objectId);
             url = op.get(file, 'url');
         } else {
-            url = objectId.url();
+            url = op.has(objectId, '__type') ? objectId.url : objectId.url();
         }
 
         url = url.replace(/undefined/gi, '/api');

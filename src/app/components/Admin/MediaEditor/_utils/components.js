@@ -6,19 +6,19 @@ import { Button, Dropdown, TagsInput } from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
 
-const Directory = ({ data, label, name }) =>
-    data ? (
-        <div className='form-group'>
-            <label>
-                {label}
-                <select name={name}>
-                    {data.map((item, i) => (
+const Directory = ({ data, label, name, value }) => (
+    <div className='form-group'>
+        <label>
+            {label}
+            <select name={name} defaultValue={value}>
+                {data &&
+                    data.map((item, i) => (
                         <option key={`${name}-${i}`}>{item}</option>
                     ))}
-                </select>
-            </label>
-        </div>
-    ) : null;
+            </select>
+        </label>
+    </div>
+);
 
 const Permissions = forwardRef(({ onChange = noop, value = [] }, ref) => {
     const targets = Reactium.Cache.get('acl-targets');

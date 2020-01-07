@@ -9,6 +9,7 @@ export default ID => {
     const [state, setNewState] = useState({
         data: undefined,
         status: ENUMS.STATUS.INIT,
+        updated: Date.now(),
     });
 
     const setState = newState =>
@@ -32,11 +33,15 @@ export default ID => {
                 setState({ data, status: ENUMS.STATUS.READY });
             } else {
                 Reactium.Media.retrieve(ID).then(result =>
-                    setState({ status: ENUMS.STATUS.READY, data: result }),
+                    setState({
+                        status: ENUMS.STATUS.READY,
+                        data: result,
+                        updated: Date.now(),
+                    }),
                 );
             }
         }
     }, [ID, op.get(state, 'data'), op.get(state, 'status')]);
 
-    return [state.data, ID];
+    return [state.data, ID, state.updated];
 };

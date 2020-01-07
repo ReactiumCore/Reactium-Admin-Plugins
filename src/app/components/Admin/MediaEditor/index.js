@@ -25,7 +25,7 @@ const MediaEditor = props => {
 
     const Toast = op.get(tools, 'Toast');
 
-    const [data, ID] = useMediaObject();
+    const [data, ID, fetched] = useMediaObject();
 
     const directories = useDirectories();
 
@@ -57,6 +57,36 @@ const MediaEditor = props => {
         setState({ value });
     };
 
+    const onComplete = async result => {
+        Toast.show({
+            icon: 'Feather.Check',
+            type: Toast.TYPE.INFO,
+            message: ENUMS.TEXT.EDITOR.SUCCESS,
+        });
+
+        const currentFile = {
+            dataURL: result.url,
+            name: result.filename,
+        };
+
+        const newState = {
+            currentFile,
+            status: ENUMS.STATUS.READY,
+            initialData: result,
+            result: undefined,
+            file: undefined,
+            update: Date.now(),
+            value: result,
+        };
+
+        await Reactium.Hook.run('admin-media-update-complete', {
+            result,
+            newState,
+        });
+
+        setState(newState);
+    };
+
     const onError = async error => {
         await Reactium.Hook.run('admin-media-update-error', error);
 
@@ -84,7 +114,7 @@ const MediaEditor = props => {
             'createdAt',
             'fetched',
             'file',
-            'thumbnail',
+            // 'thumbnail',
             'type',
             'uuid',
             'updateAt',
@@ -120,7 +150,13 @@ const MediaEditor = props => {
                 break;
 
             case 'status':
-                setState({ ...params, update: Date.now() });
+                const { progress, status } = params;
+
+                setState({
+                    ...params,
+                    update: Date.now(),
+                });
+
                 break;
         }
     };
@@ -143,6 +179,7 @@ const MediaEditor = props => {
         ID,
         data,
         directories,
+        fetched,
         onChange,
         onError,
         onSubmit,
@@ -180,19 +217,7 @@ const MediaEditor = props => {
 
         switch (status) {
             case ENUMS.STATUS.COMPLETE:
-                Toast.show({
-                    icon: 'Feather.Check',
-                    type: Toast.TYPE.INFO,
-                    message: ENUMS.TEXT.EDITOR.SUCCESS,
-                });
-
-                setState({
-                    status: ENUMS.STATUS.READY,
-                    initialData: result,
-                    result: undefined,
-                    file: undefined,
-                    update: Date.now(),
-                });
+                onComplete(result);
                 break;
         }
     }, [state.status]);

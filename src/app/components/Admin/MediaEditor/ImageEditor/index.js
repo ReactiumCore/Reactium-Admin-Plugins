@@ -6,7 +6,7 @@ import React, { forwardRef, useEffect, useRef } from 'react';
 import { Button, Dropzone, WebForm } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
-let ImageEditor = ({ children, ...props }, ref) => {
+export default ({ children, ...props }) => {
     const Blocker = useHookComponent('Blocker');
     const Zone = useHookComponent('Zone');
 
@@ -38,6 +38,14 @@ let ImageEditor = ({ children, ...props }, ref) => {
         debug: false,
     };
 
+    const isBusy = () => {
+        const statuses = [ENUMS.STATUS.PROCESSING, ENUMS.STATUS.UPLOADING];
+
+        const { status } = state;
+
+        return statuses.includes(status);
+    };
+
     const previewStyle = () => {
         return state.file
             ? { maxWidth: state.file.width, maxHeight: state.file.height }
@@ -63,7 +71,7 @@ let ImageEditor = ({ children, ...props }, ref) => {
     };
 
     const onFileAdded = async e => {
-        const { status } = state;
+        const { value, status } = state;
 
         if (status === ENUMS.STATUS.PROCESSING) return;
 
@@ -82,20 +90,26 @@ let ImageEditor = ({ children, ...props }, ref) => {
         if (!ENUMS.TYPE.IMAGE.includes(ext)) return;
 
         const reader = new FileReader();
-        reader.onload = () => {
-            const { value = {} } = state;
-
+        reader.onload = evt => {
             op.set(value, 'filename', String(slugify(file.name)).toLowerCase());
             op.set(value, 'meta.size', file.size);
+            op.set(value, 'ext', ext);
 
             if (imageRef.current) {
                 imageRef.current.style.maxWidth = file.width;
                 imageRef.current.style.maxHeight = file.height;
             }
 
-            setState({ file, value, update: Date.now() });
+            dropzoneRef.current.dropzone.removeAllFiles();
+            setState({
+                currentFile: undefined,
+                file,
+                update: Date.now(),
+                value,
+            });
         };
-        reader.readAsText(file);
+
+        reader.readAsText(file.slice(0, 4));
     };
 
     const onFileError = e => {
@@ -117,21 +131,22 @@ let ImageEditor = ({ children, ...props }, ref) => {
 
     // Initial image load
     useEffect(() => {
-        if (!state.currentFile && state.value) {
+        if (!state.file && !op.get(state, 'currentFile.width') && state.value) {
+            const currentFile = {
+                dataURL: state.value.url,
+                name: state.value.filename,
+            };
+
             const img = new Image();
             img.onload = () => {
-                const currentFile = {
-                    dataURL: state.value.url,
-                    width: img.width,
-                    height: img.height,
-                    name: state.value.filename,
-                };
+                currentFile.width = img.width;
+                currentFile.height = img.height;
 
                 setState({ currentFile, update: Date.now() });
             };
             img.src = state.value.url;
         }
-    }, [state.currentFile, state.value]);
+    }, [state.currentFile, state.value, state.update]);
 
     // Form values change
     useEffect(() => {
@@ -144,7 +159,8 @@ let ImageEditor = ({ children, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        const { file, files, status, value } = state;
+        const { currentFile, file, files, status, value } = state;
+        const busy = isBusy();
 
         return !value ? null : (
             <WebForm
@@ -162,12 +178,12 @@ let ImageEditor = ({ children, ...props }, ref) => {
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
                     <div className={cx('dropzone')}>
-                        {file && (
+                        {file && !currentFile && (
                             <>
                                 <div className='mb-xs-12 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
-                                <span className={cx('image')}>
+                                <span className={cx('preview')}>
                                     <img
                                         ref={imageRef}
                                         src={file.dataURL}
@@ -184,14 +200,14 @@ let ImageEditor = ({ children, ...props }, ref) => {
                                 </span>
                             </>
                         )}
-                        {!state.file && state.currentFile && (
+                        {!file && currentFile && (
                             <>
                                 <div className='mb-xs-12 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
-                                <span className={cx('image')}>
+                                <span className={cx('preview')}>
                                     <img
-                                        src={state.currentFile.dataURL}
+                                        src={currentFile.dataURL}
                                         style={previewStyle()}
                                     />
                                     <Button
@@ -218,17 +234,17 @@ let ImageEditor = ({ children, ...props }, ref) => {
                         <div>
                             <Button
                                 block
-                                disabled={status === ENUMS.STATUS.PROCESSING}
+                                disabled={busy}
                                 size='md'
                                 type='submit'>
-                                {status === ENUMS.STATUS.PROCESSING
+                                {busy
                                     ? __('Saving Image...')
                                     : __('Save Image')}
                             </Button>
                         </div>
                     </div>
                 </Dropzone>
-                {status === ENUMS.STATUS.PROCESSING && <Blocker />}
+                {busy && <Blocker />}
             </WebForm>
         );
     };
@@ -236,7 +252,3 @@ let ImageEditor = ({ children, ...props }, ref) => {
     // Render
     return render();
 };
-
-ImageEditor = forwardRef(ImageEditor);
-
-export { ImageEditor as default };
