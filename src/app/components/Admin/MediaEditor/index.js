@@ -25,16 +25,15 @@ const MediaEditor = props => {
 
     const Toast = op.get(tools, 'Toast');
 
-    const [data, ID, fetched] = useMediaObject();
-
     const directories = useDirectories();
+
+    const [data, ID, fetched] = useMediaObject();
 
     const [state, setState] = useDerivedState({
         ...props,
         files: {},
         initialData: data,
         status: !ID || !data ? ENUMS.STATUS.FETCHING : ENUMS.STATUS.READY,
-        value: null,
     });
 
     const cname = () => {
@@ -177,16 +176,12 @@ const MediaEditor = props => {
 
     useRegisterHandle('MediaEditor', handle, [
         ID,
-        data,
         directories,
         fetched,
-        onChange,
-        onError,
-        onSubmit,
-        state,
+        op.get(state, 'currentFile'),
         op.get(state, 'initialData'),
         op.get(state, 'status'),
-        op.get(state, 'updated'),
+        op.get(state, 'value'),
     ]);
 
     // Side effects
@@ -198,7 +193,7 @@ const MediaEditor = props => {
                 update: Date.now(),
             });
         }
-    }, [ID, data, state.status]);
+    }, [ID, data, op.get(state, 'status')]);
 
     // Regsiter media-worker hook
     useEffect(() => {
@@ -209,7 +204,7 @@ const MediaEditor = props => {
         return () => {
             Reactium.Hook.unregister(workerHook);
         };
-    });
+    }, []);
 
     // Worker status update
     useEffect(() => {
@@ -220,7 +215,7 @@ const MediaEditor = props => {
                 onComplete(result);
                 break;
         }
-    }, [state.status]);
+    }, [op.get(state, 'status')]);
 
     // Value changes
     useEffect(() => {
@@ -231,14 +226,20 @@ const MediaEditor = props => {
                 value,
             });
         }
-    }, [state, state.value, state.file, state.status]);
+    }, [
+        op.get(state, 'value'),
+        op.get(state, 'file'),
+        op.get(state, 'status'),
+    ]);
 
     // Renderer
     const render = () => {
+        const type = op.get(data, 'type');
+
         return (
             <>
                 {state.status === ENUMS.STATUS.FETCHING && <Blocker />}
-                {state.status !== ENUMS.STATUS.FETCHING && (
+                {state.status !== ENUMS.STATUS.FETCHING && type && (
                     <>
                         {data.type === 'AUDIO' && <AudioEditor />}
                         {data.type === 'FILE' && <FileEditor />}

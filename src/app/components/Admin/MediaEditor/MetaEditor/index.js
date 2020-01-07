@@ -116,20 +116,18 @@ export default props => {
                 name='directory'
                 value={op.get(state, 'value.directory')}
             />
-            {!file && (
-                <div className={formCls('url')}>
-                    <label>
-                        {__('URL')}:
-                        <input
-                            autoComplete='off'
-                            name='url'
-                            spellCheck={false}
-                            type='text'
-                        />
-                    </label>
-                    <ErrorMsg field='url' />
-                </div>
-            )}
+            <div className={formCls('url')}>
+                <label>
+                    {__('URL')}:
+                    <input
+                        autoComplete='off'
+                        name='url'
+                        spellCheck={false}
+                        type='text'
+                    />
+                </label>
+                <ErrorMsg field='url' />
+            </div>
             <div className={formCls('meta.title')}>
                 <label>
                     {__('Title')}:

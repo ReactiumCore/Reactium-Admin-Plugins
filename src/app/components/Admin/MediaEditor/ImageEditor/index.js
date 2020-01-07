@@ -48,11 +48,10 @@ export default ({ children, ...props }) => {
 
     const previewStyle = () => {
         return state.file
-            ? { maxWidth: state.file.width, maxHeight: state.file.height }
+            ? { maxWidth: state.file.width }
             : state.currentFile
             ? {
                   maxWidth: state.currentFile.width,
-                  maxHeight: state.currentFile.height,
               }
             : {};
     };
@@ -64,8 +63,8 @@ export default ({ children, ...props }) => {
 
         if (status === ENUMS.STATUS.PROCESSING) return;
 
-        op.set(value, 'filename', op.get(initialData, 'filename'));
-        op.set(value, 'meta.size', op.get(initialData, 'meta.size'));
+        op.set(value, 'filename', op.get(data, 'filename'));
+        op.set(value, 'meta.size', op.get(data, 'meta.size'));
 
         setState({ file: undefined, value });
     };
@@ -97,7 +96,6 @@ export default ({ children, ...props }) => {
 
             if (imageRef.current) {
                 imageRef.current.style.maxWidth = file.width;
-                imageRef.current.style.maxHeight = file.height;
             }
 
             dropzoneRef.current.dropzone.removeAllFiles();
@@ -129,24 +127,32 @@ export default ({ children, ...props }) => {
         onError({ errors, fields, focus, message: null });
     };
 
+    const onImageLoad = evt => {
+        const currentFile = {
+            dataURL: Reactium.Media.url(data.file),
+            name: data.filename,
+            width: evt.path[0].width + 'px',
+        };
+
+        setState({ currentFile, update: Date.now() });
+    };
+
     // Initial image load
     useEffect(() => {
-        if (!state.file && !op.get(state, 'currentFile.width') && state.value) {
-            const currentFile = {
-                dataURL: state.value.url,
-                name: state.value.filename,
-            };
-
+        if (
+            !op.get(state, 'file') &&
+            !op.get(state, 'currentFile') &&
+            op.get(state, 'value')
+        ) {
             const img = new Image();
-            img.onload = () => {
-                currentFile.width = img.width;
-                currentFile.height = img.height;
-
-                setState({ currentFile, update: Date.now() });
-            };
-            img.src = state.value.url;
+            img.onload = onImageLoad;
+            img.src = Reactium.Media.url(data.file);
         }
-    }, [state.currentFile, state.value, state.update]);
+    }, [
+        op.get(state, 'currentFile'),
+        op.get(state, 'value'),
+        op.get(state, 'update'),
+    ]);
 
     // Form values change
     useEffect(() => {
@@ -178,9 +184,9 @@ export default ({ children, ...props }) => {
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
                     <div className={cx('dropzone')}>
-                        {file && !currentFile && (
+                        {file && (
                             <>
-                                <div className='mb-xs-12 small'>
+                                <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
                                 <span className={cx('preview')}>
@@ -202,12 +208,13 @@ export default ({ children, ...props }) => {
                         )}
                         {!file && currentFile && (
                             <>
-                                <div className='mb-xs-12 small'>
+                                <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
                                 <span className={cx('preview')}>
                                     <img
-                                        src={currentFile.dataURL}
+                                        ref={imageRef}
+                                        src={currentFile && currentFile.dataURL}
                                         style={previewStyle()}
                                     />
                                     <Button
