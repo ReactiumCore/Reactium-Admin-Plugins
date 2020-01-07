@@ -268,16 +268,12 @@ class Media {
         } else {
             url = op.has(objectId, '__type') ? objectId.url : objectId.url();
         }
+        url = url
+            .replace(/undefined/gi, '/api')
+            .split('/api/')
+            .pop();
 
-        url = url.replace(/undefined/gi, '/api');
-
-        const uarr = [
-            window.location.protocol,
-            '//',
-            window.location.host,
-            url,
-        ];
-        return uarr.join('');
+        return `${window.location.protocol}//${window.location.host}/api/${url}`;
     }
 
     download(objectId) {
