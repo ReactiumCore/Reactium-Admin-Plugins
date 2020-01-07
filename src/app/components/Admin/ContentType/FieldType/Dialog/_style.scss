@@ -64,6 +64,12 @@ $fieldtype-name-icon-color: $color-white !default;
         &-name {
             padding: 0 20px;
 
+            &.error {
+                input {
+                    border: 1px solid $input-color-error;
+                }
+            }
+
             &-icon {
                 &, &:hover, &:focus {
                     width: 20px;

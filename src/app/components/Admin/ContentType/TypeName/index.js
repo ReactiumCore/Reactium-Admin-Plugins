@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@atomic-reactor/reactium-ui';
-import { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
 
 export default props => {
@@ -14,7 +14,7 @@ export default props => {
                 <input
                     type='text'
                     autoComplete='off'
-                    name='type-name'
+                    name='type'
                     placeholder={__('Content Type Name')}
                 />
             </div>

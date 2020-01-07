@@ -1,16 +1,50 @@
-import React, { useRef } from 'react';
-import { __, useHandle } from 'reactium-core/sdk';
+import React, { useRef, useState, useEffect } from 'react';
+import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Dialog, Icon, Button } from '@atomic-reactor/reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../../enums';
-
-const uuid = require('uuid/v4');
+import uuid from 'uuid/v4';
 
 const Header = props => {
     const inputRef = useRef();
-    const { type, icon: FieldIcon, fieldName, mode, DragHandle } = props;
+    const errorsRef = useRef();
+    const [, setVersion] = useState(uuid());
+
+    const { id, icon: FieldIcon, fieldName, mode, DragHandle } = props;
+
+    useEffect(() => {
+        const errorsSub = Reactium.Hook.register(
+            `field-type-validated-${id}`,
+            async ({ errors, valid }) => {
+                if (
+                    !valid &&
+                    op.get(errors, 'fields', []).includes('fieldName')
+                ) {
+                    errorsRef.current = errors;
+                } else {
+                    errorsRef.current = null;
+                }
+
+                setVersion(uuid());
+            },
+            Reactium.Enums.priority.lowest,
+        );
+
+        const submitSub = Reactium.Hook.register(
+            `field-type-submit-${id}`,
+            async () => {
+                errorsRef.current = null;
+                setVersion(uuid());
+            },
+        );
+
+        return () => {
+            Reactium.Hook.unregister(errorsSub);
+            Reactium.Hook.unregister(submitSub);
+        };
+    }, [id]);
 
     const editClicked = () => {
         inputRef.current.focus();
@@ -21,7 +55,10 @@ const Header = props => {
             <div className='fieldtype-header-icon'>
                 <FieldIcon />
             </div>
-            <div className='fieldtype-header-name'>
+            <div
+                className={cn('fieldtype-header-name', {
+                    error: errorsRef.current,
+                })}>
                 <input
                     ref={inputRef}
                     type={'text'}

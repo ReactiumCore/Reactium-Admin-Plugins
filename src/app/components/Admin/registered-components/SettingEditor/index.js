@@ -91,7 +91,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             },
             {},
         );
-        console.log({ formValues, preserved });
 
         errorsRef.current = errors;
         setVersion(uuid());
