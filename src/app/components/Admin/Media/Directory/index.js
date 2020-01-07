@@ -235,9 +235,7 @@ export default () => {
     const renderVideo = item => {
         const { actions } = stateRef.current;
         const { ext, file, filename, meta, objectId, thumbnail, url } = item;
-        const edgeURL = thumbnail
-            ? thumbnail.url().replace('undefined', '/api')
-            : file.url().replace('undefined', '/api');
+        const edgeURL = file && file.url().replace('undefined', '/api');
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('video'),
         );
