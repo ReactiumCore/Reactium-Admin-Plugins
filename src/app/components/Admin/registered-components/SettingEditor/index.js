@@ -17,6 +17,7 @@ import {
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import uuid from 'uuid/v4';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
@@ -32,7 +33,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const Toast = op.get(tools, 'Toast');
     const formRef = useRef();
     const errorsRef = useRef(null);
-    const [version, setVersion] = useState(1);
+    const [version, setVersion] = useState(uuid());
     const groupName = op.get(settings, 'group');
 
     useLayoutEffect(() => {
@@ -57,8 +58,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         groupName,
     );
 
-    if (!canGet) return null;
-
     const group = {
         [groupName]: settingGroup,
     };
@@ -66,12 +65,14 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const inputs = op.get(settings, 'inputs', {});
 
     const value = Object.keys(inputs).reduce((value, key) => {
-        op.set(value, [key], op.get(group, key));
+        op.set(value, key, op.get(group, key, null));
         return value;
     }, {});
 
+    if (!canGet) return null;
+
     const sanitizeInput = (value, key) => {
-        const config = op.get(inputs, [key], {});
+        const config = op.get(inputs, key, {});
         const type = op.get(config, 'type');
         const sanitize = op.get(config, 'sanitize', val => val);
 
@@ -82,15 +83,24 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     };
 
-    const onError = ({ value, errors }) => {
+    const onError = ({ value: formValues, errors }) => {
+        const preserved = Object.entries(formValues).reduce(
+            (preservedValue, [key, value]) => {
+                op.set(preservedValue, key, value);
+                return preservedValue;
+            },
+            {},
+        );
+        console.log({ formValues, preserved });
+
         errorsRef.current = errors;
-        setVersion(version + 1);
+        setVersion(uuid());
         setTimeout(() => {
-            formRef.current.update(value);
+            formRef.current.update(preserved);
         }, 1);
     };
 
-    const onSubmit = async ({ value }) => {
+    const onSubmit = async () => {
         errorsRef.current = null;
         if (!canSet) return;
 
@@ -207,7 +217,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     onSubmit={onSubmit}
                     noValidate={true}
                     required={Object.entries(inputs)
-                        .filter(([key, config]) => op.get(config, 'required'))
+                        .filter(([, config]) => op.get(config, 'required'))
                         .map(([key]) => key)}
                     value={value}
                     ref={formRef}

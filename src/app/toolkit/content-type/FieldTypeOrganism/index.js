@@ -4,6 +4,7 @@
  * -----------------------------------------------------------------------------
  */
 import React, { Component, Fragment } from 'react';
+import uuid from 'uuid/v4';
 import FieldTypeDialog from 'components/Admin/ContentType/FieldType/Dialog';
 
 /**
@@ -24,7 +25,7 @@ class FieldTypeOrganism extends Component {
 
     render() {
         return (
-            <FieldTypeDialog id='something-unique'>
+            <FieldTypeDialog id={uuid()} type='text'>
                 Field Type Form Elements Here
             </FieldTypeDialog>
         );
