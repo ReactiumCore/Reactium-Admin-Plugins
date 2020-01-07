@@ -13,7 +13,7 @@ import {
     Icon,
     WebForm,
 } from '@atomic-reactor/reactium-ui';
-// import WebForm from './WebForm';
+// import WebForm from 'components/Reactium-UI/WebForm';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
