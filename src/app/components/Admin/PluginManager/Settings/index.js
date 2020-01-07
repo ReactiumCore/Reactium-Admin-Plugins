@@ -3,11 +3,10 @@ import { useHandle, Zone } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
- * Functional Component: PluginManager
+ * Functional Component: PluginSettings
  * -----------------------------------------------------------------------------
  */
 const PluginSettings = ({ plugin }) => {
-    console.log({ plugin });
     const SearchBar = useHandle('SearchBar');
     useEffect(() => SearchBar.setState({ visible: false }));
 

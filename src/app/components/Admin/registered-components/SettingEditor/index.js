@@ -17,6 +17,7 @@ import {
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import uuid from 'uuid/v4';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
@@ -32,7 +33,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const Toast = op.get(tools, 'Toast');
     const formRef = useRef();
     const errorsRef = useRef(null);
-    const [version, setVersion] = useState(1);
+    const [version, setVersion] = useState(uuid());
     const groupName = op.get(settings, 'group');
 
     useLayoutEffect(() => {
@@ -57,8 +58,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         groupName,
     );
 
-    if (!canGet) return null;
-
     const group = {
         [groupName]: settingGroup,
     };
@@ -69,6 +68,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         op.set(value, [key], op.get(group, key));
         return value;
     }, {});
+
+    if (!canGet) return null;
 
     const sanitizeInput = (value, key) => {
         const config = op.get(inputs, [key], {});
@@ -84,7 +85,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const onError = ({ value, errors }) => {
         errorsRef.current = errors;
-        setVersion(version + 1);
+        setVersion(uuid());
         setTimeout(() => {
             formRef.current.update(value);
         }, 1);

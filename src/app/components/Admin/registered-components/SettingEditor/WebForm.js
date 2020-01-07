@@ -1,11 +1,7 @@
-/**
- * TODO: Remove me when reactium-ui WebForm is rock solid.
- */
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-
 import React, {
     forwardRef,
     useEffect,
@@ -14,6 +10,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import uuid from 'uuid/v4';
 
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
@@ -64,7 +61,7 @@ let WebForm = (props, ref) => {
     });
 
     // State
-    const [, setNewState] = useState(stateRef.current);
+    const [, setNewState] = useState(uuid());
 
     // Internal Interface
     const setState = newState => {
@@ -75,7 +72,7 @@ let WebForm = (props, ref) => {
         };
 
         // Trigger useEffect()
-        setNewState(stateRef.current);
+        setNewState(uuid());
     };
 
     const getElements = () => {
@@ -125,7 +122,10 @@ let WebForm = (props, ref) => {
         Object.entries(elements).forEach(([, element]) => {
             const name = element.name;
             const type = element.type;
-            const val = value[name];
+
+            // if input name is formatted as object-path, don't use it as such
+            const val = op.get(value, [name], '');
+
             if (Array.isArray(val)) {
                 // Checkbox & Radio
                 if (['checkbox', 'radio'].includes(type)) {
@@ -179,15 +179,6 @@ let WebForm = (props, ref) => {
             stateRef.current.elements[fieldName].focus();
         }
     };
-
-    // External Interface
-    useImperativeHandle(ref, () => ({
-        errors: op.get(stateRef.current, 'errors'),
-        setState,
-        update,
-        getValue,
-        focus,
-    }));
 
     // Side Effects
     const errorFields = op.get(stateRef.current, 'errors.fields', []);
@@ -244,7 +235,7 @@ let WebForm = (props, ref) => {
         return stateRef.current.value;
     };
 
-    const validate = value => {
+    const validate = async value => {
         value = value || getValue();
 
         let valid = true;
@@ -263,7 +254,7 @@ let WebForm = (props, ref) => {
         }
 
         if (validator) {
-            const validatorResult = validator(value, valid, errors);
+            const validatorResult = await validator(value, valid, errors);
             valid = op.get(validatorResult, 'valid', true) && valid;
             const newErrors = op.get(validatorResult, 'errors', {});
             errors = {
@@ -281,7 +272,7 @@ let WebForm = (props, ref) => {
         onComplete({ value, error, status });
     };
 
-    const submit = e => {
+    const submit = async e => {
         if (e) {
             e.preventDefault();
         }
@@ -295,9 +286,10 @@ let WebForm = (props, ref) => {
 
         const value = getValue();
 
-        const { valid, errors } = validate(value);
+        const { valid, errors } = await validate(value);
 
-        onBeforeSubmit({ value, valid, errors });
+        await onBeforeSubmit({ value, valid, errors });
+
         if (valid !== true) {
             setState({ errors });
             onError({ errors, value });
@@ -311,7 +303,8 @@ let WebForm = (props, ref) => {
         setState({ status: ENUMS.STATUS.SENDING });
 
         try {
-            onSubmit({ value, valid });
+            await onSubmit({ value, valid });
+
             setState({ status: ENUMS.STATUS.COMPLETE });
         } catch (error) {
             setState({ error, status: ENUMS.STATUS.ERROR });
@@ -346,6 +339,23 @@ let WebForm = (props, ref) => {
             </form>
         );
     };
+
+    const getFormRef = () => formRef.current;
+
+    const getChildren = () => children;
+
+    // External Interface
+    useImperativeHandle(ref, () => ({
+        children: getChildren(),
+        errors: op.get(stateRef.current, 'errors'),
+        setState,
+        update,
+        getValue,
+        focus,
+        form: getFormRef(),
+        submit,
+        validate,
+    }));
 
     return render();
 };
