@@ -3,39 +3,261 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: en_US\n"
 
+#: src/app/components/Admin/Settings/AppSettings/enums.js:68
+msgid "Able to access any capability regardless."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:40
+msgid "Able to access any Setting group regardless. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:35
+msgid "Able to access settings in the \"admin\" group."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:73
+msgid "Able to create a new capability. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:47
+msgid "Able to create a new setting group. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:87
+msgid "Able to delete an existing capability. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:61
+msgid "Able to delete any existing setting group. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:71
+msgid "Able to see S3 File Adapter plugin settings, but not necessarily change them."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:30
+msgid "Able to see the application settings page."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:80
+msgid "Able to update an existing capability. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:54
+msgid "Able to update any existing setting group. (Assign with caution)"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:9
+msgid "Able to view the admin dashboard page when logged in."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:23
+msgid "Able to view the plugins manager admin page when logged in."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:16
+msgid "Able to view the settings admin page when logged in."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:50
+msgid "Access Files Directly"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:18
+msgid "Access Key Id"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:18
 msgid "Account Info"
 msgstr ""
 
-#: src/app/components/Admin/AlertBox/enums.js:8
+#: src/app/components/plugin-src/reset/BigRed.js:11
+msgid "Actinium Reset"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/Card/index.js:53
+msgid "Activate"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/_utils/components.js:114
+msgid "Add tag"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:37
+msgid "Adds a code field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:51
+msgid "Adds a color field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:30
+msgid "Adds a list field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:23
+msgid "Adds a number field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:16
+msgid "Adds a text field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:44
+msgid "Adds an image field to your content type."
+msgstr ""
+
+#: src/app/components/Admin/registered-components/AlertBox/enums.js:8
 msgid "Alert"
 msgstr ""
 
-#: src/app/components/Admin/Settings/AppSettings/index.js:18
-msgid "App"
+#: src/app/components/Admin/Media/enums.js:27
+msgid "All folders"
 msgstr ""
 
-#: src/app/components/Admin/Settings/AppSettings/reactium-hooks.js:13
+#: src/app/components/Admin/Settings/AppSettings/index.js:22
+msgid "App - Settings"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/reactium-hooks.js:16
 msgid "Application"
 msgstr ""
 
-#: src/app/components/Admin/Settings/AppSettings/reactium-hooks.js:26
-msgid "Application Settings"
+#: src/app/components/Admin/Media/enums.js:41
+msgid "Are you sure you want to delete"
 msgstr ""
 
-#: src/app/components/Admin/ConfirmBox/enums.js:9
+#: src/app/components/Admin/Media/enums.js:17
 #: src/app/components/Admin/Profile/enums.js:26
+#: src/app/components/Admin/registered-components/ConfirmBox/enums.js:9
 msgid "Are you sure?"
+msgstr ""
+
+#: src/app/components/plugin-src/reset/BigRed.js:42
+msgid "Are you sure? This is a destructive operation."
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:11
+msgid "Back"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:58
+msgid "Base URL"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:12
+msgid "Browse Files"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:10
+msgid "Bucket name"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:29
+msgid "Can Edit"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:30
+#: src/app/components/Admin/MediaEditor/_utils/components.js:88
+msgid "Can View"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:38
+msgid "cancel"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/ImageEditor/index.js:198
+msgid "Cancel"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:194
+msgid "Capabilities"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:145
+msgid "Capability"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:72
+msgid "Capability: Create a capability."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:86
+msgid "Capability: Delete a capability."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:67
+msgid "Capability: Retrieve all capabilities."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:79
+msgid "Capability: Update a capability."
 msgstr ""
 
 #: src/app/components/Admin/Password/Forgot/enums.js:29
 msgid "Check your"
 msgstr ""
 
-#: src/app/components/Admin/ConfirmBox/enums.js:10
+#: src/app/components/Admin/SearchBar/enums.js:5
+msgid "clear search"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/Tools/index.js:29
+msgid "Click to add %type field type to your content type."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:35
+msgid "Code Field"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:49
+msgid "Color Field"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/Fields/index.js:29
+msgid "Compose the new Content Type Schema by adding elements from the toolbar here."
+msgstr ""
+
 #: src/app/components/Admin/Password/Forgot/enums.js:20
 #: src/app/components/Admin/Password/Reset/enums.js:18
+#: src/app/components/Admin/registered-components/ConfirmBox/enums.js:10
 msgid "Confirm"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:13
+msgid "Confirm Delete"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/TypeName/index.js:28
+msgid "Content Type Editor"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/TypeName/index.js:19
+msgid "Content Type Name"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/SidebarWidget/index.js:8
+msgid "Content Types"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:14
+msgid "Copied to clipboard"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:15
+msgid "Copy to clipboard"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/reactium-hooks.js:55
+msgid "copy url to clipboard"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/index.js:54
+msgid "Core"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/reactium-hooks.js:56
+msgid "create a new thumbnail"
 msgstr ""
 
 #: src/app/components/Admin/Login/enums.js:24
@@ -44,9 +266,67 @@ msgstr ""
 msgid "Create Account"
 msgstr ""
 
-#: src/app/components/Admin/Dashboard/index.js:18
+#: src/app/components/Admin/Dashboard/index.js:19
 #: src/app/components/Admin/Dashboard/SidebarWidget/index.js:6
 msgid "Dashboard"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/Card/index.js:52
+msgid "Deactivate"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/BuiltInTypes/FieldTypeText/index.js:17
+msgid "Default Value"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:39
+msgid "delete"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:17
+msgid "Delete"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:16
+msgid "Delete file"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:40
+msgid "delete selected"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/MetaEditor/index.js:142
+msgid "Description"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:18
+msgid "Download file"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:24
+#: src/app/components/Admin/Media/enums.js:49
+msgid "Drop your files here"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:42
+msgid "edit"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/FieldType/Dialog/index.js:42
+#: src/app/components/Admin/Media/enums.js:19
+msgid "Edit"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:20
+msgid "Edit file"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:36
+msgid "Edit folders"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:77
+msgid "Edit S3 Plugin Settings"
 msgstr ""
 
 #: src/app/components/Admin/Profile/enums.js:19
@@ -57,6 +337,10 @@ msgstr ""
 msgid "email and follow the directions to reset your password"
 msgstr ""
 
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:34
+msgid "Endpoint Hostname"
+msgstr ""
+
 #: src/app/components/Admin/Password/Reset/enums.js:23
 msgid "Enter your new password"
 msgstr ""
@@ -65,8 +349,52 @@ msgstr ""
 msgid "Enter your username"
 msgstr ""
 
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:67
+msgid "Error added role"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:68
+msgid "Error removing role"
+msgstr ""
+
+#: src/app/components/plugin-src/reset/BigRed.js:30
+msgid "Error resetting actinium!"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/SettingEditor/index.js:123
+msgid "Error saving settings"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/FieldType/Dialog/index.js:36
+msgid "Field Name"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/index.js:56
+msgid "File Adapters"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:25
+msgid "Filter"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:20
 msgid "First Name"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:43
+msgid "Folder"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:31
+msgid "Folder name"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:41
+msgid "folder?"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:43
+msgid "Folders"
 msgstr ""
 
 #: src/app/components/Admin/Login/enums.js:23
@@ -77,6 +405,22 @@ msgstr ""
 msgid "Forgot your password"
 msgstr ""
 
+#: src/app/components/Admin/MediaEditor/ImageCrop/index.js:89
+msgid "Generate"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:51
+msgid "If turned on, the URL provided will go directly to your CDN, instead of through the Parse API. If turned off, your Actinium API will serve (proxy) the file from your CDN."
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:42
+msgid "Image Field"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/ImageCrop/index.js:51
+msgid "Image updated!"
+msgstr ""
+
 #: src/app/components/Admin/Login/enums.js:17
 msgid "invalid username or password"
 msgstr ""
@@ -85,12 +429,41 @@ msgstr ""
 msgid "Last Name"
 msgstr ""
 
+#: src/app/components/Admin/ContentType/enums.js:28
+msgid "List Field"
+msgstr ""
+
 #: src/app/components/Admin/Login/enums.js:26
 msgid "Login"
 msgstr ""
 
+#: src/app/components/Admin/PluginManager/index.js:55
+msgid "Mailers"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:45
+#: src/app/components/Admin/Media/Widget/SidebarWidget/index.js:14
+msgid "Media"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:48
+msgid "Media Library"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:22
 msgid "Name"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/SidebarWidget/index.js:11
+msgid "New"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:46
+msgid "New folder"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:32
+msgid "New Folder"
 msgstr ""
 
 #: src/app/components/Admin/Password/Forgot/enums.js:22
@@ -98,7 +471,7 @@ msgstr ""
 msgid "New Password"
 msgstr ""
 
-#: src/app/components/Admin/ConfirmBox/enums.js:6
+#: src/app/components/Admin/registered-components/ConfirmBox/enums.js:6
 msgid "No"
 msgstr ""
 
@@ -106,8 +479,16 @@ msgstr ""
 msgid "NO"
 msgstr ""
 
-#: src/app/components/Admin/AlertBox/enums.js:6
+#: src/app/components/Admin/ContentType/enums.js:21
+msgid "Number Field"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/AlertBox/enums.js:6
 msgid "Ok"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/index.js:58
+msgid "Other"
 msgstr ""
 
 #: src/app/components/Admin/Login/enums.js:22
@@ -119,8 +500,36 @@ msgstr ""
 msgid "Password Reset!"
 msgstr ""
 
+#: src/app/components/Admin/ContentType/BuiltInTypes/FieldTypeText/index.js:23
+msgid "Pattern"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/Card/index.js:44
+msgid "Plugin Active"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/Card/index.js:44
+msgid "Plugin Disabled"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/Card/index.js:67
+msgid "Plugin settings for %s"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/SidebarWidget/index.js:7
+msgid "Plugins"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:35
 msgid "Profile Updated"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:78
+msgid "Provides ability to configure settings for the S3 File Adapter plugin."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:42
+msgid "Region"
 msgstr ""
 
 #: src/app/components/Admin/Profile/enums.js:13
@@ -139,6 +548,10 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
+#: src/app/components/plugin-src/reset/BigRed.js:56
+msgid "Reset Actinium"
+msgstr ""
+
 #: src/app/components/Admin/Password/Reset/enums.js:25
 #: src/app/components/Admin/Profile/enums.js:30
 msgid "Reset Password"
@@ -152,12 +565,82 @@ msgstr ""
 msgid "Resetting your password will sign you out."
 msgstr ""
 
+#: src/app/components/Admin/ContentType/BuiltInTypes/FieldTypeText/index.js:30
+msgid "Rich Text"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:57
+msgid "Role added"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/CapabilityEditor/index.js:58
+msgid "Role removed"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/SidebarWidget/index.js:12
+msgid "S3 Adapter"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:5
+msgid "S3 Adapter Settings"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/TypeName/index.js:32
+msgid "Save"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:34
+msgid "Save Folder"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/ImageEditor/index.js:242
+msgid "Save Image"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:34
 msgid "Save Profile"
 msgstr ""
 
+#: src/app/components/Admin/registered-components/SettingEditor/index.js:243
+msgid "Save Settings"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/VideoEditor/index.js:202
+msgid "Save Video"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/ImageEditor/index.js:241
+msgid "Saving Image..."
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/VideoEditor/index.js:201
+msgid "Saving Video..."
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:33
 msgid "Saving..."
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:47
+#: src/app/components/Admin/SearchBar/enums.js:6
+#: src/app/components/Admin/SearchBar/enums.js:7
+msgid "Search"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:26
+msgid "Secret Access Key"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/_utils/components.js:93
+msgid "Select"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:26
+msgid "Select folder"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/ImageEditor/index.js:219
+msgid "Select Image"
 msgstr ""
 
 #: src/app/components/Admin/Password/Forgot/enums.js:14
@@ -169,9 +652,44 @@ msgstr ""
 msgid "Sending"
 msgstr ""
 
-#: src/app/components/Admin/Settings/AppSettings/index.js:18
-#: src/app/components/Admin/Settings/SidebarWidget/index.js:14
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:59
+msgid "Sets the full base URL used to serve files from your bucket. If your bucket has a CDN URL, or instance, use that here. Example: https://my-bucket.us-west-2.amazonaws.com or https://cdn.example.com."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:46
+msgid "Setting: Create any setting group."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:60
+msgid "Setting: Delete any setting group."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:39
+msgid "Setting: Retrieve any settings"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:53
+msgid "Setting: Update any setting group."
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:34
+msgid "Setting: View Admin Settings Group"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:29
+msgid "Setting: View Application Settings group"
+msgstr ""
+
+#: src/app/components/Admin/Settings/SidebarWidget/index.js:13
 msgid "Settings"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/SettingEditor/index.js:277
+msgid "Settings Group"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/SettingEditor/index.js:116
+msgid "Settings saved"
 msgstr ""
 
 #: src/app/components/Admin/Login/enums.js:13
@@ -188,6 +706,58 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+#: src/app/components/plugin-src/reset/BigRed.js:24
+msgid "Success! You should restart Actinium."
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/_utils/components.js:110
+msgid "Tags"
+msgstr ""
+
+#: src/app/components/Admin/ContentType/enums.js:14
+msgid "Text Field"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:19
+msgid "The S3 access key id. See your CDN provider for this setting."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:11
+msgid "The S3 bucket name. See your CDN provider for this setting."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:35
+msgid "The S3 endpoint hostname, usually excluding the bucket name prefix, for example sfo2.digitaloceanspaces.com or us-west-2.amazonaws.com."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:43
+msgid "The S3 region for your provider, for example sfo2 for DigitalOcean Spaces or us-west-2 for Amazon AWS S3."
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:27
+msgid "The S3 secret access key. This key is sensitive. See your CDN provider for this setting."
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/reactium-hooks.js:52
+msgid "Thumbnail:"
+msgstr ""
+
+#: src/app/components/Admin/MediaEditor/MetaEditor/index.js:135
+msgid "Title"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:22
+msgid "UI: Plugins Admin Page"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:15
+msgid "UI: Settings Admin Page"
+msgstr ""
+
+#: src/app/components/Admin/Settings/AppSettings/enums.js:8
+msgid "UI: View Admin Dashboard Page"
+msgstr ""
+
 #: src/app/components/Admin/Profile/enums.js:16
 msgid "Unable to save profile"
 msgstr ""
@@ -200,14 +770,38 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
+#: src/app/components/Admin/MediaEditor/MetaEditor/index.js:122
+msgid "URL"
+msgstr ""
+
 #: src/app/components/Admin/Login/enums.js:21
 msgid "Username"
 msgstr ""
 
-#: src/app/components/Admin/ConfirmBox/enums.js:7
+#: src/app/components/Admin/Media/enums.js:33
+msgid "Users or roles"
+msgstr ""
+
+#: src/app/components/Admin/PluginManager/index.js:57
+msgid "Utilities"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:50
+msgid "View file"
+msgstr ""
+
+#: src/app/components/plugin-src/s3-adapter/Settings/index.js:70
+msgid "View S3 Plugin Settings"
+msgstr ""
+
+#: src/app/components/Admin/registered-components/ConfirmBox/enums.js:7
 msgid "Yes"
 msgstr ""
 
 #: src/app/components/Admin/Profile/enums.js:31
 msgid "YES"
+msgstr ""
+
+#: src/app/components/Admin/Media/enums.js:51
+msgid "Your browser does not support this video"
 msgstr ""
