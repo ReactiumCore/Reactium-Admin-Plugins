@@ -69,6 +69,15 @@ const FieldTypeDialog = props => {
             className={cn('fieldtype', `fieldtype-${type}`)}
             onDismiss={() => removeField(id)}>
             {children}
+            <div className='form-group'>
+                <label>
+                    <input
+                        type='text'
+                        name='helpText'
+                        placeholder={__('Help Text')}
+                    />
+                </label>
+            </div>
         </Dialog>
     );
 };

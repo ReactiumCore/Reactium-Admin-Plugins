@@ -33,7 +33,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const Toast = op.get(tools, 'Toast');
     const formRef = useRef();
     const errorsRef = useRef(null);
-    const [version, setVersion] = useState(uuid());
+    const [, setVersion] = useState(uuid());
     const groupName = op.get(settings, 'group');
 
     useLayoutEffect(() => {

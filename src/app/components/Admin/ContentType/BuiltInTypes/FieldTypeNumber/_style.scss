@@ -1,3 +1,25 @@
-.style {
 
+.field-type-number {
+    .input-group {
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .default-value {
+        flex: 1 1 60%;
+        input {
+            width: 100%;
+        }
+    }
+
+    .min-max {
+        flex: 0 1 15%;
+        input {
+            width: 100%;
+        }
+    }
+
+    .slider-check {
+        margin-left: 20px;
+    }
 }

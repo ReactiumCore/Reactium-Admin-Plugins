@@ -1,5 +1,6 @@
 import React from 'react';
-import { useHookComponent } from 'reactium-core/sdk';
+import { Checkbox } from '@atomic-reactor/reactium-ui';
+import { useHookComponent, __ } from 'reactium-core/sdk';
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldTypeText
@@ -10,7 +11,27 @@ const FieldTypeText = props => {
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
     return (
         <FieldTypeDialog {...props}>
-            Stub FieldTypeText {props.id}
+            <div className='field-type-text'>
+                <div className={'form-group'}>
+                    <label>
+                        <span>{__('Default Value')}</span>
+                        <input type='text' name='defaultValue' />
+                    </label>
+                </div>
+                <div className={'form-group'}>
+                    <label>
+                        <span>{__('Pattern')}</span>
+                        <input type='text' name='pattern' />
+                    </label>
+                </div>
+                <div className='richtext-check'>
+                    <Checkbox
+                        name='richtext'
+                        label={__('Rich Text')}
+                        labelAlign={'right'}
+                    />
+                </div>
+            </div>
         </FieldTypeDialog>
     );
 };
