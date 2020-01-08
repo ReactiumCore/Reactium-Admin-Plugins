@@ -14,8 +14,15 @@ Reactium.Hook.register(
 );
 
 const registerPlugin = async () => {
-    await Reactium.Plugin.register('content-type');
+    await Reactium.Plugin.register(
+        'ContentType',
+        Reactium.Enums.priority.highest,
+    );
 
+    // Add ContentType SDK
+    Reactium.ContentType = require('./sdk').default;
+
+    // Register FieldType Base Components
     Reactium.Component.register('FieldType', FieldType);
     Reactium.Component.register('FieldTypeDialog', FieldTypeDialog);
 
