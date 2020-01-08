@@ -3,6 +3,7 @@
     flex-direction: column;
     width: 50px;
     background: $color-white;
+    z-index: map-get($z-indexes, actions);
 
     button {
         &:focus {
