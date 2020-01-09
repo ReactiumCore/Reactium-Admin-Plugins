@@ -9,6 +9,7 @@ import { useHookComponent, __ } from 'reactium-core/sdk';
 const FieldTypeText = props => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
+    console.log({ props });
     return (
         <FieldTypeDialog {...props}>
             <div className='field-type-text'>
@@ -29,6 +30,7 @@ const FieldTypeText = props => {
                         name='richtext'
                         label={__('Rich Text')}
                         labelAlign={'right'}
+                        value={true}
                     />
                 </div>
             </div>

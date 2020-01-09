@@ -31,13 +31,14 @@ export default props => {
 
     const renderNameInput = () => {
         return (
-            <div className={cn('form-group', { error })}>
+            <div className={cn('input-group', { error })}>
                 <input
                     type='text'
                     autoComplete='off'
                     name='type'
                     placeholder={__('Content Type Name')}
                 />
+                <Button type='submit'>{__('Save')}</Button>
             </div>
         );
     };
@@ -49,10 +50,9 @@ export default props => {
             </div>
             <div className='type-name-input'>
                 {renderNameInput()}
-                <Button type='submit'>{__('Save')}</Button>
                 <Button
                     data-tooltip={deleteLabel}
-                    style={{ marginLeft: 4, width: 50, height: 50 }}
+                    style={{ width: 50, height: 50 }}
                     color={Button.ENUMS.COLOR.DANGER}
                     onClick={showModal}>
                     <span className='sr-only'>{deleteLabel}</span>

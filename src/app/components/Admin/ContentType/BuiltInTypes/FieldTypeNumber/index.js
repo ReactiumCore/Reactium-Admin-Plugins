@@ -46,6 +46,7 @@ const FieldTypeNumber = props => {
                             name='slider'
                             label={__('Slider')}
                             labelAlign={'right'}
+                            value={true}
                         />
                     </div>
                 </div>
