@@ -28,10 +28,10 @@ const Header = props => {
                 <input
                     ref={inputRef}
                     type={'text'}
+                    defaultValue={op.get(props, 'value.fieldName', null)}
                     name='fieldName'
                     placeholder={__('Field Name')}
                     className='fieldtype-header-name-input'
-                    onChange={e => console.log('changed')}
                 />
                 <Button
                     className='fieldtype-header-name-icon'
