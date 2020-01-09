@@ -313,6 +313,8 @@ const ContentType = memo(
 
         const getFormErrors = id => op.get(formsErrors.current, [id, 'errors']);
 
+        const isNew = () => id === 'new';
+
         useRegisterHandle(
             'ContentTypeEditor',
             () => {
@@ -325,6 +327,7 @@ const ContentType = memo(
                     getFormRef,
                     getFormErrors,
                     clearDelete,
+                    isNew,
                 };
             },
             [id],

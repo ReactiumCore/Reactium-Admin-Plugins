@@ -25,6 +25,13 @@ export default {
                 ),
             },
             {
+                capability: 'type-ui.view',
+                title: __('UI: Content Type Admin Page'),
+                tooltip: __(
+                    'Able to view the content type editor when logged in.',
+                ),
+            },
+            {
                 capability: 'setting.app-get',
                 title: __('Setting: View Application Settings group'),
                 tooltip: __('Able to see the application settings page.'),
@@ -87,6 +94,26 @@ export default {
                 tooltip: __(
                     'Able to delete an existing capability. (Assign with caution)',
                 ),
+            },
+            {
+                capability: 'Type.retrieve',
+                title: __('Type: Retrieve any content type'),
+                tooltip: __('Able to access any content type definition.'),
+            },
+            {
+                capability: 'Type.create',
+                title: __('Type: Create content type.'),
+                tooltip: __('Able to create a new content type definition.'),
+            },
+            {
+                capability: 'Type.update',
+                title: __('Type: Update content type.'),
+                tooltip: __('Able to update any content type definition.'),
+            },
+            {
+                capability: 'Type.delete',
+                title: __('Type: Delete any content type.'),
+                tooltip: __('Able to delete any content type definition.'),
             },
         ],
     },

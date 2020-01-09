@@ -1,18 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
+import React, { useRef } from 'react';
+import { __, useHandle } from 'reactium-core/sdk';
 import { Dialog, Icon, Button } from '@atomic-reactor/reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../../enums';
-import uuid from 'uuid/v4';
 
 const Header = props => {
     const inputRef = useRef();
-    const errorsRef = useRef();
-    const [, setVersion] = useState(uuid());
-
-    const { id, icon: FieldIcon, fieldName, mode, DragHandle } = props;
+    const { id, icon: FieldIcon, DragHandle } = props;
     const handle = useHandle('ContentTypeEditor');
     const errors = handle.getFormErrors(id);
 
@@ -35,6 +31,7 @@ const Header = props => {
                     name='fieldName'
                     placeholder={__('Field Name')}
                     className='fieldtype-header-name-input'
+                    onChange={e => console.log('changed')}
                 />
                 <Button
                     className='fieldtype-header-name-icon'
@@ -56,14 +53,22 @@ const Header = props => {
 const FieldTypeDialog = props => {
     const ContentTypeEditor = useHandle('ContentTypeEditor');
     const removeField = op.get(ContentTypeEditor, 'removeField', () => {});
+    const isNew = op.get(ContentTypeEditor, 'isNew', () => true);
     const { id, type, dialogProps, children } = props;
     const header = {
         elements: [<Header key='header' {...props} />],
     };
 
+    const pref = isNew()
+        ? {}
+        : {
+              pref: `field-type-dialog.${id}`,
+          };
+
     return (
         <Dialog
             {...dialogProps}
+            {...pref}
             dismissable={true}
             header={header}
             className={cn('fieldtype', `fieldtype-${type}`)}
