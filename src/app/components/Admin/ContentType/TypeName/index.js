@@ -1,22 +1,44 @@
-import React from 'react';
-import { Button } from '@atomic-reactor/reactium-ui';
-import { __ } from 'reactium-core/sdk';
+import React, { useRef, useState } from 'react';
+import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
+import cn from 'classnames';
 
 export default props => {
-    const id = op.get(props, 'id');
-    const name = op.get(props, 'name');
+    const id = op.get(props, 'id', 'new');
+    const error = op.get(props, 'error', false);
     const isNew = id === 'new';
+    const deleteLabel = isNew ? __('Clear') : __('Delete');
+    const handle = useHandle('ContentTypeEditor');
+    const tools = useHandle('AdminTools');
+    const Modal = op.get(tools, 'Modal');
+    const ConfirmBox = useHookComponent('ConfirmBox');
+
+    const onConfirm = () => {
+        handle.clearDelete();
+        Modal.hide();
+    };
+
+    const showModal = () =>
+        Modal.show(
+            <ConfirmBox
+                message={__('Are you sure? This is a destructive operation.')}
+                onCancel={() => Modal.hide()}
+                onConfirm={onConfirm}
+                title={deleteLabel}
+            />,
+        );
 
     const renderNameInput = () => {
         return (
-            <div className='form-group'>
+            <div className={cn('input-group', { error })}>
                 <input
                     type='text'
                     autoComplete='off'
-                    name='type-name'
+                    name='type'
                     placeholder={__('Content Type Name')}
                 />
+                <Button type='submit'>{__('Save')}</Button>
             </div>
         );
     };
@@ -28,7 +50,14 @@ export default props => {
             </div>
             <div className='type-name-input'>
                 {renderNameInput()}
-                <Button type='submit'>{__('Save')}</Button>
+                <Button
+                    data-tooltip={deleteLabel}
+                    style={{ width: 50, height: 50 }}
+                    color={Button.ENUMS.COLOR.DANGER}
+                    onClick={showModal}>
+                    <span className='sr-only'>{deleteLabel}</span>
+                    <Icon.Feather.X />
+                </Button>
             </div>
         </div>
     );

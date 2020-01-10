@@ -4,6 +4,7 @@ import SidebarWidget from './SidebarWidget';
 import Enums from './enums';
 import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
+import Breadcrumbs from './Breadcrumbs';
 
 Reactium.Hook.register(
     'field-type-enums',
@@ -14,8 +15,15 @@ Reactium.Hook.register(
 );
 
 const registerPlugin = async () => {
-    await Reactium.Plugin.register('content-type');
+    await Reactium.Plugin.register(
+        'ContentType',
+        Reactium.Enums.priority.highest,
+    );
 
+    // Add ContentType SDK
+    Reactium.ContentType = require('./sdk').default;
+
+    // Register FieldType Base Components
     Reactium.Component.register('FieldType', FieldType);
     Reactium.Component.register('FieldTypeDialog', FieldTypeDialog);
 
@@ -23,6 +31,12 @@ const registerPlugin = async () => {
 
     if (permitted) {
         const { Enums } = await Reactium.Hook.run('field-type-enums');
+
+        Reactium.Zone.addComponent({
+            component: Breadcrumbs,
+            order: -1000,
+            zone: ['admin-header'],
+        });
 
         Reactium.Zone.addComponent({
             component: SidebarWidget,
