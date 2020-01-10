@@ -16,6 +16,8 @@ const Header = props => {
         inputRef.current.focus();
     };
 
+    const value = op.get(props, 'formRef.current.getValue')();
+
     return (
         <div className='fieldtype-header'>
             <div className='fieldtype-header-icon'>
@@ -28,7 +30,7 @@ const Header = props => {
                 <input
                     ref={inputRef}
                     type={'text'}
-                    defaultValue={op.get(props, 'value.fieldName', null)}
+                    defaultValue={value.fieldName}
                     name='fieldName'
                     placeholder={__('Field Name')}
                     className='fieldtype-header-name-input'

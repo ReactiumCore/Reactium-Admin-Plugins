@@ -30,8 +30,6 @@ const FieldType = props => {
     const formRef = useRef();
     const Type = useHookComponent(fieldTypeComponent, DragHandle);
     const handle = useHandle('ContentTypeEditor');
-    const stateRef = useRef({});
-    const [, setVersion] = useState(uuid());
 
     const validator = (id, type) => async (value, valid, errors) => {
         const validated = {
@@ -100,8 +98,7 @@ const FieldType = props => {
         });
     };
 
-    const onChange = (id, type, ref) => async e => {
-        const value = op.get(stateRef.current, 'value');
+    const onChange = (id, type, ref) => async (e, value) => {
         await Reactium.Hook.run(`field-type-form-change-${id}`, {
             value,
             id,
@@ -109,28 +106,7 @@ const FieldType = props => {
             ref,
             target: e.target,
         });
-        formRef.current.update(value);
-
-        setTimeout(() => {
-            if (value !== op.get(stateRef.current, 'value')) {
-                op.set(stateRef.current, 'value', value);
-                setVersion(uuid());
-            }
-        }, 1);
     };
-
-    const update = (value = {}) => {
-        stateRef.current = { id, value };
-        setVersion(uuid());
-        setTimeout(() => {
-            formRef.current.update(value);
-        }, 1);
-    };
-
-    const fieldRef = useRef({
-        ...formRef.current,
-        update,
-    });
 
     useEffect(() => {
         const hooks = [
@@ -151,33 +127,10 @@ const FieldType = props => {
                     }
                 },
             ),
-
-            Reactium.Hook.register(
-                `field-type-form-change-${id}`,
-                async ({ target, value }) => {
-                    op.set(
-                        value,
-                        target.name,
-                        formRef.current.getValue()[target.name],
-                    );
-                },
-            ),
         ];
 
-        let value = {};
-        if (op.get(stateRef.current, 'id') === id) {
-            value = op.get(stateRef.current, 'value', {});
-        }
-
         // allow control from parent
-        fieldRef.current = {
-            ...formRef.current,
-            update,
-        };
-        handle.addFormRef(id, () => fieldRef.current);
-
-        // handle restoration of form values if formRef changes
-        formRef.current.update(value);
+        handle.addFormRef(id, () => formRef.current);
 
         return () => {
             hooks.forEach(id => Reactium.Hook.unregister(id));
@@ -195,7 +148,6 @@ const FieldType = props => {
                 <WebForm
                     ref={formRef}
                     validator={validator(id, type)}
-                    value={op.get(stateRef.current, 'value')}
                     required={required}
                     showError={false}
                     onError={onError(id, type, formRef)}
@@ -219,7 +171,7 @@ const FieldType = props => {
                             DragHandle={() => (
                                 <DragHandle dragHandleProps={dragHandleProps} />
                             )}
-                            value={op.get(stateRef.current, 'value')}
+                            formRef={formRef}
                         />
                     </div>
                 </WebForm>

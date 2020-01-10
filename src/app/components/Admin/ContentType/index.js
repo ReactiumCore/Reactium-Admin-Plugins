@@ -18,6 +18,7 @@ const ContentType = memo(
     props => {
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
+        const stateRef = useRef({});
         const parentFormRef = useRef();
         const formsRef = useRef({});
         const formsErrors = useRef({});
@@ -49,6 +50,7 @@ const ContentType = memo(
         };
 
         const setValue = value => {
+            stateRef.current = value;
             parentFormRef.current.update(value);
             Object.entries(
                 op.get(value, 'fields', {}),
@@ -194,14 +196,23 @@ const ContentType = memo(
             });
         };
 
+        const refreshForms = () => {
+            // put values back in form without rerender
+            parentFormRef.current.refresh();
+            Reactium.Zone.getZoneComponents(Enums.ZONE).forEach(({ id }) => {
+                getFormRef(id).refresh();
+            });
+        };
+
         const updateRestore = async (cb = noop) => {
             // preserve values
             const value = getValue();
 
+            // in case cb caused rerender
             await cb(value);
 
-            // put values back in form
-            setValue(value);
+            // refresh forms in dom
+            refreshForms();
 
             return value;
         };
@@ -209,6 +220,10 @@ const ContentType = memo(
         const onTypeSave = async () => {
             updateRestore(async value => {
                 try {
+                    formsErrors.current = {};
+                    setValue(value);
+                    setVersion(uuid());
+
                     const type = await Reactium.ContentType.save(id, value);
                     SidebarWidget.getTypes(true);
 
