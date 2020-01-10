@@ -69,6 +69,11 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         return value;
     }, {});
 
+    useEffect(() => {
+        const update = op.get(formRef.current, 'update', () => {});
+        update(value);
+    }, [settingGroup]);
+
     if (!canGet) return null;
 
     const sanitizeInput = (value, key) => {
@@ -210,40 +215,37 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             header={{
                 title,
             }}>
-            {
-                <WebForm
-                    onError={onError}
-                    onSubmit={onSubmit}
-                    noValidate={true}
-                    required={Object.entries(inputs)
-                        .filter(([, config]) => op.get(config, 'required'))
-                        .map(([key]) => key)}
-                    value={value}
-                    ref={formRef}
-                    className={cn(
-                        'setting-editor',
-                        {
-                            [`setting-editor-${op.get(
-                                settings,
-                                'group',
-                            )}`.toLowerCase()]: op.has(settings, 'group'),
-                        },
-                        ...classNames,
-                    )}>
-                    {Object.entries(inputs).map(([key, config]) =>
-                        renderInput(key, config),
-                    )}
+            <WebForm
+                onError={onError}
+                onSubmit={onSubmit}
+                noValidate={true}
+                required={Object.entries(inputs)
+                    .filter(([, config]) => op.get(config, 'required'))
+                    .map(([key]) => key)}
+                ref={formRef}
+                className={cn(
+                    'setting-editor',
+                    {
+                        [`setting-editor-${op.get(
+                            settings,
+                            'group',
+                        )}`.toLowerCase()]: op.has(settings, 'group'),
+                    },
+                    ...classNames,
+                )}>
+                {Object.entries(inputs).map(([key, config]) =>
+                    renderInput(key, config),
+                )}
 
-                    <Button
-                        disabled={!canSet}
-                        className={'mt-20'}
-                        color={Button.ENUMS.COLOR.PRIMARY}
-                        size={Button.ENUMS.SIZE.MD}
-                        type='submit'>
-                        {__('Save Settings')}
-                    </Button>
-                </WebForm>
-            }
+                <Button
+                    disabled={!canSet}
+                    className={'mt-20'}
+                    color={Button.ENUMS.COLOR.PRIMARY}
+                    size={Button.ENUMS.SIZE.MD}
+                    type='submit'>
+                    {__('Save Settings')}
+                </Button>
+            </WebForm>
         </Dialog>
     );
 };
