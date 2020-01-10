@@ -4,6 +4,7 @@ import SidebarWidget from './SidebarWidget';
 import Enums from './enums';
 import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
+import Breadcrumbs from './Breadcrumbs';
 
 Reactium.Hook.register(
     'field-type-enums',
@@ -30,6 +31,12 @@ const registerPlugin = async () => {
 
     if (permitted) {
         const { Enums } = await Reactium.Hook.run('field-type-enums');
+
+        Reactium.Zone.addComponent({
+            component: Breadcrumbs,
+            order: -1000,
+            zone: ['admin-header'],
+        });
 
         Reactium.Zone.addComponent({
             component: SidebarWidget,

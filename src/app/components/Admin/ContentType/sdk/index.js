@@ -15,6 +15,7 @@ ContentType.types = async (refresh = false) => {
 };
 
 ContentType.save = async (id, type = {}) => {
+    Reactium.Cache.del('content-types');
     if (id === 'new') return Reactium.Cloud.run('type-create', type);
     return Reactium.Cloud.run('type-update', {
         uuid: id,
@@ -34,6 +35,7 @@ ContentType.retrieve = async id => {
 };
 
 ContentType.delete = async id => {
+    Reactium.Cache.del('content-types');
     return Reactium.Cloud.run('type-delete', {
         uuid: id,
     });
