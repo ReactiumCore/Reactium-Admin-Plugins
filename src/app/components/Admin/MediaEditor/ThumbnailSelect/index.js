@@ -61,6 +61,8 @@ let ThumbnailSelect = (
     const { data, setState, state } = useHandle('MediaEditor');
 
     // Internal state
+    const [active, setActive] = useState();
+
     const [expanded, setExpanded] = useState(
         Prefs.get(`admin.dialog.media.editor.${property}.expanded`),
     );
@@ -73,6 +75,8 @@ let ThumbnailSelect = (
     const [thumbnail, setThumbnail] = useState(
         op.get(state, ['value', property]),
     );
+
+    const [thumbrendered, setRendered] = useState(false);
 
     const [title, setTitle] = useState(label);
 
@@ -97,6 +101,7 @@ let ThumbnailSelect = (
         const { value } = state;
         op.del(value, property);
 
+        setRendered(false);
         setState({ value });
         setThumbnail(undefined);
         navTo('pick', 'right');
@@ -118,7 +123,7 @@ let ThumbnailSelect = (
                     renderThumbnail(reader.result);
 
                     // Send to parse and update the object
-                    const thm = await Reactium.Cloud.run('media-image-crop', {
+                    const params = {
                         ext,
                         field: op.get(options, 'property'),
                         objectId: op.get(state, 'value.objectId'),
@@ -127,7 +132,26 @@ let ThumbnailSelect = (
                             height: op.get(options, 'height'),
                         },
                         url: reader.result,
-                    });
+                    };
+
+                    const thm = await Reactium.Cloud.run(
+                        'media-image-crop',
+                        params,
+                    );
+
+                    if (!thm) {
+                        Toast.show({
+                            icon: 'Feather.AlertOctagon',
+                            message: `Unable to save ${String(
+                                label,
+                            ).toLowerCase()}`,
+                            type: Toast.TYPE.ERROR,
+                        });
+
+                        setStatus(ENUMS.STATUS.READY);
+                        navTo('pick', 'right');
+                        return;
+                    }
 
                     Toast.show({
                         icon: 'Feather.Check',
@@ -154,30 +178,28 @@ let ThumbnailSelect = (
             }
         });
 
-    const navTo = (panel, direction = 'left') =>
-        refs.scene.navTo({ panel, direction });
+    const navTo = (panel, direction = 'left', animationSpeed) => {
+        refs.scene.navTo({ animationSpeed, panel, direction });
+    };
 
     const renderThumbnail = (dataURL, imageElement) => {
         let width = op.get(imageElement, 'width');
         let height = op.get(imageElement, 'height');
 
-        const { image, container } = refs.canvas;
+        const { image } = refs.canvas;
 
         image.style.opacity = 0;
         image.style.backgroundImage = 'none';
+        image.style.width = '100%';
+        image.style.height = '100%';
 
         // navigate to thumbnail
         navTo('thumb');
 
         const {
-            width: imageWidth,
-            height: imageHeight,
-        } = image.getBoundingClientRect();
-
-        const {
             width: containerWidth,
             height: containerHeight,
-        } = container.getBoundingClientRect();
+        } = image.getBoundingClientRect();
 
         if (width && height) setOptions({ width, height });
 
@@ -197,19 +219,31 @@ let ThumbnailSelect = (
                 op.get(options, 'sizes.default.height', 200),
             );
 
-        const ratio = width / height;
-        const cWidth = imageHeight * ratio;
-
         image.style.backgroundImage = `url('${dataURL}')`;
-        image.style.opacity = 1;
+        image.style.width = `${width}px`;
+        image.style.height = `${height}px`;
 
-        if (cWidth < containerWidth) {
-            image.style.width = `${cWidth}px`;
-        } else {
-            const cHeight = imageWidth * ratio;
-            image.style.width = '100%';
-            image.style.height = `${cHeight}px`;
+        let {
+            width: imageWidth,
+            height: imageHeight,
+        } = image.getBoundingClientRect();
+
+        if (width > containerWidth) {
+            const r = containerWidth / width;
+            const h = height * r;
+            image.style.width = `${containerWidth}px`;
+            image.style.height = `${h}px`;
         }
+
+        if (height > containerHeight) {
+            const r = containerHeight / height;
+            const w = width * r;
+            image.style.height = `${containerHeight}px`;
+            image.style.width = `${w}px`;
+        }
+
+        image.style.opacity = 1;
+        setRendered(true);
     };
 
     const setOptions = newOptions =>
@@ -225,6 +259,11 @@ let ThumbnailSelect = (
         const value = e.target.value;
         const key = e.target.dataset.key;
         setOptions({ [key]: value });
+    };
+
+    const onCollapse = e => {
+        if (active !== 'delete') return;
+        navTo('thumb', 'right', 0.001);
     };
 
     const onExpand = e => {
@@ -244,11 +283,13 @@ let ThumbnailSelect = (
         if (files.length < 1) return;
 
         const file = files[0];
+
+        setRendered(false);
         setStatus(ENUMS.STATUS.PROCESSING);
         generateThumb(file).then(() => setStatus(ENUMS.STATUS.READY));
     };
 
-    const onSceneChange = ({ active, previous }) => {
+    const onSceneChange = ({ active: current, previous }) => {
         switch (previous) {
             case 'thumb':
                 refs.input.file.type = 'text';
@@ -260,63 +301,80 @@ let ThumbnailSelect = (
                 break;
         }
 
-        switch (active) {
+        switch (current) {
             case 'delete':
                 setTitle(`${__('Delete')} ${label}`);
                 break;
         }
 
-        setState({ active, update: Date.now() });
+        setActive(current);
     };
 
     const onSizeChange = e => setSize(e.item.value);
 
     const onThumbnailUpdate = () => {
         const image = op.get(refs, 'canvas.image');
-        if (!image || !thumbnail) return;
+        if (!image || !thumbnail || thumbrendered) return;
 
+        image.style.opacity = 0;
         const thumbURL = Reactium.Media.url(thumbnail);
         const img = new Image();
-        img.onload = () => renderThumbnail(thumbURL, img);
+        img.onload = () => {
+            const { sizes } = options;
+            setSize(
+                Object.keys(sizes).reduce((sel, key) => {
+                    const item = sizes[key];
+                    const w = op.get(item, 'width');
+                    const h = op.get(item, 'height');
+
+                    if (w === img.width && h === img.height) {
+                        sel = key;
+                    }
+
+                    return sel;
+                }, 'custom'),
+            );
+
+            setOptions({ width: img.width, height: img.height });
+            renderThumbnail(thumbURL, { width: img.width, height: img.height });
+        };
         img.src = thumbURL;
     };
 
-    const render = () => {
-        const { thumbnail } = state;
-
-        return (
-            <Dialog
-                onExpand={e => onExpand(e)}
-                header={{ title }}
-                pref={`admin.dialog.media.editor.${property}`}>
-                <input
-                    hidden
-                    onChange={e => onFileSelect(e)}
-                    ref={elm => setRef(elm, 'input.file')}
-                    type='file'
-                    visibility='hidden'
-                />
-                <Scene
-                    active={op.get(state, 'active')}
-                    width='100%'
-                    height={280}
-                    onChange={e => onSceneChange(e)}
-                    ref={elm => setRef(elm, 'scene')}>
-                    <Config {...handle()} id='config' />
-                    <Pick {...handle()} id='pick' />
-                    <Thumb {...handle()} id='thumb' />
-                    <Delete {...handle()} id='delete' />
-                </Scene>
-                {status === ENUMS.STATUS.PROCESSING && (
-                    <div className='admin-thumbnail-select-blocker'>
-                        <Spinner />
-                    </div>
-                )}
-            </Dialog>
-        );
-    };
+    const render = () => (
+        <Dialog
+            onCollapse={e => onCollapse(e)}
+            onExpand={e => onExpand(e)}
+            header={{ title }}
+            pref={`admin.dialog.media.editor.${property}`}>
+            <input
+                hidden
+                onChange={e => onFileSelect(e)}
+                ref={elm => setRef(elm, 'input.file')}
+                type='file'
+                visibility='hidden'
+            />
+            <Scene
+                active={active}
+                width='100%'
+                height={280}
+                onChange={e => onSceneChange(e)}
+                ref={elm => setRef(elm, 'scene')}>
+                <Config {...handle()} id='config' />
+                <Pick {...handle()} id='pick' />
+                <Thumb {...handle()} id='thumb' />
+                <Delete {...handle()} id='delete' />
+            </Scene>
+            {status === ENUMS.STATUS.PROCESSING && (
+                <div className='admin-thumbnail-select-blocker'>
+                    <Spinner />
+                </div>
+            )}
+        </Dialog>
+    );
 
     const handle = () => ({
+        active,
         data,
         deleteThumbnail,
         id,
@@ -341,20 +399,14 @@ let ThumbnailSelect = (
         thumbnail,
     });
 
-    useRegisterHandle(id, handle, [
-        size,
-        status,
-        thumbnail,
-        op.get(state, 'active'),
-    ]);
+    useRegisterHandle(id, handle, [active, refs, size, status, thumbnail]);
 
     // Set active
     useEffect(() => {
-        let { active } = state;
         if (active) return;
-        active = thumbnail ? 'thumb' : 'pick';
-        setState({ active, update: Date.now() });
-    }, [thumbnail, op.get(state, 'active')]);
+        const current = thumbnail ? 'thumb' : 'pick';
+        setActive(current);
+    }, [active, thumbnail]);
 
     // Set size
     useEffect(() => {
@@ -372,9 +424,9 @@ let ThumbnailSelect = (
 
     // Thumbnail update
     useEffect(() => {
-        if (!expanded) return;
+        if (!expanded || active !== 'thumb') return;
         onThumbnailUpdate();
-    }, [thumbnail, op.get(refs, 'canvas.image')]);
+    }, [active, thumbnail]);
 
     return render();
 };

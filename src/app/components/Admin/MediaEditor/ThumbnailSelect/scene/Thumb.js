@@ -1,19 +1,53 @@
 import React from 'react';
 import op from 'object-path';
-import { __ } from 'reactium-core/sdk';
+import copy from 'copy-to-clipboard';
+import ENUMS from 'components/Admin/Media/enums';
+import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
-export default ({ id, label, navTo, options, setRef, title, ...handle }) => {
+export default ({
+    id,
+    label,
+    navTo,
+    options,
+    setRef,
+    title,
+    thumbnail,
+    ...handle
+}) => {
+    const tools = useHandle('AdminTools');
+
+    const Toast = op.get(tools, 'Toast');
+
+    const onCopy = () => {
+        copy(Reactium.Media.url(thumbnail));
+
+        Toast.show({
+            icon: 'Linear.ClipboardDown',
+            message: ENUMS.TEXT.COPIED_TO_CLIPBOARD,
+            type: Toast.TYPE.INFO,
+        });
+    };
+
     const render = () => {
         return (
             <div id={id} className='admin-thumbnail-select p-0'>
                 <div
                     className='admin-image-crop'
                     ref={elm => setRef(elm, 'canvas.container')}>
-                    <div
-                        ref={elm => setRef(elm, 'canvas.image')}
-                        className='canvas'
-                    />
+                    {thumbnail ? (
+                        <a
+                            href={Reactium.Media.url(thumbnail)}
+                            target='_blank'
+                            ref={elm => setRef(elm, 'canvas.image')}
+                            className='canvas'
+                        />
+                    ) : (
+                        <div
+                            ref={elm => setRef(elm, 'canvas.image')}
+                            className='canvas'
+                        />
+                    )}
                     <Button
                         appearance='pill'
                         color='default'
@@ -32,6 +66,17 @@ export default ({ id, label, navTo, options, setRef, title, ...handle }) => {
                             onClick={() => navTo('delete', 'left')}>
                             <Icon name='Feather.X' />
                         </Button>
+                        {thumbnail && (
+                            <Button
+                                appearance='circle'
+                                color='default'
+                                data-tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                                data-align='left'
+                                data-vertical-align='middle'
+                                onClick={onCopy}>
+                                <Icon name='Linear.ClipboardDown' />
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>

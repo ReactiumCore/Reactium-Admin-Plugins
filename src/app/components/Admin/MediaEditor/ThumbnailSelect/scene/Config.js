@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import op from 'object-path';
 import { __ } from 'reactium-core/sdk';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
@@ -9,6 +9,7 @@ export default ({
     onChange,
     onSizeChange,
     options,
+    refs,
     setRef,
     size,
     ...handle
@@ -20,7 +21,8 @@ export default ({
                     <label>
                         {__('Size:')}
                         <SizeSelect
-                            onChange={onSizeChange}
+                            onChange={e => onSizeChange(e)}
+                            refs={refs}
                             setRef={setRef}
                             size={size}
                             sizes={options.sizes}
@@ -108,7 +110,7 @@ export const SizeLabel = ({ label, width, height }) => {
     );
 };
 
-export const SizeSelect = ({ onChange, setRef, size, sizes }) => {
+export const SizeSelect = ({ onChange, refs, setRef, size, sizes }) => {
     if (!size || !sizes) return null;
 
     const data = Object.entries(sizes).map(([key, item]) => ({
@@ -116,13 +118,21 @@ export const SizeSelect = ({ onChange, setRef, size, sizes }) => {
         value: key,
     }));
 
+    useEffect(() => {
+        if (refs.size) {
+            if (refs.size.state.selection[0] !== size) {
+                refs.size.setState({ selection: [size] });
+            }
+        }
+    }, [size]);
+
     return (
         <div
             className='flex-grow text-left flex middle'
             style={{ position: 'relative' }}>
             <Dropdown
                 data={data}
-                onChange={onChange}
+                onItemSelect={onChange}
                 ref={elm => setRef(elm, 'size')}
                 selection={[size]}>
                 <Button
