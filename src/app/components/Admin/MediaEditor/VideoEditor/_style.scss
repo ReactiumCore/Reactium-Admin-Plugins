@@ -3,5 +3,28 @@
         video {
             outline: none;
         }
+
+        &-graphic {
+            display: flex;
+            width: 100%;
+            padding: 40px;
+            justify-content: center;
+
+            @include breakpoint(md) {
+                padding: 60px 40px;
+            }
+
+            svg {
+                max-width: 60vw;
+
+                @include breakpoint(md) {
+                    max-width: 30vw;
+                }
+            }
+
+            .primary {
+                fill: $color-blue;
+            }
+        }
     }
 }

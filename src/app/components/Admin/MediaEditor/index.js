@@ -36,6 +36,14 @@ const MediaEditor = props => {
         status: !ID || !data ? ENUMS.STATUS.FETCHING : ENUMS.STATUS.READY,
     });
 
+    const isBusy = () => {
+        const statuses = [ENUMS.STATUS.PROCESSING, ENUMS.STATUS.UPLOADING];
+
+        const { status } = state;
+
+        return statuses.includes(status);
+    };
+
     const cname = () => {
         const { className, namespace } = state;
         return cn({ [className]: !!className, [namespace]: !!namespace });
@@ -66,14 +74,15 @@ const MediaEditor = props => {
         const currentFile = {
             dataURL: result.url,
             name: result.filename,
+            ext: result.ext,
         };
 
         const newState = {
             currentFile,
-            status: ENUMS.STATUS.READY,
+            file: undefined,
             initialData: result,
             result: undefined,
-            file: undefined,
+            status: ENUMS.STATUS.READY,
             update: Date.now(),
             value: result,
         };
@@ -113,7 +122,6 @@ const MediaEditor = props => {
             'createdAt',
             'fetched',
             'file',
-            // 'thumbnail',
             'type',
             'uuid',
             'updateAt',
@@ -133,7 +141,6 @@ const MediaEditor = props => {
             data,
             file,
             status,
-            type: 'IMAGE',
             value,
         });
 
@@ -167,6 +174,7 @@ const MediaEditor = props => {
         cx,
         data,
         directories,
+        isBusy,
         onChange,
         onError,
         onSubmit,
@@ -179,8 +187,10 @@ const MediaEditor = props => {
         directories,
         fetched,
         op.get(state, 'currentFile'),
+        op.get(state, 'error'),
         op.get(state, 'initialData'),
         op.get(state, 'status'),
+        op.get(state, 'update'),
         op.get(state, 'value'),
     ]);
 
@@ -188,6 +198,7 @@ const MediaEditor = props => {
     useEffect(() => {
         if (ID && data && state.status === ENUMS.STATUS.FETCHING) {
             setState({
+                initialData: data,
                 status: ENUMS.STATUS.READY,
                 value: { ...data, fetched: Date.now() },
                 update: Date.now(),

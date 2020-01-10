@@ -1,5 +1,6 @@
 import op from 'object-path';
 import slugify from 'slugify';
+import Rocket from './Rocket';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, { forwardRef, useEffect, useRef } from 'react';
@@ -15,6 +16,7 @@ export default ({ children, ...props }) => {
         cx,
         data,
         directories,
+        isBusy,
         onChange,
         onError,
         onSubmit,
@@ -38,14 +40,6 @@ export default ({ children, ...props }) => {
         debug: false,
     };
 
-    const isBusy = () => {
-        const statuses = [ENUMS.STATUS.PROCESSING, ENUMS.STATUS.UPLOADING];
-
-        const { status } = state;
-
-        return statuses.includes(status);
-    };
-
     const previewStyle = () => {
         return state.file
             ? { maxWidth: state.file.width, maxHeight: state.file.height }
@@ -62,18 +56,25 @@ export default ({ children, ...props }) => {
     const onCancel = () => {
         const { initialData, status, value = {} } = state;
 
-        if (status === ENUMS.STATUS.PROCESSING) return;
+        if (isBusy()) return;
 
         op.set(value, 'filename', op.get(initialData, 'filename'));
         op.set(value, 'meta.size', op.get(initialData, 'meta.size'));
+        op.set(value, 'ext', String(op.get(initialData, 'ext')).toUpperCase());
 
-        setState({ file: undefined, value });
+        const currentFile = {
+            dataURL: Reactium.Media.url(initialData.file),
+            name: value.filename,
+            ext: value.ext,
+        };
+
+        setState({ currentFile, file: undefined, value, update: Date.now() });
     };
 
     const onFileAdded = async e => {
         const { value, status } = state;
 
-        if (status === ENUMS.STATUS.PROCESSING) return;
+        if (isBusy()) return;
 
         const file = e.added[0];
 
@@ -147,6 +148,7 @@ export default ({ children, ...props }) => {
                 onError={e => onInputError(e)}
                 onSubmit={e => onSubmit(e)}
                 ref={formRef}
+                required={['url']}
                 showError={false}
                 value={value}>
                 <Dropzone
@@ -157,17 +159,32 @@ export default ({ children, ...props }) => {
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
                     <div className={cx('dropzone')}>
-                        {file && !currentFile && (
+                        {file && (
                             <>
-                                <div className='mb-xs-12 small'>
+                                <div className={cx('graphic')}>
+                                    <Rocket />
+                                </div>
+                                <div className='mb-xs-20 small'>
                                     {file.name}
                                 </div>
-                                <span className={cx('upload')}>THE VIDEO</span>
+                                <div>
+                                    <Button
+                                        disabled={busy}
+                                        size='md'
+                                        color='danger'
+                                        appearance='pill'
+                                        onClick={() => onCancel()}
+                                        type='button'>
+                                        {busy
+                                            ? __('Uploading Video...')
+                                            : __('Cancel Upload')}
+                                    </Button>
+                                </div>
                             </>
                         )}
                         {!file && currentFile && (
                             <>
-                                <div className='mb-xs-12 small'>
+                                <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
                                 <span className={cx('preview')}>
@@ -185,10 +202,8 @@ export default ({ children, ...props }) => {
                     <div className={cx('meta')}>
                         <div>
                             <Scrollbars>
-                                <div className='p-xs-24'>
-                                    <Zone zone='admin-media-editor-meta' />
-                                    <Zone zone='admin-media-editor-meta-video' />
-                                </div>
+                                <Zone zone='admin-media-editor-meta-video' />
+                                <Zone zone='admin-media-editor-meta' />
                             </Scrollbars>
                         </div>
                         <div>

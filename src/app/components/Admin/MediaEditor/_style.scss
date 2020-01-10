@@ -24,6 +24,14 @@
             display: none;
         }
 
+        .ar-scene {
+            overflow: visible;
+        }
+
+        .ar-collapsible.expanded {
+            overflow: visible;
+        }
+
         .ar-tags-input {
             border: 1px solid darken($color-grey-light, 1.5%);
 
@@ -55,6 +63,7 @@
         &-meta {
             width: 100%;
             background-color: $color-white;
+            box-shadow: $shadow-image;
 
             @include breakpoint(md) {
                 display: flex;
@@ -93,6 +102,20 @@
                 flex-shrink: 0;
                 padding: 12px;
                 border-top: 1px solid $color-admin-header-border;
+            }
+
+            .ar-dialog {
+                box-shadow: none;
+                position: relative;
+                border-top: 1px solid $color-admin-header-border;
+
+                &-content {
+                    border: none;
+                }
+
+                &-header {
+                    border-bottom: 1px solid $color-admin-header-border;
+                }
             }
         }
     }

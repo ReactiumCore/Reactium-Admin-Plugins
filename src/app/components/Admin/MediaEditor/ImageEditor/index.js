@@ -15,6 +15,7 @@ export default ({ children, ...props }) => {
         cx,
         data,
         directories,
+        isBusy,
         onChange,
         onError,
         onSubmit,
@@ -38,14 +39,6 @@ export default ({ children, ...props }) => {
         debug: false,
     };
 
-    const isBusy = () => {
-        const statuses = [ENUMS.STATUS.PROCESSING, ENUMS.STATUS.UPLOADING];
-
-        const { status } = state;
-
-        return statuses.includes(status);
-    };
-
     const previewStyle = () => {
         return state.file
             ? { maxWidth: state.file.width }
@@ -63,10 +56,15 @@ export default ({ children, ...props }) => {
 
         if (status === ENUMS.STATUS.PROCESSING) return;
 
-        op.set(value, 'filename', op.get(data, 'filename'));
-        op.set(value, 'meta.size', op.get(data, 'meta.size'));
+        op.set(value, 'filename', op.get(initialData, 'filename'));
+        op.set(value, 'meta.size', op.get(initialData, 'meta.size'));
+        op.set(value, 'ext', String(op.get(initialData, 'ext')).toUpperCase());
 
         setState({ file: undefined, value });
+
+        const img = new Image();
+        img.onload = onImageLoad;
+        img.src = Reactium.Media.url(initialData.file);
     };
 
     const onFileAdded = async e => {
@@ -99,6 +97,7 @@ export default ({ children, ...props }) => {
             }
 
             dropzoneRef.current.dropzone.removeAllFiles();
+
             setState({
                 currentFile: undefined,
                 file,
@@ -128,9 +127,11 @@ export default ({ children, ...props }) => {
     };
 
     const onImageLoad = evt => {
+        const { initialData } = state;
+
         const currentFile = {
-            dataURL: Reactium.Media.url(data.file),
-            name: data.filename,
+            dataURL: Reactium.Media.url(initialData.file),
+            name: initialData.filename,
             width: evt.path[0].width + 'px',
         };
 
@@ -144,9 +145,10 @@ export default ({ children, ...props }) => {
             !op.get(state, 'currentFile') &&
             op.get(state, 'value')
         ) {
+            const { initialData } = state;
             const img = new Image();
             img.onload = onImageLoad;
-            img.src = Reactium.Media.url(data.file);
+            img.src = Reactium.Media.url(initialData.file);
         }
     }, [
         op.get(state, 'currentFile'),
@@ -174,6 +176,7 @@ export default ({ children, ...props }) => {
                 onError={e => onInputError(e)}
                 onSubmit={e => onSubmit(e)}
                 ref={formRef}
+                required={['url']}
                 showError={false}
                 value={value}>
                 <Dropzone
@@ -232,10 +235,8 @@ export default ({ children, ...props }) => {
                     <div className={cx('meta')}>
                         <div>
                             <Scrollbars>
-                                <div className='p-xs-24'>
-                                    <Zone zone='admin-media-editor-meta' />
-                                    <Zone zone='admin-media-editor-meta-image' />
-                                </div>
+                                <Zone zone='admin-media-editor-meta' />
+                                <Zone zone='admin-media-editor-meta-image' />
                             </Scrollbars>
                         </div>
                         <div>
