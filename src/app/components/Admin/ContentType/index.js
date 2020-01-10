@@ -9,7 +9,6 @@ import slugify from 'slugify';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
-import { Redirect } from 'react-router-dom';
 import _ from 'underscore';
 
 const noop = () => {};
