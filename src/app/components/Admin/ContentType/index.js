@@ -10,6 +10,7 @@ import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import { Redirect } from 'react-router-dom';
+import _ from 'underscore';
 
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
@@ -158,9 +159,13 @@ const ContentType = memo(
                 'content-type-validate-fields',
             );
 
+            const fieldNames = {};
             for (let { id: fieldId } of Reactium.Zone.getZoneComponents(
                 Enums.ZONE,
             )) {
+                const ref = getFormRef(fieldId);
+
+                // collect results of fields hook
                 if (
                     op.get(responseContext, [fieldId, 'valid'], true) !== true
                 ) {
@@ -170,14 +175,57 @@ const ContentType = memo(
                         op.get(responseContext, [fieldId]),
                     );
 
-                    const ref = op.get(
-                        formsRef.current,
-                        [fieldId],
-                        getStubRef,
-                    )();
                     ref.setState(op.get(responseContext, [fieldId]));
                     valid = false;
                 }
+
+                // make sure all fields are unique
+                const { fieldName } = ref.getValue();
+                const slug = slugify(fieldName, { lower: true });
+                const errors = op.get(ref, 'errors') || {
+                    focus: null,
+                    fields: [],
+                    errors: [],
+                };
+
+                if (slug in fieldNames) {
+                    const error = __('Duplicate field name %fieldName').replace(
+                        '%fieldName',
+                        fieldName,
+                    );
+                    Toast.show({
+                        type: Toast.TYPE.ERROR,
+                        message: error,
+                        icon: (
+                            <Icon.Feather.AlertOctagon
+                                style={{ marginRight: 12 }}
+                            />
+                        ),
+                        autoClose: 1000,
+                    });
+
+                    valid = false;
+                    const updatedErrors = {
+                        ...errors,
+                        focus: 'fieldName',
+                        fields: _.uniq([
+                            ...op.get(errors, 'fields', []),
+                            'fieldName',
+                        ]),
+                        errors: [...op.get(errors, 'errors', []), error],
+                    };
+
+                    ref.setState({
+                        errors: updatedErrors,
+                    });
+
+                    op.set(formsErrors.current, [fieldId], {
+                        valid: false,
+                        errors: updatedErrors,
+                    });
+                }
+
+                fieldNames[slug] = fieldId;
             }
 
             return { valid, errors };
@@ -259,7 +307,6 @@ const ContentType = memo(
 
         const saveField = (id, value) => {
             setState; // TODO save state here, and interact with SDK
-            console.log({ id, value });
         };
 
         const addFormRef = (id, cb) => {

@@ -114,7 +114,10 @@ const FieldType = props => {
                 'content-type-validate-fields',
                 async context => {
                     context[id] = await formRef.current.validate();
-                    const { valid, errors } = context[id];
+                    const { valid, errors } = context[id] || {
+                        valid: true,
+                        errors: { focus: null, errors: [], fields: [] },
+                    };
 
                     if (valid !== true) {
                         formRef.current.setState({ errors });
