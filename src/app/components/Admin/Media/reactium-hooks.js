@@ -1,6 +1,7 @@
 import op from 'object-path';
 import ENUMS from './enums';
 import domain from './domain';
+import Parse from 'appdir/api';
 import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
 import Reactium from 'reactium-core/sdk';
@@ -8,6 +9,9 @@ import SidebarWidget from './Widget/SidebarWidget';
 import DirectoryWidget from './Widget/DirectoryWidget';
 
 Reactium.Plugin.register(domain.name).then(() => {
+    // Alias the Parse.File SDK
+    Reactium['File'] = op.get(Reactium, 'File', Parse.File);
+
     // Create Reactium.Media SDK
     Reactium[domain.name] = op.get(Reactium, domain.name, MediaSdk);
 

@@ -171,9 +171,11 @@ export default () => {
             thumbnail,
             url,
         } = item;
+
+        const fileURL = file.url().replace('undefined/', '/api/');
         const edgeURL = thumbnail
-            ? thumbnail.url().replace('undefined', '/api')
-            : file.url().replace('undefined', '/api');
+            ? thumbnail.url().replace('undefined/', '/api/')
+            : fileURL;
 
         const bg = { backgroundImage: `url('${edgeURL}')` };
         const acts = _.sortBy(
@@ -187,7 +189,7 @@ export default () => {
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
                     <a
-                        href={Reactium.Media.url(objectId)}
+                        href={fileURL}
                         style={bg}
                         className='media-image'
                         target='_blank'

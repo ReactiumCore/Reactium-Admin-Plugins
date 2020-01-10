@@ -3,6 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
 import ENUMS from 'components/Admin/Media/enums';
+import { Dialog } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 import React, {
@@ -107,48 +108,62 @@ export default props => {
 
     const render = () => (
         <>
-            <input type='hidden' name='filename' />
-            <input type='hidden' name='objectId' />
-            <input type='hidden' name='meta.size' />
-            <Directory
-                data={directories}
-                label='Directory:'
-                name='directory'
-                value={op.get(state, 'value.directory')}
-            />
-            {!file && (
-                <div className={formCls('url')}>
-                    <label>
-                        {__('URL')}:
-                        <input
-                            autoComplete='off'
-                            name='url'
-                            spellCheck={false}
-                            type='text'
-                        />
-                    </label>
-                    <ErrorMsg field='url' />
-                </div>
-            )}
-            <div className={formCls('meta.title')}>
-                <label>
-                    {__('Title')}:
-                    <input autoComplete='off' name='meta.title' type='text' />
-                </label>
-                <ErrorMsg field='meta.title' />
-            </div>
-            <div className={formCls('meta.description')}>
-                <label>
-                    {__('Description')}:
-                    <textarea
-                        autoComplete='off'
-                        name='meta.description'
-                        rows={4}
+            <Dialog
+                header={{ title: __('File Info') }}
+                pref='admin.dialog.media.editor.info'>
+                <div className='p-xs-20'>
+                    <input type='hidden' name='filename' />
+                    <input type='hidden' name='objectId' />
+                    <input type='hidden' name='meta.size' />
+                    <Directory
+                        data={directories}
+                        label='Directory:'
+                        name='directory'
+                        value={op.get(state, 'value.directory')}
                     />
-                </label>
-                <ErrorMsg field='meta.description' />
-            </div>
-            <Tags onChange={e => onChange(e)} ref={tagsRef} />
+                    <div className={formCls('url')}>
+                        <label>
+                            {__('URL')}:
+                            <input
+                                autoComplete='off'
+                                name='url'
+                                spellCheck={false}
+                                type='text'
+                            />
+                        </label>
+                        <ErrorMsg field='url' />
+                    </div>
+                </div>
+            </Dialog>
+            <Dialog
+                header={{ title: __('Meta') }}
+                pref='admin.dialog.media.editor.meta'>
+                <div className='p-xs-20'>
+                    <div className={formCls('meta.title')}>
+                        <label>
+                            {__('Title')}:
+                            <input
+                                autoComplete='off'
+                                name='meta.title'
+                                type='text'
+                            />
+                        </label>
+                        <ErrorMsg field='meta.title' />
+                    </div>
+                    <div className={formCls('meta.description')}>
+                        <label>
+                            {__('Description')}:
+                            <textarea
+                                autoComplete='off'
+                                name='meta.description'
+                                rows={4}
+                            />
+                        </label>
+                        <ErrorMsg field='meta.description' />
+                    </div>
+                    <Tags onChange={e => onChange(e)} ref={tagsRef} />
+                </div>
+            </Dialog>
         </>
     );
 

@@ -118,7 +118,6 @@ const MyComponent = () => {
     const ConfirmBox = useHookComponent('ConfirmBox');
     return (
         <ConfirmBox
-          buttons={buttons}
           title='Confirm Delete'
           message='Are you sure?'
           onCancel={() => console.log('No')}

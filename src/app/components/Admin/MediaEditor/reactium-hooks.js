@@ -8,6 +8,7 @@ import Breadcrumbs from './Breadcrumbs';
 import ImageEditor from './ImageEditor';
 import AudioEditor from './AudioEditor';
 import VideoEditor from './VideoEditor';
+import ThumbnailSelect from './ThumbnailSelect';
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Directory, Tags } from './_utils/components';
 
@@ -22,6 +23,7 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
         Reactium.Component.register('MediaEditorTags', Tags);
         Reactium.Component.register('MediaImageCrop', ImageCrop);
         Reactium.Component.register('VideoEditor', VideoEditor);
+        Reactium.Component.register('ThumbnailSelect', ThumbnailSelect);
 
         // Register plugins
         Reactium.Zone.addComponent({
@@ -46,10 +48,23 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
         });
 
         Reactium.Zone.addComponent({
-            id: 'ADMIN-MEDIA-THUMBNAIL-EDITOR',
+            id: 'ADMIN-MEDIA-THUMBNAIL-SELECT',
+            component: ThumbnailSelect,
+            label: __('Thumbnail'),
+            property: 'thumbnail',
+            order: 2000,
+            zone: [
+                'admin-media-editor-meta-audio',
+                'admin-media-editor-meta-file',
+                'admin-media-editor-meta-video',
+            ],
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'ADMIN-MEDIA-THUMBNAIL-GENERATE',
             component: ImageCrop,
             order: 1000,
-            label: __('Thumbnail:'),
+            label: __('Thumbnail'),
             field: 'thumbnail',
             tooltip: {
                 copy: __('copy url to clipboard'),

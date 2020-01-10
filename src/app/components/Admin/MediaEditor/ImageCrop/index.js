@@ -3,14 +3,9 @@ import cn from 'classnames';
 import op from 'object-path';
 import copy from 'copy-to-clipboard';
 import ENUMS from 'components/Admin/Media/enums';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import React, { useEffect, useRef } from 'react';
+import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
-
-import React, {
-    useEffect,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-} from 'react';
 
 export default props => {
     const { label, field = 'thumbnail', options, tooltip } = props;
@@ -57,19 +52,14 @@ export default props => {
     };
 
     const render = () => {
-        const image = op.get(state.value, field);
-
-        let url = image
-            ? op.has(image, '__type')
-                ? image.url
-                : image.url()
-            : null;
-        url = url ? url.replace('undefined', '/api') : null;
+        const image = op.get(state, ['value', field]);
+        const url = Reactium.Media.url(image);
 
         return (
-            <div className='form-group'>
-                <label>{label}</label>
-                <div className='admin-thumbnail-meta'>
+            <Dialog
+                header={{ title: label }}
+                pref='admin.dialog.media.editor.thumbnail'>
+                <div className='admin-image-crop'>
                     {image && url && <img src={url} ref={imageRef} />}
                     {!image && (
                         <Icon
@@ -101,7 +91,7 @@ export default props => {
                         </Button>
                     </div>
                 </div>
-            </div>
+            </Dialog>
         );
     };
 

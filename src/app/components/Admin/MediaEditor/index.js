@@ -25,17 +25,24 @@ const MediaEditor = props => {
 
     const Toast = op.get(tools, 'Toast');
 
-    const [data, ID, fetched] = useMediaObject();
-
     const directories = useDirectories();
+
+    const [data, ID, fetched] = useMediaObject();
 
     const [state, setState] = useDerivedState({
         ...props,
         files: {},
         initialData: data,
         status: !ID || !data ? ENUMS.STATUS.FETCHING : ENUMS.STATUS.READY,
-        value: null,
     });
+
+    const isBusy = () => {
+        const statuses = [ENUMS.STATUS.PROCESSING, ENUMS.STATUS.UPLOADING];
+
+        const { status } = state;
+
+        return statuses.includes(status);
+    };
 
     const cname = () => {
         const { className, namespace } = state;
@@ -67,14 +74,15 @@ const MediaEditor = props => {
         const currentFile = {
             dataURL: result.url,
             name: result.filename,
+            ext: result.ext,
         };
 
         const newState = {
             currentFile,
-            status: ENUMS.STATUS.READY,
+            file: undefined,
             initialData: result,
             result: undefined,
-            file: undefined,
+            status: ENUMS.STATUS.READY,
             update: Date.now(),
             value: result,
         };
@@ -114,7 +122,6 @@ const MediaEditor = props => {
             'createdAt',
             'fetched',
             'file',
-            // 'thumbnail',
             'type',
             'uuid',
             'updateAt',
@@ -134,7 +141,6 @@ const MediaEditor = props => {
             data,
             file,
             status,
-            type: 'IMAGE',
             value,
         });
 
@@ -168,6 +174,7 @@ const MediaEditor = props => {
         cx,
         data,
         directories,
+        isBusy,
         onChange,
         onError,
         onSubmit,
@@ -177,28 +184,27 @@ const MediaEditor = props => {
 
     useRegisterHandle('MediaEditor', handle, [
         ID,
-        data,
         directories,
         fetched,
-        onChange,
-        onError,
-        onSubmit,
-        state,
+        op.get(state, 'currentFile'),
+        op.get(state, 'error'),
         op.get(state, 'initialData'),
         op.get(state, 'status'),
-        op.get(state, 'updated'),
+        op.get(state, 'update'),
+        op.get(state, 'value'),
     ]);
 
     // Side effects
     useEffect(() => {
         if (ID && data && state.status === ENUMS.STATUS.FETCHING) {
             setState({
+                initialData: data,
                 status: ENUMS.STATUS.READY,
                 value: { ...data, fetched: Date.now() },
                 update: Date.now(),
             });
         }
-    }, [ID, data, state.status]);
+    }, [ID, data, op.get(state, 'status')]);
 
     // Regsiter media-worker hook
     useEffect(() => {
@@ -209,7 +215,7 @@ const MediaEditor = props => {
         return () => {
             Reactium.Hook.unregister(workerHook);
         };
-    });
+    }, []);
 
     // Worker status update
     useEffect(() => {
@@ -220,7 +226,7 @@ const MediaEditor = props => {
                 onComplete(result);
                 break;
         }
-    }, [state.status]);
+    }, [op.get(state, 'status')]);
 
     // Value changes
     useEffect(() => {
@@ -231,14 +237,20 @@ const MediaEditor = props => {
                 value,
             });
         }
-    }, [state, state.value, state.file, state.status]);
+    }, [
+        op.get(state, 'value'),
+        op.get(state, 'file'),
+        op.get(state, 'status'),
+    ]);
 
     // Renderer
     const render = () => {
+        const type = op.get(data, 'type');
+
         return (
             <>
                 {state.status === ENUMS.STATUS.FETCHING && <Blocker />}
-                {state.status !== ENUMS.STATUS.FETCHING && (
+                {state.status !== ENUMS.STATUS.FETCHING && type && (
                     <>
                         {data.type === 'AUDIO' && <AudioEditor />}
                         {data.type === 'FILE' && <FileEditor />}
