@@ -11,6 +11,8 @@ export default () => {
 
     const path = useSelect(state => op.get(state, 'Router.match.path'));
 
+    const type = op.get(Editor, 'state.value.type');
+
     const visible = String(path).startsWith('/admin/media/edit/');
 
     return (
@@ -28,7 +30,7 @@ export default () => {
                         {ENUMS.TEXT.MEDIA}
                     </Button>
                 </li>
-                <li className='uppercase'>{ENUMS.TEXT.EDIT}</li>
+                <li className='uppercase'>{type}</li>
                 <li>{ID}</li>
             </ul>
         )

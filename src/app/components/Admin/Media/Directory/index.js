@@ -6,8 +6,12 @@ import domain from '../domain';
 import copy from 'copy-to-clipboard';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import React, { useEffect, useRef, useState } from 'react';
-import Reactium, { useHandle, useSelect } from 'reactium-core/sdk';
+import React, { useEffect, useState } from 'react';
+import Reactium, {
+    useDerivedState,
+    useHandle,
+    useSelect,
+} from 'reactium-core/sdk';
 import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
 
 const ActionButton = ({
@@ -34,38 +38,50 @@ const ActionButton = ({
     </div>
 );
 
+const useActions = () => {
+    const [actions, setActions] = useState();
+    const [status, setStatus] = useState(ENUMS.STATUS.INIT);
+
+    useEffect(() => {
+        if (status !== ENUMS.STATUS.INIT) return;
+        if (!actions) {
+            const acts = {};
+            setStatus(ENUMS.STATUS.PENDING);
+
+            Reactium.Hook.run('media-file-actions', acts).then(() => {
+                setStatus(ENUMS.STATUS.READY);
+                setActions(acts);
+            });
+        }
+    }, [actions, status]);
+
+    return actions || {};
+};
+
 export default () => {
+    const actions = useActions();
+
+    const Media = useHandle(domain.name);
+
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
     const history = useSelect(state => op.get(state, 'Router.history'));
 
-    const stateRef = useRef({
-        status: ENUMS.STATUS.PENDING,
-        actions: {},
+    const [state, setState] = useDerivedState({
+        status: ENUMS.STATUS.INIT,
     });
 
-    const [, setNewState] = useState(stateRef.current);
-
-    const setState = newState => {
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        setNewState(stateRef.current);
-    };
-
-    const tools = useHandle('AdminTools');
-
-    const Media = useHandle(domain.name);
-
-    const Modal = op.get(tools, 'Modal');
+    const [library, setLibrary] = useState(op.get(Media.state, 'library', {}));
 
     const Toast = op.get(tools, 'Toast');
 
     const page = op.get(Media.state, 'page', 1);
 
-    const library = _.sortBy(op.get(Media.state, ['library', page], {}), 'ext');
+    const directory = op.get(Media.state, 'directory');
 
     const isImage = ext => ENUMS.TYPE.IMAGE.includes(String(ext).toUpperCase());
 
@@ -133,14 +149,18 @@ export default () => {
         return Reactium.Media.delete(file);
     };
 
-    const onSearch = _.throttle(params => Reactium.Media.fetch(params), 500, {
-        leading: false,
+    const _onSearch = () =>
+        setLibrary(
+            Reactium.Media.filter({ limit: 20, search, directory, page }),
+        );
+
+    const onSearch = _.throttle(_onSearch, 300, {
+        leading: true,
         trailing: true,
     });
 
     const confirmDelete = file => {
-        const { library = {} } = Media.state;
-        const url = op.get(library, [page, file, 'url']);
+        const url = op.get(library, [file, 'url']);
 
         Modal.show(
             <ConfirmBox
@@ -161,7 +181,6 @@ export default () => {
     };
 
     const renderImage = item => {
-        const { actions } = stateRef.current;
         const {
             ext,
             file,
@@ -172,30 +191,31 @@ export default () => {
             url,
         } = item;
 
-        const fileURL = file.url().replace('undefined/', '/api/');
-        const edgeURL = thumbnail
-            ? thumbnail.url().replace('undefined/', '/api/')
-            : fileURL;
+        const edgeURL = Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const bg = { backgroundImage: `url('${poster || edgeURL}')` };
 
-        const bg = { backgroundImage: `url('${edgeURL}')` };
         const acts = _.sortBy(
             Object.values(actions),
             'order',
         ).filter(({ types = [] }) => types.includes('image'));
 
-        const title = op.get(meta, 'title', url);
+        const title = op.get(meta, 'title');
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
                     <a
-                        href={fileURL}
+                        href={edgeURL}
                         style={bg}
                         className='media-image'
                         target='_blank'
                     />
                     <div className='media-info'>
-                        <div className='text'>{title}</div>
+                        <div className='text'>
+                            {title && <div>{title}</div>}
+                            <div>{url}</div>
+                        </div>
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'
@@ -235,20 +255,24 @@ export default () => {
     };
 
     const renderVideo = item => {
-        const { actions } = stateRef.current;
         const { ext, file, filename, meta, objectId, thumbnail, url } = item;
-        const edgeURL = file && file.url().replace('undefined', '/api');
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const title = op.get(meta, 'title', url);
+
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('video'),
         );
-
-        const title = op.get(meta, 'title', url);
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
                     <div className='media-video'>
-                        <video width='100%' height='100%' controls>
+                        <video
+                            poster={poster}
+                            width='100%'
+                            height='100%'
+                            controls>
                             <source src={edgeURL} type={`video/${ext}`} />
                             {ENUMS.TEXT.VIDEO_UNSUPPORTED}
                         </video>
@@ -294,8 +318,9 @@ export default () => {
     };
 
     const renderOther = item => {
-        const { actions } = stateRef.current;
-        const { ext, filename, meta, objectId, url } = item;
+        const { ext, filename, meta, objectId, thumbnail, url } = item;
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('other'),
         );
@@ -362,18 +387,8 @@ export default () => {
     };
 
     useEffect(() => {
-        const { actions = {}, status } = stateRef.current;
-
-        stateRef.current.status = ENUMS.STATUS.PROCESSING;
-
-        Reactium.Hook.run('media-file-actions', actions).then(() =>
-            setState({ actions, status: ENUMS.STATUS.READY }),
-        );
-    }, [op.get(stateRef.current, 'status')]);
-
-    useEffect(() => {
         onSearch();
-    }, [search]);
+    }, [page, search, directory, op.get(Media.state, 'library', {})]);
 
     return render();
 };

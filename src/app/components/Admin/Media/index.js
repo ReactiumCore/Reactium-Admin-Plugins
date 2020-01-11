@@ -26,6 +26,7 @@ import React, {
     useEffect,
     useLayoutEffect as useWindowEffect,
     useRef,
+    useState,
 } from 'react';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
@@ -41,6 +42,8 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     const iDoc = useDocument();
 
     const [state, setState] = useReduxState(domain.name);
+
+    const [status, setStatus] = useState(ENUMS.STATUS.INIT);
 
     const SearchBar = useHandle('SearchBar');
 
@@ -117,12 +120,17 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     // Side effects
     useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
 
+    // fetch
     useEffect(() => {
-        const dir = op.get(state, 'directory');
-        if (directoryRef.current !== dir) directoryRef.current = dir;
+        if (status !== ENUMS.STATUS.INIT || status === ENUMS.STATUS.READY)
+            return;
 
-        Reactium.Media.fetch({ page });
-    }, [directoryRef.current]);
+        setStatus(ENUMS.STATUS.PENDING);
+
+        Reactium.Media.fetch({ page: 1 }).then(() => {
+            setStatus(ENUMS.STATUS.READY);
+        });
+    }, [status]);
 
     useEffect(() => {
         Reactium.Pulse.register('MediaClearUploads', () => clearUploads());
@@ -130,7 +138,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
         return () => {
             Reactium.Pulse.unregister('MediaClearUploads');
         };
-    }, []);
+    });
 
     // External Interface
     const handle = () => ({

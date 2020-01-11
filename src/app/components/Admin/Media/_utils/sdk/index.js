@@ -42,6 +42,16 @@ class Media {
         this.ENUMS = ENUMS;
         this.worker = null;
         this.fetching = false;
+        this.__filters = [Object.keys(ENUMS.TYPE)];
+        this.__searchFields = [
+            'ext',
+            'filename',
+            'meta.description',
+            'meta.tags',
+            'meta.title',
+            'type',
+            'url',
+        ];
 
         const Worker = typeof window !== 'undefined' ? window.Worker : null;
 
@@ -101,6 +111,10 @@ class Media {
             ({ statusAt }) =>
                 moment().diff(moment(new Date(statusAt)), 'seconds') >= expired,
         );
+    }
+
+    get filters() {
+        return this.__filters;
     }
 
     get state() {
@@ -197,48 +211,123 @@ class Media {
     }
 
     async fetch(params) {
-        const library = op.get(this.state, 'library', {});
-        const currentFilters = op.get(this.state, 'filters');
-        const currentDir = op.get(this.state, 'directory');
+        const library = {};
+        const limit = op.get(params, 'limit', 50);
         const page = op.get(params, 'page', this.page);
-        const search = op.get(params, 'search', this.search);
-        const filters = op.get(params, 'filters', currentFilters);
-        const directory = op.get(params, 'directory', currentDir);
 
-        const media = await Reactium.Cloud.run('media', {
-            directory,
-            filters,
+        const media = await Reactium.Cloud.run('media', { page: -1 });
+
+        let { directories = [ENUMS.DIRECTORY], files } = media;
+
+        files = Object.values(files);
+
+        const index = limit * page - limit;
+        const pages = Math.ceil(files.length / limit);
+        const next = page < pages ? page + 1 : undefined;
+        const prev = page > 1 ? page - 1 : undefined;
+        const pagination = {
+            empty: files.length < 1,
+            count: files.length,
             page,
-            search,
-            limit: 50,
-        });
-
-        const { directories = [ENUMS.DIRECTORY], files, ...pagination } = media;
-
-        if (Object.keys(files).length > 0) {
-            library[page] = files;
-        } else {
-            delete library[page];
-        }
+            pages,
+            index,
+            limit,
+            next,
+            prev,
+        };
 
         this.setState({
             directories,
-            library,
+            library: files,
             pagination,
             fetched: Date.now(),
         });
+
+        return media;
+    }
+
+    filter(params) {
+        const { directory, limit = 50, page = -1, search } = params;
+        const dataArray = op.get(this.state, 'library');
+        const filters = op.get(params, 'filters', this.__filters);
+        const searchFields = op.get(
+            params,
+            'searchFields',
+            this.__searchFields,
+        );
+        const match = search && String(search).toLowerCase();
+        const currentFilters = _.flatten([filters]).map(f =>
+            String(f).toUpperCase(),
+        );
+
+        let filtered = dataArray.filter(item => {
+            let { directory: dir, type } = item;
+
+            // search
+            if (match && match.length > 2 && searchFields.length > 0) {
+                const score = searchFields.reduce((s, field) => {
+                    let val = op.get(item, field, '');
+                    val = Array.isArray(val) ? val.join(', ') : val;
+                    val = String(val).toLowerCase();
+
+                    s += val.includes(match) ? 1 : 0;
+
+                    return s;
+                }, 0);
+
+                if (score === 0) return false;
+            }
+
+            // directory
+            if (
+                directory &&
+                String(dir).toLowerCase() !== String(directory).toLowerCase()
+            ) {
+                return false;
+            }
+
+            // type filter
+            type = String(type).toUpperCase();
+            if (!currentFilters.includes(type)) return false;
+
+            return true;
+        });
+
+        if (page > 0) {
+            const index = limit * page - limit;
+            const pages = Math.ceil(filtered.length / limit);
+            const next = page < pages ? page + 1 : undefined;
+            const prev = page > 1 ? page - 1 : undefined;
+
+            const pagination = {
+                ...op.get(this.state, 'pagination'),
+                empty: dataArray.length < 1,
+                count: filtered.length,
+                index,
+                limit,
+                page,
+                pages,
+                next,
+                prev,
+            };
+
+            this.setState({ pagination });
+
+            filtered = Array.from(filtered).splice(index, limit);
+        }
+
+        return _.indexBy(filtered, 'objectId');
     }
 
     delete(objectId) {
-        const { library = {} } = this.state;
+        const library = _.indexBy(
+            op.get(this.state, 'library', []),
+            'objectId',
+        );
 
-        for (let page of Object.keys(library)) {
-            page = Number(page);
-            if (op.has(library, [page, objectId])) {
-                delete library[page][objectId];
-                this.setState({ library });
-                break;
-            }
+        if (op.has(library, objectId)) {
+            op.del(library, objectId);
+            this.setState({ library: Object.values(library) });
         }
 
         return Reactium.Cloud.run('media-delete', { objectId });
