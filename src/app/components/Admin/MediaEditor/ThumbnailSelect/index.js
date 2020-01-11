@@ -92,6 +92,10 @@ let ThumbnailSelect = (
 
     const Toast = op.get(tools, 'Toast');
 
+    const Modal = op.get(tools, 'Modal');
+
+    const MediaPicker = useHookComponent('MediaPicker');
+
     const deleteThumbnail = () => {
         Reactium.Cloud.run('media-delete-thumbnail', {
             objectId: op.get(state, 'value.objectId'),
@@ -254,6 +258,10 @@ let ThumbnailSelect = (
 
     const setRef = (elm, ref) => op.set(refs, ref, elm);
 
+    const showPicker = () => {
+        Modal.show(<MediaPicker onDismiss={() => Modal.dismiss()} />);
+    };
+
     const onChange = e => {
         if (!e.target.dataset.key) return;
         const value = e.target.value;
@@ -393,6 +401,7 @@ let ThumbnailSelect = (
         setState,
         setStatus,
         setThumbnail,
+        showPicker,
         size,
         state,
         status,

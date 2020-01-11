@@ -1,0 +1,129 @@
+$height-media-header: 42px;
+$padding-media-modal: 48px;
+
+.ar-media-picker {
+    width: 100%;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    &-dialog {
+        width: 100%;
+
+        .ar-dialog-header-buttons {
+            align-items: center;
+
+            button {
+                margin: 0 3px;
+                &:last-child {
+                    margin-right: 6px;
+                }
+            }
+        }
+        .ar-dialog-header-btn.btn-clear-xs {
+            height: 42px;
+            margin-right: 0 !important;
+        }
+    }
+
+    &-toolbar {
+        @extend .ar-dialog-header;
+        overflow: visible;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        padding: 0 6px 0 12px;
+        border-radius: 0px;
+        border-bottom: 1px solid $color-border;
+    }
+
+    &-search-bar {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        svg {
+            width: 14px;
+            height: 14px;
+            fill: $color-gray;
+            position: absolute;
+            left: 9px;
+            pointer-events: none;
+        }
+
+        input {
+            border: 1px solid $color-border;
+            border-radius: 25px;
+            height: 32px;
+            width: 32px;
+            max-width: 300px;
+            padding-left: 30px;
+            transition: width .25s ease-in-out;
+            outline: none;
+            cursor: pointer;
+            color: $color-gray;
+
+            &:focus,
+            &.expanded {
+                width: 25vw;
+                cursor: text;
+            }
+        }
+    }
+
+    &-container {
+        display: flex;
+        flex-grow: 1;
+        align-items: stretch;
+        position: relative;
+        overflow: hidden;
+
+        &-library {
+            flex-grow: 1;
+            position: relative;
+
+            .content {
+                
+            }
+        }
+
+        &-selection {
+            display: none;
+            flex-shrink: 0;
+            flex-grow: 0;
+            position: relative;
+            background-color: darken($color-white, .65%);
+            border-left: 1px solid $color-border;
+
+            @include breakpoint(sm) {
+                width: 50%;
+                display: block;
+            }
+
+            @include breakpoint(md) {
+                width: 300px;
+                display: block;
+            }
+
+            .content {
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+            }
+        }
+    }
+}
+
+.ar-modal {
+    .ar-media-picker {
+        width: 100%;
+        height: calc(100vh - #{$height-media-header} - #{$padding-media-modal} - 2px);
+
+        &-dialog {
+            width: calc(100vw - #{$padding-media-modal});
+        }
+    }
+}

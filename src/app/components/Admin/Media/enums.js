@@ -10,6 +10,7 @@ const ENUMS = {
     TEXT: {
         BACK: __('Back'),
         BROWSE: __('Browse Files'),
+        CONFIRM: __('Are you sure?'),
         CONFIRM_DELETE: __('Confirm Delete'),
         COPIED_TO_CLIPBOARD: __('Copied to clipboard'),
         COPY_TO_CLIPBOARD: __('Copy to clipboard'),
