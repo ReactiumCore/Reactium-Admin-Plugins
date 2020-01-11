@@ -90,7 +90,8 @@ let MediaPicker = (
 
         setState({ status: ENUMS.STATUS.PENDING });
 
-        Reactium.Cloud.run('media', { page: -1 })
+        //Reactium.Cloud.run('media', { page: -1 })
+        Reactium.Media.fetch({ page: -1 })
             .then(results =>
                 setState({
                     data: results.files,
