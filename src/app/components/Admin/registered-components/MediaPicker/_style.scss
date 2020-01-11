@@ -1,4 +1,6 @@
 $height-media-header: 42px;
+$width-selection: 300px;
+$width-thumb: 172px;
 $padding-media-modal: 48px;
 
 .ar-media-picker {
@@ -16,11 +18,13 @@ $padding-media-modal: 48px;
 
             button {
                 margin: 0 3px;
+
                 &:last-child {
                     margin-right: 6px;
                 }
             }
         }
+
         .ar-dialog-header-btn.btn-clear-xs {
             height: 42px;
             margin-right: 0 !important;
@@ -38,10 +42,46 @@ $padding-media-modal: 48px;
         border-bottom: 1px solid $color-border;
     }
 
+    &-actions {
+        align-items: center;
+        justify-content: flex-end;
+
+        padding-right: 6px;
+
+        &:last-child {
+            padding: 0;
+        }
+
+        @include breakpoint(sm) {
+            display: flex;
+            padding-right: 0;
+        }
+    }
+
+    &-confirm {
+        display: flex;
+        align-items: center;
+        margin-right: -6px;
+        flex-shrink: 0;
+        justify-content: flex-end;
+
+        button {
+            width: 80px;
+            margin: 0 6px;
+        }
+
+        @include breakpoint(md) {
+            width: $width-selection;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
     &-search-bar {
         display: flex;
         align-items: center;
         position: relative;
+        flex-grow: 1;
 
         svg {
             width: 14px;
@@ -59,7 +99,7 @@ $padding-media-modal: 48px;
             width: 32px;
             max-width: 300px;
             padding-left: 30px;
-            transition: width .25s ease-in-out;
+            transition: width 0.25s ease-in-out;
             outline: none;
             cursor: pointer;
             color: $color-gray;
@@ -67,6 +107,7 @@ $padding-media-modal: 48px;
             &:focus,
             &.expanded {
                 width: 25vw;
+                min-width: 200px;
                 cursor: text;
             }
         }
@@ -78,13 +119,27 @@ $padding-media-modal: 48px;
         align-items: stretch;
         position: relative;
         overflow: hidden;
+        justify-content: center;
 
         &-library {
             flex-grow: 1;
             position: relative;
 
             .content {
-                
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                padding: $padding-default;
+
+                .selected {
+                    opacity: 0.5;
+                    order: -1;
+
+                    @include breakpoint(md) {
+                        order: 0;
+                        display: none;
+                    }
+                }
             }
         }
 
@@ -93,25 +148,129 @@ $padding-media-modal: 48px;
             flex-shrink: 0;
             flex-grow: 0;
             position: relative;
-            background-color: darken($color-white, .65%);
+            background-color: darken($color-white, 0.65%);
             border-left: 1px solid $color-border;
 
-            @include breakpoint(sm) {
-                width: 50%;
-                display: block;
-            }
-
             @include breakpoint(md) {
-                width: 300px;
+                width: $width-selection;
                 display: block;
             }
 
             .content {
                 padding: 20px;
                 display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
                 align-items: center;
+                flex-direction: column;
+            }
+        }
+    }
+
+    &-item {
+        border: none;
+        border-radius: 2px;
+        background-color: transparent;
+        background-position: center center;
+        background-size: cover;
+        overflow: visible;
+        width: 35vw;
+        height: 35vw;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-end;
+        position: relative;
+        margin: 10px;
+        flex-shrink: 0;
+        opacity: 0.9;
+        transition: opacity 0.25s ease-in-out;
+        padding: 8px;
+        cursor: pointer;
+        user-select: none;
+
+        @include breakpoint(sm) {
+            margin: 20px;
+            width: $width-thumb;
+            height: $width-thumb;
+        }
+
+        video {
+            object-fit: cover;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .title {
+            border-radius: 2px;
+            background-color: rgba($color-black, 0.5);
+            color: $color-white;
+            text-align: center;
+            padding: 7px 8px 8px 8px;
+            width: 100%;
+            z-index: 200;
+            font-size: 12px;
+            opacity: 0;
+        }
+
+        &.selected,
+        &:hover {
+            &,
+            .check,
+            .title {
+                opacity: 1;
+            }
+        }
+    }
+
+    &-directory {
+        display: flex;
+        justify-content: center;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 5px 8px 4px 8px;
+
+        .chevron {
+            display: none;
+        }
+
+        @include breakpoint(sm) {
+            justify-content: flex-start;
+            min-width: 200px;
+
+            .chevron {
+                display: block;
+            }
+
+            .folder {
+                display: none;
+            }
+        }
+
+        &-label {
+            text-align: left;
+            flex-grow: 1;
+            display: none;
+
+            @include breakpoint(sm) {
+                display: block;
+            }
+        }
+
+        &-select {
+            .ar-dropdown-menu {
+                min-width: 200px;
             }
         }
     }
@@ -120,10 +279,13 @@ $padding-media-modal: 48px;
 .ar-modal {
     .ar-media-picker {
         width: 100%;
-        height: calc(100vh - #{$height-media-header} - #{$padding-media-modal} - 2px);
+        height: calc(
+        100vh - #{$height-media-header} - #{$padding-media-modal} - 2px
+    );
 
         &-dialog {
             width: calc(100vw - #{$padding-media-modal});
+            max-width: 1440px;
         }
     }
 }

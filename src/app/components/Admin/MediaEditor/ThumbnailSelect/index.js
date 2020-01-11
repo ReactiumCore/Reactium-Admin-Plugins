@@ -1,3 +1,4 @@
+import axios from 'axios';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
@@ -112,73 +113,75 @@ let ThumbnailSelect = (
     };
 
     const generateThumb = file =>
-        new Promise((resolve, reject) => {
+        new Promise(async (resolve, reject) => {
+            setRendered(false);
+            setStatus(ENUMS.STATUS.PROCESSING);
+
             const isFile = file.constructor === File;
+            const reader = new FileReader();
+            const readImage = async (ext, data) => {
+                // Render the temp thumbnail
+                renderThumbnail(data);
 
-            let ext;
-
-            if (isFile) {
-                ext = file.name.split('.').pop();
-
-                // read file and draw thumbnail to image
-                const reader = new FileReader();
-                reader.onload = async () => {
-                    // Render the temp thumbnail
-                    renderThumbnail(reader.result);
-
-                    // Send to parse and update the object
-                    const params = {
-                        ext,
-                        field: op.get(options, 'property'),
-                        objectId: op.get(state, 'value.objectId'),
-                        options: {
-                            width: op.get(options, 'width'),
-                            height: op.get(options, 'height'),
-                        },
-                        url: reader.result,
-                    };
-
-                    const thm = await Reactium.Cloud.run(
-                        'media-image-crop',
-                        params,
-                    );
-
-                    if (!thm) {
-                        Toast.show({
-                            icon: 'Feather.AlertOctagon',
-                            message: `Unable to save ${String(
-                                label,
-                            ).toLowerCase()}`,
-                            type: Toast.TYPE.ERROR,
-                        });
-
-                        setStatus(ENUMS.STATUS.READY);
-                        navTo('pick', 'right');
-                        return;
-                    }
-
-                    Toast.show({
-                        icon: 'Feather.Check',
-                        message: `${__('Updated')} ${String(
-                            label,
-                        ).toLowerCase()}!`,
-                        type: Toast.TYPE.INFO,
-                    });
-
-                    // Preload the image so there's no blink
-                    const img = new Image();
-                    img.onload = () => {
-                        setThumbnail(thm);
-                        resolve(thm);
-                    };
-
-                    img.src = Reactium.Media.url(thm);
+                // Send to parse and update the object
+                const params = {
+                    ext,
+                    field: op.get(options, 'property'),
+                    objectId: op.get(state, 'value.objectId'),
+                    options: {
+                        width: op.get(options, 'width'),
+                        height: op.get(options, 'height'),
+                    },
+                    url: data,
                 };
 
-                // Read the file
+                const thm = await Reactium.Cloud.run(
+                    'media-image-crop',
+                    params,
+                );
+
+                if (!thm) {
+                    Toast.show({
+                        icon: 'Feather.AlertOctagon',
+                        message: `Unable to save ${String(
+                            label,
+                        ).toLowerCase()}`,
+                        type: Toast.TYPE.ERROR,
+                    });
+
+                    setStatus(ENUMS.STATUS.READY);
+                    navTo('pick', 'right');
+                    return;
+                }
+
+                Toast.show({
+                    icon: 'Feather.Check',
+                    message: `${__('Updated')} ${String(label).toLowerCase()}!`,
+                    type: Toast.TYPE.INFO,
+                });
+
+                // Preload the image so there's no blink
+                const img = new Image();
+                img.onload = () => {
+                    setThumbnail(thm);
+                    resolve(thm);
+                };
+
+                img.src = Reactium.Media.url(thm);
+            };
+
+            if (isFile) {
+                const ext = file.name.split('.').pop();
+                reader.onload = () => readImage(ext, reader.result);
                 reader.readAsDataURL(file);
             } else {
-                ext = file.get('ext');
+                const ext = op.get(file, 'ext');
+                const url = Reactium.Media.url(file.file);
+                const { data: filedata } = await axios.get(url, {
+                    responseType: 'blob',
+                });
+                reader.onload = () => readImage(ext, reader.result);
+                reader.readAsDataURL(filedata);
             }
         });
 
@@ -259,7 +262,13 @@ let ThumbnailSelect = (
     const setRef = (elm, ref) => op.set(refs, ref, elm);
 
     const showPicker = () => {
-        Modal.show(<MediaPicker onDismiss={() => Modal.dismiss()} />);
+        Modal.show(
+            <MediaPicker
+                filter={['IMAGE']}
+                onChange={onMediaSelect}
+                onDismiss={() => Modal.dismiss()}
+            />,
+        );
     };
 
     const onChange = e => {
@@ -287,14 +296,14 @@ let ThumbnailSelect = (
 
     const onFileSelect = e => {
         const files = e.target.files;
-
         if (files.length < 1) return;
+        generateThumb(files[0]).then(() => setStatus(ENUMS.STATUS.READY));
+    };
 
-        const file = files[0];
-
-        setRendered(false);
-        setStatus(ENUMS.STATUS.PROCESSING);
-        generateThumb(file).then(() => setStatus(ENUMS.STATUS.READY));
+    const onMediaSelect = e => {
+        const files = Object.values(e.selection);
+        if (files.length < 1) return;
+        generateThumb(files[0]).then(() => setStatus(ENUMS.STATUS.READY));
     };
 
     const onSceneChange = ({ active: current, previous }) => {
