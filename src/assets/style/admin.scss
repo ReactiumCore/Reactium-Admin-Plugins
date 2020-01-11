@@ -18,7 +18,6 @@
 @import '../../app/components/Admin/registered-components/MenuItem/style';
 @import '../../app/components/Admin/registered-components/PermissionSelector/style';
 @import '../../app/components/Admin/registered-components/Blocker/style';
-@import '../../app/components/Admin/registered-components/MediaPicker/style';
 
 // Admin Styles
 @import '../../app/components/Admin/style/base';
@@ -32,7 +31,6 @@
 @import '../../app/components/Admin/Profile/Editor/style';
 @import '../../app/components/Admin/Settings/style';
 @import '../../app/components/Admin/Password/style';
-@import '../../app/components/Admin/Media/style';
 @import '../../app/components/Admin/SearchBar/style';
 @import '../../app/components/Admin/PluginManager/style';
 @import '../../app/components/Admin/ContentType/style';
@@ -47,13 +45,15 @@
 @import '../../app/components/Admin/ContentType/TypeName/style';
 @import '../../app/components/Admin/ContentType/Tools/style';
 @import '../../app/components/Admin/ContentType/Fields/style';
+@import '../../app/components/Admin/Media/style';
 @import '../../app/components/Admin/Media/Directory/style';
 @import '../../app/components/Admin/Media/Directory/Creator/style';
 @import '../../app/components/Admin/Media/Directory/Editor/style';
-@import '../../app/components/Admin/MediaEditor/style';
-@import '../../app/components/Admin/MediaEditor/ImageEditor/style';
-@import '../../app/components/Admin/MediaEditor/FileEditor/style';
-@import '../../app/components/Admin/MediaEditor/VideoEditor/style';
-@import '../../app/components/Admin/MediaEditor/AudioEditor/style';
-@import '../../app/components/Admin/MediaEditor/ImageCrop/style';
-@import '../../app/components/Admin/MediaEditor/ThumbnailSelect/style';
+@import '../../app/components/Admin/Media/MediaEditor/style';
+@import '../../app/components/Admin/Media/MediaEditor/ImageEditor/style';
+@import '../../app/components/Admin/Media/MediaEditor/FileEditor/style';
+@import '../../app/components/Admin/Media/MediaEditor/VideoEditor/style';
+@import '../../app/components/Admin/Media/MediaEditor/AudioEditor/style';
+@import '../../app/components/Admin/Media/MediaEditor/ImageCrop/style';
+@import '../../app/components/Admin/Media/MediaEditor/ThumbnailSelect/style';
+@import '../../app/components/Admin/Media/MediaPicker/style';
