@@ -155,7 +155,7 @@ let ThumbnailSelect = (
 
                     Toast.show({
                         icon: 'Feather.Check',
-                        message: `${__('Uploaded')} ${String(
+                        message: `${__('Updated')} ${String(
                             label,
                         ).toLowerCase()}!`,
                         type: Toast.TYPE.INFO,

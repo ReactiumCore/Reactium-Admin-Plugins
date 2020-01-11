@@ -172,30 +172,31 @@ export default () => {
             url,
         } = item;
 
-        const fileURL = file.url().replace('undefined/', '/api/');
-        const edgeURL = thumbnail
-            ? thumbnail.url().replace('undefined/', '/api/')
-            : fileURL;
+        const edgeURL = Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const bg = { backgroundImage: `url('${poster || edgeURL}')` };
 
-        const bg = { backgroundImage: `url('${edgeURL}')` };
         const acts = _.sortBy(
             Object.values(actions),
             'order',
         ).filter(({ types = [] }) => types.includes('image'));
 
-        const title = op.get(meta, 'title', url);
+        const title = op.get(meta, 'title');
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
                     <a
-                        href={fileURL}
+                        href={edgeURL}
                         style={bg}
                         className='media-image'
                         target='_blank'
                     />
                     <div className='media-info'>
-                        <div className='text'>{title}</div>
+                        <div className='text'>
+                            {title && <div>{title}</div>}
+                            <div>{url}</div>
+                        </div>
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'
@@ -237,18 +238,23 @@ export default () => {
     const renderVideo = item => {
         const { actions } = stateRef.current;
         const { ext, file, filename, meta, objectId, thumbnail, url } = item;
-        const edgeURL = file && file.url().replace('undefined', '/api');
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const title = op.get(meta, 'title', url);
+
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('video'),
         );
-
-        const title = op.get(meta, 'title', url);
 
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
                     <div className='media-video'>
-                        <video width='100%' height='100%' controls>
+                        <video
+                            poster={poster}
+                            width='100%'
+                            height='100%'
+                            controls>
                             <source src={edgeURL} type={`video/${ext}`} />
                             {ENUMS.TEXT.VIDEO_UNSUPPORTED}
                         </video>
@@ -295,7 +301,9 @@ export default () => {
 
     const renderOther = item => {
         const { actions } = stateRef.current;
-        const { ext, filename, meta, objectId, url } = item;
+        const { ext, filename, meta, objectId, thumbnail, url } = item;
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('other'),
         );
