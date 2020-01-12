@@ -37,3 +37,20 @@
         }
     }
 }
+
+.add-region-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 20px;
+
+    &:before {
+        display: block;
+        content: ' ';
+        width: 30px;
+        height: 20px;
+        border: 1px dashed $color-grey;
+        border-radius: 4px;
+    }
+}
