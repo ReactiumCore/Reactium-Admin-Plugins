@@ -3,7 +3,16 @@ import op from 'object-path';
 import { __ } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-export default ({ refs, id, label, navTo, state, thumbnail, ...handle }) => {
+export default ({
+    refs,
+    id,
+    label,
+    navTo,
+    showPicker,
+    state,
+    thumbnail,
+    ...handle
+}) => {
     const render = () => {
         return (
             <div id={id} className='admin-thumbnail-select'>
@@ -12,6 +21,7 @@ export default ({ refs, id, label, navTo, state, thumbnail, ...handle }) => {
                         <Button
                             appearance='pill'
                             color='tertiary'
+                            onClick={() => showPicker()}
                             outline
                             style={{ width: 172 }}>
                             {__('Select')} {label}

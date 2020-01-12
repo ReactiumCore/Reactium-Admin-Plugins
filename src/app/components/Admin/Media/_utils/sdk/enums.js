@@ -16,8 +16,21 @@ const ENUMS = {
     },
     TYPE: {
         AUDIO: ['MP3', 'OGG', 'WAV'],
+        DOCUMENT: [
+            'DOC',
+            'DOCX',
+            'HTML',
+            'HTM',
+            'ODS',
+            'ODT',
+            'PDF',
+            'PPT',
+            'PPTX',
+            'TXT',
+            'XLS',
+            'XLSX',
+        ],
         IMAGE: ['PNG', 'SVG', 'GIF', 'JPG', 'JPEG'],
-        PDF: ['PDF'],
         VIDEO: [
             'WEBM',
             'MPG',

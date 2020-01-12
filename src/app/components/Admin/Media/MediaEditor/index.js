@@ -2,12 +2,14 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
+import { Helmet } from 'react-helmet';
 import React, { useEffect } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
 import useMediaObject from './_utils/useMediaObject';
 import useDirectories from './_utils/useDirectories';
 
 import Reactium, {
+    __,
     useDerivedState,
     useHandle,
     useHookComponent,
@@ -246,9 +248,12 @@ const MediaEditor = props => {
     // Renderer
     const render = () => {
         const type = op.get(data, 'type');
-
+        const title = `${__('Media Edit')} | ${ID}`;
         return (
             <>
+                <Helmet>
+                    <title>{title}</title>
+                </Helmet>
                 {state.status === ENUMS.STATUS.FETCHING && <Blocker />}
                 {state.status !== ENUMS.STATUS.FETCHING && type && (
                     <>
