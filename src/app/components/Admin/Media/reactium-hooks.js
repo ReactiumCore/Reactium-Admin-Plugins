@@ -4,6 +4,7 @@ import domain from './domain';
 import Parse from 'appdir/api';
 import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
+import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './Widget/SidebarWidget';
 import DirectoryWidget from './Widget/DirectoryWidget';
@@ -37,6 +38,13 @@ Reactium.Plugin.register(domain.name).then(() => {
         zone: ['admin-media-empty', 'admin-media-toolbar'],
     });
 
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-CRUMBS',
+        component: Breadcrumbs,
+        order: 1,
+        zone: ['admin-header'],
+    });
+
     // Register hooks
     Reactium.Hook.register('app-ready', () => {
         Reactium.Pulse.register('MediaClear', () => Reactium.Media.clear());
@@ -55,7 +63,7 @@ Reactium.Plugin.register(domain.name).then(() => {
             id: 'delete',
             order: 0,
             tooltip: ENUMS.TEXT.DELETE,
-            types: ['image', 'video', 'other'],
+            types: ['audio', 'image', 'other', 'video'],
         };
 
         actions['download'] = {
@@ -64,7 +72,15 @@ Reactium.Plugin.register(domain.name).then(() => {
             id: 'download',
             order: 1,
             tooltip: ENUMS.TEXT.DOWNLOAD_FILE,
-            types: ['image', 'video', 'other'],
+            types: ['audio', 'image', 'other', 'video'],
+        };
+
+        actions['edit-audio'] = {
+            icon: 'Feather.Edit2',
+            id: 'edit-audio',
+            order: 2,
+            tooltip: ENUMS.TEXT.EDIT_FILE,
+            types: ['audio'],
         };
 
         actions['edit-image'] = {
@@ -75,20 +91,20 @@ Reactium.Plugin.register(domain.name).then(() => {
             types: ['image'],
         };
 
-        actions['edit-video'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit-video',
-            order: 2,
-            tooltip: ENUMS.TEXT.EDIT_FILE,
-            types: ['video'],
-        };
-
         actions['edit-other'] = {
             icon: 'Feather.Edit2',
             id: 'edit-other',
             order: 2,
             tooltip: ENUMS.TEXT.EDIT_FILE,
             types: ['other'],
+        };
+
+        actions['edit-video'] = {
+            icon: 'Feather.Edit2',
+            id: 'edit-video',
+            order: 2,
+            tooltip: ENUMS.TEXT.EDIT_FILE,
+            types: ['video'],
         };
     });
 });

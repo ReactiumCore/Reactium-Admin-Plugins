@@ -16,7 +16,7 @@ const ENUMS = {
     },
     TYPE: {
         AUDIO: ['MP3', 'OGG', 'WAV'],
-        DOCUMENT: [
+        FILE: [
             'DOC',
             'DOCX',
             'HTML',

@@ -8,6 +8,7 @@ const ENUMS = {
         { value: 'Media.all', label: 'Public View' },
     ],
     TEXT: {
+        AUDIO_UNSUPPORTED: __('Your browser does not support this audio'),
         BACK: __('Back'),
         BROWSE: __('Browse Files'),
         CONFIRM: __('Are you sure?'),

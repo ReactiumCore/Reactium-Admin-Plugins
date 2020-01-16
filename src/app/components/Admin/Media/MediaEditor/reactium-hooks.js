@@ -4,7 +4,6 @@ import MediaEditor from './index';
 import ImageCrop from './ImageCrop';
 import FileEditor from './FileEditor';
 import MetaEditor from './MetaEditor';
-import Breadcrumbs from './Breadcrumbs';
 import ImageEditor from './ImageEditor';
 import AudioEditor from './AudioEditor';
 import VideoEditor from './VideoEditor';
@@ -31,13 +30,6 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
             component: MediaEditor,
             order: -1000,
             zone: ['admin-media-editor'],
-        });
-
-        Reactium.Zone.addComponent({
-            id: 'ADMIN-MEDIA-EDITOR-CRUMBS',
-            component: Breadcrumbs,
-            order: -1000,
-            zone: ['admin-header'],
         });
 
         Reactium.Zone.addComponent({

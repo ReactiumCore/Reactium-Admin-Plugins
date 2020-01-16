@@ -67,6 +67,8 @@ const MediaEditor = props => {
     };
 
     const onComplete = async result => {
+        if (!op.get(result, 'url')) return;
+
         Toast.show({
             icon: 'Feather.Check',
             type: Toast.TYPE.INFO,

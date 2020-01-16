@@ -117,12 +117,16 @@ html {
         display: flex;
         align-items: center;
 
-        &:not(:last-child) {
-            padding-right: 8px;
+        &:empty {
+            display: none;
+        }
 
-            &:after {
+        &:not(:first-child) {
+            padding-left: 8px;
+
+            &:before {
                 content: '/';
-                padding-left: 8px;
+                padding-right: 8px;
                 color: $color-gray;
                 font-size: 8px;
             }

@@ -119,7 +119,7 @@ export default ({ children, ...props }) => {
     useEffect(() => {
         if (!state.file && !state.currentFile && state.value) {
             const currentFile = {
-                dataURL: state.value.url,
+                dataURL: Reactium.Media.url(state.value.file),
                 name: state.value.filename,
                 ext: state.value.ext,
             };
@@ -154,7 +154,7 @@ export default ({ children, ...props }) => {
                 <Dropzone
                     {...dropzoneProps}
                     className={cname()}
-                    files={files}
+                    files={{}}
                     onError={e => onFileError(e)}
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
@@ -180,6 +180,7 @@ export default ({ children, ...props }) => {
                                             : __('Cancel Upload')}
                                     </Button>
                                 </div>
+                                <Zone zone='admin-media-editor-video' />
                             </>
                         )}
                         {!file && currentFile && (
@@ -187,7 +188,7 @@ export default ({ children, ...props }) => {
                                 <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
-                                <span className={cx('preview')}>
+                                <div className={cx('preview')}>
                                     <video width='100%' height='100%' controls>
                                         <source
                                             src={currentFile.dataURL}
@@ -195,7 +196,16 @@ export default ({ children, ...props }) => {
                                         />
                                         {ENUMS.TEXT.VIDEO_UNSUPPORTED}
                                     </video>
-                                </span>
+                                </div>
+                                <Button
+                                    appearance='pill'
+                                    color='primary'
+                                    className='primary'
+                                    onClick={() => onBrowse()}
+                                    size='sm'>
+                                    {__('Select Video')}
+                                </Button>
+                                <Zone zone='admin-media-editor-video' />
                             </>
                         )}
                     </div>

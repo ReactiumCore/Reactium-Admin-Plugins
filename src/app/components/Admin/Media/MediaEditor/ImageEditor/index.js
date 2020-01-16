@@ -192,7 +192,7 @@ export default ({ children, ...props }) => {
                                 <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
-                                <span className={cx('preview')}>
+                                <div className={cx('preview')}>
                                     <img
                                         ref={imageRef}
                                         src={file.dataURL}
@@ -206,7 +206,8 @@ export default ({ children, ...props }) => {
                                         size='sm'>
                                         {__('Cancel')}
                                     </Button>
-                                </span>
+                                </div>
+                                <Zone zone='admin-media-editor-image' />
                             </>
                         )}
                         {!file && currentFile && (
@@ -214,21 +215,22 @@ export default ({ children, ...props }) => {
                                 <div className='mb-xs-20 small'>
                                     {op.get(state, 'value.filename')}
                                 </div>
-                                <span className={cx('preview')}>
+                                <div className={cx('preview')}>
                                     <img
                                         ref={imageRef}
                                         src={currentFile && currentFile.dataURL}
                                         style={previewStyle()}
                                     />
-                                    <Button
-                                        appearance='pill'
-                                        color='primary'
-                                        className='primary'
-                                        onClick={() => onBrowse()}
-                                        size='sm'>
-                                        {__('Select Image')}
-                                    </Button>
-                                </span>
+                                </div>
+                                <Button
+                                    appearance='pill'
+                                    color='primary'
+                                    className='primary'
+                                    onClick={() => onBrowse()}
+                                    size='sm'>
+                                    {__('Select Image')}
+                                </Button>
+                                <Zone zone='admin-media-editor-image' />
                             </>
                         )}
                     </div>

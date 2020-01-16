@@ -4,7 +4,6 @@ import Empty from './Empty';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
-import Uploads from './Uploads';
 import Toolbar from './Toolbar';
 import Directory from './Directory';
 import { Helmet } from 'react-helmet';
@@ -12,8 +11,8 @@ import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
-    useDocument,
     useHandle,
+    useHookComponent,
     useReduxState,
     useRegisterHandle,
     useSelect,
@@ -39,7 +38,7 @@ const useLayoutEffect =
  * -----------------------------------------------------------------------------
  */
 let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
-    const iDoc = useDocument();
+    const Uploads = useHookComponent('MediaUploads');
 
     const [state, setState] = useReduxState(domain.name);
 
@@ -65,34 +64,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
 
-    const collapse = ID => {
-        if (animationRef.current[ID]) return animationRef.current[ID];
-
-        const elm = iDoc.getElementById(`upload-${ID}`);
-        if (!elm) return Promise.resolve();
-
-        animationRef.current[ID] = true;
-
-        return new Promise(resolve => {
-            elm.style.overflow = 'hidden';
-            TweenMax.to(elm, 0.125, {
-                height: 0,
-                opacity: 0,
-                ease: Power2.easeIn,
-                onComplete: () => resolve(),
-            });
-        });
-    };
-
     const onBrowseClick = () => dropzoneRef.current.browseFiles();
-
-    const clearUploads = () =>
-        Reactium.Media.completed.forEach(({ ID, file }) =>
-            collapse(ID).then(() => {
-                onFileRemoved(file);
-                delete animationRef.current[ID];
-            }),
-        );
 
     const onError = evt => {
         console.log({ error: evt.message });
@@ -108,8 +80,9 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     };
 
     const onFileRemoved = file => {
-        dropzoneRef.current.removeFiles(file);
-        Reactium.Media.cancel(file);
+        if (dropzoneRef.current) {
+            dropzoneRef.current.removeFiles(file);
+        }
     };
 
     const onFolderSelect = dir => {
@@ -131,14 +104,6 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
             setStatus(ENUMS.STATUS.READY);
         });
     }, [status]);
-
-    useEffect(() => {
-        Reactium.Pulse.register('MediaClearUploads', () => clearUploads());
-
-        return () => {
-            Reactium.Pulse.unregister('MediaClearUploads');
-        };
-    });
 
     // External Interface
     const handle = () => ({
