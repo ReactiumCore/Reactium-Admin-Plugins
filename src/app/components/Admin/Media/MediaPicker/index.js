@@ -6,18 +6,22 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
+import useData from 'components/Admin/Media/_utils/useData';
 
 import Reactium, {
     __,
     useDerivedState,
     useHandle,
+    useHookComponent,
     useRegisterHandle,
+    useStore,
 } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
+    useRef,
     useState,
 } from 'react';
 
@@ -25,11 +29,22 @@ import {
     Button,
     Dialog,
     Dropdown,
+    Dropzone,
     Icon,
     Spinner,
 } from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
+
+const fetchMedia = () =>
+    Reactium.Media.fetch({ page: -1 }).then(results => ({
+        data: results.files,
+        directories: results.directories,
+        error: null,
+        fetched: true,
+        status: ENUMS.STATUS.READY,
+        update: Date.now(),
+    }));
 
 /**
  * -----------------------------------------------------------------------------
@@ -39,6 +54,7 @@ const noop = () => {};
 
 let MediaPicker = (
     {
+        dropzoneProps,
         header,
         onCancel,
         onChange,
@@ -52,6 +68,12 @@ let MediaPicker = (
     },
     ref,
 ) => {
+    const Uploads = useHookComponent('MediaUploads');
+
+    const store = useStore();
+
+    const dropzoneRef = useRef();
+
     const ID = op.get(props, 'ID');
     const internals = ['ID', 'filter', 'search', 'selection'];
     const stateFromProps = Object.keys(props)
@@ -60,6 +82,8 @@ let MediaPicker = (
             obj[key] = op.get(props, key);
             return obj;
         }, {});
+
+    const [media, setMedia] = useData(fetchMedia);
 
     const [filter, setFilter] = useState(op.get(props, 'filter'));
     const [search, setSearch] = useState(op.get(props, 'search', ''));
@@ -73,6 +97,7 @@ let MediaPicker = (
         fetched: false,
         filtered: null,
         status: ENUMS.STATUS.INIT,
+        uploads: [],
         visible: false,
         ...stateFromProps,
     });
@@ -83,32 +108,6 @@ let MediaPicker = (
     };
 
     const cx = cls => _.compact([op.get(state, 'namespace'), cls]).join('-');
-
-    const _fetch = () => {
-        const { fetched, status } = state;
-        if (status === ENUMS.STATUS.PENDING || fetched === true) return;
-
-        setState({ status: ENUMS.STATUS.PENDING });
-
-        //Reactium.Cloud.run('media', { page: -1 })
-        Reactium.Media.fetch({ page: -1 })
-            .then(results =>
-                setState({
-                    data: results.files,
-                    directories: results.directories,
-                    error: null,
-                    fetched: true,
-                    status: ENUMS.STATUS.READY,
-                }),
-            )
-            .catch(error =>
-                setState({
-                    error,
-                    fetched: false,
-                    status: ENUMS.STATUS.READY,
-                }),
-            );
-    };
 
     const _filter = data => {
         let { directory, searchFields } = state;
@@ -180,6 +179,30 @@ let MediaPicker = (
         _onDismiss();
     };
 
+    const _onComplete = async () => {
+        let { data, uploads = [] } = state;
+        const library = op.get(store.getState(), 'Media.library');
+
+        let selected;
+        const completed = library.reduce((count, item) => {
+            const { uuid, objectId } = item;
+            if (uploads.includes(uuid)) {
+                data[objectId] = item;
+                count += 1;
+                uploads = _.without(uploads, uuid);
+                selected = objectId;
+            }
+            return count;
+        }, 0);
+
+        if (completed > 0) {
+            media['data'] = data;
+            setState({ data, update: Date.now(), uploads });
+            setMedia(media);
+            _onItemSelect(selected);
+        }
+    };
+
     const _onDirectoryChange = directory => setState({ directory });
 
     const _onDismiss = async () => {
@@ -189,6 +212,19 @@ let MediaPicker = (
             type: 'dismiss',
         });
     };
+
+    const _onFileAdded = e => {
+        const directory = op.get(state, 'directory') || 'uploads';
+        const uploads = op.get(state, 'uploads', []);
+
+        e.added.forEach(file => uploads.push(file.ID));
+
+        setState({ update: Date.now, uploads: _.uniq(uploads) });
+        dropzoneRef.current.dropzone.removeAllFiles();
+        return Reactium.Media.upload([e.added[0]], directory);
+    };
+
+    const _onFileRemoved = file => {};
 
     const _onItemSelect = async objectId => {
         const { maxSelect, multiSelect } = state;
@@ -294,9 +330,18 @@ let MediaPicker = (
 
     // Fetch
     useEffect(() => {
-        const { status } = state;
-        if (status === ENUMS.STATUS.INIT) _fetch();
-    }, [op.get(state, 'status')]);
+        if (media) {
+            setState(media);
+        }
+    }, [media, op.get(state, 'update')]);
+
+    // Watch for upload completions
+    useEffect(() => {
+        Reactium.Pulse.register('MediaUploadComplete', () => _onComplete());
+        return () => {
+            Reactium.Pulse.unregister('MediaUploadComplete');
+        };
+    });
 
     const renderActions = () => {
         const { confirm, directory } = state;
@@ -363,60 +408,72 @@ let MediaPicker = (
     };
 
     const render = () => {
-        const { collapsible, confirm, data, dismissable } = state;
+        const { collapsible, confirm, data, dismissable, uploads } = state;
         const items = _filter(data);
         const selected = getSelection();
         const hasItems = Object.keys(data).length > 0;
 
         return (
-            <Dialog
-                className={cx('dialog')}
-                collapsible={false}
-                dismissable={dismissable}
-                header={_header()}
-                onDismiss={_onDismiss}
-                pref={pref}
-                style={style}>
-                <div className={cname()}>
-                    <div className={cx('toolbar')}>
-                        <div className={cx('search-bar')}>
-                            <input
-                                type='text'
-                                className={cn({
-                                    [cx('search')]: true,
-                                    expanded: !!search,
-                                })}
-                                onFocus={e => e.target.select()}
-                                onChange={e => setSearch(e.target.value)}
-                                placeholder={__('Search')}
-                                value={search}
-                            />
-                            <Icon name='Feather.Search' />
-                        </div>
-                        {renderActions()}
-                    </div>
-                    <div className={cx('container')}>
-                        <div className={cx('container-library')}>
-                            <Scrollbars height='100%'>
-                                <div className='content'>
-                                    {Object.values(items).map(renderItem)}
+            <Dropzone
+                {...dropzoneProps}
+                className={cx('dropzone')}
+                files={{}}
+                onFileAdded={e => _onFileAdded(e)}
+                ref={dropzoneRef}>
+                <Dialog
+                    className={cx('dialog')}
+                    collapsible={false}
+                    dismissable={dismissable}
+                    header={_header()}
+                    onDismiss={_onDismiss}
+                    pref={pref}
+                    style={style}>
+                    <div className={cname()}>
+                        <div className={cx('toolbar')}>
+                            <div>
+                                <div className={cx('search-bar')}>
+                                    <input
+                                        type='text'
+                                        className={cn({
+                                            [cx('search')]: true,
+                                            expanded: !!search,
+                                        })}
+                                        onFocus={e => e.target.select()}
+                                        onChange={e =>
+                                            setSearch(e.target.value)
+                                        }
+                                        placeholder={__('Search')}
+                                        value={search}
+                                    />
+                                    <Icon name='Feather.Search' />
                                 </div>
-                            </Scrollbars>
+                                {renderActions()}
+                            </div>
                         </div>
-                        {selection.length > 0 && (
-                            <div className={cx('container-selection')}>
+                        <div className={cx('container')}>
+                            <div className={cx('container-library')}>
                                 <Scrollbars height='100%'>
+                                    <Uploads onRemoveFile={_onFileRemoved} />
                                     <div className='content'>
-                                        {Object.values(selected).map(
-                                            renderItem,
-                                        )}
+                                        {Object.values(items).map(renderItem)}
                                     </div>
                                 </Scrollbars>
                             </div>
-                        )}
+                            {selection.length > 0 && (
+                                <div className={cx('container-selection')}>
+                                    <Scrollbars height='100%'>
+                                        <div className='content'>
+                                            {Object.values(selected).map(
+                                                renderItem,
+                                            )}
+                                        </div>
+                                    </Scrollbars>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </Dialog>
+                </Dialog>
+            </Dropzone>
         );
     };
 
@@ -459,6 +516,16 @@ MediaPicker.defaultProps = {
     confirm: true,
     collapsible: false,
     dismissable: true,
+    dropzoneProps: {
+        config: {
+            chunking: false,
+            clickable: true,
+            maxFiles: 1,
+            previewTemplate:
+                '<div class="dz-preview dz-file-preview"><span data-dz-name></div>',
+        },
+        debug: false,
+    },
     filter: Object.keys(ENUMS.TYPE),
     maxSelect: -1,
     multiSelect: false,

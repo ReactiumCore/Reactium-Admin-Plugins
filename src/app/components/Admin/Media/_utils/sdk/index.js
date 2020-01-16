@@ -106,7 +106,7 @@ class Media {
     get completed() {
         const expired = 5;
         return _.where(Object.values(op.get(this.state, 'uploads', {})), {
-            status: ENUMS.STATUS.COMPLETE,
+            status: String(ENUMS.STATUS.COMPLETE).toLowerCase(),
         }).filter(
             ({ statusAt }) =>
                 moment().diff(moment(new Date(statusAt)), 'seconds') >= expired,
@@ -117,11 +117,6 @@ class Media {
         return this.__filters;
     }
 
-    get state() {
-        const { getState } = Reactium.Plugin.redux.store;
-        return getState().Media;
-    }
-
     get page() {
         const { getState } = Reactium.Plugin.redux.store;
         return Number(op.get(getState().Router, 'params.page', 1));
@@ -130,6 +125,11 @@ class Media {
     get search() {
         const { getState } = Reactium.Plugin.redux.store;
         return op.get(getState().SearchBar, 'value');
+    }
+
+    get state() {
+        const { getState } = Reactium.Plugin.redux.store;
+        return getState().Media;
     }
 
     cancel(files) {
@@ -171,43 +171,46 @@ class Media {
         }
     }
 
-    setState(newState = {}) {
-        const { dispatch } = Reactium.Plugin.redux.store;
-        dispatch({
-            type: ENUMS.ACTION_TYPE,
-            domain: ENUMS.DOMAIN,
-            update: newState,
+    crop({ field = 'thumbnail', objectId, options, url }) {
+        return Reactium.Cloud.run('media-image-crop', {
+            field,
+            objectId,
+            options,
+            url,
         });
     }
 
-    update(params) {
-        this.worker.postMessage({ action: 'update', params });
+    delete(objectId) {
+        const library = _.indexBy(
+            op.get(this.state, 'library', []),
+            'objectId',
+        );
+
+        if (op.has(library, objectId)) {
+            op.del(library, objectId);
+            this.setState({ library: Object.values(library) });
+        }
+
+        return Reactium.Cloud.run('media-delete', { objectId });
     }
 
-    upload(files, directory = ENUMS.DIRECTORY, data = {}) {
-        // 0.0 - convert single file to array of files
-        files = paramToArray(files);
+    download(objectId) {
+        const file = this.file(objectId);
+        console.log(file);
+        const url = this.url(file);
+        const { filename } = file;
 
-        // 1.0 - Get State
-        const { uploads = {} } = this.state;
+        return axios.get(url, { responseType: 'blob' }).then(({ data }) => {
+            const href = window.URL.createObjectURL(new Blob([data]));
+            const elm = document.createElement('a');
 
-        // 2.0 - Loop through files array
-        files.forEach(file => {
-            // 2.1 - Update uploads state object
-            let item = mapFileToUpload(file);
-            item['filename'] = slugify(item.filename);
-            item['directory'] = directory;
-            item['status'] = ENUMS.STATUS.QUEUED;
-            item = { ...item, ...data };
+            document.body.appendChild(elm);
 
-            uploads[file.ID] = item;
-
-            // 2.2 - Send file to media-upload Web Worker
-            this.worker.postMessage({ action: 'addFile', params: item });
+            elm.setAttribute('download', filename);
+            elm.setAttribute('href', href);
+            elm.click();
+            elm.remove();
         });
-
-        // 3.0 - Update State
-        this.setState({ uploads });
     }
 
     async fetch(params) {
@@ -244,6 +247,15 @@ class Media {
         });
 
         return media;
+    }
+
+    file(objectId) {
+        const library = _.indexBy(
+            op.get(this.state, 'library', []),
+            'objectId',
+        );
+
+        return op.get(library, objectId);
     }
 
     filter(params) {
@@ -319,77 +331,69 @@ class Media {
         return _.indexBy(filtered, 'objectId');
     }
 
-    delete(objectId) {
-        const library = _.indexBy(
-            op.get(this.state, 'library', []),
-            'objectId',
-        );
-
-        if (op.has(library, objectId)) {
-            op.del(library, objectId);
-            this.setState({ library: Object.values(library) });
-        }
-
-        return Reactium.Cloud.run('media-delete', { objectId });
-    }
-
-    file(objectId) {
-        const { library = {} } = this.state;
-
-        for (let page of Object.keys(library)) {
-            page = Number(page);
-            if (op.has(library, [page, objectId])) {
-                return library[page][objectId];
-            }
-        }
-    }
-
     retrieve(objectId) {
         return Reactium.Cloud.run('media-retrieve', { objectId });
     }
 
-    url(objectId) {
-        let url;
-        if (typeof objectId === 'string') {
-            const file = this.file(objectId);
-            url = op.get(file, 'url');
-        } else {
-            url = op.has(objectId, '__type') ? objectId.url : objectId.url();
-        }
+    setState(newState = {}) {
+        const { dispatch } = Reactium.Plugin.redux.store;
+        dispatch({
+            type: ENUMS.ACTION_TYPE,
+            domain: ENUMS.DOMAIN,
+            update: newState,
+        });
+    }
 
-        url = url.replace(/undefined/gi, '/api');
+    update(params) {
+        this.worker.postMessage({ action: 'update', params });
+    }
+
+    upload(files, directory = ENUMS.DIRECTORY, data = {}) {
+        // 0.0 - convert single file to array of files
+        files = paramToArray(files);
+
+        // 1.0 - Get State
+        const { uploads = {} } = this.state;
+
+        // 2.0 - Loop through files array
+        files.forEach(file => {
+            // 2.1 - Update uploads state object
+            let item = mapFileToUpload(file);
+            item['filename'] = slugify(item.filename);
+            item['directory'] = directory;
+            item['status'] = ENUMS.STATUS.QUEUED;
+            item = { ...item, ...data };
+
+            uploads[file.ID] = item;
+
+            // 2.2 - Send file to media-upload Web Worker
+            this.worker.postMessage({ action: 'addFile', params: item });
+        });
+
+        // 3.0 - Update State
+        this.setState({ uploads });
+
+        // 4.0 - Return updated uploads
+        return uploads;
+    }
+
+    url(objectId) {
+        const file =
+            typeof objectId === 'string' ? this.file(objectId).file : objectId;
+
+        if (!file) return;
+
+        let url = typeof file.url === 'function' ? file.url() : file.url;
+
+        if (!url) return;
+
+        url = String(url).replace(/undefined/gi, '/api');
 
         if (typeof window !== 'undefined' && String(url).substr(0, 1) === '/') {
             url = `${window.location.protocol}//${window.location.host}${url}`;
         }
 
         return url;
-    }
-
-    download(objectId) {
-        const url = this.url(objectId);
-        const { filename } = this.file(objectId);
-
-        return axios.get(url, { responseType: 'blob' }).then(({ data }) => {
-            const href = window.URL.createObjectURL(new Blob([data]));
-            const elm = document.createElement('a');
-
-            document.body.appendChild(elm);
-
-            elm.setAttribute('download', filename);
-            elm.setAttribute('href', href);
-            elm.click();
-            elm.remove();
-        });
-    }
-
-    crop({ field = 'thumbnail', objectId, options, url }) {
-        return Reactium.Cloud.run('media-image-crop', {
-            field,
-            objectId,
-            options,
-            url,
-        });
     }
 }
 

@@ -75,7 +75,7 @@ export default () => {
         status: ENUMS.STATUS.INIT,
     });
 
-    const [library, setLibrary] = useState(op.get(Media.state, 'library', {}));
+    const [library, setLibrary] = useState(op.get(Media.state, 'library', []));
 
     const Toast = op.get(tools, 'Toast');
 
@@ -83,11 +83,34 @@ export default () => {
 
     const directory = op.get(Media.state, 'directory');
 
+    const confirmDelete = file => {
+        const url = op.get(library, [file, 'url']);
+
+        Modal.show(
+            <ConfirmBox
+                message={
+                    <>
+                        {ENUMS.TEXT.DELETE_INFO[0]}
+                        <div className='my-xs-8'>
+                            <kbd>{url}</kbd>
+                        </div>
+                        {ENUMS.TEXT.DELETE_INFO[1]}
+                    </>
+                }
+                onCancel={() => Modal.dismiss()}
+                onConfirm={e => onDelete(file)}
+                title={ENUMS.TEXT.CONFIRM_DELETE}
+            />,
+        );
+    };
+
+    const isAudio = ext => ENUMS.TYPE.AUDIO.includes(String(ext).toUpperCase());
+
     const isImage = ext => ENUMS.TYPE.IMAGE.includes(String(ext).toUpperCase());
 
     const isVideo = ext => ENUMS.TYPE.VIDEO.includes(String(ext).toUpperCase());
 
-    const isOther = ext => !isImage(ext) && !isVideo(ext);
+    const isOther = ext => !isImage(ext) && !isVideo(ext) && !isAudio(ext);
 
     const onActionClick = e => {
         const { action, file } = e.currentTarget.dataset;
@@ -97,14 +120,9 @@ export default () => {
                 onCopyClick(file);
                 break;
 
+            case 'edit-audio':
             case 'edit-image':
-                history.push('/admin/media/edit/' + file);
-                break;
-
             case 'edit-other':
-                history.push('/admin/media/edit/' + file);
-                break;
-
             case 'edit-video':
                 history.push('/admin/media/edit/' + file);
                 break;
@@ -123,14 +141,9 @@ export default () => {
         }
     };
 
-    const onDownloadFile = file => {
-        Reactium.Media.download(file);
-    };
+    const onDownloadFile = file => Reactium.Media.download(file);
 
-    const onViewFile = file => {
-        const url = Reactium.Media.url(file);
-        window.open(url, '_blank');
-    };
+    const onViewFile = file => window.open(Reactium.Media.url(file), '_blank');
 
     const onCopyClick = file => {
         const url = Reactium.Media.url(file);
@@ -159,24 +172,70 @@ export default () => {
         trailing: true,
     });
 
-    const confirmDelete = file => {
-        const url = op.get(library, [file, 'url']);
+    const renderAudio = item => {
+        const { ext, file, filename, meta, objectId, thumbnail, url } = item;
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const title = op.get(meta, 'title');
 
-        Modal.show(
-            <ConfirmBox
-                message={
-                    <>
-                        {ENUMS.TEXT.DELETE_INFO[0]}
-                        <div className='my-xs-8'>
-                            <kbd>{url}</kbd>
+        const acts = Object.values(actions).filter(({ types = [] }) =>
+            types.includes('audio'),
+        );
+
+        return (
+            <div id={`file-${objectId}`} key={`file-${objectId}`}>
+                <div className='media-card'>
+                    <div className='media-audio'>
+                        {!poster && <Icon name='Linear.MusicNote3' />}
+                        <audio
+                            poster={poster}
+                            width='100%'
+                            height='100%'
+                            controls>
+                            <source src={edgeURL} type={`audio/${ext}`} />
+                            {ENUMS.TEXT.AUDIO_UNSUPPORTED}
+                        </audio>
+                    </div>
+                    <div className='media-info'>
+                        <div className='text'>
+                            {title && <div>{title}</div>}
+                            <div>{url}</div>
                         </div>
-                        {ENUMS.TEXT.DELETE_INFO[1]}
-                    </>
-                }
-                onCancel={() => Modal.dismiss()}
-                onConfirm={e => onDelete(file)}
-                title={ENUMS.TEXT.CONFIRM_DELETE}
-            />,
+                        <div className='buttons'>
+                            <ActionButton
+                                color='clear'
+                                onClick={() => onCopyClick(file)}
+                                id='copy-to-clipboard'
+                                icon='Linear.ClipboardDown'
+                                iconSize={20}
+                                objectId={objectId}
+                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                            />
+                        </div>
+                    </div>
+                    <div className='media-actions'>
+                        <Scrollbars
+                            style={{ height: '100%' }}
+                            autoHeight={true}
+                            autoHeightMin='100%'>
+                            <div className='py-xs-8'>
+                                {acts.map(action => (
+                                    <ActionButton
+                                        key={`media-action-${action.id}`}
+                                        onClick={op.get(
+                                            action,
+                                            'onClick',
+                                            onActionClick,
+                                        )}
+                                        {...item}
+                                        {...action}
+                                    />
+                                ))}
+                            </div>
+                        </Scrollbars>
+                    </div>
+                </div>
+            </div>
         );
     };
 
@@ -219,7 +278,72 @@ export default () => {
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'
-                                onClick={onActionClick}
+                                onClick={() => onCopyClick(file)}
+                                id='copy-to-clipboard'
+                                icon='Linear.ClipboardDown'
+                                iconSize={20}
+                                objectId={objectId}
+                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
+                            />
+                        </div>
+                    </div>
+                    <div className='media-actions'>
+                        <Scrollbars
+                            style={{ height: '100%' }}
+                            autoHeight={true}
+                            autoHeightMin='100%'>
+                            <div className='py-xs-8'>
+                                {acts.map(action => (
+                                    <ActionButton
+                                        key={`media-action-${action.id}`}
+                                        onClick={op.get(
+                                            action,
+                                            'onClick',
+                                            onActionClick,
+                                        )}
+                                        {...item}
+                                        {...action}
+                                    />
+                                ))}
+                            </div>
+                        </Scrollbars>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const renderOther = item => {
+        const { ext, file, filename, meta, objectId, thumbnail, url } = item;
+        const edgeURL = file && Reactium.Media.url(file);
+        const poster = thumbnail && Reactium.Media.url(thumbnail);
+        const title = op.get(meta, 'title');
+
+        const acts = Object.values(actions).filter(({ types = [] }) =>
+            types.includes('other'),
+        );
+
+        const style = poster && {
+            backgroundImage: `url('${poster}')`,
+        };
+
+        return (
+            <div id={`file-${objectId}`} key={`file-${objectId}`}>
+                <div className='media-card'>
+                    <div className='media-other' style={style}>
+                        <a href={edgeURL} target='_blank'>
+                            {!poster && <Icon name='Linear.FileEmpty' />}
+                        </a>
+                    </div>
+                    <div className='media-info'>
+                        <div className='text'>
+                            {title && <div>{title}</div>}
+                            <div>{url}</div>
+                        </div>
+                        <div className='buttons'>
+                            <ActionButton
+                                color='clear'
+                                onClick={() => onCopyClick(file)}
                                 id='copy-to-clipboard'
                                 icon='Linear.ClipboardDown'
                                 iconSize={20}
@@ -258,7 +382,7 @@ export default () => {
         const { ext, file, filename, meta, objectId, thumbnail, url } = item;
         const edgeURL = file && Reactium.Media.url(file);
         const poster = thumbnail && Reactium.Media.url(thumbnail);
-        const title = op.get(meta, 'title', url);
+        const title = op.get(meta, 'title');
 
         const acts = Object.values(actions).filter(({ types = [] }) =>
             types.includes('video'),
@@ -278,67 +402,14 @@ export default () => {
                         </video>
                     </div>
                     <div className='media-info'>
-                        <div className='text'>{title}</div>
-                        <div className='buttons'>
-                            <ActionButton
-                                color='clear'
-                                onClick={onActionClick}
-                                id='copy-to-clipboard'
-                                icon='Linear.ClipboardDown'
-                                iconSize={20}
-                                objectId={objectId}
-                                tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
-                            />
+                        <div className='text'>
+                            {title && <div>{title}</div>}
+                            <div>{url}</div>
                         </div>
-                    </div>
-                    <div className='media-actions'>
-                        <Scrollbars
-                            style={{ height: '100%' }}
-                            autoHeight={true}
-                            autoHeightMin='100%'>
-                            <div className='py-xs-8'>
-                                {acts.map(action => (
-                                    <ActionButton
-                                        key={`media-action-${action.id}`}
-                                        onClick={op.get(
-                                            action,
-                                            'onClick',
-                                            onActionClick,
-                                        )}
-                                        {...item}
-                                        {...action}
-                                    />
-                                ))}
-                            </div>
-                        </Scrollbars>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const renderOther = item => {
-        const { ext, filename, meta, objectId, thumbnail, url } = item;
-        const edgeURL = file && Reactium.Media.url(file);
-        const poster = thumbnail && Reactium.Media.url(thumbnail);
-        const acts = Object.values(actions).filter(({ types = [] }) =>
-            types.includes('other'),
-        );
-        return (
-            <div id={`file-${objectId}`} key={`file-${objectId}`}>
-                <div className='media-card'>
-                    <a
-                        className='media-image'
-                        href={Reactium.Media.url(objectId)}
-                        target='_blank'>
-                        <Icon name='Linear.FileEmpty' size={96} />
-                    </a>
-                    <div className='media-info'>
-                        <div className='text'>{url}</div>
                         <div className='buttons'>
                             <ActionButton
                                 color='clear'
-                                onClick={onActionClick}
+                                onClick={() => onCopyClick(file)}
                                 id='copy-to-clipboard'
                                 icon='Linear.ClipboardDown'
                                 iconSize={20}
@@ -374,14 +445,25 @@ export default () => {
     };
 
     const render = () => {
-        const images = Object.values(library).filter(({ ext }) => isImage(ext));
-        const videos = Object.values(library).filter(({ ext }) => isVideo(ext));
-        const others = Object.values(library).filter(({ ext }) => isOther(ext));
         return (
             <div className={Media.cname('directory')}>
-                {images.map(file => renderImage(file))}
-                {videos.map(file => renderVideo(file))}
-                {others.map(file => renderOther(file))}
+                {Object.values(library).map(file => {
+                    const { ext } = file;
+
+                    if (isAudio(ext)) {
+                        return renderAudio(file);
+                    }
+
+                    if (isImage(ext)) {
+                        return renderImage(file);
+                    }
+
+                    if (isVideo(ext)) {
+                        return renderVideo(file);
+                    }
+
+                    return renderOther(file);
+                })}
             </div>
         );
     };

@@ -32,14 +32,22 @@ $padding-media-modal: 48px;
     }
 
     &-toolbar {
-        @extend .ar-dialog-header;
-        overflow: visible;
-        justify-content: flex-start;
-        align-items: center;
         width: 100%;
-        padding: 0 6px 0 12px;
-        border-radius: 0px;
-        border-bottom: 1px solid $color-border;
+        height: 42px;
+        overflow:  visible;
+
+        > div:first-child {
+            @extend .ar-dialog-header;
+            overflow: visible;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            padding: 0 6px 0 12px;
+            border-radius: 0px;
+            border-bottom: 1px solid $color-border;
+
+            > *:first-child { flex-grow: 1; }
+        }
     }
 
     &-actions {
@@ -124,6 +132,8 @@ $padding-media-modal: 48px;
         &-library {
             flex-grow: 1;
             position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
 
             .content {
                 display: flex;
