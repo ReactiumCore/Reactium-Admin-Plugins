@@ -3,7 +3,7 @@ import { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 
 const Enums = {
-    ZONE: 'types-fields',
+    ZONE: (region = 1) => `types-fields-${region}`,
     FIELD_MODES: {
         NEW: Symbol('NEW'),
         EDIT: Symbol('EDIT'),

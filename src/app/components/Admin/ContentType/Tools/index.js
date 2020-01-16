@@ -19,7 +19,7 @@ const Tools = ({ enums = {} }) => {
         Reactium.Prefs.set('types-tools-drag-handle.position', { x, y });
     };
 
-    const { addField } = useHandle('ContentTypeEditor');
+    const { addField, addRegion } = useHandle('ContentTypeEditor');
 
     const renderTools = () => {
         return Object.keys(enums.TYPES).map(type => {
@@ -50,12 +50,22 @@ const Tools = ({ enums = {} }) => {
         });
     };
 
+    const addRegionLabel = __('Add Region');
     return (
         <Draggable
             handle='.types-tools-drag-handle'
             onStop={onStop}
             defaultPosition={position}>
             <div className={'types-tools'}>
+                <Button
+                    color={Button.ENUMS.COLOR.CLEAR}
+                    data-tooltip={addRegionLabel}
+                    data-align='left'
+                    data-vertical-align='middle'
+                    onClick={() => addRegion()}>
+                    <span className={'sr-only'}>{addRegionLabel}</span>
+                    <div className='add-region-icon'></div>
+                </Button>
                 {renderTools()}
                 <div className='types-tools-drag-handle'></div>
             </div>

@@ -22,6 +22,7 @@ const FieldType = props => {
     const id = op.get(props, 'id');
     const index = op.get(props, 'order', 0);
     const type = op.get(props, 'type', 'text');
+    const region = op.get(props, 'region', 'default');
     const fieldTypeComponent = op.get(
         props,
         'fieldTypeComponent',

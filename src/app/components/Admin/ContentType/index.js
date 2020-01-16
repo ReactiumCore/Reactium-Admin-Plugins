@@ -18,7 +18,8 @@ const ContentType = memo(
     props => {
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
-        const stateRef = useRef({});
+        const stateRef = useRef({ fields: {} });
+        const regionRef = useRef({ regions: ['default'] });
         const parentFormRef = useRef();
         const formsRef = useRef({});
         const formsErrors = useRef({});
@@ -35,16 +36,13 @@ const ContentType = memo(
                 'type',
                 op.get(parentFormRef.current.getValue(), 'type'),
             );
-            Reactium.Zone.getZoneComponents(Enums.ZONE).map(
-                ({ id: fieldId }) => {
-                    const ref = op.get(
-                        formsRef.current,
-                        [fieldId],
-                        getStubRef,
-                    )();
-                    op.set(currentValue, ['fields', fieldId], ref.getValue());
-                },
-            );
+            getComponents().map(({ id: fieldId, region }) => {
+                const ref = op.get(formsRef.current, [fieldId], getStubRef)();
+                op.set(currentValue, ['fields', fieldId], {
+                    ...ref.getValue(),
+                    region,
+                });
+            });
 
             return currentValue;
         };
@@ -57,13 +55,54 @@ const ContentType = memo(
             ).forEach(([fieldId, value]) => getFormRef(fieldId).update(value));
         };
 
-        const clearDelete = async () => {
+        const addRegion = region => {
+            const regions = op.get(regionRef.current, 'regions', ['default']);
+            region = region || uuid();
+            if (!regions.includes(region)) {
+                regions.push(region);
+                regionRef.current = { regions };
+                setVersion(uuid());
+                setTimeout(() => {
+                    refreshForms();
+                }, 1);
+            }
+        };
+
+        const removeRegion = region => {
+            const regions = op.get(regionRef.current, 'regions', []);
+            regionRef.current = {
+                regions: regions.filter(id => id !== region),
+            };
+            setVersion(uuid());
+            setTimeout(() => {
+                refreshForms();
+            }, 1);
+        };
+
+        const getZones = () => {
+            return op.get(regionRef.current, 'regions', []).map(region => ({
+                region,
+                zone: Enums.ZONE(region),
+            }));
+        };
+
+        const getComponents = () => {
+            return getZones().reduce((components, { zone }) => {
+                return components.concat(Reactium.Zone.getZoneComponents(zone));
+            }, []);
+        };
+
+        const clear = () => {
             setValue({});
-            Reactium.Zone.getZoneComponents(
-                Enums.ZONE,
-            ).forEach(({ id: fieldId }) =>
+            getComponents().forEach(({ id: fieldId }) =>
                 Reactium.Zone.removeComponent(fieldId),
             );
+            regionRef.current = { regions: ['default'] };
+            setVersion(uuid());
+        };
+
+        const clearDelete = async () => {
+            clear();
 
             if (id !== 'new') {
                 try {
@@ -98,12 +137,7 @@ const ContentType = memo(
         };
 
         const load = async () => {
-            setValue({});
-            Reactium.Zone.getZoneComponents(
-                Enums.ZONE,
-            ).forEach(({ id: fieldId }) =>
-                Reactium.Zone.removeComponent(fieldId),
-            );
+            clear();
             SidebarWidget.getTypes(true);
 
             if (id !== 'new') {
@@ -113,13 +147,20 @@ const ContentType = memo(
                     Object.entries(op.get(contentType, 'fields', {})).forEach(
                         ([fieldId, fieldDefinition], index) => {
                             const { fieldType } = fieldDefinition;
+                            const region = op.get(
+                                fieldDefinition,
+                                'region',
+                                'default',
+                            );
                             const type = Object.values(Enums.TYPES).find(
                                 ({ type }) => fieldType === type,
                             );
+                            addRegion(region);
                             Reactium.Zone.addComponent({
                                 ...type,
                                 id: fieldId,
-                                zone: Enums.ZONE,
+                                region,
+                                zone: Enums.ZONE(region),
                                 order: index,
                                 component: 'FieldType',
                                 fieldTypeComponent: type.component,
@@ -159,9 +200,7 @@ const ContentType = memo(
             );
 
             const fieldNames = {};
-            for (let { id: fieldId } of Reactium.Zone.getZoneComponents(
-                Enums.ZONE,
-            )) {
+            for (let { id: fieldId } of getComponents()) {
                 const ref = getFormRef(fieldId);
 
                 // collect results of fields hook
@@ -246,7 +285,7 @@ const ContentType = memo(
         const refreshForms = () => {
             // put values back in form without rerender
             parentFormRef.current.refresh();
-            Reactium.Zone.getZoneComponents(Enums.ZONE).forEach(({ id }) => {
+            getComponents().forEach(({ id }) => {
                 getFormRef(id).refresh();
             });
         };
@@ -304,10 +343,6 @@ const ContentType = memo(
             });
         };
 
-        const saveField = (id, value) => {
-            setState; // TODO save state here, and interact with SDK
-        };
-
         const addFormRef = (id, cb) => {
             formsRef.current[id] = cb;
         };
@@ -318,18 +353,83 @@ const ContentType = memo(
 
         const onDragEnd = result => {
             const draggableId = op.get(result, 'draggableId');
-            const source = op.get(result, 'source.index');
-            const destination = op.get(result, 'destination.index');
-            if (source === destination) return;
+            const sourceIndex = op.get(result, 'source.index');
+            const sourceRegion = op.get(result, 'source.droppableId');
+            const destinationIndex = op.get(result, 'destination.index');
+            const destinationRegion = op.get(result, 'destination.droppableId');
 
-            const fieldIds = Reactium.Zone.getZoneComponents(Enums.ZONE).map(
-                ({ id }) => id,
-            );
-            fieldIds.splice(source, 1);
-            fieldIds.splice(destination, 0, draggableId);
-            fieldIds.forEach((id, order) =>
-                Reactium.Zone.updateComponent(id, { order }),
-            );
+            if (
+                sourceIndex === destinationIndex &&
+                sourceRegion === destinationRegion
+            )
+                return;
+
+            const moveInRegion = (
+                id,
+                sourceIndex,
+                region,
+                destinationIndex,
+            ) => {
+                const zone = Enums.ZONE(region);
+                const fieldIds = Reactium.Zone.getZoneComponents(zone).map(
+                    ({ id }) => id,
+                );
+
+                fieldIds.splice(sourceIndex, 1);
+                fieldIds.splice(destinationIndex, 0, id);
+                fieldIds.forEach((id, order) =>
+                    Reactium.Zone.updateComponent(id, { order }),
+                );
+            };
+
+            const moveToRegion = (
+                id,
+                sourceRegion,
+                destinationIndex,
+                destinationRegion,
+            ) => {
+                const destinationZone = Enums.ZONE(destinationRegion);
+                const destinationFieldIds = Reactium.Zone.getZoneComponents(
+                    destinationZone,
+                ).map(({ id }) => id);
+
+                destinationFieldIds.splice(destinationIndex, 0, id);
+                destinationFieldIds.forEach((id, order) =>
+                    Reactium.Zone.updateComponent(id, {
+                        order,
+                        region: destinationRegion,
+                        zone: destinationZone,
+                    }),
+                );
+
+                const sourceZone = Enums.ZONE(sourceRegion);
+                Reactium.Zone.getZoneComponents(sourceZone).forEach(
+                    ({ id }, order) => {
+                        Reactium.Zone.updateComponent(id, { order });
+                    },
+                );
+            };
+
+            if (sourceRegion === destinationRegion) {
+                moveInRegion(
+                    draggableId,
+                    sourceIndex,
+                    sourceRegion,
+                    destinationIndex,
+                );
+            } else {
+                const value = getValue();
+                console.log({ value });
+                moveToRegion(
+                    draggableId,
+                    sourceRegion,
+                    destinationIndex,
+                    destinationRegion,
+                );
+                setTimeout(() => {
+                    setValue(value);
+                }, 1);
+            }
         };
 
         const addField = type => {
@@ -337,14 +437,13 @@ const ContentType = memo(
                 updateRestore(
                     value =>
                         new Promise(resolve => {
-                            const existing = Reactium.Zone.getZoneComponents(
-                                Enums.ZONE,
-                            );
+                            const existing = getComponents();
                             Reactium.Zone.addComponent({
                                 ...Enums.TYPES[type],
-                                zone: Enums.ZONE,
+                                zone: Enums.ZONE('default'),
                                 order: existing.length,
                                 component: 'FieldType',
+                                region: 'default',
                                 fieldTypeComponent: Enums.TYPES[type].component,
                             });
 
@@ -380,9 +479,9 @@ const ContentType = memo(
             'ContentTypeEditor',
             () => {
                 return {
+                    addRegion,
                     addField,
                     removeField,
-                    saveField,
                     addFormRef,
                     removeFormRef,
                     getFormRef,
@@ -407,7 +506,9 @@ const ContentType = memo(
                 </WebForm>
 
                 <DragDropContext onDragEnd={onDragEnd}>
-                    <Fields />
+                    {getZones().map(({ region, zone }) => (
+                        <Fields key={region} region={region} zone={zone} />
+                    ))}
                 </DragDropContext>
                 <Tools enums={Enums} />
             </div>
