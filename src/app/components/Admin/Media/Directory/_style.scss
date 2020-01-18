@@ -63,6 +63,7 @@
                 align-items: center;
                 flex-grow: 1;
                 background-position: center;
+                background-repeat: no-repeat;
                 background-size: cover;
                 height: calc(100% - 60px);
                 overflow: hidden;
@@ -80,6 +81,9 @@
                 align-items: center;
                 flex-grow: 1;
                 background-color: $color-black;
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-size: cover;
                 height: calc(100% - 60px);
                 overflow: hidden;
                 position: relative;

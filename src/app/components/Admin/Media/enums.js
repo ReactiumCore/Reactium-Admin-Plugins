@@ -47,6 +47,10 @@ const ENUMS = {
         MEDIA: __('Media'),
         NEW_FOLDER: __('New folder'),
         SEARCH: __('Search'),
+        SELECT_ERROR: {
+            MAX: __('Maximum number of items has been selected'),
+            MIN: __('Minium number of items has not been selected'),
+        },
         TITLE: __('Media Library'),
         TOOLBAR: __('Drop your files here'),
         VIEW_FILE: __('View file'),

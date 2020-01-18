@@ -182,16 +182,16 @@ export default () => {
             types.includes('audio'),
         );
 
+        const style = poster && {
+            backgroundImage: `url('${poster}')`,
+        };
+
         return (
             <div id={`file-${objectId}`} key={`file-${objectId}`}>
                 <div className='media-card'>
-                    <div className='media-audio'>
+                    <div className='media-audio' style={style}>
                         {!poster && <Icon name='Linear.MusicNote3' />}
-                        <audio
-                            poster={poster}
-                            width='100%'
-                            height='100%'
-                            controls>
+                        <audio width='100%' height='100%' controls>
                             <source src={edgeURL} type={`audio/${ext}`} />
                             {ENUMS.TEXT.AUDIO_UNSUPPORTED}
                         </audio>

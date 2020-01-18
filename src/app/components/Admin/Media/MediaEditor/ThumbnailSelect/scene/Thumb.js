@@ -35,19 +35,12 @@ export default ({
                 <div
                     className='admin-image-crop'
                     ref={elm => setRef(elm, 'canvas.container')}>
-                    {thumbnail ? (
-                        <a
-                            href={Reactium.Media.url(thumbnail)}
-                            target='_blank'
-                            ref={elm => setRef(elm, 'canvas.image')}
-                            className='canvas'
-                        />
-                    ) : (
-                        <div
-                            ref={elm => setRef(elm, 'canvas.image')}
-                            className='canvas'
-                        />
-                    )}
+                    <a
+                        href={thumbnail && Reactium.Media.url(thumbnail)}
+                        target='_blank'
+                        ref={elm => setRef(elm, 'canvas.image')}
+                        className='canvas'
+                    />
                     <Button
                         appearance='pill'
                         color='default'
@@ -85,16 +78,3 @@ export default ({
 
     return render();
 };
-
-/*
-const width = op.get(
-    options,
-    'width',
-    op.get(options, 'sizes.default.width', 200),
-);
-const height = op.get(
-    options,
-    'height',
-    op.get(options, 'sizes.default.height', 200),
-);
-*/

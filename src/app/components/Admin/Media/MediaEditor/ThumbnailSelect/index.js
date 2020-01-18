@@ -58,6 +58,8 @@ let ThumbnailSelect = (
         },
     };
 
+    const [picker, setPicker] = useState();
+
     // MediaEditor Handle
     const { data, setState, state } = useHandle('MediaEditor');
 
@@ -177,9 +179,9 @@ let ThumbnailSelect = (
             } else {
                 const ext = op.get(file, 'ext');
                 const url = Reactium.Media.url(file.file);
-                const { data: filedata } = await axios.get(url, {
-                    responseType: 'blob',
-                });
+                const fetch = await axios.get(url, { responseType: 'blob' });
+
+                const filedata = op.get(fetch, 'data');
                 reader.onload = () => readImage(ext, reader.result);
                 reader.readAsDataURL(filedata);
             }
@@ -264,9 +266,11 @@ let ThumbnailSelect = (
     const showPicker = () => {
         Modal.show(
             <MediaPicker
-                filter={['IMAGE']}
-                onChange={onMediaSelect}
-                onDismiss={() => Modal.dismiss()}
+                confirm
+                dismissable
+                filter='image'
+                ref={elm => setPicker(elm)}
+                title={__('Select Image')}
             />,
         );
     };
@@ -300,8 +304,12 @@ let ThumbnailSelect = (
         generateThumb(files[0]).then(() => setStatus(ENUMS.STATUS.READY));
     };
 
+    const onMediaDismiss = () => {
+        Modal.dismiss();
+    };
+
     const onMediaSelect = e => {
-        const files = Object.values(e.selection);
+        const files = Object.values(e.target.value);
         if (files.length < 1) return;
         generateThumb(files[0]).then(() => setStatus(ENUMS.STATUS.READY));
     };
@@ -445,6 +453,25 @@ let ThumbnailSelect = (
         if (!expanded || active !== 'thumb') return;
         onThumbnailUpdate();
     }, [active, thumbnail]);
+
+    // Picker Ref
+    useEffect(() => {
+        if (!picker) return;
+        const listeners = [
+            [picker, 'change', onMediaSelect],
+            [picker, 'dismiss', onMediaDismiss],
+        ];
+
+        listeners.forEach(([target, event, callback]) =>
+            target.addEventListener(event, callback),
+        );
+
+        return () => {
+            listeners.forEach(([target, event, callback]) =>
+                target.removeEventListener(event, callback),
+            );
+        };
+    }, [picker]);
 
     return render();
 };
