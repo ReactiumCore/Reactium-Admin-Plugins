@@ -6,7 +6,7 @@ import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 export default ({
     id,
     navTo,
-    onChange,
+    onOptionChange,
     onSizeChange,
     options,
     refs,
@@ -36,7 +36,7 @@ export default ({
                                 <input
                                     className='text-center'
                                     data-key='width'
-                                    onChange={onChange}
+                                    onChange={onOptionChange}
                                     placeholder='width'
                                     ref={elm => setRef(elm, 'input.width')}
                                     style={{ width: '100%' }}
@@ -51,7 +51,7 @@ export default ({
                                 <input
                                     className='text-center'
                                     data-key='height'
-                                    onChange={onChange}
+                                    onChange={onOptionChange}
                                     placeholder='height'
                                     ref={elm => setRef(elm, 'input.height')}
                                     style={{ width: '100%' }}
@@ -71,7 +71,7 @@ export default ({
                         {__('Property:')}
                         <input
                             data-key='property'
-                            onChange={onChange}
+                            onChange={onOptionChange}
                             ref={elm => setRef(elm, 'input.property')}
                             type='text'
                             value={op.get(options, 'property') || ''}

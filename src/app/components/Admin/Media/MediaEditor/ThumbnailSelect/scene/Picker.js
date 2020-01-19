@@ -6,7 +6,7 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
 export default ({
     refs,
     id,
-    label,
+    title,
     navTo,
     showPicker,
     state,
@@ -24,7 +24,7 @@ export default ({
                             onClick={() => showPicker()}
                             outline
                             style={{ width: 172 }}>
-                            {__('Select')} {label}
+                            {__('Select')} {title}
                         </Button>
                     </div>
                     <div className='my-xs-8'>
@@ -34,7 +34,7 @@ export default ({
                             onClick={() => refs.input.file.click()}
                             outline
                             style={{ width: 172 }}>
-                            {__('Upload')} {label}
+                            {__('Upload')} {title}
                         </Button>
                     </div>
                     {thumbnail && (
