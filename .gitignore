@@ -90,3 +90,6 @@ src/app/toolkit/icons
 
 # Reactium UI Dev
 src/app/components/Reactium-UI/
+
+# Flow
+flow-typed
