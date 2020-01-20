@@ -527,7 +527,9 @@ const MediaPickerComponent = forwardRef(
 
 /**
  * @api {RegisteredComponent} <MediaPicker/> MediaPicker
- * @apiDescription Dialog that displays the Media Objects and allows for one or
+ * @apiDescription <img src='https://cdn.reactium.io/ss-media-picker.png' style='width: 100%;' />
+
+ Dialog that displays the Media Objects and allows for one or
  many to be selected. The `MediaPicker` can be used as a `Modal Dialog` or as an
  inline `Dialog`. When used as a `Modal`, be sure to set `dismissable={true}`. When used inline, be sure to set `collapsible={true}` and the `pref` property if you want to remember the collapsed state.
  * @apiName MediaPicker
