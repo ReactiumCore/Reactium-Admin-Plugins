@@ -13,13 +13,20 @@ import _ from 'underscore';
 
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
+const defaultRegion = {
+    id: 'default',
+    label: __('Default'),
+    slug: 'default',
+};
 
 const ContentType = memo(
     props => {
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
         const stateRef = useRef({ fields: {} });
-        const regionRef = useRef({ regions: ['default'] });
+        const regionRef = useRef({
+            regions: { default: defaultRegion },
+        });
         const parentFormRef = useRef();
         const formsRef = useRef({});
         const formsErrors = useRef({});
@@ -55,34 +62,61 @@ const ContentType = memo(
             ).forEach(([fieldId, value]) => getFormRef(fieldId).update(value));
         };
 
-        const addRegion = region => {
-            const regions = op.get(regionRef.current, 'regions', ['default']);
-            region = region || uuid();
-            if (!regions.includes(region)) {
-                regions.push(region);
-                regionRef.current = { regions };
-                setVersion(uuid());
-                setTimeout(() => {
-                    refreshForms();
-                }, 1);
-            }
-        };
-
-        const removeRegion = region => {
-            const regions = op.get(regionRef.current, 'regions', []);
-            regionRef.current = {
-                regions: regions.filter(id => id !== region),
-            };
+        const addRegion = () => {
+            const regions = { ...getRegions() };
+            const region = uuid();
+            regions[region] = { id: region, label: region, slug: region };
+            regionRef.current = { regions };
             setVersion(uuid());
             setTimeout(() => {
                 refreshForms();
             }, 1);
         };
 
+        const setRegionLabel = regionId => label => {
+            const regions = getRegions();
+            if (regionId in regions) {
+                const region = regions[regionId];
+                region.label = label;
+                region.slug = label ? slugify(label).toLowerCase() : '';
+
+                setVersion(uuid());
+            }
+        };
+
+        const removeRegion = region => {
+            if (region === 'default') return;
+
+            updateRestore(async value => {
+                let next = Reactium.Zone.getZoneComponents(Enums.ZONE(region))
+                    .length;
+                op.del(regionRef.current, ['regions', region]);
+                const zoneComponents = Reactium.Zone.getZoneComponents(
+                    Enums.ZONE(region),
+                );
+
+                for (const component of zoneComponents) {
+                    Reactium.Zone.updateComponent(component.id, {
+                        order: next++,
+                        zone: [Enums.ZONE('default')],
+                        region: 'default',
+                    });
+                }
+
+                setTimeout(() => {
+                    setValue(value);
+                    setVersion(uuid());
+                }, 1);
+            });
+        };
+
+        const getRegions = () =>
+            op.get(regionRef.current, 'regions', { default: defaultRegion });
+
         const getZones = () => {
-            return op.get(regionRef.current, 'regions', []).map(region => ({
+            return Object.values(getRegions()).map(region => ({
                 region,
-                zone: Enums.ZONE(region),
+                zone: Enums.ZONE(region.id),
             }));
         };
 
@@ -97,7 +131,7 @@ const ContentType = memo(
             getComponents().forEach(({ id: fieldId }) =>
                 Reactium.Zone.removeComponent(fieldId),
             );
-            regionRef.current = { regions: ['default'] };
+            regionRef.current = { regions: { default: defaultRegion } };
             setVersion(uuid());
         };
 
@@ -143,19 +177,27 @@ const ContentType = memo(
             if (id !== 'new') {
                 try {
                     const contentType = await Reactium.ContentType.retrieve(id);
+                    const regions = op.get(contentType, 'regions', {
+                        default: defaultRegion,
+                    });
+
+                    op.set(regionRef.current, 'regions', regions);
 
                     Object.entries(op.get(contentType, 'fields', {})).forEach(
                         ([fieldId, fieldDefinition], index) => {
                             const { fieldType } = fieldDefinition;
-                            const region = op.get(
+                            let region = op.get(
                                 fieldDefinition,
                                 'region',
                                 'default',
                             );
+
+                            if (!(region in regions)) region = 'default';
+
                             const type = Object.values(Enums.TYPES).find(
                                 ({ type }) => fieldType === type,
                             );
-                            addRegion(region);
+
                             Reactium.Zone.addComponent({
                                 ...type,
                                 id: fieldId,
@@ -168,6 +210,7 @@ const ContentType = memo(
                         },
                     );
 
+                    setVersion(uuid());
                     setTimeout(() => {
                         setValue(contentType);
                     }, 1);
@@ -219,7 +262,7 @@ const ContentType = memo(
 
                 // make sure all fields are unique
                 const { fieldName } = ref.getValue();
-                const slug = slugify(fieldName, { lower: true });
+                const slug = slugify(fieldName || '').toLowerCase();
                 const errors = op.get(ref, 'errors') || {
                     focus: null,
                     fields: [],
@@ -266,6 +309,17 @@ const ContentType = memo(
                 fieldNames[slug] = fieldId;
             }
 
+            const regionSlugs = Object.values(getRegions()).reduce(
+                (slugs, { id, slug }) => ({ ...slugs, [slug]: id }),
+                {},
+            );
+
+            if (
+                _.compact(Object.keys(regionSlugs)).length !==
+                Object.values(getRegions()).length
+            )
+                valid = false;
+
             return { valid, errors };
         };
 
@@ -286,7 +340,8 @@ const ContentType = memo(
             // put values back in form without rerender
             parentFormRef.current.refresh();
             getComponents().forEach(({ id }) => {
-                getFormRef(id).refresh();
+                const ref = getFormRef(id);
+                if (ref && ref.refresh) ref.refresh();
             });
         };
 
@@ -306,9 +361,7 @@ const ContentType = memo(
         const onTypeSave = async () => {
             updateRestore(async value => {
                 try {
-                    formsErrors.current = {};
-                    setValue(value);
-                    setVersion(uuid());
+                    op.set(value, 'regions', getRegions());
 
                     const type = await Reactium.ContentType.save(id, value);
                     SidebarWidget.getTypes(true);
@@ -327,6 +380,10 @@ const ContentType = memo(
                             `/admin/type/${type.uuid}`,
                         );
                     }
+
+                    formsErrors.current = {};
+                    setValue(value);
+                    setVersion(uuid());
                 } catch (error) {
                     Toast.show({
                         type: Toast.TYPE.ERROR,
@@ -419,7 +476,6 @@ const ContentType = memo(
                 );
             } else {
                 const value = getValue();
-                console.log({ value });
                 moveToRegion(
                     draggableId,
                     sourceRegion,
@@ -494,7 +550,11 @@ const ContentType = memo(
         );
 
         return (
-            <div className={cn('type-editor', slugify(`type-editor ${id}`))}>
+            <div
+                className={cn(
+                    'type-editor',
+                    slugify(`type-editor ${id}`).toLowerCase(),
+                )}>
                 <WebForm
                     ref={parentFormRef}
                     onSubmit={onTypeSave}
@@ -507,7 +567,14 @@ const ContentType = memo(
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     {getZones().map(({ region, zone }) => (
-                        <Fields key={region} region={region} zone={zone} />
+                        <Fields
+                            key={region.id}
+                            onRegionLabelChange={setRegionLabel(region.id)}
+                            onRemoveRegion={() => removeRegion(region.id)}
+                            region={region}
+                            regions={getRegions()}
+                            zone={zone}
+                        />
                     ))}
                 </DragDropContext>
                 <Tools enums={Enums} />
