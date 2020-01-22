@@ -4,11 +4,14 @@ import { Icon } from '@atomic-reactor/reactium-ui';
 
 const Enums = {
     ZONE: (region = 1) => `types-fields-${region}`,
-    FIELD_MODES: {
-        NEW: Symbol('NEW'),
-        EDIT: Symbol('EDIT'),
-    },
     TYPES: {
+        LINK: {
+            type: 'Link',
+            label: __('Link Field'),
+            icon: Icon.Feather.Link,
+            tooltip: __('Adds a link field to your content type.'),
+            component: 'FieldTypeText',
+        },
         TEXT: {
             type: 'Text',
             label: __('Text Field'),

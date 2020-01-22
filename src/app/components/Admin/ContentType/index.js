@@ -2,7 +2,12 @@ import React, { useRef, useState, useEffect, memo } from 'react';
 import TypeName from './TypeName';
 import Fields from './Fields';
 import Tools from './Tools';
-import Reactium, { useRegisterHandle, useHandle, __ } from 'reactium-core/sdk';
+import Reactium, {
+    useRegisterHandle,
+    useHandle,
+    useHookComponent,
+    __,
+} from 'reactium-core/sdk';
 import { WebForm, Icon } from '@atomic-reactor/reactium-ui';
 import cn from 'classnames';
 import slugify from 'slugify';
@@ -23,6 +28,7 @@ const ContentType = memo(
     props => {
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
+        const savedRef = useRef(null);
         const stateRef = useRef({ fields: {} });
         const regionRef = useRef({
             regions: { default: defaultRegion },
@@ -35,6 +41,11 @@ const ContentType = memo(
         const SidebarWidget = useHandle('ContentType/SidebarWidget');
         const tools = useHandle('AdminTools');
         const Toast = op.get(tools, 'Toast');
+        const CapabilityEditor = useHookComponent('CapabilityEditor');
+
+        useEffect(() => {
+            load();
+        }, [id]);
 
         const getValue = () => {
             const currentValue = {};
@@ -62,71 +73,8 @@ const ContentType = memo(
             ).forEach(([fieldId, value]) => getFormRef(fieldId).update(value));
         };
 
-        const addRegion = () => {
-            const regions = { ...getRegions() };
-            const region = uuid();
-            regions[region] = { id: region, label: region, slug: region };
-            regionRef.current = { regions };
-            setVersion(uuid());
-            setTimeout(() => {
-                refreshForms();
-            }, 1);
-        };
-
-        const setRegionLabel = regionId => label => {
-            const regions = getRegions();
-            if (regionId in regions) {
-                const region = regions[regionId];
-                region.label = label;
-                region.slug = label ? slugify(label).toLowerCase() : '';
-
-                setVersion(uuid());
-            }
-        };
-
-        const removeRegion = region => {
-            if (region === 'default') return;
-
-            updateRestore(async value => {
-                let next = Reactium.Zone.getZoneComponents(Enums.ZONE(region))
-                    .length;
-                op.del(regionRef.current, ['regions', region]);
-                const zoneComponents = Reactium.Zone.getZoneComponents(
-                    Enums.ZONE(region),
-                );
-
-                for (const component of zoneComponents) {
-                    Reactium.Zone.updateComponent(component.id, {
-                        order: next++,
-                        zone: [Enums.ZONE('default')],
-                        region: 'default',
-                    });
-                }
-
-                setTimeout(() => {
-                    setValue(value);
-                    setVersion(uuid());
-                }, 1);
-            });
-        };
-
-        const getRegions = () =>
-            op.get(regionRef.current, 'regions', { default: defaultRegion });
-
-        const getZones = () => {
-            return Object.values(getRegions()).map(region => ({
-                region,
-                zone: Enums.ZONE(region.id),
-            }));
-        };
-
-        const getComponents = () => {
-            return getZones().reduce((components, { zone }) => {
-                return components.concat(Reactium.Zone.getZoneComponents(zone));
-            }, []);
-        };
-
         const clear = () => {
+            savedRef.current = null;
             regionRef.current = {
                 regions: { default: defaultRegion },
             };
@@ -135,41 +83,6 @@ const ContentType = memo(
                 Reactium.Zone.removeComponent(fieldId),
             );
             setVersion(uuid());
-        };
-
-        const clearDelete = async () => {
-            clear();
-
-            if (id !== 'new') {
-                try {
-                    await Reactium.ContentType.delete(id);
-
-                    Toast.show({
-                        type: Toast.TYPE.SUCCESS,
-                        message: __('Content type deleted.'),
-                        icon: (
-                            <Icon.Feather.Check style={{ marginRight: 12 }} />
-                        ),
-                        autoClose: 1000,
-                    });
-
-                    SidebarWidget.getTypes(true);
-                    Reactium.Routing.history.push('/admin/type/new');
-                } catch (error) {
-                    Toast.show({
-                        type: Toast.TYPE.ERROR,
-                        message: __('Error deleting content type.'),
-                        icon: (
-                            <Icon.Feather.AlertOctagon
-                                style={{ marginRight: 12 }}
-                            />
-                        ),
-                        autoClose: 1000,
-                    });
-                    console.error(error);
-                    return;
-                }
-            }
         };
 
         const load = async () => {
@@ -182,6 +95,8 @@ const ContentType = memo(
                     const regions = op.get(contentType, 'regions', {
                         default: defaultRegion,
                     });
+
+                    savedRef.current = contentType;
 
                     op.set(regionRef.current, 'regions', regions);
 
@@ -233,9 +148,32 @@ const ContentType = memo(
             }
         };
 
-        useEffect(() => {
-            load();
-        }, [id]);
+        const setRegionLabel = regionId => label => {
+            const regions = getRegions();
+            if (regionId in regions) {
+                const region = regions[regionId];
+                region.label = label;
+                region.slug = label ? slugify(label).toLowerCase() : '';
+
+                setVersion(uuid());
+            }
+        };
+
+        const getRegions = () =>
+            op.get(regionRef.current, 'regions', { default: defaultRegion });
+
+        const getZones = () => {
+            return Object.values(getRegions()).map(region => ({
+                region,
+                zone: Enums.ZONE(region.id),
+            }));
+        };
+
+        const getComponents = () => {
+            return getZones().reduce((components, { zone }) => {
+                return components.concat(Reactium.Zone.getZoneComponents(zone));
+            }, []);
+        };
 
         const validator = async (value, valid, errors) => {
             formsErrors.current = {};
@@ -338,78 +276,6 @@ const ContentType = memo(
             });
         };
 
-        const refreshForms = () => {
-            // put values back in form without rerender
-            parentFormRef.current.refresh();
-            getComponents().forEach(({ id }) => {
-                const ref = getFormRef(id);
-                if (ref && ref.refresh) ref.refresh();
-            });
-        };
-
-        const updateRestore = async (cb = noop) => {
-            // preserve values
-            const value = getValue();
-
-            // in case cb caused rerender
-            await cb(value);
-
-            // refresh forms in dom
-            refreshForms();
-
-            return value;
-        };
-
-        const onTypeSave = async () => {
-            updateRestore(async value => {
-                try {
-                    op.set(value, 'regions', getRegions());
-
-                    const type = await Reactium.ContentType.save(id, value);
-                    SidebarWidget.getTypes(true);
-
-                    Toast.show({
-                        type: Toast.TYPE.SUCCESS,
-                        message: __('Content type saved'),
-                        icon: (
-                            <Icon.Feather.Check style={{ marginRight: 12 }} />
-                        ),
-                        autoClose: 1000,
-                    });
-
-                    if (id === 'new' && type.uuid) {
-                        Reactium.Routing.history.push(
-                            `/admin/type/${type.uuid}`,
-                        );
-                    }
-
-                    formsErrors.current = {};
-                    setValue(value);
-                    setVersion(uuid());
-                } catch (error) {
-                    Toast.show({
-                        type: Toast.TYPE.ERROR,
-                        message: __('Error saving content type.'),
-                        icon: (
-                            <Icon.Feather.AlertOctagon
-                                style={{ marginRight: 12 }}
-                            />
-                        ),
-                        autoClose: 1000,
-                    });
-                    console.error(error);
-                }
-            });
-        };
-
-        const addFormRef = (id, cb) => {
-            formsRef.current[id] = cb;
-        };
-
-        const removeFormRef = id => {
-            op.del(formsRef.current, [id]);
-        };
-
         const onDragEnd = result => {
             const draggableId = op.get(result, 'draggableId');
             const sourceIndex = op.get(result, 'source.index');
@@ -490,6 +356,166 @@ const ContentType = memo(
             }
         };
 
+        const refreshForms = () => {
+            // put values back in form without rerender
+            parentFormRef.current.refresh();
+            getComponents().forEach(({ id }) => {
+                const ref = getFormRef(id);
+                if (ref && ref.refresh) ref.refresh();
+            });
+        };
+
+        const updateRestore = async (cb = noop) => {
+            // preserve values
+            const value = getValue();
+
+            // in case cb caused rerender
+            await cb(value);
+
+            // refresh forms in dom
+            refreshForms();
+
+            return value;
+        };
+
+        const onTypeSave = async () => {
+            updateRestore(async value => {
+                try {
+                    op.set(value, 'regions', getRegions());
+
+                    const type = await Reactium.ContentType.save(id, value);
+                    SidebarWidget.getTypes(true);
+                    savedRef.current = value;
+
+                    Toast.show({
+                        type: Toast.TYPE.SUCCESS,
+                        message: __('Content type saved'),
+                        icon: (
+                            <Icon.Feather.Check style={{ marginRight: 12 }} />
+                        ),
+                        autoClose: 1000,
+                    });
+
+                    if (id === 'new' && type.uuid) {
+                        Reactium.Routing.history.push(
+                            `/admin/type/${type.uuid}`,
+                        );
+                    }
+
+                    formsErrors.current = {};
+                    setValue(value);
+                    setVersion(uuid());
+                } catch (error) {
+                    Toast.show({
+                        type: Toast.TYPE.ERROR,
+                        message: __('Error saving content type.'),
+                        icon: (
+                            <Icon.Feather.AlertOctagon
+                                style={{ marginRight: 12 }}
+                            />
+                        ),
+                        autoClose: 1000,
+                    });
+                    console.error(error);
+                }
+            });
+        };
+
+        const renderCapabilityEditor = () => {
+            if (isNew() || savedRef.current === null) return null;
+
+            const { type } = savedRef.current;
+
+            return (
+                <div className='admin-content-region admin-content-region-type'>
+                    <CapabilityEditor
+                        capabilities={[
+                            {
+                                capability: `Content-${id}.create`,
+                                title: __('%type: Create content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to create content of type %type',
+                                ).replace('%type', type),
+                            },
+                            {
+                                capability: `Content-${id}.retrieve`,
+                                title: __('%type: Retrieve content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to retrieve any content of type %type, even if not owned by user.',
+                                ).replace('%type', type),
+                            },
+                            {
+                                capability: `Content-${id}.update`,
+                                title: __('%type: Update content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to update any content of type %type, even if not owned by user.',
+                                ).replace('%type', type),
+                            },
+                            {
+                                capability: `Content-${id}.delete`,
+                                title: __('%type: Delete content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to delete any content of type %type, even if not owned by user.',
+                                ).replace('%type', type),
+                            },
+                        ]}
+                    />
+                </div>
+            );
+        };
+
+        //
+        // Handle Interface
+        //
+        const addRegion = () => {
+            const regions = { ...getRegions() };
+            const region = uuid();
+            regions[region] = { id: region, label: region, slug: region };
+            regionRef.current = { regions };
+            setVersion(uuid());
+            setTimeout(() => {
+                refreshForms();
+            }, 1);
+        };
+
+        const removeRegion = region => {
+            if (region === 'default') return;
+
+            updateRestore(async value => {
+                let next = Reactium.Zone.getZoneComponents(Enums.ZONE(region))
+                    .length;
+                op.del(regionRef.current, ['regions', region]);
+                const zoneComponents = Reactium.Zone.getZoneComponents(
+                    Enums.ZONE(region),
+                );
+
+                for (const component of zoneComponents) {
+                    Reactium.Zone.updateComponent(component.id, {
+                        order: next++,
+                        zone: [Enums.ZONE('default')],
+                        region: 'default',
+                    });
+                }
+
+                setTimeout(() => {
+                    setValue(value);
+                    setVersion(uuid());
+                }, 1);
+            });
+        };
+
         const addField = type => {
             if (op.has(Enums, ['TYPES', type])) {
                 updateRestore(
@@ -527,9 +553,52 @@ const ContentType = memo(
             );
         };
 
+        const addFormRef = (id, cb) => {
+            formsRef.current[id] = cb;
+        };
+
+        const removeFormRef = id => {
+            op.del(formsRef.current, [id]);
+        };
+
         const getFormRef = id => op.get(formsRef.current, [id], getStubRef)();
 
         const getFormErrors = id => op.get(formsErrors.current, [id, 'errors']);
+
+        const clearDelete = async () => {
+            clear();
+
+            if (id !== 'new') {
+                try {
+                    await Reactium.ContentType.delete(id);
+
+                    Toast.show({
+                        type: Toast.TYPE.SUCCESS,
+                        message: __('Content type deleted.'),
+                        icon: (
+                            <Icon.Feather.Check style={{ marginRight: 12 }} />
+                        ),
+                        autoClose: 1000,
+                    });
+
+                    SidebarWidget.getTypes(true);
+                    Reactium.Routing.history.push('/admin/type/new');
+                } catch (error) {
+                    Toast.show({
+                        type: Toast.TYPE.ERROR,
+                        message: __('Error deleting content type.'),
+                        icon: (
+                            <Icon.Feather.AlertOctagon
+                                style={{ marginRight: 12 }}
+                            />
+                        ),
+                        autoClose: 1000,
+                    });
+                    console.error(error);
+                    return;
+                }
+            }
+        };
 
         const isNew = () => id === 'new';
 
@@ -538,6 +607,7 @@ const ContentType = memo(
             () => {
                 return {
                     addRegion,
+                    removeRegion,
                     addField,
                     removeField,
                     addFormRef,
@@ -580,6 +650,7 @@ const ContentType = memo(
                     ))}
                 </DragDropContext>
                 <Tools enums={Enums} />
+                {renderCapabilityEditor()}
             </div>
         );
     },

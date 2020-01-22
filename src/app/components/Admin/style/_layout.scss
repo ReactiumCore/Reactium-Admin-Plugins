@@ -50,6 +50,10 @@ html {
     }
 }
 
+.admin-content-region {
+    @include admin-content-region;
+}
+
 .ar-tooltip {
     // position: fixed;
     z-index: map-get($z-indexes, 'overlay') + 100;

@@ -12,8 +12,8 @@ export default () => {
     const typesRef = useRef([]);
     const [, update] = useState(uuid());
 
-    const getTypes = async (refresh = false) => {
-        const types = await Reactium.ContentType.types(refresh);
+    const getTypes = async () => {
+        const types = await Reactium.ContentType.types();
         typesRef.current = types;
         update(uuid());
     };

@@ -4,14 +4,15 @@ import op from 'object-path';
 const ContentType = {};
 
 ContentType.types = async (refresh = false) => {
-    let types = Reactium.Cache.get('content-types');
-    if (!refresh && types) return types;
-    const response = await Reactium.Cloud.run('types');
+    let request = Reactium.Cache.get('content-types');
+    if (request && !refresh) return request;
 
-    types = op.get(response, 'types', []);
+    request = Reactium.Cloud.run('types').then(response => {
+        return op.get(response, 'types', []);
+    });
 
-    Reactium.Cache.set('content-types', types, Reactium.Enums.cache.settings);
-    return types;
+    Reactium.Cache.set('content-types', request, Reactium.Enums.cache.settings);
+    return request;
 };
 
 ContentType.save = async (id, type = {}) => {
