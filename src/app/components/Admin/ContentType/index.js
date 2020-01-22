@@ -127,11 +127,13 @@ const ContentType = memo(
         };
 
         const clear = () => {
+            regionRef.current = {
+                regions: { default: defaultRegion },
+            };
             setValue({});
             getComponents().forEach(({ id: fieldId }) =>
                 Reactium.Zone.removeComponent(fieldId),
             );
-            regionRef.current = { regions: { default: defaultRegion } };
             setVersion(uuid());
         };
 
