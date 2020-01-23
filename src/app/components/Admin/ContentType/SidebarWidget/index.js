@@ -33,10 +33,10 @@ export default () => {
                 icon='Linear.PlusSquare'
                 route='/admin/type/new'
             />
-            {typesRef.current.map(({ uuid, type }) => (
+            {typesRef.current.map(({ uuid, type, label }) => (
                 <MenuItem
                     key={uuid}
-                    label={type}
+                    label={label ? label : type}
                     route={`/admin/type/${uuid}`}
                 />
             ))}

@@ -6,14 +6,6 @@ import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
 import Breadcrumbs from './Breadcrumbs';
 
-Reactium.Hook.register(
-    'field-type-enums',
-    async context => {
-        context.Enums = Enums;
-    },
-    Reactium.Enums.priority.highest,
-);
-
 const registerPlugin = async () => {
     await Reactium.Plugin.register(
         'ContentType',
@@ -30,7 +22,7 @@ const registerPlugin = async () => {
     const permitted = await Reactium.Capability.check(['type-ui.view']);
 
     if (permitted) {
-        const { Enums } = await Reactium.Hook.run('field-type-enums');
+        await Reactium.Hook.run('field-type-enums', Enums);
 
         Reactium.Zone.addComponent({
             component: Breadcrumbs,

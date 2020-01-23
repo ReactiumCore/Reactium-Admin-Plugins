@@ -16,6 +16,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 
+const slug = val => slugify(val).toLowerCase();
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const defaultRegion = {
@@ -73,6 +74,8 @@ const ContentType = memo(
         };
 
         const clear = () => {
+            nameError.current = false;
+            formsErrors.current = {};
             savedRef.current = null;
             regionRef.current = {
                 regions: { default: defaultRegion },
@@ -93,6 +96,8 @@ const ContentType = memo(
                     const regions = op.get(contentType, 'regions', {
                         default: defaultRegion,
                     });
+                    const label = op.get(contentType, 'meta.label');
+                    op.set(contentType, 'type', label);
 
                     savedRef.current = contentType;
 
@@ -151,7 +156,7 @@ const ContentType = memo(
             if (regionId in regions) {
                 const region = regions[regionId];
                 region.label = label;
-                region.slug = label ? slugify(label).toLowerCase() : '';
+                region.slug = label ? slug(label) : '';
 
                 setVersion(uuid());
             }
@@ -174,11 +179,46 @@ const ContentType = memo(
         };
 
         const validator = async (value, valid, errors) => {
+            nameError.current = false;
             formsErrors.current = {};
 
             const responseContext = await Reactium.Hook.run(
                 'content-type-validate-fields',
             );
+
+            const types = await Reactium.ContentType.types(true);
+
+            const taken = types
+                .filter(({ uuid }) => uuid !== id)
+                .reduce(
+                    (takenLabels, { type, label }) =>
+                        _.compact(
+                            _.uniq(
+                                takenLabels.concat([slug(type), slug(label)]),
+                            ),
+                        ),
+                    [],
+                );
+
+            const typeSlug = slug(op.get(value, 'type') || '');
+            if (taken.includes(typeSlug)) {
+                valid = false;
+                op.set(
+                    errors,
+                    'fields',
+                    op.get(errors, 'fields', []).concat(['type']),
+                );
+                Toast.show({
+                    type: Toast.TYPE.ERROR,
+                    message: __('Type name taken.'),
+                    icon: (
+                        <Icon.Feather.AlertOctagon
+                            style={{ marginRight: 12 }}
+                        />
+                    ),
+                    autoClose: 1000,
+                });
+            }
 
             const fieldNames = {};
             for (let { id: fieldId } of getComponents()) {
@@ -381,7 +421,10 @@ const ContentType = memo(
                 try {
                     op.set(value, 'regions', getRegions());
 
-                    const type = await Reactium.ContentType.save(id, value);
+                    const contentType = await Reactium.ContentType.save(
+                        id,
+                        value,
+                    );
                     savedRef.current = value;
 
                     Toast.show({
@@ -393,12 +436,13 @@ const ContentType = memo(
                         autoClose: 1000,
                     });
 
-                    if (id === 'new' && type.uuid) {
+                    if (id === 'new' && contentType.uuid) {
                         Reactium.Routing.history.push(
-                            `/admin/type/${type.uuid}`,
+                            `/admin/type/${contentType.uuid}`,
                         );
                     }
 
+                    nameError.current = false;
                     formsErrors.current = {};
                     setValue(value);
                     setVersion(uuid());
@@ -421,51 +465,59 @@ const ContentType = memo(
         const renderCapabilityEditor = () => {
             if (isNew() || savedRef.current === null) return null;
 
-            const { type } = savedRef.current;
+            const { type, collection, machineName } = savedRef.current;
 
             return (
                 <div className='admin-content-region admin-content-region-type'>
                     <CapabilityEditor
                         capabilities={[
                             {
-                                capability: `Content-${id}.create`,
+                                capability: `${collection}.create`,
                                 title: __('%type: Create content').replace(
                                     '%type',
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to create content of type %type',
-                                ).replace('%type', type),
+                                    'Able to create content of type %type (%machineName)',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
                             },
                             {
-                                capability: `Content-${id}.retrieve`,
+                                capability: `${collection}.retrieve`,
                                 title: __('%type: Retrieve content').replace(
                                     '%type',
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to retrieve any content of type %type, even if not owned by user.',
-                                ).replace('%type', type),
+                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
                             },
                             {
-                                capability: `Content-${id}.update`,
+                                capability: `${collection}.update`,
                                 title: __('%type: Update content').replace(
                                     '%type',
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to update any content of type %type, even if not owned by user.',
-                                ).replace('%type', type),
+                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
                             },
                             {
-                                capability: `Content-${id}.delete`,
+                                capability: `${collection}.delete`,
                                 title: __('%type: Delete content').replace(
                                     '%type',
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to delete any content of type %type, even if not owned by user.',
-                                ).replace('%type', type),
+                                    'Able to delete any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
                             },
                         ]}
                     />
