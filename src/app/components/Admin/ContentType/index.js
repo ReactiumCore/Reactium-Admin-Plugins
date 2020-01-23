@@ -45,6 +45,12 @@ const ContentType = memo(
 
         useEffect(() => {
             load();
+            return () => {
+                const components = getComponents();
+                components.forEach(component =>
+                    Reactium.Zone.removeComponent(component.id),
+                );
+            };
         }, [id]);
 
         const getValue = () => {
@@ -308,7 +314,7 @@ const ContentType = memo(
                 nameError.current = false;
             }
 
-            updateRestore(value => {
+            updateRestore(() => {
                 // render errors
                 setVersion(uuid());
             });
@@ -566,18 +572,23 @@ const ContentType = memo(
         };
 
         const addField = type => {
-            if (op.has(Enums, ['TYPES', type])) {
+            console.log('addField', type);
+            const types = _.indexBy(
+                Object.values(op.get(Enums, 'TYPES')),
+                'type',
+            );
+            if (op.has(types, type)) {
                 updateRestore(
-                    value =>
+                    () =>
                         new Promise(resolve => {
                             const existing = getComponents();
                             Reactium.Zone.addComponent({
-                                ...Enums.TYPES[type],
+                                ...types[type],
                                 zone: Enums.ZONE('default'),
                                 order: existing.length,
                                 component: 'FieldType',
                                 region: 'default',
-                                fieldTypeComponent: Enums.TYPES[type].component,
+                                fieldTypeComponent: types[type].component,
                             });
 
                             setTimeout(() => {
@@ -591,7 +602,7 @@ const ContentType = memo(
         const removeField = id => {
             // Make async so dismissable _onHide() reconciles before removing component
             updateRestore(
-                value =>
+                () =>
                     new Promise(resolve => {
                         setTimeout(() => {
                             Reactium.Zone.removeComponent(id);

@@ -36,7 +36,7 @@ export default () => {
             {typesRef.current.map(({ uuid, type, label }) => (
                 <MenuItem
                     key={uuid}
-                    label={label ? label : type}
+                    label={`${label} (${type})`}
                     route={`/admin/type/${uuid}`}
                 />
             ))}

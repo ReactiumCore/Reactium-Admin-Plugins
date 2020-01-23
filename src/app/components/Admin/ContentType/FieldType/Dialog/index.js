@@ -102,10 +102,4 @@ FieldTypeDialog.propTypes = {
     dialogProps: PropTypes.shape(Dialog.propTypes),
 };
 
-FieldTypeDialog.defaultProps = {
-    type: Enums.TYPES.type,
-    icon: Enums.TYPES.TEXT.icon,
-    dialogProps: Dialog.defaultProps,
-};
-
 export default FieldTypeDialog;
