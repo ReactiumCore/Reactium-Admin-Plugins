@@ -38,7 +38,6 @@ const ContentType = memo(
         const formsErrors = useRef({});
         const nameError = useRef(false);
         const [, setVersion] = useState(uuid());
-        const SidebarWidget = useHandle('ContentType/SidebarWidget');
         const tools = useHandle('AdminTools');
         const Toast = op.get(tools, 'Toast');
         const CapabilityEditor = useHookComponent('CapabilityEditor');
@@ -87,7 +86,6 @@ const ContentType = memo(
 
         const load = async () => {
             clear();
-            SidebarWidget.getTypes(true);
 
             if (id !== 'new') {
                 try {
@@ -384,7 +382,6 @@ const ContentType = memo(
                     op.set(value, 'regions', getRegions());
 
                     const type = await Reactium.ContentType.save(id, value);
-                    SidebarWidget.getTypes(true);
                     savedRef.current = value;
 
                     Toast.show({
@@ -581,7 +578,6 @@ const ContentType = memo(
                         autoClose: 1000,
                     });
 
-                    SidebarWidget.getTypes(true);
                     Reactium.Routing.history.push('/admin/type/new');
                 } catch (error) {
                     Toast.show({

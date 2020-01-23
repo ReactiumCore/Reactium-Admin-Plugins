@@ -12,22 +12,17 @@ export default () => {
     const typesRef = useRef([]);
     const [, update] = useState(uuid());
 
-    const getTypes = async () => {
-        const types = await Reactium.ContentType.types();
+    const getTypes = async (refresh = false) => {
+        const types = await Reactium.ContentType.types(refresh);
         typesRef.current = types;
         update(uuid());
     };
 
-    useRegisterHandle(
-        'ContentType/SidebarWidget',
-        () => ({
-            getTypes,
-        }),
-        [],
-    );
-
     useEffect(() => {
         getTypes();
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (op === 'del') getTypes(true);
+        });
     }, []);
 
     return (
