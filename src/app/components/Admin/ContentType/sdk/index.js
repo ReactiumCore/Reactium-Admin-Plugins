@@ -1,26 +1,32 @@
 import Reactium from 'reactium-core/sdk';
 import op from 'object-path';
 
+Reactium.Enums.cache.types = 10000;
+
 const ContentType = {};
 
 ContentType.types = async (refresh = false) => {
-    let types = Reactium.Cache.get('content-types');
-    if (!refresh && types) return types;
-    const response = await Reactium.Cloud.run('types');
+    let request = Reactium.Cache.get('content-types');
 
-    types = op.get(response, 'types', []);
+    if (request) return request;
 
-    Reactium.Cache.set('content-types', types, Reactium.Enums.cache.settings);
-    return types;
+    request = Reactium.Cloud.run('types', { refresh }).then(response => {
+        return op.get(response, 'types', []);
+    });
+
+    Reactium.Cache.set('content-types', request, Reactium.Enums.cache.types);
+    return request;
 };
 
 ContentType.save = async (id, type = {}) => {
-    Reactium.Cache.del('content-types');
     if (id === 'new') return Reactium.Cloud.run('type-create', type);
-    return Reactium.Cloud.run('type-update', {
+    const response = await Reactium.Cloud.run('type-update', {
         uuid: id,
         ...type,
     });
+
+    Reactium.Cache.del('content-types');
+    return response;
 };
 
 ContentType.retrieve = async id => {
@@ -35,10 +41,12 @@ ContentType.retrieve = async id => {
 };
 
 ContentType.delete = async id => {
-    Reactium.Cache.del('content-types');
-    return Reactium.Cloud.run('type-delete', {
+    const response = await Reactium.Cloud.run('type-delete', {
         uuid: id,
     });
+    Reactium.Cache.del('content-types');
+
+    return response;
 };
 
 export default ContentType;

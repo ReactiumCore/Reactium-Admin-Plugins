@@ -29,6 +29,11 @@
     }
 }
 
+@mixin admin-content-region() {
+    @include admin-content-zone;
+    padding-top: 20px;
+}
+
 @mixin admin-actions-zone() {
     flex-grow: 0;
     flex-shrink: 0;

@@ -14,12 +14,14 @@ export default () => {
     const getTypes = async (refresh = false) => {
         const types = await Reactium.ContentType.types(refresh);
         typesRef.current = types;
-
         update(uuid());
     };
 
     useEffect(() => {
         getTypes();
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (op === 'del') getTypes(true);
+        });
     }, [id, path]);
 
     const { type } = typesRef.current.find(type => type.uuid === id) || {};

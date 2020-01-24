@@ -18,16 +18,11 @@ export default () => {
         update(uuid());
     };
 
-    useRegisterHandle(
-        'ContentType/SidebarWidget',
-        () => ({
-            getTypes,
-        }),
-        [],
-    );
-
     useEffect(() => {
         getTypes();
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (op === 'del') getTypes(true);
+        });
     }, []);
 
     return (
@@ -38,10 +33,10 @@ export default () => {
                 icon='Linear.PlusSquare'
                 route='/admin/type/new'
             />
-            {typesRef.current.map(({ uuid, type }) => (
+            {typesRef.current.map(({ uuid, type, label }) => (
                 <MenuItem
                     key={uuid}
-                    label={type}
+                    label={`${label} (${type})`}
                     route={`/admin/type/${uuid}`}
                 />
             ))}

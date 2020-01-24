@@ -97,17 +97,9 @@ FieldTypeDialog.propTypes = {
             ? null
             : new Error('Expecting id of type uuid/v4');
     },
-    mode: PropTypes.oneOf(Object.values(Enums.FIELD_MODES)),
     type: PropTypes.string.isRequired,
     icon: PropTypes.elementType.isRequired,
     dialogProps: PropTypes.shape(Dialog.propTypes),
-};
-
-FieldTypeDialog.defaultProps = {
-    mode: Enums.FIELD_MODES.NEW,
-    type: Enums.TYPES.type,
-    icon: Enums.TYPES.TEXT.icon,
-    dialogProps: Dialog.defaultProps,
 };
 
 export default FieldTypeDialog;

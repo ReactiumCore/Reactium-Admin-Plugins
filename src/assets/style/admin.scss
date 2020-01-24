@@ -37,12 +37,10 @@
 @import '../../app/components/Admin/ContentType/style';
 @import '../../app/components/Admin/ContentType/FieldType/Dialog/style';
 @import '../../app/components/Admin/ContentType/FieldType/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeText/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeNumber/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeList/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeCode/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeColor/style';
-@import '../../app/components/Admin/ContentType/BuiltInTypes/FieldTypeImage/style';
+@import '../../app/components/Admin/ContentType/Plugins/FieldTypeLink/style';
+@import '../../app/components/Admin/ContentType/Plugins/FieldTypeList/style';
+@import '../../app/components/Admin/ContentType/Plugins/FieldTypeNumber/style';
+@import '../../app/components/Admin/ContentType/Plugins/FieldTypeText/style';
 @import '../../app/components/Admin/ContentType/TypeName/style';
 @import '../../app/components/Admin/ContentType/Tools/style';
 @import '../../app/components/Admin/ContentType/Fields/style';

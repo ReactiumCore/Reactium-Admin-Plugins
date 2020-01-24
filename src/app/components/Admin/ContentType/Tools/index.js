@@ -3,6 +3,7 @@ import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import Draggable from 'react-draggable';
+import _ from 'underscore';
 
 /**
  * -----------------------------------------------------------------------------
@@ -22,27 +23,27 @@ const Tools = ({ enums = {} }) => {
     const { addField, addRegion } = useHandle('ContentTypeEditor');
 
     const renderTools = () => {
-        return Object.keys(enums.TYPES).map(type => {
+        return _.sortBy(Object.values(enums.TYPES), 'order').map(type => {
             const tooltip = op.get(
-                enums,
-                ['TYPES', type, 'tooltip'],
+                type,
+                'tooltip',
                 __(
                     'Click to add %type field type to your content type.',
                 ).replace(
                     '%type',
-                    op.get(enums, ['TYPES', type, 'label'], type.toLowerCase()),
+                    op.get(type, 'label', op.get(type, 'type').toLowerCase()),
                 ),
             );
 
-            const Icon = op.get(enums, ['TYPES', type, 'icon']);
+            const Icon = op.get(type, 'icon');
             return (
                 <Button
                     color={Button.ENUMS.COLOR.CLEAR}
-                    key={type}
+                    key={op.get(type, 'type')}
                     data-tooltip={tooltip}
                     data-align='left'
                     data-vertical-align='middle'
-                    onClick={() => addField(type)}>
+                    onClick={() => addField(op.get(type, 'type'))}>
                     <span className={'sr-only'}>{tooltip}</span>
                     <Icon />
                 </Button>
