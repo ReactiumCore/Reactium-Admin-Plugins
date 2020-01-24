@@ -4,6 +4,7 @@ import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
 import Element from './Element';
+import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
 import ReactDOM from 'react-dom';
 import Plugin from './RTEPlugin';
@@ -34,18 +35,27 @@ import {
 const noop = () => {};
 
 const RichTextEditor = forwardRef((initialProps, ref) => {
+    // 0.0 - Get props
     const {
         className,
         id,
+        name,
         namespace,
         onChange,
         onFocus,
+        blocks: initialBlocks,
+        formats: initialFormats,
+        plugins: initialPlugins,
+        types: initialTypes,
         ...props
     } = useSelectProps({ props: initialProps, exclude: ['value'] });
 
+    // 0.1 - References
+    const containerRef = useRef();
+
     // 1.0 - Must be called before editor is created
-    const [plugins, setPlugins] = useEditorPlugins();
-    const [types, setTypes] = useEditorTypes(plugins);
+    const [plugins, setPlugins] = useEditorPlugins(initialPlugins);
+    const [types, setTypes] = useEditorTypes(initialTypes || plugins);
 
     // 2.0 - Must be called after plugin aggregation
     const editor = useMemo(() => {
@@ -65,8 +75,13 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     }, [blocks, formats, plugins, types]);
 
     // 3.0 - Editor component aggregation
-    const [blocks, setBlocks] = useEditorBlocks(Reactium.RTE.blocks);
-    const [formats, setFormats] = useEditorFormats(Reactium.RTE.formats);
+    const [blocks, setBlocks] = useEditorBlocks(
+        initialBlocks || Reactium.RTE.blocks,
+    );
+
+    const [formats, setFormats] = useEditorFormats(
+        initialFormats || Reactium.RTE.formats,
+    );
 
     // 4.0 - Editor value
     const [value, setValue] = useState(op.get(initialProps, 'value'));
@@ -111,10 +126,12 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 9.0 - Handle
     const _handle = () => ({
+        container: containerRef.current,
         blocks,
         editor,
         formats,
         id,
+        name,
         nodes,
         plugins,
         props,
@@ -129,6 +146,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
+
     useImperativeHandle(ref, () => handle);
 
     // 10.0 - Side effects
@@ -151,40 +169,46 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     }, [value]);
 
     // 11.0 - Render function
-    const render = useMemo(() => {
-        return (
-            <div className={cname()}>
-                <Slate editor={editor} onChange={_onChange} value={value}>
-                    <Editable
-                        {...props}
-                        onKeyDown={_onKeyDown}
-                        renderElement={_renderElement}
-                        renderLeaf={_renderLeaf}
-                    />
-                    <Toolbar {...handle} className={cx('toolbar')} />
-                </Slate>
-            </div>
-        );
-    });
+    const render = useMemo(() => (
+        <div className={cname()} ref={containerRef}>
+            <input type='hidden' name={name} value={JSON.stringify(value)} />
+            <Slate editor={editor} onChange={_onChange} value={value}>
+                <Editable
+                    {...props}
+                    onKeyDown={_onKeyDown}
+                    renderElement={_renderElement}
+                    renderLeaf={_renderLeaf}
+                />
+                <Toolbar {...handle} className={cx('toolbar')} />
+                <Sidebar {...handle} className={cx('sidebar')} />
+            </Slate>
+        </div>
+    ));
 
     return render;
 });
 
 RichTextEditor.propTypes = {
     autoFocus: PropTypes.bool,
+    blocks: PropTypes.object,
     className: PropTypes.string,
+    formats: PropTypes.object,
     id: PropTypes.string,
+    name: PropTypes.string,
     namespace: PropTypes.string,
     onChange: PropTypes.func,
     onFocus: PropTypes.func,
     placeholder: PropTypes.string,
+    plugins: PropTypes.object,
     spellCheck: PropTypes.bool,
+    types: PropTypes.func,
     value: PropTypes.array,
 };
 
 RichTextEditor.defaultProps = {
     autoFocus: true,
     id: 'rte',
+    name: 'content',
     namespace: 'ar-rte',
     onChange: noop,
     onFocus: noop,

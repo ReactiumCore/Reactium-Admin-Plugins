@@ -15,7 +15,7 @@ import Reactium, { useHookComponent } from 'reactium-core/sdk';
  * Toolkit Element: EditorDemo
  * -----------------------------------------------------------------------------
  */
-const testPlugin = () => {
+const testFormat = () => {
     const buttonProps = Reactium.RTE.ENUMS.PROPS.BUTTON;
     const iconProps = Reactium.RTE.ENUMS.PROPS.ICON;
 
@@ -35,19 +35,16 @@ const testPlugin = () => {
         ),
     };
 
-    // Reactium.RTE.Format.register('test', plugin);
     return plugin;
 };
 
 const EditorDemo = props => {
-    // testPlugin();
-
     const editorRef = useRef();
     const [editor, setEditor] = useState(editorRef.current);
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const onChange = e => {
-        console.log(e.target.value);
+        // console.log(e.target.value);
     };
 
     const render = () => {
@@ -65,7 +62,7 @@ const EditorDemo = props => {
         if (!editor) return;
 
         if (!op.get(editor.formats, 'test')) {
-            editor.formats['test'] = testPlugin();
+            editor.formats['test'] = testFormat();
             editor.setFormats(editor.formats);
         }
 
