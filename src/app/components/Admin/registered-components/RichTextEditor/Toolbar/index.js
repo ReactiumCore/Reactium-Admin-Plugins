@@ -33,7 +33,7 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-const Toolbar = ({ className, id, style }) => {
+const Toolbar = ({ className, id, nodes, style }) => {
     const editor = useSlate();
 
     const containerRef = useRef();
@@ -86,11 +86,7 @@ const Toolbar = ({ className, id, style }) => {
         return (
             <Portal>
                 <div style={_style} ref={containerRef} className={className}>
-                    <Buttons
-                        container={id}
-                        editor={editor}
-                        nodes={Reactium.RTE.nodes}
-                    />
+                    <Buttons container={id} editor={editor} nodes={nodes()} />
                 </div>
             </Portal>
         );

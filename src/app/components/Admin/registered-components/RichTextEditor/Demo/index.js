@@ -12,14 +12,14 @@ import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
- * Toolkit Element: EditorOrganism
+ * Toolkit Element: EditorDemo
  * -----------------------------------------------------------------------------
  */
-const registerEditorPlugins = () => {
+const testPlugin = () => {
     const buttonProps = Reactium.RTE.ENUMS.PROPS.BUTTON;
     const iconProps = Reactium.RTE.ENUMS.PROPS.ICON;
 
-    Reactium.RTE.Format.register('test', {
+    const plugin = {
         id: 'test',
         order: 0,
         toolbar: true,
@@ -33,14 +33,18 @@ const registerEditorPlugins = () => {
                 <Icon {...iconProps} name='Linear.Link' />
             </Button>
         ),
-    });
+    };
+
+    // Reactium.RTE.Format.register('test', plugin);
+    return plugin;
 };
 
-const EditorOrganism = props => {
-    registerEditorPlugins();
+const EditorDemo = props => {
+    // testPlugin();
 
-    const RichTextEditor = useHookComponent('RichTextEditor');
     const editorRef = useRef();
+    const [editor, setEditor] = useState(editorRef.current);
+    const RichTextEditor = useHookComponent('RichTextEditor');
 
     const onChange = e => {
         console.log(e.target.value);
@@ -58,12 +62,24 @@ const EditorOrganism = props => {
     };
 
     useEffect(() => {
-        if (editorRef.current) {
-            editorRef.current.addEventListener('change', onChange);
+        if (!editor) return;
 
-            return () => {
-                editorRef.current.removeEventListener('change', onChange);
-            };
+        if (!op.get(editor.formats, 'test')) {
+            editor.formats['test'] = testPlugin();
+            editor.setFormats(editor.formats);
+        }
+
+        editor.addEventListener('change', onChange);
+
+        return () => {
+            editor.removeEventListener('change', onChange);
+        };
+    });
+
+    useEffect(() => {
+        if (!editorRef.current) return;
+        if (!editor) {
+            setEditor(editorRef.current);
         }
     });
 
@@ -71,6 +87,6 @@ const EditorOrganism = props => {
 };
 
 // Default properties
-EditorOrganism.defaultProps = {};
+EditorDemo.defaultProps = {};
 
-export default EditorOrganism;
+export default EditorDemo;

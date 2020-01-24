@@ -1,9 +1,8 @@
 import Leaf from './Leaf';
 import _ from 'underscore';
 import cn from 'classnames';
-import op from 'object-path';
-import uuid from 'uuid/v4';
 import ENUMS from './enums';
+import op from 'object-path';
 import Element from './Element';
 import Toolbar from './Toolbar';
 import ReactDOM from 'react-dom';
@@ -28,23 +27,11 @@ import {
     useEditorFormats,
     useEditorPlugins,
     useEditorTypes,
+    useEventHandle,
     useSelectProps,
 } from './_utils';
 
 const noop = () => {};
-
-class ComponentTarget extends EventTarget {
-    constructor(handle) {
-        super();
-        this.update = handle => {
-            Object.entries(handle).forEach(
-                ([key, value]) => (this[key] = value),
-            );
-        };
-
-        this.update(handle);
-    }
-}
 
 const RichTextEditor = forwardRef((initialProps, ref) => {
     const {
@@ -58,12 +45,14 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 1.0 - Must be called before editor is created
     const [plugins, setPlugins] = useEditorPlugins();
+    const [types, setTypes] = useEditorTypes(plugins);
 
     // 2.0 - Must be called after plugin aggregation
     const editor = useMemo(() => {
         let editor = createEditor();
+        const _plugins = _.pluck(Object.values(plugins), 'plugin');
 
-        plugins.forEach(plugin => {
+        _plugins.forEach(plugin => {
             editor = plugin(editor);
         });
 
@@ -76,10 +65,8 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     }, [blocks, formats, plugins, types]);
 
     // 3.0 - Editor component aggregation
-    const [blocks, setBlocks] = useEditorBlocks();
-    const [formats, setFormats] = useEditorFormats();
-    const [types, setTypes] = useEditorTypes();
-    const [UUID, setUUID] = useState(uuid());
+    const [blocks, setBlocks] = useEditorBlocks(Reactium.RTE.blocks);
+    const [formats, setFormats] = useEditorFormats(Reactium.RTE.formats);
 
     // 4.0 - Editor value
     const [value, setValue] = useState(op.get(initialProps, 'value'));
@@ -91,13 +78,44 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         id,
     });
 
-    // 6.0 - Handle
+    // 6.0 - Handlers
+    const _onChange = newValue => setValue(newValue);
+
+    const _onKeyDown = e => Reactium.RTE.hotKey(editor, e);
+
+    // 7.0 - Renderers
+    const _renderElement = useCallback(
+        props => <Element {...props} {...handle} />,
+        [blocks],
+    );
+
+    const _renderLeaf = useCallback(props => <Leaf {...props} {...handle} />, [
+        formats,
+    ]);
+
+    // 8.0 - Utilites
+    const cname = () => {
+        return cn({ [className]: !!className, [namespace]: !!namespace });
+    };
+
+    const cx = cls => _.uniq([namespace, cls]).join('-');
+
+    const nodes = () =>
+        _.sortBy(
+            Object.entries({ ...formats, ...blocks }).map(([id, value]) => {
+                op.set(value, 'id', id);
+                return value;
+            }),
+            'order',
+        );
+
+    // 9.0 - Handle
     const _handle = () => ({
-        UUID,
         blocks,
         editor,
         formats,
         id,
+        nodes,
         plugins,
         props,
         setBlocks,
@@ -110,34 +128,19 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         value,
     });
 
-    const [handle] = useState(new ComponentTarget(_handle()));
+    const [handle, setHandle] = useEventHandle(_handle());
     useImperativeHandle(ref, () => handle);
 
-    // 7.0 - Handlers
-    const _onChange = newValue => setValue(newValue);
-
-    const _onKeyDown = e => Reactium.RTE.hotKey(editor, e);
-
-    // 8.0 - Renderers
-    const _renderElement = useCallback(
-        props => <Element {...props} {...handle} />,
-        [blocks],
-    );
-
-    const _renderLeaf = useCallback(props => <Leaf {...props} {...handle} />, [
-        formats,
-    ]);
-
-    // 9.0 - Utilites
-    const cname = () => {
-        return cn({ [className]: !!className, [namespace]: !!namespace });
-    };
-
-    const cx = cls => _.uniq([namespace, cls]).join('-');
-
     // 10.0 - Side effects
+    // 10.1 - Handle update.
     useEffect(() => {
-        handle.update(_handle());
+        setState({ updated: Date.now() });
+        setHandle(_handle());
+    }, [blocks, formats, plugins, value]);
+
+    // 10.2 - Value update.
+    useEffect(() => {
+        // on value change
         handle.dispatchEvent(new Event('change'));
 
         onChange({
