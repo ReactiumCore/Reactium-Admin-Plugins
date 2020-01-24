@@ -8,7 +8,6 @@ import useEditorBlocks from './useEditorBlocks';
 import useEditorFormats from './useEditorFormats';
 import useEditorPlugins from './useEditorPlugins';
 import useEditorTypes from './useEditorTypes';
-import useEventHandle from './useEventHandle';
 import useSelectProps from './useSelectProps';
 
 import ENUMS from '../enums';
@@ -20,7 +19,6 @@ export {
     useEditorFormats,
     useEditorPlugins,
     useEditorTypes,
-    useEventHandle,
     useSelectProps,
 };
 

@@ -17,7 +17,7 @@ import React, {
 const Buttons = ({ container, editor, nodes }) => (
     <div className='btn-group'>
         {nodes.map(item => {
-            const { id, button: Button, icon: Icon, toolbar } = item;
+            const { id, button: Button, toolbar } = item;
             if (Button && toolbar) {
                 return (
                     <Button

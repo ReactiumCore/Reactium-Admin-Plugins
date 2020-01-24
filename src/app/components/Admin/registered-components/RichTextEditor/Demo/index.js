@@ -53,7 +53,7 @@ const EditorDemo = props => {
                 <Helmet>
                     <title>Rich Text Editor</title>
                 </Helmet>
-                <RichTextEditor ref={editorRef} />
+                <RichTextEditor ref={editorRef} value={props.value} />
             </div>
         );
     };
@@ -84,6 +84,24 @@ const EditorDemo = props => {
 };
 
 // Default properties
-EditorDemo.defaultProps = {};
+EditorDemo.defaultProps = {
+    value: [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: 'Lorem ipsum dolor sit amet ',
+                },
+                {
+                    text: 'vero eos et accusamus',
+                    bold: true,
+                },
+                {
+                    text: ' et iusto odio dignissimos ducimus qui blanditiis',
+                },
+            ],
+        },
+    ],
+};
 
 export default EditorDemo;

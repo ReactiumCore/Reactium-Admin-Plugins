@@ -11,7 +11,7 @@ import Plugin from './RTEPlugin';
 import PropTypes from 'prop-types';
 import { createEditor } from 'slate';
 import { Slate, Editable } from 'slate-react';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -28,7 +28,6 @@ import {
     useEditorFormats,
     useEditorPlugins,
     useEditorTypes,
-    useEventHandle,
     useSelectProps,
 } from './_utils';
 
@@ -217,18 +216,7 @@ RichTextEditor.defaultProps = {
     value: [
         {
             type: 'paragraph',
-            children: [
-                {
-                    text: 'Lorem ipsum dolor sit amet ',
-                },
-                {
-                    text: 'vero eos et accusamus',
-                    bold: true,
-                },
-                {
-                    text: ' et iusto odio dignissimos ducimus qui blanditiis',
-                },
-            ],
+            children: [{ text: '' }],
         },
     ],
 };
