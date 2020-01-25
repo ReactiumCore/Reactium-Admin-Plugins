@@ -22,7 +22,7 @@ export default Blocker;
  * @api {RegisteredComponent} <Blocker/> Blocker
  * @apiDescription Overlay that displays the Reactium UI `<Spinner />` component and disables interaction with the rest of the UI.
  * @apiName Blocker
- * @apiGroup Registered Component.
+ * @apiGroup Registered Component
  * @apiParam {Object} props See the documentation for the [http://ui.reactium.io/toolkit/components/spinner-molecule](Spinner component).
  * @apiExample Basic Usage:
 import Blocker from 'components/Admin/registered-components/Blocker';
