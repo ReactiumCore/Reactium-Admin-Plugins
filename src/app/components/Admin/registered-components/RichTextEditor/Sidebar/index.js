@@ -53,7 +53,7 @@ const Sidebar = ({ className, container: parent, id, nodes, style }) => {
         const element = containerRef.current;
         const hidden = !editor.selection;
 
-        if (!element || !rect || !parent || hidden)
+        if (!element || !rect || !parent || hidden || selected)
             return { display: 'none', opacity: 0 };
 
         element.style.display = 'block';
