@@ -3,10 +3,10 @@ import { Checkbox } from '@atomic-reactor/reactium-ui';
 import { useHookComponent, __ } from 'reactium-core/sdk';
 /**
  * -----------------------------------------------------------------------------
- * Functional Component: FieldTypeRichText
+ * Functional Component: FieldTypeText
  * -----------------------------------------------------------------------------
  */
-const FieldTypeRichText = props => {
+const FieldTypeText = props => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
@@ -30,4 +30,4 @@ const FieldTypeRichText = props => {
     );
 };
 
-export default FieldTypeRichText;
+export default FieldTypeText;
