@@ -496,7 +496,7 @@ const ContentType = memo(
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                                    'Able to retrieve content of type %type (%machineName), if content ACL permits.',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
@@ -508,17 +508,49 @@ const ContentType = memo(
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
+                                    'Able to update any content of type %type (%machineName), if content ACL permits.',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
                             },
                             {
                                 capability: `${collection}.delete`,
-                                title: __('%type: Delete content').replace(
-                                    '%type',
-                                    type,
-                                ),
+                                title: __(
+                                    '%type: Delete any content (Caution)',
+                                ).replace('%type', type),
+                                tooltip: __(
+                                    'Able to delete any content of type %type (%machineName), if content ACL permits.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.retrieveAny`,
+                                title: __(
+                                    '%type: Retrieve any content (Caution)',
+                                ).replace('%type', type),
+                                tooltip: __(
+                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.updateAny`,
+                                title: __(
+                                    '%type: Update any content (Caution)',
+                                ).replace('%type', type),
+                                tooltip: __(
+                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.deleteAny`,
+                                title: __(
+                                    '%type: Delete any content (Caution)',
+                                ).replace('%type', type),
                                 tooltip: __(
                                     'Able to delete any content of type %type (%machineName), even if not owned by user.',
                                 )

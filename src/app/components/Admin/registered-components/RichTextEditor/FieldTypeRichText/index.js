@@ -1,6 +1,6 @@
 import React from 'react';
-import { Checkbox } from '@atomic-reactor/reactium-ui';
-import { useHookComponent, __ } from 'reactium-core/sdk';
+import { useHookComponent } from 'reactium-core/sdk';
+
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldTypeText
