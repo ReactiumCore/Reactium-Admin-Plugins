@@ -2,7 +2,8 @@ import _ from 'underscore';
 import op from 'object-path';
 import { useSlate } from 'slate-react';
 import Portal from 'components/common-ui/Portal';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import { Scrollbars } from 'react-custom-scrollbars';
+import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
 import { isMarkActive, toggleMark, useSelected } from '../_utils';
 
 import React, {
@@ -17,12 +18,12 @@ import React, {
 const Buttons = ({ container, editor, nodes }) => (
     <div className='btn-group'>
         {nodes.map(item => {
-            const { id, button: Button, toolbar } = item;
-            if (Button && toolbar) {
+            const { id, button: Element, toolbar } = item;
+            if (Element && toolbar) {
                 return (
-                    <Button
+                    <Element
                         data-container={container}
-                        data-toolbar={id}
+                        data-toolbar
                         editor={editor}
                         key={`ar-rte-toolbar-btn-${id}`}
                         onMouseDown={e => e.preventDefault()}
@@ -33,7 +34,7 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-const Toolbar = ({ className, id, nodes, style }) => {
+let Toolbar = ({ buttons, className, id, style }, ref) => {
     const editor = useSlate();
 
     const containerRef = useRef();
@@ -76,17 +77,27 @@ const Toolbar = ({ className, id, nodes, style }) => {
         return { left: x, top: y, opacity: 1 };
     };
 
+    const _handle = () => ({
+        container: containerRef,
+        position: getPosition,
+        setState,
+        state,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle);
+
     const render = useMemo(() => {
         const _style = {
             ...style,
             ...getPosition(),
             display: selected ? 'block' : 'none',
         };
-
         return (
             <Portal>
                 <div style={_style} ref={containerRef} className={className}>
-                    <Buttons container={id} editor={editor} nodes={nodes()} />
+                    <Buttons container={id} editor={editor} nodes={buttons} />
                 </div>
             </Portal>
         );
@@ -94,6 +105,8 @@ const Toolbar = ({ className, id, nodes, style }) => {
 
     return render;
 };
+
+Toolbar = forwardRef(Toolbar);
 
 Toolbar.defaultProps = {
     style: {},

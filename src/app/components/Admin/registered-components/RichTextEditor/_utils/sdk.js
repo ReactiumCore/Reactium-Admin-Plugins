@@ -4,15 +4,10 @@ import op from 'object-path';
 import ENUMS from '../enums';
 import { Editor } from 'slate';
 import isHotkey from 'is-hotkey';
+import { plural } from 'pluralize';
+import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
-import {
-    isBlockActive,
-    isMarkActive,
-    toggleBlock,
-    toggleMark,
-} from '../_utils';
-
-class Registry {
+export class Registry {
     constructor() {
         this.__registered = [];
         this.__unregister = [];
@@ -22,11 +17,10 @@ class Registry {
         return this.__registered;
     }
 
-    register(id, plugin) {
-        const { order = 200 } = plugin;
-        const item = { ...plugin, id, order };
+    register(id, data) {
+        data['order'] = op.get(data, 'order', 200);
+        const item = { ...data, id };
         this.__registered.push(item);
-
         return item;
     }
 
@@ -52,26 +46,77 @@ class Registry {
 class RTE {
     constructor() {
         this.ENUMS = ENUMS;
-        this.Block = new Registry();
-        this.Format = new Registry();
-        this.Plugin = new Registry();
+
         this.isBlockActive = isBlockActive;
         this.isHotkey = isHotkey;
         this.isMarkActive = isMarkActive;
         this.toggleBlock = toggleBlock;
         this.toggleMark = toggleMark;
+
+        this.Block = new Registry();
+        this.Button = new Registry();
+        this.Color = new Registry();
+        this.Font = new Registry();
+        this.Format = new Registry();
+        this.Hotkey = new Registry();
+        this.Plugin = new Registry();
+        this.Tab = new Registry();
+
+        this.Ext = {
+            Block: this.Block,
+            Button: this.Button,
+            Color: this.Color,
+            Font: this.Font,
+            Format: this.Format,
+            Hotkey: this.Hotkey,
+            Plugin: this.Plugin,
+            Tab: this.Tab,
+        };
+    }
+
+    extend(id) {
+        if (op.get(this.Ext, id))
+            throw new Error('RTE registry already exists');
+
+        this.Ext[id] = new Registry();
+        return this.Ext[id];
+    }
+
+    register(ext, id, data) {
+        ext = op.get(this.Ext, ext, this.extend(ext));
+        ext.register(id, data);
+    }
+
+    get list() {
+        return Object.entries(this.Ext).reduce((obj, [id, item]) => {
+            id = String(plural(id)).toLowerCase();
+            obj[id] = item.list();
+            return obj;
+        }, {});
     }
 
     get blocks() {
-        return this.Block.list();
+        return this.list.blocks;
+    }
+
+    get buttons() {
+        return this.list.buttons;
+    }
+
+    get colors() {
+        return this.list.colors;
+    }
+
+    get fonts() {
+        return this.list.fonts;
     }
 
     get formats() {
-        return this.Format.list();
+        return this.list.formats;
     }
 
-    get plugins() {
-        return this.Plugin.list();
+    get hotkeys() {
+        return this.list.hotkeys;
     }
 
     get nodes() {
@@ -85,52 +130,36 @@ class RTE {
         return _.sortBy(nodes, 'order');
     }
 
-    hotKey(editor, e) {
-        if (!editor || !e) return;
+    get plugins() {
+        return this.list.plugins;
+    }
 
-        if (this.isHotkey('backspace', e) || this.isHotkey('enter', e)) {
-            const [node] = Editor.node(editor, editor.selection);
-            const [parent] = Editor.parent(editor, editor.selection);
+    get tabs() {
+        return this.list.tabs;
+    }
 
-            const text = op.get(node, 'text');
-            const type = op.get(parent, 'type');
+    hotKey(editor, event, hotkeys) {
+        if (!editor || !event) return;
 
-            if (type === 'li' && String(text).length < 1) {
-                e.preventDefault();
-                return this.toggleBlock(editor, 'p');
-            }
-        }
+        let next = true;
+        hotkeys.forEach(item => {
+            if (next === false) return;
 
-        this.nodes.forEach(item => {
-            let { id, insert, block, leaf, hotkey } = item;
+            const { keys, callback } = item;
 
-            if (!hotkey) return;
+            if (typeof callback !== 'function') return;
 
-            const key =
-                typeof hotkey === 'string' ? hotkey : op.get(hotkey, 'key');
+            const isKey =
+                _.chain([keys])
+                    .flatten()
+                    .compact()
+                    .uniq()
+                    .value()
+                    .filter(key => this.isHotkey(key, event)).length > 0;
 
-            if (!this.isHotkey(key, e)) return;
+            if (!isKey) return;
 
-            const callback =
-                typeof hotkey !== 'string' ? op.get(hotkey, 'callback') : null;
-
-            if (typeof callback === 'function') {
-                return callback(e, editor);
-            }
-
-            e.preventDefault();
-
-            if (insert) {
-                return insertNode(editor, id, item.insert);
-            }
-
-            if (leaf) {
-                return this.toggleMark(editor, id);
-            }
-
-            if (block) {
-                return this.toggleBlock(editor, id);
-            }
+            next = callback({ editor, event, keys }) || next;
         });
     }
 }

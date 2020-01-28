@@ -49,7 +49,7 @@ const EditorDemo = props => {
 
     const render = () => {
         return (
-            <div style={{ paddingTop: 100, paddingLeft: 150 }}>
+            <div style={{ padding: 100 }}>
                 <Helmet>
                     <title>Rich Text Editor</title>
                 </Helmet>
@@ -90,14 +90,21 @@ EditorDemo.defaultProps = {
             type: 'paragraph',
             children: [
                 {
-                    text: 'Lorem ipsum dolor sit amet ',
+                    text: 'The quick brown fox ',
                 },
                 {
-                    text: 'vero eos et accusamus',
+                    text: 'jumped',
                     bold: true,
                 },
                 {
-                    text: ' et iusto odio dignissimos ducimus qui blanditiis',
+                    text: ' over the ',
+                },
+                {
+                    text: 'lazy',
+                    italic: true,
+                },
+                {
+                    text: ' dog!',
                 },
             ],
         },

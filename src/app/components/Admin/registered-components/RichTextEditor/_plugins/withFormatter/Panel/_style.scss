@@ -1,0 +1,49 @@
+$border-radius-arp: 8px;
+$color-arp: $color-gray-dark !default;
+$color-arp-bg: $color-grey-light !default;
+$color-arp-border: $color-grey-light !default;
+$font-family-arp-heading: Arial;
+$font-size-arp-heading: 18px !default;
+$font-weight-arp-heading: 500 !default;
+$shadow-arp: 0 0 5px 1px rgba($color-black, 0.05) !default;
+$width-arp: 300px !default;
+$height-max-arp: calc(100vh - #{$height-admin-header}) !default;
+$height-min-arp: 500px !default;
+
+.ar-rte-panel {
+    @extend .ar-drag-panel;
+
+    width: 100%;
+    height: auto;
+    // min-height: $height-min-arp;
+    max-height: $height-max-arp;
+    max-width: $width-arp;
+    background-color: $color-arp-bg;
+    color: $color-arp;
+    overflow: hidden;
+    border-radius: $border-radius-arp;
+    box-shadow: $shadow-arp;
+
+    hr,
+    .hr {
+        border: none;
+        border-bottom: 1px solid $color-arp-border;
+    }
+
+    h3 {
+        font-size: $font-size-arp-heading;
+        font-weight: $font-weight-arp-heading;
+        font-family: $font-family-arp-heading;
+    }
+
+    svg {
+        fill: $color-arp;
+        fill: currentColor;
+    }
+
+    &-dragging {
+        .handle {
+            cursor: grabbing;
+        }
+    }
+}

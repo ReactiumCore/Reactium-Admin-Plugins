@@ -1,8 +1,9 @@
 import _ from 'underscore';
+import cn from 'classnames';
 import op from 'object-path';
 import { useSlate } from 'slate-react';
 import Portal from 'components/common-ui/Portal';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
 import { isMarkActive, toggleMark, useSelected } from '../_utils';
 import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
 
@@ -18,12 +19,12 @@ import React, {
 const Buttons = ({ container, editor, nodes }) => (
     <div className='btn-group'>
         {nodes.map(item => {
-            const { id, button: Button, sidebar } = item;
-            if (Button && sidebar) {
+            const { id, button: Element } = item;
+            if (Element) {
                 return (
-                    <Button
+                    <Element
                         data-container={container}
-                        data-sidebar={id}
+                        data-sidebar
                         editor={editor}
                         key={`ar-rte-sidebar-btn-${id}`}
                         onMouseDown={e => e.preventDefault()}
@@ -34,7 +35,7 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-const Sidebar = ({ className, container: parent, id, nodes, style }) => {
+let Sidebar = ({ className, container: parent, id, nodes, style }, ref) => {
     const editor = useSlate();
 
     const containerRef = useRef();
@@ -45,7 +46,9 @@ const Sidebar = ({ className, container: parent, id, nodes, style }) => {
 
     const { range, rect, selected, selection } = useSelected();
 
-    const [state, setState] = useDerivedState({});
+    const [state, setState] = useDerivedState({
+        collapsed: false,
+    });
 
     const cx = cls => [className, cls].join('-');
 
@@ -73,20 +76,41 @@ const Sidebar = ({ className, container: parent, id, nodes, style }) => {
     };
 
     const toggle = () => {
+        setState({ collapsed: !collapsibleRef.current.state.expanded });
+
         collapsibleRef.current.toggle();
     };
 
+    const _handle = () => ({
+        container: containerRef,
+        position: getPosition,
+        setState,
+        state,
+        toggle,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle);
+
     const render = useMemo(() => {
+        const { collapsed } = state;
+
         const _style = {
             ...style,
             ...getPosition(),
         };
+
+        const nodes = _.where(Object.values(Reactium.RTE.buttons), {
+            sidebar: true,
+        });
 
         return (
             <Portal>
                 <div style={_style} ref={containerRef} className={className}>
                     <Button
                         appearance='circle'
+                        className={cn({ collapsed })}
                         color='primary'
                         onClick={toggle}
                         style={{ width: 30, height: 30, padding: 0 }}>
@@ -96,11 +120,7 @@ const Sidebar = ({ className, container: parent, id, nodes, style }) => {
                         className={cx('buttons')}
                         expanded={false}
                         ref={collapsibleRef}>
-                        <Buttons
-                            container={id}
-                            editor={editor}
-                            nodes={nodes()}
-                        />
+                        <Buttons container={id} editor={editor} nodes={nodes} />
                     </Collapsible>
                 </div>
             </Portal>
@@ -109,6 +129,8 @@ const Sidebar = ({ className, container: parent, id, nodes, style }) => {
 
     return render;
 };
+
+Sidebar = forwardRef(Sidebar);
 
 Sidebar.defaultProps = {
     style: {},

@@ -8,18 +8,18 @@ const Wrap = forwardRef((props, ref) => {
     return props.children;
 });
 
-export default ({ attributes, children, element, blocks = {} }) => {
+export default ({ attributes, children, element, blocks = [] }) => {
     let output;
     const { type } = element;
     if (!type) return children;
 
     op.del(attributes, 'children');
 
-    Object.entries(blocks).forEach(([key, { block: Block }]) => {
-        if (type !== key || output) return;
+    blocks.forEach(({ id, element: Element }) => {
+        if (type !== id || output) return;
         output = (
             <Wrap {...attributes}>
-                <Block>{children}</Block>
+                <Element>{children}</Element>
             </Wrap>
         );
     });
