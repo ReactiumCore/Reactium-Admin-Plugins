@@ -4,7 +4,7 @@ export default {
             size: 'xs',
             type: 'button',
             color: 'tertiary',
-            style: { padding: 0 },
+            style: { padding: 0, position: 'relative' },
         },
         ICON: {
             size: 18,

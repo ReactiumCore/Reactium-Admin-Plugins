@@ -2,9 +2,9 @@ import React from 'react';
 import op from 'object-path';
 import { Editor } from 'slate';
 
-const Leaf = ({ attributes, children, formats = {}, leaf }) => {
-    Object.entries(formats).forEach(([key, { leaf: Element }]) => {
-        if (!op.get(leaf, key)) return;
+const Leaf = ({ attributes, children, formats = [], leaf }) => {
+    formats.forEach(({ id, element: Element }) => {
+        if (!op.get(leaf, id)) return;
         children = <Element>{children}</Element>;
     });
 

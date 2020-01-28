@@ -4,23 +4,15 @@ import { Editor, Transforms, Text } from 'slate';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useDerivedState } from 'reactium-core/sdk';
-import useEditorBlocks from './useEditorBlocks';
-import useEditorFormats from './useEditorFormats';
 import useEditorPlugins from './useEditorPlugins';
-import useEditorTypes from './useEditorTypes';
+import useRegistryFilter from './useRegistryFilter';
 import useSelectProps from './useSelectProps';
 
 import ENUMS from '../enums';
 
 const { LIST_TYPES } = ENUMS;
 
-export {
-    useEditorBlocks,
-    useEditorFormats,
-    useEditorPlugins,
-    useEditorTypes,
-    useSelectProps,
-};
+export { useEditorPlugins, useRegistryFilter, useSelectProps };
 
 export const getRange = (index = 0) => {
     try {
@@ -40,18 +32,6 @@ export const getSelected = () => {
     return !window.getSelection().isCollapsed;
 };
 
-export const insertNode = (editor, type, Insert) => {
-    console.log(type, Insert);
-    // const node = {
-    //     type: 'paragraph',
-    //     children: [
-    //         {text: Insert()}
-    //     ]
-    // };
-    //
-    // Transforms.insertNodes(editor, node);
-};
-
 export const isBlockActive = (editor, block) => {
     const [match] = Editor.nodes(editor, {
         match: n => n.type === block,
@@ -66,7 +46,9 @@ export const isMarkActive = (editor, format) => {
 };
 
 export const toggleBlock = (editor, block, e) => {
-    if (e) e.preventDefault();
+    if (e) {
+        e.preventDefault();
+    }
 
     const isActive = isBlockActive(editor, block);
     const isList = LIST_TYPES.includes(block);

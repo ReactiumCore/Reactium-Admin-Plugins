@@ -8,14 +8,28 @@ $ar-width-rte-sidebar: 40px !default;
     position: relative;
     padding-bottom: 100px;
 
+    p, ol, ul {
+        margin-bottom: 0;
+        padding-bottom: 15px;
+    }
+
+    ol, ul {
+        margin-left: 32px;
+    }
+
     &-toolbar {
         position: absolute;
-        height: $ar-height-rte-toolbar;
         overflow: visible;
-
         display: none;
         opacity: 0;
         transition: opacity 0.25s ease-in-out;
+
+        &-rect {
+            height: $ar-height-rte-toolbar;
+            max-width: 200px;
+            overflow: hidden;
+            border-radius: 2px;
+        }
 
         button {
             min-width: $ar-width-rte-toolbar;
@@ -64,6 +78,18 @@ $ar-width-rte-sidebar: 40px !default;
         height: $ar-height-rte-sidebar;
         transition: opacity 0.25s ease-in-out;
 
+        button {
+            svg {
+                transition: transform .25s ease-in-out;
+            }
+
+            &.collapsed {
+                svg {
+                    transform: rotate(135deg);
+                }
+            }
+        }
+
         &-buttons {
             width: $ar-width-rte-sidebar;
             position: absolute;
@@ -80,7 +106,7 @@ $ar-width-rte-sidebar: 40px !default;
 
             button {
                 min-width: $ar-width-rte-sidebar;
-                height: $ar-width-rte-sidebar;
+                min-height: $ar-width-rte-sidebar;
             }
 
             > * {
