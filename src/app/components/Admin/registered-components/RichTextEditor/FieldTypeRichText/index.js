@@ -10,24 +10,7 @@ const FieldTypeText = props => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
-    return (
-        <FieldTypeDialog {...props}>
-            <div className='field-type-text'>
-                <div className={'form-group'}>
-                    <label>
-                        <span>{__('Default Value')}</span>
-                        <input type='text' name='defaultValue' />
-                    </label>
-                </div>
-                <div className={'form-group'}>
-                    <label>
-                        <span>{__('Pattern')}</span>
-                        <input type='text' name='pattern' />
-                    </label>
-                </div>
-            </div>
-        </FieldTypeDialog>
-    );
+    return <FieldTypeDialog {...props}></FieldTypeDialog>;
 };
 
 export default FieldTypeText;
