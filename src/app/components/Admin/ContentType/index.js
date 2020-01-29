@@ -576,11 +576,12 @@ const ContentType = memo(
                             },
                             {
                                 capability: `${collection}.delete`,
-                                title: __(
-                                    '%type: Delete any content (Caution)',
-                                ).replace('%type', type),
+                                title: __('%type: Delete content').replace(
+                                    '%type',
+                                    type,
+                                ),
                                 tooltip: __(
-                                    'Able to delete any content of type %type (%machineName), if content ACL permits.',
+                                    'Able to delete content of type %type (%machineName), if content ACL permits.',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
