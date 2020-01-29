@@ -84,9 +84,17 @@ $fieldtype-name-icon-color: $color-white !default;
                 &:hover:not(:focus) {
                     cursor: pointer;
                 }
+
                 &:focus {
                     border-bottom: 1px solid $fieldtype-name-input-focus;
                     outline: none;
+                    &.disabled {
+                        border: none;
+                    }
+                }
+
+                &.disabled:hover {
+                    cursor: not-allowed;
                 }
             }
         }
