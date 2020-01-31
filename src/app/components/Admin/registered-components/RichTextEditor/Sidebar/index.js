@@ -19,8 +19,8 @@ import React, {
 const Buttons = ({ container, editor, nodes }) => (
     <div className='btn-group'>
         {nodes.map(item => {
-            const { id, button: Element } = item;
-            if (Element) {
+            const { id, button: Element, sidebar } = item;
+            if (Element && sidebar === true) {
                 return (
                     <Element
                         data-container={container}
@@ -35,8 +35,10 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-let Sidebar = ({ className, container: parent, id, nodes, style }, ref) => {
+let Sidebar = ({ className, container: parent, id, style }, ref) => {
     const editor = useSlate();
+
+    const { buttons } = editor;
 
     const containerRef = useRef();
 
@@ -101,9 +103,7 @@ let Sidebar = ({ className, container: parent, id, nodes, style }, ref) => {
             ...getPosition(),
         };
 
-        const nodes = _.where(Object.values(Reactium.RTE.buttons), {
-            sidebar: true,
-        });
+        const nodes = buttons ? Object.values(buttons) : [];
 
         return (
             <Portal>

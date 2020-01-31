@@ -45,6 +45,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         blocks: initialBlocks,
         buttons: initialButtons,
         colors: initialColors,
+        dragProps: initialDragProps,
         fonts: initialFonts,
         formats: initialFormats,
         hotkeys: initialHotkeys,
@@ -53,14 +54,17 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         ...props
     } = useSelectProps({ props: initialProps, exclude: ['value'] });
 
-    // 0.1 - Component state
+    // 0.1 - Drag panel
+    const Panel = useHookComponent('DragPanel');
+
+    // 0.2 - Component state
     const [state, setState] = useDerivedState({
         ...props,
         change: 0,
         id,
     });
 
-    // 0.2 - References
+    // 0.3 - References
     const containerRef = useRef();
     const panelRef = useRef();
     const sidebarRef = useRef();
@@ -89,7 +93,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         });
 
         return editor;
-    }, [blocks, buttons, colors, fonts, formats, hotkeys, plugins, tabs]);
+    }, []);
 
     // 3.0 - Editor component aggregation
     const [blocks, setBlocks] = useRegistryFilter(
@@ -109,6 +113,8 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         'colors',
         initialColors || Reactium.RTE.colors,
     );
+
+    const [dragProps, setDragProps] = useState(initialDragProps);
 
     const [fonts, setFonts] = useRegistryFilter(
         editor,
@@ -144,15 +150,14 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 7.0 - Renderers
     const _renderElement = useCallback(
-        props => <Element {...props} {...handle} />,
-        [blocks],
+        props => <Element {...props} {...handle} blocks={blocks} />,
+        [blocks, editor],
     );
 
-    const _renderLeaf = useCallback(props => <Leaf {...props} {...handle} />, [
-        formats,
-    ]);
-
-    const Panel = useHookComponent('DragPanel');
+    const _renderLeaf = useCallback(
+        props => <Leaf {...props} {...handle} formats={formats} />,
+        [formats, editor],
+    );
 
     // 8.0 - Utilites
     const cname = () => {
@@ -173,21 +178,16 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     // 9.0 - Handle
     const _handle = () => ({
         container: containerRef.current,
-        blocks,
-        buttons,
-        colors,
+        dragProps,
         editor,
-        fonts,
-        formats,
-        hotkeys,
         id,
         name,
         nodes,
-        plugins,
         props,
         setBlocks,
         setButtons,
         setColors,
+        setDragProps,
         setFonts,
         setFormats,
         setHotkeys,
@@ -196,7 +196,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         setTabs,
         setValue,
         state,
-        tabs,
         value,
     });
 
@@ -221,6 +220,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         state.filter,
         state.exclude,
         state.include,
+        Panel,
     ]);
 
     // 10.2 - Value update.
@@ -250,8 +250,20 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         }
     });
 
+    // 10.4 - Extend editor with state data
+    useEffect(() => {
+        editor.blocks = blocks;
+        editor.buttons = buttons;
+        editor.colors = colors;
+        editor.fonts = fonts;
+        editor.formats = formats;
+        editor.hotkeys = hotkeys;
+        editor.plugins = plugins;
+        editor.tabs = tabs;
+    }, [blocks, buttons, colors, fonts, formats, hotkeys, plugins, tabs]);
+
     // 11.0 - Render function
-    const render = useMemo(() => (
+    const render = () => (
         <div className={cname()} ref={containerRef}>
             <input type='hidden' name={name} value={JSON.stringify(value)} />
             <Slate editor={editor} onChange={_onChange} value={value}>
@@ -279,6 +291,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
                     <Panel
                         className={cx('panel')}
                         draggable
+                        dragProps={dragProps}
                         ref={panelRef}
                         id={cx('panel')}
                         children={Date.now()}
@@ -287,9 +300,9 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
                 )}
             </Slate>
         </div>
-    ));
+    );
 
-    return render;
+    return render();
 });
 
 RichTextEditor.propTypes = {
@@ -298,6 +311,7 @@ RichTextEditor.propTypes = {
     buttons: PropTypes.object,
     className: PropTypes.string,
     colors: PropTypes.object,
+    dragProps: PropTypes.object,
     exclude: PropTypes.shape({
         blocks: PropTypes.array,
         buttons: PropTypes.array,

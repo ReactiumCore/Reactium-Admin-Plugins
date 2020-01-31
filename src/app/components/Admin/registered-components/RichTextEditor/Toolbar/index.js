@@ -34,8 +34,10 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-let Toolbar = ({ buttons, className, id, style }, ref) => {
+let Toolbar = ({ className, id, style }, ref) => {
     const editor = useSlate();
+
+    const { buttons } = editor;
 
     const containerRef = useRef();
 
@@ -86,7 +88,11 @@ let Toolbar = ({ buttons, className, id, style }, ref) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
-    useImperativeHandle(ref, () => handle);
+    useImperativeHandle(ref, () => handle, [state]);
+
+    useEffect(() => {
+        setHandle(_handle());
+    }, [state, buttons]);
 
     const render = useMemo(() => {
         const _style = {
@@ -94,10 +100,13 @@ let Toolbar = ({ buttons, className, id, style }, ref) => {
             ...getPosition(),
             display: selected ? 'block' : 'none',
         };
+
+        const nodes = buttons ? Object.values(buttons) : [];
+
         return (
             <Portal>
                 <div style={_style} ref={containerRef} className={className}>
-                    <Buttons container={id} editor={editor} nodes={buttons} />
+                    <Buttons container={id} editor={editor} nodes={nodes} />
                 </div>
             </Portal>
         );

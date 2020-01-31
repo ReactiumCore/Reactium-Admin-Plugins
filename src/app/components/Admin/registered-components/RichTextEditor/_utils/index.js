@@ -58,9 +58,15 @@ export const toggleBlock = (editor, block, e) => {
         split: true,
     });
 
-    Transforms.setNodes(editor, {
-        type: isActive ? 'p' : isList ? 'li' : block,
-    });
+    if (isList) {
+        Transforms.setNodes(editor, {
+            type: isActive ? 'p' : 'li',
+        });
+    } else {
+        Transforms.setNodes(editor, {
+            type: isActive ? 'p' : block,
+        });
+    }
 
     if (!isActive && isList) {
         const element = { type: block, children: [] };

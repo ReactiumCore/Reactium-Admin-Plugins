@@ -8,7 +8,7 @@ const Wrap = forwardRef((props, ref) => {
     return props.children;
 });
 
-export default ({ attributes, children, element, blocks = [] }) => {
+export default ({ attributes, children, element, blocks = [], ...editor }) => {
     let output;
     const { type } = element;
     if (!type) return children;
@@ -17,9 +17,10 @@ export default ({ attributes, children, element, blocks = [] }) => {
 
     blocks.forEach(({ id, element: Element }) => {
         if (type !== id || output) return;
+        const style = op.get(children, 'props.node.style', {});
         output = (
             <Wrap {...attributes}>
-                <Element>{children}</Element>
+                <Element style={style}>{children}</Element>
             </Wrap>
         );
     });

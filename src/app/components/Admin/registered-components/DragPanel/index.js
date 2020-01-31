@@ -75,6 +75,8 @@ let Panel = (
 
         const maxX = docWidth - width - gutter;
         const maxY = docHeight - height - gutter;
+        const minX = gutter;
+        const minY = gutter;
 
         if (bounds.right !== maxX || bounds.bottom !== maxY) {
             dragProps.bounds = {
@@ -86,17 +88,15 @@ let Panel = (
 
             const newState = { dragProps, update: Date.now(), reset: false };
 
-            if (y > maxY) {
+            if (y > maxY || y < minY || x > maxX || x < minX) {
                 newState.reset = true;
-                position.x = x > maxX ? maxX : x;
-                position.y = maxY;
             }
 
-            if (x > maxX) {
-                newState.reset = true;
-                position.x = maxX;
-                position.y = y > maxY ? maxY : y;
-            }
+            position.x = x > maxX ? maxX : x;
+            position.y = y > maxY ? maxY : y;
+
+            position.y = Math.max(position.y, minY);
+            position.x = Math.max(position.x, minX);
 
             Reactium.Prefs.set(`admin.position.${id}`, position);
 
@@ -144,6 +144,7 @@ let Panel = (
             Reactium.Prefs.set(`admin.position.${ID}`, { x, y });
         }
         setPosition({ x, y });
+        adjustPosition();
         setState({ reset: true });
         return handle;
     };
@@ -365,7 +366,7 @@ Panel.defaultProps = {
         defaultClassName: 'ar-panel',
         defaultClassNameDragged: 'ar-panel-dragged',
         defaultClassNameDragging: 'ar-panel-dragging',
-        handle: '.handle',
+        handle: '.ar-dialog-header',
     },
     gutter: 8,
     handle: () => <div className='handle' />,

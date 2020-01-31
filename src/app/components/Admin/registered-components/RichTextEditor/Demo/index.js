@@ -40,7 +40,7 @@ const testFormat = () => {
 
 const EditorDemo = props => {
     const editorRef = useRef();
-    const [editor, setEditor] = useState(editorRef.current);
+    const [editor, setEditor] = useState();
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const onChange = e => {
@@ -59,24 +59,19 @@ const EditorDemo = props => {
     };
 
     useEffect(() => {
-        if (!editor) return;
+        if (!editorRef.current || !editor) return;
 
-        if (!op.get(editor.formats, 'test')) {
-            editor.formats['test'] = testFormat();
-            editor.setFormats(editor.formats);
-        }
-
-        editor.addEventListener('change', onChange);
+        editorRef.current.addEventListener('change', onChange);
 
         return () => {
-            editor.removeEventListener('change', onChange);
+            editorRef.current.removeEventListener('change', onChange);
         };
     });
 
     useEffect(() => {
         if (!editorRef.current) return;
         if (!editor) {
-            setEditor(editorRef.current);
+            setEditor(editorRef.current.editor);
         }
     });
 

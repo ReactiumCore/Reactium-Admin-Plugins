@@ -5,6 +5,12 @@ import RTEPlugin from '../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
+const onButtonClick = (e, editor) => {
+    const block = e.currentTarget.dataset.type;
+    e.preventDefault();
+    Reactium.RTE.toggleBlock(editor, block);
+};
+
 const Plugin = new RTEPlugin({ type: 'list', order: 100 });
 
 Plugin.callback = editor => {
@@ -12,14 +18,13 @@ Plugin.callback = editor => {
     Reactium.RTE.Block.register('ol', {
         element: props => <ol {...props} />,
     });
+
     Reactium.RTE.Block.register('ul', {
         element: props => <ul {...props} />,
     });
+
     Reactium.RTE.Block.register('li', {
         element: props => <li {...props} />,
-    });
-    Reactium.RTE.Block.register('p', {
-        element: props => <p {...props} />,
     });
 
     // register toolbar buttons
@@ -33,7 +38,7 @@ Plugin.callback = editor => {
                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                 data-type='ol'
                 active={Reactium.RTE.isBlockActive(editor, 'ol')}
-                onClick={onButtonClick}
+                onClick={e => onButtonClick(e, editor)}
                 {...props}>
                 <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Linear.List2' />
             </Button>
@@ -50,7 +55,7 @@ Plugin.callback = editor => {
                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                 data-type='ul'
                 active={Reactium.RTE.isBlockActive(editor, 'ul')}
-                onClick={onButtonClick}
+                onClick={e => onButtonClick(e, editor)}
                 {...props}>
                 <Icon
                     {...Reactium.RTE.ENUMS.PROPS.ICON}
@@ -78,31 +83,39 @@ Plugin.callback = editor => {
         },
     });
 
-    // buttonClick handler
-    const onButtonClick = e => {
-        const type = e.currentTarget.dataset.type;
-        const isToolbar = e.currentTarget.dataset.toolbar;
+    Reactium.RTE.Hotkey.register('tablist', {
+        keys: ['tab', 'shift+tab'],
+        callback: ({ editor, event }) => {
+            const { path } = editor.selection.focus;
+            const [node] = Editor.parent(editor, editor.selection);
+            const [parent] = Editor.parent(editor, [path[0], 0]);
 
-        e.preventDefault();
+            const type = op.get(node, 'type');
+            const block = parent.type;
 
-        if (isToolbar) {
-            Reactium.RTE.toggleBlock(editor, type);
-            return;
-        } else {
-            if (Reactium.RTE.isBlockActive(editor, type)) {
-                Reactium.RTE.toggleBlock(editor, type);
-                return;
+            if (type === 'li') {
+                event.preventDefault();
+                Transforms.wrapNodes(editor, {
+                    type: block,
+                    children: [],
+                });
+            } else {
+                if (['ul', 'ol'].includes(type)) return;
+                event.preventDefault();
+                if (event.shiftKey) {
+                    Reactium.RTE.toggleBlock(editor, 'ol');
+                } else {
+                    Reactium.RTE.toggleBlock(editor, 'ul');
+                }
             }
-
-            editor.insertList(type);
-        }
-    };
+        },
+    });
 
     // editor overrides
     editor.insertList = type => {
         const node = {
             type,
-            children: [{ type: 'li', children: [{ text: '' }] }],
+            children: [{ type, children: [{ text: '' }] }],
         };
         editor.insertNode(node);
     };
