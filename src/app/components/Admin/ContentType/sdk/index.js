@@ -25,8 +25,7 @@ ContentType.types = async (refresh = false) => {
 
 /**
  * @api {Function} ContentType.save(id,type) ContentType.save()
- * @apiDescription Save a content type definition. This does not alter the content schema directly,
- but provides the configuration needed to create the field columns when content is created of this type.
+ * @apiDescription Save a content type definition.
  * @apiParam {String} id 'new' or the uuid of the type.
  * @apiParam {Object} type object containing the `type` label, `fields` object, `regions` object, and `meta` object for a content type.
  * @apiParam type {String} type unique label of content type. On initial save, this will be used to generate the machineName and label of the type. On subsequent

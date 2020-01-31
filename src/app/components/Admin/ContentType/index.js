@@ -10,13 +10,17 @@ import Reactium, {
 } from 'reactium-core/sdk';
 import { WebForm, Icon } from '@atomic-reactor/reactium-ui';
 import cn from 'classnames';
-import slugify from 'slugify';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 
-const slug = val => slugify(val).toLowerCase();
+const slugify = name =>
+    require('slugify')(name, {
+        replacement: '_', // replace spaces with replacement
+        remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
+        lower: true, // result in lower case
+    });
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const defaultRegion = {
@@ -162,7 +166,7 @@ const ContentType = memo(
             if (regionId in regions) {
                 const region = regions[regionId];
                 region.label = label;
-                region.slug = label ? slug(label) : '';
+                region.slug = label ? slugify(label) : '';
 
                 setVersion(uuid());
             }
@@ -194,19 +198,23 @@ const ContentType = memo(
 
             const types = await Reactium.ContentType.types(true);
 
+            // type labels that are currently used
             const taken = types
                 .filter(({ uuid }) => uuid !== id)
                 .reduce(
                     (takenLabels, { type, label }) =>
                         _.compact(
                             _.uniq(
-                                takenLabels.concat([slug(type), slug(label)]),
+                                takenLabels.concat([
+                                    slugify(type),
+                                    slugify(label),
+                                ]),
                             ),
                         ),
                     [],
                 );
 
-            const typeSlug = slug(op.get(value, 'type') || '');
+            const typeSlug = slugify(op.get(value, 'type') || '');
             if (taken.includes(typeSlug)) {
                 valid = false;
                 op.set(
@@ -227,6 +235,19 @@ const ContentType = memo(
             }
 
             const fieldNames = {};
+            let savedFields = {};
+            if (op.has(savedRef.current, ['fields'])) {
+                savedFields = op.get(savedRef.current, ['fields']);
+                savedFields = _.indexBy(
+                    Object.values(savedFields).map(field => ({
+                        id: field.id,
+                        slug: slugify(field.fieldName),
+                        fieldType: field.fieldType,
+                    })),
+                    'slug',
+                );
+            }
+
             for (let { id: fieldId } of getComponents()) {
                 const ref = getFormRef(fieldId);
 
@@ -245,7 +266,7 @@ const ContentType = memo(
                 }
 
                 // make sure all fields are unique
-                const { fieldName } = ref.getValue();
+                const { fieldName, fieldType } = ref.getValue();
                 const slug = slugify(fieldName || '').toLowerCase();
                 const errors = op.get(ref, 'errors') || {
                     focus: null,
@@ -291,6 +312,46 @@ const ContentType = memo(
                 }
 
                 fieldNames[slug] = fieldId;
+
+                // check to make sure UI version of field type matches saved
+                if (
+                    op.has(savedFields, slug) &&
+                    fieldType !== op.get(savedFields, [slug, 'fieldType'])
+                ) {
+                    const error = __(
+                        'Field name %fieldName type exists.',
+                    ).replace('%fieldName', fieldName);
+                    Toast.show({
+                        type: Toast.TYPE.ERROR,
+                        message: error,
+                        icon: (
+                            <Icon.Feather.AlertOctagon
+                                style={{ marginRight: 12 }}
+                            />
+                        ),
+                        autoClose: 2000,
+                    });
+
+                    valid = false;
+                    const updatedErrors = {
+                        ...errors,
+                        focus: 'fieldName',
+                        fields: _.uniq([
+                            ...op.get(errors, 'fields', []),
+                            'fieldName',
+                        ]),
+                        errors: [...op.get(errors, 'errors', []), error],
+                    };
+
+                    ref.setState({
+                        errors: updatedErrors,
+                    });
+
+                    op.set(formsErrors.current, [fieldId], {
+                        valid: false,
+                        errors: updatedErrors,
+                    });
+                }
             }
 
             const regionSlugs = Object.values(getRegions()).reduce(
@@ -496,7 +557,7 @@ const ContentType = memo(
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                                    'Able to retrieve content of type %type (%machineName), if content ACL permits.',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
@@ -508,7 +569,7 @@ const ContentType = memo(
                                     type,
                                 ),
                                 tooltip: __(
-                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
+                                    'Able to update any content of type %type (%machineName), if content ACL permits.',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
@@ -519,6 +580,39 @@ const ContentType = memo(
                                     '%type',
                                     type,
                                 ),
+                                tooltip: __(
+                                    'Able to delete content of type %type (%machineName), if content ACL permits.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.retrieveAny`,
+                                title: __(
+                                    '%type: Retrieve any content (Caution)',
+                                ).replace('%type', type),
+                                tooltip: __(
+                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.updateAny`,
+                                title: __(
+                                    '%type: Update any content (Caution)',
+                                ).replace('%type', type),
+                                tooltip: __(
+                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.deleteAny`,
+                                title: __(
+                                    '%type: Delete any content (Caution)',
+                                ).replace('%type', type),
                                 tooltip: __(
                                     'Able to delete any content of type %type (%machineName), even if not owned by user.',
                                 )
@@ -675,6 +769,8 @@ const ContentType = memo(
                     getFormErrors,
                     clearDelete,
                     isNew,
+                    id,
+                    saved: () => savedRef.current,
                 };
             },
             [id],
