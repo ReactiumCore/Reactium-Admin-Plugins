@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import op from 'object-path';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
@@ -304,40 +305,46 @@ Plugin.callback = editor => {
     Reactium.RTE.Hotkey.register('clearformats', {
         keys: ['backspace', 'enter'],
         callback: ({ editor, event }) => {
-            const [node] = Editor.node(editor, editor.selection);
+            const [node, path] = Editor.node(editor, editor.selection);
+            const text = op.get(node, 'text');
+            const isEmpty = _.chain([text])
+                .compact()
+                .isEmpty()
+                .value();
+
+            if (!isEmpty) return;
+
             const [parent] = Editor.parent(editor, editor.selection);
 
-            const text = op.get(node, 'text');
-            const type = op.get(parent, 'type');
-            const types = [
-                'blockquote',
-                'h1',
-                'h2',
-                'h3',
-                'h4',
-                'h5',
-                'h6',
-                'p',
-            ];
+            const selection = {
+                anchor: { path, offset: 0 },
+                focus: { path, offset: 0 },
+            };
 
-            if (types.includes(type) && String(text).length < 1) {
+            let type = op.get(parent, 'type');
+            type = type === 'paragraph' ? 'p' : type;
+            type = String(type).toLowerCase();
+
+            if (!type) return;
+
+            const list = ['ol', 'ul', 'li'];
+            const types = ['blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+            const isType = types.includes(type);
+
+            Transforms.unwrapNodes(editor, {
+                match: n => list.includes(n.type),
+            });
+
+            if (isType) {
                 event.preventDefault();
 
-                if (type === 'blockquote') {
-                    Reactium.RTE.toggleBlock(editor, 'p');
-                }
-
-                if (Reactium.RTE.isHotkey('backspace', event)) {
-                    editor.deleteBackward('block');
-                } else {
-                    if (type !== 'p') {
-                        editor.deleteBackward('block');
-                    }
-                    Transforms.insertNodes(editor, {
-                        type: 'p',
-                        children: [{ text: '' }],
-                    });
-                }
+                Transforms.setNodes(
+                    editor,
+                    { type: 'p', style: {} },
+                    { at: selection },
+                );
+            } else {
+                Transforms.setSelection(editor, { styles: {} });
             }
         },
     });

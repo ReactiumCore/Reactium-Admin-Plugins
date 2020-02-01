@@ -82,26 +82,8 @@ const EditorDemo = props => {
 EditorDemo.defaultProps = {
     value: [
         {
-            type: 'paragraph',
-            children: [
-                {
-                    text: 'The quick brown fox ',
-                },
-                {
-                    text: 'jumped',
-                    bold: true,
-                },
-                {
-                    text: ' over the ',
-                },
-                {
-                    text: 'lazy',
-                    italic: true,
-                },
-                {
-                    text: ' dog!',
-                },
-            ],
+            type: 'p',
+            children: [{ text: 'Actinium Admin Rich Text Editor' }],
         },
     ],
 };

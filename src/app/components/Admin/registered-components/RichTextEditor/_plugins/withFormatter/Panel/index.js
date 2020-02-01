@@ -5,9 +5,10 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Editor, Range, Transforms } from 'slate';
 import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
+    __,
     useDerivedState,
     useEventHandle,
     useHandle,
@@ -34,7 +35,7 @@ import { TextAlignSelect } from './TextAlignSelect';
  * -----------------------------------------------------------------------------
  */
 
-let Panel = ({ children, ...props }, ref) => {
+let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
     const formRef = useRef();
 
     const editor = useSlate();
@@ -48,7 +49,7 @@ let Panel = ({ children, ...props }, ref) => {
 
     const [fonts, setFonts] = useState(editor.fonts);
 
-    const [selection, setSelection] = useState();
+    const [selection, setSelection] = useState(initialSelection);
 
     const [state, setState] = useDerivedState({
         ...props,
@@ -197,16 +198,18 @@ let Panel = ({ children, ...props }, ref) => {
         setState({ weight });
     };
 
-    const _onSubmit = async e => {
-        const { id: type, label: text } = op.get(state, 'textStyle');
+    const _onSubmit = e => {
+        const { id: type, label } = op.get(state, 'textStyle');
 
         if (!type) {
             return;
         }
 
-        editor.focusEnd();
+        const [line] = Editor.node(editor, selection);
+        const [parent] = Editor.parent(editor, selection);
 
-        ReactEditor.focus(editor);
+        let text = op.get(line, 'text', label);
+        text = String(text).length < 1 ? label : text;
 
         const node = {
             type,
@@ -219,8 +222,32 @@ let Panel = ({ children, ...props }, ref) => {
             ],
         };
 
-        editor.insertNode(node);
-        Transforms.select(editor, editor.lastLine());
+        const isCollapsed =
+            selection &&
+            Range.isCollapsed(selection) &&
+            String(line.text).length < 1;
+
+        const path = selection.focus.path.join(', ');
+        const isFirstEmpty = path === '0, 0' && String(line.text).length < 1;
+
+        // unwrap list nodes
+        const list = ['ol', 'ul', 'li'];
+        Transforms.unwrapNodes(editor, {
+            match: n => list.includes(n.type),
+        });
+
+        if (isCollapsed) {
+            editor.insertNode(node);
+            editor.insertNode({ type: 'p', children: [{ text: '' }] });
+            if (isFirstEmpty) {
+                Transforms.removeNodes(editor, { at: selection });
+            }
+            Transforms.collapse(editor, { edge: 'end' });
+            ReactEditor.focus(editor);
+        } else {
+            Transforms.setNodes(editor, node, { at: editor.selection });
+            ReactEditor.focus(editor);
+        }
     };
 
     // Handle
@@ -236,29 +263,22 @@ let Panel = ({ children, ...props }, ref) => {
     // On submit handler
     useEffect(() => {
         if (!formRef.current) return;
+
         formRef.current.addEventListener('submit', _onSubmit);
 
         return () => {
             formRef.current.removeEventListener('submit', _onSubmit);
         };
-    });
+    }, [editor.selection, state, style]);
 
     // Editor load
     useEffect(() => {
-        if (!selection || editor.refresh === true) {
-            const sel = Editor.parent(editor, editor.selection);
-            setState({ path: sel[1] });
-            setSelection(sel[0]);
-        }
+        if (blocks && selection) {
+            const [parent] = Editor.parent(editor, selection);
 
-        if (
-            blocks &&
-            selection &&
-            (!op.get(state, 'textStyle') || editor.refresh === true)
-        ) {
-            const root = op.get(state, 'path', [0])[0];
-            let { type } = selection;
+            let { type } = parent;
             type = type === 'paragraph' ? 'p' : type;
+
             let textStyle = _.findWhere(blocks, { id: type });
             textStyle = textStyle
                 ? textStyle
@@ -268,7 +288,7 @@ let Panel = ({ children, ...props }, ref) => {
 
             setState({ textStyle });
         }
-    }, [blocks, editor]);
+    }, [blocks, selection]);
 
     // Set blocks
     useEffect(() => {
@@ -305,6 +325,10 @@ let Panel = ({ children, ...props }, ref) => {
     useEffect(() => {
         applyStyle(state);
     }, [state]);
+
+    useEffect(() => {
+        setSelection(selection);
+    }, [editor.selection]);
 
     // Renderers
     const render = () => {
@@ -366,7 +390,7 @@ let Panel = ({ children, ...props }, ref) => {
                     />
                     <div className='p-xs-8'>
                         <Button block color='primary' size='sm' type='submit'>
-                            Add New Line
+                            {__('Apply Formatting')}
                         </Button>
                     </div>
                 </Dialog>

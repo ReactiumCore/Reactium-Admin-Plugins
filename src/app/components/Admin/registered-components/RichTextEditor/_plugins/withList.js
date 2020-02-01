@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import op from 'object-path';
 import { Editor, Transforms } from 'slate';
 import RTEPlugin from '../RTEPlugin';
@@ -71,12 +72,27 @@ Plugin.callback = editor => {
         keys: ['backspace', 'enter'],
         callback: ({ editor, event }) => {
             const [node] = Editor.node(editor, editor.selection);
-            const [parent] = Editor.parent(editor, editor.selection);
 
             const text = op.get(node, 'text');
-            const type = op.get(parent, 'type');
 
-            if (type === 'li' && String(text).length < 1) {
+            const isEmpty = _.chain([text])
+                .compact()
+                .isEmpty()
+                .value();
+
+            if (!isEmpty) return;
+
+            const [parent] = Editor.parent(editor, editor.selection);
+
+            let type = op.get(parent, 'type');
+            type = type === 'paragraph' ? 'p' : type;
+            type = String(type).toLowerCase();
+
+            if (!type) return;
+
+            const isType = type === 'li';
+
+            if (isType) {
                 event.preventDefault();
                 Reactium.RTE.toggleBlock(editor, 'p');
             }

@@ -5,7 +5,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Editor, Range, Transforms } from 'slate';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
@@ -29,7 +29,17 @@ import React, {
  * -----------------------------------------------------------------------------
  */
 
-let Panel = ({ buttonLabel, children, selection, title, ...props }, ref) => {
+let Panel = (
+    {
+        removeButtonLabel,
+        submitButtonLabel,
+        children,
+        selection,
+        title,
+        ...props
+    },
+    ref,
+) => {
     const formRef = useRef();
 
     const editor = useSlate();
@@ -46,40 +56,53 @@ let Panel = ({ buttonLabel, children, selection, title, ...props }, ref) => {
             .value()
             .join('-');
 
-    const _onSubmit = async e => {
+    const isLinkActive = () => {
+        const [link] = Editor.nodes(editor, { match: n => n.type === 'link' });
+        return !!link;
+    };
+
+    const unwrapLink = () => {
+        Transforms.unwrapNodes(editor, { match: n => n.type === 'link' });
+    };
+
+    const wrapLink = url => {
+        if (isLinkActive()) {
+            unwrapLink();
+        }
+
+        const isCollapsed = selection && Range.isCollapsed(selection);
+
+        const link = {
+            type: 'link',
+            href: url,
+            children: isCollapsed ? [{ text: url }] : [],
+        };
+
+        if (isCollapsed) {
+            Transforms.insertNodes(editor, link);
+        } else {
+            Transforms.wrapNodes(editor, link, { split: true });
+            Transforms.collapse(editor, { edge: 'end' });
+        }
+    };
+
+    const _onSubmit = e => {
         const { url } = e.value;
 
         if (!url) return;
 
-        console.log(url);
+        wrapLink(url);
+        hide();
+    };
 
-        // const { id: type, label: text } = op.get(state, 'textStyle');
-        //
-        // if (!type) { return; }
-        //
-        // editor.focusEnd();
-        //
-        // ReactEditor.focus(editor);
-        //
-        // const node = {
-        //     type,
-        //     style,
-        //     children: [{
-        //         style,
-        //         text
-        //     }]
-        // };
-        //
-        // editor.insertNode(node);
-        // Transforms.select(editor, editor.lastLine());
-
+    const _onClearLink = e => {
+        unwrapLink();
         hide();
     };
 
     const hide = () => {
-        editor.panel.hide().setContent(null);
         ReactEditor.focus(editor);
-        Transforms.select(editor, selection);
+        editor.panel.hide();
     };
 
     // Handle
@@ -102,13 +125,19 @@ let Panel = ({ buttonLabel, children, selection, title, ...props }, ref) => {
     // Renderers
     const render = () => {
         return (
-            <EventForm ref={formRef} className={cx()}>
+            <EventForm
+                ref={formRef}
+                className={cx()}
+                value={{ url: 'https://reactium.io' }}>
                 <Dialog
                     header={{
                         title,
                         elements: [
                             <Button
-                                onClick={() => hide()}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    hide();
+                                }}
                                 size={Button.ENUMS.SIZE.XS}
                                 color={Button.ENUMS.COLOR.CLEAR}
                                 className='ar-dialog-header-btn dismiss'>
@@ -129,10 +158,22 @@ let Panel = ({ buttonLabel, children, selection, title, ...props }, ref) => {
                             <Icon name='Feather.Link' />
                         </div>
                     </div>
+                    <hr />
                     <div className='p-xs-8'>
                         <Button block color='primary' size='sm' type='submit'>
-                            {buttonLabel}
+                            {submitButtonLabel}
                         </Button>
+                        {isLinkActive() && (
+                            <Button
+                                block
+                                color='danger'
+                                className='mt-xs-8'
+                                size='sm'
+                                type='button'
+                                onClick={_onClearLink}>
+                                {removeButtonLabel}
+                            </Button>
+                        )}
                     </div>
                 </Dialog>
             </EventForm>
@@ -145,16 +186,18 @@ let Panel = ({ buttonLabel, children, selection, title, ...props }, ref) => {
 Panel = forwardRef(Panel);
 
 Panel.propTypes = {
-    buttonLabel: PropTypes.node,
     className: PropTypes.string,
     namespace: PropTypes.string,
+    removeButtonLabel: PropTypes.node,
+    submitButtonLabel: PropTypes.node,
     title: PropTypes.string,
 };
 
 Panel.defaultProps = {
     namespace: 'rte-link-insert',
+    removeButtonLabel: __('Remove Link'),
+    submitButtonLabel: __('Insert Link'),
     title: __('Link'),
-    buttonLabel: __('Insert Link'),
 };
 
 export { Panel as default };

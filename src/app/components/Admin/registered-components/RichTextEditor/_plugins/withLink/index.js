@@ -37,7 +37,7 @@ Plugin.callback = editor => {
 
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: props => <a {...props} className='blue link' />,
+        element: ({ type, ...props }) => <a {...props} className='blue link' />,
     });
 
     // register toolbar button

@@ -150,8 +150,10 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 7.0 - Renderers
     const _renderElement = useCallback(
-        props => <Element {...props} {...handle} blocks={blocks} />,
-        [blocks, editor],
+        props => (
+            <Element {...props} {...handle} blocks={blocks} formats={formats} />
+        ),
+        [(blocks, editor)],
     );
 
     const _renderLeaf = useCallback(

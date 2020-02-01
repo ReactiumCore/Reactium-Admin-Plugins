@@ -140,11 +140,14 @@ let Panel = (
     };
 
     const moveTo = (x, y, ID) => {
+        setPosition({ x, y });
+
         if (ID) {
             Reactium.Prefs.set(`admin.position.${ID}`, { x, y });
+        } else {
+            adjustPosition();
         }
-        setPosition({ x, y });
-        adjustPosition();
+
         setState({ reset: true });
         return handle;
     };

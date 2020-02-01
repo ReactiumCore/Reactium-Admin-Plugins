@@ -8,8 +8,16 @@ const Wrap = forwardRef((props, ref) => {
     return props.children;
 });
 
-export default ({ attributes, children, element, blocks = [], ...editor }) => {
+export default ({
+    attributes,
+    children,
+    element,
+    blocks = [],
+    formats = [],
+    ...editor
+}) => {
     let output;
+
     const { type } = element;
     if (!type) return children;
 
@@ -25,7 +33,18 @@ export default ({ attributes, children, element, blocks = [], ...editor }) => {
         );
     });
 
-    output = output || <p {...attributes}>{children}</p>;
+    if (!output) {
+        formats.forEach(({ id, element: Element }) => {
+            if (type !== id || output) return;
+            output = (
+                <Wrap {...attributes}>
+                    <Element {...element}>{children}</Element>
+                </Wrap>
+            );
+        });
+    }
+
+    output = output || children;
 
     return output;
 };

@@ -75,7 +75,7 @@ export const toggleBlock = (editor, block, e) => {
 };
 
 export const toggleMark = (editor, format, e) => {
-    if (e) e.preventDefault();
+    if (op.has(e, 'preventDefault')) e.preventDefault();
 
     const isActive = isMarkActive(editor, format);
 
