@@ -34,7 +34,7 @@ let Panel = (
         removeButtonLabel,
         submitButtonLabel,
         children,
-        selection,
+        selection: initialSelection,
         title,
         ...props
     },
@@ -45,6 +45,7 @@ let Panel = (
     const editor = useSlate();
 
     // Initial state
+    const [selection, setSelection] = useState(initialSelection);
 
     const [value, setValue] = useState({});
 
@@ -79,15 +80,17 @@ let Panel = (
         };
 
         if (isCollapsed) {
-            Transforms.insertNodes(editor, link);
+            Transforms.insertNodes(editor, link, { at: selection });
         } else {
-            Transforms.wrapNodes(editor, link, { split: true });
+            Transforms.wrapNodes(editor, link, { split: true, at: selection });
             Transforms.collapse(editor, { edge: 'end' });
         }
+
+        ReactEditor.focus(editor);
     };
 
     const _onSubmit = e => {
-        const { url } = e.value;
+        const url = op.get(e.value, 'url');
 
         if (!url) return;
 
@@ -96,13 +99,13 @@ let Panel = (
     };
 
     const _onClearLink = e => {
-        unwrapLink();
         hide();
+        setTimeout(() => unwrapLink(), 1);
     };
 
     const hide = () => {
+        editor.panel.hide(false).setID('rte-panel');
         ReactEditor.focus(editor);
-        editor.panel.hide();
     };
 
     // Handle
@@ -120,15 +123,13 @@ let Panel = (
         return () => {
             formRef.current.removeEventListener('submit', _onSubmit);
         };
-    });
+    }, [editor, selection]);
 
     // Renderers
     const render = () => {
+        const isActive = isLinkActive();
         return (
-            <EventForm
-                ref={formRef}
-                className={cx()}
-                value={{ url: 'https://reactium.io' }}>
+            <EventForm ref={formRef} className={cx()}>
                 <Dialog
                     header={{
                         title,
@@ -148,22 +149,21 @@ let Panel = (
                     pref='admin.dialog.formatter'
                     collapsible={false}
                     dismissable={false}>
-                    <div className='p-xs-20'>
-                        <div className='form-group'>
-                            <input
-                                type='text'
-                                name='url'
-                                placeholder='http://site.com/page'
-                            />
-                            <Icon name='Feather.Link' />
+                    {!isActive && (
+                        <div className='p-xs-20'>
+                            <div className='form-group'>
+                                <input
+                                    type='text'
+                                    name='url'
+                                    placeholder='http://site.com/page'
+                                />
+                                <Icon name='Feather.Link' />
+                            </div>
                         </div>
-                    </div>
-                    <hr />
+                    )}
+                    {!isActive && <hr />}
                     <div className='p-xs-8'>
-                        <Button block color='primary' size='sm' type='submit'>
-                            {submitButtonLabel}
-                        </Button>
-                        {isLinkActive() && (
+                        {isActive ? (
                             <Button
                                 block
                                 color='danger'
@@ -172,6 +172,14 @@ let Panel = (
                                 type='button'
                                 onClick={_onClearLink}>
                                 {removeButtonLabel}
+                            </Button>
+                        ) : (
+                            <Button
+                                block
+                                color='primary'
+                                size='sm'
+                                type='submit'>
+                                {submitButtonLabel}
                             </Button>
                         )}
                     </div>

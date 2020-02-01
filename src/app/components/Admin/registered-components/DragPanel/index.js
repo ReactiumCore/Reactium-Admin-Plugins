@@ -119,12 +119,12 @@ let Panel = (
             .value()
             .join('-');
 
-    const hide = () => {
+    const hide = (animate = true) => {
         handle.dispatchEvent(new Event('beforehide'));
 
         const container = containerRef.current;
 
-        if (container) {
+        if (container && animate === true) {
             const { animationEase, animationSpeed } = state;
 
             TweenMax.to(container, animationSpeed, {
@@ -153,7 +153,9 @@ let Panel = (
     };
 
     const setContent = children => {
+        setNewContent(null);
         setNewContent(children);
+        adjustPosition();
         return handle;
     };
 

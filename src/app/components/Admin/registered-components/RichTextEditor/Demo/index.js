@@ -83,7 +83,7 @@ EditorDemo.defaultProps = {
     value: [
         {
             type: 'p',
-            children: [{ text: 'Actinium Admin Rich Text Editor' }],
+            children: [{ text: 'Reactium Admin Rich Text Editor' }],
         },
     ],
 };

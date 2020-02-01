@@ -243,11 +243,10 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                 Transforms.removeNodes(editor, { at: selection });
             }
             Transforms.collapse(editor, { edge: 'end' });
-            ReactEditor.focus(editor);
         } else {
             Transforms.setNodes(editor, node, { at: editor.selection });
-            ReactEditor.focus(editor);
         }
+        ReactEditor.focus(editor);
     };
 
     // Handle
