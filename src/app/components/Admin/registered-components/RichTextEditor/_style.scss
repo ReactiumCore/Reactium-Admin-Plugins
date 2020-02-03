@@ -34,6 +34,14 @@ $ar-width-rte-sidebar: 40px !default;
         button {
             min-width: $ar-width-rte-toolbar;
             height: $ar-height-rte-toolbar;
+            &.active,
+            &:active {
+                font-weight: normal !important;
+            }
+
+            .ico {
+                font-size: 20px;
+            }
         }
 
         &:after {
@@ -87,6 +95,15 @@ $ar-width-rte-sidebar: 40px !default;
                 svg {
                     transform: rotate(135deg);
                 }
+            }
+
+            &.active,
+            &:active {
+                font-weight: normal !important;
+            }
+
+            .ico {
+                font-size: 20px;
             }
         }
 

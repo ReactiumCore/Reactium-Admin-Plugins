@@ -22,13 +22,13 @@ Plugin.callback = editor => {
                 active={Reactium.RTE.isMarkActive(editor, Plugin.type)}
                 onClick={e => Reactium.RTE.toggleMark(editor, Plugin.type, e)}
                 {...props}>
-                <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Type' />
+                <span className='ico'>S</span>
                 <Icon
                     {...Reactium.RTE.ENUMS.PROPS.ICON}
                     name='Feather.Minus'
+                    size={32}
                     style={{
                         position: 'absolute',
-                        opacity: 0.5,
                         left: '50%',
                         top: '50%',
                         transform: 'translateX(-50%) translateY(-50%)',

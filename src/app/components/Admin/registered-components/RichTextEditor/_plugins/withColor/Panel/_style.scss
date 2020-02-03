@@ -4,6 +4,11 @@
         border-radius: 2px;
         width: 24px;
         height: 24px;
+        color: $color-gray-dark;
+    }
+
+    [data-color='inherit'] {
+        background-color: currentColor !important;
     }
 }
 

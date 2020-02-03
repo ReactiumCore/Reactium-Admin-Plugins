@@ -10,23 +10,6 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
 const Plugin = new RTEPlugin({ type: 'color', order: 100 });
 
 Plugin.callback = editor => {
-    const onButtonClick = (e, editor) => {
-        const btn = e.currentTarget;
-
-        let { x, y } = editor.toolbar.container.current.getBoundingClientRect();
-
-        const setActive = e => {
-            return true;
-        };
-
-        editor.panel.addEventListener('content', setActive);
-        editor.panel
-            .setID('color')
-            .setContent(<Panel selection={editor.selection} />)
-            .moveTo(x, y)
-            .show();
-    };
-
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
         element: ({ type, ...props }) => <span {...props} />,
@@ -42,6 +25,21 @@ Plugin.callback = editor => {
             const [node, setNode] = useState();
             const [selection, setSelection] = useState();
 
+            const onButtonClick = e => {
+                const btn = e.currentTarget;
+
+                let {
+                    x,
+                    y,
+                } = editor.toolbar.container.current.getBoundingClientRect();
+
+                editor.panel
+                    .setID('color')
+                    .setContent(<Panel selection={editor.selection} />)
+                    .moveTo(x, y)
+                    .show();
+            };
+
             useEffect(() => {
                 if (!op.get(editor, 'selection')) return;
                 setSelection(editor.selection);
@@ -55,11 +53,12 @@ Plugin.callback = editor => {
 
             useEffect(() => {
                 if (op.get(node, 'plugins')) return;
-                if (!op.get(node, 'style.color')) {
+                const clr = op.get(node, 'style.color');
+                if (!clr) {
                     setBGColor('#000000');
                     return;
                 }
-                setBGColor(node.style.color);
+                setBGColor(clr);
             }, [node]);
 
             return (
