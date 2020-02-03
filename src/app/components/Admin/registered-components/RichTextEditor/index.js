@@ -8,8 +8,10 @@ import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
 import Plugin from './RTEPlugin';
 import PropTypes from 'prop-types';
-import { createEditor } from 'slate';
+import { createEditor, Transforms } from 'slate';
 import { Editable, ReactEditor, Slate } from 'slate-react';
+import { useRegistryFilter, useEditorPlugins, useSelectProps } from './_utils';
+
 import Reactium, {
     useDerivedState,
     useEventHandle,
@@ -25,8 +27,6 @@ import React, {
     useRef,
     useState,
 } from 'react';
-
-import { useRegistryFilter, useEditorPlugins, useSelectProps } from './_utils';
 
 const noop = () => {};
 
@@ -140,6 +140,19 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         initialTabs || Reactium.RTE.tabs,
     );
 
+    const focus = e => {
+        if (e.target !== e.currentTarget) return;
+        setTimeout(() => {
+            ReactEditor.focus(editor);
+            editor.focusEnd();
+            handle.dispatchEvent(
+                new FocusEvent('focus', {
+                    relatedTarget: containerRef.current,
+                }),
+            );
+        }, 125);
+    };
+
     // 4.0 - Editor value
     const [value, setValue] = useState(op.get(initialProps, 'value'));
 
@@ -182,6 +195,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         container: containerRef.current,
         dragProps,
         editor,
+        focus,
         id,
         name,
         nodes,
@@ -202,12 +216,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
-
-    const _focus = () => {
-        if (editor) {
-            ReactEditor.focus(editor);
-        }
-    };
 
     useImperativeHandle(ref, () => handle);
 
@@ -281,9 +289,21 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         tabs,
     ]);
 
+    // 10.5 - Focus
+    useEffect(() => {
+        if (!containerRef.current || typeof window === 'undefined') return;
+        containerRef.current.addEventListener('mousedown', focus);
+        containerRef.current.addEventListener('touchstart', focus);
+
+        return () => {
+            containerRef.current.removeEventListener('mousedown', focus);
+            containerRef.current.removeEventListener('touchstart', focus);
+        };
+    }, [containerRef.current]);
+
     // 11.0 - Render function
     const render = () => (
-        <div className={cname()} ref={containerRef} onMouseDown={_focus}>
+        <div className={cname()} ref={containerRef}>
             <input type='hidden' name={name} value={JSON.stringify(value)} />
             <Slate editor={editor} onChange={_onChange} value={value}>
                 <Editable
