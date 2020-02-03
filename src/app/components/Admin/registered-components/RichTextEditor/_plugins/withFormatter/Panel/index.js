@@ -364,7 +364,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                     />
                     <ColorSelect
                         color={color || '#000000'}
-                        colors={_.sortBy(colors, 'value')}
+                        colors={colors}
                         inherit
                         onColorChange={_onTextColorChange}
                         onColorSelect={_onTextColorSelect}
@@ -374,7 +374,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                     />
                     <ColorSelect
                         color={bgColor || '#FFFFFF'}
-                        colors={_.sortBy(colors, 'value')}
+                        colors={colors}
                         onColorChange={_onBgColorChange}
                         onColorSelect={_onBgColorSelect}
                         onOpacityChange={_onBgOpacityChange}

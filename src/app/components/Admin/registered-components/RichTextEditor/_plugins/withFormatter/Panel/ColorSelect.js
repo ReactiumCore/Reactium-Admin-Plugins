@@ -1,16 +1,20 @@
 import _ from 'underscore';
+import cn from 'classnames';
 import op from 'object-path';
 import React, { useMemo } from 'react';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+
+const noop = () => {};
 
 export const ColorSelect = ({
     color = '#000000',
     colors,
     inherit = false,
-    opacity = 100,
-    onColorChange,
-    onColorSelect,
-    onOpacityChange,
+    name = 'color',
+    opacity,
+    onColorChange = noop,
+    onColorSelect = noop,
+    onOpacityChange = noop,
     title,
     transparent = false,
 }) => {
@@ -19,7 +23,7 @@ export const ColorSelect = ({
         label: (
             <>
                 <div className='color-block' data-color='inherit' />
-                None
+                Inherit
             </>
         ),
     };
@@ -29,7 +33,7 @@ export const ColorSelect = ({
         label: (
             <>
                 <div className='color-block' data-color='transparent' />
-                None
+                Transparent
             </>
         ),
     };
@@ -53,13 +57,21 @@ export const ColorSelect = ({
     _colors = inherit === true ? _.flatten([colorNone, _colors]) : _colors;
     _colors = transparent === true ? _.flatten([bgNone, _colors]) : _colors;
 
+    ('col-xs-8 pr-xs-8');
+    const colsize = opacity ? 'col-xs-8' : 'col-xs-12';
+    const padsize = opacity ? 'pr-xs-8' : 'pr-xs-0';
+    const col = cn({ [colsize]: true, [padsize]: true });
     return useMemo(
         () => (
             <>
-                <h3 className='heading'>{title}</h3>
-                <div className='formatter-font'>
+                {title && (
+                    <h3 className='heading' style={{ marginBottom: 0 }}>
+                        {title}
+                    </h3>
+                )}
+                <div className='formatter-font mt-xs-12'>
                     <div className='row'>
-                        <div className='col-xs-8 pr-xs-8'>
+                        <div className={col}>
                             <Dropdown
                                 data={_colors}
                                 minHeight={0}
@@ -71,11 +83,13 @@ export const ColorSelect = ({
                                         data-color={color}
                                         style={{
                                             backgroundColor: color,
-                                            opacity: opacity / 100,
+                                            opacity: opacity
+                                                ? opacity / 100
+                                                : 1,
                                         }}
                                     />
                                     <input
-                                        name='color'
+                                        name={name}
                                         value={color}
                                         onChange={onColorChange}
                                     />
@@ -99,19 +113,21 @@ export const ColorSelect = ({
                                 </div>
                             </Dropdown>
                         </div>
-                        <div className='col-xs-4'>
-                            <div className='dropdown-btn center'>
-                                <input
-                                    name='opacity'
-                                    onChange={onOpacityChange}
-                                    type='number'
-                                    value={opacity}
-                                    max={100}
-                                    min={0}
-                                />
-                                <span className='icon'>%</span>
+                        {opacity && (
+                            <div className='col-xs-4'>
+                                <div className='dropdown-btn center'>
+                                    <input
+                                        name={`${name}-opacity`}
+                                        onChange={onOpacityChange}
+                                        type='number'
+                                        value={opacity}
+                                        max={100}
+                                        min={0}
+                                    />
+                                    <span className='icon'>%</span>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </>

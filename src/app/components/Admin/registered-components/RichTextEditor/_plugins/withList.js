@@ -31,8 +31,6 @@ Plugin.callback = editor => {
     // register toolbar buttons
     Reactium.RTE.Button.register('ol', {
         order: 160,
-        formatter: true,
-        toolbar: true,
         sidebar: true,
         button: ({ editor, ...props }) => (
             <Button
@@ -48,8 +46,6 @@ Plugin.callback = editor => {
 
     Reactium.RTE.Button.register('ul', {
         order: 160,
-        formatter: true,
-        toolbar: true,
         sidebar: true,
         button: ({ editor, ...props }) => (
             <Button
@@ -68,38 +64,69 @@ Plugin.callback = editor => {
     });
 
     // register hotkeys
-    Reactium.RTE.Hotkey.register('clearlist', {
-        keys: ['backspace', 'enter'],
+    Reactium.RTE.Hotkey.register('list-enter', {
+        keys: ['enter'],
+        order: 100,
         callback: ({ editor, event }) => {
+            const [parent] = Editor.parent(editor, editor.selection);
             const [node] = Editor.node(editor, editor.selection);
 
-            const text = op.get(node, 'text');
-
-            const isEmpty = _.chain([text])
+            const isEmpty = _.chain([op.get(node, 'text')])
                 .compact()
                 .isEmpty()
                 .value();
 
             if (!isEmpty) return;
 
-            const [parent] = Editor.parent(editor, editor.selection);
-
             let type = op.get(parent, 'type');
-            type = type === 'paragraph' ? 'p' : type;
             type = String(type).toLowerCase();
+            type = type === 'paragraph' ? 'p' : type;
 
-            if (!type) return;
+            if (type !== 'li') return;
 
-            const isType = type === 'li';
-
-            if (isType) {
-                event.preventDefault();
-                Reactium.RTE.toggleBlock(editor, 'p');
-            }
+            event.preventDefault();
+            Reactium.RTE.toggleBlock(editor, 'p');
+            return false;
         },
     });
 
-    Reactium.RTE.Hotkey.register('tablist', {
+    Reactium.RTE.Hotkey.register('list-backspace', {
+        keys: ['backspace'],
+        order: 100,
+        callback: ({ editor, event }) => {
+            const children = op.get(editor, 'children', []);
+
+            if (children.length === 1) {
+                if (children[0].children.length !== 1) {
+                    return;
+                }
+            } else {
+                return;
+            }
+
+            const [node] = Editor.node(editor, editor.selection);
+            const [parent] = Editor.parent(editor, editor.selection);
+
+            const isEmpty = _.chain([op.get(node, 'text')])
+                .compact()
+                .isEmpty()
+                .value();
+
+            if (!isEmpty || String(parent.type).toLowerCase() !== 'li') return;
+
+            event.preventDefault();
+
+            const list = ['ol', 'ul', 'li'];
+
+            Transforms.unwrapNodes(editor, {
+                match: n => list.includes(n.type),
+            });
+
+            Transforms.setNodes(editor, { type: 'p', style: {} }, { at: [0] });
+        },
+    });
+
+    Reactium.RTE.Hotkey.register('list-tab', {
         keys: ['tab', 'shift+tab'],
         callback: ({ editor, event }) => {
             const { path } = editor.selection.focus;
@@ -108,21 +135,22 @@ Plugin.callback = editor => {
 
             const type = op.get(node, 'type');
             const block = parent.type;
+            const newType = event.shiftKey
+                ? parent.type === 'ol'
+                    ? 'ul'
+                    : 'ol'
+                : parent.type;
 
             if (type === 'li') {
                 event.preventDefault();
                 Transforms.wrapNodes(editor, {
-                    type: block,
+                    type: newType,
                     children: [],
                 });
             } else {
                 if (['ul', 'ol'].includes(type)) return;
                 event.preventDefault();
-                if (event.shiftKey) {
-                    Reactium.RTE.toggleBlock(editor, 'ol');
-                } else {
-                    Reactium.RTE.toggleBlock(editor, 'ul');
-                }
+                Reactium.RTE.toggleBlock(editor, newType);
             }
         },
     });

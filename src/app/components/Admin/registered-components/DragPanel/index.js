@@ -56,7 +56,7 @@ let Panel = (
     const [visible, setVisible] = useState(isVisible);
 
     // Functions
-    const adjustPosition = () => {
+    const adjustPosition = (adjustX, adjustY, ID) => {
         if (!containerRef.current) return;
 
         const { dragProps, gutter } = state;
@@ -73,12 +73,20 @@ let Panel = (
             height,
         } = containerRef.current.getBoundingClientRect();
 
+        x = adjustX || x;
+        y = adjustY || y;
+
         const maxX = docWidth - width - gutter;
         const maxY = docHeight - height - gutter;
         const minX = gutter;
         const minY = gutter;
 
-        if (bounds.right !== maxX || bounds.bottom !== maxY) {
+        if (
+            bounds.right !== maxX ||
+            bounds.bottom !== maxY ||
+            adjustX ||
+            adjustY
+        ) {
             dragProps.bounds = {
                 top: gutter,
                 left: gutter,
@@ -88,7 +96,14 @@ let Panel = (
 
             const newState = { dragProps, update: Date.now(), reset: false };
 
-            if (y > maxY || y < minY || x > maxX || x < minX) {
+            if (
+                y > maxY ||
+                y < minY ||
+                x > maxX ||
+                x < minX ||
+                adjustX ||
+                adjustY
+            ) {
                 newState.reset = true;
             }
 
@@ -98,7 +113,9 @@ let Panel = (
             position.y = Math.max(position.y, minY);
             position.x = Math.max(position.x, minX);
 
-            Reactium.Prefs.set(`admin.position.${id}`, position);
+            if (ID) {
+                Reactium.Prefs.set(`admin.position.${ID}`, position);
+            }
 
             setPosition(position);
             setState(newState);
@@ -140,15 +157,7 @@ let Panel = (
     };
 
     const moveTo = (x, y, ID) => {
-        setPosition({ x, y });
-
-        if (ID) {
-            Reactium.Prefs.set(`admin.position.${ID}`, { x, y });
-        } else {
-            adjustPosition();
-        }
-
-        setState({ reset: true });
+        adjustPosition(x, y, ID);
         return handle;
     };
 
@@ -161,10 +170,11 @@ let Panel = (
 
     const setID = ID => {
         if (!ID) return handle;
-
         const { x, y } = Reactium.Prefs.get(`admin.position.${ID}`, position);
+
         setNewId(ID);
         moveTo(x, y, ID);
+
         return handle;
     };
 

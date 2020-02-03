@@ -7,32 +7,21 @@ import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-const Plugin = new RTEPlugin({ type: 'link', order: 100 });
+const Plugin = new RTEPlugin({ type: 'color', order: 100 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
+    const onButtonClick = (e, editor) => {
         const btn = e.currentTarget;
 
         let { x, y } = editor.toolbar.container.current.getBoundingClientRect();
 
         const setActive = e => {
-            const { id, visible } = e.target;
-
-            if (id !== 'link' || visible === true) {
-                e.target.removeEventListener('content', setActive);
-                btn.classList.remove('active');
-                return;
-            }
-
-            if (visible === false) {
-                btn.classList.add('active');
-                return;
-            }
+            return true;
         };
 
         editor.panel.addEventListener('content', setActive);
         editor.panel
-            .setID('link')
+            .setID('color')
             .setContent(<Panel selection={editor.selection} />)
             .moveTo(x, y)
             .show();
@@ -40,15 +29,16 @@ Plugin.callback = editor => {
 
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ type, ...props }) => <a {...props} className='blue link' />,
+        element: ({ type, ...props }) => <span {...props} />,
     });
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 150,
+        order: 160,
         toolbar: true,
         button: props => {
             const editor = useSlate();
+            const [backgroundColor, setBGColor] = useState('#000000');
             const [node, setNode] = useState();
             const [selection, setSelection] = useState();
 
@@ -63,15 +53,25 @@ Plugin.callback = editor => {
                 setNode(_node);
             }, [selection]);
 
+            useEffect(() => {
+                if (op.get(node, 'plugins')) return;
+                if (!op.get(node, 'style.color')) {
+                    setBGColor('#000000');
+                    return;
+                }
+                setBGColor(node.style.color);
+            }, [node]);
+
             return (
                 <Button
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                    active={op.get(node, 'type') === Plugin.type}
+                    active={op.has(node, 'style.color')}
                     onClick={onButtonClick}
                     {...props}>
-                    <Icon
-                        {...Reactium.RTE.ENUMS.PROPS.ICON}
-                        name='Feather.Link'
+                    <div
+                        className='color-circle'
+                        style={{ backgroundColor }}
+                        data-color={backgroundColor}
                     />
                 </Button>
             );

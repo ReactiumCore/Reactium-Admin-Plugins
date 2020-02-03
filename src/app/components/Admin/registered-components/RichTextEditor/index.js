@@ -9,7 +9,7 @@ import Toolbar from './Toolbar';
 import Plugin from './RTEPlugin';
 import PropTypes from 'prop-types';
 import { createEditor } from 'slate';
-import { Slate, Editable } from 'slate-react';
+import { Editable, ReactEditor, Slate } from 'slate-react';
 import Reactium, {
     useDerivedState,
     useEventHandle,
@@ -203,6 +203,12 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
+    const _focus = () => {
+        if (editor) {
+            ReactEditor.focus(editor);
+        }
+    };
+
     useImperativeHandle(ref, () => handle);
 
     // 10.0 - Side effects
@@ -223,6 +229,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         state.exclude,
         state.include,
         Panel,
+        editor.selection,
     ]);
 
     // 10.2 - Value update.
@@ -262,11 +269,21 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         editor.hotkeys = hotkeys;
         editor.plugins = plugins;
         editor.tabs = tabs;
-    }, [blocks, buttons, colors, fonts, formats, hotkeys, plugins, tabs]);
+    }, [
+        handle,
+        blocks,
+        buttons,
+        colors,
+        fonts,
+        formats,
+        hotkeys,
+        plugins,
+        tabs,
+    ]);
 
     // 11.0 - Render function
     const render = () => (
-        <div className={cname()} ref={containerRef}>
+        <div className={cname()} ref={containerRef} onMouseDown={_focus}>
             <input type='hidden' name={name} value={JSON.stringify(value)} />
             <Slate editor={editor} onChange={_onChange} value={value}>
                 <Editable

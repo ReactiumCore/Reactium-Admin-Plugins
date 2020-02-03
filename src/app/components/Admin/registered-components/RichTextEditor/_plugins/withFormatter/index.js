@@ -32,7 +32,7 @@ const onButtonClick = (e, editor) => {
         .toggle();
 };
 
-const colors = {
+export const colors = {
     'color-black': '#000000',
     'color-gray-dark': '#333333',
     'color-gray': '#999999',
@@ -304,6 +304,7 @@ Plugin.callback = editor => {
     // register hotkeys
     Reactium.RTE.Hotkey.register('clearformats', {
         keys: ['backspace', 'enter'],
+        order: 1000,
         callback: ({ editor, event }) => {
             const [node, path] = Editor.node(editor, editor.selection);
             const text = op.get(node, 'text');
@@ -331,12 +332,12 @@ Plugin.callback = editor => {
             const types = ['blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
             const isType = types.includes(type);
 
-            Transforms.unwrapNodes(editor, {
-                match: n => list.includes(n.type),
-            });
-
             if (isType) {
                 event.preventDefault();
+
+                Transforms.unwrapNodes(editor, {
+                    match: n => list.includes(n.type),
+                });
 
                 Transforms.setNodes(
                     editor,

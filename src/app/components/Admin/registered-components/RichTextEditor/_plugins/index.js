@@ -2,6 +2,7 @@ import RTEPlugin from '../RTEPlugin';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import withBold from './withBold';
+import withColor from './withColor';
 import withData from './withData';
 import withFormatter from './withFormatter';
 import withLink from './withLink';
@@ -15,6 +16,7 @@ export default plugins = {
     withHistory: new RTEPlugin({ callback: withHistory, order: 1 }),
     withData,
     withBold,
+    withColor,
     withFormatter,
     withLink,
     withItalic,

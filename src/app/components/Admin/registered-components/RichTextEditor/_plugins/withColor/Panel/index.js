@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
+import { ColorSelect } from '../../withFormatter/Panel/ColorSelect';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
@@ -34,6 +35,7 @@ let Panel = (
         removeButtonLabel,
         submitButtonLabel,
         children,
+        color: initialColor,
         selection: initialSelection,
         title,
         ...props
@@ -45,6 +47,10 @@ let Panel = (
     const editor = useSlate();
 
     // Initial state
+    const [color, setColor] = useState(initialColor);
+
+    const [colors, setColors] = useState(editor.colors);
+
     const [selection, setSelection] = useState(initialSelection);
 
     const [value, setValue] = useState({});
@@ -57,55 +63,61 @@ let Panel = (
             .value()
             .join('-');
 
-    const isLinkActive = () => {
-        const [link] = Editor.nodes(editor, { match: n => n.type === 'link' });
-        return !!link;
+    const isColorActive = () => {
+        const [color] = Editor.nodes(editor, {
+            match: n =>
+                n.type === 'color' && op.get(n, 'style.color') !== 'inherit',
+        });
+        return !!color;
     };
 
-    const unwrapLink = () => {
-        Transforms.unwrapNodes(editor, { match: n => n.type === 'link' });
+    const unwrapColor = () => {
+        Transforms.unwrapNodes(editor, { match: n => n.type === 'color' });
     };
 
-    const wrapLink = url => {
-        if (isLinkActive()) {
-            unwrapLink();
+    const wrapColor = () => {
+        if (isColorActive()) {
+            unwrapColor();
         }
 
         const isCollapsed = selection && Range.isCollapsed(selection);
 
-        const link = {
-            type: 'link',
-            href: url,
-            children: isCollapsed ? [{ text: url }] : [],
+        const [_node] = Editor.node(editor, selection);
+
+        const text = op.get(_node, 'text');
+
+        const node = {
+            type: 'color',
+            style: { color },
+            children: [{ text }],
         };
 
         if (isCollapsed) {
-            Transforms.insertNodes(editor, link, { at: selection });
+            Transforms.insertNodes(editor, node, { at: selection });
         } else {
-            Transforms.wrapNodes(editor, link, { split: true, at: selection });
-            Transforms.collapse(editor, { edge: 'end' });
+            Transforms.wrapNodes(editor, node, { split: true, at: selection });
         }
 
-        ReactEditor.focus(editor);
+        editor.updated = Date.now();
     };
 
-    const _onClearLink = e => {
+    const _onClearColor = e => {
         hide();
-        setTimeout(() => unwrapLink(), 1);
+        setTimeout(() => unwrapColor(), 1);
     };
+
+    const _onChange = e => setColor(e.target.value);
+
+    const _onSelect = e => setColor(e.item.value);
 
     const _onSubmit = e => {
-        const url = op.get(e.value, 'url');
-
-        if (!url) return;
-
-        wrapLink(url);
+        if (!color) return;
+        wrapColor();
         hide();
     };
 
     const hide = () => {
         editor.panel.hide(false).setID('rte-panel');
-        ReactEditor.focus(editor);
     };
 
     // Handle
@@ -125,12 +137,24 @@ let Panel = (
         };
     }, [editor, selection]);
 
+    useEffect(() => {
+        if (!editor.selection) return;
+        setSelection(editor.selection);
+    }, [editor.selection]);
+
     // Renderers
     const render = () => {
-        const isActive = isLinkActive();
+        const isActive = isColorActive();
+
         return (
-            <EventForm ref={formRef} className={cx()}>
+            <EventForm
+                ref={formRef}
+                className={cx()}
+                onSubmit={_onSubmit}
+                controlled>
                 <Dialog
+                    collapsible={false}
+                    dismissable={false}
                     header={{
                         title,
                         elements: [
@@ -145,32 +169,25 @@ let Panel = (
                                 <Icon name='Feather.X' />
                             </Button>,
                         ],
-                    }}
-                    pref='admin.dialog.formatter'
-                    collapsible={false}
-                    dismissable={false}>
+                    }}>
                     {!isActive && (
-                        <div className='p-xs-20'>
-                            <div className='form-group'>
-                                <input
-                                    type='text'
-                                    name='url'
-                                    placeholder='http://site.com/page'
-                                />
-                                <Icon name='Feather.Link' />
-                            </div>
-                        </div>
+                        <ColorSelect
+                            color={color}
+                            colors={colors}
+                            name='color'
+                            onColorChange={_onChange}
+                            onColorSelect={_onSelect}
+                            title={null}
+                        />
                     )}
-                    {!isActive && <hr />}
                     <div className='p-xs-8'>
                         {isActive ? (
                             <Button
                                 block
                                 color='danger'
-                                className='mt-xs-8'
                                 size='sm'
                                 type='button'
-                                onClick={_onClearLink}>
+                                onClick={_onClearColor}>
                                 {removeButtonLabel}
                             </Button>
                         ) : (
@@ -195,6 +212,7 @@ Panel = forwardRef(Panel);
 
 Panel.propTypes = {
     className: PropTypes.string,
+    color: PropTypes.string,
     namespace: PropTypes.string,
     removeButtonLabel: PropTypes.node,
     submitButtonLabel: PropTypes.node,
@@ -202,10 +220,11 @@ Panel.propTypes = {
 };
 
 Panel.defaultProps = {
-    namespace: 'rte-link-insert',
-    removeButtonLabel: __('Remove Link'),
-    submitButtonLabel: __('Insert Link'),
-    title: __('Link'),
+    color: '#000000',
+    namespace: 'rte-color-insert',
+    removeButtonLabel: __('Remove Color'),
+    submitButtonLabel: __('Apply Color'),
+    title: __('Text color'),
 };
 
 export { Panel as default };
