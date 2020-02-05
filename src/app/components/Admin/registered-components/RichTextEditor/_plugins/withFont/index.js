@@ -7,7 +7,7 @@ import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-const Plugin = new RTEPlugin({ type: 'color', order: 100 });
+const Plugin = new RTEPlugin({ type: 'font', order: 100 });
 
 Plugin.callback = editor => {
     // register leaf format
@@ -17,21 +17,20 @@ Plugin.callback = editor => {
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 50,
+        order: 52,
         toolbar: true,
         button: props => {
             const editor = useSlate();
-            const [backgroundColor, setBGColor] = useState('#000000');
+            const [fontFamily, setFontFamily] = useState();
+            const [fontSize, setFontSize] = useState();
+            const [fontWeight, setFontWeight] = useState();
             const [node, setNode] = useState();
             const [selection, setSelection] = useState();
 
             const onButtonClick = e => {
                 const btn = e.currentTarget;
-
-                let {
-                    x,
-                    y,
-                } = editor.toolbar.container.current.getBoundingClientRect();
+                const rect = editor.toolbar.container.current.getBoundingClientRect();
+                let { x, y } = rect;
 
                 editor.panel
                     .setID('color')
@@ -53,25 +52,29 @@ Plugin.callback = editor => {
 
             useEffect(() => {
                 if (op.get(node, 'plugins')) return;
-                const clr = op.get(node, 'style.color');
-                if (!clr) {
-                    setBGColor('#000000');
-                    return;
-                }
-                setBGColor(clr);
+
+                const _fontFamily = op.get(node, 'style.fontFamily');
+                const _fontSize = op.get(node, 'style.fontSize');
+                const _fontWeight = op.get(node, 'style.fontWeight');
+
+                if (!_fontFamily || !_fontSize || !_fontWeight) return;
+
+                if (fontFamily !== _fontFamily) setFontFamily(_fontFamily);
+                if (fontSize !== _fontSize) setFontSize(_fontSize);
+                if (fontWeight !== _fontWeight) setFontWeight(_fontWeight);
             }, [node]);
 
             return (
                 <Button
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                    active={op.has(node, 'style.color')}
+                    active={
+                        op.has(node, 'style.fontFamily') ||
+                        op.has(node, 'style.fontSize') ||
+                        op.has(node, 'style.fontWeight')
+                    }
                     onClick={onButtonClick}
                     {...props}>
-                    <div
-                        className='color-circle'
-                        style={{ backgroundColor }}
-                        data-color={backgroundColor}
-                    />
+                    <span className='ico'>F</span>
                 </Button>
             );
         },

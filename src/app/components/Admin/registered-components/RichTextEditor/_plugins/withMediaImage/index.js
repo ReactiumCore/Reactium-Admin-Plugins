@@ -1,4 +1,4 @@
-import Panel from './Panel';
+//import Panel from './Panel';
 import op from 'object-path';
 import { Editor } from 'slate';
 import { useSlate } from 'slate-react';
@@ -7,50 +7,38 @@ import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-const Plugin = new RTEPlugin({ type: 'link', order: 100 });
+const Plugin = new RTEPlugin({ type: 'img', order: 50 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
-        const btn = e.currentTarget;
-
-        let { x, y } = editor.toolbar.container.current.getBoundingClientRect();
-
-        const setActive = e => {
-            const { id, visible } = e.target;
-
-            if (id !== 'link' || visible === true) {
-                e.target.removeEventListener('content', setActive);
-                btn.classList.remove('active');
-                return;
-            }
-
-            if (visible === false) {
-                btn.classList.add('active');
-                return;
-            }
-        };
-
-        editor.panel.addEventListener('content', setActive);
-        editor.panel
-            .setID('link')
-            .setContent(<Panel selection={editor.selection} />)
-            .moveTo(x, y)
-            .show();
-    };
-
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ type, ...props }) => <a {...props} className='blue link' />,
+        element: ({ type, ...props }) => <img {...props} />,
     });
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
         order: 51,
+        sidebar: true,
         toolbar: true,
         button: props => {
             const editor = useSlate();
+            const [url, setURL] = useState();
             const [node, setNode] = useState();
             const [selection, setSelection] = useState();
+
+            const onButtonClick = e => {
+                const btn = e.currentTarget;
+                const rect = editor.toolbar.container.current.getBoundingClientRect();
+                let { x, y } = rect;
+
+                /*
+                editor.panel
+                    .setID('color')
+                    .setContent(<Panel selection={editor.selection} url={url} />)
+                    .moveTo(x, y)
+                    .show();
+                */
+            };
 
             useEffect(() => {
                 if (!op.get(editor, 'selection')) return;
@@ -63,25 +51,29 @@ Plugin.callback = editor => {
                 setNode(_node);
             }, [selection]);
 
+            useEffect(() => {
+                if (op.get(node, 'plugins')) return;
+                const _url = op.get(node, url);
+                if (!_url || _url === url) return;
+                setURL(_url);
+            }, [node]);
+
             return (
                 <Button
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                    active={op.get(node, 'type') === Plugin.type}
+                    active={op.has(node, 'url')}
                     onClick={onButtonClick}
                     {...props}>
-                    <Icon
-                        {...Reactium.RTE.ENUMS.PROPS.ICON}
-                        name='Feather.Link'
-                    />
+                    <Icon name='Linear.Picture' size={18} />
                 </Button>
             );
         },
     });
 
     // Editor overrides
-    const { isInline } = editor;
-    editor.isInline = element =>
-        element.type === Plugin.type ? true : isInline(element);
+    const { isVoid } = editor;
+    editor.isVoid = element =>
+        element.type === Plugin.type ? true : isVoid(element);
 
     return editor;
 };

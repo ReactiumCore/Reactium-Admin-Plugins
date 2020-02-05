@@ -15,7 +15,7 @@ export const FontSelect = ({
     onWeightSelect,
     onSizeSelect,
     size,
-    title = 'Font',
+    title,
     weight,
 }) => {
     const _font = font || fonts[0];
@@ -29,27 +29,31 @@ export const FontSelect = ({
     let _weight = weight || _weights[0];
     _weight = _.findWhere(_weights, { weight: _weight.weight }) || _weights[0];
 
+    //console.log({ _size, _weight, _font });
+
     return useMemo(
         () => (
             <>
-                <h3 className='heading'>{title}</h3>
+                {title && <h3 className='heading'>{title}</h3>}
                 <div className='formatter-font'>
-                    <Dropdown
-                        data={fonts}
-                        labelField='label'
-                        maxHeight='40vh'
-                        minHeight={200}
-                        onItemSelect={onFontSelect}
-                        selection={[op.get(_font, 'id')]}
-                        valueField='id'>
-                        <button
-                            className='dropdown-btn'
-                            type='button'
-                            data-dropdown-element>
-                            <FontLabel {..._font} />
-                            <Icon name='Feather.ChevronDown' size={16} />
-                        </button>
-                    </Dropdown>
+                    <div className='mb-xs-8'>
+                        <Dropdown
+                            data={fonts}
+                            labelField='label'
+                            maxHeight='40vh'
+                            minHeight={200}
+                            onItemSelect={onFontSelect}
+                            selection={[op.get(_font, 'id')]}
+                            valueField='id'>
+                            <button
+                                className='dropdown-btn'
+                                type='button'
+                                data-dropdown-element>
+                                <FontLabel {..._font} />
+                                <Icon name='Feather.ChevronDown' size={16} />
+                            </button>
+                        </Dropdown>
+                    </div>
                     <div className='row'>
                         <div className='col-xs-8 pr-xs-8'>
                             <Dropdown

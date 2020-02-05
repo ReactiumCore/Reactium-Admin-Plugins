@@ -4,10 +4,12 @@ import { withHistory } from 'slate-history';
 import withBold from './withBold';
 import withColor from './withColor';
 import withData from './withData';
+import withFont from './withFont';
 import withFormatter from './withFormatter';
 import withLink from './withLink';
 import withItalic from './withItalic';
 import withList from './withList';
+import withMediaImage from './withMediaImage';
 import withStrike from './withStrike';
 import withUnderline from './withUnderline';
 
@@ -17,9 +19,11 @@ export default plugins = {
     withData,
     withBold,
     withColor,
+    withFont,
     withFormatter,
     withLink,
     withItalic,
+    withMediaImage,
     withList,
     withStrike,
     withUnderline,

@@ -7,14 +7,19 @@ $ar-width-rte-sidebar: 40px !default;
 .ar-rte {
     position: relative;
     padding-bottom: 100px;
+    * { line-height: 1; }
 
-    p, ol, ul {
+    p, ol, ul, h1, h2, h3 {
         margin-bottom: 15px;
         padding-bottom: 0px;
     }
 
     ol, ul {
         margin-left: 32px;
+
+        li {
+            line-height: 2;
+        }
     }
 
     &-toolbar {
@@ -23,6 +28,7 @@ $ar-width-rte-sidebar: 40px !default;
         display: none;
         opacity: 0;
         transition: opacity 0.25s ease-in-out;
+        font-family: Courier, serif;
 
         &-rect {
             height: $ar-height-rte-toolbar;
@@ -34,13 +40,22 @@ $ar-width-rte-sidebar: 40px !default;
         button {
             min-width: $ar-width-rte-toolbar;
             height: $ar-height-rte-toolbar;
+            font-family: inherit;
             &.active,
             &:active {
                 font-weight: normal !important;
             }
 
             .ico {
-                font-size: 20px;
+                font-size: 22px;
+                line-height: 1;
+                display: flex;
+
+                u {
+                    font-size: 20px;
+                    display: block;
+                    margin-bottom: 2px;
+                }
             }
         }
 
@@ -85,6 +100,7 @@ $ar-width-rte-sidebar: 40px !default;
         overflow: visible;
         height: $ar-height-rte-sidebar;
         transition: opacity 0.25s ease-in-out;
+        font-family: Courier, serif;
 
         button {
             svg {
@@ -103,7 +119,8 @@ $ar-width-rte-sidebar: 40px !default;
             }
 
             .ico {
-                font-size: 20px;
+                font-size: 26px;
+                line-height: 1;
             }
         }
 

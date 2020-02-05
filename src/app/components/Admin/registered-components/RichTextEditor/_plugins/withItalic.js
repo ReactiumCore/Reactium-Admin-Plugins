@@ -22,10 +22,9 @@ Plugin.callback = editor => {
                 active={Reactium.RTE.isMarkActive(editor, Plugin.type)}
                 onClick={e => Reactium.RTE.toggleMark(editor, Plugin.type, e)}
                 {...props}>
-                <Icon
-                    {...Reactium.RTE.ENUMS.PROPS.ICON}
-                    name='Feather.Italic'
-                />
+                <span className='ico'>
+                    <em>I</em>
+                </span>
             </Button>
         ),
     });

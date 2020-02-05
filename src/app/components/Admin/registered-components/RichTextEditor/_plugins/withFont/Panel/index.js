@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
-import { ColorSelect } from '../../withFormatter/Panel/ColorSelect';
+import { FontSelect } from '../../withFormatter/Panel/FontSelect';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
@@ -35,7 +35,9 @@ let Panel = (
         removeButtonLabel,
         submitButtonLabel,
         children,
-        color: initialColor,
+        fontFamily: initialFontFamily,
+        fontSize: initialFontSize,
+        fontWeight: initialFontWeight,
         selection: initialSelection,
         title,
         ...props
@@ -47,13 +49,15 @@ let Panel = (
     const editor = useSlate();
 
     // Initial state
-    const [color, setColor] = useState(initialColor);
+    const [fonts, setFonts] = useState();
 
-    const [colors, setColors] = useState(editor.colors);
+    const [fontFamily, setFontFamily] = useState();
+
+    const [fontSize, setFontSize] = useState();
+
+    const [fontWeight, setFontWeight] = useState();
 
     const [selection, setSelection] = useState(initialSelection);
-
-    const [value, setValue] = useState({});
 
     // className prefixer
     const cx = cls =>
@@ -63,21 +67,20 @@ let Panel = (
             .value()
             .join('-');
 
-    const isColorActive = () => {
-        const [color] = Editor.nodes(editor, {
-            match: n =>
-                n.type === 'color' && op.get(n, 'style.color') !== 'inherit',
+    const isNodeActive = () => {
+        const [_font] = Editor.nodes(editor, {
+            match: n => n.type === 'font',
         });
-        return !!color;
+        return !!_font;
     };
 
-    const unwrapColor = () => {
-        Transforms.unwrapNodes(editor, { match: n => n.type === 'color' });
+    const unwrapNode = () => {
+        Transforms.unwrapNodes(editor, { match: n => n.type === 'font' });
     };
 
-    const wrapColor = () => {
-        if (isColorActive()) {
-            unwrapColor();
+    const wrapNode = () => {
+        if (isNodeActive()) {
+            unwrapNode();
         }
 
         const isCollapsed = selection && Range.isCollapsed(selection);
@@ -87,10 +90,22 @@ let Panel = (
         const text = op.get(_node, 'text');
 
         const node = {
-            type: 'color',
-            style: { color },
+            type: 'font',
+            style: {},
             children: [{ text }],
         };
+
+        if (fontFamily) {
+            node.style.fontFamily = op.get(fontFamily, 'weight.0.family');
+        }
+
+        if (fontWeight) {
+            node.style.fontWeight = op.get(fontWeight, 'weight');
+        }
+
+        if (fontSize) {
+            node.style.fontSize = op.get(fontSize, 'value', 16);
+        }
 
         if (isCollapsed) {
             Transforms.insertNodes(editor, node, { at: selection });
@@ -101,18 +116,21 @@ let Panel = (
         editor.updated = Date.now();
     };
 
-    const _onClearColor = e => {
+    const _onClear = e => {
         hide();
-        setTimeout(() => unwrapColor(), 1);
+        setTimeout(() => unwrapNode(), 1);
     };
 
     const _onChange = e => setColor(e.target.value);
 
-    const _onSelect = e => setColor(e.item.value);
+    const _onFontSelect = e => setFontFamily(e.item);
+
+    const _onSizeSelect = e => setFontSize(e.item);
+
+    const _onWeightSelect = e => setFontWeight(e.item);
 
     const _onSubmit = e => {
-        if (!color) return;
-        wrapColor();
+        wrapNode();
         hide();
     };
 
@@ -135,22 +153,36 @@ let Panel = (
         return () => {
             formRef.current.removeEventListener('submit', _onSubmit);
         };
-    }, [editor, selection]);
+    }, [editor]);
 
-    // Set selection
     useEffect(() => {
         if (!editor.selection) return;
         setSelection(editor.selection);
     }, [editor.selection]);
 
-    // Set colors
+    // Set fonts
     useEffect(() => {
-        setColors(editor.colors);
-    }, [editor.colors]);
+        if (!editor.fonts) return;
+        setFonts(_.sortBy(editor.fonts, 'label'));
+    }, [editor.fonts]);
+
+    useEffect(() => {
+        if (!fonts) return;
+
+        if (!fontFamily || !fontSize || !fontWeight) {
+            const font = fonts[0];
+
+            if (!fontFamily) setFontFamily(font);
+            if (!fontSize) setFontSize({ label: 16, value: 16 });
+            if (!fontWeight) setFontWeight(font.weight[0]);
+        }
+    }, [fonts]);
 
     // Renderers
     const render = () => {
-        const isActive = isColorActive();
+        if (!fontFamily || !fontSize || !fontWeight) return null;
+
+        const isActive = isNodeActive();
 
         return (
             <EventForm
@@ -177,13 +209,14 @@ let Panel = (
                         ],
                     }}>
                     {!isActive && (
-                        <ColorSelect
-                            color={color}
-                            colors={colors}
-                            name='color'
-                            onColorChange={_onChange}
-                            onColorSelect={_onSelect}
-                            title={null}
+                        <FontSelect
+                            font={fontFamily}
+                            fonts={fonts}
+                            onFontSelect={_onFontSelect}
+                            onSizeSelect={_onSizeSelect}
+                            onWeightSelect={_onWeightSelect}
+                            size={fontSize}
+                            weight={fontWeight}
                         />
                     )}
                     <div className='p-xs-8'>
@@ -193,7 +226,7 @@ let Panel = (
                                 color='danger'
                                 size='sm'
                                 type='button'
-                                onClick={_onClearColor}>
+                                onClick={_onClear}>
                                 {removeButtonLabel}
                             </Button>
                         ) : (
@@ -218,7 +251,9 @@ Panel = forwardRef(Panel);
 
 Panel.propTypes = {
     className: PropTypes.string,
-    color: PropTypes.string,
+    fontFamily: PropTypes.string,
+    fontSize: PropTypes.number,
+    fontWeight: PropTypes.number,
     namespace: PropTypes.string,
     removeButtonLabel: PropTypes.node,
     submitButtonLabel: PropTypes.node,
@@ -226,11 +261,13 @@ Panel.propTypes = {
 };
 
 Panel.defaultProps = {
-    color: '#000000',
+    fontFamily: 'Arial',
+    fontSize: 16,
+    fontWeight: 400,
     namespace: 'rte-color-insert',
-    removeButtonLabel: __('Remove Color'),
-    submitButtonLabel: __('Apply Color'),
-    title: __('Text color'),
+    removeButtonLabel: __('Remove Font'),
+    submitButtonLabel: __('Apply Font'),
+    title: __('Font'),
 };
 
 export { Panel as default };

@@ -1,7 +1,7 @@
 import React from 'react';
 import RTEPlugin from '../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import { Button } from '@atomic-reactor/reactium-ui';
 
 const Plugin = new RTEPlugin({ type: 'bold', order: 100 });
 
@@ -22,7 +22,7 @@ Plugin.callback = editor => {
                 active={Reactium.RTE.isMarkActive(editor, Plugin.type)}
                 onClick={e => Reactium.RTE.toggleMark(editor, Plugin.type, e)}
                 {...props}>
-                <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Bold' />
+                <span className='ico'>B</span>
             </Button>
         ),
     });

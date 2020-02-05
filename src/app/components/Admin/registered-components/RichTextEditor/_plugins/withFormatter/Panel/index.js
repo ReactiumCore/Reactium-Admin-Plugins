@@ -361,6 +361,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                         onWeightSelect={_onWeightSelect}
                         size={size}
                         weight={weight}
+                        title={__('Font')}
                     />
                     <ColorSelect
                         color={color || '#000000'}
@@ -370,7 +371,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                         onColorSelect={_onTextColorSelect}
                         onOpacityChange={_onTextOpacityChange}
                         opacity={opacity}
-                        title='Text color'
+                        title={__('Text color')}
                     />
                     <ColorSelect
                         color={bgColor || '#FFFFFF'}
@@ -379,7 +380,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                         onColorSelect={_onBgColorSelect}
                         onOpacityChange={_onBgOpacityChange}
                         opacity={bgOpacity}
-                        title='Background color'
+                        title={__('Background color')}
                         transparent
                     />
                     <TextAlignSelect

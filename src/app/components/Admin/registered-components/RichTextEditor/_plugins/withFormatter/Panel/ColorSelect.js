@@ -69,7 +69,7 @@ export const ColorSelect = ({
                         {title}
                     </h3>
                 )}
-                <div className='formatter-font mt-xs-12'>
+                <div className='formatter-font'>
                     <div className='row'>
                         <div className={col}>
                             <Dropdown
