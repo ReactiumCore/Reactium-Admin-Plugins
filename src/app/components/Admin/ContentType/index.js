@@ -620,6 +620,30 @@ const ContentType = memo(
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
                             },
+                            {
+                                capability: `${collection}.publish`,
+                                title: __('%type: Publish Content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to publish content of type %type (%machineName.)',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.unpublish`,
+                                title: __('%type: Unublish Content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to unpublish content of type %type (%machineName.)',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
                         ]}
                     />
                 </div>
