@@ -634,7 +634,7 @@ const ContentType = memo(
                             },
                             {
                                 capability: `${collection}.unpublish`,
-                                title: __('%type: Unublish Content').replace(
+                                title: __('%type: Unpublish Content').replace(
                                     '%type',
                                     type,
                                 ),
