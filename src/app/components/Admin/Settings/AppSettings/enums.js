@@ -115,6 +115,16 @@ export default {
                 title: __('Type: Delete any content type.'),
                 tooltip: __('Able to delete any content type definition.'),
             },
+            {
+                capability: 'publish-content',
+                title: __('Moderating: Publish content.'),
+                tooltip: __('Able to publish any content.'),
+            },
+            {
+                capability: 'unpublish-content',
+                title: __('Moderating: Unpublish content.'),
+                tooltip: __('Able to unpublish any content.'),
+            },
         ],
     },
 };

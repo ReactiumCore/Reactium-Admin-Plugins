@@ -15,12 +15,15 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 
-const slugify = name =>
-    require('slugify')(name, {
+const slugify = name => {
+    if (!name) return '';
+
+    return require('slugify')(name, {
         replacement: '_', // replace spaces with replacement
         remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
         lower: true, // result in lower case
     });
+};
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const defaultRegion = {
@@ -201,18 +204,16 @@ const ContentType = memo(
             // type labels that are currently used
             const taken = types
                 .filter(({ uuid }) => uuid !== id)
-                .reduce(
-                    (takenLabels, { type, label }) =>
-                        _.compact(
-                            _.uniq(
-                                takenLabels.concat([
-                                    slugify(type),
-                                    slugify(label),
-                                ]),
-                            ),
+                .reduce((takenLabels, { type, meta }) => {
+                    return _.compact(
+                        _.uniq(
+                            takenLabels.concat([
+                                slugify(type),
+                                slugify(op.get(meta, 'label', '')),
+                            ]),
                         ),
-                    [],
-                );
+                    );
+                }, []);
 
             const typeSlug = slugify(op.get(value, 'type') || '');
             if (taken.includes(typeSlug)) {
@@ -615,6 +616,30 @@ const ContentType = memo(
                                 ).replace('%type', type),
                                 tooltip: __(
                                     'Able to delete any content of type %type (%machineName), even if not owned by user.',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.publish`,
+                                title: __('%type: Publish Content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to publish content of type %type (%machineName.)',
+                                )
+                                    .replace('%type', type)
+                                    .replace('%machineName', machineName),
+                            },
+                            {
+                                capability: `${collection}.unpublish`,
+                                title: __('%type: Unpublish Content').replace(
+                                    '%type',
+                                    type,
+                                ),
+                                tooltip: __(
+                                    'Able to unpublish content of type %type (%machineName.)',
                                 )
                                     .replace('%type', type)
                                     .replace('%machineName', machineName),
