@@ -50,7 +50,7 @@ let Panel = (
 
     // Initial state
     const [value, setValue] = useState({
-        column: ['col-md-12', 'col-md-6', 'col-md-6'],
+        column: [],
     });
 
     // className prefixer
@@ -100,7 +100,7 @@ let Panel = (
         const val = addRef.current.value;
         if (_.isEmpty(_.compact([val]))) return;
 
-        const newColumns = Array.from(value.column);
+        const newColumns = Array.from(op.get(value, 'column', []));
         newColumns.push(val);
         setValue({ column: newColumns });
         addRef.current.value = '';
@@ -148,6 +148,8 @@ let Panel = (
             title,
         };
 
+        const columns = op.get(value, 'column', []);
+
         return (
             <EventForm
                 ref={formRef}
@@ -173,7 +175,7 @@ let Panel = (
                             </Button>
                         </div>
                     </div>
-                    {value.column.map((item, i) => (
+                    {columns.map((item, i) => (
                         <div key={cx(i)}>
                             <hr />
                             <div className='px-xs-20 py-xs-12'>

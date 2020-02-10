@@ -162,8 +162,8 @@ let Panel = (
 
     const hide = (focus = true) => {
         editor.panel.hide(false).setID('rte-panel');
-        //if (focus !== true) return;
-        //ReactEditor.focus(editor);
+        if (focus !== true) return;
+        ReactEditor.focus(editor);
     };
 
     const setModal = element => {
