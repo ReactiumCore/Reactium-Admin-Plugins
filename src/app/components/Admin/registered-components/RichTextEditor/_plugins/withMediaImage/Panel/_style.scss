@@ -1,0 +1,63 @@
+.ar-rte {
+    [type='embed'] {
+        margin-left: -4px;
+        margin-right: -4px;
+        position: relative;
+        outline: none;
+        user-select: none;
+        display: block;
+
+        [data-slate-spacer] {
+            display: none;
+        }
+
+        &.right {
+            width: auto;
+            float: right;
+        }
+
+        &.left {
+            width: auto;
+            float: left;
+        }
+
+        img {
+            padding: 4px;
+            max-width: calc(100% - 12px);
+            border: 2px dashed transparent;
+            transition: border 0.25s ease-in-out;
+        }
+
+        .actions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+            display: inline;
+
+            button {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+
+                svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+        }
+
+        &:hover,
+        &:focus,
+        &.selected {
+            img {
+                border: 2px dashed $color-grey;
+            }
+
+            .actions {
+                opacity: 1;
+            }
+        }
+    }
+}

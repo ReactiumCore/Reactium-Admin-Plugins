@@ -47,8 +47,10 @@ Plugin.callback = editor => {
 
             useEffect(() => {
                 if (!selection) return;
-                const [_node] = Editor.parent(editor, selection);
-                setNode(_node);
+                try {
+                    const [_node] = Editor.parent(editor, selection);
+                    if (_node) setNode(_node);
+                } catch (err) {}
             }, [selection]);
 
             useEffect(() => {

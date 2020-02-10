@@ -124,6 +124,15 @@ Plugin.callback = editor => {
         element: props => <h1 {...props} />,
     });
 
+    Reactium.RTE.Block.register('break', {
+        element: ({ children, ...props }) => (
+            <>
+                <br />
+                {children}
+            </>
+        ),
+    });
+
     Reactium.RTE.Block.register('h2', {
         order: 2,
         formatter: true,
@@ -170,6 +179,10 @@ Plugin.callback = editor => {
         label: 'Quote',
         size: 16,
         element: props => <blockquote {...props} />,
+    });
+
+    Reactium.RTE.Block.register('div', {
+        element: props => <div {...props} />,
     });
 
     // register fonts
@@ -326,7 +339,7 @@ Plugin.callback = editor => {
             type = type === 'paragraph' ? 'p' : type;
             type = String(type).toLowerCase();
 
-            if (!type) return;
+            if (!type || type === 'div') return;
 
             const list = ['ol', 'ul', 'li'];
             const types = ['blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];

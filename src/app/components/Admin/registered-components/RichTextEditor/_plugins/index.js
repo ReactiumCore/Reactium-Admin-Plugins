@@ -6,6 +6,7 @@ import withColor from './withColor';
 import withData from './withData';
 import withFont from './withFont';
 import withFormatter from './withFormatter';
+import withGrid from './withGrid';
 import withLink from './withLink';
 import withItalic from './withItalic';
 import withList from './withList';
@@ -21,6 +22,7 @@ export default plugins = {
     withColor,
     withFont,
     withFormatter,
+    withGrid,
     withLink,
     withItalic,
     withMediaImage,

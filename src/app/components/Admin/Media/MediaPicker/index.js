@@ -110,6 +110,7 @@ const MediaPickerComponent = forwardRef(
             status: ENUMS.STATUS.INIT,
             uploads: [],
             visible: false,
+            wait: true,
             ...stateFromProps,
         });
 
@@ -180,12 +181,13 @@ const MediaPickerComponent = forwardRef(
         };
 
         const _onChange = () => {
-            const { minSelect } = state;
+            const { confirm, minSelect } = state;
 
-            if (minSelect && minSelect > 0 && selection.length < minSelect)
+            if (minSelect && minSelect > 0 && selection.length < minSelect) {
                 return _onError({
-                    message: ENUMS.TEXT.ERROR.MIN,
+                    message: ENUMS.TEXT.SELECT_ERROR.MIN,
                 });
+            }
 
             if (selection.length > 0) {
                 // handle onChange from props
@@ -264,7 +266,7 @@ const MediaPickerComponent = forwardRef(
 
             if (multiSelect && maxSelect > 0 && sel.length >= maxSelect)
                 return _onError({
-                    message: ENUMS.TEXT.ERROR.MAX,
+                    message: ENUMS.TEXT.SELECT_ERROR.MAX,
                 });
 
             sel.push(objectId);
@@ -380,6 +382,19 @@ const MediaPickerComponent = forwardRef(
                 Reactium.Pulse.unregister('MediaUploadComplete');
             };
         });
+
+        // Watch for selection change
+        useEffect(() => {
+            const { confirm, wait } = state;
+            if (confirm === true) return;
+
+            if (wait === true) {
+                setState({ wait: false });
+                return;
+            }
+
+            _onChange();
+        }, [selection]);
 
         const renderActions = () => {
             const { confirm, directory } = state;

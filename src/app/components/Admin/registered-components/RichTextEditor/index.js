@@ -157,7 +157,10 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     const [value, setValue] = useState(op.get(initialProps, 'value'));
 
     // 6.0 - Handlers
-    const _onChange = newValue => setValue(newValue);
+    const _onChange = newValue => {
+        //if (editor.selection) { console.log('selection', editor.selection.focus.path); }
+        setValue(newValue);
+    };
 
     const _onKeyDown = e => Reactium.RTE.hotKey(editor, e, hotkeys);
 
@@ -277,6 +280,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         editor.hotkeys = hotkeys;
         editor.plugins = plugins;
         editor.tabs = tabs;
+        editor.target = handle;
     }, [
         handle,
         blocks,
@@ -300,6 +304,12 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
             containerRef.current.removeEventListener('touchstart', focus);
         };
     }, [containerRef.current]);
+
+    // useEffect(() => {
+    //     if (editor.selection) {
+    //         console.log('selection',editor.selection.focus.path);
+    //     }
+    // }, [editor.selection]);
 
     // 11.0 - Render function
     const render = () => (

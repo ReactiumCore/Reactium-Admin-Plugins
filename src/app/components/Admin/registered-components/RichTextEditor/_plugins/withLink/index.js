@@ -45,7 +45,7 @@ Plugin.callback = editor => {
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 51,
+        order: 52,
         toolbar: true,
         button: props => {
             const editor = useSlate();
@@ -59,8 +59,10 @@ Plugin.callback = editor => {
 
             useEffect(() => {
                 if (!selection) return;
-                const [_node] = Editor.parent(editor, selection);
-                setNode(_node);
+                try {
+                    const [_node] = Editor.parent(editor, selection);
+                    if (_node) setNode(_node);
+                } catch (err) {}
             }, [selection]);
 
             return (

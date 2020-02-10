@@ -1,7 +1,9 @@
+import uuid from 'uuid/v4';
 import op from 'object-path';
 import React, { forwardRef, useImperativeHandle } from 'react';
 import ENUMS from '../enums';
 const { LIST_TYPES } = ENUMS;
+import { useEditor } from 'slate-react';
 
 const Wrap = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => props);
@@ -14,21 +16,26 @@ export default ({
     element,
     blocks = [],
     formats = [],
-    ...editor
+    ...handle
 }) => {
     let output;
 
+    const editor = useEditor();
+
     const { type } = element;
-    if (!type) return children;
+    if (!type) return <Wrap {...attributes}>{children}</Wrap>;
 
     op.del(attributes, 'children');
 
     blocks.forEach(({ id, element: Element }) => {
         if (type !== id || output) return;
+        const ID = op.get(children, 'props.node.ID', uuid());
         const style = op.get(children, 'props.node.style', {});
         output = (
             <Wrap {...attributes}>
-                <Element style={style}>{children}</Element>
+                <Element id={ID} style={style}>
+                    {children}
+                </Element>
             </Wrap>
         );
     });
@@ -36,15 +43,17 @@ export default ({
     if (!output) {
         formats.forEach(({ id, element: Element }) => {
             if (type !== id || output) return;
+            const ID = op.get(children, 'props.node.ID', uuid());
+            const style = op.get(children, 'props.node.style', {});
             output = (
                 <Wrap {...attributes}>
-                    <Element {...element}>{children}</Element>
+                    <Element id={ID} style={style} {...element}>
+                        {children}
+                    </Element>
                 </Wrap>
             );
         });
     }
 
-    output = output || children;
-
-    return output;
+    return output || <Wrap {...attributes}>{children}</Wrap>;
 };

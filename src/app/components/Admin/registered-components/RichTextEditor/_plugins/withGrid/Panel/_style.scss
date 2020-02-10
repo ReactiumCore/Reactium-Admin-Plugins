@@ -1,0 +1,68 @@
+.ar-rte {
+    [type='row'] {
+        margin-left: -4px;
+        margin-right: -4px;
+        position: relative;
+        outline: none;
+        user-select: none;
+        align-items: stretch !important;
+
+        .actions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+            display: inline;
+
+            button {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+
+                svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+        }
+
+        > [type='col'] {
+            padding: 4px;
+            display: flex;
+            align-items: stretch;
+
+            > div {
+                width: 100%;
+                height: 100%;
+                border: 2px dashed $color-grey;
+                padding: 4px;
+            }
+
+            [type='embed'] {
+                margin-left: 0;
+                margin-right: 0;
+
+                img {
+                    max-width: 100%;
+                }
+
+                &:hover,
+                &:focus,
+                &.selected {
+                    img {
+                        border: 2px dashed transparent;
+                    }
+                }
+            }
+        }
+
+        &:hover,
+        &:focus,
+        &.selected {
+            .actions {
+                opacity: 1;
+            }
+        }
+    }
+}
