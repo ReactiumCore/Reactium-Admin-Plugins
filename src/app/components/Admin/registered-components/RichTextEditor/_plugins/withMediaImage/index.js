@@ -54,8 +54,8 @@ Plugin.callback = editor => {
                     tabIndex={1}
                     type='embed'
                     contentEditable={false}>
-                    <img src={src} contentEditable={false} />
                     {children}
+                    <img src={src} contentEditable={false} />
                     <span className='actions'>
                         <Button
                             appearance='circle'

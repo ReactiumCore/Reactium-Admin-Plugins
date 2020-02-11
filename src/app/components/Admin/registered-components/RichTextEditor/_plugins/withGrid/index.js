@@ -89,6 +89,7 @@ Plugin.callback = editor => {
 
             let type = op.get(parent, 'type');
             type = String(type).toLowerCase();
+
             if (type === 'row' || type === 'col') {
                 event.preventDefault();
                 return false;

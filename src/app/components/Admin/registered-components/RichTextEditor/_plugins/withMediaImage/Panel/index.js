@@ -122,8 +122,24 @@ let Panel = (
         type = String(type).toLowerCase();
 
         if (type === 'col') {
-            editor.insertNode(node);
-            Transforms.wrapNodes(editor, parentNode);
+            const parentProps = { ...parentNode };
+            delete parentProps.children;
+
+            const currentType = op.get(currentNode, 'type', 'p');
+            const currentText = op.get(currentNode, 'text', '');
+
+            const children = [];
+
+            if (!_.isEmpty(_.compact([currentText]))) {
+                children.push({
+                    children: [{ text: currentText }],
+                });
+            }
+            children.push(node);
+            children.push(p);
+            const newParent = { ...parentProps, children };
+            editor.insertNode(newParent);
+            Transforms.wrapNodes(editor, parentProps);
             Transforms.removeNodes(editor, { at: parentPath, voids: true });
         } else {
             if (currentNode) {
