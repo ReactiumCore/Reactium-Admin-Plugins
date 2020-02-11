@@ -96,7 +96,7 @@ Plugin.callback = editor => {
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                     onClick={onButtonClick}
                     {...props}>
-                    <Icon name='Linear.Picture' size={18} />
+                    <Icon name='Feather.Camera' size={20} />
                 </Button>
             );
         },

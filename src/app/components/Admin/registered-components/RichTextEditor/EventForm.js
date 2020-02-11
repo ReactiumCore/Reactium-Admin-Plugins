@@ -131,6 +131,12 @@ let EventForm = (initialProps, ref) => {
             const val = op.get(value, name, '');
 
             if (Array.isArray(val)) {
+                if (type === 'object') {
+                    const v = JSON.stringify(val);
+                    element.value = v;
+                    console.log('object', name, v);
+                }
+
                 // Checkbox & Radio
                 if (['checkbox', 'radio'].includes(type)) {
                     const v = !isNaN(element.value)
@@ -159,11 +165,17 @@ let EventForm = (initialProps, ref) => {
                     });
                 }
             } else {
-                element.value = val;
+                if (type === 'object') {
+                    const v = JSON.stringify(val);
+                    element.value = v;
+                    console.log('object', name, v);
+                } else {
+                    element.value = val;
 
-                if (isBoolean(val)) {
-                    element.value = true;
-                    element.checked = Boolean(val);
+                    if (isBoolean(val)) {
+                        element.value = true;
+                        element.checked = Boolean(val);
+                    }
                 }
             }
         });
@@ -192,7 +204,6 @@ let EventForm = (initialProps, ref) => {
 
         const elms = ids.reduce((obj, i) => {
             const element = elements[i];
-            const name = element.name;
 
             if (name) {
                 if (op.has(obj, name)) {
@@ -353,6 +364,7 @@ let EventForm = (initialProps, ref) => {
         errors: op.get(state, 'errors'),
         focus,
         form: formRef.current,
+        getValue,
         props: initialProps,
         state,
         setState,

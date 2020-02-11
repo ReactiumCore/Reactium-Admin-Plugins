@@ -2,6 +2,7 @@
     [type='row'] {
         margin-left: -4px;
         margin-right: -4px;
+        margin-bottom: 15px;
         position: relative;
         outline: none;
         user-select: none;
@@ -36,7 +37,7 @@
                 width: 100%;
                 height: 100%;
                 border: 2px dashed $color-grey;
-                padding: 4px;
+                padding: 8px;
             }
 
             [type='embed'] {
@@ -46,6 +47,7 @@
                 img {
                     max-width: 100%;
                     margin-bottom: 0;
+                    padding: 0;
                 }
 
                 &:hover,

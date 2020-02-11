@@ -65,7 +65,8 @@ Plugin.callback = editor => {
                     {...props}>
                     <Icon
                         {...Reactium.RTE.ENUMS.PROPS.ICON}
-                        name='Feather.Sidebar'
+                        name='Feather.Layout'
+                        size={22}
                     />
                 </Button>
             );
@@ -75,10 +76,13 @@ Plugin.callback = editor => {
     // register hotkeys
     Reactium.RTE.Hotkey.register('grid-backspace', {
         keys: ['backspace'],
-        order: 100,
+        order: 100000000,
         callback: ({ editor, event }) => {
-            const [parent] = Editor.parent(editor, editor.selection);
-            const [node] = Editor.node(editor, editor.selection);
+            const [parent, parentPath] = Editor.parent(
+                editor,
+                editor.selection,
+            );
+            let [node] = Editor.node(editor, editor.selection);
 
             const isEmpty = _.chain([op.get(node, 'text')])
                 .compact()
@@ -88,11 +92,55 @@ Plugin.callback = editor => {
             if (!isEmpty) return;
 
             let type = op.get(parent, 'type');
-            type = String(type).toLowerCase();
+            type = type ? String(type).toLowerCase() : type;
 
             if (type === 'row' || type === 'col') {
                 event.preventDefault();
                 return false;
+            }
+
+            if (type !== 'col') {
+                const path = Array.from(editor.selection.focus.path);
+                while (path.length > 0) {
+                    path.pop();
+
+                    let [n, nodePath] = Editor.node(editor, {
+                        anchor: editor.selection.anchor,
+                        focus: {
+                            path,
+                            offset: editor.selection.focus.offset,
+                        },
+                    });
+
+                    let type = op.get(n, 'type');
+                    type = type ? String(type).toLowerCase() : type;
+
+                    if (!type || type === 'row') {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    if (type === 'col' || type === 'row') {
+                        event.preventDefault();
+                        return false;
+                    } else {
+                        if (type) {
+                            event.preventDefault();
+                            Transforms.select(editor, {
+                                anchor: {
+                                    path: parentPath,
+                                    offset: 0,
+                                },
+                                focus: {
+                                    path: parentPath,
+                                    offset: 0,
+                                },
+                            });
+                            Transforms.removeNodes(editor, { at: nodePath });
+                            return false;
+                        }
+                    }
+                }
             }
         },
     });

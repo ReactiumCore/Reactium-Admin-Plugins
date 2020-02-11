@@ -66,6 +66,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 0.3 - References
     const containerRef = useRef();
+    const inputRef = useRef();
     const panelRef = useRef();
     const sidebarRef = useRef();
     const toolbarRef = useRef();
@@ -154,12 +155,14 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     };
 
     // 4.0 - Editor value
-    const [value, setValue] = useState(op.get(initialProps, 'value'));
+    const [value, setValue] = useState({
+        children: op.get(initialProps, 'value'),
+    });
 
     // 6.0 - Handlers
     const _onChange = newValue => {
         //if (editor.selection) { console.log('selection', editor.selection.focus.path); }
-        setValue(newValue);
+        setValue({ children: newValue });
     };
 
     const _onKeyDown = e => Reactium.RTE.hotKey(editor, e, hotkeys);
@@ -305,17 +308,14 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         };
     }, [containerRef.current]);
 
-    // useEffect(() => {
-    //     if (editor.selection) {
-    //         console.log('selection',editor.selection.focus.path);
-    //     }
-    // }, [editor.selection]);
-
     // 11.0 - Render function
     const render = () => (
         <div className={cname()} ref={containerRef}>
-            <input type='hidden' name={name} value={JSON.stringify(value)} />
-            <Slate editor={editor} onChange={_onChange} value={value}>
+            <input type='object' name={name} />
+            <Slate
+                editor={editor}
+                onChange={_onChange}
+                value={op.get(value, 'children', [])}>
                 <Editable
                     {...props}
                     onKeyDown={_onKeyDown}

@@ -4,6 +4,15 @@ $ar-width-rte-toolbar: 40px !default;
 $ar-height-rte-sidebar: 30px !default;
 $ar-width-rte-sidebar: 40px !default;
 
+
+input[type='object'] {
+    opacity: 0;
+    position: absolute;
+    top: -1000px;
+    left: -1000px;
+    pointer-events: none;
+}
+
 .ar-rte {
     position: relative;
     padding-bottom: 100px;

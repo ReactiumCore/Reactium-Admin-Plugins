@@ -121,6 +121,7 @@ let Panel = (
     const _onSubmit = e => {
         if (_.isEmpty(_.compact(_.flatten([op.get(value, 'column')])))) return;
         insertNode();
+        setValue({ column: [] });
         hide();
     };
 

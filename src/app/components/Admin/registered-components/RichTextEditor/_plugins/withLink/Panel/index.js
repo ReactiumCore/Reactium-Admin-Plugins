@@ -4,24 +4,11 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
-import { ReactEditor, useSlate } from 'slate-react';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Editor, Range, Transforms } from 'slate';
+import { ReactEditor, useSlate } from 'slate-react';
+import React, { forwardRef, useRef, useState } from 'react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, {
-    __,
-    useDerivedState,
-    useEventHandle,
-    useHandle,
-} from 'reactium-core/sdk';
-
-import React, {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
 
 /**
  * -----------------------------------------------------------------------------
@@ -31,11 +18,12 @@ import React, {
 
 let Panel = (
     {
+        children,
         removeButtonLabel,
         submitButtonLabel,
-        children,
-        selection: initialSelection,
         title,
+        url,
+        selection,
         ...props
     },
     ref,
@@ -44,10 +32,8 @@ let Panel = (
 
     const editor = useSlate();
 
-    // Initial state
-    const [selection, setSelection] = useState(initialSelection);
-
-    const [value, setValue] = useState({});
+    // Initial value
+    const [value, setValue] = useState({ url });
 
     // className prefixer
     const cx = cls =>
@@ -66,28 +52,32 @@ let Panel = (
         Transforms.unwrapNodes(editor, { match: n => n.type === 'link' });
     };
 
-    const wrapLink = url => {
+    const wrapLink = () => {
+        const { url } = value;
+
         if (isLinkActive()) {
             unwrapLink();
         }
 
-        const isCollapsed = selection && Range.isCollapsed(selection);
+        const isExpanded = selection && !Range.isCollapsed(selection);
 
         const link = {
             type: 'link',
             href: url,
-            children: isCollapsed ? [{ text: url }] : [],
         };
 
-        if (isCollapsed) {
-            Transforms.insertNodes(editor, link, { at: selection });
-        } else {
-            Transforms.wrapNodes(editor, link, { split: true, at: selection });
+        if (isExpanded) {
+            Transforms.wrapNodes(editor, link, {
+                split: true,
+                at: selection,
+            });
             Transforms.collapse(editor, { edge: 'end' });
         }
 
         ReactEditor.focus(editor);
     };
+
+    const _onChange = e => setValue(e.value);
 
     const _onClearLink = e => {
         hide();
@@ -95,11 +85,9 @@ let Panel = (
     };
 
     const _onSubmit = e => {
-        const url = op.get(e.value, 'url');
-
-        if (!url) return;
-
-        wrapLink(url);
+        if (!op.get(value, 'url')) return;
+        wrapLink();
+        setValue({});
         hide();
     };
 
@@ -108,28 +96,16 @@ let Panel = (
         ReactEditor.focus(editor);
     };
 
-    // Handle
-    const _handle = () => ({});
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useImperativeHandle(ref, () => handle);
-
-    // On submit handler
-    useEffect(() => {
-        if (!formRef.current) return;
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [editor, selection]);
-
     // Renderers
     const render = () => {
         const isActive = isLinkActive();
         return (
-            <EventForm ref={formRef} className={cx()}>
+            <EventForm
+                ref={formRef}
+                className={cx()}
+                value={value}
+                onChange={_onChange}
+                onSubmit={_onSubmit}>
                 <Dialog
                     header={{
                         title,

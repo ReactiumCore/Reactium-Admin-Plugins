@@ -319,47 +319,59 @@ Plugin.callback = editor => {
         keys: ['backspace', 'enter'],
         order: 1000,
         callback: ({ editor, event }) => {
-            const [node, path] = Editor.node(editor, editor.selection);
-            const text = op.get(node, 'text');
-            const isEmpty = _.chain([text])
-                .compact()
-                .isEmpty()
-                .value();
+            try {
+                const [node, path] = Editor.node(editor, editor.selection);
 
-            if (!isEmpty) return;
+                const text = op.get(node, 'text');
+                const isEmpty = _.chain([text])
+                    .compact()
+                    .isEmpty()
+                    .value();
 
-            const [parent] = Editor.parent(editor, editor.selection);
+                if (!isEmpty) return;
 
-            const selection = {
-                anchor: { path, offset: 0 },
-                focus: { path, offset: 0 },
-            };
+                const [parent] = Editor.parent(editor, editor.selection);
 
-            let type = op.get(parent, 'type');
-            type = type === 'paragraph' ? 'p' : type;
-            type = String(type).toLowerCase();
+                const selection = {
+                    anchor: { path, offset: 0 },
+                    focus: { path, offset: 0 },
+                };
 
-            if (!type || type === 'div') return;
+                let type = op.get(parent, 'type');
+                type = type === 'paragraph' ? 'p' : type;
+                type = String(type).toLowerCase();
 
-            const list = ['ol', 'ul', 'li'];
-            const types = ['blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-            const isType = types.includes(type);
+                if (!type || type === 'div' || type === 'col' || type === 'row')
+                    return;
 
-            if (isType) {
-                event.preventDefault();
+                const list = ['ol', 'ul', 'li'];
+                const types = [
+                    'blockquote',
+                    'h1',
+                    'h2',
+                    'h3',
+                    'h4',
+                    'h5',
+                    'h6',
+                ];
+                const isType = types.includes(type);
 
-                Transforms.unwrapNodes(editor, {
-                    match: n => list.includes(n.type),
-                });
+                if (isType) {
+                    event.preventDefault();
 
-                Transforms.setNodes(
-                    editor,
-                    { type: 'p', style: {} },
-                    { at: selection },
-                );
-            } else {
-                Transforms.setSelection(editor, { styles: {} });
-            }
+                    Transforms.unwrapNodes(editor, {
+                        match: n => list.includes(n.type),
+                    });
+
+                    Transforms.setNodes(
+                        editor,
+                        { type: 'p', style: {} },
+                        { at: selection },
+                    );
+                } else {
+                    Transforms.setSelection(editor, { styles: {} });
+                }
+            } catch (err) {}
         },
     });
 

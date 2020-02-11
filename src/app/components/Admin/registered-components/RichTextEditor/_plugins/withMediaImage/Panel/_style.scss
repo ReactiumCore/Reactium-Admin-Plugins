@@ -7,9 +7,9 @@
         user-select: none;
         display: block;
 
-        // [data-slate-spacer] {
-        //     display: none;
-        // }
+        [data-slate-spacer] {
+            display: none;
+        }
 
         &.right {
             width: auto;

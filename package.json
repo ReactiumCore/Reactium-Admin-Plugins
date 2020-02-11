@@ -103,6 +103,7 @@
     "slate": "^0.57.1",
     "slate-history": "^0.57.1",
     "slate-react": "^0.57.1",
+    "tree-flatten": "^1.0.0",
     "underscore": "*",
     "uuid": "^3.4.0",
     "xss": "^1.0.6"

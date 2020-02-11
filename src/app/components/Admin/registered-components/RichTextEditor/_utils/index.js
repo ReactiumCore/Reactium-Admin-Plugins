@@ -33,16 +33,28 @@ export const getSelected = () => {
 };
 
 export const isBlockActive = (editor, block) => {
-    const [match] = Editor.nodes(editor, {
-        match: n => n.type === block,
-    });
+    if (!editor) return false;
+    if (!block) return false;
 
-    return !!match;
+    try {
+        const [match] = Editor.nodes(editor, {
+            match: n => n.type === block,
+        });
+
+        return !!match;
+    } catch (err) {}
 };
 
 export const isMarkActive = (editor, format) => {
-    const marks = Editor.marks(editor) || {};
-    return op.has(marks, format);
+    if (!editor) return false;
+    if (!format) return false;
+
+    try {
+        const marks = Editor.marks(editor) || {};
+        return op.has(marks, format);
+    } catch (err) {
+        return false;
+    }
 };
 
 export const toggleBlock = (editor, block, e) => {

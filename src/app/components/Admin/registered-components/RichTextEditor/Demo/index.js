@@ -6,6 +6,7 @@
 import op from 'object-path';
 import _ from 'underscore';
 import { Helmet } from 'react-helmet';
+import EventForm from '../EventForm';
 import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
@@ -38,14 +39,23 @@ const testFormat = () => {
     return plugin;
 };
 
-const EditorDemo = props => {
+const EditorDemo = ({ name, ...props }) => {
     const editorRef = useRef();
+    const formRef = useRef();
     const [editor, setEditor] = useState();
+    const [value, setValue] = useState({ [name]: props.value });
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const onChange = e => {
-        // console.log(e.target.value);
+        setValue({ [name]: e.target.value });
     };
+
+    useEffect(() => {
+        if (!formRef.current) return;
+        if (formRef.current.value !== value) {
+            formRef.current.setValue(value);
+        }
+    }, [value]);
 
     const render = () => {
         return (
@@ -53,7 +63,17 @@ const EditorDemo = props => {
                 <Helmet>
                     <title>Rich Text Editor</title>
                 </Helmet>
-                <RichTextEditor ref={editorRef} value={props.value} />
+                <EventForm
+                    onChange={e => console.log(e.value.rte.children)}
+                    ref={formRef}
+                    value={value}>
+                    <RichTextEditor
+                        ref={editorRef}
+                        value={props.value}
+                        name={name}
+                        onChange={onChange}
+                    />
+                </EventForm>
             </div>
         );
     };
@@ -86,6 +106,7 @@ EditorDemo.defaultProps = {
             children: [{ text: 'Reactium Admin Rich Text Editor' }],
         },
     ],
+    name: 'rte',
 };
 
 export default EditorDemo;
