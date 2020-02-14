@@ -3,42 +3,19 @@
  * Imports
  * -----------------------------------------------------------------------------
  */
-import op from 'object-path';
 import _ from 'underscore';
-import { Helmet } from 'react-helmet';
+import op from 'object-path';
 import EventForm from '../EventForm';
-import React, { useMemo, useEffect, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 
 /**
  * -----------------------------------------------------------------------------
  * Toolkit Element: EditorDemo
  * -----------------------------------------------------------------------------
  */
-const testFormat = () => {
-    const buttonProps = Reactium.RTE.ENUMS.PROPS.BUTTON;
-    const iconProps = Reactium.RTE.ENUMS.PROPS.ICON;
-
-    const plugin = {
-        id: 'test',
-        order: 0,
-        toolbar: true,
-        leaf: props => <span {...props} className='blue' />,
-        button: ({ editor, ...props }) => (
-            <Button
-                {...buttonProps}
-                active={Reactium.RTE.isMarkActive(editor, 'test')}
-                onClick={e => Reactium.RTE.toggleMark(editor, 'test', e)}
-                {...props}>
-                <Icon {...iconProps} name='Linear.Link' />
-            </Button>
-        ),
-    };
-
-    return plugin;
-};
-
 const EditorDemo = ({ name, ...props }) => {
     const editorRef = useRef();
     const formRef = useRef();
@@ -46,19 +23,10 @@ const EditorDemo = ({ name, ...props }) => {
     const [value, setValue] = useState(props.value);
     const RichTextEditor = useHookComponent('RichTextEditor');
 
-    const onEditorChange = e => {
-        const newValue = { ...value, [name]: e.target.value };
-        //setValue(newValue);
-        formRef.current.setValue(newValue);
-    };
-
-    const onChange = e => {
-        console.log('onChange', e.value);
-    };
-
-    const onSubmit = e => {
-        console.log('onSubmit', formRef.current.value);
-    };
+    const onChange = e => console.log('onChange', e.value);
+    const onRTEChange = e =>
+        formRef.current.setValue({ ...value, [name]: e.target.value });
+    const onSubmit = e => console.log('onSubmit', formRef.current.value);
 
     const render = () => {
         return (
@@ -85,18 +53,11 @@ const EditorDemo = ({ name, ...props }) => {
     useEffect(() => {
         if (!editorRef.current || !editor) return;
 
-        editorRef.current.addEventListener('change', onEditorChange);
+        editorRef.current.addEventListener('change', onRTEChange);
 
         return () => {
-            editorRef.current.removeEventListener('change', onEditorChange);
+            editorRef.current.removeEventListener('change', onRTEChange);
         };
-    });
-
-    useEffect(() => {
-        if (!editorRef.current) return;
-        if (!editor) {
-            setEditor(editorRef.current.editor);
-        }
     });
 
     return render();
