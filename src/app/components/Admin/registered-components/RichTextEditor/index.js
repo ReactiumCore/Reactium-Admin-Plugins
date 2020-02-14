@@ -155,9 +155,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     };
 
     // 4.0 - Editor value
-    const [value, setValue] = useState({
-        children: op.get(initialProps, 'value'),
-    });
+    const [value, setValue] = useState(op.get(initialProps, 'value'));
 
     // 6.0 - Handlers
     const _onChange = newValue => {
@@ -391,7 +389,7 @@ RichTextEditor.propTypes = {
     spellCheck: PropTypes.bool,
     tabs: PropTypes.object,
     toolbar: PropTypes.bool,
-    value: PropTypes.array,
+    value: PropTypes.object,
 };
 
 RichTextEditor.defaultProps = {

@@ -43,19 +43,22 @@ const EditorDemo = ({ name, ...props }) => {
     const editorRef = useRef();
     const formRef = useRef();
     const [editor, setEditor] = useState();
-    const [value, setValue] = useState({ [name]: props.value });
+    const [value, setValue] = useState(props.value);
     const RichTextEditor = useHookComponent('RichTextEditor');
 
-    const onChange = e => {
-        setValue({ [name]: e.target.value });
+    const onEditorChange = e => {
+        const newValue = { ...value, [name]: e.target.value };
+        //setValue(newValue);
+        formRef.current.setValue(newValue);
     };
 
-    useEffect(() => {
-        if (!formRef.current) return;
-        if (formRef.current.value !== value) {
-            formRef.current.setValue(value);
-        }
-    }, [value]);
+    const onChange = e => {
+        console.log('onChange', e.value);
+    };
+
+    const onSubmit = e => {
+        console.log('onSubmit', formRef.current.value);
+    };
 
     const render = () => {
         return (
@@ -64,15 +67,16 @@ const EditorDemo = ({ name, ...props }) => {
                     <title>Rich Text Editor</title>
                 </Helmet>
                 <EventForm
-                    onChange={e => console.log(e.value.rte.children)}
+                    onSubmit={onSubmit}
+                    onChange={onChange}
                     ref={formRef}
                     value={value}>
                     <RichTextEditor
                         ref={editorRef}
-                        value={props.value}
+                        value={op.get(value, name)}
                         name={name}
-                        onChange={onChange}
                     />
+                    <Button type='submit'>Submit</Button>
                 </EventForm>
             </div>
         );
@@ -81,10 +85,10 @@ const EditorDemo = ({ name, ...props }) => {
     useEffect(() => {
         if (!editorRef.current || !editor) return;
 
-        editorRef.current.addEventListener('change', onChange);
+        editorRef.current.addEventListener('change', onEditorChange);
 
         return () => {
-            editorRef.current.removeEventListener('change', onChange);
+            editorRef.current.removeEventListener('change', onEditorChange);
         };
     });
 
@@ -100,12 +104,16 @@ const EditorDemo = ({ name, ...props }) => {
 
 // Default properties
 EditorDemo.defaultProps = {
-    value: [
-        {
-            type: 'p',
-            children: [{ text: 'Reactium Admin Rich Text Editor' }],
+    value: {
+        rte: {
+            children: [
+                {
+                    type: 'p',
+                    children: [{ text: 'Reactium Admin Rich Text Editor' }],
+                },
+            ],
         },
-    ],
+    },
     name: 'rte',
 };
 

@@ -131,12 +131,6 @@ let EventForm = (initialProps, ref) => {
             const val = op.get(value, name, '');
 
             if (Array.isArray(val)) {
-                if (type === 'object') {
-                    const v = JSON.stringify(val);
-                    element.value = v;
-                    console.log('object', name, v);
-                }
-
                 // Checkbox & Radio
                 if (['checkbox', 'radio'].includes(type)) {
                     const v = !isNaN(element.value)
@@ -165,17 +159,11 @@ let EventForm = (initialProps, ref) => {
                     });
                 }
             } else {
-                if (type === 'object') {
-                    const v = JSON.stringify(val);
-                    element.value = v;
-                    console.log('object', name, v);
-                } else {
-                    element.value = val;
+                element.value = val;
 
-                    if (isBoolean(val)) {
-                        element.value = true;
-                        element.checked = Boolean(val);
-                    }
+                if (isBoolean(val)) {
+                    element.value = true;
+                    element.checked = Boolean(val);
                 }
             }
         });
@@ -188,6 +176,23 @@ let EventForm = (initialProps, ref) => {
             .uniq()
             .value()
             .join('-');
+
+    const dispatchChange = ({ value: newValue, event = {} }) => {
+        newValue = newValue || getValue();
+
+        if (controlled !== true) {
+            setNewValue(newValue);
+        }
+
+        const evt = new FormEvent('change', {
+            target: formRef.current,
+            element: op.get(event, 'target'),
+            value: newValue,
+        });
+
+        handle.dispatchEvent(evt);
+        onChange(evt);
+    };
 
     const focus = name => {
         const elements = getElements();
@@ -250,19 +255,8 @@ let EventForm = (initialProps, ref) => {
         }
     };
 
-    const setValue = newValue => {
-        if (controlled) return;
-
-        setNewValue({ ...value, ...newValue });
-
-        const evt = new FormEvent('change', {
-            target: formRef.current,
-            element: formRef.current,
-            value: newValue,
-        });
-        handle.dispatchEvent(evt);
-        onChange(evt);
-    };
+    const setValue = newValue =>
+        dispatchChange({ value: newValue, event: formRef.current });
 
     const validate = async value => {
         value = value || getValue();
@@ -299,19 +293,8 @@ let EventForm = (initialProps, ref) => {
     };
 
     /* Event handlers */
-    const _onChange = e => {
-        const newValue = getValue();
-
-        setNewValue(newValue);
-
-        const evt = new FormEvent('change', {
-            target: formRef.current,
-            element: e.target,
-            value: newValue,
-        });
-
-        handle.dispatchEvent(evt);
-        onChange(evt);
+    const _onChange = event => {
+        dispatchChange({ event });
     };
 
     const _onSubmit = async e => {
@@ -391,7 +374,7 @@ let EventForm = (initialProps, ref) => {
     // update value from props
     useEffect(() => {
         if (_.isEqual(value, initialValue)) return;
-        setNewValue(initialValue);
+        dispatchChange({ value: initialValue });
     }, [initialValue]);
 
     // status

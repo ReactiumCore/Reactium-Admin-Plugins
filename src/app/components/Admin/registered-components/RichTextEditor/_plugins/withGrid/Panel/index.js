@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import EventForm from '../../../EventForm';
 import { Editor, Transforms } from 'slate';
 import Reactium, { __ } from 'reactium-core/sdk';
-import { ReactEditor, useSlate } from 'slate-react';
+import { ReactEditor, useEditor } from 'slate-react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import React, {
     forwardRef,
@@ -46,7 +46,7 @@ let Panel = (
     const addRef = useRef();
     const formRef = useRef();
 
-    const editor = useSlate();
+    const editor = useEditor();
 
     // Initial state
     const [value, setValue] = useState({
@@ -125,7 +125,10 @@ let Panel = (
         hide();
     };
 
-    const _onChange = e => setValue(e.value);
+    const _onChange = e => {
+        console.log(e.value);
+        setValue(e.value);
+    };
 
     const hide = () => {
         editor.panel.hide(false).setID('rte-panel');
