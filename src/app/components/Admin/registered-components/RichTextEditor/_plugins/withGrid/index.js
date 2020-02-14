@@ -19,12 +19,9 @@ const Plugin = new RTEPlugin({ type: 'grid', order: 100 });
 Plugin.callback = editor => {
     const onButtonClick = e => {
         const btn = e.currentTarget;
+        const rect = btn.getBoundingClientRect();
+        let { x, y, width } = rect;
 
-        let {
-            x,
-            y,
-            width,
-        } = editor.sidebar.container.current.getBoundingClientRect();
         x += width;
 
         editor.panel

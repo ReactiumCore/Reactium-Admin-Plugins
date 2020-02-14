@@ -25,10 +25,16 @@ const useLayoutEffect =
  * Hook Component: DragPanel
  * -----------------------------------------------------------------------------
  */
-let Panel = (
-    { children, handle: Handle, id: initialId, visible: isVisible, ...props },
-    ref,
-) => {
+let Panel = (initialProps, ref) => {
+    const {
+        autohide,
+        children,
+        handle: Handle,
+        id: initialId,
+        visible: isVisible,
+        ...props
+    } = initialProps;
+
     const initialState = { ...props, reset: false };
 
     // Refs
@@ -122,6 +128,27 @@ let Panel = (
         }
     };
 
+    const autoHidePanel = e => {
+        const container = containerRef.current;
+        if (!container || visible !== true || autohide !== true) return;
+
+        let isContainer = false;
+        const nodes = [e.target];
+
+        while (nodes.length > 0) {
+            const node = nodes.shift();
+            isContainer = node === container ? true : isContainer;
+            if (isContainer === true) break;
+            if (node.parentNode) {
+                nodes.push(node.parentNode);
+            }
+        }
+
+        if (isContainer === true) return;
+
+        hide();
+    };
+
     // classname and namespace
     const cname = () => {
         const { className, namespace } = state;
@@ -136,7 +163,7 @@ let Panel = (
             .value()
             .join('-');
 
-    const hide = (animate = true) => {
+    const hide = (animate = true, empty = false) => {
         handle.dispatchEvent(new Event('beforehide'));
 
         const container = containerRef.current;
@@ -147,10 +174,18 @@ let Panel = (
             TweenMax.to(container, animationSpeed, {
                 ease: animationEase,
                 opacity: 0,
-                onComplete: () => setVisible(false),
+                onComplete: () => {
+                    setVisible(false);
+                    if (empty === true) {
+                        setNewContent('');
+                    }
+                },
             });
         } else {
             setVisible(false);
+            if (empty === true) {
+                setNewContent('');
+            }
         }
 
         return handle;
@@ -162,7 +197,7 @@ let Panel = (
     };
 
     const setContent = children => {
-        setNewContent(null);
+        setNewContent('');
         setNewContent(children);
         adjustPosition();
         return handle;
@@ -212,13 +247,14 @@ let Panel = (
 
     // Handle
     const _handle = () => ({
-        container: containerRef,
+        container: containerRef.current,
         content,
         hide,
         id,
         moveTo,
         position,
         prevState,
+        props: initialProps,
         setContent,
         setID,
         setPrevState,
@@ -314,6 +350,18 @@ let Panel = (
         setHandle(_handle());
     }, [content, state, visible, id]);
 
+    // auto hide
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        window.addEventListener('mousedown', autoHidePanel);
+        window.addEventListener('touchstart', autoHidePanel);
+
+        return () => {
+            window.removeEventListener('mousedown', autoHidePanel);
+            window.removeEventListener('touchstart', autoHidePanel);
+        };
+    });
+
     // Renderers
     const render = () => {
         const { className, disabled, dragProps = {}, reset = false } = state;
@@ -365,6 +413,7 @@ Panel = forwardRef(Panel);
 Panel.propTypes = {
     animationEase: PropTypes.object,
     animationSpeed: PropTypes.number,
+    autohide: PropTypes.bool,
     className: PropTypes.string,
     disabled: PropTypes.bool,
     dragProps: PropTypes.object,
@@ -376,6 +425,7 @@ Panel.propTypes = {
 Panel.defaultProps = {
     animationEase: Power2.easeInOut,
     animationSpeed: 0.25,
+    autohide: false,
     disabled: false,
     dragProps: {
         defaultClassName: 'ar-panel',

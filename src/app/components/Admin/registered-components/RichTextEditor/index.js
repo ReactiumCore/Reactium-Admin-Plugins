@@ -336,12 +336,12 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
                 )}
                 {showPanel === true && (
                     <Panel
+                        autohide
                         className={cx('panel')}
                         draggable
                         dragProps={dragProps}
                         ref={panelRef}
                         id={cx('panel')}
-                        children={Date.now()}
                         visible={false}
                     />
                 )}

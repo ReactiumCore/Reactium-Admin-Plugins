@@ -215,15 +215,15 @@ let EventForm = (initialProps, ref) => {
             const element = elements[i];
             const name = element.getAttribute('name');
 
-            if (name) {
-                if (op.has(obj, name)) {
-                    if (!Array.isArray(obj[name])) {
-                        obj[name] = [obj[name]];
-                    }
-                    obj[name].push(element);
-                } else {
-                    obj[name] = element;
+            if (!name) return obj;
+
+            if (op.has(obj, name)) {
+                if (!Array.isArray(obj[name])) {
+                    obj[name] = [obj[name]];
                 }
+                obj[name].push(element);
+            } else {
+                obj[name] = element;
             }
 
             return obj;

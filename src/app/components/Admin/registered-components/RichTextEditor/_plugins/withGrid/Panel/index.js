@@ -33,16 +33,7 @@ const CloseButton = props => (
     </Button>
 );
 
-let Panel = (
-    {
-        submitButtonLabel,
-        children,
-        selection: initialSelection,
-        title,
-        ...props
-    },
-    ref,
-) => {
+let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
     const addRef = useRef();
     const formRef = useRef();
 
@@ -50,7 +41,7 @@ let Panel = (
 
     // Initial state
     const [value, setValue] = useState({
-        column: ['col-xs-12'],
+        column: [],
     });
 
     // className prefixer
