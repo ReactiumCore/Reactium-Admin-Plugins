@@ -126,7 +126,6 @@ let Panel = (
     };
 
     const _onChange = e => {
-        console.log(e.value);
         setValue(e.value);
     };
 

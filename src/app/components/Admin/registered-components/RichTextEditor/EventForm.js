@@ -186,7 +186,7 @@ let EventForm = (initialProps, ref) => {
 
         const evt = new FormEvent('change', {
             target: formRef.current,
-            element: op.get(event, 'target'),
+            element: op.get(event, 'target', formRef.current),
             value: newValue,
         });
 
@@ -293,12 +293,16 @@ let EventForm = (initialProps, ref) => {
     };
 
     /* Event handlers */
-    const _onChange = event => {
-        dispatchChange({ event });
+    const _onChange = e => {
+        e.stopPropagation();
+        dispatchChange({ event: e });
     };
 
     const _onSubmit = async e => {
-        if (e) e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
         let evt;
         const { status } = state;
@@ -414,6 +418,7 @@ EventForm.propTypes = {
     className: PropTypes.string,
     controlled: PropTypes.bool,
     defaultValue: PropTypes.object,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     required: PropTypes.array.isRequired,
     namespace: PropTypes.string,
     onChange: PropTypes.func,
@@ -426,6 +431,7 @@ EventForm.propTypes = {
 
 EventForm.defaultProps = {
     controlled: false,
+    id: uuid(),
     namespace: 'ar-event-form',
     onChange: noop,
     onError: noop,
