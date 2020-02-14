@@ -9,6 +9,7 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
+    useLayoutEffect as useWindowEffect,
     useMemo,
     useRef,
     useState,
@@ -24,6 +25,9 @@ const ENUMS = {
         VALIDATING: 'VALIDATING',
     },
 };
+
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 class FormEvent extends CustomEvent {
     constructor(type, data) {
@@ -112,7 +116,7 @@ let EventForm = (initialProps, ref) => {
 
     /* Functions */
     const applyValue = newValue => {
-        if (controlled === true) return;
+        if (controlled === true || typeof newValue === 'undefined') return;
 
         const value = newValue;
         const elements = _.flatten(
@@ -209,6 +213,7 @@ let EventForm = (initialProps, ref) => {
 
         const elms = ids.reduce((obj, i) => {
             const element = elements[i];
+            const name = element.getAttribute('name');
 
             if (name) {
                 if (op.has(obj, name)) {
@@ -392,6 +397,11 @@ let EventForm = (initialProps, ref) => {
             }),
         );
     }, [op.get(state, 'status')]);
+
+    // Children change -> applyValue
+    useLayoutEffect(() => {
+        applyValue(value);
+    }, [children]);
 
     /* Renderers */
     const render = () => {

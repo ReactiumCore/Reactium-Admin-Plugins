@@ -24,8 +24,9 @@ const EditorDemo = ({ name, ...props }) => {
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const onChange = e => {
-        // console.log('onChange', e.value);
+        //console.log('onChange', e.value);
     };
+
     const onEditorChange = e => {
         formRef.current.setValue({ ...value, [name]: e.target.value });
     };

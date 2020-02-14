@@ -50,7 +50,7 @@ let Panel = (
 
     // Initial state
     const [value, setValue] = useState({
-        column: [],
+        column: ['col-xs-12'],
     });
 
     // className prefixer
@@ -103,6 +103,7 @@ let Panel = (
         const newColumns = Array.from(op.get(value, 'column', []));
         newColumns.push(val);
         setValue({ column: newColumns });
+
         addRef.current.value = '';
         addRef.current.focus();
     };
@@ -155,6 +156,7 @@ let Panel = (
 
         return (
             <EventForm
+                id='grid-insert'
                 ref={formRef}
                 className={cx()}
                 value={value}

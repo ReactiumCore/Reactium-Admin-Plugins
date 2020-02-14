@@ -1,5 +1,6 @@
 import Leaf from './Leaf';
 import _ from 'underscore';
+import uuid from 'uuid/v4';
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
@@ -308,8 +309,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 11.0 - Render function
     const render = () => (
-        <div className={cname()} ref={containerRef}>
-            <input type='object' name={name} />
+        <div className={cname()} ref={containerRef} id={id}>
             <Slate
                 editor={editor}
                 onChange={_onChange}
@@ -400,7 +400,7 @@ RichTextEditor.defaultProps = {
         formats: [],
     },
     filter: {},
-    id: 'rte',
+    id: uuid(),
     include: {
         blocks: [],
         buttons: [],
@@ -415,12 +415,14 @@ RichTextEditor.defaultProps = {
     sidebar: true,
     spellCheck: true,
     toolbar: true,
-    value: [
-        {
-            type: 'paragraph',
-            children: [{ text: '' }],
-        },
-    ],
+    value: {
+        children: [
+            {
+                type: 'paragraph',
+                children: [{ text: '' }],
+            },
+        ],
+    },
 };
 
 export { Plugin, RichTextEditor as default };
