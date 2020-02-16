@@ -7,6 +7,7 @@ import withData from './withData';
 import withFont from './withFont';
 import withFormatter from './withFormatter';
 import withGrid from './withGrid';
+import withIcon from './withIcon';
 import withLink from './withLink';
 import withItalic from './withItalic';
 import withList from './withList';
@@ -23,6 +24,7 @@ export default plugins = {
     withFont,
     withFormatter,
     withGrid,
+    withIcon,
     withLink,
     withItalic,
     withMediaImage,

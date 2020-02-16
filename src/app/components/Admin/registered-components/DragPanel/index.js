@@ -117,7 +117,9 @@ let Panel = (initialProps, ref) => {
             position.y = y > maxY ? maxY : y;
 
             position.y = Math.max(position.y, minY);
+            position.y = Math.min(position.y, maxY);
             position.x = Math.max(position.x, minX);
+            position.x = Math.min(position.x, maxX);
 
             if (ID) {
                 Reactium.Prefs.set(`admin.position.${ID}`, position);
@@ -301,13 +303,15 @@ let Panel = (initialProps, ref) => {
     const _onStateChange = (state, prevState) =>
         handle.dispatchEvent(new CustomEvent('change', { state, prevState }));
 
+    const _onResize = () => adjustPosition();
+
     // Side effects
     // window resize listener
     useEffect(() => {
         adjustPosition();
-        window.addEventListener('resize', adjustPosition);
+        window.addEventListener('resize', _onResize);
         return () => {
-            window.removeEventListener('resize', adjustPosition);
+            window.removeEventListener('resize', _onResize);
         };
     }, [containerRef.current, content]);
 

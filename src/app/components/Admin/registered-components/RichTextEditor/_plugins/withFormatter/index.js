@@ -7,31 +7,6 @@ import { Editor, Transforms } from 'slate';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Panel from './Panel';
 
-const onButtonClick = (e, editor) => {
-    const btn = e.currentTarget;
-
-    const setActive = e => {
-        const { id, visible } = e.target;
-
-        if (id !== 'formatter' || visible === true) {
-            e.target.removeEventListener('content', setActive);
-            btn.classList.remove('active');
-            return;
-        }
-
-        if (visible === false) {
-            btn.classList.add('active');
-            return;
-        }
-    };
-
-    editor.panel.addEventListener('content', setActive);
-    editor.panel
-        .setID('formatter')
-        .setContent(<Panel selection={editor.selection} />)
-        .toggle();
-};
-
 export const colors = {
     'color-black': '#000000',
     'color-gray-dark': '#333333',
@@ -53,6 +28,13 @@ export const colors = {
 const Plugin = new RTEPlugin({ type: 'formatter', order: 100 });
 
 Plugin.callback = editor => {
+    const onButtonClick = e => {
+        editor.panel
+            .setID('formatter')
+            .setContent(<Panel selection={editor.selection} />)
+            .show();
+    };
+
     // register buttons
     Reactium.RTE.Button.register(Plugin.type, {
         order: 0,
@@ -60,7 +42,7 @@ Plugin.callback = editor => {
         button: ({ editor, ...props }) => (
             <Button
                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                onClick={e => onButtonClick(e, editor)}
+                onClick={onButtonClick}
                 {...props}>
                 <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Type' />
             </Button>
