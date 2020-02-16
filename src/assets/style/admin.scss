@@ -23,6 +23,7 @@
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withFormatter/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withLink/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withColor/Panel/style';
+@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withIcon/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withMediaImage/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
 
@@ -63,3 +64,5 @@
 @import '../../app/components/Admin/Media/MediaEditor/ImageCrop/style';
 @import '../../app/components/Admin/Media/MediaEditor/ThumbnailSelect/style';
 @import '../../app/components/Admin/Media/MediaPicker/style';
+
+@import '../../app/components/Admin/registered-components/IconPicker/style';

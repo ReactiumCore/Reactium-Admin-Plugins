@@ -1,0 +1,30 @@
+.rte-icons {
+    &-search {
+        padding: 16px;
+        background-color: #fdfdfd;
+        border-bottom: 1px solid $color-border;
+
+        .input-group {
+            background-color: $color-white;
+
+            input {
+                min-width: 0;
+                flex-grow: 1;
+                margin: 0 -1px 0 0;
+                background-color: transparent;
+                border: 1px solid #f3f3f3;
+
+                &:focus {
+                    z-index: 10000;
+                    border: 1px solid $color-blue;
+                }
+            }
+        }
+
+        [type='number'] {
+            width: 80px;
+            text-align: center;
+            padding-right: 0;
+        }
+    }
+}

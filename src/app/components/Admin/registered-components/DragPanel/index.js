@@ -220,12 +220,12 @@ let Panel = (initialProps, ref) => {
         return handle;
     };
 
-    const show = () => {
+    const show = (animate = true) => {
         handle.dispatchEvent(new Event('beforeshow'));
 
         const container = containerRef.current;
 
-        if (container) {
+        if (container && animate === true) {
             const { animationEase, animationSpeed } = state;
 
             container.style.display = 'flex';

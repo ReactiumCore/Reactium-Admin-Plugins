@@ -75,10 +75,14 @@ Plugin.callback = editor => {
         keys: ['backspace'],
         order: 100000000,
         callback: ({ editor, event }) => {
-            const [parent, parentPath] = Editor.parent(
-                editor,
-                editor.selection,
-            );
+            let getParent;
+            try {
+                getParent = Editor.parent(editor, editor.selection);
+            } catch (err) {
+                return;
+            }
+
+            const [parent, parentPath] = getParent;
             let [node] = Editor.node(editor, editor.selection);
 
             const isEmpty = _.chain([op.get(node, 'text')])

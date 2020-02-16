@@ -16,20 +16,28 @@ Plugin.callback = editor => {
 
         editor.panel
             .setID(Plugin.type)
-            .setContent(<Panel />)
+            .setContent(<Panel selection={editor.selection} />)
             .moveTo(x, y)
-            .show();
+            .show(false);
     };
 
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ ID, children, color, name, size, type, ...props }) => (
-            <>
-                <Icon name={name} size={size} color={color} id={ID} />
+        element: ({ ID, children, color, icon, size, type, ...props }) => (
+            <span {...props} className='rte-icon'>
+                <span contentEditable={false}>
+                    <Icon
+                        name={icon}
+                        size={size}
+                        style={{ fill: color, marginBottom: size / 2 }}
+                        id={ID}
+                    />
+                </span>
                 {children}
-            </>
+            </span>
         ),
     });
+
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
         order: 61,
@@ -49,6 +57,11 @@ Plugin.callback = editor => {
             );
         },
     });
+
+    // editor overrides
+    const { isInline } = editor;
+
+    editor.isInline = n => (n.type === Plugin.type ? true : isInline(n));
 
     return editor;
 };
