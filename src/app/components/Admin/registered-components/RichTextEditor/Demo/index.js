@@ -53,7 +53,9 @@ const EditorDemo = ({ name, ...props }) => {
                         name={name}
                         onChange={onEditorChange}
                     />
-                    <Button type='submit'>Submit</Button>
+                    <Button type='submit' style={{ display: 'none' }}>
+                        Submit
+                    </Button>
                 </EventForm>
             </div>
         );

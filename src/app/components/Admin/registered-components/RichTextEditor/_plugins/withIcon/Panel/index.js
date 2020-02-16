@@ -21,7 +21,13 @@ const CloseButton = props => (
     </Button>
 );
 
-const Panel = ({ title, selection: initialSelection, ...props }) => {
+const Panel = ({
+    onDismiss,
+    onSelect,
+    selection: initialSelection,
+    title,
+    ...props
+}) => {
     const pickerRef = useRef();
 
     const editor = useEditor();
@@ -40,6 +46,8 @@ const Panel = ({ title, selection: initialSelection, ...props }) => {
             .join('-');
 
     const hide = () => {
+        if (onDismiss) return onDismiss();
+
         editor.panel.hide(false, true).setID('rte-panel');
         ReactEditor.focus(editor);
     };
@@ -71,7 +79,9 @@ const Panel = ({ title, selection: initialSelection, ...props }) => {
     const _size = value => pickerRef.current.setSize(Number(value || 24));
     const size = _.throttle(_size, 100);
 
-    const onSelect = e => {
+    const _onSelect = e => {
+        if (typeof onSelect === 'function') return onSelect(e);
+
         insertNode(e.item);
         pickerRef.current.setValue([]);
         hide();
@@ -117,7 +127,7 @@ const Panel = ({ title, selection: initialSelection, ...props }) => {
                         </div>
                     </div>
                     <Scrollbars autoHeight autoHeightMin={250}>
-                        <IconPicker ref={pickerRef} onSelect={onSelect} />
+                        <IconPicker ref={pickerRef} onSelect={_onSelect} />
                     </Scrollbars>
                 </div>
             </Dialog>
@@ -129,6 +139,8 @@ const Panel = ({ title, selection: initialSelection, ...props }) => {
 
 Panel.propTypes = {
     namespace: PropTypes.string,
+    onDismiss: PropTypes.string,
+    onSelect: PropTypes.func,
     title: PropTypes.string,
 };
 

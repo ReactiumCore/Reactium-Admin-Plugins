@@ -16,14 +16,16 @@ const noop = () => {};
 
 const getIcons = (search = '') =>
     Object.keys(Icon.icons).reduce((obj, group) => {
-        obj[group] =
-            String(search).length < 1
-                ? Object.keys(Icon.icons[group])
-                : Object.keys(Icon.icons[group]).filter(name =>
-                      String(name)
-                          .toLowerCase()
-                          .includes(String(search).toLowerCase()),
-                  );
+        obj[group] = Object.keys(Icon.icons[group]);
+
+        if (String(search).length > 0) {
+            obj[group] = obj[group].filter(name =>
+                String(name)
+                    .toLowerCase()
+                    .includes(String(search).toLowerCase()),
+            );
+        }
+
         return obj;
     }, {});
 
@@ -94,6 +96,8 @@ let IconPicker = (initialProps, ref) => {
         onChange,
         onMouseOut,
         onMouseOver,
+        onResize,
+        onSearch,
         onSelect,
         onTouchStart,
         onUnselect,
@@ -203,16 +207,20 @@ let IconPicker = (initialProps, ref) => {
     useImperativeHandle(ref, () => handle);
 
     useEffect(() => {
-        setIcons(getIcons(search));
+        const results = getIcons(search);
+
+        handle.dispatchEvent(new PickerEvent('search', { results, search }));
+        onSearch({ type: 'search', target: handle, results, search });
+        setIcons(results);
     }, [search]);
 
     useEffect(() => {
-        setHandle(_handle());
-    }, [color, icons, multiselect, selected, search, size, unselected, value]);
-
-    useEffect(() => {
-        if (size < 18) {
-            setSize(18);
+        if (size < 8) {
+            setSize(8);
+        } else {
+            if (!size) return;
+            handle.dispatchEvent(new PickerEvent('resize', { size }));
+            onResize({ type: 'resize', target: handle, size });
         }
     }, [size]);
 
@@ -274,6 +282,10 @@ let IconPicker = (initialProps, ref) => {
         });
     }, [op.get(state, 'unselected')]);
 
+    useEffect(() => {
+        setHandle(_handle());
+    }, [color, icons, multiselect, selected, search, size, unselected, value]);
+
     const render = () => {
         return !icons ? null : (
             <div className={cx()}>
@@ -308,12 +320,14 @@ IconPicker.propTypes = {
     onChange: PropTypes.func,
     onMouseOut: PropTypes.func,
     onMouseOver: PropTypes.func,
+    onResize: PropTypes.func,
+    onSearch: PropTypes.func,
     onSelect: PropTypes.func,
     onTouchStart: PropTypes.func,
     onUnselect: PropTypes.func,
     search: PropTypes.string,
-    selection: PropTypes.array,
     size: PropTypes.number,
+    value: PropTypes.array,
 };
 
 IconPicker.defaultProps = {
@@ -323,11 +337,74 @@ IconPicker.defaultProps = {
     onChange: noop,
     onMouseOut: noop,
     onMouseOver: noop,
+    onResize: noop,
+    onSearch: noop,
     onSelect: noop,
     onTouchStart: noop,
     onUnselect: noop,
-    selection: [],
     size: 18,
+    value: [],
 };
 
 export default IconPicker;
+
+/**
+ * @api {RegisteredComponent} <IconPicker/> IconPicker
+ * @apiDescription <img src='https://reactium-cnd.sfo2.digitaloceanspaces.com/actinium-admin-IconPicker.png' style='width: 100%;' />
+
+ Displays a list of the icons associated with the Reactium UI `<Icon />` component.
+
+ You can add icon sets to the component by appending to the `Icon.icons` static property.
+ * @apiName IconPicker
+ * @apiGroup Registered Component
+ * @apiParam {String} [color='#666666'] The color of the icons.
+ * @apiParam {Object} [icons] Manually set the icons object.
+ * @apiParam {Boolean} [multiselect=false] Whether to allow multiple icons to be selected.
+ * @apiParam {Function} [onChange] Function to execute when the `change` event is triggered.
+ * @apiParam {Function} [onMouseOut] Function to execute when the `mouseout` event is triggered.
+ * @apiParam {Function} [onMouseOver] Function to execute when the `mouseover` event is triggered.
+ * @apiParam {Function} [onResize] Function to execute when the `resize` event is triggered.
+ * @apiParam {Function} [onSearch] Function to execute when the `search` event is triggered.
+ * @apiParam {Function} [onSelect] Function to execute when the `select` event is triggered.
+ * @apiParam {Function} [onTouchStart] Function to execute when the `touchstart` event is triggered.
+ * @apiParam {Function} [onUnselect] Function to execute when the `unselect` event is triggered.
+ * @apiParam {String} [search] Filter the icons by the icon name.
+ * @apiParam {Number} [size=18] The size (in pixels) of the icons.
+ * @apiParam {Array} [value] Array of selected icons.
+ * @apiParam (Method) {Function} setColor Set the `color` property.
+ * @apiParam (Method) {Function} setIcons Set the `icons` property.
+ * @apiParam (Method) {Function} setMultiselect Set the `multiselect` property.
+ * @apiParam (Method) {Function} setSearch Set the `search` property.
+ * @apiParam (Method) {Function} setSize Set the `size` property.
+ * @apiParam (Method) {Function} setValue Set the `value` property.
+ * @apiParam (Event) {PickerEvent} change dispatched when the `value` property has changed.
+ * @apiParam (Event) {PickerEvent} mouseout dispatched when the mouse moves outside an icon bounding rectangle.
+ * @apiParam (Event) {PickerEvent} mouseover dispatched when the mouse moves over an icon bounding rectangle.
+ * @apiParam (Event) {PickerEvent} resize dispatched when the `size` property has changed.
+ * @apiParam (Event) {PickerEvent} search dispatched when the `search` property has changed.
+ * @apiParam (Event) {PickerEvent} select dispatched when an icon is clicked.
+ * @apiParam (Event) {PickerEvent} touchstart dispatched when an icon is touched (mobile only).
+ * @apiParam (Event) {PickerEvent} unselect dispatched when an icon is unselected. Only applicable when `multiselect=true`.
+ * @apiExample useHookComponent() hook import
+import { useHookComponent } from 'reactium-core/sdk';
+
+const MyComponent = () => {
+    const IconPicker = useHookComponent('IconPicker');
+
+    const onChange = e => {
+        const { value } = e.target;
+        console.log(value);
+    };
+
+    return (
+        <IconPicker onChange={onChange} />
+    );
+}
+
+* @apiExample Simple Usage:
+import IconPicker from 'components/Admin/registered-components/IconPicker';
+
+...
+
+<IconPicker />
+ */
