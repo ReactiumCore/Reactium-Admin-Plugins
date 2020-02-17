@@ -141,6 +141,19 @@ class RTE {
     hotKey(editor, event, hotkeys) {
         if (!editor || !event) return;
 
+        try {
+            const [parent, parentPath] = Editor.parent(
+                editor,
+                editor.selection,
+            );
+            if (isHotkey('backspace', event)) {
+                const text = _.compact([parent.children.text]);
+                if (_.isEmpty(text) && parentPath.length === 1) {
+                    return;
+                }
+            }
+        } catch (err) {}
+
         let next = true;
         hotkeys.forEach(item => {
             if (next === false) return;
