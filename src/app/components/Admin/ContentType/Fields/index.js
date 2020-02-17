@@ -23,7 +23,7 @@ const Fields = props => {
     const fields = useZoneComponents(zone);
     const isEmpty = fields.length < 1;
     const deleteLabel = __('Remove Field Region');
-
+    const immutable = op.has(Enums.REQUIRED_REGIONS, region);
     return (
         <Droppable droppableId={region}>
             {({ droppableProps, innerRef, placeholder }) => (
@@ -58,12 +58,12 @@ const Fields = props => {
                                         data-tooltip={deleteLabel}
                                         style={{ width: 50, height: 50 }}
                                         color={
-                                            region === 'default'
+                                            immutable
                                                 ? Button.ENUMS.COLOR.TERTIARY
                                                 : Button.ENUMS.COLOR.DANGER
                                         }
                                         onClick={onRemoveRegion}
-                                        disabled={region === 'default'}>
+                                        disabled={immutable}>
                                         <span className='sr-only'>
                                             {deleteLabel}
                                         </span>

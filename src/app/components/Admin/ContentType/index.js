@@ -26,20 +26,15 @@ const slugify = name => {
 };
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
-const defaultRegion = {
-    id: 'default',
-    label: __('Default'),
-    slug: 'default',
-};
-
 const ContentType = memo(
     props => {
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
+        const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
         const savedRef = useRef(null);
         const stateRef = useRef({ fields: {} });
         const regionRef = useRef({
-            regions: { default: defaultRegion },
+            regions: REQUIRED_REGIONS,
         });
         const parentFormRef = useRef();
         const formsRef = useRef({});
@@ -91,7 +86,7 @@ const ContentType = memo(
             formsErrors.current = {};
             savedRef.current = null;
             regionRef.current = {
-                regions: { default: defaultRegion },
+                regions: REQUIRED_REGIONS,
             };
             setValue({});
             getComponents().forEach(({ id: fieldId }) =>
@@ -106,9 +101,10 @@ const ContentType = memo(
             if (id !== 'new') {
                 try {
                     const contentType = await Reactium.ContentType.retrieve(id);
-                    const regions = op.get(contentType, 'regions', {
-                        default: defaultRegion,
-                    });
+                    const regions = {
+                        ...REQUIRED_REGIONS,
+                        ...op.get(contentType, 'regions', {}),
+                    };
                     const label = op.get(contentType, 'meta.label');
                     op.set(contentType, 'type', label);
 
@@ -175,11 +171,27 @@ const ContentType = memo(
             }
         };
 
-        const getRegions = () =>
-            op.get(regionRef.current, 'regions', { default: defaultRegion });
+        const getRegions = () => ({
+            ...REQUIRED_REGIONS,
+            ...op.get(regionRef.current, 'regions', {}),
+        });
 
         const getZones = () => {
-            return Object.values(getRegions()).map(region => ({
+            return _.sortBy(
+                Object.values(getRegions()).map(region => {
+                    // TODO: Make these rearrangable
+                    const order = op.get(
+                        REQUIRED_REGIONS,
+                        [region.id, 'order'],
+                        op.get(region, 'order', 0),
+                    );
+                    return {
+                        ...region,
+                        order,
+                    };
+                }),
+                'order',
+            ).map(region => ({
                 region,
                 zone: Enums.ZONE(region.id),
             }));
@@ -665,7 +677,7 @@ const ContentType = memo(
         };
 
         const removeRegion = region => {
-            if (region === 'default') return;
+            if (Object.keys(REQUIRED_REGIONS).includes(region)) return;
 
             updateRestore(async value => {
                 let next = Reactium.Zone.getZoneComponents(Enums.ZONE(region))

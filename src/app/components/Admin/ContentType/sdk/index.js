@@ -132,7 +132,7 @@ ContentType.delete = async options => {
 ContentType.FieldType.register = async (fieldType = {}) => {
     const typeId = op.get(fieldType, 'type');
     if (typeId) {
-        return Reactium.Hook.register('field-type-enums', async Enums => {
+        return Reactium.Hook.register('content-type-enums', async Enums => {
             op.set(Enums, ['TYPES', typeId], fieldType);
         });
     }
