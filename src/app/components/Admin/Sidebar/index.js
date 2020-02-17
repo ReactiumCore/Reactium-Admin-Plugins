@@ -147,10 +147,7 @@ let AdminSidebar = (
                 minSize={minSize}
                 ref={collapsibleRef}>
                 {Placeholder()}
-                <Scrollbars
-                    autoHeight={true}
-                    autoHeightMax='100vh'
-                    autoHeightMin='100vh'>
+                <Scrollbars autoHeight autoHeightMin='100vh'>
                     <div className={cname()}>
                         <div className='zone-admin-sidebar-header'>
                             <Zone

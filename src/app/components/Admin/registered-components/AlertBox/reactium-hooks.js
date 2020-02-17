@@ -1,4 +1,6 @@
-import Reactium from 'reactium-core/sdk';
 import AlertBox from './index';
+import Reactium from 'reactium-core/sdk';
 
-Reactium.Component.register('AlertBox', AlertBox);
+Reactium.Plugin.register('AlertBox').then(() => {
+    Reactium.Component.register('AlertBox', AlertBox);
+});

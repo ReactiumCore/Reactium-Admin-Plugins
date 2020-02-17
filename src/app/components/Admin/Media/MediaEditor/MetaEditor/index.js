@@ -82,18 +82,10 @@ export default props => {
         op.set(value, name, val);
     };
 
-    const onValuesChange = ({ value }) => {
-        if (tagsRef.current) {
-            const tags = op.get(value, 'meta.tags');
-            if (tags) tagsRef.current.setState({ value: tags });
-        }
-    };
-
     // Regsiter admin-media-change hook
     useEffect(() => {
         const hooks = [
             Reactium.Hook.register('admin-media-change', onFormChange),
-            Reactium.Hook.register('admin-media-value-change', onValuesChange),
         ];
 
         return () => {
@@ -105,6 +97,12 @@ export default props => {
     useLayoutEffect(() => {
         focus();
     }, [op.get(error, 'fields'), state.update]);
+
+    useEffect(() => {
+        if (!op.get(state, 'value') || !tagsRef.current) return;
+        const tags = op.get(state, 'value.meta.tags', []);
+        tagsRef.current.setState({ value: tags });
+    });
 
     const render = () => (
         <>

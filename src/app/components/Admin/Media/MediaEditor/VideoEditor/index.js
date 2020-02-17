@@ -4,7 +4,12 @@ import Rocket from './Rocket';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, { forwardRef, useEffect, useRef } from 'react';
-import { Button, Dropzone, WebForm } from '@atomic-reactor/reactium-ui';
+import {
+    Button,
+    Dropzone,
+    EventForm,
+    WebForm,
+} from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 export default ({ children, ...props }) => {
