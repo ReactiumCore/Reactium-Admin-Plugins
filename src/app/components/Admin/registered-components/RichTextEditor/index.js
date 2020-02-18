@@ -1,3 +1,5 @@
+// TODO: add `inline` parameter to formats that should be treated as such and auto read them into editor.isInline function.
+
 import Leaf from './Leaf';
 import _ from 'underscore';
 import uuid from 'uuid/v4';

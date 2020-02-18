@@ -178,3 +178,83 @@ class RTE {
 }
 
 export default new RTE();
+
+/**
+ * @api {Function} Button.register(id,options) Button.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Button.register
+ * @apiDescription Register a button in the editor toolbar and/or sidebar.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The unique id of the button.
+ * @apiParam {Object} options The configuration object for the button.
+ * @apiParam (Options) {Component} button The React component to render. If you have an `onClick` callback on your button, be sure to call `preventDefault()` so that the editor doesn't lose focus when the button is clicked.
+ * @apiParam (Options) {Number} [order=100] The sort order of the button.
+ * @apiParam (Options) {Boolean} [sidebar=false] Whether the button should show up in the sidebar. The sidebar is used for formats and blocks that don't require text to be selected.
+ * @apiParam (Options) {Boolean} [toolbar=false] Whether the button should show up in the toolbar. The toolbar is used for formats and blocks that require text to be selected.
+ * @apiExample Usage:
+// reactium-hooks.js
+
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import { Button } from '@atomic-reactor/reactium-ui';
+import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+
+const Plugin = new RTEPlugin({ type: 'bold' });
+
+Plugin.callback = editor => {
+    // register toolbar button
+    Reactium.RTE.Button.register('bold', {
+        order: 110,
+        toolbar: true,
+        button: ({ editor, ...props }) => (
+            <Button
+                {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+                {...props}
+                active={Reactium.RTE.isMarkActive(editor, 'bold')}
+                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}>
+                <span className='ico'>B</span>
+            </Button>
+        ),
+    });
+
+    return editor;
+};
+
+export default Plugin;
+ *
+ */
+
+/**
+ * @api {Function} Format.register(id,options) Format.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Format.register
+ * @apiDescription Register an inline formatter.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The unique id of the button.
+ * @apiParam {Object} options The configuration object for the button.
+ * @apiParam (Options) {Component} element The React component to render.
+ * @apiParam (Options) {Boolean} [inline=true] Whether the format is an inline format or not.
+ * @apiParam (Options) {Number} [order=100] The sort order of the button.
+ * @apiExample Usage:
+ // reactium-hooks.js
+
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+
+const Plugin = new RTEPlugin({ type: 'bold' });
+
+Plugin.callback = editor => {
+    // register bold formatter
+    Reactium.RTE.Format.register('bold', {
+        element: props => <strong {...props} />,
+        inline: true,
+    });
+
+    return editor;
+ };
+
+ export default Plugin;
+ */
