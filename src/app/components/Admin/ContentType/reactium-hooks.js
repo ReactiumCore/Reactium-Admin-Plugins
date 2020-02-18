@@ -22,7 +22,7 @@ const registerPlugin = async () => {
     const permitted = await Reactium.Capability.check(['type-ui.view']);
 
     if (permitted) {
-        await Reactium.Hook.run('field-type-enums', Enums);
+        await Reactium.Hook.run('content-type-enums', Enums);
 
         Reactium.Zone.addComponent({
             component: Breadcrumbs,
