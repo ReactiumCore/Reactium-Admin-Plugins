@@ -180,16 +180,53 @@ class RTE {
 export default new RTE();
 
 /**
+ * @api {Function} Block.register(id,options) Block.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Block.register
+ * @apiDescription Register a block level formatter.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the block.
+ * @apiParam {Object} options The configuration object for the block.
+ * @apiParam (Options) {Component} element The React component to render.
+ * @apiParam (Options) {Boolean} [inline=false] Whether the block is inline or not.
+ * @apiParam (Options) {Number} [order=100] The sort order of the block. Useful when overwriting an existing block.
+ * @apiExample Usage:
+
+ // reactium-hooks.js
+
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+
+const Plugin = new RTEPlugin({ type: 'MyPlugin' });
+
+Plugin.callback = editor => {
+    // Register h6 block
+    Reactium.RTE.Block.register('h6', {
+        inline: false,
+        element: props => <h6 {...props} />,
+        order: 6
+    });
+
+    return editor;
+};
+
+export default Plugin;
+ *
+ */
+
+/**
  * @api {Function} Button.register(id,options) Button.register()
  * @apiGroup Reactium.RTE
  * @apiName Button.register
  * @apiDescription Register a button in the editor toolbar and/or sidebar.
 
  > **Note:** This function should be called within the editor plugin callback function.
- * @apiParam {String} id The unique id of the button.
+ * @apiParam {String} id The id of the button.
  * @apiParam {Object} options The configuration object for the button.
  * @apiParam (Options) {Component} button The React component to render. If you have an `onClick` callback on your button, be sure to call `preventDefault()` so that the editor doesn't lose focus when the button is clicked.
- * @apiParam (Options) {Number} [order=100] The sort order of the button.
+ * @apiParam (Options) {Number} [order=100] The sort order of the button. Useful whe overwriting an existing button.
  * @apiParam (Options) {Boolean} [sidebar=false] Whether the button should show up in the sidebar. The sidebar is used for formats and blocks that don't require text to be selected.
  * @apiParam (Options) {Boolean} [toolbar=false] Whether the button should show up in the toolbar. The toolbar is used for formats and blocks that require text to be selected.
  * @apiExample Usage:
@@ -198,9 +235,9 @@ export default new RTE();
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
 import { Button } from '@atomic-reactor/reactium-ui';
-import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
 
-const Plugin = new RTEPlugin({ type: 'bold' });
+const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
 Plugin.callback = editor => {
     // register toolbar button
@@ -226,25 +263,98 @@ export default Plugin;
  */
 
 /**
+  * @api {Function} Color.register(id,options) Color.register()
+  * @apiGroup Reactium.RTE
+  * @apiName Color.register
+  * @apiDescription Register a color used in the block level text formatter configuration panel.
+
+> **Note:** This function should be called within the editor plugin callback function.
+  * @apiParam {String} id The id of the color.
+  * @apiParam {Object} options The configuration object for the color.
+  * @apiParam (Options) {String} label Display label for the color.
+  * @apiParam (Options) {String} value Valid CSS HEX color value.
+ // reactium-hooks.js
+
+ import Reactium from 'reactium-core/sdk';
+ import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+
+ const Plugin = new RTEPlugin({ type: 'MyPlugin' });
+
+ Plugin.callback = editor => {
+     // Register Red color
+     Reactium.RTE.Color.register('red', {
+         label: 'Red',
+         value: '#FF0000',
+     });
+
+     return editor;
+ };
+
+ export default Plugin;
+*/
+
+/**
+ * @api {Function} Font.register(id,options) Font.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Font.register
+ * @apiDescription Register a font used in the block level text formatter configuration panel.
+
+> **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the font.
+ * @apiParam {Object} options The configuration object for the font.
+ * @apiParam (Options) {String} label Display label for the font.
+ * @apiParam (Options) {Number[]} size List of font sizes your font to supports.
+ * @apiParam (Options) {Object[]} weight List of font weights your font supports.
+ * @apiParam (Options) {String} weight[label] Display label for the font-weight.
+ * @apiParam (Options) {String} weight[family] Valid CSS font-family value.
+ * @apiParam (Options) {Number} weight[weight] Valid CSS font-weight value.
+ * @apiExample Usage:
+ // reactium-hooks.js
+
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+
+const Plugin = new RTEPlugin({ type: 'MyPlugin' });
+
+Plugin.callback = editor => {
+    // Register Arial font
+    Reactium.RTE.Font.register('arial', {
+        label: 'Arial',
+        size: [10, 12, 14, 16, 18, 24, 32, 44, 56, 64, 72, 96],
+        weight: [
+            { label: 'Regular', family: 'Arial, sans-serif', weight: 400 },
+            { label: 'Semi-Bold', family: 'Arial, sans-serif', weight: 600 },
+            { label: 'Bold', family: 'Arial, sans-serif', weight: 800 },
+        ],
+    });
+
+    return editor;
+};
+
+export default Plugin;
+ */
+
+/**
  * @api {Function} Format.register(id,options) Format.register()
  * @apiGroup Reactium.RTE
  * @apiName Format.register
  * @apiDescription Register an inline formatter.
 
  > **Note:** This function should be called within the editor plugin callback function.
- * @apiParam {String} id The unique id of the button.
- * @apiParam {Object} options The configuration object for the button.
+ * @apiParam {String} id The id of the format.
+ * @apiParam {Object} options The configuration object for the format.
  * @apiParam (Options) {Component} element The React component to render.
- * @apiParam (Options) {Boolean} [inline=true] Whether the format is an inline format or not.
- * @apiParam (Options) {Number} [order=100] The sort order of the button.
+ * @apiParam (Options) {Boolean} [inline=true] Whether the element is inline or not.
+ * @apiParam (Options) {Number} [order=100] The sort order of the element. Useful when overwriting an existing format.
  * @apiExample Usage:
  // reactium-hooks.js
 
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
-import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
 
-const Plugin = new RTEPlugin({ type: 'bold' });
+const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
 Plugin.callback = editor => {
     // register bold formatter
@@ -257,4 +367,146 @@ Plugin.callback = editor => {
  };
 
  export default Plugin;
+ */
+
+/**
+ * @api {Function} Hotkey.register(id,options) Hotkey.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Hotkey.register
+ * @apiDescription Register a keyboard shortcut.
+
+> **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the hotkey.
+ * @apiParam {Object} options The configuration object for the hotkey.
+ * @apiParam (Options) {Array} keys The key combination. See [isHotkey](https://www.npmjs.com/package/is-hotkey) for available values.
+ * @apiParam (Options) {Function} callback The function to execute when the hotkey is pressed. If your function returns `false` no other matching hotkey definitions will be processed. The callback function receives a single paramter object containing a reference to the current `editor` and the keyboard `event`.
+ * @apiParam (Options) {Number} [order=100] The sort order of the hotkey. Useful when overwriting an existing hotkey or processing the same keys with a different set of rules.
+ * @apiExample Usage:
+ // reactium-hooks.js
+
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+
+const Plugin = new RTEPlugin({ type: 'MyPlugin' });
+
+Plugin.callback = editor => {
+    // register bold hotkey
+    Reactium.RTE.Hotkey.register('toggle-bold', {
+        keys: ['mod+b'],
+        callback: ({ editor, event }) => {
+            event.preventDefault();
+            Reactium.RTE.toggleMark(editor, Plugin.type);
+        },
+    });
+
+    return editor;
+};
+
+export default Plugin;
+ */
+
+/**
+ * @api {Function} Plugin.register(id,plugin) Plugin.register()
+ * @apiGroup Reactium.RTE
+ * @apiName Plugin.register
+ * @apiDescription Register a RichTextEditor plugin.
+
+> **Note:** This function should be called within a `reactium-hooks.js` file.
+ * @apiParam {String} id The id of the plugin.
+ * @apiParam {RTEPlugin} plugin The plugin instance.
+
+ */
+
+/**
+ * @api {Class} RTEPlugin(constructor) RTEPlugin
+ * @apiGroup Reactium.RTE
+ * @apiName RTEPlugin
+ * @apiDescription RichTextEditor plugin instance used as the base when creating or extending RichTextEditor functionality.
+
+## Import
+```
+import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+```
+
+> **See:** [Slate Plugins](https://docs.slatejs.org/concepts/07-plugins) for more information on how to augment the editor instance.
+
+ * @apiParam (Constructor) {Function} callback The plugin function where your editor customization and registrations are executed. The callback can be overwritten via the `.callback` property.
+ * @apiParam (Constructor) {Number} [order=100] The sort order applied to your plugin when registering it with the RichTextEditor component. The order can be overwritten via the `.order` property.
+ * @apiParam (Constructor) {String} [type] The type is how your plugin is identified with the certain RichTextEditor functionality such as blocks and formats. The type cannot be changed outside of the constructor.
+ * @apiExample Example Plugin
+
+ // withBold.js
+
+ import React from 'react';
+ import Reactium from 'reactium-core/sdk';
+ import { Button } from '@atomic-reactor/reactium-ui';
+ import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+
+ const withBold = new RTEPlugin({ type: 'bold', order: 100 });
+
+ withBold.callback = editor => {
+     // Register inline formatter
+     Reactium.RTE.Format.register('bold', {
+         element: props => <strong {...props} />,
+     });
+
+     // Register toolbar button
+     Reactium.RTE.Button.register('bold', {
+         order: 110,
+         toolbar: true,
+         button: ({ editor, ...props }) => (
+             <Button
+                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+                 active={Reactium.RTE.isMarkActive(editor, 'bold')}
+                 onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}
+                 {...props}>
+                 <span className='ico'>B</span>
+             </Button>
+         ),
+     });
+
+     // Register hotkeys
+     Reactium.RTE.Hotkey.register('bold', {
+         keys: ['mod+b'],
+         callback: ({ editor, event }) => {
+             event.preventDefault();
+             Reactium.RTE.toggleMark(editor, 'bold');
+         },
+     });
+
+     // Editor overrides
+     const { isInline } = editor;
+
+     // override the editor.isInline function to check for the 'bold' element type.
+     editor.isInline = element =>
+        element.type === 'bold' ? true : isInline(element);
+
+     // Return the updated editor object
+     return editor;
+ };
+
+ export {
+    withBold
+ };
+
+ ...
+
+ // reactium-hooks.js
+
+ import Reactium from 'reactium-core/sdk';
+ import { withBold } from './withBold';
+ import { withReact } from 'slate-react';
+ import { withHistory } from 'slate-history';
+
+ Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
+    () => {
+        // Register my custom plugin - withBold
+        Reactium.RTE.Plugin.register('withBold', withBold);
+
+        // Register 3rd party Slate plugins
+        Reactium.RTE.Plugin.register('withReact', new RTEPlugin({ callback: withReact, order: 0 }));
+        Reactium.RTE.Plugin.register('withHistory', new RTEPlugin({ callback: withHistory, order: 1 }));
+    },
+ );
  */

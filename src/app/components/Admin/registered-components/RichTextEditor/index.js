@@ -9,7 +9,7 @@ import op from 'object-path';
 import Element from './Element';
 import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
-import Plugin from './RTEPlugin';
+import RTEPlugin from './RTEPlugin';
 import PropTypes from 'prop-types';
 import { createEditor, Transforms } from 'slate';
 import { Editable, ReactEditor, Slate } from 'slate-react';
@@ -427,4 +427,4 @@ RichTextEditor.defaultProps = {
     },
 };
 
-export { Plugin, RichTextEditor as default };
+export { RTEPlugin, RichTextEditor as default };
