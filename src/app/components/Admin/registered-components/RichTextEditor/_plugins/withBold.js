@@ -14,7 +14,6 @@ Plugin.callback = editor => {
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
         order: 110,
-        formatter: true,
         toolbar: true,
         button: ({ editor, ...props }) => (
             <Button
