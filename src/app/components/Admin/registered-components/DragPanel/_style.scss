@@ -1,7 +1,7 @@
 .ar-drag-panel {
     display: flex;
     top: 0px;
-    position: fixed;
+    position: absolute;
     z-index: map-get($z-indexes, sidebar) - 1;
 
     .handle {

@@ -9,6 +9,7 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
+    useMemo,
     useState,
 } from 'react';
 
@@ -286,14 +287,14 @@ let IconPicker = (initialProps, ref) => {
         setHandle(_handle());
     }, [color, icons, multiselect, selected, search, size, unselected, value]);
 
-    const render = () => {
+    const render = useMemo(() => {
         return !icons ? null : (
             <div className={cx()}>
-                {Object.entries(icons).map(([group, icons]) => (
+                {Object.entries(icons).map(([group, icos]) => (
                     <IconGroup
                         color={color}
                         group={group}
-                        icons={icons}
+                        icons={icos}
                         key={group}
                         onClick={_onClick}
                         onMouseOut={_onMouseOut}
@@ -305,9 +306,9 @@ let IconPicker = (initialProps, ref) => {
                 ))}
             </div>
         );
-    };
+    }, [color, icons, multiselect, selected, search, size, unselected, value]);
 
-    return render();
+    return render;
 };
 
 IconPicker = forwardRef(IconPicker);

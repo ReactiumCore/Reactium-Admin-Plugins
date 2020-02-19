@@ -348,6 +348,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
                         dragProps={dragProps}
                         ref={panelRef}
                         id={cx('panel')}
+                        parent={document.body}
                         visible={false}
                     />
                 )}

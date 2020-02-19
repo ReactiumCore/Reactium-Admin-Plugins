@@ -64,7 +64,7 @@ Plugin.callback = editor => {
                     type='embed'
                     contentEditable={false}>
                     {children}
-                    <video poster={poster} width='100%' height='100%' controls>
+                    <video width='100%' height='100%' controls>
                         <source src={src} type={`video/${ext}`} />
                     </video>
                     <span className='actions'>

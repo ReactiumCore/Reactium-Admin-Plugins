@@ -29,9 +29,16 @@ const Plugin = new RTEPlugin({ type: 'formatter', order: 100 });
 
 Plugin.callback = editor => {
     const onButtonClick = e => {
+        const btn = e.currentTarget;
+        const rect = btn.getBoundingClientRect();
+        let { x, y, width } = rect;
+
+        x += width;
+
         editor.panel
             .setID('formatter')
             .setContent(<Panel selection={editor.selection} />)
+            .moveTo(x, y)
             .show();
     };
 

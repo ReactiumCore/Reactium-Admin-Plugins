@@ -35,6 +35,7 @@ let Panel = (initialProps, ref) => {
         children,
         handle: Handle,
         id: initialId,
+        parent: initialParent,
         visible: isVisible,
         ...props
     } = initialProps;
@@ -62,6 +63,9 @@ let Panel = (initialProps, ref) => {
     // id
     const [id, setNewId] = useState(initialId);
 
+    // parent
+    const [parent, setNewParent] = useState(initialParent);
+
     // position
     const [position, setPosition] = useState(defaultPosition(id, state));
 
@@ -70,14 +74,14 @@ let Panel = (initialProps, ref) => {
 
     // Functions
     const adjustPosition = (adjustX, adjustY, ID) => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || !parent) return;
 
         const { dragProps, gutter } = state;
         const bounds = op.get(dragProps, 'bounds', { right: 0, bottom: 0 });
         const {
             width: docWidth,
             height: docHeight,
-        } = document.body.getBoundingClientRect();
+        } = parent.getBoundingClientRect();
 
         let {
             x,
@@ -208,6 +212,11 @@ let Panel = (initialProps, ref) => {
         return handle;
     };
 
+    const setParent = value => {
+        setNewParent(value);
+        return handle;
+    };
+
     const setState = newState => {
         setNewState(newState);
         return handle;
@@ -252,6 +261,7 @@ let Panel = (initialProps, ref) => {
         props: initialProps,
         setContent,
         setID,
+        setParent,
         setPrevState,
         setState,
         show,
@@ -387,7 +397,7 @@ let Panel = (initialProps, ref) => {
         };
 
         return (
-            <Portal>
+            <Portal target={parent}>
                 <Draggable {...dragProps} ref={ref}>
                     <div
                         id={id}

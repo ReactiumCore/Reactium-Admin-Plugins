@@ -50,6 +50,7 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
 
     const [state, setState] = useDerivedState({
         collapsed: true,
+        position: { display: 'none', opacity: 0 },
     });
 
     const cx = cls => [className, cls].join('-');
@@ -58,8 +59,7 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
         const element = containerRef.current;
         const hidden = !editor.selection;
 
-        if (!element || !rect || !parent || hidden)
-            return { display: 'none', opacity: 0 };
+        if (!element || !rect || !parent || hidden) return state.position;
 
         element.style.display = 'block';
         element.classList.remove('invert');
@@ -80,7 +80,13 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
 
         let left = -50;
 
-        return { left, top, display: 'block', opacity: 1 };
+        const position = { left, top, display: 'block', opacity: 1 };
+
+        if (!_.isEqual(position, state.position)) {
+            setState({ position });
+        }
+
+        return position;
     };
 
     const toggle = () => {
@@ -124,6 +130,8 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
                 <Collapsible
                     className={cx('buttons')}
                     expanded={!collapsed}
+                    onExpand={() => setState({ collapsed: false })}
+                    onCollapse={() => setState({ collapsed: true })}
                     ref={collapsibleRef}>
                     <Buttons container={id} editor={editor} nodes={nodes} />
                 </Collapsible>

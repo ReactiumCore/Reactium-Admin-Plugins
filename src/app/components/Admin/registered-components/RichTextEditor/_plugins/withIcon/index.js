@@ -10,18 +10,15 @@ Plugin.callback = editor => {
     const onButtonClick = e => {
         const btn = e.currentTarget;
         const rect = btn.getBoundingClientRect();
-        let { x, width } = rect;
+        let { x, y, width } = rect;
 
         x += width;
-
-        const sidebarRect = editor.sidebar.container.current.getBoundingClientRect();
-        let { y } = sidebarRect;
 
         editor.panel
             .setID(Plugin.type)
             .setContent(<Panel selection={editor.selection} />)
             .moveTo(x, y)
-            .show(false);
+            .show();
     };
 
     // register leaf format
