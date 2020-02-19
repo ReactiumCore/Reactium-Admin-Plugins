@@ -46,7 +46,18 @@ const ContentType = memo(
         const CapabilityEditor = useHookComponent('CapabilityEditor');
 
         useEffect(() => {
-            load();
+            if (id === 'new') {
+                const autoIncludes = Object.values(
+                    Enums.TYPES,
+                ).filter(fieldType => op.get(fieldType, 'autoInclude', false));
+
+                for (const type of autoIncludes) {
+                    addField(type.type);
+                }
+            } else {
+                load();
+            }
+
             return () => {
                 const components = getComponents();
                 components.forEach(component =>
@@ -98,65 +109,63 @@ const ContentType = memo(
         const load = async () => {
             clear();
 
-            if (id !== 'new') {
-                try {
-                    const contentType = await Reactium.ContentType.retrieve(id);
-                    const regions = {
-                        ...REQUIRED_REGIONS,
-                        ...op.get(contentType, 'regions', {}),
-                    };
-                    const label = op.get(contentType, 'meta.label');
-                    op.set(contentType, 'type', label);
+            try {
+                const contentType = await Reactium.ContentType.retrieve(id);
+                const regions = {
+                    ...REQUIRED_REGIONS,
+                    ...op.get(contentType, 'regions', {}),
+                };
+                const label = op.get(contentType, 'meta.label');
+                op.set(contentType, 'type', label);
 
-                    savedRef.current = contentType;
+                savedRef.current = contentType;
 
-                    op.set(regionRef.current, 'regions', regions);
+                op.set(regionRef.current, 'regions', regions);
 
-                    Object.entries(op.get(contentType, 'fields', {})).forEach(
-                        ([fieldId, fieldDefinition], index) => {
-                            const { fieldType } = fieldDefinition;
-                            let region = op.get(
-                                fieldDefinition,
-                                'region',
-                                'default',
-                            );
+                Object.entries(op.get(contentType, 'fields', {})).forEach(
+                    ([fieldId, fieldDefinition], index) => {
+                        const { fieldType } = fieldDefinition;
+                        let region = op.get(
+                            fieldDefinition,
+                            'region',
+                            'default',
+                        );
 
-                            if (!(region in regions)) region = 'default';
+                        if (!(region in regions)) region = 'default';
 
-                            const type = Object.values(Enums.TYPES).find(
-                                ({ type }) => fieldType === type,
-                            );
+                        const type = Object.values(Enums.TYPES).find(
+                            ({ type }) => fieldType === type,
+                        );
 
-                            Reactium.Zone.addComponent({
-                                ...type,
-                                id: fieldId,
-                                region,
-                                zone: Enums.ZONE(region),
-                                order: index,
-                                component: 'FieldType',
-                                fieldTypeComponent: type.component,
-                            });
-                        },
-                    );
+                        Reactium.Zone.addComponent({
+                            ...type,
+                            id: fieldId,
+                            region,
+                            zone: Enums.ZONE(region),
+                            order: index,
+                            component: 'FieldType',
+                            fieldTypeComponent: type.component,
+                        });
+                    },
+                );
 
-                    setVersion(uuid());
-                    setTimeout(() => {
-                        setValue(contentType);
-                    }, 1);
-                } catch (error) {
-                    Toast.show({
-                        type: Toast.TYPE.ERROR,
-                        message: __('Error loading content type.'),
-                        icon: (
-                            <Icon.Feather.AlertOctagon
-                                style={{ marginRight: 12 }}
-                            />
-                        ),
-                        autoClose: 1000,
-                    });
-                    console.error(error);
-                    Reactium.Routing.history.push('/admin/type/new');
-                }
+                setVersion(uuid());
+                setTimeout(() => {
+                    setValue(contentType);
+                }, 1);
+            } catch (error) {
+                Toast.show({
+                    type: Toast.TYPE.ERROR,
+                    message: __('Error loading content type.'),
+                    icon: (
+                        <Icon.Feather.AlertOctagon
+                            style={{ marginRight: 12 }}
+                        />
+                    ),
+                    autoClose: 1000,
+                });
+                console.error(error);
+                Reactium.Routing.history.push('/admin/type/new');
             }
         };
 
@@ -703,7 +712,6 @@ const ContentType = memo(
         };
 
         const addField = type => {
-            console.log('addField', type);
             const types = _.indexBy(
                 Object.values(op.get(Enums, 'TYPES')),
                 'type',
@@ -713,18 +721,34 @@ const ContentType = memo(
                     () =>
                         new Promise(resolve => {
                             const existing = getComponents();
-                            Reactium.Zone.addComponent({
-                                ...types[type],
-                                zone: Enums.ZONE('default'),
-                                order: existing.length,
-                                component: 'FieldType',
-                                region: 'default',
-                                fieldTypeComponent: types[type].component,
-                            });
+                            const fieldType = types[type];
+                            const region = op.get(
+                                fieldType,
+                                'defaultRegion',
+                                'default',
+                            );
+                            const fieldTypeComponent = op.get(
+                                fieldType,
+                                'component',
+                            );
 
-                            setTimeout(() => {
-                                resolve();
-                            }, 1);
+                            if (
+                                !op.get(fieldType, 'singular', false) ||
+                                !existing.find(t => t.type === type)
+                            ) {
+                                Reactium.Zone.addComponent({
+                                    ...fieldType,
+                                    zone: Enums.ZONE(region),
+                                    order: existing.length,
+                                    component: 'FieldType',
+                                    region,
+                                    fieldTypeComponent,
+                                });
+
+                                setTimeout(() => {
+                                    resolve();
+                                }, 1);
+                            }
                         }),
                 );
             }

@@ -26,6 +26,7 @@
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withIcon/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withMediaImage/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
+@import '../../app/components/Admin/registered-components/IconPicker/style';
 
 // Admin Styles
 @import '../../app/components/Admin/style/base';
@@ -48,6 +49,7 @@
 @import '../../app/components/Admin/ContentType/Plugins/FieldTypeList/style';
 @import '../../app/components/Admin/ContentType/Plugins/FieldTypeNumber/style';
 @import '../../app/components/Admin/ContentType/Plugins/FieldTypeText/style';
+@import '../../app/components/Admin/ContentType/Plugins/Publisher/style';
 @import '../../app/components/Admin/ContentType/TypeName/style';
 @import '../../app/components/Admin/ContentType/Tools/style';
 @import '../../app/components/Admin/ContentType/Fields/style';
@@ -64,5 +66,3 @@
 @import '../../app/components/Admin/Media/MediaEditor/ImageCrop/style';
 @import '../../app/components/Admin/Media/MediaEditor/ThumbnailSelect/style';
 @import '../../app/components/Admin/Media/MediaPicker/style';
-
-@import '../../app/components/Admin/registered-components/IconPicker/style';

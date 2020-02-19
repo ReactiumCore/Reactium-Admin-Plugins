@@ -109,6 +109,16 @@ const FieldType = props => {
         });
     };
 
+    const onUpdate = (id, type, ref) => async ({ value, elements }) => {
+        await Reactium.Hook.run(`field-type-form-update-${id}`, {
+            value,
+            elements,
+            id,
+            type,
+            ref,
+        });
+    };
+
     useEffect(() => {
         const hooks = [
             Reactium.Hook.register(
@@ -157,7 +167,8 @@ const FieldType = props => {
                     onError={onError(id, type, formRef)}
                     onBeforeSubmit={onBeforeSubmit(id, type, formRef)}
                     onSubmit={onSubmit(id, type, formRef)}
-                    onChange={onChange(id, type, formRef)}>
+                    onChange={onChange(id, type, formRef)}
+                    onUpdate={onUpdate(id, type, formRef)}>
                     <div
                         ref={innerRef}
                         {...draggableProps}

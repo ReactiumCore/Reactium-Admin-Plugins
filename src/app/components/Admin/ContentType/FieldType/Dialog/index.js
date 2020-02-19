@@ -19,6 +19,7 @@ const Header = props => {
     const value = op.get(props, 'formRef.current.getValue')();
     const saved = handle.saved();
     const fieldSaved = op.has(saved, ['fields', id]);
+
     const savedProps = fieldSaved
         ? {
               readOnly: true,
@@ -27,7 +28,11 @@ const Header = props => {
         : {};
     const unsavedProps = !fieldSaved
         ? {
-              defaultValue: value.fieldName,
+              defaultValue: op.get(
+                  value,
+                  'fieldName',
+                  op.get(props, 'defaultValues.fieldName'),
+              ),
           }
         : {};
 
@@ -99,7 +104,9 @@ const FieldTypeDialog = props => {
     const showModal = () =>
         Modal.show(
             <ConfirmBox
-                message={__('Are you sure? This is a destructive operation.')}
+                message={__(
+                    'Are you sure? This may be a destructive operation on save.',
+                )}
                 onCancel={() => {
                     dialogRef.current.show();
                     Modal.hide();
@@ -124,13 +131,15 @@ const FieldTypeDialog = props => {
             onDismiss={onDismiss}>
             {children}
             <div className='form-group'>
-                <label>
-                    <input
-                        type='text'
-                        name='helpText'
-                        placeholder={__('Help Text')}
-                    />
-                </label>
+                {op.get(props, 'showHelpText', true) && (
+                    <label>
+                        <input
+                            type='text'
+                            name='helpText'
+                            placeholder={__('Help Text')}
+                        />
+                    </label>
+                )}
             </div>
         </Dialog>
     );
@@ -138,12 +147,7 @@ const FieldTypeDialog = props => {
 
 FieldTypeDialog.propTypes = {
     // uuid/v4
-    id: (propValue, key) => {
-        const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-        return regex.test(propValue[key])
-            ? null
-            : new Error('Expecting id of type uuid/v4');
-    },
+    id: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     icon: PropTypes.elementType.isRequired,
     dialogProps: PropTypes.shape(Dialog.propTypes),
