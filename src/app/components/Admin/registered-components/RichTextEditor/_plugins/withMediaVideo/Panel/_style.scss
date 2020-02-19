@@ -1,0 +1,18 @@
+.ar-rte {
+    [type='embed'] {
+        video {
+            padding: 4px;
+            border: 2px dashed transparent;
+            transition: border 0.25s ease-in-out;
+            outline: none;
+        }
+
+        &:hover,
+        &:focus,
+        &.selected {
+            video {
+                border: 2px dashed $color-grey;
+            }
+        }
+    }
+}

@@ -49,7 +49,7 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
     const { range, rect, selected, selection } = useSelected();
 
     const [state, setState] = useDerivedState({
-        collapsed: false,
+        collapsed: true,
     });
 
     const cx = cls => [className, cls].join('-');
@@ -69,17 +69,23 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
 
         let { height, top } = rect;
 
-        if (height === 0 || top === 0) return { display: 'none', opacity: 0 };
+        top -= parentRect.top;
 
-        const left = parentRect.left - 50;
-        top = Math.max(top, parentRect.top) + height - 23;
+        if (height > 30) {
+            const diff = height - 30;
+            top += diff / 2;
+        } else {
+            top -= 7.5;
+        }
+
+        let left = -50;
 
         return { left, top, display: 'block', opacity: 1 };
     };
 
     const toggle = () => {
-        setState({ collapsed: !collapsibleRef.current.state.expanded });
-
+        const { collapsed } = state;
+        setState({ collapsed: !collapsed });
         collapsibleRef.current.toggle();
     };
 
@@ -106,24 +112,22 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
         const nodes = buttons ? Object.values(buttons) : [];
 
         return (
-            <Portal>
-                <div style={_style} ref={containerRef} className={className}>
-                    <Button
-                        appearance='circle'
-                        className={cn({ collapsed })}
-                        color='primary'
-                        onClick={toggle}
-                        style={{ width: 30, height: 30, padding: 0 }}>
-                        <Icon name='Feather.Plus' size={20} />
-                    </Button>
-                    <Collapsible
-                        className={cx('buttons')}
-                        expanded={false}
-                        ref={collapsibleRef}>
-                        <Buttons container={id} editor={editor} nodes={nodes} />
-                    </Collapsible>
-                </div>
-            </Portal>
+            <div style={_style} ref={containerRef} className={className}>
+                <Button
+                    appearance='circle'
+                    className={cn({ collapsed: !collapsed })}
+                    color='primary'
+                    onClick={toggle}
+                    style={{ width: 30, height: 30, padding: 0 }}>
+                    <Icon name='Feather.Plus' size={20} />
+                </Button>
+                <Collapsible
+                    className={cx('buttons')}
+                    expanded={!collapsed}
+                    ref={collapsibleRef}>
+                    <Buttons container={id} editor={editor} nodes={nodes} />
+                </Collapsible>
+            </div>
         );
     });
 
@@ -137,5 +141,3 @@ Sidebar.defaultProps = {
 };
 
 export { Sidebar as default };
-
-// <Buttons container={id} editor={editor} nodes={nodes()} />

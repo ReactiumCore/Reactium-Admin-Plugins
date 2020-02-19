@@ -1,6 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
+import ENUMS from '../enums';
 import Reactium from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 

@@ -9,12 +9,21 @@ import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-const Plugin = new RTEPlugin({ type: 'image', order: 50 });
+const Plugin = new RTEPlugin({ type: 'video', order: 52 });
 
 Plugin.callback = editor => {
     // register format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ ID, children, src, objectId, type, ...props }) => {
+        element: ({
+            ID,
+            children,
+            ext,
+            objectId,
+            poster,
+            src,
+            type,
+            ...props
+        }) => {
             const editor = useEditor();
             const focused = useFocused();
             const selected = useSelected();
@@ -48,14 +57,16 @@ Plugin.callback = editor => {
             };
 
             return (
-                <span
+                <div
                     id={ID}
                     className={cn({ selected })}
                     tabIndex={1}
                     type='embed'
                     contentEditable={false}>
                     {children}
-                    <img src={src} contentEditable={false} />
+                    <video poster={poster} width='100%' height='100%' controls>
+                        <source src={src} type={`video/${ext}`} />
+                    </video>
                     <span className='actions'>
                         <Button
                             appearance='circle'
@@ -66,14 +77,14 @@ Plugin.callback = editor => {
                             <Icon name='Feather.X' />
                         </Button>
                     </span>
-                </span>
+                </div>
             );
         },
     });
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 51,
+        order: 52,
         sidebar: true,
         button: props => {
             const editor = useEditor();
@@ -85,7 +96,7 @@ Plugin.callback = editor => {
                 x += width;
 
                 editor.panel
-                    .setID('image')
+                    .setID('video')
                     .setContent(<Panel />)
                     .moveTo(x, y)
                     .show();
@@ -96,7 +107,7 @@ Plugin.callback = editor => {
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                     onClick={onButtonClick}
                     {...props}>
-                    <Icon name='Feather.Camera' size={20} />
+                    <Icon name='Feather.Film' size={20} />
                 </Button>
             );
         },

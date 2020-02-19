@@ -227,10 +227,14 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     useImperativeHandle(ref, () => handle);
 
     // 10.0 - Side effects
+
     // 10.1 - Handle update.
     useEffect(() => {
+        const newHandle = _handle();
+
         setState({ updated: Date.now() });
-        setHandle(_handle());
+        setHandle(newHandle);
+        editor.handle = newHandle;
     }, [
         buttons,
         blocks,

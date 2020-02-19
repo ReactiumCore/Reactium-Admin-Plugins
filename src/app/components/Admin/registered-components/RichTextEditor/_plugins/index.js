@@ -12,6 +12,7 @@ import withLink from './withLink';
 import withItalic from './withItalic';
 import withList from './withList';
 import withMediaImage from './withMediaImage';
+import withMediaVideo from './withMediaVideo';
 import withStrike from './withStrike';
 import withUnderline from './withUnderline';
 
@@ -28,6 +29,7 @@ export default plugins = {
     withLink,
     withItalic,
     withMediaImage,
+    withMediaVideo,
     withList,
     withStrike,
     withUnderline,

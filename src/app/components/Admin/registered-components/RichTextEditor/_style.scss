@@ -110,6 +110,7 @@ input[type='object'] {
         height: $ar-height-rte-sidebar;
         transition: opacity 0.25s ease-in-out;
         font-family: Courier, serif;
+        padding-bottom: 20px;
 
         button {
             svg {
@@ -139,6 +140,7 @@ input[type='object'] {
             top: 30px;
             left: 50%;
             transform: translateX(-50%);
+            margin-bottom: 20px;
         }
 
         .btn-group {

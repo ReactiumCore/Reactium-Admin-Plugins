@@ -377,9 +377,11 @@ class Media {
         return uploads;
     }
 
-    url(objectId) {
+    url(fileObject) {
         const file =
-            typeof objectId === 'string' ? this.file(objectId).file : objectId;
+            typeof fileObject === 'string'
+                ? this.file(fileObject).file
+                : fileObject;
 
         if (!file) return;
 

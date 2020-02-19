@@ -29,7 +29,7 @@ import React, {
     useState,
 } from 'react';
 
-const TYPE = 'image';
+const TYPE = 'video';
 
 /**
  * -----------------------------------------------------------------------------
@@ -92,22 +92,25 @@ let Panel = (
             <MediaPicker
                 confirm={false}
                 dismissable
-                filter='image'
+                filter='video'
                 onChange={_onMediaSelect}
                 onDismiss={() => Modal.hide()}
                 ref={elm => setPicker(elm)}
-                title={__('Select Image')}
+                title={submitButtonLabel}
             />,
         );
     };
 
-    const insertNode = (url, objectId) => {
+    const insertNode = (url, objectId, poster) => {
+        const ext = url.split('.').pop();
         const node = {
-            type: TYPE,
-            src: url,
-            objectId,
             ID: uuid(),
             children: [{ text: '' }],
+            ext,
+            objectId,
+            poster,
+            src: url,
+            type: TYPE,
         };
 
         const p = {
@@ -126,7 +129,7 @@ let Panel = (
             const parentProps = { ...parentNode };
             delete parentProps.children;
 
-            const currentType = op.get(currentNode, 'type', 'p');
+            const currentType = op.get(currentNode, 'type', 'div');
             const currentText = op.get(currentNode, 'text', '');
 
             const children = [];
@@ -164,10 +167,13 @@ let Panel = (
 
         const { objectId } = item;
 
+        let poster = op.get(item, 'thumbnail');
+        poster = poster ? Reactium.Media.url(poster) : poster;
+
         Modal.hide();
 
         setTimeout(() => {
-            insertNode(url, objectId);
+            insertNode(url, objectId, poster);
         }, 250);
     };
 
@@ -278,10 +284,10 @@ Panel.propTypes = {
 };
 
 Panel.defaultProps = {
-    namespace: 'rte-image-insert',
-    placeholder: __('URL or Select Image'),
-    submitButtonLabel: __('Select Image'),
-    title: __('Image'),
+    namespace: 'rte-video-insert',
+    placeholder: __('URL or Select Video'),
+    submitButtonLabel: __('Select Video'),
+    title: __('Video'),
 };
 
 export { Panel as default };

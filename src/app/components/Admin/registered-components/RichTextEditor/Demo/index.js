@@ -41,6 +41,7 @@ const EditorDemo = ({ name, ...props }) => {
                 <Helmet>
                     <title>Rich Text Editor</title>
                 </Helmet>
+                <div style={{ height: 50 }}>Demo</div>
                 <EventForm
                     id={`form-${name}`}
                     onSubmit={onSubmit}

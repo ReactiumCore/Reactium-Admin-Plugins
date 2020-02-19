@@ -75,16 +75,30 @@ class RTE {
     }
 
     extend(id) {
-        if (op.get(this.Ext, id))
-            throw new Error('RTE registry already exists');
+        id =
+            String(id)
+                .charAt(0)
+                .toUpperCase() + String(id).slice(1);
+
+        if (op.get(this.Ext, id) || op.get(this, id))
+            throw new Error('RTE registry "' + id + '" already exists');
 
         this.Ext[id] = new Registry();
-        return this.Ext[id];
+        this[id] = this.Ext[id];
+
+        return this[id];
     }
 
     register(ext, id, data) {
         ext = op.get(this.Ext, ext, this.extend(ext));
         ext.register(id, data);
+    }
+
+    unregister(ext, id) {
+        ext = op.get(this.Ext, ext);
+        if (ext) {
+            ext.unregister(id);
+        }
     }
 
     get list() {
@@ -217,6 +231,23 @@ export default Plugin;
  */
 
 /**
+ * @api {Function} Block.unregister(id) Block.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Block.unregister
+ * @apiDescription Unregister a block level formatter.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the block.
+ */
+
+/**
+ * @api {Function} Block.list() Block.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Block.list
+ * @apiDescription Return a list of the registered blocks.
+ */
+
+/**
  * @api {Function} Button.register(id,options) Button.register()
  * @apiGroup Reactium.RTE
  * @apiName Button.register
@@ -263,6 +294,23 @@ export default Plugin;
  */
 
 /**
+ * @api {Function} Button.unregister(id) Button.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Button.unregister
+ * @apiDescription Unregister a button.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the button.
+ */
+
+/**
+ * @api {Function} Button.list() Button.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Button.list
+ * @apiDescription Return a list of the registered buttons.
+ */
+
+/**
   * @api {Function} Color.register(id,options) Color.register()
   * @apiGroup Reactium.RTE
   * @apiName Color.register
@@ -273,6 +321,7 @@ export default Plugin;
   * @apiParam {Object} options The configuration object for the color.
   * @apiParam (Options) {String} label Display label for the color.
   * @apiParam (Options) {String} value Valid CSS HEX color value.
+  * @apiExample Example
  // reactium-hooks.js
 
  import Reactium from 'reactium-core/sdk';
@@ -292,6 +341,23 @@ export default Plugin;
 
  export default Plugin;
 */
+
+/**
+ * @api {Function} Color.unregister(id) Color.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Color.unregister
+ * @apiDescription Unregister a color.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the color.
+ */
+
+/**
+ * @api {Function} Color.list() Color.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Color.list
+ * @apiDescription Return a list of the registered colors.
+ */
 
 /**
  * @api {Function} Font.register(id,options) Font.register()
@@ -336,6 +402,23 @@ export default Plugin;
  */
 
 /**
+ * @api {Function} Font.unregister(id) Font.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Font.unregister
+ * @apiDescription Unregister a font.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the font.
+ */
+
+/**
+ * @api {Function} Font.list() Font.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Font.list
+ * @apiDescription Return a list of the registered fonts.
+ */
+
+/**
  * @api {Function} Format.register(id,options) Format.register()
  * @apiGroup Reactium.RTE
  * @apiName Format.register
@@ -367,6 +450,23 @@ Plugin.callback = editor => {
  };
 
  export default Plugin;
+ */
+
+/**
+ * @api {Function} Format.unregister(id) Format.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Format.unregister
+ * @apiDescription Unregister a inline formatter.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the formatter.
+ */
+
+/**
+ * @api {Function} Format.list() Format.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Format.list
+ * @apiDescription Return a list of the registered inline formats.
  */
 
 /**
@@ -407,6 +507,23 @@ export default Plugin;
  */
 
 /**
+ * @api {Function} Hotkey.unregister(id) Hotkey.unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName Hotkey.unregister
+ * @apiDescription Unregister a hotkey.
+
+ > **Note:** This function should be called within the editor plugin callback function.
+ * @apiParam {String} id The id of the hotkey.
+ */
+
+/**
+ * @api {Function} Hotkey.list() Hotkey.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Hotkey.list
+ * @apiDescription Return a list of the registered hotkeys.
+ */
+
+/**
  * @api {Function} Plugin.register(id,plugin) Plugin.register()
  * @apiGroup Reactium.RTE
  * @apiName Plugin.register
@@ -416,6 +533,23 @@ export default Plugin;
  * @apiParam {String} id The id of the plugin.
  * @apiParam {RTEPlugin} plugin The plugin instance.
 
+ */
+
+/**
+  * @api {Function} Plugin.unregister(id) Plugin.unregister()
+  * @apiGroup Reactium.RTE
+  * @apiName Plugin.unregister
+  * @apiDescription Unregister a plugin.
+
+  > **Note:** This function should be called within the editor plugin callback function.
+  * @apiParam {String} id The id of the plugin.
+  */
+
+/**
+ * @api {Function} Plugin.list() Plugin.list()
+ * @apiGroup Reactium.RTE
+ * @apiName Plugin.list
+ * @apiDescription Return a list of the registered plugins.
  */
 
 /**
@@ -508,4 +642,74 @@ Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
         Reactium.RTE.Plugin.register('withHistory', new RTEPlugin({ callback: withHistory, order: 1 }));
     },
 );
+ */
+
+/**
+ * @api {Function} extend(id) extend()
+ * @apiGroup Reactium.RTE
+ * @apiName extend
+ * @apiDescription Creates a new Registry object that can be used in RTE plugin development.
+ * @apiParam {String} id The id of the extension.
+ * @apiExample Example
+// reactium-hooks.js
+
+import Reactium from 'reactium-core/sdk';
+
+Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
+    () => {
+        // Register RTE extension: Icon
+        Reactium.RTE.extend('Icon');
+    },
+);
+ */
+
+/**
+ * @api {Function} register(ext,id,options) register()
+ * @apiGroup Reactium.RTE
+ * @apiName register
+ * @apiDescription Register elements on custom Registry objects.
+ * @apiExample Example
+// reactium-hooks.js
+
+import Reactium from 'reactium-core/sdk';
+
+Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
+    () => {
+        // Register RTE extension: Icon
+        Reactium.RTE.extend('Icon');
+
+        // Register a new Icon element
+        Reactium.RTE.register('Icon', 'FeatherChevronUp', {
+            set: 'Feather',
+            name: 'ChevronUp'
+        });
+    },
+);
+ */
+
+/**
+ * @api {Function} unregister(ext,id) unregister()
+ * @apiGroup Reactium.RTE
+ * @apiName unregister
+ * @apiDescription Unregister elements from custom Registry objects.
+ * @apiExample Example
+ // reactium-hooks.js
+
+ import Reactium from 'reactium-core/sdk';
+
+ Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
+     () => {
+         // Register RTE extension: Icon
+         Reactium.RTE.extend('Icon');
+
+         // Register a new Icon element
+         Reactium.RTE.register('Icon', 'FeatherChevronUp', {
+             set: 'Feather',
+             name: 'ChevronUp'
+         });
+
+         // Unregister an Icon element
+         Reactium.RTE.unregister('Icon', 'FeatherChevronUp');
+     },
+ );
  */

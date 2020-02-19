@@ -32,6 +32,14 @@ export const getSelected = () => {
     return !window.getSelection().isCollapsed;
 };
 
+/**
+ * @api {Function} isBlockActive(editor,block) isBlockActive()
+ * @apiGroup Reactium.RTE
+ * @apiName isBlockActive
+ * @apiDescription Determines if the block is active within the specified editor.
+ * @apiParam {Editor} editor Reference to a Slate Editor object.
+ * @apiParam {String} block The id of the block.
+ */
 export const isBlockActive = (editor, block) => {
     if (!editor) return false;
     if (!block) return false;
@@ -45,6 +53,14 @@ export const isBlockActive = (editor, block) => {
     } catch (err) {}
 };
 
+/**
+ * @api {Function} isMarkActive(editor,block) isMarkActive()
+ * @apiGroup Reactium.RTE
+ * @apiName isMarkActive
+ * @apiDescription Determines if the mark is active within the specified editor.
+ * @apiParam {Editor} editor Reference to a Slate Editor object.
+ * @apiParam {String} block The id of the mark.
+ */
 export const isMarkActive = (editor, format) => {
     if (!editor) return false;
     if (!format) return false;
@@ -57,6 +73,15 @@ export const isMarkActive = (editor, format) => {
     }
 };
 
+/**
+ * @api {Function} toggleBlock(editor,block,event) toggleBlock()
+ * @apiGroup Reactium.RTE
+ * @apiName toggleBlock
+ * @apiDescription Toggles a block within the specified editor.
+ * @apiParam {Editor} editor Reference to a Slate Editor object.
+ * @apiParam {String} block The id of the mark.
+ * @apiParam {MouseEvent} [event] Used when clicking a toolbar/sidebar button to prevent default behavior so that the editor does not lose focus.
+ */
 export const toggleBlock = (editor, block, e) => {
     if (e) {
         e.preventDefault();
@@ -86,6 +111,15 @@ export const toggleBlock = (editor, block, e) => {
     }
 };
 
+/**
+ * @api {Function} toggleMark(editor,block,event) toggleMark()
+ * @apiGroup Reactium.RTE
+ * @apiName toggleMark
+ * @apiDescription Toggles a mark (inline format) within the specified editor.
+ * @apiParam {Editor} editor Reference to a Slate Editor object.
+ * @apiParam {String} block The id of the mark.
+ * @apiParam {MouseEvent} [event] Used when clicking a toolbar/sidebar button to prevent default behavior so that the editor does not lose focus.
+ */
 export const toggleMark = (editor, format, e) => {
     if (op.has(e, 'preventDefault')) e.preventDefault();
 
