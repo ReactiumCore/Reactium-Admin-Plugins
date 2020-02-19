@@ -6,7 +6,11 @@ import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import Portal from 'components/common-ui/Portal';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
-import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
+import Reactium, {
+    useDerivedState,
+    useEventHandle,
+    useIsContainer,
+} from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -48,6 +52,9 @@ let Panel = (initialProps, ref) => {
     const [state, setNewState] = useDerivedState(initialState);
 
     const [prevState, setPrevState] = useDerivedState(initialState);
+
+    // isContainer
+    const isContainer = useIsContainer();
 
     // content
     const [content, setNewContent] = useState(children);
@@ -133,21 +140,7 @@ let Panel = (initialProps, ref) => {
     const autoHidePanel = e => {
         const container = containerRef.current;
         if (!container || visible !== true || autohide !== true) return;
-
-        let isContainer = false;
-        const nodes = [e.target];
-
-        while (nodes.length > 0) {
-            const node = nodes.shift();
-            isContainer = node === container ? true : isContainer;
-            if (isContainer === true) break;
-            if (node.parentNode) {
-                nodes.push(node.parentNode);
-            }
-        }
-
-        if (isContainer === true) return;
-
+        if (isContainer(e.target, container)) return;
         hide();
     };
 

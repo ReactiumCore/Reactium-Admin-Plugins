@@ -435,71 +435,70 @@ import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor
  * @apiParam (Constructor) {Number} [order=100] The sort order applied to your plugin when registering it with the RichTextEditor component. The order can be overwritten via the `.order` property.
  * @apiParam (Constructor) {String} [type] The type is how your plugin is identified with the certain RichTextEditor functionality such as blocks and formats. The type cannot be changed outside of the constructor.
  * @apiExample Example Plugin
+// withBold.js
 
- // withBold.js
+import React from 'react';
+import Reactium from 'reactium-core/sdk';
+import { Button } from '@atomic-reactor/reactium-ui';
+import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
 
- import React from 'react';
- import Reactium from 'reactium-core/sdk';
- import { Button } from '@atomic-reactor/reactium-ui';
- import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+const withBold = new RTEPlugin({ type: 'bold', order: 100 });
 
- const withBold = new RTEPlugin({ type: 'bold', order: 100 });
+withBold.callback = editor => {
+    // Register inline formatter
+    Reactium.RTE.Format.register('bold', {
+        element: props => <strong {...props} />,
+    });
 
- withBold.callback = editor => {
-     // Register inline formatter
-     Reactium.RTE.Format.register('bold', {
-         element: props => <strong {...props} />,
-     });
+    // Register toolbar button
+    Reactium.RTE.Button.register('bold', {
+        order: 110,
+        toolbar: true,
+        button: ({ editor, ...props }) => (
+            <Button
+                {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+                active={Reactium.RTE.isMarkActive(editor, 'bold')}
+                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}
+                {...props}>
+                <span className='ico'>B</span>
+            </Button>
+        ),
+    });
 
-     // Register toolbar button
-     Reactium.RTE.Button.register('bold', {
-         order: 110,
-         toolbar: true,
-         button: ({ editor, ...props }) => (
-             <Button
-                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                 active={Reactium.RTE.isMarkActive(editor, 'bold')}
-                 onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}
-                 {...props}>
-                 <span className='ico'>B</span>
-             </Button>
-         ),
-     });
+    // Register hotkeys
+    Reactium.RTE.Hotkey.register('bold', {
+        keys: ['mod+b'],
+        callback: ({ editor, event }) => {
+            event.preventDefault();
+            Reactium.RTE.toggleMark(editor, 'bold');
+        },
+    });
 
-     // Register hotkeys
-     Reactium.RTE.Hotkey.register('bold', {
-         keys: ['mod+b'],
-         callback: ({ editor, event }) => {
-             event.preventDefault();
-             Reactium.RTE.toggleMark(editor, 'bold');
-         },
-     });
+    // Editor overrides
+    const { isInline } = editor;
 
-     // Editor overrides
-     const { isInline } = editor;
-
-     // override the editor.isInline function to check for the 'bold' element type.
-     editor.isInline = element =>
+    // override the editor.isInline function to check for the 'bold' element type.
+    editor.isInline = element =>
         element.type === 'bold' ? true : isInline(element);
 
-     // Return the updated editor object
-     return editor;
- };
+    // Return the updated editor object
+    return editor;
+};
 
- export {
+export {
     withBold
- };
+};
 
  ...
 
- // reactium-hooks.js
+// reactium-hooks.js
 
- import Reactium from 'reactium-core/sdk';
- import { withBold } from './withBold';
- import { withReact } from 'slate-react';
- import { withHistory } from 'slate-history';
+import Reactium from 'reactium-core/sdk';
+import { withBold } from './withBold';
+import { withReact } from 'slate-react';
+import { withHistory } from 'slate-history';
 
- Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
+Reactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(
     () => {
         // Register my custom plugin - withBold
         Reactium.RTE.Plugin.register('withBold', withBold);
@@ -508,5 +507,5 @@ import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor
         Reactium.RTE.Plugin.register('withReact', new RTEPlugin({ callback: withReact, order: 0 }));
         Reactium.RTE.Plugin.register('withHistory', new RTEPlugin({ callback: withHistory, order: 1 }));
     },
- );
+);
  */
