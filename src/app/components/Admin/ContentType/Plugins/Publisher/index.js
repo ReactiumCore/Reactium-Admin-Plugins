@@ -57,16 +57,6 @@ const Publisher = props => {
     return (
         <FieldTypeDialog {...props}>
             <div className='publisher-settings'>
-                <div className={'input-group'}>
-                    <div className='slider-check'>
-                        <Checkbox
-                            name='simple'
-                            label={__('Simple Flow')}
-                            labelAlign={'left'}
-                            value={true}
-                        />
-                    </div>
-                </div>
                 <input
                     type='hidden'
                     name='statuses'
@@ -123,6 +113,16 @@ const Publisher = props => {
                             );
                         })}
                     </ul>
+                </div>
+                <div className={'input-group'}>
+                    <div className='slider-check'>
+                        <Checkbox
+                            name='simple'
+                            label={__('Simple Flow')}
+                            labelAlign={'left'}
+                            value={true}
+                        />
+                    </div>
                 </div>
             </div>
         </FieldTypeDialog>

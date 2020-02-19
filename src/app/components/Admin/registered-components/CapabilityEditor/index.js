@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useCapabilityCheck } from 'reactium-core/sdk';
+import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
 import { Icon, Dialog, Checkbox } from '@atomic-reactor/reactium-ui';
 import DataTable from '@atomic-reactor/reactium-ui/DataTable';
 
@@ -128,16 +128,16 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     const [updated, setUpdated] = useState(1);
     const forceRefresh = () => setUpdated(updated + 1);
     const capNames = capabilities.map(({ capability }) => capability);
-    useEffect(() => {
-        if (capNames.length > 0) {
-            const loadCaps = async () => {
+    useAsyncEffect(
+        async isMounted => {
+            if (capNames.length > 0) {
                 const caps = await Reactium.Capability.get(capNames);
                 loadedCaps.current = caps;
-                forceRefresh();
-            };
-            loadCaps();
-        }
-    }, [capNames.sort().join('')]);
+                if (isMounted()) forceRefresh();
+            }
+        },
+        [capNames.sort().join('')],
+    );
 
     const getColumns = () => {
         const columns = {

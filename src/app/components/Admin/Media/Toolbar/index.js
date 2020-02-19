@@ -1,9 +1,8 @@
 import React from 'react';
 import ENUMS from '../enums';
 import domain from '../domain';
-import { useHandle } from 'reactium-core/sdk';
+import { useHandle, Zone } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { Plugins } from 'reactium-core/components/Plugable';
 
 /**
  * -----------------------------------------------------------------------------
@@ -32,7 +31,7 @@ const Toolbar = ({ directory }) => {
                 </div>
             </div>
             <div>
-                <Plugins zone='admin-media-toolbar' />
+                <Zone zone='admin-media-toolbar' />
             </div>
         </div>
     );
