@@ -2,11 +2,10 @@ import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
 import { Helmet } from 'react-helmet';
-import Logo from 'components/common-ui/Logo';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -14,6 +13,8 @@ import { Button, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
  * -----------------------------------------------------------------------------
  */
 const Login = ({ className, forgot, redirect, signup, ...props }) => {
+    const Logo = useHookComponent('Logo');
+
     const tools = useHandle('AdminTools');
 
     const Modal = op.get(tools, 'Modal');

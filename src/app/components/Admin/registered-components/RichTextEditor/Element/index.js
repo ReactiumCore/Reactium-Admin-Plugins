@@ -29,8 +29,9 @@ export default ({
 
     blocks.forEach(({ id, element: Element }) => {
         if (type !== id || output) return;
-        const ID = op.get(children, 'props.node.ID', uuid());
-        const style = op.get(children, 'props.node.style', {});
+        const node = op.get(children, 'props.node');
+        const ID = op.get(node, 'ID', uuid());
+        const style = op.get(node, 'style', {});
         output = (
             <Wrap {...attributes}>
                 <Element id={ID} style={style}>
@@ -43,8 +44,10 @@ export default ({
     if (!output) {
         formats.forEach(({ id, element: Element }) => {
             if (type !== id || output) return;
-            const ID = op.get(children, 'props.node.ID', uuid());
-            const style = op.get(children, 'props.node.style', {});
+            const node = op.get(children, 'props.node');
+            const ID = op.get(node, 'ID', uuid());
+            const style = op.get(node, 'style', {});
+
             output = (
                 <Wrap {...attributes}>
                     <Element id={ID} style={style} {...element}>
