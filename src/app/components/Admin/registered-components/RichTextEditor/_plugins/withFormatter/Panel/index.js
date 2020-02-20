@@ -85,7 +85,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         size,
         weight,
     }) => {
-        let newStyle = { ...style };
+        let newStyle = { ...style, padding: 0 };
 
         if (align) {
             newStyle = {
@@ -104,7 +104,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                 }
             }
 
-            newStyle = { ...newStyle, backgroundColor };
+            newStyle = { ...newStyle, backgroundColor, padding: 20 };
         }
 
         if (color) {
@@ -220,47 +220,19 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         }
 
         const [line] = Editor.node(editor, selection);
-        const [parent] = Editor.parent(editor, selection);
+        const [parent, parentSelection] = Editor.parent(editor, selection);
 
         let text = op.get(line, 'text', label);
         text = String(text).length < 1 ? label : text;
 
-        const node = {
+        let node = {
+            list: false,
             type,
             style,
-            children: [
-                {
-                    style,
-                    text,
-                },
-            ],
+            children: [{ text: '' }],
         };
 
-        const isCollapsed =
-            selection &&
-            Range.isCollapsed(selection) &&
-            String(line.text).length < 1;
-
-        const path = selection.focus.path.join(', ');
-        const isFirstEmpty = path === '0, 0' && String(line.text).length < 1;
-
-        // unwrap list nodes
-        const list = ['ol', 'ul', 'li'];
-        Transforms.unwrapNodes(editor, {
-            match: n => list.includes(n.type),
-        });
-
-        if (isCollapsed) {
-            editor.insertNode(node);
-            editor.insertNode({ type: 'p', children: [{ text: '' }] });
-            if (isFirstEmpty) {
-                Transforms.removeNodes(editor, { at: selection });
-            }
-            Transforms.collapse(editor, { edge: 'end' });
-        } else {
-            Transforms.setNodes(editor, node, { at: editor.selection });
-        }
-        ReactEditor.focus(editor);
+        Transforms.setNodes(editor, node, { at: selection });
     };
 
     // Handle
@@ -339,7 +311,9 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         applyStyle(state);
     }, [state]);
 
+    // Update selection
     useEffect(() => {
+        if (!editor.selection || _.isEqual(selection, editor.selection)) return;
         setSelection(selection);
     }, [editor.selection]);
 

@@ -302,16 +302,17 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     ]);
 
     // 10.5 - Focus
-    useEffect(() => {
-        if (!containerRef.current || typeof window === 'undefined') return;
-        containerRef.current.addEventListener('mousedown', focus);
-        containerRef.current.addEventListener('touchstart', focus);
-
-        return () => {
-            containerRef.current.removeEventListener('mousedown', focus);
-            containerRef.current.removeEventListener('touchstart', focus);
-        };
-    }, [containerRef.current]);
+    // TODO: Figure out a better way to apply focus to the editor
+    // useEffect(() => {
+    //     if (!containerRef.current || typeof window === 'undefined') return;
+    //     containerRef.current.addEventListener('mousedown', focus);
+    //     containerRef.current.addEventListener('touchstart', focus);
+    //
+    //     return () => {
+    //         containerRef.current.removeEventListener('mousedown', focus);
+    //         containerRef.current.removeEventListener('touchstart', focus);
+    //     };
+    // }, [containerRef.current]);
 
     // 11.0 - Render function
     const render = () => (

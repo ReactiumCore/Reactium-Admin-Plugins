@@ -97,11 +97,11 @@ export const toggleBlock = (editor, block, e) => {
 
     if (isList) {
         Transforms.setNodes(editor, {
-            type: isActive ? 'p' : 'li',
+            type: isActive ? 'div' : 'li',
         });
     } else {
         Transforms.setNodes(editor, {
-            type: isActive ? 'p' : block,
+            type: isActive ? 'div' : block,
         });
     }
 

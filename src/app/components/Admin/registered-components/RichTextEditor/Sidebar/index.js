@@ -78,6 +78,8 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
             top -= 7;
         }
 
+        top = Math.max(-7, top);
+
         let left = -50;
 
         const position = { left, top, display: 'block', opacity: 1 };

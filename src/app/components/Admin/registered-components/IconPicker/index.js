@@ -50,9 +50,8 @@ class PickerEvent extends Event {
 }
 
 const IconGroup = ({
-    box,
+    chunksize = 25,
     color,
-    height,
     icons = [],
     group,
     onClick = noop,
@@ -62,26 +61,20 @@ const IconGroup = ({
     size: initialSize,
     value = [],
 }) => {
-    const more = useRef();
-    const cont = useRef();
-
     const size = initialSize + 24 - 8;
-    const [index, setIndex] = useState(1);
-    const chunks = _.flatten(_.chunk(icons, 35).slice(0, index));
+    const [index, setIndex] = useState(0);
+    const count = Math.ceil(icons.length / chunksize);
+    const chunks = _.flatten(_.chunk(icons, chunksize).slice(0, index));
 
-    const _next = () => setIndex(index + 1);
-    const next = _.throttle(_next, 250);
+    const next = () => {
+        if (index === count) return;
+        setTimeout(() => setIndex(index + 1), 125);
+    };
 
-    useEffect(() => {
-        const { initialTop, top } = box;
-        if (!more.current || !cont.current || !initialTop) return;
-        const offsetTop = more.current.offsetTop;
-        const y = initialTop - top + height - offsetTop;
-        if (y < 0) next();
-    }, [box]);
+    useEffect(next, [index]);
 
     return icons.length < 1 ? null : (
-        <section ref={cont}>
+        <section>
             <h3>{group}</h3>
             <div className='container'>
                 {chunks.map((icon, i) => (
@@ -105,7 +98,6 @@ const IconGroup = ({
                     </div>
                 ))}
             </div>
-            {chunks.length !== icons.length && <div ref={more} />}
         </section>
     );
 };
@@ -129,8 +121,6 @@ let IconPicker = (initialProps, ref) => {
 
     const container = useRef();
 
-    const [box, setBox] = useState({});
-    const [initialTop, setInitialTop] = useState();
     const [color, setColor] = useState(op.get(props, 'color', '#666666'));
     const [icons, setIcons] = useState(getIcons(op.get(props, 'search', '')));
     const [mouseout, setMouseout] = useState();
@@ -214,6 +204,7 @@ let IconPicker = (initialProps, ref) => {
 
     const _handle = () => ({
         color,
+        container: container.current,
         icons,
         multiselect,
         props: initialProps,
@@ -234,6 +225,7 @@ let IconPicker = (initialProps, ref) => {
 
     useImperativeHandle(ref, () => handle);
 
+    // update icons on search & dispatch - search
     useEffect(() => {
         const results = getIcons(search);
 
@@ -242,6 +234,7 @@ let IconPicker = (initialProps, ref) => {
         setIcons(results);
     }, [search]);
 
+    // update size & dispatch - resize
     useEffect(() => {
         if (size < 8) {
             setSize(8);
@@ -252,12 +245,13 @@ let IconPicker = (initialProps, ref) => {
         }
     }, [size]);
 
-    // Dispatchers
+    // dispatch - change
     useEffect(() => {
         handle.dispatchEvent(new PickerEvent('change'));
         onChange({ type: 'change', target: handle });
     }, [value]);
 
+    // dispatch - mouseout
     useEffect(() => {
         if (!op.get(state, 'mouseout')) return;
         handle.dispatchEvent(
@@ -266,6 +260,7 @@ let IconPicker = (initialProps, ref) => {
         onMouseOut({ type: 'mouseout', target: handle, item: state.mouseout });
     }, [op.get(state, 'mouseout')]);
 
+    // dispatched - mouseover
     useEffect(() => {
         if (!op.get(state, 'mouseover')) return;
         handle.dispatchEvent(
@@ -278,6 +273,7 @@ let IconPicker = (initialProps, ref) => {
         });
     }, [op.get(state, 'mouseover')]);
 
+    // dispatch - selected
     useEffect(() => {
         if (!op.get(state, 'selected')) return;
         handle.dispatchEvent(
@@ -286,6 +282,7 @@ let IconPicker = (initialProps, ref) => {
         onSelect({ type: 'select', target: handle, item: state.selected });
     }, [op.get(state, 'selected')]);
 
+    // dispatch - touched
     useEffect(() => {
         if (!op.get(state, 'touched')) return;
         handle.dispatchEvent(
@@ -298,6 +295,7 @@ let IconPicker = (initialProps, ref) => {
         });
     }, [op.get(state, 'touched')]);
 
+    // dispatch - unselected
     useEffect(() => {
         if (!op.get(state, 'unselected')) return;
         handle.dispatchEvent(
@@ -310,39 +308,20 @@ let IconPicker = (initialProps, ref) => {
         });
     }, [op.get(state, 'unselected')]);
 
+    // update handle
     useEffect(() => {
         setHandle(_handle());
-    }, [color, icons, multiselect, selected, search, size, unselected, value]);
-
-    useEffect(() => {
-        if (!container.current) return;
-        if (!initialTop) {
-            const { top } = container.current.getBoundingClientRect();
-            if (initialTop !== top) setInitialTop(top);
-        }
-    }, [initialTop]);
-
-    useEffect(() => {
-        if (!container.current || !initialTop) return;
-
-        const ival = setInterval(() => {
-            const {
-                x,
-                y,
-                bottom,
-                top,
-                left,
-                width,
-                height,
-            } = container.current.getBoundingClientRect();
-            const rect = { x, y, bottom, top, left, width, height, initialTop };
-            if (!_.isEqual(rect, box)) setBox(rect);
-        }, 1);
-
-        return () => {
-            clearInterval(ival);
-        };
-    });
+    }, [
+        color,
+        container.current,
+        icons,
+        multiselect,
+        selected,
+        search,
+        size,
+        unselected,
+        value,
+    ]);
 
     const render = () => {
         return !icons ? null : (
@@ -350,7 +329,6 @@ let IconPicker = (initialProps, ref) => {
                 <div className={cx()} ref={container}>
                     {Object.entries(icons).map(([group, icos]) => (
                         <IconGroup
-                            box={box}
                             color={color}
                             group={group}
                             height={height}
