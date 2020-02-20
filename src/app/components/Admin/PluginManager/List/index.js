@@ -20,27 +20,40 @@ const PluginList = ({
     const SearchBar = useHandle('SearchBar');
     useEffect(() => SearchBar.setState({ visible: true }));
 
-    const results = idx
-        .search(op.get(SearchBar, 'value') || '')
-        .map(({ ref }) => ref);
-    const pluginGroups = plugins
-        .filter(({ ID }) => results.find(ref => ref === ID))
-        .reduce(
-            (gps, plugin) => {
-                const { group, groupName } = plugin;
-                gps[group].plugins.push(plugin);
-                _.sortBy(gps[group].plugins, 'order');
-                return gps;
-            },
-            Object.entries(groups).reduce((init, [group, groupName]) => {
-                init[group] = {
-                    group,
-                    groupName,
-                    plugins: [],
-                };
-                return init;
-            }, {}),
-        );
+    const pluginsById = _.indexBy(plugins, 'ID');
+    const results = _.compact(
+        idx
+            .search(op.get(SearchBar, 'value') || '')
+            .map(({ ref }) => pluginsById[ref]),
+    );
+
+    // build plugin groups
+    const pluginGroups = _.indexBy(
+        Object.entries(groups).map(([group, groupName]) => ({
+            group,
+            groupName,
+            plugins: [],
+        })),
+        'group',
+    );
+
+    // add plugins to groups
+    results.forEach(plugin => {
+        let { group } = plugin;
+
+        // if group label hasn't been provided
+        // via `plugin-group-labels` hook, add actinium plugin to "other" group
+        if (!op.has(pluginGroups, [group])) {
+            if (!op.has(groups, [group])) {
+                group = 'other';
+            }
+        }
+
+        const plugins = op
+            .get(pluginGroups, [group, 'plugins'], [])
+            .concat(plugin);
+        op.set(pluginGroups, [group, 'plugins'], _.sortBy(plugins, 'order'));
+    });
 
     const PluginGroup = useHookComponent('plugin-manager-plugin-group', Group);
 
