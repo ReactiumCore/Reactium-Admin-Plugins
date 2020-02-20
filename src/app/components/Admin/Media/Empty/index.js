@@ -2,8 +2,7 @@ import React from 'react';
 import ENUMS from '../enums';
 import domain from '../domain';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { Plugins } from 'reactium-core/components/Plugable';
-import { useHandle, useWindowSize } from 'reactium-core/sdk';
+import { useHandle, useWindowSize, Zone } from 'reactium-core/sdk';
 
 export default () => {
     const Media = useHandle(domain.name);
@@ -32,7 +31,7 @@ export default () => {
                         {ENUMS.TEXT.BROWSE}
                     </Button>
                 </div>
-                <Plugins zone='admin-media-empty' />
+                <Zone zone='admin-media-empty' />
             </>
         );
     };

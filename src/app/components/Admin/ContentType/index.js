@@ -46,6 +46,7 @@ const ContentType = memo(
         const CapabilityEditor = useHookComponent('CapabilityEditor');
 
         useEffect(() => {
+            clear();
             if (id === 'new') {
                 const autoIncludes = Object.values(
                     Enums.TYPES,
@@ -107,8 +108,6 @@ const ContentType = memo(
         };
 
         const load = async () => {
-            clear();
-
             try {
                 const contentType = await Reactium.ContentType.retrieve(id);
                 const regions = {

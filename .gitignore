@@ -88,8 +88,9 @@ src/manifest.js
 src/app/components/common-ui/Icon/Feather/
 src/app/toolkit/icons
 
-# Reactium UI Dev
+# Library Local Development
 src/app/components/Reactium-UI/
+src/reactium-sdk-core
 
 # Flow
 flow-typed
