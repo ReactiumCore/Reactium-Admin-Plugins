@@ -3,12 +3,11 @@ import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
 import { Helmet } from 'react-helmet';
-import Logo from 'components/common-ui/Logo';
 import { useSelect } from 'reactium-core/sdk';
-import Reactium, { __ } from 'reactium-core/sdk';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -16,6 +15,8 @@ import { Button, WebForm } from '@atomic-reactor/reactium-ui';
  * -----------------------------------------------------------------------------
  */
 let Reset = props => {
+    const Logo = useHookComponent('Logo');
+
     const token = useSelect({
         select: state => op.get(state, 'Router.params.token'),
     });

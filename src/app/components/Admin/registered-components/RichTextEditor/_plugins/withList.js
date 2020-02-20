@@ -122,7 +122,11 @@ Plugin.callback = editor => {
                 match: n => list.includes(n.type),
             });
 
-            Transforms.setNodes(editor, { type: 'p', style: {} }, { at: [0] });
+            Transforms.setNodes(
+                editor,
+                { type: 'div', style: {} },
+                { at: [0] },
+            );
         },
     });
 

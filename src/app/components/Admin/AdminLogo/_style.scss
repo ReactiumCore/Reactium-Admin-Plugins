@@ -11,7 +11,7 @@
     padding: 10px;
     order: map-get($z-indexes, 'overlay');
 
-    > * {
+    * {
         width: auto;
         height: 100%;
     }
