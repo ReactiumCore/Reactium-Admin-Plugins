@@ -9,4 +9,13 @@ const hexToRgb = hex => {
         : [hex];
 };
 
-export { hexToRgb };
+const rgbToHex = (r, g, b) => {
+    const hex = c => {
+        const str = Number(c).toString(16);
+        return str.length === 1 ? '0' + str : str;
+    };
+
+    return String('#' + hex(r) + hex(g) + hex(b)).toUpperCase();
+};
+
+export { hexToRgb, rgbToHex };

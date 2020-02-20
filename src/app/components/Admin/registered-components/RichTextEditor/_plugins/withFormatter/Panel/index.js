@@ -23,7 +23,7 @@ import React, {
     useState,
 } from 'react';
 
-import { hexToRgb } from './utils';
+import { hexToRgb, rgbToHex } from './utils';
 import { FontSelect } from './FontSelect';
 import { ColorSelect } from './ColorSelect';
 import { TextStyleSelect } from './TextStyleSelect';
@@ -57,6 +57,8 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
     const [colors, setColors] = useState(editor.colors);
 
     const [fonts, setFonts] = useState(editor.fonts);
+
+    const [node, setNode] = useState();
 
     const [selection, setSelection] = useState(initialSelection);
 
@@ -104,10 +106,18 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                 }
             }
 
-            newStyle = { ...newStyle, backgroundColor, padding: 20 };
+            const padding = backgroundColor !== 'transparent' ? 20 : undefined;
+            newStyle = { ...newStyle, backgroundColor, padding };
         }
 
         if (color) {
+            if (opacity) {
+                if (String(color).substr(0, 1) === '#') {
+                    const RGB = hexToRgb(color).join(', ');
+                    color = `rgba(${RGB}, ${opacity / 100}`;
+                }
+            }
+
             newStyle = { ...newStyle, color };
         }
 
@@ -147,8 +157,95 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
             .join('-');
 
     const hide = () => {
-        editor.panel.hide(false).setID('rte-panel');
+        editor.panel.hide(false, true).setID('rte-panel');
         ReactEditor.focus(editor);
+    };
+
+    const styleToState = currentStyle => {
+        let newState = {};
+
+        // text align
+        let textAlign = op.get(currentStyle, 'textAlign');
+        if (textAlign) {
+            op.set(newState, 'align', `align-${textAlign}`);
+        }
+
+        const _fonts = _.sortBy(editor.fonts, 'label');
+        let _font = _fonts[0];
+
+        // default font values
+        newState = {
+            ...newState,
+            font: _font,
+            size: { label: 16, value: 16 },
+            weight: _font.weight[0],
+        };
+
+        // map font
+        if (op.has(currentStyle, 'fontFamily')) {
+            const label = op
+                .get(currentStyle, 'fontFamily')
+                .split(',')
+                .shift();
+            _font = _.findWhere(editor.fonts, { label }) || newState.font;
+
+            newState = {
+                ...newState,
+                font: _font,
+                weight: _font.weight[0],
+            };
+        }
+
+        if (op.has(currentStyle, 'fontSize')) {
+            const fontSize = op.get(currentStyle, 'fontSize');
+            const size = { label: fontSize, value: fontSize };
+            newState['size'] = size;
+        }
+
+        if (op.has(currentStyle, 'fontWeight')) {
+            const fontWeight = Number(op.get(currentStyle, 'fontWeight', 400));
+            const weights = newState.font;
+            const weight = _.findWhere(weights, { weight: fontWeight });
+            newState['weight'] = weight;
+        }
+
+        // map color values to state
+        const colors = [
+            {
+                key: 'bgColor',
+                opacity: 'bgOpacity',
+                css: 'backgroundColor',
+            },
+            {
+                key: 'color',
+                opacity: 'opacity',
+                css: 'color',
+            },
+        ];
+
+        colors.forEach(({ key, opacity, css }) => {
+            let clr = op.get(currentStyle, css);
+
+            newState[key] = clr;
+
+            if (clr && String(clr).substr(0, 3) === 'rgb') {
+                clr = clr
+                    .split('(')
+                    .pop()
+                    .split(')')
+                    .shift()
+                    .split(', ');
+
+                newState[key] = rgbToHex(...clr);
+                newState[opacity] =
+                    Number(clr.length === 4 ? clr.pop() : 1) * 100;
+            }
+        });
+
+        // Update state
+        if (Object.keys(newState).length > 0 && !_.isEqual(state, newState)) {
+            setState(newState);
+        }
     };
 
     const _onBgColorChange = e => {
@@ -310,6 +407,31 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
     useEffect(() => {
         applyStyle(state);
     }, [state]);
+
+    // Get styles from current node
+    useEffect(() => {
+        if (!selection) return;
+
+        let parent;
+        try {
+            parent = Editor.parent(editor, selection);
+        } catch (err) {
+            return;
+        }
+
+        if (!parent) return;
+
+        const [currentNode] = parent;
+
+        if (!currentNode) return;
+
+        if (op.has(currentNode, 'style')) {
+            let currentStyle = _.clone(op.get(currentNode, 'style', {}));
+            styleToState(currentStyle);
+        }
+
+        setNode(currentNode);
+    }, [node, selection]);
 
     // Update selection
     useEffect(() => {
