@@ -145,7 +145,7 @@ let Panel = (initialProps, ref) => {
         const container = containerRef.current;
         if (!container || visible !== true || autohide !== true) return;
         if (isContainer(e.target, container)) return;
-        hide();
+        hide(true, true);
     };
 
     // classname and namespace
@@ -176,14 +176,14 @@ let Panel = (initialProps, ref) => {
                 onComplete: () => {
                     setVisible(false);
                     if (empty === true) {
-                        setNewContent('');
+                        setNewContent(null);
                     }
                 },
             });
         } else {
             setVisible(false);
             if (empty === true) {
-                setNewContent('');
+                setNewContent(null);
             }
         }
 

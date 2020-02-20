@@ -34,6 +34,15 @@ import { TextAlignSelect } from './TextAlignSelect';
  * Hook Component: Panel
  * -----------------------------------------------------------------------------
  */
+const CloseButton = props => (
+    <Button
+        size={Button.ENUMS.SIZE.XS}
+        color={Button.ENUMS.COLOR.CLEAR}
+        className='ar-dialog-header-btn dismiss'
+        {...props}>
+        <Icon name='Feather.X' />
+    </Button>
+);
 
 let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
     const formRef = useRef();
@@ -136,6 +145,11 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
             .uniq()
             .value()
             .join('-');
+
+    const hide = () => {
+        editor.panel.hide(false).setID('rte-panel');
+        ReactEditor.focus(editor);
+    };
 
     const _onBgColorChange = e => {
         const bgColor = e.target.value;
@@ -344,9 +358,14 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
             weight,
         } = state;
 
+        const header = {
+            elements: [<CloseButton onClick={hide} />],
+            title,
+        };
+
         return (
             <EventForm ref={formRef} className={cx()} controlled>
-                <Dialog header={{ title }} pref='admin.dialog.formatter'>
+                <Dialog collapsible={false} dismissable={false} header={header}>
                     <TextStyleSelect
                         blocks={blocks}
                         onSelect={_onTextStyleChange}

@@ -23,8 +23,12 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
  * @apiName IconPicker
  * @apiGroup Registered Component
  * @apiParam {String} [color='#666666'] The color of the icons.
+ * @apiParam {Number} [height=250] The height in pixels of the picker.
  * @apiParam {Object} [icons] Manually set the icons object.
  * @apiParam {Boolean} [multiselect=false] Whether to allow multiple icons to be selected.
+ * @apiParam {String} [search] Filter the icons by the icon name.
+ * @apiParam {Number} [size=18] The size (in pixels) of the icons.
+ * @apiParam {Array} [value] Array of selected icons.
  * @apiParam {Function} [onChange] Function to execute when the `change` event is triggered.
  * @apiParam {Function} [onMouseOut] Function to execute when the `mouseout` event is triggered.
  * @apiParam {Function} [onMouseOver] Function to execute when the `mouseover` event is triggered.
@@ -33,9 +37,6 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
  * @apiParam {Function} [onSelect] Function to execute when the `select` event is triggered.
  * @apiParam {Function} [onTouchStart] Function to execute when the `touchstart` event is triggered.
  * @apiParam {Function} [onUnselect] Function to execute when the `unselect` event is triggered.
- * @apiParam {String} [search] Filter the icons by the icon name.
- * @apiParam {Number} [size=18] The size (in pixels) of the icons.
- * @apiParam {Array} [value] Array of selected icons.
  * @apiParam (Method) {Function} setColor Set the `color` property.
  * @apiParam (Method) {Function} setIcons Set the `icons` property.
  * @apiParam (Method) {Function} setMultiselect Set the `multiselect` property.

@@ -73,9 +73,9 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
 
         if (height > 30) {
             const diff = height - 30;
-            top += diff / 2;
+            top += Math.floor(diff / 2);
         } else {
-            top -= 7.5;
+            top -= 7;
         }
 
         let left = -50;

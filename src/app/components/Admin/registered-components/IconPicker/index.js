@@ -3,6 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Icon } from '@atomic-reactor/reactium-ui';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { useEventHandle, useDerivedState } from 'reactium-core/sdk';
 
 import React, {
@@ -10,6 +11,7 @@ import React, {
     useEffect,
     useImperativeHandle,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 
@@ -48,24 +50,41 @@ class PickerEvent extends Event {
 }
 
 const IconGroup = ({
+    box,
     color,
+    height,
     icons = [],
     group,
     onClick = noop,
     onMouseOut = noop,
     onMouseOver = noop,
     onTouchStart = noop,
-    size,
+    size: initialSize,
     value = [],
 }) => {
-    const width = size + 24 - 8;
-    const height = width;
+    const more = useRef();
+    const cont = useRef();
+
+    const size = initialSize + 24 - 8;
+    const [index, setIndex] = useState(1);
+    const chunks = _.flatten(_.chunk(icons, 35).slice(0, index));
+
+    const _next = () => setIndex(index + 1);
+    const next = _.throttle(_next, 250);
+
+    useEffect(() => {
+        const { initialTop, top } = box;
+        if (!more.current || !cont.current || !initialTop) return;
+        const offsetTop = more.current.offsetTop;
+        const y = initialTop - top + height - offsetTop;
+        if (y < 0) next();
+    }, [box]);
 
     return icons.length < 1 ? null : (
-        <section>
+        <section ref={cont}>
             <h3>{group}</h3>
             <div className='container'>
-                {icons.map((icon, i) => (
+                {chunks.map((icon, i) => (
                     <div
                         className={cn({
                             active: value.includes(`${group}.${icon}`),
@@ -77,15 +96,16 @@ const IconGroup = ({
                         onMouseOut={onMouseOut}
                         onMouseOver={onMouseOver}
                         onTouchStart={onTouchStart}
-                        style={{ width, height, maxWidth: width }}>
+                        style={{ width: size, height: size, maxWidth: size }}>
                         <Icon
                             name={`${group}.${icon}`}
-                            size={size}
+                            size={initialSize}
                             style={{ fill: color }}
                         />
                     </div>
                 ))}
             </div>
+            {chunks.length !== icons.length && <div ref={more} />}
         </section>
     );
 };
@@ -93,6 +113,7 @@ const IconGroup = ({
 let IconPicker = (initialProps, ref) => {
     const {
         className,
+        height,
         namespace,
         onChange,
         onMouseOut,
@@ -106,6 +127,10 @@ let IconPicker = (initialProps, ref) => {
         ...props
     } = initialProps;
 
+    const container = useRef();
+
+    const [box, setBox] = useState({});
+    const [initialTop, setInitialTop] = useState();
     const [color, setColor] = useState(op.get(props, 'color', '#666666'));
     const [icons, setIcons] = useState(getIcons(op.get(props, 'search', '')));
     const [mouseout, setMouseout] = useState();
@@ -163,6 +188,8 @@ let IconPicker = (initialProps, ref) => {
             setValue(newValue);
         }
     };
+
+    const _onScroll = e => {};
 
     const _onTouchStart = e => {
         e.stopPropagation();
@@ -287,28 +314,62 @@ let IconPicker = (initialProps, ref) => {
         setHandle(_handle());
     }, [color, icons, multiselect, selected, search, size, unselected, value]);
 
-    const render = useMemo(() => {
-        return !icons ? null : (
-            <div className={cx()}>
-                {Object.entries(icons).map(([group, icos]) => (
-                    <IconGroup
-                        color={color}
-                        group={group}
-                        icons={icos}
-                        key={group}
-                        onClick={_onClick}
-                        onMouseOut={_onMouseOut}
-                        onMouseOver={_onMouseOver}
-                        onTouchStart={_onTouchStart}
-                        size={size}
-                        value={value}
-                    />
-                ))}
-            </div>
-        );
-    }, [color, icons, multiselect, selected, search, size, unselected, value]);
+    useEffect(() => {
+        if (!container.current) return;
+        if (!initialTop) {
+            const { top } = container.current.getBoundingClientRect();
+            if (initialTop !== top) setInitialTop(top);
+        }
+    }, [initialTop]);
 
-    return render;
+    useEffect(() => {
+        if (!container.current || !initialTop) return;
+
+        const ival = setInterval(() => {
+            const {
+                x,
+                y,
+                bottom,
+                top,
+                left,
+                width,
+                height,
+            } = container.current.getBoundingClientRect();
+            const rect = { x, y, bottom, top, left, width, height, initialTop };
+            if (!_.isEqual(rect, box)) setBox(rect);
+        }, 1);
+
+        return () => {
+            clearInterval(ival);
+        };
+    });
+
+    const render = () => {
+        return !icons ? null : (
+            <Scrollbars autoHeight autoHeightMin={height}>
+                <div className={cx()} ref={container}>
+                    {Object.entries(icons).map(([group, icos]) => (
+                        <IconGroup
+                            box={box}
+                            color={color}
+                            group={group}
+                            height={height}
+                            icons={icos}
+                            key={group}
+                            onClick={_onClick}
+                            onMouseOut={_onMouseOut}
+                            onMouseOver={_onMouseOver}
+                            onTouchStart={_onTouchStart}
+                            size={size}
+                            value={value}
+                        />
+                    ))}
+                </div>
+            </Scrollbars>
+        );
+    };
+
+    return render();
 };
 
 IconPicker = forwardRef(IconPicker);
@@ -316,6 +377,7 @@ IconPicker = forwardRef(IconPicker);
 IconPicker.propTypes = {
     className: PropTypes.string,
     color: PropTypes.string,
+    height: PropTypes.number,
     multiselect: PropTypes.bool,
     namespace: PropTypes.string,
     onChange: PropTypes.func,
@@ -333,6 +395,7 @@ IconPicker.propTypes = {
 
 IconPicker.defaultProps = {
     color: '#666666',
+    height: 250,
     multiselect: false,
     namespace: 'ar-icon-picker',
     onChange: noop,

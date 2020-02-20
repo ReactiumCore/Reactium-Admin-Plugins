@@ -5,7 +5,6 @@ import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
 import { Editor, Transforms } from 'slate';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { ReactEditor, useEditor } from 'slate-react';
 import React, { useEffect, useRef, useState } from 'react';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
@@ -126,9 +125,11 @@ const Panel = ({
                             </div>
                         </div>
                     </div>
-                    <Scrollbars autoHeight autoHeightMin={250}>
-                        <IconPicker ref={pickerRef} onSelect={_onSelect} />
-                    </Scrollbars>
+                    <IconPicker
+                        ref={pickerRef}
+                        onSelect={_onSelect}
+                        height={250}
+                    />
                 </div>
             </Dialog>
         );
