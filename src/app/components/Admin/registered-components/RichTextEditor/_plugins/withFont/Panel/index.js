@@ -3,15 +3,15 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
-import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
+import { ReactEditor, useSlate } from 'slate-react';
 import { FontSelect } from '../../withFormatter/Panel/FontSelect';
-import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
+    useFocusEffect,
     useHandle,
 } from 'reactium-core/sdk';
 
@@ -134,9 +134,7 @@ let Panel = (
         hide();
     };
 
-    const hide = () => {
-        editor.panel.hide(false).setID('rte-panel');
-    };
+    const hide = () => editor.panel.setID('rte-panel').hide(false, true);
 
     // Handle
     const _handle = () => ({});
@@ -153,7 +151,7 @@ let Panel = (
         return () => {
             formRef.current.removeEventListener('submit', _onSubmit);
         };
-    }, [editor]);
+    }, [formRef.current]);
 
     useEffect(() => {
         if (!editor.selection) return;
@@ -178,6 +176,15 @@ let Panel = (
         }
     }, [fonts]);
 
+    const [focused] = useFocusEffect(op.get(formRef, 'current.form'), [
+        op.get(formRef, 'current.form'),
+    ]);
+    const [focusRetry, setFocusRetry] = useState(0);
+
+    useEffect(() => {
+        if (!focused && focusRetry < 10) setFocusRetry(focusRetry + 1);
+    }, [focusRetry]);
+
     // Renderers
     const render = () => {
         if (!fontFamily || !fontSize || !fontWeight) return null;
@@ -185,11 +192,7 @@ let Panel = (
         const isActive = isNodeActive();
 
         return (
-            <EventForm
-                ref={formRef}
-                className={cx()}
-                onSubmit={_onSubmit}
-                controlled>
+            <EventForm ref={formRef} className={cx()} controlled>
                 <Dialog
                     collapsible={false}
                     dismissable={false}
@@ -210,6 +213,7 @@ let Panel = (
                     }}>
                     {!isActive && (
                         <FontSelect
+                            data-focus
                             font={fontFamily}
                             fonts={fonts}
                             onFontSelect={_onFontSelect}
@@ -224,6 +228,7 @@ let Panel = (
                             <Button
                                 block
                                 color='danger'
+                                data-focus
                                 size='sm'
                                 type='button'
                                 onClick={_onClear}>

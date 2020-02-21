@@ -33,7 +33,7 @@ Plugin.callback = editor => {
                     );
 
                     if (!op.get(node, 'type')) {
-                        return true;
+                        return false;
                     }
 
                     return node ? op.get(node, 'type') === Plugin.type : false;

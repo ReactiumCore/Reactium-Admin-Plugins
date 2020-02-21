@@ -3,12 +3,11 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
-import Reactium, { __ } from 'reactium-core/sdk';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import React, { forwardRef, useRef, useState } from 'react';
-import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useFocusEffect } from 'reactium-core/sdk';
+import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -96,6 +95,8 @@ let Panel = (
         ReactEditor.focus(editor);
     };
 
+    useFocusEffect(editor.panel.container);
+
     // Renderers
     const render = () => {
         const isActive = isLinkActive();
@@ -129,6 +130,7 @@ let Panel = (
                         <div className='p-xs-20'>
                             <div className='form-group'>
                                 <input
+                                    data-focus
                                     type='text'
                                     name='url'
                                     placeholder='http://site.com/page'
@@ -143,6 +145,7 @@ let Panel = (
                             <Button
                                 block
                                 color='danger'
+                                data-focus
                                 className='mt-xs-8'
                                 size='sm'
                                 type='button'

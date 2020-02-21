@@ -3,12 +3,12 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
 import {
     Button,
     Dialog,
+    EventForm,
     Icon,
     Modal as ModalComp,
 } from '@atomic-reactor/reactium-ui';
@@ -16,6 +16,7 @@ import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
+    useFocusEffect,
     useHandle,
     useHookComponent,
 } from 'reactium-core/sdk';
@@ -227,6 +228,8 @@ let Panel = (
         }
     }, [editor.selection]);
 
+    useFocusEffect(editor.panel.container);
+
     // Renderers
     const render = () => {
         const header = {
@@ -258,6 +261,7 @@ let Panel = (
                         <Button
                             block
                             color='tertiary'
+                            data-focus
                             size='sm'
                             type='button'
                             onClick={showPicker}>

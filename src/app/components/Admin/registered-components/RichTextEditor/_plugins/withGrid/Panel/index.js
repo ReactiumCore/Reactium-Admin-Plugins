@@ -4,11 +4,10 @@ import cn from 'classnames';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
 import { Editor, Transforms } from 'slate';
-import Reactium, { __ } from 'reactium-core/sdk';
 import { ReactEditor, useEditor } from 'slate-react';
-import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { __, useFocusEffect } from 'reactium-core/sdk';
+import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 import React, {
     forwardRef,
     useCallback,
@@ -136,6 +135,8 @@ let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
         };
     }, [editor.selection, value]);
 
+    useFocusEffect(editor.panel.container);
+
     // Renderers
     const render = useCallback(() => {
         const header = {
@@ -156,6 +157,7 @@ let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
                     <div className='p-xs-20'>
                         <div className='input-group'>
                             <input
+                                data-focus
                                 onKeyDown={_onColumnAdd}
                                 placeholder={__('col-xs-12 col-lg-4')}
                                 ref={addRef}

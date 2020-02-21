@@ -17,6 +17,7 @@ export const ColorSelect = ({
     onOpacityChange = noop,
     title,
     transparent = false,
+    ...props
 }) => {
     const colorNone = {
         value: 'inherit',
@@ -94,6 +95,7 @@ export const ColorSelect = ({
                                         onChange={onColorChange}
                                     />
                                     <Button
+                                        {...props}
                                         color='clear'
                                         data-dropdown-element
                                         size='xs'

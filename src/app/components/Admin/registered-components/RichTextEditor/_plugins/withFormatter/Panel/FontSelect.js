@@ -1,6 +1,6 @@
+import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
-import React, { useMemo } from 'react';
 import { Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 export const FontLabel = ({ label, ...item }) => {
@@ -17,6 +17,7 @@ export const FontSelect = ({
     size,
     title,
     weight,
+    ...props
 }) => {
     const _font = font || fonts[0];
     const _sizes = _font.size.map(item => ({ label: item, value: item }));
@@ -29,75 +30,65 @@ export const FontSelect = ({
     let _weight = weight || _weights[0];
     _weight = _.findWhere(_weights, { weight: _weight.weight }) || _weights[0];
 
-    //console.log({ _size, _weight, _font });
-
-    return useMemo(
-        () => (
-            <>
-                {title && <h3 className='heading'>{title}</h3>}
-                <div className='formatter-font'>
-                    <div className='mb-xs-8'>
+    return (
+        <>
+            {title && <h3 className='heading'>{title}</h3>}
+            <div className='formatter-font'>
+                <div className='mb-xs-8'>
+                    <Dropdown
+                        data={fonts}
+                        labelField='label'
+                        maxHeight='40vh'
+                        minHeight={200}
+                        onItemSelect={onFontSelect}
+                        selection={[op.get(_font, 'id')]}
+                        valueField='id'>
+                        <button
+                            {...props}
+                            className='dropdown-btn'
+                            type='button'
+                            data-dropdown-element>
+                            <FontLabel {..._font} />
+                            <Icon name='Feather.ChevronDown' size={16} />
+                        </button>
+                    </Dropdown>
+                </div>
+                <div className='row'>
+                    <div className='col-xs-8 pr-xs-8'>
                         <Dropdown
-                            data={fonts}
+                            data={_weights}
                             labelField='label'
-                            maxHeight='40vh'
-                            minHeight={200}
-                            onItemSelect={onFontSelect}
-                            selection={[op.get(_font, 'id')]}
-                            valueField='id'>
+                            minHeight={0}
+                            onItemSelect={onWeightSelect}
+                            selection={[op.get(_weight, 'weight')]}
+                            valueField='weight'>
                             <button
                                 className='dropdown-btn'
                                 type='button'
                                 data-dropdown-element>
-                                <FontLabel {..._font} />
+                                <FontLabel {..._weight} />
                                 <Icon name='Feather.ChevronDown' size={16} />
                             </button>
                         </Dropdown>
                     </div>
-                    <div className='row'>
-                        <div className='col-xs-8 pr-xs-8'>
-                            <Dropdown
-                                data={_weights}
-                                labelField='label'
-                                minHeight={0}
-                                onItemSelect={onWeightSelect}
-                                selection={[op.get(_weight, 'weight')]}
-                                valueField='weight'>
-                                <button
-                                    className='dropdown-btn'
-                                    type='button'
-                                    data-dropdown-element>
-                                    <FontLabel {..._weight} />
-                                    <Icon
-                                        name='Feather.ChevronDown'
-                                        size={16}
-                                    />
-                                </button>
-                            </Dropdown>
-                        </div>
-                        <div className='col-xs-4'>
-                            <Dropdown
-                                className='center'
-                                data={_sizes}
-                                minHeight={0}
-                                onItemSelect={onSizeSelect}
-                                selection={[op.get(_size, 'label')]}>
-                                <button
-                                    className='dropdown-btn center'
-                                    type='button'
-                                    data-dropdown-element>
-                                    <FontLabel {..._size} />
-                                    <Icon
-                                        name='Feather.ChevronDown'
-                                        size={16}
-                                    />
-                                </button>
-                            </Dropdown>
-                        </div>
+                    <div className='col-xs-4'>
+                        <Dropdown
+                            className='center'
+                            data={_sizes}
+                            minHeight={0}
+                            onItemSelect={onSizeSelect}
+                            selection={[op.get(_size, 'label')]}>
+                            <button
+                                className='dropdown-btn center'
+                                type='button'
+                                data-dropdown-element>
+                                <FontLabel {..._size} />
+                                <Icon name='Feather.ChevronDown' size={16} />
+                            </button>
+                        </Dropdown>
                     </div>
                 </div>
-            </>
-        ),
-        [font, size, weight, fonts],
+            </div>
+        </>
     );
 };

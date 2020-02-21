@@ -3,15 +3,15 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
-import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
+import { ReactEditor, useSlate } from 'slate-react';
 import { ColorSelect } from '../../withFormatter/Panel/ColorSelect';
-import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
+    useFocusEffect,
     useHandle,
 } from 'reactium-core/sdk';
 
@@ -148,16 +148,14 @@ let Panel = (
         setColors(editor.colors);
     }, [editor.colors]);
 
+    useFocusEffect(editor.panel.container);
+
     // Renderers
     const render = () => {
         const isActive = isColorActive();
 
         return (
-            <EventForm
-                ref={formRef}
-                className={cx()}
-                onSubmit={_onSubmit}
-                controlled>
+            <EventForm ref={formRef} className={cx()} controlled>
                 <Dialog
                     collapsible={false}
                     dismissable={false}
@@ -180,6 +178,7 @@ let Panel = (
                         <ColorSelect
                             color={color}
                             colors={colors}
+                            data-focus
                             name='color'
                             onColorChange={_onChange}
                             onColorSelect={_onSelect}
@@ -191,6 +190,7 @@ let Panel = (
                             <Button
                                 block
                                 color='danger'
+                                data-focus
                                 size='sm'
                                 type='button'
                                 onClick={_onClearColor}>

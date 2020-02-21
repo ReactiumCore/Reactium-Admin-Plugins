@@ -7,7 +7,11 @@ import PropTypes from 'prop-types';
 import { Editor, Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import React, { useEffect, useRef, useState } from 'react';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useFocusEffect,
+    useHookComponent,
+} from 'reactium-core/sdk';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 
 const CloseButton = props => (
@@ -100,6 +104,8 @@ const Panel = ({
         setSelection(initialSelection);
     }, [initialSelection]);
 
+    useFocusEffect(editor.panel.container);
+
     const render = () => {
         return (
             <Dialog collapsible={false} dismissable={false} header={header}>
@@ -116,6 +122,7 @@ const Panel = ({
                                     onChange={e => size(e.target.value)}
                                 />
                                 <input
+                                    data-focus
                                     type='search'
                                     placeholder='search'
                                     className='grow'

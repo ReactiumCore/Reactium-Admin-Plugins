@@ -50,7 +50,7 @@ class PickerEvent extends Event {
 }
 
 const IconGroup = ({
-    chunksize = 25,
+    chunksize = 50,
     color,
     icons = [],
     group,
@@ -68,7 +68,10 @@ const IconGroup = ({
 
     const next = () => {
         if (index === count) return;
-        setTimeout(() => setIndex(index + 1), 125);
+        const timeout = setTimeout(() => setIndex(index + 1), 250);
+        return () => {
+            clearTimeout(timeout);
+        };
     };
 
     useEffect(next, [index]);

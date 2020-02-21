@@ -145,7 +145,7 @@ let Panel = (initialProps, ref) => {
         const container = containerRef.current;
         if (!container || visible !== true || autohide !== true) return;
         if (isContainer(e.target, container)) return;
-        hide(true, true);
+        hide(false, true);
     };
 
     // classname and namespace
@@ -176,14 +176,14 @@ let Panel = (initialProps, ref) => {
                 onComplete: () => {
                     setVisible(false);
                     if (empty === true) {
-                        setNewContent(null);
+                        setTimeout(() => setNewContent(null), 1);
                     }
                 },
             });
         } else {
             setVisible(false);
             if (empty === true) {
-                setNewContent(null);
+                setTimeout(() => setNewContent(null), 1);
             }
         }
 
@@ -196,7 +196,7 @@ let Panel = (initialProps, ref) => {
     };
 
     const setContent = children => {
-        setNewContent('');
+        setNewContent(null);
         setNewContent(children);
         adjustPosition();
         return handle;
@@ -336,8 +336,8 @@ let Panel = (initialProps, ref) => {
     useEffect(() => {
         if (_.isEqual(state, prevState)) return;
         //setHandle(_handle());
-        _onStateChange(state, prevState);
         setPrevState(state);
+        _onStateChange(state, prevState);
     }, [state]);
 
     // visible toggle
