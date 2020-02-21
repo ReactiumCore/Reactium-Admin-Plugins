@@ -6,6 +6,7 @@ import Reactium, {
     useRegisterHandle,
     useHandle,
     useHookComponent,
+    useAsyncEffect,
     __,
 } from 'reactium-core/sdk';
 import { WebForm, Icon } from '@atomic-reactor/reactium-ui';
@@ -24,6 +25,144 @@ const slugify = name => {
         lower: true, // result in lower case
     });
 };
+
+const CTCapabilityEditor = props => {
+    const { type, collection, machineName, savedRef } = props;
+    const CapabilityEditor = useHookComponent('CapabilityEditor');
+    const [capabilities, update] = useState([]);
+
+    useEffect(() => {
+        const runHook = async () => {
+            // set new capRef.current to update CT cap list
+            const context = await Reactium.Hook.run(
+                'content-type-capabilities',
+                [
+                    {
+                        capability: `${collection}.create`,
+                        title: __('%type: Create content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to create content of type %type (%machineName)',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.retrieve`,
+                        title: __('%type: Retrieve content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to retrieve content of type %type (%machineName), if content ACL permits.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.update`,
+                        title: __('%type: Update content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to update any content of type %type (%machineName), if content ACL permits.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.delete`,
+                        title: __('%type: Delete content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to delete content of type %type (%machineName), if content ACL permits.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.retrieveAny`,
+                        title: __(
+                            '%type: Retrieve any content (Caution)',
+                        ).replace('%type', type),
+                        tooltip: __(
+                            'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.updateAny`,
+                        title: __(
+                            '%type: Update any content (Caution)',
+                        ).replace('%type', type),
+                        tooltip: __(
+                            'Able to update any content of type %type (%machineName), even if not owned by user.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.deleteAny`,
+                        title: __(
+                            '%type: Delete any content (Caution)',
+                        ).replace('%type', type),
+                        tooltip: __(
+                            'Able to delete any content of type %type (%machineName), even if not owned by user.',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.publish`,
+                        title: __('%type: Publish Content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to publish content of type %type (%machineName.)',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                    {
+                        capability: `${collection}.unpublish`,
+                        title: __('%type: Unpublish Content').replace(
+                            '%type',
+                            type,
+                        ),
+                        tooltip: __(
+                            'Able to unpublish content of type %type (%machineName.)',
+                        )
+                            .replace('%type', type)
+                            .replace('%machineName', machineName),
+                    },
+                ],
+                type,
+                collection,
+                machineName,
+                savedRef,
+            );
+            update(context.capabilities);
+        };
+
+        runHook();
+    }, [savedRef.current]);
+
+    return (
+        <div className='admin-content-region admin-content-region-type'>
+            {!!capabilities.length && (
+                <CapabilityEditor capabilities={capabilities} />
+            )}
+        </div>
+    );
+};
+
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const ContentType = memo(
@@ -43,7 +182,6 @@ const ContentType = memo(
         const [, setVersion] = useState(uuid());
         const tools = useHandle('AdminTools');
         const Toast = op.get(tools, 'Toast');
-        const CapabilityEditor = useHookComponent('CapabilityEditor');
 
         useEffect(() => {
             clear();
@@ -513,7 +651,7 @@ const ContentType = memo(
                         id,
                         value,
                     );
-                    savedRef.current = value;
+                    savedRef.current = contentType;
 
                     Toast.show({
                         type: Toast.TYPE.SUCCESS,
@@ -553,120 +691,15 @@ const ContentType = memo(
         const renderCapabilityEditor = () => {
             if (isNew() || savedRef.current === null) return null;
 
-            const { type, collection, machineName } = savedRef.current;
-
+            const { collection, machineName } = savedRef.current;
+            const label = op.get(savedRef.current, 'meta.label');
             return (
-                <div className='admin-content-region admin-content-region-type'>
-                    <CapabilityEditor
-                        capabilities={[
-                            {
-                                capability: `${collection}.create`,
-                                title: __('%type: Create content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to create content of type %type (%machineName)',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.retrieve`,
-                                title: __('%type: Retrieve content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to retrieve content of type %type (%machineName), if content ACL permits.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.update`,
-                                title: __('%type: Update content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to update any content of type %type (%machineName), if content ACL permits.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.delete`,
-                                title: __('%type: Delete content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to delete content of type %type (%machineName), if content ACL permits.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.retrieveAny`,
-                                title: __(
-                                    '%type: Retrieve any content (Caution)',
-                                ).replace('%type', type),
-                                tooltip: __(
-                                    'Able to retrieve any content of type %type (%machineName), even if not owned by user.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.updateAny`,
-                                title: __(
-                                    '%type: Update any content (Caution)',
-                                ).replace('%type', type),
-                                tooltip: __(
-                                    'Able to update any content of type %type (%machineName), even if not owned by user.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.deleteAny`,
-                                title: __(
-                                    '%type: Delete any content (Caution)',
-                                ).replace('%type', type),
-                                tooltip: __(
-                                    'Able to delete any content of type %type (%machineName), even if not owned by user.',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.publish`,
-                                title: __('%type: Publish Content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to publish content of type %type (%machineName.)',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                            {
-                                capability: `${collection}.unpublish`,
-                                title: __('%type: Unpublish Content').replace(
-                                    '%type',
-                                    type,
-                                ),
-                                tooltip: __(
-                                    'Able to unpublish content of type %type (%machineName.)',
-                                )
-                                    .replace('%type', type)
-                                    .replace('%machineName', machineName),
-                            },
-                        ]}
-                    />
-                </div>
+                <CTCapabilityEditor
+                    type={label}
+                    collection={collection}
+                    machineName={machineName}
+                    savedRef={savedRef}
+                />
             );
         };
 

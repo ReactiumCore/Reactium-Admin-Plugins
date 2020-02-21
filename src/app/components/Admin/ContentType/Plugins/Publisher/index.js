@@ -3,6 +3,8 @@ import { Checkbox, Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHookComponent, __ } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
+import slugify from 'slugify';
+import isHotkey from 'is-hotkey';
 
 /**
  * -----------------------------------------------------------------------------
@@ -45,7 +47,13 @@ const Publisher = props => {
     const onAddStatus = e => {
         const value = addStatusRef.current.value || '';
         if (value.length) {
-            updatedStatuses([...statuses, value.toUpperCase()]);
+            updatedStatuses([
+                ...statuses,
+                slugify(value, {
+                    replacement: '_', // replace spaces with replacement
+                    remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
+                }).toUpperCase(),
+            ]);
             addStatusRef.current.value = '';
         }
     };
@@ -73,6 +81,12 @@ const Publisher = props => {
                             type='text'
                             placeholder={addStatusLabel}
                             ref={addStatusRef}
+                            onKeyDown={e => {
+                                if (isHotkey('enter', e)) {
+                                    e.preventDefault();
+                                    onAddStatus();
+                                }
+                            }}
                         />
                         <Button
                             title={addStatusButtonLabel}
