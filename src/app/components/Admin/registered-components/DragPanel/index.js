@@ -127,10 +127,11 @@ let Panel = (initialProps, ref) => {
             position.x = x > maxX ? maxX : x;
             position.y = y > maxY ? maxY : y;
 
-            position.y = Math.max(position.y, minY);
             position.y = Math.min(position.y, maxY);
-            position.x = Math.max(position.x, minX);
+            position.y = Math.max(position.y, minY);
+
             position.x = Math.min(position.x, maxX);
+            position.x = Math.max(position.x, minX);
 
             if (ID) {
                 Reactium.Prefs.set(`admin.position.${ID}`, position);
