@@ -1,6 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Icon, Button } from '@atomic-reactor/reactium-ui';
-import { useHookComponent, useDerivedState } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useDerivedState,
+    useIsContainer,
+} from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -10,6 +14,7 @@ import _ from 'underscore';
  * -----------------------------------------------------------------------------
  */
 const CTIconPicker = props => {
+    const containerRef = useRef();
     const iconRef = useRef();
     const [state, setState] = useDerivedState(props, ['showPicker', 'icon']);
 
@@ -43,6 +48,26 @@ const CTIconPicker = props => {
 
     const TheIcon = op.get(Icon, state.icon, Icon.Linear.Papers);
 
+    const isContainer = useIsContainer();
+
+    const autoHidePanel = e => {
+        const container = containerRef.current;
+        if (!container || isContainer(e.target, container)) return;
+        update({ showPicker: false });
+    };
+
+    // auto hide
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        window.addEventListener('mousedown', autoHidePanel);
+        window.addEventListener('touchstart', autoHidePanel);
+
+        return () => {
+            window.removeEventListener('mousedown', autoHidePanel);
+            window.removeEventListener('touchstart', autoHidePanel);
+        };
+    });
+
     return (
         <div className='type-icon'>
             <input type='hidden' name='type-icon' ref={iconRef} />
@@ -54,7 +79,7 @@ const CTIconPicker = props => {
                 <TheIcon />
             </Button>
             {state.showPicker && (
-                <div className='type-icon-picker'>
+                <div className='type-icon-picker' ref={containerRef}>
                     <IconPicker onChange={onIconChange} />
                 </div>
             )}
