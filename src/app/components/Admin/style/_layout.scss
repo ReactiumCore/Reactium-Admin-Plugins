@@ -95,7 +95,7 @@ body {
         }
 
         &-container {
-            z-index: map-get($z-indexes, overlay) * 2;
+            z-index: map-get($z-indexes, popup);
         }
     }
 }

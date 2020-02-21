@@ -51,9 +51,12 @@ $width-media-form: 420px !default;
 $shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05);
 
 $z-indexes: (
+    "popup": 20000,
     "overlay": 10000,
     "sidebar": 9000,
     "actions": 8000,
     "header": 7000,
+    "content": 100,
+    "normal": 1,
     "default": 0
 ) !default;

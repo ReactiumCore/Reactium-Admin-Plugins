@@ -8,5 +8,5 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: map-get($z-indexes, overlay) * 2;
+    z-index: map-get($z-indexes, popup);
 }
