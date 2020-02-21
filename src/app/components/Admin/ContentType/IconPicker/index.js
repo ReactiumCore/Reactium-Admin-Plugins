@@ -64,6 +64,7 @@ const CTIconPicker = props => {
 
 CTIconPicker.defaultProps = {
     icon: 'Linear.Papers',
+    showPicker: false,
 };
 
 export default CTIconPicker;

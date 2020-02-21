@@ -231,10 +231,15 @@ let IconPicker = (initialProps, ref) => {
     // update icons on search & dispatch - search
     useEffect(() => {
         const results = getIcons(search);
-
-        handle.dispatchEvent(new PickerEvent('search', { results, search }));
-        onSearch({ type: 'search', target: handle, results, search });
         setIcons(results);
+        handle.dispatchEvent(new PickerEvent('search', { results, search }));
+        const timeout = setTimeout(
+            () => onSearch({ type: 'search', target: handle, results, search }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [search]);
 
     // update size & dispatch - resize
@@ -244,14 +249,26 @@ let IconPicker = (initialProps, ref) => {
         } else {
             if (!size) return;
             handle.dispatchEvent(new PickerEvent('resize', { size }));
-            onResize({ type: 'resize', target: handle, size });
+            const timeout = setTimeout(
+                () => onResize({ type: 'resize', target: handle, size }),
+                1,
+            );
+            return () => {
+                clearTimeout(timeout);
+            };
         }
     }, [size]);
 
     // dispatch - change
     useEffect(() => {
         handle.dispatchEvent(new PickerEvent('change'));
-        onChange({ type: 'change', target: handle });
+        const timeout = setTimeout(
+            () => onChange({ type: 'change', target: handle }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [value]);
 
     // dispatch - mouseout
@@ -260,7 +277,18 @@ let IconPicker = (initialProps, ref) => {
         handle.dispatchEvent(
             new PickerEvent('mouseout', { item: state.mouseout }),
         );
-        onMouseOut({ type: 'mouseout', target: handle, item: state.mouseout });
+        const timeout = setTimeout(
+            () =>
+                onMouseOut({
+                    type: 'mouseout',
+                    target: handle,
+                    item: state.mouseout,
+                }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [op.get(state, 'mouseout')]);
 
     // dispatched - mouseover
@@ -269,11 +297,18 @@ let IconPicker = (initialProps, ref) => {
         handle.dispatchEvent(
             new PickerEvent('mouseover', { item: state.mouseover }),
         );
-        onMouseOver({
-            type: 'mouseover',
-            target: handle,
-            item: state.mouseover,
-        });
+        const timeout = setTimeout(
+            () =>
+                onMouseOver({
+                    type: 'mouseover',
+                    target: handle,
+                    item: state.mouseover,
+                }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [op.get(state, 'mouseover')]);
 
     // dispatch - selected
@@ -282,7 +317,18 @@ let IconPicker = (initialProps, ref) => {
         handle.dispatchEvent(
             new PickerEvent('select', { item: state.selected }),
         );
-        onSelect({ type: 'select', target: handle, item: state.selected });
+        const timeout = setTimeout(
+            () =>
+                onSelect({
+                    type: 'select',
+                    target: handle,
+                    item: state.selected,
+                }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [op.get(state, 'selected')]);
 
     // dispatch - touched
@@ -291,11 +337,19 @@ let IconPicker = (initialProps, ref) => {
         handle.dispatchEvent(
             new PickerEvent('touchstart', { item: state.touched }),
         );
-        onTouchStart({
-            type: 'touchstart',
-            target: handle,
-            item: state.touched,
-        });
+
+        const timeout = setTimeout(
+            () =>
+                onTouchStart({
+                    type: 'touchstart',
+                    target: handle,
+                    item: state.touched,
+                }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [op.get(state, 'touched')]);
 
     // dispatch - unselected
@@ -304,11 +358,18 @@ let IconPicker = (initialProps, ref) => {
         handle.dispatchEvent(
             new PickerEvent('unselect', { item: state.unselected }),
         );
-        onUnselect({
-            type: 'unselect',
-            target: handle,
-            item: state.unselected,
-        });
+        const timeout = setTimeout(
+            () =>
+                onUnselect({
+                    type: 'unselect',
+                    target: handle,
+                    item: state.unselected,
+                }),
+            1,
+        );
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [op.get(state, 'unselected')]);
 
     // update handle
