@@ -56,6 +56,8 @@ let AdminSidebar = (
     });
 
     const [state, setNewState] = useState(stateRef.current);
+    const [maxSize, setMaxSize] = useState(320);
+    const [minSize, setMinSize] = useState(80);
 
     const setState = newState => {
         stateRef.current = {
@@ -128,11 +130,54 @@ let AdminSidebar = (
         );
     };
 
+    const handle = () => ({
+        collapse: () => collapsibleRef.current.collapse(),
+        container: collapsibleRef.current,
+        ENUMS,
+        expand: () => collapsibleRef.current.expand(),
+        state: stateRef.current,
+        toggle: () => collapsibleRef.current.toggle(),
+    });
+
+    useRegisterHandle('AdminSidebar', handle, [
+        op.get(stateRef.current, 'status'),
+    ]);
+
+    useImperativeHandle(ref, handle);
+
+    useEffect(() => {
+        const { status } = stateRef.current;
+        Prefs.set('admin.sidebar.status', status);
+    }, [op.get(stateRef.current, 'status')]);
+
+    useEffect(() => {
+        if (isMobile()) {
+            collapsibleRef.current.collapse().then(() => {
+                setState({ status: ENUMS.STATUS.COLLAPSED });
+            });
+        }
+    }, [width]);
+
+    useEffect(() => {
+        setMaxSize(isDesktop() ? 320 : width);
+        setMinSize(isMobile() ? 1 : 80);
+    }, [breakpoint]);
+
+    useLayoutEffect(() => {
+        const { ival } = stateRef.current;
+        if (!ival) {
+            resizePlaceholder();
+            setState({ ival: setInterval(resizePlaceholder, 1) });
+        }
+
+        return () => {
+            clearInterval(ival);
+        };
+    }, [op.get(stateRef.current, 'ival')]);
+
     // Renderer
     const render = () => {
         const { status } = stateRef.current;
-        const maxSize = isDesktop() ? 320 : width;
-        const minSize = isMobile() ? 1 : 80;
 
         return (
             <Collapsible
@@ -174,46 +219,6 @@ let AdminSidebar = (
             </Collapsible>
         );
     };
-
-    useEffect(() => {
-        const { status } = stateRef.current;
-        Prefs.set('admin.sidebar.status', status);
-    }, [op.get(stateRef.current, 'status')]);
-
-    useEffect(() => {
-        if (isMobile()) {
-            collapsibleRef.current.collapse().then(() => {
-                setState({ status: ENUMS.STATUS.COLLAPSED });
-            });
-        }
-    }, [width]);
-
-    useLayoutEffect(() => {
-        const { ival } = stateRef.current;
-        if (!ival) {
-            resizePlaceholder();
-            setState({ ival: setInterval(resizePlaceholder, 1) });
-        }
-
-        return () => {
-            clearInterval(ival);
-        };
-    }, [op.get(stateRef.current, 'ival')]);
-
-    const handle = () => ({
-        collapse: () => collapsibleRef.current.collapse(),
-        container: collapsibleRef.current,
-        ENUMS,
-        expand: () => collapsibleRef.current.expand(),
-        state: stateRef.current,
-        toggle: () => collapsibleRef.current.toggle(),
-    });
-
-    useRegisterHandle('AdminSidebar', handle, [
-        op.get(stateRef.current, 'status'),
-    ]);
-
-    useImperativeHandle(ref, handle);
 
     // Render
     return render();
