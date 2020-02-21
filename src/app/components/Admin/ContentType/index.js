@@ -212,6 +212,15 @@ const ContentType = memo(
                 'type',
                 op.get(parentFormRef.current.getValue(), 'type'),
             );
+            op.set(
+                currentValue,
+                'type-icon',
+                op.get(
+                    parentFormRef.current.getValue(),
+                    'type-icon',
+                    'Linear.Papers',
+                ),
+            );
             getComponents().map(({ id: fieldId, region }) => {
                 const ref = op.get(formsRef.current, [fieldId], getStubRef)();
                 op.set(currentValue, ['fields', fieldId], {
@@ -879,6 +888,7 @@ const ContentType = memo(
                     ref={parentFormRef}
                     onSubmit={onTypeSave}
                     onError={onError}
+                    className={'webform webform-content-type'}
                     required={['type']}
                     showError={false}
                     validator={validator}>

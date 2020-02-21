@@ -3,6 +3,7 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
+import IconPicker from '../IconPicker';
 
 export default props => {
     const id = op.get(props, 'id', 'new');
@@ -32,6 +33,7 @@ export default props => {
     const renderNameInput = () => {
         return (
             <div className={cn('input-group', { error })}>
+                <IconPicker />
                 <input
                     type='text'
                     autoComplete='off'

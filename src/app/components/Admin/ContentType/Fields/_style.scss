@@ -15,39 +15,9 @@
         position: relative;
         border: 1px dashed $color-grey;
         padding: 20px;
-        // .region-label {
-        //     position: absolute;
-        //     top: 0;
-        //     left: 0;
-        // }
     }
 
     .region-label {
         margin-bottom: 20px;
     }
-
-    // &-empty {
-    //     height: 200px;
-    //
-    //     .field-drop {
-    //         height: 100%;
-    //         border: none;
-    //         // padding: 0;
-    //     }
-    // }
 }
-
-// .empty-message {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     background: $color-white;
-//     border: 1px dashed $color-grey;
-//     height: 100%;
-//
-//     span {
-//         text-align: center;
-//         line-height: 1.5;
-//         width: 80%;
-//     }
-// }

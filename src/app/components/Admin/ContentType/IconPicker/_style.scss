@@ -1,0 +1,19 @@
+$color-type-icon-picker-bg: $color-white !default;
+.type-icon {
+    position: relative;
+    z-index: map-get($z-indexes, normal);
+    > button {
+        height: 100%;
+    }
+
+    &-picker {
+        background: $color-type-icon-picker-bg;
+        position: absolute;
+        top: 1px;
+        left: 52px;
+        z-index: map-get($z-indexes, popup);
+        width: 600px;
+        max-width: calc(100vw - 20px);
+        box-shadow: 0 0 1px 1px rgba(0,0,0,.2);
+    }
+}

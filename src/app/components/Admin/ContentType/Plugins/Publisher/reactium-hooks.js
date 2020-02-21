@@ -18,13 +18,18 @@ const registerPublisher = async () => {
         tooltip: __('Place publisher widget.'),
         component: 'Publisher',
         order: Reactium.Enums.priority.neutral,
+        // this is 'default' by default :)
         defaultRegion: 'sidebar',
+        // only one per content type
         singular: true,
+        // don't automatically include help text field in form
         showHelpText: false,
+        // use these default values to fill in my form on new
         defaultValues: {
             fieldName: __('Publish'),
             simple: false,
         },
+        // add this field type automatically on new content type
         autoInclude: true,
     });
 
