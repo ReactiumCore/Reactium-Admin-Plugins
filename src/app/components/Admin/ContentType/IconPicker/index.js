@@ -1,10 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Icon, Button } from '@atomic-reactor/reactium-ui';
-import {
-    useHookComponent,
-    useDerivedState,
-    useIsContainer,
-} from 'reactium-core/sdk';
+import { useHookComponent, useIsContainer } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -16,7 +12,10 @@ import _ from 'underscore';
 const CTIconPicker = props => {
     const containerRef = useRef();
     const iconRef = useRef();
-    const [state, setState] = useDerivedState(props, ['showPicker', 'icon']);
+    const [state, setState] = useState({
+        icon: 'Linear.Papers',
+        showPicker: false,
+    });
 
     const update = updates => {
         setState({
@@ -85,11 +84,6 @@ const CTIconPicker = props => {
             )}
         </div>
     );
-};
-
-CTIconPicker.defaultProps = {
-    icon: 'Linear.Papers',
-    showPicker: false,
 };
 
 export default CTIconPicker;
