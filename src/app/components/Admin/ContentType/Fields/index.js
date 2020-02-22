@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { __, Zone, useZoneComponents } from 'reactium-core/sdk';
+import { __, Zone, useHandle, useZoneComponents } from 'reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import op from 'object-path';
@@ -13,6 +13,7 @@ import Enums from '../enums';
  */
 const noop = () => {};
 const Fields = props => {
+    const CTE = useHandle('ContentTypeEditor');
     const region = op.get(props, 'region.id', 'default');
     const regionLabel = op.get(props, 'region.label');
     const regionSlug = op.get(props, 'region.slug', 'default');
@@ -24,6 +25,7 @@ const Fields = props => {
     const isEmpty = fields.length < 1;
     const deleteLabel = __('Remove Field Region');
     const immutable = op.has(Enums.REQUIRED_REGIONS, region);
+
     return (
         <Droppable droppableId={region}>
             {({ droppableProps, innerRef, placeholder }) => (
@@ -33,7 +35,12 @@ const Fields = props => {
                     })}
                     {...droppableProps}
                     ref={innerRef}>
-                    <div className='field-drop'>
+                    <div
+                        className={cn({
+                            'field-drop': true,
+                            active: CTE.isActiveRegion(region),
+                        })}
+                        onClick={() => CTE.setActiveRegion(region)}>
                         {typeof regionLabel !== 'undefined' && (
                             <div className='region-label'>
                                 <div

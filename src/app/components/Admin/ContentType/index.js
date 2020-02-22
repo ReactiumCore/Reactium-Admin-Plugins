@@ -179,6 +179,7 @@ const ContentType = memo(
         const formsRef = useRef({});
         const formsErrors = useRef({});
         const nameError = useRef(false);
+        const [activeRegion, setActiveRegion] = useState('default');
         const [, setVersion] = useState(uuid());
         const tools = useHandle('AdminTools');
         const Toast = op.get(tools, 'Toast');
@@ -720,6 +721,7 @@ const ContentType = memo(
             const region = uuid();
             regions[region] = { id: region, label: region, slug: region };
             regionRef.current = { regions };
+            setActiveRegion(region);
             setVersion(uuid());
             setTimeout(() => {
                 refreshForms();
@@ -746,6 +748,7 @@ const ContentType = memo(
                 }
 
                 setTimeout(() => {
+                    setActiveRegion('default');
                     setValue(value);
                     setVersion(uuid());
                 }, 1);
@@ -766,8 +769,9 @@ const ContentType = memo(
                             const region = op.get(
                                 fieldType,
                                 'defaultRegion',
-                                'default',
+                                activeRegion,
                             );
+
                             const fieldTypeComponent = op.get(
                                 fieldType,
                                 'component',
@@ -857,6 +861,8 @@ const ContentType = memo(
 
         const isNew = () => id === 'new';
 
+        const isActiveRegion = region => activeRegion === region;
+
         useRegisterHandle(
             'ContentTypeEditor',
             () => {
@@ -870,12 +876,14 @@ const ContentType = memo(
                     getFormRef,
                     getFormErrors,
                     clearDelete,
+                    isActiveRegion,
                     isNew,
                     id,
                     saved: () => savedRef.current,
+                    setActiveRegion,
                 };
             },
-            [id],
+            [activeRegion, id],
         );
 
         return (

@@ -19,6 +19,15 @@
         position: relative;
         border: 2px dashed $color-grey;
         padding: 20px;
+
+        &:hover {
+            cursor: pointer;
+            border-color: $color-gray;
+        }
+
+        &.active {
+            border-color: rgba($color-blue, .5);
+        }
     }
 
     .region-label {
