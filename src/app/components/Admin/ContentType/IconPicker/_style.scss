@@ -12,8 +12,7 @@ $color-type-icon-picker-bg: $color-white !default;
         top: 1px;
         left: 52px;
         z-index: map-get($z-indexes, popup);
-        width: 600px;
-        max-width: calc(100vw - 100px);
-        box-shadow: 0 0 1px 1px rgba(0,0,0,.2);
+        width: 300px;
+        box-shadow: 0 0 4px 1px rgba(0,0,0,.125);
     }
 }

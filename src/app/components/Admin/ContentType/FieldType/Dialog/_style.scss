@@ -48,21 +48,34 @@ $fieldtype-name-icon-color: $color-white !default;
         &-icon, &-name {
             display: flex;
             align-items: center;
-            height: 100%;
+            align-self: stretch;
         }
 
         svg {
             fill: $fieldtype-icon-color;
-            width: 100%;
+            width: 18px;
+            height: 18px;
         }
 
         &-icon {
-            padding: 0 10px;
+            flex-grow: 0;
+            flex-shrink: 0;
+            padding: 0;
+            max-width: 45px;
+            width: 45px;
+            justify-content: center;
             border-right: 1px solid $ar-dialog-color-border;
         }
 
         &-name {
-            padding: 0 20px;
+            flex-grow: 1;
+
+            input {
+                border: 1px solid transparent;
+                background-color: transparent;
+                padding-left: 8px;
+                padding-right: 20px;
+            }
 
             &.error {
                 input {
@@ -79,7 +92,6 @@ $fieldtype-name-icon-color: $color-white !default;
             }
 
             &-input {
-                border: none;
                 padding: 8px;
                 &:hover:not(:focus) {
                     cursor: pointer;

@@ -10,7 +10,7 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useMemo,
+    useCallback,
     useRef,
     useState,
 } from 'react';
@@ -76,33 +76,41 @@ const IconGroup = ({
 
     useEffect(next, [index]);
 
-    return icons.length < 1 ? null : (
-        <section>
-            <h3>{group}</h3>
-            <div className='container'>
-                {chunks.map((icon, i) => (
-                    <div
-                        className={cn({
-                            active: value.includes(`${group}.${icon}`),
-                        })}
-                        data-group={group}
-                        data-icon={icon}
-                        key={`${group}.${icon}`}
-                        onClick={onClick}
-                        onMouseOut={onMouseOut}
-                        onMouseOver={onMouseOver}
-                        onTouchStart={onTouchStart}
-                        style={{ width: size, height: size, maxWidth: size }}>
-                        <Icon
-                            name={`${group}.${icon}`}
-                            size={initialSize}
-                            style={{ fill: color }}
-                        />
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
+    const render = useCallback(() => {
+        return icons.length < 1 ? null : (
+            <section>
+                <h3>{group}</h3>
+                <div className='container'>
+                    {chunks.map((icon, i) => (
+                        <div
+                            className={cn({
+                                active: value.includes(`${group}.${icon}`),
+                            })}
+                            data-group={group}
+                            data-icon={icon}
+                            key={`${group}.${icon}`}
+                            onClick={onClick}
+                            onMouseOut={onMouseOut}
+                            onMouseOver={onMouseOver}
+                            onTouchStart={onTouchStart}
+                            style={{
+                                width: size,
+                                height: size,
+                                maxWidth: size,
+                            }}>
+                            <Icon
+                                name={`${group}.${icon}`}
+                                size={initialSize}
+                                style={{ fill: color }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </section>
+        );
+    });
+
+    return render();
 };
 
 let IconPicker = (initialProps, ref) => {
@@ -387,7 +395,7 @@ let IconPicker = (initialProps, ref) => {
         value,
     ]);
 
-    const render = () => {
+    const render = useCallback(() => {
         return !icons ? null : (
             <Scrollbars autoHeight autoHeightMin={height}>
                 <div className={cx()} ref={container}>
@@ -409,7 +417,7 @@ let IconPicker = (initialProps, ref) => {
                 </div>
             </Scrollbars>
         );
-    };
+    }, [search, size]);
 
     return render();
 };

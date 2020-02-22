@@ -1,39 +1,61 @@
+$size-types-tool: 45px;
+
 .types-tools {
     display: flex;
     flex-direction: column;
-    width: 50px;
+    width: $size-types-tool;
     background: $color-white;
     z-index: map-get($z-indexes, actions);
+    box-shadow: 0 0 2px 1px rgba($color-black, 0.05);
 
     button {
+        padding: 0;
+        width: 100%;
+        min-height: $size-types-tool;
+
         &:focus {
             outline: 1px solid $color-grey;
+        }
+
+        &:hover {
+            background-color: lighten($color-grey-light, 1%);
+        }
+
+        svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
         }
     }
 
     &-drag-handle {
         position: relative;
         background: $color-blue;
-        height: 20px;
+        height: 21px;
+        opacity: .8;
+        padding: 0;
+        cursor: grab;
+
         &:hover {
-            cursor: pointer;
+            opacity: 1;
         }
 
         &:before, &:after {
             display: block;
-            content: ' ';
+            content: '';
             position: absolute;
-            border: 1px solid white;
-            border-radius: 1px;
-            left: 12px;
-            width: calc(100% - 24px);
-            height: 1px;
+            top: 50%;
+            left: 50%;
+            width: 18px;
+
+            border-top: 1px solid white;
         }
         &:before {
-            top: 10px;
+            height: 2px;
+            transform: translateX(-50%) translateY(-100%);
         }
         &:after {
-            top: 6px;
+            transform: translateX(-50%) translateY(50%);
         }
     }
 }
@@ -48,9 +70,16 @@
     &:before {
         display: block;
         content: ' ';
-        width: 30px;
+        width: 20px;
         height: 20px;
         border: 1px dashed $color-grey;
-        border-radius: 4px;
+    }
+}
+
+.react-draggable-dragging {
+    .types-tools {
+        &-drag-handle {
+            cursor: grabbing;
+        }
     }
 }
