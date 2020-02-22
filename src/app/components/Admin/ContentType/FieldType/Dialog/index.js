@@ -13,7 +13,7 @@ const Header = props => {
     const errors = handle.getFormErrors(id);
 
     const editClicked = () => {
-        inputRef.current.focus();
+        inputRef.current.select();
     };
 
     const value = op.get(props, 'formRef.current.getValue')();
@@ -50,6 +50,8 @@ const Header = props => {
                     type={'text'}
                     name='fieldName'
                     placeholder={__('Field Name')}
+                    onTouchStart={e => e.target.select()}
+                    onClick={e => e.target.select()}
                     className={cn('fieldtype-header-name-input', {
                         disabled: fieldSaved,
                     })}
