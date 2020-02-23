@@ -55,6 +55,7 @@ let AdminSidebar = (
         status: Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
     });
 
+    const [updated, update] = useState();
     const [state, setNewState] = useState(stateRef.current);
     const [maxSize, setMaxSize] = useState(320);
     const [minSize, setMinSize] = useState(80);
@@ -137,13 +138,19 @@ let AdminSidebar = (
         expand: () => collapsibleRef.current.expand(),
         state: stateRef.current,
         toggle: () => collapsibleRef.current.toggle(),
+        update,
     });
 
     useRegisterHandle('AdminSidebar', handle, [
         op.get(stateRef.current, 'status'),
+        updated,
     ]);
 
     useImperativeHandle(ref, handle);
+
+    useEffect(() => {
+        setState({ updated });
+    }, [updated]);
 
     useEffect(() => {
         const { status } = stateRef.current;
@@ -203,6 +210,7 @@ let AdminSidebar = (
                         <div className='zone-admin-sidebar-menu'>
                             <nav className={[zone, 'menu-items'].join('-')}>
                                 <Zone
+                                    updated={updated}
                                     zone={[zone, 'menu'].join('-')}
                                     {...props}
                                 />

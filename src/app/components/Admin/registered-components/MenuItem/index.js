@@ -5,7 +5,13 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+    forwardRef,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 import Reactium, {
     useHandle,
@@ -15,14 +21,90 @@ import Reactium, {
 
 const defaultIsActive = (match = {}, location = {}, src) => {
     const isExact = op.get(match, 'isExact', true);
-    const url = op.get(match, 'url', '');
+    const url = op.get(match, 'url');
     const pathname = op.get(location, 'pathname', '/');
 
-    if (isExact) {
-        return url === pathname;
-    } else {
-        return String(pathname).startsWith(url);
-    }
+    if (!url || !pathname) return false;
+    if (isExact) return url === pathname;
+    return String(url).startsWith(pathname);
+};
+
+const Label = ({ cname, expanded, state }) => {
+    let { add, countNumber, icon, label, title } = state;
+
+    const Ico = icon
+        ? typeof icon === 'string'
+            ? () => <Icon name={icon} size={20} />
+            : () => icon
+        : () => {
+              return null;
+          };
+
+    title = title ? title : typeof label === 'string' ? label : null;
+
+    const tip =
+        expanded() || !title
+            ? {}
+            : {
+                  title,
+                  'data-align': 'right',
+                  'data-tooltip': title,
+                  'data-vertical-align': 'middle',
+              };
+
+    return (
+        <>
+            <span className={cname('icon')} {...tip}>
+                <Ico />
+            </span>
+            <span className={cname('label')}>{label}</span>
+            {countNumber && (
+                <span className={cname('count')}>{countNumber}</span>
+            )}
+        </>
+    );
+};
+
+const Heading = ({ state, hideTooltip, cname, expanded }) => {
+    const { active = false, add, label, onClick } = state;
+    const classname = cn({ [cname('link')]: true, active });
+    const _onClick = e => {
+        hideTooltip(e);
+        onClick(e);
+    };
+    return (
+        <div className={classname}>
+            {onClick && (
+                <button onClick={_onClick}>
+                    <Label cname={cname} expanded={expanded} state={state} />
+                </button>
+            )}
+            {!onClick && (
+                <div>
+                    <Label cname={cname} expanded={expanded} state={state} />
+                </div>
+            )}
+            {add && (
+                <NavLink to={add} className={cname('add')}>
+                    <Icon name='Feather.Plus' />
+                </NavLink>
+            )}
+        </div>
+    );
+};
+
+const Link = ({ state, cname, isActive, onClick, expanded }) => {
+    const { active, exact, route, label } = state;
+    return (
+        <NavLink
+            className={cname('link')}
+            exact={exact}
+            isActive={isActive}
+            onClick={onClick}
+            to={route}>
+            <Label cname={cname} expanded={expanded} state={state} />
+        </NavLink>
+    );
 };
 
 /**
@@ -30,8 +112,10 @@ const defaultIsActive = (match = {}, location = {}, src) => {
  * Hook Component: MenuItem
  * -----------------------------------------------------------------------------
  */
-let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
-    const match = useSelect(state => op.get(state, 'Router.match'), {});
+let MenuItem = ({ children, count, capabilities = [], ...props }) => {
+    const prevChildren = useRef(React.Children.toArray(children));
+
+    const match = useSelect(state => op.get(state, 'Router.match'));
     const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
 
     const Sidebar = useHandle('AdminSidebar');
@@ -40,30 +124,18 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
 
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
+    const isActive = op.get(props, 'isActive', defaultIsActive);
+
     // Refs
     const containerRef = useRef();
-    const collapsibleRef = useRef();
-    const stateRef = useRef({
-        ...props,
-    });
 
     // State
-    const [, setNewState] = useState(stateRef.current);
-
-    // Internal Interface
-    const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
-    };
+    const [permitted, setPermitted] = useState(false);
+    const [state, setNewState] = useState(props);
+    const setState = newState => setNewState({ ...state, ...newState });
 
     const cx = () => {
-        const { className, namespace } = stateRef.current;
+        const { className, namespace } = state;
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
@@ -76,46 +148,11 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
         }
     };
 
-    const onCollapse = () => {
-        const { id, route } = stateRef.current;
-        if (!route) {
-            if (id) {
-                Prefs.set(`admin.sidebar.menu.${id}`, false);
-            }
-            setState({ active: false });
-        }
-    };
-
-    const onExpand = () => {
-        const { id, route } = stateRef.current;
-        if (!route) {
-            if (id) {
-                Prefs.set(`admin.sidebar.menu.${id}`, true);
-            }
-            setState({ active: true });
-        }
-    };
-
     const expanded = () =>
         op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
 
-    const toggle = () => {
-        if (!collapsibleRef.current) {
-            return;
-        }
-
-        const { active } = stateRef.current;
-
-        if (!expanded() && collapsibleRef.current) {
-            collapsibleRef.current.expand();
-            Sidebar.expand();
-        } else {
-            collapsibleRef.current.toggle();
-        }
-    };
-
     const cname = name => {
-        const { namespace } = stateRef.current;
+        const { namespace } = state;
         return String(_.compact([namespace, name]).join('-')).toLowerCase();
     };
 
@@ -127,103 +164,26 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
         }
     };
 
-    const Label = () => {
-        let { countNumber, icon, label, title } = stateRef.current;
+    // Side Effects
+    useEffect(() => {
+        const newState = {};
+        const keys = ['label', 'updated'];
 
-        const Ico = icon
-            ? typeof icon === 'string'
-                ? () => <Icon name={icon} size={20} />
-                : () => icon
-            : () => {
-                  return null;
-              };
+        keys.forEach(key => {
+            if (op.get(props, key) === op.get(state, key)) return;
+            op.set(newState, key, op.get(props, key));
+        });
 
-        title = title ? title : typeof label === 'string' ? label : null;
+        if (Object.keys(newState).length > 0) setState(newState);
+    }, [op.get(props, 'label'), op.get(props, 'updated')]);
 
-        const tip =
-            expanded() || !title
-                ? {}
-                : {
-                      title,
-                      'data-align': 'right',
-                      'data-tooltip': title,
-                      'data-vertical-align': 'middle',
-                  };
-
-        return (
-            <>
-                <span className={cname('icon')} {...tip}>
-                    <Ico />
-                </span>
-                <span className={cname('label')}>{label}</span>
-                {countNumber && (
-                    <span className={cname('count')}>{countNumber}</span>
-                )}
-            </>
-        );
-    };
-
-    const Link = () => {
-        const { exact, route } = stateRef.current;
-        return (
-            <NavLink
-                onClick={collapseSidebar}
-                exact={exact}
-                className={cname('link')}
-                to={route}
-                isActive={isActive}>
-                <Label />
-            </NavLink>
-        );
-    };
-
-    const Heading = () => {
-        const { onClick = toggle, active } = stateRef.current;
-        const classname = cn({ [cname('link')]: true, active });
-
-        return (
-            <button
-                className={classname}
-                onClick={e => {
-                    hideTooltip(e);
-                    onClick(e);
-                }}>
-                <Label />
-            </button>
-        );
-    };
-
-    const Content = () => (
-        <div className={cname('content')}>
-            <Collapsible
-                ref={collapsibleRef}
-                expanded={op.get(stateRef.current, 'active', true)}
-                onCollapse={onCollapse}
-                onExpand={onExpand}>
-                {children}
-            </Collapsible>
-        </div>
-    );
-
-    // Renderer
-    const render = () => {
-        const { label, route } = stateRef.current;
-
-        return (
-            <div ref={containerRef} className={cx()}>
-                <div className={cname('row')}>
-                    {route ? <Link /> : <Heading />}
-                    {children && Content()}
-                </div>
-            </div>
-        );
-    };
-
-    const [permitted, setPermitted] = useState(false);
+    // Permiitted
     useEffect(() => {
         if (!capabilities || capabilities.length < 1) {
-            setPermitted(true);
-            return;
+            const timeout = setTimeout(() => setPermitted(true), 1);
+            return () => {
+                clearTimeout(timeout);
+            };
         }
 
         Reactium.User.can(capabilities, false).then(allowed => {
@@ -233,44 +193,80 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
         });
     }, []);
 
-    // Side Effects
-    useEffect(() => setState(props), Object.values(props));
-
+    // Count
     useEffect(() => {
-        const { count } = stateRef.current;
-
         const countNumber = Reactium.Utils.abbreviatedNumber(count);
-        setState({ countNumber });
-    }, [op.get(stateRef.current, 'count')]);
+        if (state.countNumber !== countNumber) {
+            const timeout = setTimeout(() => setState({ countNumber }), 1);
+            return () => {
+                clearTimeout(timeout);
+            };
+        }
+    }, [count]);
 
+    // Active
     useEffect(() => {
-        let { active, id, init, route } = stateRef.current;
+        const { active, route } = state;
 
-        if (route) {
-            const location = { pathname: route };
-            const newActive = isActive(match, location, 'useEffect');
-
-            if (active !== newActive) {
-                setState({ active: newActive });
+        if (!match) {
+            if (active !== false) {
+                let timeout = setTimeout(() => setState({ active: false }), 1);
+                return () => clearTimeout(timeout);
             }
-        } else {
-            if (id) {
-                const pref = Prefs.get(`admin.sidebar.menu.${id}`);
-                const newActive = typeof pref === 'boolean' ? pref : active;
-
-                if (active !== newActive) {
-                    setState({ active: newActive });
-                }
-            }
+            return;
         }
 
-        setState({ init: true });
-    }, [
-        match,
-        op.get(stateRef.current, 'active'),
-        op.get(stateRef.current, 'route'),
-        op.get(stateRef.current, 'id'),
-    ]);
+        if (!route && !isActive) {
+            if (active !== false) {
+                let timeout = setTimeout(() => setState({ active: false }), 1);
+                return () => clearTimeout(timeout);
+            }
+            return;
+        }
+
+        const location = { pathname };
+        const newActive = isActive(match, location);
+        if (active !== newActive) {
+            let timeout = setTimeout(() => setState({ active: newActive }), 1);
+            return () => clearTimeout(timeout);
+        }
+    }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
+
+    // Renderer
+    const render = () => {
+        const { active, id, label, route } = state;
+        return (
+            <div ref={containerRef} className={cx()}>
+                <div className={cname('row')}>
+                    {route ? (
+                        <Link
+                            state={state}
+                            cname={cname}
+                            isActive={isActive}
+                            onClick={collapseSidebar}
+                            expanded={expanded}
+                        />
+                    ) : (
+                        <Heading
+                            state={state}
+                            hideTooltip={hideTooltip}
+                            cname={cname}
+                            expanded={expanded}
+                        />
+                    )}
+                    {children && (
+                        <div
+                            className={cn({
+                                [cname('content')]: true,
+                                active,
+                            })}>
+                            {children}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     // Render
     return permitted ? render() : null;
@@ -278,6 +274,7 @@ let MenuItem = ({ isActive, capabilities = [], children, ...props }) => {
 
 MenuItem.propTypes = {
     active: PropTypes.bool,
+    add: PropTypes.string,
     capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
     count: PropTypes.oneOfType([
@@ -311,7 +308,7 @@ export { MenuItem as default };
  * @apiDescription Component used for Sidebar elements.
  * @apiName MenuItem
  * @apiGroup Registered Component
- * @apiParam {Mixed} label The `{String}` or `PropTypes.node` to display.
+ * @apiParam {Mixed} label The `{String}` or `{Component}` to display.
  * @apiParam {Boolean} [active=false] If the MenuItem should display as an active item.
  * @apiParam {Array} [capabilities] List of capabilities that are allowed to access the MenuItem.
  * @apiParam {String} [className] React className to apply to the component container.
@@ -322,7 +319,7 @@ export { MenuItem as default };
  * @apiParam {Function} [isActive] Function that determines if the MenuItem is active. The `Router.match` and `Router.location` values are passed as parameters for the function.
  * @apiParam {Function} [onClick] Function to execute when the MenuItem is clicked.
  * @apiParam {String} [route] Navigate to the specified route when the MenuItem is clicked. _Note: the `onClick` function will execute as well._
- * @apiParam {String} [title] Tooltip to dislay for the MenuItem. If empty the `label` value is used.
+ * @apiParam {String} [title] Tooltip to dislay for the MenuItem. If empty and the `label` is a `{String}` the `label` value is used.
  * @apiExample Simple Usage:
 import React from 'react';
 import { useHookComponent } from 'reactium-core/sdk';

@@ -1,42 +1,56 @@
+import uuid from 'uuid/v4';
+import op from 'object-path';
 import React, { useEffect, useRef, useState } from 'react';
+
 import Reactium, {
     __,
+    useAsyncEffect,
+    useHandle,
     useHookComponent,
     Zone,
-    useRegisterHandle,
 } from 'reactium-core/sdk';
-import uuid from 'uuid/v4';
 
 export default () => {
+    const [types, setTypes] = useState([]);
+    const [updated, update] = useState();
     const MenuItem = useHookComponent('MenuItem');
-    const typesRef = useRef([]);
-    const [, update] = useState(uuid());
 
-    const getTypes = async (refresh = false) => {
-        const types = await Reactium.ContentType.types(refresh);
-        typesRef.current = types;
-        update(uuid());
-    };
+    const isActive = (match = {}, location) =>
+        String(op.get(location, 'pathname', '/'))
+            .replace(/\\/gi, '')
+            .toLowerCase()
+            .startsWith('/admin/type');
+
+    const getTypes = refresh => Reactium.ContentType.types(refresh);
 
     useEffect(() => {
-        getTypes();
         return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (op === 'del') getTypes(true);
+            if (op === 'set') {
+                const results = await getTypes(true);
+                setTypes(results);
+                update(Date.now());
+            }
         });
     }, []);
 
+    useAsyncEffect(async () => {
+        const results = await getTypes(!!updated);
+        setTypes(results);
+        // console.log({ types });
+        return () => {};
+    }, [updated]);
+
     return (
-        <MenuItem label={__('Content Types')} icon='Linear.Typewriter'>
-            <Zone zone={'admin-sidebar-types'} />
-            <MenuItem
-                label={__('New')}
-                icon='Linear.PlusSquare'
-                route='/admin/type/new'
-            />
-            {typesRef.current.map(({ uuid, type, meta }) => (
+        <MenuItem
+            add='/admin/type/new'
+            label={__('Content Types')}
+            icon='Linear.Typewriter'
+            isActive={isActive}
+            onClick={e => Reactium.Routing.history.push('/admin/type/new')}>
+            {types.map(({ uuid, type, meta }) => (
                 <MenuItem
                     key={uuid}
-                    label={`${meta.label} (${type})`}
+                    label={`${meta.label}`}
                     route={`/admin/type/${uuid}`}
                 />
             ))}

@@ -1,19 +1,24 @@
 import React from 'react';
-import { __, Zone } from 'reactium-core/sdk';
-import MenuItem from 'components/Admin/registered-components/MenuItem';
+import op from 'object-path';
+import { __, useHookComponent, Zone } from 'reactium-core/sdk';
 
-/**
- * -----------------------------------------------------------------------------
- * Functional Component: SidebarWidget
- * -----------------------------------------------------------------------------
- */
+const isActive = (match = {}, location) =>
+    String(op.get(location, 'pathname', '/'))
+        .replace(/\\/gi, '')
+        .toLowerCase()
+        .startsWith('/admin/settings');
+
 const SidebarWidget = props => {
+    const MenuItem = useHookComponent('MenuItem');
     const id = 'admin-sidebar-settings';
     return (
-        <MenuItem label={__('Settings')} icon='Linear.Equalizer' id={id}>
-            <div>
-                <Zone zone={id} />
-            </div>
+        <MenuItem
+            route='/admin/settings'
+            label={__('Settings')}
+            icon='Linear.Equalizer'
+            id={id}
+            isActive={isActive}>
+            <Zone zone={id} />
         </MenuItem>
     );
 };

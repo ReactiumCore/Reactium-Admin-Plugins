@@ -43,7 +43,6 @@ $fieldtype-name-icon-color: $color-white !default;
         justify-content: flex-start;
         align-items: center;
         flex-grow: 1;
-        flex-shrink: 0;
 
         &-icon, &-name {
             display: flex;
@@ -61,6 +60,7 @@ $fieldtype-name-icon-color: $color-white !default;
             flex-grow: 0;
             flex-shrink: 0;
             padding: 0;
+            min-width: 45px;
             max-width: 45px;
             width: 45px;
             justify-content: center;
@@ -69,12 +69,15 @@ $fieldtype-name-icon-color: $color-white !default;
 
         &-name {
             flex-grow: 1;
+            flex-shrink: 1;
 
             input {
                 border: 1px solid transparent;
                 background-color: transparent;
                 padding-left: 8px;
                 padding-right: 20px;
+                min-width: 1px;
+                width: 100%;
             }
 
             &.error {

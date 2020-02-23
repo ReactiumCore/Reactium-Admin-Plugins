@@ -27,7 +27,7 @@ Reactium.Plugin.register(domain.name).then(() => {
     Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-LIBRARY-SIDEBAR-WIDGET',
         component: SidebarWidget,
-        order: 0,
+        order: 400,
         zone: ['admin-sidebar-menu'],
     });
 

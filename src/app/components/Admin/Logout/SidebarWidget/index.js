@@ -1,8 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import MenuItem from 'components/Admin/registered-components/MenuItem';
-import { Dialog } from '@atomic-reactor/reactium-ui';
-import { useHandle, useSelect, useHookComponent } from 'reactium-core/sdk';
+import { useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const noop = {
     dismiss: () => {},
@@ -11,33 +9,35 @@ const noop = {
 
 const Widget = () => {
     const ConfirmBox = useHookComponent('ConfirmBox');
-    const Router = useSelect(state => op.get(state, 'Router'));
+    const MenuItem = useHookComponent('MenuItem');
 
     const tools = useHandle('AdminTools');
 
-    const Modal = op.get(tools, 'Modal', noop);
+    const Modal = op.get(tools, 'Modal');
 
     const confirm = () => {
-        Router.history.replace('/logout');
+        Reactium.Routing.history.replace('/logout');
         Modal.dismiss();
     };
 
-    const showModal = () =>
+    const showModal = () => {
         Modal.show(
             <ConfirmBox
                 message='Are you sure?'
                 onCancel={() => Modal.hide()}
-                onConfirm={confirm}
+                onConfirm={() => confirm()}
                 title='Sign Out'
             />,
         );
+    };
 
     const render = () => (
         <>
             <MenuItem
                 label='Sign Out'
-                onClick={showModal}
+                onClick={() => showModal()}
                 icon='Linear.PowerSwitch'
+                isActive={() => false}
             />
         </>
     );

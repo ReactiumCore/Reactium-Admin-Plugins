@@ -33,7 +33,7 @@ const registerPlugin = async () => {
         Reactium.Zone.addComponent({
             component: SidebarWidget,
             zone: ['admin-sidebar-menu'],
-            order: 0,
+            order: 300,
         });
 
         Reactium.Zone.addComponent({

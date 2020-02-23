@@ -10,7 +10,7 @@ const settingsPlugin = async () => {
         id: `${PLUGIN}-admin-sidebar-menu`,
         component: SidebarWidget,
         zone: ['admin-sidebar-menu'],
-        order: 1000,
+        order: 600,
     });
 };
 

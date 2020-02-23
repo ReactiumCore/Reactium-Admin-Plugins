@@ -22,7 +22,7 @@ const pluginManager = async () => {
             id: 'PLUGIN-MANAGER-SIDEBAR-WIDGET',
             component: SidebarWidget,
             zone: ['admin-sidebar-menu'],
-            order: 0,
+            order: 500,
         });
     }
 };

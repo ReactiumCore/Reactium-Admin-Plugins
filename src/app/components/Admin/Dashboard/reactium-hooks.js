@@ -14,6 +14,6 @@ Reactium.Plugin.register('AdminDashboard').then(() => {
         id: 'ADMIN-DASHBOARD-SIDEBAR-WIDGET',
         component: SidebarWidget,
         zone: ['admin-sidebar-menu'],
-        order: 0,
+        order: 100,
     });
 });

@@ -10,23 +10,34 @@
     }
 
     .menu-item {
-        min-width: $width-sidebar-expanded;
+        min-width: 0px;
 
         &-row {
             display: block;
         }
 
         &-link {
-            display: flex;
-            align-items: center;
-            background-color: transparent;
-            border: none;
             border-left: 2px solid transparent;
-            text-align: left;
-            color: $color-sidebar-text;
-            padding: 0;
-            width: 100%;
             opacity: 0.8;
+            width: 100%;
+
+            &,
+            > button,
+            > div {
+                align-items: center;
+                background-color: transparent;
+                color: $color-sidebar-text;
+                text-align: left;
+                display: flex;
+            }
+
+            > button,
+            > div {
+                padding: 0;
+                border: none;
+                justify-content: flex-start;
+                flex-grow: 1;
+            }
 
             &:hover {
                 opacity: 1;
@@ -47,6 +58,7 @@
 
         &-icon {
             width: $width-sidebar-collapsed;
+            max-width: $width-sidebar-collapsed;
             height: $height-menu-item;
             display: flex;
             justify-content: center;
@@ -59,12 +71,8 @@
         }
 
         &-label {
-            flex-grow: 1;
-            height: $height-menu-item;
             display: none;
-            font-size: $font-size-menu-item;
-            font-weight: $font-weight-menu-item;
-            padding: 0 0 0 8px;
+            overflow: hidden;
         }
 
         &-count {
@@ -78,19 +86,37 @@
             box-shadow: 0 0 5px 1px rgba($color-black, 0.25);
         }
 
+        &-add {
+            display: none;
+        }
+
         &-content {
             display: none;
+
+            &.active {
+                display: none;
+            }
+        }
+
+        .menu-item * {
+            border: none !important;
         }
     }
 }
 
 .expanded {
+    &:empty {
+        display: none;
+    }
+
     .admin-sidebar-menu-items {
         padding: 12px 0 56px 0;
 
         .menu-item {
+            min-width: $width-sidebar-expanded;
+
             &-link {
-                padding: 0 13px;
+                padding: 0 9px;
 
                 &:hover {
                     background-color: rgba($color-black, 0.1);
@@ -98,14 +124,40 @@
             }
 
             &-icon {
-                width: $width-menu-item;
+                max-width: 60px;
                 min-height: $height-menu-item-expanded;
             }
 
             &-label {
-                min-height: $height-menu-item-expanded;
                 display: flex;
                 align-items: center;
+                flex-grow: 1;
+                min-height: $height-menu-item-expanded;
+                height: $height-menu-item;
+                font-size: $font-size-menu-item;
+                font-weight: $font-weight-menu-item;
+                padding: 0 0 0 8px;
+            }
+
+            &-add {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+                min-width: 45px;
+                min-height: 45px;
+                margin-right: -8px;
+                align-self: stretch;
+                opacity: 0.5;
+
+                &:hover {
+                    opacity: 1;
+                }
+
+                &.active {
+                    color: $color-blue;
+                    opacity: 1;
+                }
             }
 
             &-count {
@@ -113,34 +165,45 @@
             }
 
             &-content {
-                display: block;
+                display: none;
 
-                .ar-collapsible {
-                    background-color: rgba($color-sidebar-bg, 0.5);
-                    border-left: 2px solid $color-menu-item-active;
-                    padding-bottom: 8px;
+                &.active {
+                    display: block;
+                }
 
-                    .menu-item {
-                        &-link {
-                            margin: 0;
-                            color: darken($color-sidebar-text, 10%);
-                            font-size: $font-size-menu-item - 2px;
+                > *:empty {
+                    display: none;
+                }
 
-                            &:hover {
-                                background-color: transparent;
-                                border-left: 2px solid transparent;
-                            }
-                            &.active {
-                                background-color: transparent;
-                                border-left: none;
-                            }
+                background-color: rgba($color-sidebar-bg, 0.5);
+                border-left: 2px solid $color-menu-item-active;
+
+                .menu-item {
+                    &-row {
+                        &:last-child {
+                            padding-bottom: 8px;
+                        }
+                    }
+                    &-link {
+                        margin: 0;
+                        color: darken($color-sidebar-text, 10%);
+                        font-size: $font-size-menu-item - 2px;
+
+                        &:hover {
+                            background-color: transparent;
+                            border-left: 2px solid transparent;
                         }
 
-                        &-icon,
-                        &-label {
-                            height: $height-menu-item - 20px;
-                            font-size: inherit;
+                        &.active {
+                            background-color: transparent;
+                            border-left: none;
                         }
+                    }
+
+                    &-icon,
+                    &-label {
+                        height: $height-menu-item - 20px;
+                        font-size: inherit;
                     }
                 }
             }
