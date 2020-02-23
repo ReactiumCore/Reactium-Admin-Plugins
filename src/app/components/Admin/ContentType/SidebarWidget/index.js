@@ -16,7 +16,7 @@ export default () => {
     const MenuItem = useHookComponent('MenuItem');
 
     const isActive = (match = {}, location) =>
-        String(op.get(location, 'pathname', '/'))
+        String(op.get(match, 'url', '/'))
             .replace(/\\/gi, '')
             .toLowerCase()
             .startsWith('/admin/type');

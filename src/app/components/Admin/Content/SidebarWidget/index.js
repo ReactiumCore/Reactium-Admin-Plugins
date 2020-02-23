@@ -30,7 +30,7 @@ export default () => {
     }, []);
 
     useAsyncEffect(async () => {
-        const results = await getTypes(!!updated);
+        const results = await getTypes();
         setTypes(results);
         return () => {};
     }, [updated]);
@@ -39,28 +39,15 @@ export default () => {
         <>
             {types.map(item => {
                 const { uuid, type, meta } = item;
-
                 const icon = op.get(meta, 'icon', 'Linear.Document2');
-
-                const isActive = (match = {}, location) => {
-                    return String(op.get(location, 'pathname', '/'))
-                        .replace(/\\/gi, '')
-                        .startsWith(`/admin/content/${type}`);
-                };
-
-                const onClick = () =>
-                    Reactium.Routing.history.push(
-                        `/admin/content/${pluralize(type)}`,
-                    );
 
                 return (
                     <MenuItem
                         key={`content-${uuid}`}
-                        add={`/admin/content/${type}/new`}
+                        add={`/admin/content/${pluralize(type)}/new`}
                         label={__(pluralize(meta.label))}
                         icon={icon}
-                        isActive={isActive}
-                        onClick={onClick}
+                        route={`/admin/content/${pluralize(type)}`}
                     />
                 );
             })}

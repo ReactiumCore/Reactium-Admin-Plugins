@@ -4,7 +4,7 @@ import { __ } from 'reactium-core/sdk';
 import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const isActive = (match = {}, location) =>
-    String(op.get(location, 'pathname', '/'))
+    String(op.get(match, 'url', '/'))
         .replace(/\\/gi, '')
         .toLowerCase()
         .startsWith('/admin/media');

@@ -19,16 +19,6 @@ import Reactium, {
     useWindowSize,
 } from 'reactium-core/sdk';
 
-const defaultIsActive = (match = {}, location = {}, src) => {
-    const isExact = op.get(match, 'isExact', true);
-    const url = op.get(match, 'url');
-    const pathname = op.get(location, 'pathname', '/');
-
-    if (!url || !pathname) return false;
-    if (isExact) return url === pathname;
-    return String(url).startsWith(pathname);
-};
-
 const Label = ({ cname, expanded, state }) => {
     let { add, countNumber, icon, label, title } = state;
 
@@ -93,17 +83,33 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
     );
 };
 
-const Link = ({ state, cname, isActive, onClick, expanded }) => {
-    const { active, exact, route, label } = state;
+const defaultIsActive = (match = {}, location = {}, src) => {
+    const url = op.get(match, 'url');
+    const pathname = op.get(location, 'pathname');
+
+    if (pathname === '/admin') return url === pathname;
+
+    if (!url || !pathname) return false;
+    if (url === pathname) return true;
+
+    return String(url).startsWith(pathname);
+};
+
+const Link = ({ state, cname, onClick, expanded }) => {
+    const { active, add, exact, route, label } = state;
+    const classname = cn({ [cname('link')]: true, active });
+
     return (
-        <NavLink
-            className={cname('link')}
-            exact={exact}
-            isActive={isActive}
-            onClick={onClick}
-            to={route}>
-            <Label cname={cname} expanded={expanded} state={state} />
-        </NavLink>
+        <div className={classname}>
+            <NavLink to={route} onClick={onClick}>
+                <Label cname={cname} expanded={expanded} state={state} />
+            </NavLink>
+            {add && (
+                <NavLink to={add} className={cname('add')}>
+                    <Icon name='Feather.Plus' />
+                </NavLink>
+            )}
+        </div>
     );
 };
 
@@ -124,7 +130,19 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
 
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
-    const isActive = op.get(props, 'isActive', defaultIsActive);
+    const isActive = (match, location) => {
+        // const url = op.get(match, 'url');
+        // const path = op.get(location, 'pathname');
+        // const { route } = state;
+        //
+        // if (url === path) { return true; }
+
+        if (op.has(props, 'isActive')) {
+            return props.isActive(match, location);
+        } else {
+            return defaultIsActive(match, location);
+        }
+    };
 
     // Refs
     const containerRef = useRef();
@@ -207,30 +225,39 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
     // Active
     useEffect(() => {
         const { active, route } = state;
-
-        if (!match) {
-            if (active !== false) {
-                let timeout = setTimeout(() => setState({ active: false }), 1);
-                return () => clearTimeout(timeout);
-            }
-            return;
-        }
-
-        if (!route && !isActive) {
-            if (active !== false) {
-                let timeout = setTimeout(() => setState({ active: false }), 1);
-                return () => clearTimeout(timeout);
-            }
-            return;
-        }
-
-        const location = { pathname };
+        const location = { pathname: route };
         const newActive = isActive(match, location);
         if (active !== newActive) {
             let timeout = setTimeout(() => setState({ active: newActive }), 1);
             return () => clearTimeout(timeout);
         }
     }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
+    // useEffect(() => {
+    // const { active, route } = state;
+    //
+    // if (!match) {
+    //     if (active !== false) {
+    //         let timeout = setTimeout(() => setState({ active: false }), 1);
+    //         return () => clearTimeout(timeout);
+    //     }
+    //     return;
+    // }
+    //
+    // if (!route && !isActive) {
+    //     if (active !== false) {
+    //         let timeout = setTimeout(() => setState({ active: false }), 1);
+    //         return () => clearTimeout(timeout);
+    //     }
+    //     return;
+    // }
+    //
+    // const location = { pathname };
+    // const newActive = isActive(match, location);
+    // if (active !== newActive) {
+    //     let timeout = setTimeout(() => setState({ active: newActive }), 1);
+    //     return () => clearTimeout(timeout);
+    // }
+    // }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
 
     // Renderer
     const render = () => {
@@ -240,6 +267,8 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
                 <div className={cname('row')}>
                     {route ? (
                         <Link
+                            match={match}
+                            pathname={pathname}
                             state={state}
                             cname={cname}
                             isActive={isActive}

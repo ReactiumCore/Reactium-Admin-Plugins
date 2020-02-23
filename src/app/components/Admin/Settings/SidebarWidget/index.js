@@ -3,7 +3,7 @@ import op from 'object-path';
 import { __, useHookComponent, Zone } from 'reactium-core/sdk';
 
 const isActive = (match = {}, location) =>
-    String(op.get(location, 'pathname', '/'))
+    String(op.get(match, 'url', '/'))
         .replace(/\\/gi, '')
         .toLowerCase()
         .startsWith('/admin/settings');

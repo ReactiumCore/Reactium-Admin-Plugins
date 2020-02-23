@@ -23,15 +23,18 @@
 
             &,
             > button,
+            > a:first-child,
             > div {
                 align-items: center;
                 background-color: transparent;
                 color: $color-sidebar-text;
                 text-align: left;
                 display: flex;
+                text-decoration: none;
             }
 
             > button,
+            > a:first-child,
             > div {
                 padding: 0;
                 border: none;
