@@ -5,6 +5,10 @@ import { Icon } from '@atomic-reactor/reactium-ui';
 const Enums = {
     ZONE: (region = 1) => `types-fields-${region}`,
     TYPES: {},
+    TEXT: {
+        ADD: __('New Content Type'),
+        TITLE: __('Content Types'),
+    },
     REQUIRED_REGIONS: {
         default: {
             id: 'default',

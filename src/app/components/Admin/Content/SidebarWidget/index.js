@@ -22,7 +22,7 @@ export default () => {
         return Reactium.Cache.subscribe('content-types', async ({ op }) => {
             if (watch.includes(op)) {
                 let results = await getTypes(true);
-                results = _.sortBy(results, 'label');
+                results = _.sortBy(results, 'slug');
 
                 setTypes(results);
                 update(Date.now());

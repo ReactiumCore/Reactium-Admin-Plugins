@@ -1,0 +1,10 @@
+.admin-content-type-list {
+    padding-top: $height-admin-header;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+
+    &-content {
+        padding: $padding-admin-content-zone;
+    }
+}

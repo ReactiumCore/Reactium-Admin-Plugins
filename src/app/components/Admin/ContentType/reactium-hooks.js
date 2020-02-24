@@ -5,6 +5,7 @@ import Enums from './enums';
 import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
 import Breadcrumbs from './Breadcrumbs';
+import HeaderWidget from './HeaderWidget';
 
 const registerPlugin = async () => {
     await Reactium.Plugin.register(
@@ -28,6 +29,13 @@ const registerPlugin = async () => {
             component: Breadcrumbs,
             order: -1000,
             zone: ['admin-header'],
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'ADMIN-CONTENT-TYPE-ADD',
+            component: HeaderWidget,
+            order: 2,
+            zone: ['admin-logo'],
         });
 
         Reactium.Zone.addComponent({
