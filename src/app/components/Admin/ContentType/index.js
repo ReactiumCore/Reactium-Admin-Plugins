@@ -219,21 +219,7 @@ const ContentType = memo(
         }, [updated]);
 
         const getValue = () => {
-            const currentValue = {};
-            op.set(
-                currentValue,
-                'type',
-                op.get(parentFormRef.current.getValue(), 'type'),
-            );
-            op.set(
-                currentValue,
-                'type-icon',
-                op.get(
-                    parentFormRef.current.getValue(),
-                    'type-icon',
-                    'Linear.Papers',
-                ),
-            );
+            const currentValue = parentFormRef.current.getValue();
             getComponents().map(({ id: fieldId, region }) => {
                 const ref = op.get(formsRef.current, [fieldId], getStubRef)();
                 op.set(currentValue, ['fields', fieldId], {
@@ -276,7 +262,6 @@ const ContentType = memo(
                 };
                 const label = op.get(contentType, 'meta.label');
                 op.set(contentType, 'type', label);
-
                 savedRef.current = contentType;
 
                 op.set(regionRef.current, 'regions', regions);
@@ -662,6 +647,32 @@ const ContentType = memo(
             return value;
         };
 
+        const onTypeBeforeSubmit = async ({ value, valid, errors }) => {
+            await Reactium.Hook.run(`content-type-before-submit`, {
+                value,
+                valid,
+                errors,
+                handle: getHandle(),
+            });
+        };
+
+        const onTypeChange = async (e, value) => {
+            await Reactium.Hook.run(`content-type-form-change`, {
+                value,
+                id,
+                handle: getHandle(),
+                target: e.target,
+            });
+        };
+
+        const onTypeUpdate = async ({ value, elements }) => {
+            await Reactium.Hook.run(`content-type-form-update`, {
+                value,
+                elements,
+                handle: getHandle(),
+            });
+        };
+
         const onTypeSave = async () => {
             updateRestore(async value => {
                 try {
@@ -873,28 +884,24 @@ const ContentType = memo(
 
         const isActiveRegion = region => activeRegion === region;
 
-        useRegisterHandle(
-            'ContentTypeEditor',
-            () => {
-                return {
-                    addRegion,
-                    removeRegion,
-                    addField,
-                    removeField,
-                    addFormRef,
-                    removeFormRef,
-                    getFormRef,
-                    getFormErrors,
-                    clearDelete,
-                    isActiveRegion,
-                    isNew,
-                    id,
-                    saved: () => savedRef.current,
-                    setActiveRegion,
-                };
-            },
-            [activeRegion, id],
-        );
+        const getHandle = () => ({
+            addRegion,
+            removeRegion,
+            addField,
+            removeField,
+            addFormRef,
+            removeFormRef,
+            getFormRef,
+            getFormErrors,
+            clearDelete,
+            isActiveRegion,
+            isNew,
+            id,
+            saved: () => savedRef.current,
+            setActiveRegion,
+        });
+
+        useRegisterHandle('ContentTypeEditor', getHandle, [activeRegion, id]);
 
         return (
             <div
@@ -905,6 +912,9 @@ const ContentType = memo(
                 <WebForm
                     ref={parentFormRef}
                     onSubmit={onTypeSave}
+                    onBeforeSubmit={onTypeBeforeSubmit}
+                    onChange={onTypeChange}
+                    onUpdate={onTypeUpdate}
                     onError={onError}
                     className={'webform webform-content-type'}
                     required={['type']}
