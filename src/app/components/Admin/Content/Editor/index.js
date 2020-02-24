@@ -2,12 +2,13 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
+import slugify from 'slugify';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
+import { EventForm } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -23,6 +24,7 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHandle,
+    useHookComponent,
     useRegisterHandle,
     useSelect,
     Zone,
@@ -39,6 +41,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
 
     const [contentType, setContentType] = useState({ regions: [] });
     const [types, setTypes] = useState([]);
+    const [updated, update] = useState();
     const [state, setNewState] = useDerivedState({
         title: ENUMS.TEXT.EDITOR,
     });
@@ -71,6 +74,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         regions,
         state,
         setState,
+        type,
         types,
         cx,
     });
@@ -79,18 +83,19 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
 
     // get content types
     useAsyncEffect(async () => {
-        const results = await getTypes();
+        const results = await getTypes(true);
         setTypes(results);
-        return () => {};
-    });
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (['set', 'del'].includes(op)) update(Date.now());
+        });
+    }, [updated]);
 
     // set content type
     useEffect(() => {
-        if (types.length < 1 || !type) return;
         const t = _.findWhere(types, { type });
         if (!t) return;
         setContentType(t);
-    }, [type, types]);
+    });
 
     // update title
     useEffect(() => {
@@ -99,6 +104,10 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         if (op.get(state, 'title') === newTitle) return;
         setState({ title: newTitle });
     }, [type]);
+
+    // useEffect(() => {
+    //     setHandle(_handle());
+    // }, [contentType, state, types]);
 
     useImperativeHandle(ref, () => handle);
 
@@ -113,33 +122,93 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                <div className={cname}>
+                <EventForm className={cname}>
                     {contentRegions.length > 0 && (
                         <div className={cx('editor')}>
-                            {contentRegions.map(({ slug }) => (
-                                <div className={cx(slug)} key={cx(slug)}>
-                                    Render {slug} elements here
-                                    <Zone zone={cx(slug)} editor={handle} />
-                                </div>
-                            ))}
+                            <div className={cx('regions')}>
+                                {contentRegions.map(item => (
+                                    <Region
+                                        key={cx(item.slug)}
+                                        editor={_handle()}
+                                        {...item}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     )}
                     {sidebarRegions.length > 0 && (
                         <div className={cx('meta')}>
-                            {sidebarRegions.map(({ slug }) => (
-                                <div className={cx(slug)} key={cx(slug)}>
-                                    Render {slug} elements here
-                                    <Zone zone={cx(slug)} editor={handle} />
-                                </div>
-                            ))}
+                            <div className={cx('regions')}>
+                                {sidebarRegions.map(item => (
+                                    <Region
+                                        key={cx(item.slug)}
+                                        editor={_handle()}
+                                        {...item}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     )}
-                </div>
+                </EventForm>
             </>
         );
     };
 
     return render();
+};
+
+const Region = ({ editor, ...props }) => {
+    const { contentType, cx } = editor;
+    const { id, slug } = props;
+    const className = `${cx('editor-region')} ${cx(`editor-region-${slug}`)}`;
+    const fields = _.where(Object.values(contentType.fields), { region: id });
+
+    return (
+        <div className={className}>
+            {fields.map(item => (
+                <Element
+                    key={item.fieldId}
+                    editor={editor}
+                    region={props}
+                    {...item}
+                />
+            ))}
+            <Zone zone={editor.cx(slug)} editor={editor} />
+        </div>
+    );
+};
+
+const Element = ({ editor, region, ...props }) => {
+    const { cx } = editor;
+    let { fieldId, fieldName, fieldType } = props;
+    const cid = op.get(Reactium.ContentType.FieldType.list, [
+        fieldType,
+        'component',
+    ]);
+
+    if (!cid) return null;
+
+    const Component = useHookComponent(`${cid}-editor`);
+
+    if (!Component) return null;
+
+    const title = fieldName;
+    fieldName = slugify(String(fieldName).toLowerCase());
+    const pref = ['admin.dialog.editor', editor.type, region, fieldName];
+    const className = [cx('element'), cx(`element-${fieldName}`)].join(' ');
+
+    return (
+        <div className={className}>
+            <Component
+                {...props}
+                editor={editor}
+                region={region}
+                pref={pref.join('.')}
+                fieldName={fieldName}
+                title={title}
+            />
+        </div>
+    );
 };
 
 ContentEditor = forwardRef(ContentEditor);

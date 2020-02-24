@@ -1,12 +1,13 @@
 import React from 'react';
-import { Checkbox } from '@atomic-reactor/reactium-ui';
-import { useHookComponent, __ } from 'reactium-core/sdk';
+import cn from 'classnames';
+import { __, useHookComponent } from 'reactium-core/sdk';
+import { Button, Checkbox, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldTypeRichText
  * -----------------------------------------------------------------------------
  */
-const FieldTypeRichText = props => {
+export const FieldType = props => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
@@ -15,14 +16,32 @@ const FieldTypeRichText = props => {
             <div className='field-type-text'>
                 <div className={'form-group'}>
                     <label>
-                        <span>{__('Default Value')}</span>
-                        <input type='text' name='defaultValue' />
+                        <span className='sr-only'>{__('Default Value')}</span>
+                        <input
+                            type='text'
+                            name='defaultValue'
+                            placeholder={__('Default Value')}
+                        />
                     </label>
                 </div>
                 <div className={'form-group'}>
                     <label>
-                        <span>{__('Pattern')}</span>
-                        <input type='text' name='pattern' />
+                        <span className='sr-only'>{__('Placeholder')}</span>
+                        <input
+                            type='text'
+                            name='placeholder'
+                            placeholder={__('Placeholder')}
+                        />
+                    </label>
+                </div>
+                <div className={'form-group'}>
+                    <label>
+                        <span className='sr-only'>{__('Pattern')}</span>
+                        <input
+                            type='text'
+                            name='pattern'
+                            placeholder={__('Pattern')}
+                        />
                     </label>
                 </div>
             </div>
@@ -30,4 +49,53 @@ const FieldTypeRichText = props => {
     );
 };
 
-export default FieldTypeRichText;
+export const Editor = props => {
+    const {
+        defaultValue,
+        errorText,
+        fieldName,
+        helpText,
+        pattern,
+        placeholder,
+        pref,
+        title,
+    } = props;
+
+    const header = {
+        title,
+        elements: [
+            <Button
+                size={Button.ENUMS.SIZE.XS}
+                color={Button.ENUMS.COLOR.CLEAR}
+                className='ar-dialog-header-btn'
+                size='xs'>
+                <Icon name='Feather.HelpCircle' />
+            </Button>,
+        ],
+    };
+
+    const inputProps = {
+        defaultValue,
+        name: fieldName,
+        pattern,
+        placeholder,
+        type: 'text',
+    };
+
+    const className = cn({ error: !!errorText, 'form-group': true });
+
+    return (
+        <Dialog pref={pref} header={header}>
+            <div className='p-xs-20'>
+                <div className={className}>
+                    <input {...inputProps} />
+                    {errorText && <small>{errorText}</small>}
+                </div>
+            </div>
+        </Dialog>
+    );
+};
+
+export const QuickEditor = props => {
+    return 'QuickEditor';
+};

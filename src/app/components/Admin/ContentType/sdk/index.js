@@ -1,4 +1,5 @@
 import Reactium from 'reactium-core/sdk';
+import ENUMS from '../enums';
 import op from 'object-path';
 Reactium.Enums.cache.types = 10000;
 
@@ -148,5 +149,7 @@ ContentType.FieldType.register = async (fieldType = {}) => {
  */
 ContentType.FieldType.unregister = async hookId =>
     Reactium.Hook.unregister(hookId);
+
+ContentType.FieldType.list = op.get(ENUMS, 'TYPES', {});
 
 export default ContentType;

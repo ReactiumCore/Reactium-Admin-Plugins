@@ -20,12 +20,25 @@ $width-ace-sidebar: 420px;
     &-editor {
         position: relative;
         flex-grow: 1;
-        padding: $padding-admin-content-zone;
         max-width: 100vw;
         width: 100%;
 
         @include breakpoint(md) {
             max-width: calc(100% - #{$width-ace-sidebar});
+        }
+
+        &-region {
+            padding: $padding-admin-content-zone;
+            
+            &:empty {
+                display: none;
+            }
+        }
+    }
+
+    &-element {
+        &:empty {
+            display: none;
         }
     }
 

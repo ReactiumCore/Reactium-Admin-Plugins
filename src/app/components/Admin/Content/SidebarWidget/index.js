@@ -12,26 +12,17 @@ import Reactium, {
 export default () => {
     const MenuItem = useHookComponent('MenuItem');
 
-    const watch = ['set', 'del'];
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
-    useEffect(() => {
-        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (watch.includes(op)) {
-                const results = await getTypes(true);
-                setTypes(results);
-                update(Date.now());
-            }
-        });
-    });
-
     useAsyncEffect(async () => {
-        const results = await getTypes();
+        const results = await getTypes(true);
         setTypes(results);
-        return () => {};
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (['set', 'del'].includes(op)) update(Date.now());
+        });
     }, [updated]);
 
     return types.map(item => {

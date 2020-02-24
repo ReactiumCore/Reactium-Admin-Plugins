@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import _ from 'underscore';
 import op from 'object-path';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -11,7 +12,6 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default () => {
-    const watch = ['set', 'del'];
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
     const MenuItem = useHookComponent('MenuItem');
@@ -24,24 +24,12 @@ export default () => {
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
-    useEffect(() => {
-        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (watch.includes(op)) {
-                const results = await getTypes(true);
-                setTypes(results);
-                update(Date.now());
-            }
-        });
-    }, []);
-
     useAsyncEffect(async () => {
-        const results = await getTypes();
-        setTypes(results);
-        return () => {};
-        // return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-        //     console.log(op);
-        //     if (watch.includes(op)) update(Date.now());
-        // });
+        const results = await getTypes(true);
+        if (!_.isEqual(results, types)) setTypes(results);
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (['set', 'del'].includes(op)) update(Date.now());
+        });
     }, [updated]);
 
     return (

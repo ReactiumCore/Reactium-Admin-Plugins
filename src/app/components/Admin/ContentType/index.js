@@ -183,6 +183,10 @@ const ContentType = memo(
         const [, setVersion] = useState(uuid());
         const tools = useHandle('AdminTools');
         const Toast = op.get(tools, 'Toast');
+        const [types, setTypes] = useState([]);
+        const [updated, update] = useState();
+
+        const getTypes = refresh => Reactium.ContentType.types(refresh);
 
         useEffect(() => {
             clear();
@@ -205,6 +209,14 @@ const ContentType = memo(
                 );
             };
         }, [id]);
+
+        useAsyncEffect(async () => {
+            const results = await getTypes(true);
+            if (!_.isEqual(results, types)) setTypes(results);
+            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+                if (['set', 'del'].includes(op)) update(Date.now());
+            });
+        }, [updated]);
 
         const getValue = () => {
             const currentValue = parentFormRef.current.getValue();
@@ -351,8 +363,6 @@ const ContentType = memo(
             const responseContext = await Reactium.Hook.run(
                 'content-type-validate-fields',
             );
-
-            const types = await Reactium.ContentType.types(true);
 
             // type labels that are currently used
             const taken = types
