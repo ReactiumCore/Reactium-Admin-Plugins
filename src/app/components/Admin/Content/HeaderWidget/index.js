@@ -13,6 +13,7 @@ export default () => {
                 appearance='pill'
                 className='mr-xs-24'
                 color='primary'
+                outline
                 size='xs'
                 to={`/admin/content/${type}/new`}
                 type='link'>
