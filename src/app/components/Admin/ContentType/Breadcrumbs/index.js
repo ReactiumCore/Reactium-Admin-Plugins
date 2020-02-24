@@ -58,7 +58,11 @@ export default () => {
                     </Button>
                 </li>
                 {id && <li className='uppercase'>{type || __('New')}</li>}
-                {id && type && <li>{id === 'new' ? 'NEW' : id}</li>}
+                {id && type && (
+                    <li className='hide-xs show-md'>
+                        {id === 'new' ? 'NEW' : id}
+                    </li>
+                )}
             </ul>
         )
     );

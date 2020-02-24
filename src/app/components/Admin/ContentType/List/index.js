@@ -21,32 +21,29 @@ import React, {
 import Reactium, {
     __,
     useAsyncEffect,
-    useDerivedState,
     useEventHandle,
     useHandle,
     useRegisterHandle,
     useSelect,
+    Zone,
 } from 'reactium-core/sdk';
 
-/**
- * -----------------------------------------------------------------------------
- * Functional Component: ContentList
- * -----------------------------------------------------------------------------
- */
+const Card = ({ handle, Ico, label, id }) => (
+    <Link
+        className={handle.cx('card')}
+        to={`/admin/type/${id}`}
+        title={`${ENUMS.TEXT.EDIT} ${label}`}>
+        <Ico />
+        <h3 className={handle.cx('label')}>{label}</h3>
+    </Link>
+);
+
 let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
     const SearchBar = useHandle('SearchBar');
 
+    const [title, setTitle] = useState(ENUMS.TEXT.TITLE);
     const [types, setTypes] = useState([]);
-
-    const [state, setNewState] = useDerivedState({
-        title: ENUMS.TEXT.TITLE,
-    });
-
-    const setState = newState => {
-        setNewState({ ...state, ...newState });
-        return () => {};
-    };
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
@@ -68,8 +65,6 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     const properCase = useProperCase();
 
     const _handle = () => ({
-        state,
-        setState,
         types,
         cx,
     });
@@ -92,13 +87,12 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     useEffect(() => {
         if (!SearchBar) return;
         const { visible } = SearchBar.state;
-        if (visible !== true && types.length > 0)
+        if (visible !== true && types.length > 0) {
             SearchBar.setState({ visible: true });
+        }
     }, [SearchBar, types]);
 
     const render = () => {
-        const { title } = state;
-
         return (
             <>
                 <Helmet>
@@ -106,6 +100,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
                 </Helmet>
                 <div className={cname}>
                     <div className={cx('content')}>
+                        <Zone zone={cx('top')} />
                         {filter().map(({ meta, uuid }) => {
                             const { label, icon } = meta;
                             if (!label) return;
@@ -130,6 +125,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
                                 />
                             );
                         })}
+                        <Zone zone={cx('bottom')} />
                     </div>
                 </div>
             </>
@@ -138,16 +134,6 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
     return render();
 };
-
-const Card = ({ handle, Ico, label, id }) => (
-    <Link
-        className={handle.cx('card')}
-        to={`/admin/type/${id}`}
-        title={`${ENUMS.TEXT.EDIT} ${label}`}>
-        <Ico />
-        <h3 className={handle.cx('label')}>{label}</h3>
-    </Link>
-);
 
 ContentTypeList = forwardRef(ContentTypeList);
 

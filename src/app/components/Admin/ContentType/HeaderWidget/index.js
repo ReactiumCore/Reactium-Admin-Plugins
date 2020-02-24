@@ -16,8 +16,11 @@ export default () => {
                 size='xs'
                 to='/admin/type/new'
                 type='link'>
-                <Icon name='Feather.Plus' className='mr-xs-12' size={18} />{' '}
-                {ENUMS.TEXT.ADD}
+                <Icon name='Feather.Plus' size={18} />
+                <span className='hide-xs show-md ml-sm-12'>
+                    {' '}
+                    {ENUMS.TEXT.ADD}
+                </span>
             </Button>
         )
     );
