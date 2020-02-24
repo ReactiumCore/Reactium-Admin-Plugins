@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@atomic-reactor/actinium-auth": "^1.0.2",
-    "@atomic-reactor/reactium-sdk-core": "0.0.32",
+    "@atomic-reactor/reactium-sdk-core": "0.0.33",
     "@atomic-reactor/reactium-ui": "^0.1.53",
     "@babel/cli": "^7.8.3",
     "@babel/node": "^7.8.3",

@@ -29,7 +29,7 @@ Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.lowest).then(
 
         Reactium.Zone.addComponent({
             id: 'ADMIN-CONTENT-LIST',
-            component: ConentList,
+            component: ContentList,
             order: Reactium.Enums.priority.lowest,
             zone: ['admin-content-list'],
         });

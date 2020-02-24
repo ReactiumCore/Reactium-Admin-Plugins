@@ -92,6 +92,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
 
     // set content type
     useEffect(() => {
+        if (!type) return;
         const t = _.findWhere(types, { type });
         if (!t) return;
         setContentType(t);
@@ -105,15 +106,17 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         setState({ title: newTitle });
     }, [type]);
 
-    // useEffect(() => {
-    //     setHandle(_handle());
-    // }, [contentType, state, types]);
+    useEffect(() => {
+        setHandle(_handle());
+    }, [contentType, state, types]);
 
     useImperativeHandle(ref, () => handle);
 
     useRegisterHandle('AdminContentEditor', () => handle);
 
     const render = () => {
+        if (!type) return null;
+
         const { title } = state;
         const [contentRegions, sidebarRegions] = regions();
 
