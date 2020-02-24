@@ -5,6 +5,67 @@
     overflow-x: hidden;
 
     &-content {
+        display: flex;
+
+        padding-top: $padding-admin-content-zone;
+        padding-left: $padding-admin-content-zone;
+    }
+
+    &-card {
+        position: relative;
+        color: $color-black;
+        margin-right: $padding-admin-content-zone;
+        margin-bottom: $padding-admin-content-zone;
+        box-shadow: $shadow-image;
+        width: 240px;
+        height: 240px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        background-color: $color-white;
+        border-radius: 2px;
         padding: $padding-admin-content-zone;
+
+        &:hover {
+            text-decoration: none;
+            color: $color-gray;
+        }
+    }
+
+    &-graphic,
+    &-icon {
+        width: 100%;
+        height: 172px;
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &-graphic {
+        svg {
+            width: 150px;
+            flex-shrink: 0;
+        }
+    }
+
+    &-icon {
+        svg {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            fill: $color-grey;
+        }
+    }
+
+    &-edit {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+
+    &-label {
+        font-weight: 500;
     }
 }

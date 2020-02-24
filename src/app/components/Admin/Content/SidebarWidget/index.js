@@ -21,9 +21,7 @@ export default () => {
     useEffect(() => {
         return Reactium.Cache.subscribe('content-types', async ({ op }) => {
             if (watch.includes(op)) {
-                let results = await getTypes(true);
-                results = _.sortBy(results, 'slug');
-
+                const results = await getTypes(true);
                 setTypes(results);
                 update(Date.now());
             }

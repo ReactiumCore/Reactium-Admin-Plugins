@@ -7,6 +7,7 @@ const Enums = {
     TYPES: {},
     TEXT: {
         ADD: __('New Content Type'),
+        EDIT: __('Edit'),
         TITLE: __('Content Types'),
     },
     REQUIRED_REGIONS: {
