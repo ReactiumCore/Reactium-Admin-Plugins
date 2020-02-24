@@ -8,7 +8,7 @@ const Wrap = ({ href, children }) => {
 
 const Logo = ({ width, height, children, className, href, zone, ...props }) => (
     <span className={className}>
-        {zone && <Zone id={zone} />}
+        {zone && <Zone zone={zone} />}
         {children}
         <Wrap href={href}>
             <svg width={width} height={height} viewBox='0 0 70 70' {...props}>

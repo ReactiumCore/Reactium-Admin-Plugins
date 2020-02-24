@@ -19,6 +19,19 @@ import Reactium, {
     useWindowSize,
 } from 'reactium-core/sdk';
 
+const defaultIsActive = (match = {}, location = {}, src) => {
+    const url = op.get(match, 'url');
+    let pathname = op.get(location, 'pathname');
+
+    if (pathname === '/admin') return url === pathname;
+
+    if (!url || !pathname) return false;
+    if (url === pathname) return true;
+
+    pathname = String(pathname).slice(0, -1);
+    return String(url).startsWith(pathname);
+};
+
 const Label = ({ cname, expanded, state }) => {
     let { add, countNumber, icon, label, title } = state;
 
@@ -81,18 +94,6 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
             )}
         </div>
     );
-};
-
-const defaultIsActive = (match = {}, location = {}, src) => {
-    const url = op.get(match, 'url');
-    const pathname = op.get(location, 'pathname');
-
-    if (pathname === '/admin') return url === pathname;
-
-    if (!url || !pathname) return false;
-    if (url === pathname) return true;
-
-    return String(url).startsWith(pathname);
 };
 
 const Link = ({ state, cname, onClick, expanded }) => {

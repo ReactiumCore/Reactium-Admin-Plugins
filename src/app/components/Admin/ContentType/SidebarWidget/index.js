@@ -11,6 +11,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default () => {
+    const watch = ['set', 'del'];
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
     const MenuItem = useHookComponent('MenuItem');
@@ -25,7 +26,7 @@ export default () => {
 
     useEffect(() => {
         return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (op === 'set') {
+            if (watch.includes(op)) {
                 const results = await getTypes(true);
                 setTypes(results);
                 update(Date.now());
@@ -34,10 +35,13 @@ export default () => {
     }, []);
 
     useAsyncEffect(async () => {
-        const results = await getTypes(!!updated);
+        const results = await getTypes();
         setTypes(results);
-        // console.log({ types });
         return () => {};
+        // return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+        //     console.log(op);
+        //     if (watch.includes(op)) update(Date.now());
+        // });
     }, [updated]);
 
     return (
@@ -46,7 +50,7 @@ export default () => {
             label={__('Content Types')}
             icon='Linear.Typewriter'
             isActive={isActive}
-            onClick={e => Reactium.Routing.history.push('/admin/type/new')}>
+            route='/admin/types'>
             {types.map(({ uuid, type, meta }) => (
                 <MenuItem
                     key={uuid}

@@ -12,6 +12,7 @@ import Reactium, {
 export default () => {
     const MenuItem = useHookComponent('MenuItem');
 
+    const watch = ['set', 'del'];
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
 
@@ -19,7 +20,7 @@ export default () => {
 
     useEffect(() => {
         return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (op === 'set') {
+            if (watch.includes(op)) {
                 let results = await getTypes(true);
                 results = _.sortBy(results, 'label');
 
@@ -27,7 +28,7 @@ export default () => {
                 update(Date.now());
             }
         });
-    }, []);
+    });
 
     useAsyncEffect(async () => {
         const results = await getTypes();
@@ -35,22 +36,19 @@ export default () => {
         return () => {};
     }, [updated]);
 
-    return (
-        <>
-            {types.map(item => {
-                const { uuid, type, meta } = item;
-                const icon = op.get(meta, 'icon', 'Linear.Document2');
+    return types.map(item => {
+        const { uuid, type, machineName, meta } = item;
+        const icon = op.get(meta, 'icon', 'Linear.Document2');
 
-                return (
-                    <MenuItem
-                        key={`content-${uuid}`}
-                        add={`/admin/content/${pluralize(type)}/new`}
-                        label={__(pluralize(meta.label))}
-                        icon={icon}
-                        route={`/admin/content/${pluralize(type)}`}
-                    />
-                );
-            })}
-        </>
-    );
+        return (
+            <MenuItem
+                key={`content-${uuid}`}
+                add={`/admin/content/${machineName}/new`}
+                exact={false}
+                label={__(pluralize(meta.label))}
+                icon={icon}
+                route={`/admin/content/${pluralize(type)}`}
+            />
+        );
+    });
 };

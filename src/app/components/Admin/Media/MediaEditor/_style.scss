@@ -74,9 +74,9 @@
         &-meta {
             width: 100%;
             background-color: $color-white;
-            box-shadow: $shadow-image;
 
             @include breakpoint(md) {
+                box-shadow: $shadow-image;
                 display: flex;
                 flex-direction: column;
                 flex-shrink: 0;

@@ -4,15 +4,10 @@
     min-width: $height-admin-header;
     height: $height-admin-header;
     display: flex;
-    justify-content: flex-end;
     flex-grow: 1;
+    justify-content: flex-end;
     align-items: center;
     overflow: hidden;
     padding: 10px;
     order: map-get($z-indexes, 'overlay');
-
-    * {
-        width: auto;
-        height: 100%;
-    }
 }

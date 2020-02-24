@@ -1,3 +1,47 @@
-.style {
+$width-ace-sidebar: 420px;
 
+.admin-content {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-top: $height-admin-header;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    @include breakpoint(md) {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
+
+    &-editor {
+        position: relative;
+        flex-grow: 1;
+        padding: $padding-admin-content-zone;
+        max-width: 100vw;
+        width: 100%;
+
+        @include breakpoint(md) {
+            max-width: calc(100% - #{$width-ace-sidebar});
+        }
+    }
+
+    &-meta {
+        width: 100%;
+        background-color: $color-white;
+
+        @include breakpoint(md) {
+            position: fixed;
+            top: $height-admin-header;
+            right: 0;
+            width: $width-ace-sidebar;
+            height: calc(100vh - #{$height-admin-header});
+            box-shadow: $shadow-image;
+            overflow: hidden;
+            border-left: 1px solid $color-admin-header-border;
+        }
+    }
 }
