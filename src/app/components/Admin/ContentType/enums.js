@@ -3,6 +3,7 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 
 const Enums = {
+    DEFAULT_ICON: 'Linear.Papers',
     ZONE: (region = 1) => `types-fields-${region}`,
     TYPES: {},
     TEXT: {
