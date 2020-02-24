@@ -78,7 +78,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     // Get content types
     useAsyncEffect(async () => {
         if (types.length > 0) return;
-        const results = await getTypes();
+        const results = await getTypes(true);
         setTypes(results);
         return () => {};
     }, [types]);

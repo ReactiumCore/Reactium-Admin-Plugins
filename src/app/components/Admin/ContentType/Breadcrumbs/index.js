@@ -9,7 +9,6 @@ import useRouteParams from 'components/Admin/Content/_utils/useRouteParams';
 export default () => {
     const { id, path } = useRouteParams(['id']);
 
-    const watch = ['set', 'del'];
     const [type, setType] = useState();
     const [types, setTypes] = useState();
     const [updated, update] = useState();
@@ -19,10 +18,12 @@ export default () => {
 
     // Get content types
     useAsyncEffect(async () => {
-        const results = await getTypes();
+        const results = await getTypes(true);
         setTypes(results);
-        return () => {};
-    });
+        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+            if (['set', 'del'].includes(op)) update(uuid());
+        });
+    }, [updated]);
 
     // Get content type from `id`
     useEffect(() => {
@@ -30,18 +31,6 @@ export default () => {
         const t = _.findWhere(types, { uuid: id }) || {};
         setType(op.get(t, 'meta.label'));
     }, [id, types]);
-
-    // Watch for changes
-    useEffect(() => {
-        if (!visible) return;
-        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (watch.includes(op)) {
-                const results = await getTypes(true);
-                setTypes(results);
-                update(uuid());
-            }
-        });
-    }, [id, path]);
 
     return (
         visible && (
