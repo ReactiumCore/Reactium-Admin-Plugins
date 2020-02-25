@@ -133,6 +133,27 @@ Content.setPermissions = async (content = {}, permissions = []) => {
     return response;
 };
 
+/**
+ * @api {Asynchronous} Content.changelog(objectId,options) Content.changelog()
+ * @apiDescription Get changelog for content item.
+ * @apiParam {String} contentId Parse objectId of content.
+ * @apiParam {Object} [options] options to request changelog
+ * @apiParam (options) {String} [direction=descending] Order "descending" or "ascending"
+ * @apiParam (options) {Number} [limit=1000] Limit page results
+ * @apiParam (options) {String} [userId] Parse user object id (alternative)
+ * @apiParam (options) {String} [contentId] objectId of the content
+ * @apiParam (options) {String} [collection] the Parse collection of the content
+ * @apiParam (options) {String} [changeType] the type of change being logged
+ * @apiName Content.changelog
+ * @apiGroup Reactium.Content
+ */
+Content.changelog = async (contentId, options = {}) => {
+    return Reactium.Cloud.run('changelog', {
+        contentId,
+        ...options,
+    });
+};
+
 Reactium.Hook.register('content-saved', async contentObj => {
     const { canRead = [], canWrite = [] } = await Content.ACLToReadWrite(
         contentObj.ACL,
