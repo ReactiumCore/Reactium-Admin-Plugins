@@ -9,7 +9,8 @@ import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 import { slugify } from 'components/Admin/ContentType';
-import { EventForm } from '@atomic-reactor/reactium-ui';
+// import { EventForm } from '@atomic-reactor/reactium-ui';
+import EventForm from 'components/EventForm';
 
 import React, {
     forwardRef,
@@ -74,13 +75,17 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         return [content, sidebar];
     };
 
+    const submit = () => formRef.current.submit();
+
     const _onError = e => {};
 
     const _onSubmit = e => {
-        console.log(e.type);
+        console.log(e);
     };
 
-    const _onValidate = e => {};
+    const _onValidate = e => {
+        return e;
+    };
 
     // Handle
     const _handle = () => ({
@@ -92,6 +97,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         state,
         setState,
         setValue,
+        submit,
         type,
         types,
         value,
@@ -99,6 +105,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
     useImperativeHandle(ref, () => handle);
+    useRegisterHandle('AdminContentEditor', () => handle, [handle]);
 
     // get content types
     useAsyncEffect(
@@ -122,9 +129,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             // }
 
             const results = await getContent();
-            if (mounted()) {
-                setValue(results);
-            }
+            if (mounted()) setValue(results);
             return () => {};
         },
         [contentType, slug, type],
