@@ -33,8 +33,7 @@ export default () => {
         if (!visible || !type) return;
         const t = _.findWhere(types, { type }) || {};
         const i = op.get(t, 'meta.icon');
-
-        if (!i || icon === i) return;
+        if (i === icon) return;
         setIcon(i);
     }, [type, types, visible]);
 

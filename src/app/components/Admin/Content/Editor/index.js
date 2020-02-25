@@ -40,6 +40,9 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
     const { type, group } = useRouteParams();
 
     const [contentType, setContentType] = useState({ regions: [] });
+    const [fieldTypes, setFieldTypes] = useState(
+        Reactium.ContentType.FieldType.list,
+    );
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
     const [state, setNewState] = useDerivedState({
@@ -71,6 +74,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
 
     const _handle = () => ({
         contentType,
+        fieldTypes,
         regions,
         state,
         setState,
@@ -100,7 +104,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         const t = _.findWhere(types, { type });
         if (!t) return;
         setContentType(t);
-    });
+    }, [type, types]);
 
     // update title
     useEffect(() => {
@@ -112,14 +116,14 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
 
     useEffect(() => {
         setHandle(_handle());
-    }, [contentType, state, types]);
+    }, [contentType, state, type, types]);
 
     useImperativeHandle(ref, () => handle);
 
     useRegisterHandle('AdminContentEditor', () => handle);
 
     const render = () => {
-        if (!type) return null;
+        if (!type || _.isEmpty(fieldTypes)) return null;
 
         const { title } = state;
         const [contentRegions, sidebarRegions] = regions();
@@ -129,7 +133,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                <EventForm className={cname}>
+                <div className={cname}>
                     {contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
@@ -156,7 +160,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
                             </div>
                         </div>
                     )}
-                </EventForm>
+                </div>
             </>
         );
     };
@@ -186,17 +190,14 @@ const Region = ({ editor, ...props }) => {
 };
 
 const Element = ({ editor, region, ...props }) => {
-    const { cx } = editor;
+    const { cx, fieldTypes } = editor;
     let { fieldId, fieldName, fieldType } = props;
-    const cid = op.get(Reactium.ContentType.FieldType.list, [
-        fieldType,
-        'component',
-    ]);
+
+    const cid = op.get(fieldTypes, [fieldType, 'component']);
 
     if (!cid) return null;
 
     const Component = useHookComponent(`${cid}-editor`);
-
     const [isComponent, setIsComponent] = useState(!!Component);
 
     useEffect(() => {
