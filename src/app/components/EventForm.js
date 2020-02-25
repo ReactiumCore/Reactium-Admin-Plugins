@@ -116,8 +116,6 @@ let EventForm = (initialProps, ref) => {
     const [value, setNewValue] = useState(initialValue || defaultValue || {});
     const [count, setCount] = useState(0);
 
-    useImperativeHandle(ref, () => handle);
-
     /* Functions */
     const applyValue = newValue => {
         if (controlled === true || typeof newValue === 'undefined') return;
@@ -288,14 +286,22 @@ let EventForm = (initialProps, ref) => {
         }
 
         if (validator) {
-            const validatorResult = await validator(value, valid, errors);
-            valid = op.get(validatorResult, 'valid', true) && valid;
-            const newErrors = op.get(validatorResult, 'errors', {});
-            errors = {
-                focus: newErrors.focus || errors.focus,
-                fields: _.unique([...errors.fields, ...newErrors.fields]),
-                errors: _.unique([...errors.errors, ...newErrors.errors]),
-            };
+            const validatorResult = await validator({
+                value,
+                valid,
+                errors,
+                target: handle,
+            });
+
+            if (_.isObject(validatorResult)) {
+                valid = op.get(validatorResult, 'valid', true) && valid;
+                const newErrors = op.get(validatorResult, 'errors', {});
+                errors = {
+                    focus: newErrors.focus || errors.focus,
+                    fields: _.unique([...errors.fields, ...newErrors.fields]),
+                    errors: _.unique([...errors.errors, ...newErrors.errors]),
+                };
+            }
         }
 
         return { valid, errors };
@@ -357,6 +363,7 @@ let EventForm = (initialProps, ref) => {
     const _handle = () => ({
         defaultValue,
         elements: getElements(),
+        ENUMS,
         errors: op.get(state, 'errors'),
         focus,
         form: formRef.current,
@@ -371,6 +378,8 @@ let EventForm = (initialProps, ref) => {
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle);
 
     /* Side effects */
 
@@ -444,6 +453,8 @@ let EventForm = (initialProps, ref) => {
 };
 
 EventForm = forwardRef(EventForm);
+
+EventForm.ENUMS = ENUMS;
 
 EventForm.propTypes = {
     className: PropTypes.string,

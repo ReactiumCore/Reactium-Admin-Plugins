@@ -5,6 +5,7 @@ const ENUMS = {
         EDITOR: __('Editor'),
         LIST: __('Content'),
         NEW: __('New'),
+        SAVE: __('Save'),
     },
 };
 

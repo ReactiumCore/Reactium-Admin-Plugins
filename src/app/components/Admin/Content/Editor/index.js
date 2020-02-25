@@ -9,7 +9,8 @@ import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 import { slugify } from 'components/Admin/ContentType';
-import { EventForm } from '@atomic-reactor/reactium-ui';
+// import { EventForm } from '@atomic-reactor/reactium-ui';
+import EventForm from 'components/EventForm';
 
 import React, {
     forwardRef,
@@ -30,6 +31,65 @@ import Reactium, {
     useSelect,
     Zone,
 } from 'reactium-core/sdk';
+
+/**
+ * @api {ReactHook} useFullFilledObject(object,keys) useFullFilledObject()
+ * @apiName useFullFilledObject
+ * @apiGroup ReactHook
+ * @apiDescription Asyncronous React hook that determines if the supplied object has values for the supplied keys. Useful when you have many `useEffect` calls and need to know if multiple pieces of the state are set and ready for rendering.
+ * @apiParam {Object} The object to check.
+ * @apiParam {Array} Array of object properties to validate.
+ * @apiExample Example Usage:
+
+import React, { useEffect, useState } from 'react';
+import { useFullFilledObject } from 'reactium-core/sdk';
+
+const MyComponent = () => {
+    const [someObject, setSomeObject] = { status: null };
+
+    const [updatedObject, ready, attempts] = useFullFilledObject(someObject, ['status']);
+
+    useEffect(() => {
+        if (someObject.status !== 'ready') {
+            setSomeObject({ status: 'ready' });
+        }
+    }, [someObject]);
+
+    const render = () => {
+        if (ready !== true) return null;
+
+        return 'ready!!';
+    }
+
+    return render(); 
+};
+ */
+export const useFullFilledObject = (obj, keys = []) => {
+    const count = useRef(0);
+    const [ready, setReady] = useState(false);
+
+    const validate = () =>
+        new Promise(resolve => {
+            const ival = setInterval(() => {
+                count.current += 1;
+                const completed = keys.filter(key => !!op.get(obj, key));
+                if (completed.length !== keys.length) return;
+                clearInterval(ival);
+                resolve(true);
+            }, 1);
+        });
+
+    useAsyncEffect(
+        async mounted => {
+            const results = await validate();
+            if (mounted()) setReady(results);
+            return () => {};
+        },
+        [obj, keys, count.current],
+    );
+
+    return [obj, ready, count.current];
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -74,13 +134,17 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         return [content, sidebar];
     };
 
+    const submit = () => formRef.current.submit();
+
     const _onError = e => {};
 
     const _onSubmit = e => {
-        console.log(e.type);
+        console.log(e);
     };
 
-    const _onValidate = e => {};
+    const _onValidate = e => {
+        return e;
+    };
 
     // Handle
     const _handle = () => ({
@@ -92,6 +156,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         state,
         setState,
         setValue,
+        submit,
         type,
         types,
         value,
@@ -99,6 +164,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
     useImperativeHandle(ref, () => handle);
+    useRegisterHandle('AdminContentEditor', () => handle, [handle]);
 
     // get content types
     useAsyncEffect(
@@ -111,6 +177,13 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         [type],
     );
 
+    // get fullfilled handle
+    const [obj, ready, count] = useFullFilledObject(handle, [
+        'contentType',
+        'type',
+        'types',
+    ]);
+
     // get content record
     useAsyncEffect(
         async mounted => {
@@ -122,9 +195,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             // }
 
             const results = await getContent();
-            if (mounted()) {
-                setValue(results);
-            }
+            if (mounted()) setValue(results);
             return () => {};
         },
         [contentType, slug, type],
@@ -155,7 +226,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     });
 
     const render = () => {
-        if (!type || !contentType || !value) return null;
+        if (ready !== true) return null;
 
         console.log({ value });
 
