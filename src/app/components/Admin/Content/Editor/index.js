@@ -82,13 +82,17 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
     const [handle, setHandle] = useEventHandle(_handle());
 
     // get content types
-    useAsyncEffect(async () => {
-        const results = await getTypes(true);
-        setTypes(results);
-        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (['set', 'del'].includes(op)) update(Date.now());
-        });
-    }, [updated]);
+    useAsyncEffect(
+        async mounted => {
+            const results = await getTypes(true);
+            setTypes(results);
+            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+                if (['set', 'del'].includes(op) && mounted() === true)
+                    update(Date.now());
+            });
+        },
+        [updated],
+    );
 
     // set content type
     useEffect(() => {

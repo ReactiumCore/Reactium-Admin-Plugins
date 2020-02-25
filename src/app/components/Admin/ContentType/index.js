@@ -210,13 +210,20 @@ const ContentType = memo(
             };
         }, [id]);
 
-        useAsyncEffect(async () => {
-            const results = await getTypes(true);
-            if (!_.isEqual(results, types)) setTypes(results);
-            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op)) update(Date.now());
-            });
-        }, [updated]);
+        useAsyncEffect(
+            async mounted => {
+                const results = await getTypes(true);
+                if (!_.isEqual(results, types)) setTypes(results);
+                return Reactium.Cache.subscribe(
+                    'content-types',
+                    async ({ op }) => {
+                        if (['set', 'del'].includes(op) && mounted() === true)
+                            update(Date.now());
+                    },
+                );
+            },
+            [updated],
+        );
 
         const getValue = () => {
             const currentValue = parentFormRef.current.getValue();

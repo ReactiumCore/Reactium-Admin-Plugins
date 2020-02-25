@@ -3,6 +3,7 @@ import ContentEditor from './Editor';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
+import SidebarWidget from './SidebarWidget';
 
 Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.lowest).then(
     () => {
@@ -32,6 +33,13 @@ Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.lowest).then(
             component: ContentList,
             order: Reactium.Enums.priority.lowest,
             zone: ['admin-content-list'],
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'ADMIN-CONTENT-SIDEBAR-WIDGET',
+            component: SidebarWidget,
+            order: 200,
+            zone: ['admin-sidebar-menu'],
         });
     },
 );

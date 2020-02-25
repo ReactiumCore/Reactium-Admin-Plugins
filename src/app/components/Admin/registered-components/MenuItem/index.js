@@ -120,6 +120,8 @@ const Link = ({ state, cname, onClick, expanded }) => {
  * -----------------------------------------------------------------------------
  */
 let MenuItem = ({ children, count, capabilities = [], ...props }) => {
+    const watchProps = ['count', 'icon', 'label', 'updated'];
+
     const prevChildren = useRef(React.Children.toArray(children));
 
     const match = useSelect(state => op.get(state, 'Router.match'));
@@ -132,12 +134,6 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
     const { width, breakpoint } = useWindowSize({ delay: 0 });
 
     const isActive = (match, location) => {
-        // const url = op.get(match, 'url');
-        // const path = op.get(location, 'pathname');
-        // const { route } = state;
-        //
-        // if (url === path) { return true; }
-
         if (op.has(props, 'isActive')) {
             return props.isActive(match, location);
         } else {
@@ -184,19 +180,23 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
     };
 
     // Side Effects
-    useEffect(() => {
-        const newState = {};
-        const keys = ['label', 'updated'];
 
-        keys.forEach(key => {
-            if (op.get(props, key) === op.get(state, key)) return;
-            op.set(newState, key, op.get(props, key));
-        });
+    // Props to state update
+    useEffect(
+        () => {
+            const newState = {};
 
-        if (Object.keys(newState).length > 0) setState(newState);
-    }, [op.get(props, 'label'), op.get(props, 'updated')]);
+            watchProps.forEach(key => {
+                if (op.get(props, key) === op.get(state, key)) return;
+                op.set(newState, key, op.get(props, key));
+            });
 
-    // Permiitted
+            if (Object.keys(newState).length > 0) setState(newState);
+        },
+        watchProps.map(key => op.get(props, key)),
+    );
+
+    // Permitted
     useEffect(() => {
         if (!capabilities || capabilities.length < 1) {
             const timeout = setTimeout(() => setPermitted(true), 1);
@@ -233,32 +233,6 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
             return () => clearTimeout(timeout);
         }
     }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
-    // useEffect(() => {
-    // const { active, route } = state;
-    //
-    // if (!match) {
-    //     if (active !== false) {
-    //         let timeout = setTimeout(() => setState({ active: false }), 1);
-    //         return () => clearTimeout(timeout);
-    //     }
-    //     return;
-    // }
-    //
-    // if (!route && !isActive) {
-    //     if (active !== false) {
-    //         let timeout = setTimeout(() => setState({ active: false }), 1);
-    //         return () => clearTimeout(timeout);
-    //     }
-    //     return;
-    // }
-    //
-    // const location = { pathname };
-    // const newActive = isActive(match, location);
-    // if (active !== newActive) {
-    //     let timeout = setTimeout(() => setState({ active: newActive }), 1);
-    //     return () => clearTimeout(timeout);
-    // }
-    // }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
 
     // Renderer
     const render = () => {

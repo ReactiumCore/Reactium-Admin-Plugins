@@ -44,6 +44,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
     const [title, setTitle] = useState(ENUMS.TEXT.TITLE);
     const [types, setTypes] = useState([]);
+    const [updated, update] = useState();
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
@@ -76,12 +77,16 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     useRegisterHandle('AdminContentTypeList', () => handle);
 
     // Get content types
-    useAsyncEffect(async () => {
-        if (types.length > 0) return;
-        const results = await getTypes(true);
-        setTypes(results);
-        return () => {};
-    }, [types]);
+    useAsyncEffect(
+        async mounted => {
+            if (types.length > 0) return;
+            const results = await getTypes(true);
+            setTypes(results);
+            if (['set', 'del'].includes(op) && mounted() === true)
+                update(Date.now());
+        },
+        [types],
+    );
 
     // Show SearchBar
     useEffect(() => {

@@ -17,13 +17,17 @@ export default () => {
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
-    useAsyncEffect(async () => {
-        const results = await getTypes(true);
-        setTypes(results);
-        return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-            if (['set', 'del'].includes(op)) update(Date.now());
-        });
-    }, [updated]);
+    useAsyncEffect(
+        async mounted => {
+            const results = await getTypes(true);
+            setTypes(results);
+            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+                if (['set', 'del'].includes(op) && mounted() === true)
+                    update(Date.now());
+            });
+        },
+        [updated],
+    );
 
     return types.map(item => {
         const { uuid, type, machineName, meta } = item;
