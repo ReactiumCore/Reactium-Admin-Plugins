@@ -121,6 +121,7 @@ Content.save = async (content = {}, permissions = []) => {
 Content.setPermissions = async (content = {}, permissions = []) => {
     const request = {
         ...content,
+        permissions,
     };
 
     request.type = setType(content.type);
