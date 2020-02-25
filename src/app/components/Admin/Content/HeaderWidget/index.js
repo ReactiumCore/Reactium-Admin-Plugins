@@ -2,8 +2,10 @@ import op from 'object-path';
 import React, { useEffect, useState } from 'react';
 import ENUMS from 'components/Admin/Content/enums';
 import useRouteParams from '../_utils/useRouteParams';
-import { useHandle } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import { useAsyncEffect, useHandle } from 'reactium-core/sdk';
+
+const getEditor = () => {};
 
 export default () => {
     const { path, slug, type } = useRouteParams(['path', 'slug', 'type']);
@@ -16,7 +18,7 @@ export default () => {
     useEffect(() => {
         if (!visible || !Editor) return;
 
-        console.log(Editor);
+        // console.log(Editor);
         setStatus('READY');
 
         //setStatus(Editor.EventForm.ENUMS.STATUS.READY);
@@ -24,7 +26,7 @@ export default () => {
 
     useEffect(() => {
         if (!visible || !Editor) return;
-        console.log(status);
+        // console.log(status);
     }, [status]);
 
     if (!visible) return null;
