@@ -1,8 +1,9 @@
+import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
-import pluralize from 'pluralize';
+import Region from './Region';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
@@ -37,17 +38,27 @@ import Reactium, {
  */
 
 let ContentEditor = ({ className, namespace, ...props }, ref) => {
-    const { type, group } = useRouteParams();
+    const formRef = useRef();
 
-    const [contentType, setContentType] = useState({ regions: [] });
+    const { path, type, slug } = useRouteParams(['type', 'slug']);
+
+    const [contentType, setContentType] = useState();
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
+    const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState({ title: ENUMS.TEXT.EDITOR });
-    const [types, setTypes] = useState([]);
+    const [types, setTypes] = useState();
     const [updated, update] = useState();
+    const [value, setValue] = useState();
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
     const cname = cn({ [cx()]: true, [className]: !!className });
+
+    const getContent = () => {
+        return Promise.resolve({ test: 'fubar', blah: 'hahaha' });
+    };
+
+    const getContentType = () => _.findWhere(types, { type });
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
@@ -63,34 +74,60 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         return [content, sidebar];
     };
 
+    const _onError = e => {};
+
+    const _onSubmit = e => {
+        console.log(e.type);
+    };
+
+    const _onValidate = e => {};
+
     // Handle
     const _handle = () => ({
+        EventForm: formRef.current,
         contentType,
+        cx,
         fieldTypes,
         regions,
         state,
         setState,
+        setValue,
         type,
         types,
-        cx,
+        value,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
     useImperativeHandle(ref, () => handle);
-    useRegisterHandle('AdminContentEditor', () => handle);
 
     // get content types
     useAsyncEffect(
         async mounted => {
+            if (!type) return;
             const results = await getTypes(true);
             if (mounted()) setTypes(results);
-            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true) {
-                    update(Date.now());
-                }
-            });
+            return () => {};
         },
-        [updated],
+        [type],
+    );
+
+    // get content record
+    useAsyncEffect(
+        async mounted => {
+            if (!contentType || !slug || !type) return () => {};
+
+            // if (slug === 'new' && mounted() === true) {
+            //     setValue({});
+            //     return () => {};
+            // }
+
+            const results = await getContent();
+            if (mounted()) {
+                setValue(results);
+            }
+            return () => {};
+        },
+        [contentType, slug, type],
     );
 
     // set content type
@@ -111,11 +148,16 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     // update handle
     useEffect(() => {
-        setHandle(_handle());
-    }, [contentType, fieldTypes, state, type, types]);
+        const newHandle = _handle();
+        const equal = _.isEqual(newHandle, handle);
+        if (equal === true) return;
+        setHandle(newHandle);
+    });
 
     const render = () => {
-        if (!type || _.isEmpty(fieldTypes)) return null;
+        if (!type || !contentType || !value) return null;
+
+        console.log({ value });
 
         const { title } = state;
         const [contentRegions, sidebarRegions] = regions();
@@ -125,14 +167,20 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                <EventForm className={cname}>
+                <EventForm
+                    className={cname}
+                    ref={formRef}
+                    onError={_onError}
+                    onSubmit={_onSubmit}
+                    validator={_onValidate}
+                    value={value}>
                     {contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
                                 {contentRegions.map(item => (
                                     <Region
                                         key={cx(item.slug)}
-                                        editor={_handle()}
+                                        editor={handle}
                                         {...item}
                                     />
                                 ))}
@@ -145,7 +193,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
                                 {sidebarRegions.map(item => (
                                     <Region
                                         key={cx(item.slug)}
-                                        editor={_handle()}
+                                        editor={handle}
                                         {...item}
                                     />
                                 ))}
@@ -158,61 +206,6 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     };
 
     return render();
-};
-
-const Region = ({ editor, ...props }) => {
-    const { contentType, cx } = editor;
-    const { id, slug } = props;
-    const className = `${cx('editor-region')} ${cx(`editor-region-${slug}`)}`;
-    const fields = _.where(Object.values(contentType.fields), { region: id });
-
-    return (
-        <div className={className}>
-            {fields.map(item => (
-                <Element
-                    key={item.fieldId}
-                    editor={editor}
-                    region={props}
-                    {...item}
-                />
-            ))}
-            <Zone zone={editor.cx(slug)} editor={editor} />
-        </div>
-    );
-};
-
-const Element = ({ editor, region, ...props }) => {
-    const { cx, fieldTypes } = editor;
-    let { fieldName, fieldType } = props;
-
-    const cid = op.get(fieldTypes, [fieldType, 'component']);
-
-    const Component = cid ? useHookComponent(`${cid}-editor`) : null;
-    const [isComponent, setIsComponent] = useState(!!Component);
-
-    useEffect(() => {
-        setIsComponent(!!Component);
-    }, [Component]);
-
-    if (!isComponent) return null;
-
-    const title = fieldName;
-    fieldName = slugify(fieldName);
-    const className = [cx('element'), cx(`element-${fieldName}`)];
-    const pref = ['admin.dialog.editor', editor.type, region, fieldName];
-
-    return (
-        <div className={className.join(' ')}>
-            <Component
-                {...props}
-                editor={editor}
-                region={region}
-                pref={pref.join('.')}
-                fieldName={fieldName}
-                title={title}
-            />
-        </div>
-    );
 };
 
 ContentEditor = forwardRef(ContentEditor);
