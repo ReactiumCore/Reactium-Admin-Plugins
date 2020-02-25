@@ -197,7 +197,13 @@ const Element = ({ editor, region, ...props }) => {
 
     const Component = useHookComponent(`${cid}-editor`);
 
-    if (!Component) return null;
+    const [isComponent, setIsComponent] = useState(!!Component);
+
+    useEffect(() => {
+        setIsComponent(!!Component);
+    }, [isComponent]);
+
+    if (!isComponent) return null;
 
     const title = fieldName;
     fieldName = slugify(String(fieldName).toLowerCase());
