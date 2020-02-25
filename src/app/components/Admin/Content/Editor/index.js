@@ -207,11 +207,11 @@ const Element = ({ editor, region, ...props }) => {
 
     const title = fieldName;
     fieldName = slugify(String(fieldName).toLowerCase());
+    const className = [cx('element'), cx(`element-${fieldName}`)];
     const pref = ['admin.dialog.editor', editor.type, region, fieldName];
-    const className = [cx('element'), cx(`element-${fieldName}`)].join(' ');
 
     return (
-        <div className={className}>
+        <div className={className.join(' ')}>
             <Component
                 {...props}
                 editor={editor}
