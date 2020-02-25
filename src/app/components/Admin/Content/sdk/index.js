@@ -136,16 +136,150 @@ Content.setPermissions = async (content = {}, permissions = []) => {
 /**
  * @api {Asynchronous} Content.changelog(objectId,options) Content.changelog()
  * @apiDescription Get changelog for content item.
+ Some of the built-in changes that are tracked:
+ - CREATED: meta.history to get starting branch and revision index
+ - REVISED: meta.history to get branch and revision index
+ - SET_REVISION: meta.history to get branch and revision index
+ - SET_ACL: meta.ACL to get what ACL was changed to
+ - SET_STATUS: meta.history to get branch and revision index, meta.status to get new status
+ - PUBLISHED: meta.history to get branch and revision index published
+ - UNPUBLISHED
+ - SCHEDULE: meta.publish to get sunrise/sunset/history scheduled
+ - SCHEDULED_PUBLISH: meta.history to get branch and revision index published
+ - SCHEDULED_UNPUBLISH
+ - TRASH
+ - RESTORE
  * @apiParam {String} contentId Parse objectId of content.
  * @apiParam {Object} [options] options to request changelog
  * @apiParam (options) {String} [direction=descending] Order "descending" or "ascending"
  * @apiParam (options) {Number} [limit=1000] Limit page results
- * @apiParam (options) {String} [userId] Parse user object id (alternative)
- * @apiParam (options) {String} [contentId] objectId of the content
- * @apiParam (options) {String} [collection] the Parse collection of the content
- * @apiParam (options) {String} [changeType] the type of change being logged
+ * @apiParam (options) {Number} [page=1] Page number
  * @apiName Content.changelog
  * @apiGroup Reactium.Content
+ * @apiExample Usage:
+import Reactium from 'reactium-core/sdk';
+
+Reactium.Content.changelog('zJkUz6dD49').then(data => {
+  console.log({data});
+  // data: {
+  //   "count": 5,
+  //   "next": 2,
+  //   "page": 1,
+  //   "pages": 2,
+  //   "prev": null,
+  //   "results": [
+  //     {
+  //       "meta": {
+  //         "ACL": {
+  //           "role:administrator": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "role:super-admin": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "lL1SfyzHiE": {
+  //             "read": true,
+  //             "write": true
+  //           }
+  //         }
+  //       },
+  //       "contentId": "zJkUz6dD49",
+  //       "collection": "Content_article",
+  //       "userId": "lL1SfyzHiE",
+  //       "changeType": "SET_ACL",
+  //       "createdAt": "2020-02-25T21:03:16.325Z",
+  //       "updatedAt": "2020-02-25T21:03:16.325Z",
+  //       "objectId": "4sanIa8yLR"
+  //     },
+  //     {
+  //       "meta": {
+  //         "ACL": {
+  //           "role:contributor": {
+  //             "read": true
+  //           },
+  //           "role:administrator": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "role:super-admin": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "lL1SfyzHiE": {
+  //             "read": true,
+  //             "write": true
+  //           }
+  //         }
+  //       },
+  //       "contentId": "zJkUz6dD49",
+  //       "collection": "Content_article",
+  //       "userId": "lL1SfyzHiE",
+  //       "changeType": "SET_ACL",
+  //       "createdAt": "2020-02-25T21:02:50.193Z",
+  //       "updatedAt": "2020-02-25T21:02:50.193Z",
+  //       "objectId": "Ni2hNTdv52"
+  //     },
+  //     {
+  //       "meta": {
+  //         "ACL": {
+  //           "*": {
+  //             "read": true
+  //           },
+  //           "role:administrator": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "role:super-admin": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "lL1SfyzHiE": {
+  //             "read": true,
+  //             "write": true
+  //           }
+  //         }
+  //       },
+  //       "contentId": "zJkUz6dD49",
+  //       "collection": "Content_article",
+  //       "userId": "lL1SfyzHiE",
+  //       "changeType": "SET_ACL",
+  //       "createdAt": "2020-02-25T20:34:56.221Z",
+  //       "updatedAt": "2020-02-25T20:34:56.221Z",
+  //       "objectId": "0LZT6CMqlq"
+  //     },
+  //     {
+  //       "meta": {
+  //         "ACL": {
+  //           "*": {
+  //             "read": true
+  //           },
+  //           "role:administrator": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "role:super-admin": {
+  //             "read": true,
+  //             "write": true
+  //           },
+  //           "lL1SfyzHiE": {
+  //             "read": true,
+  //             "write": true
+  //           }
+  //         }
+  //       },
+  //       "contentId": "zJkUz6dD49",
+  //       "collection": "Content_article",
+  //       "userId": "lL1SfyzHiE",
+  //       "changeType": "SET_ACL",
+  //       "createdAt": "2020-02-25T20:32:12.611Z",
+  //       "updatedAt": "2020-02-25T20:32:12.611Z",
+  //       "objectId": "f1d8OaDHOk"
+  //     }
+  //   ]
+  // }
+})
  */
 Content.changelog = async (contentId, options = {}) => {
     return Reactium.Cloud.run('changelog', {
