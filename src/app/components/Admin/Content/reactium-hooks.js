@@ -5,7 +5,7 @@ import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
 
-Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.highest).then(
+Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.lowest).then(
     () => {
         Reactium.Zone.addComponent({
             id: 'ADMIN-CONTENT-CRUMBS',
@@ -24,7 +24,7 @@ Reactium.Plugin.register('AdminContent', Reactium.Enums.priority.highest).then(
         Reactium.Zone.addComponent({
             id: 'ADMIN-CONTENT-EDITOR',
             component: ContentEditor,
-            order: Reactium.Enums.priority.highest,
+            order: Reactium.Enums.priority.lowest,
             zone: ['admin-content-editor'],
         });
 
