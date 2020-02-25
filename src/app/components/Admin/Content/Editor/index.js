@@ -25,71 +25,13 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
+    useFulfilledObject,
     useHandle,
     useHookComponent,
     useRegisterHandle,
     useSelect,
     Zone,
 } from 'reactium-core/sdk';
-
-/**
- * @api {ReactHook} useFullFilledObject(object,keys) useFullFilledObject()
- * @apiName useFullFilledObject
- * @apiGroup ReactHook
- * @apiDescription Asyncronous React hook that determines if the supplied object has values for the supplied keys. Useful when you have many `useEffect` calls and need to know if multiple pieces of the state are set and ready for rendering.
- * @apiParam {Object} The object to check.
- * @apiParam {Array} Array of object properties to validate.
- * @apiExample Example Usage:
-
-import React, { useEffect, useState } from 'react';
-import { useFullFilledObject } from 'reactium-core/sdk';
-
-const MyComponent = () => {
-    const [someObject, setSomeObject] = { status: null };
-
-    const [updatedObject, ready, attempts] = useFullFilledObject(someObject, ['status']);
-
-    useEffect(() => {
-        if (someObject.status !== 'ready') {
-            setSomeObject({ status: 'ready' });
-        }
-    }, [someObject]);
-
-    const render = () => {
-        if (ready !== true) return null;
-
-        return 'ready!!';
-    }
-
-    return render(); 
-};
- */
-export const useFullFilledObject = (obj, keys = []) => {
-    const count = useRef(0);
-    const [ready, setReady] = useState(false);
-
-    const validate = () =>
-        new Promise(resolve => {
-            const ival = setInterval(() => {
-                count.current += 1;
-                const completed = keys.filter(key => !!op.get(obj, key));
-                if (completed.length !== keys.length) return;
-                clearInterval(ival);
-                resolve(true);
-            }, 1);
-        });
-
-    useAsyncEffect(
-        async mounted => {
-            const results = await validate();
-            if (mounted()) setReady(results);
-            return () => {};
-        },
-        [obj, keys, count.current],
-    );
-
-    return [obj, ready, count.current];
-};
 
 /**
  * -----------------------------------------------------------------------------
@@ -178,11 +120,15 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     );
 
     // get fullfilled handle
-    const [obj, ready, count] = useFullFilledObject(handle, [
+    const [obj, ready, count] = useFulfilledObject(handle, [
         'contentType',
         'type',
         'types',
     ]);
+
+    useEffect(() => {
+        if (ready === true) console.log({ count });
+    }, [count]);
 
     // get content record
     useAsyncEffect(
@@ -227,8 +173,6 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const render = () => {
         if (ready !== true) return null;
-
-        console.log({ value });
 
         const { title } = state;
         const [contentRegions, sidebarRegions] = regions();
