@@ -2,12 +2,12 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
-import slugify from 'slugify';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
+import { slugify } from 'components/Admin/ContentType';
 import { EventForm } from '@atomic-reactor/reactium-ui';
 
 import React, {
@@ -36,18 +36,14 @@ import Reactium, {
  * -----------------------------------------------------------------------------
  */
 
-let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
+let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const { type, group } = useRouteParams();
 
     const [contentType, setContentType] = useState({ regions: [] });
-    const [fieldTypes, setFieldTypes] = useState(
-        Reactium.ContentType.FieldType.list,
-    );
+    const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
+    const [state, setState] = useDerivedState({ title: ENUMS.TEXT.EDITOR });
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
-    const [state, setNewState] = useDerivedState({
-        title: ENUMS.TEXT.EDITOR,
-    });
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
@@ -67,11 +63,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         return [content, sidebar];
     };
 
-    const setState = newState => {
-        setNewState({ ...state, ...newState });
-        return () => {};
-    };
-
+    // Handle
     const _handle = () => ({
         contentType,
         fieldTypes,
@@ -84,15 +76,18 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
+    useImperativeHandle(ref, () => handle);
+    useRegisterHandle('AdminContentEditor', () => handle);
 
     // get content types
     useAsyncEffect(
         async mounted => {
             const results = await getTypes(true);
-            setTypes(results);
+            if (mounted()) setTypes(results);
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true)
+                if (['set', 'del'].includes(op) && mounted() === true) {
                     update(Date.now());
+                }
             });
         },
         [updated],
@@ -114,13 +109,10 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
         setState({ title: newTitle });
     }, [type]);
 
+    // update handle
     useEffect(() => {
         setHandle(_handle());
-    }, [contentType, state, type, types]);
-
-    useImperativeHandle(ref, () => handle);
-
-    useRegisterHandle('AdminContentEditor', () => handle);
+    }, [contentType, fieldTypes, state, type, types]);
 
     const render = () => {
         if (!type || _.isEmpty(fieldTypes)) return null;
@@ -133,7 +125,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                <div className={cname}>
+                <EventForm className={cname}>
                     {contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
@@ -160,7 +152,7 @@ let ContentEditor = ({ className, namespace, zonePrefix, ...props }, ref) => {
                             </div>
                         </div>
                     )}
-                </div>
+                </EventForm>
             </>
         );
     };
@@ -191,23 +183,21 @@ const Region = ({ editor, ...props }) => {
 
 const Element = ({ editor, region, ...props }) => {
     const { cx, fieldTypes } = editor;
-    let { fieldId, fieldName, fieldType } = props;
+    let { fieldName, fieldType } = props;
 
     const cid = op.get(fieldTypes, [fieldType, 'component']);
 
-    if (!cid) return null;
-
-    const Component = useHookComponent(`${cid}-editor`);
+    const Component = cid ? useHookComponent(`${cid}-editor`) : null;
     const [isComponent, setIsComponent] = useState(!!Component);
 
     useEffect(() => {
         setIsComponent(!!Component);
-    }, [isComponent]);
+    }, [Component]);
 
     if (!isComponent) return null;
 
     const title = fieldName;
-    fieldName = slugify(String(fieldName).toLowerCase());
+    fieldName = slugify(fieldName);
     const className = [cx('element'), cx(`element-${fieldName}`)];
     const pref = ['admin.dialog.editor', editor.type, region, fieldName];
 
@@ -230,7 +220,6 @@ ContentEditor = forwardRef(ContentEditor);
 ContentEditor.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,
-    zonePrefix: PropTypes.string,
 };
 
 ContentEditor.defaultProps = {

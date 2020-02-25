@@ -27,10 +27,11 @@ export default () => {
     useAsyncEffect(
         async mounted => {
             const results = await getTypes(true);
-            if (!_.isEqual(results, types)) setTypes(results);
+            if (mounted()) setTypes(results);
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true)
+                if (['set', 'del'].includes(op) && mounted() === true) {
                     update(Date.now());
+                }
             });
         },
         [updated],

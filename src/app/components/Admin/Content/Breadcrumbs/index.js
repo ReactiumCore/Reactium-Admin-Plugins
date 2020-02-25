@@ -20,10 +20,11 @@ export default () => {
         async mounted => {
             if (!visible) return;
             const results = await getTypes(true);
-            setTypes(results);
+            if (mounted()) setTypes(results);
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true)
+                if (['set', 'del'].includes(op) && mounted() === true) {
                     update(Date.now());
+                }
             });
         },
         [updated, visible],

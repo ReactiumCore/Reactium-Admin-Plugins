@@ -1,28 +1,20 @@
 import op from 'object-path';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 class AsyncUpdate {
-    constructor(update) {
-        this._mounted = true;
-        this.update = update;
+    constructor() {
+        this.__mounted = true;
     }
 
     get mounted() {
-        return this._mounted || false;
+        return this.__mounted;
     }
 
-    getMounted = () => op.get(this, 'mounted', false);
+    set mounted(value) {
+        this.__mounted = value;
+    }
 
-    update = (...params) => {
-        if (this._mounted) {
-            this.update(...params);
-        }
-    };
-
-    unmount = () => {
-        this._mounted = false;
-        this.update = () => {};
-    };
+    isMounted = () => this.__mounted;
 }
 
 /**
@@ -63,16 +55,18 @@ const MyComponent = props => {
 import { useAsyncEffect } from '@atomic-reactor/reactium-sdk-core';
  */
 export const useAsyncEffect = (cb, deps) => {
-    const updater = new AsyncUpdate(cb);
+    const updater = new AsyncUpdate();
 
     const doEffect = async () => {
-        return updater.update(updater.mounted);
+        return cb(updater.isMounted);
     };
 
     useEffect(() => {
+        updater.mounted = true;
         const effectPromise = doEffect();
+
         return () => {
-            updater.unmount();
+            updater.mounted = false;
             effectPromise.then(unmountCB => {
                 if (typeof unmountCB === 'function') {
                     unmountCB();

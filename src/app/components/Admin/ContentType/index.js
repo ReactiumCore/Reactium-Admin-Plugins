@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect, memo } from 'react';
 import TypeName from './TypeName';
 import Fields from './Fields';
 import Tools from './Tools';
+
 import Reactium, {
+    __,
+    useAsyncEffect,
     useRegisterHandle,
     useHandle,
     useHookComponent,
-    useAsyncEffect,
-    __,
 } from 'reactium-core/sdk';
 import { WebForm, Icon } from '@atomic-reactor/reactium-ui';
 import cn from 'classnames';
@@ -16,7 +17,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 
-const slugify = name => {
+export const slugify = name => {
     if (!name) return '';
 
     return require('slugify')(name, {
@@ -213,12 +214,14 @@ const ContentType = memo(
         useAsyncEffect(
             async mounted => {
                 const results = await getTypes(true);
-                if (!_.isEqual(results, types)) setTypes(results);
+                if (mounted()) setTypes(results);
+
                 return Reactium.Cache.subscribe(
                     'content-types',
                     async ({ op }) => {
-                        if (['set', 'del'].includes(op) && mounted() === true)
+                        if (['set', 'del'].includes(op) && mounted() === true) {
                             update(Date.now());
+                        }
                     },
                 );
             },
@@ -655,7 +658,7 @@ const ContentType = memo(
         };
 
         const onTypeBeforeSubmit = async ({ value, valid, errors }) => {
-            await Reactium.Hook.run(`content-type-before-submit`, {
+            await Reactium.Hook.run('content-type-before-submit', {
                 value,
                 valid,
                 errors,
@@ -664,7 +667,7 @@ const ContentType = memo(
         };
 
         const onTypeChange = async (e, value) => {
-            await Reactium.Hook.run(`content-type-form-change`, {
+            await Reactium.Hook.run('content-type-form-change', {
                 value,
                 id,
                 handle: getHandle(),
@@ -673,7 +676,7 @@ const ContentType = memo(
         };
 
         const onTypeUpdate = async ({ value, elements }) => {
-            await Reactium.Hook.run(`content-type-form-update`, {
+            await Reactium.Hook.run('content-type-form-update', {
                 value,
                 elements,
                 handle: getHandle(),

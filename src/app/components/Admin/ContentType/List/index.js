@@ -81,9 +81,12 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
         async mounted => {
             if (types.length > 0) return;
             const results = await getTypes(true);
-            setTypes(results);
-            if (['set', 'del'].includes(op) && mounted() === true)
-                update(Date.now());
+            if (mounted()) setTypes(results);
+            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+                if (['set', 'del'].includes(op) && mounted() === true) {
+                    update(Date.now());
+                }
+            });
         },
         [types],
     );
