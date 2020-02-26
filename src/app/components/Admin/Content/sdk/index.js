@@ -560,6 +560,7 @@ Content.changelog = async (contentId, options = {}, handle) => {
  * @apiParam {String} [contentId] the objectId of the content, by default all changes for
 all content will be subscribed. Promise resolves to unsubscribe callback.
  * @apiParam {Array} [advancedQuery] list of query operations and parameters
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (advancedQueryItem) {String} operation method of Parse.Query to include in query. e.g. 'equalTo'
  * @apiParam (advancedQueryItem) {Array} params parameters passed to Parse.Query operation. e.g. ['collection', 'Content_article']
  * @apiName Content.changelogSubscribe
@@ -594,7 +595,7 @@ Reactium.Hook.register('changelog-created', async logEntry => {
         alert(`Article ${logEntry.contentId} deleted!`);
 });
  */
-Content.changelogSubscribe = async (contentId, advancedQuery = []) => {
+Content.changelogSubscribe = async (contentId, advancedQuery = [], handle) => {
     const qry = new Parse.Query('Changelog');
     if (contentId) qry.equalTo('contentId', contentId);
 
@@ -611,32 +612,52 @@ Content.changelogSubscribe = async (contentId, advancedQuery = []) => {
 
     subscription.on('create', logEntry => {
         const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-created', logObj);
-        Reactium.Hook.run(`changelog-created-${logEntry.contentId}`, logObj);
+        Reactium.Hook.run('changelog-created', logObj, handle);
+        Reactium.Hook.run(
+            `changelog-created-${logEntry.contentId}`,
+            logObj,
+            handle,
+        );
     });
 
     subscription.on('update', logEntry => {
         const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-updated', logObj);
-        Reactium.Hook.run(`changelog-updated-${logEntry.contentId}`, logObj);
+        Reactium.Hook.run('changelog-updated', logObj, handle);
+        Reactium.Hook.run(
+            `changelog-updated-${logEntry.contentId}`,
+            logObj,
+            handle,
+        );
     });
 
     subscription.on('enter', logEntry => {
         const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-entered', logObj);
-        Reactium.Hook.run(`changelog-entered-${logEntry.contentId}`, logObj);
+        Reactium.Hook.run('changelog-entered', logObj, handle);
+        Reactium.Hook.run(
+            `changelog-entered-${logEntry.contentId}`,
+            logObj,
+            handle,
+        );
     });
 
     subscription.on('leave', logEntry => {
         const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-left', logObj);
-        Reactium.Hook.run(`changelog-left-${logEntry.contentId}`, logObj);
+        Reactium.Hook.run('changelog-left', logObj, handle);
+        Reactium.Hook.run(
+            `changelog-left-${logEntry.contentId}`,
+            logObj,
+            handle,
+        );
     });
 
     subscription.on('delete', logEntry => {
         const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-deleted', logObj);
-        Reactium.Hook.run(`changelog-deleted-${logEntry.contentId}`, logObj);
+        Reactium.Hook.run('changelog-deleted', logObj, handle);
+        Reactium.Hook.run(
+            `changelog-deleted-${logEntry.contentId}`,
+            logObj,
+            handle,
+        );
     });
 
     // auto-unsubscribe on logout
