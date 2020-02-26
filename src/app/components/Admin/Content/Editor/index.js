@@ -62,6 +62,8 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const getContent = () => {
         console.log({ slug });
+        if (isNew()) return Promise.resolve({});
+
         return Promise.resolve({ test: 'fubar', blah: 'hahaha' });
     };
 
