@@ -61,12 +61,15 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const cname = cn({ [cx()]: true, [className]: !!className });
 
     const getContent = () => {
+        console.log({ slug });
         return Promise.resolve({ test: 'fubar', blah: 'hahaha' });
     };
 
     const getContentType = () => _.findWhere(types, { type });
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
+
+    const isNew = () => String(slug).toLowerCase() === 'new';
 
     const properCase = useProperCase();
 
@@ -90,15 +93,6 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             op.set(value, 'slug', 'testing-1-2-3');
             op.set(value, 'type', contentType);
             op.set(value, 'permission', { permission: 'read', type: 'public' });
-
-            // setTimeout(() => {
-            //     try {
-            //         _onSuccess(null, value, resolve);
-            //     }
-            //     catch (err) {
-            //         _onFail(e, err, reject);
-            //     }
-            // }, 2000);
 
             Reactium.Content.save(value)
                 .then(async result => {
@@ -181,6 +175,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         'contentType',
         'type',
         'types',
+        'value',
     ]);
 
     // get content record
