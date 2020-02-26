@@ -81,7 +81,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const _onError = e => {};
 
     const _onSubmit = e => {
-        console.log(e);
+        //console.log(e);
     };
 
     const _onValidate = e => {
