@@ -32,7 +32,7 @@ const ENUMS = {
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
-class FormEvent extends CustomEvent {
+export class FormEvent extends CustomEvent {
     constructor(type, data) {
         super(type, data);
 
@@ -108,7 +108,7 @@ let EventForm = (initialProps, ref) => {
         ...props
     } = initialProps;
 
-    const [state, setState] = useDerivedState({
+    const [state, update] = useDerivedState({
         errors: null,
         status: ENUMS.STATUS.READY,
     });
@@ -118,6 +118,7 @@ let EventForm = (initialProps, ref) => {
 
     /* Functions */
     const applyValue = newValue => {
+        if (!formRef.current) return;
         if (controlled === true || typeof newValue === 'undefined') return;
 
         const value = newValue;
@@ -175,6 +176,11 @@ let EventForm = (initialProps, ref) => {
         });
     };
 
+    const setState = newState => {
+        if (!formRef.current) return;
+        newState = { ...state, ...newState };
+        update(newState);
+    };
     // className prefixer
     const cx = cls =>
         _.chain([className || namespace, cls])
@@ -184,6 +190,8 @@ let EventForm = (initialProps, ref) => {
             .join('-');
 
     const dispatchChange = ({ value: newValue, event = {} }) => {
+        if (!formRef.current) return;
+
         newValue = newValue || getValue();
 
         if (controlled !== true) {
@@ -201,15 +209,17 @@ let EventForm = (initialProps, ref) => {
     };
 
     const focus = name => {
+        if (!formRef.current) return;
+
         const elements = getElements();
         const element = op.get(elements, name);
         if (element) element.focus();
     };
 
     const getElements = () => {
-        const form = formRef.current;
-        if (!form) return {};
+        if (!formRef.current) return {};
 
+        const form = formRef.current;
         const elements = form.elements;
         const ids = Object.keys(elements).filter(key => !isNaN(key));
 
@@ -235,6 +245,8 @@ let EventForm = (initialProps, ref) => {
     };
 
     const getValue = k => {
+        if (!formRef.current) return {};
+
         const form = formRef.current;
         const elements = getElements(form);
         const keys = Object.keys(elements);
@@ -262,10 +274,14 @@ let EventForm = (initialProps, ref) => {
         }
     };
 
-    const setValue = newValue =>
+    const setValue = newValue => {
+        if (!formRef.current) return;
         dispatchChange({ value: newValue, event: formRef.current });
+    };
 
     const validate = async value => {
+        if (!formRef.current) return;
+
         value = value || getValue();
 
         let valid = true;
@@ -309,11 +325,14 @@ let EventForm = (initialProps, ref) => {
 
     /* Event handlers */
     const _onChange = e => {
+        if (!formRef.current) return;
         e.stopPropagation();
         dispatchChange({ event: e });
     };
 
     const _onSubmit = async e => {
+        if (!formRef.current) return;
+
         if (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -338,7 +357,11 @@ let EventForm = (initialProps, ref) => {
             });
 
             handle.dispatchEvent(evt);
-            onError(evt);
+            try {
+                await onError(evt);
+            } catch (err) {}
+
+            setState({ status: ENUMS.STATUS.READY });
             return;
         }
 
@@ -353,7 +376,9 @@ let EventForm = (initialProps, ref) => {
         handle.dispatchEvent(evt);
 
         if (typeof onSubmit === 'function') {
-            await onSubmit(evt);
+            try {
+                await onSubmit(evt);
+            } catch (err) {}
         }
 
         setState({ status: ENUMS.STATUS.READY });
@@ -390,6 +415,7 @@ let EventForm = (initialProps, ref) => {
 
     // Update handle on change
     useEffect(() => {
+        if (!formRef.current) return;
         setHandle(_handle());
     }, [value, op.get(state, 'errors'), formRef.current]);
 
@@ -401,6 +427,7 @@ let EventForm = (initialProps, ref) => {
 
     // status
     useEffect(() => {
+        if (!formRef.current) return;
         handle.dispatchEvent(
             new FormEvent('status', {
                 detail: op.get(state, 'status'),
@@ -455,6 +482,8 @@ let EventForm = (initialProps, ref) => {
 EventForm = forwardRef(EventForm);
 
 EventForm.ENUMS = ENUMS;
+
+EventForm.Event = FormEvent;
 
 EventForm.propTypes = {
     className: PropTypes.string,

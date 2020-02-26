@@ -42,6 +42,10 @@ import Reactium, {
 let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const formRef = useRef();
 
+    const tools = useHandle('AdminTools');
+
+    const Toast = op.get(tools, 'Toast');
+
     const { path, type, slug } = useRouteParams(['type', 'slug']);
 
     const [contentType, setContentType] = useState();
@@ -80,8 +84,61 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const _onError = e => {};
 
-    const _onSubmit = e => {
-        //console.log(e);
+    const _onSubmit = e =>
+        new Promise((resolve, reject) => {
+            const { value } = e;
+            op.set(value, 'slug', 'testing-1-2-3');
+            op.set(value, 'type', contentType);
+            op.set(value, 'permission', { permission: 'read', type: 'public' });
+
+            // setTimeout(() => {
+            //     try {
+            //         _onSuccess(null, value, resolve);
+            //     }
+            //     catch (err) {
+            //         _onFail(e, err, reject);
+            //     }
+            // }, 2000);
+
+            Reactium.Content.save(value)
+                .then(async result => {
+                    if (!formRef.current) return;
+                    await _onSuccess(e, result, resolve);
+                })
+                .catch(async error => {
+                    if (!formRef.current) return;
+                    await _onFail(e, error, reject);
+                });
+        });
+
+    const _onSuccess = (e, result, next) => {
+        console.log('success!', result);
+
+        const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
+
+        Toast.show({
+            icon: 'Feather.Check',
+            message,
+            type: Toast.TYPE.INFO,
+        });
+
+        // slow down bro!
+        setTimeout(() => next(), 500);
+    };
+
+    const _onFail = (e, error, next) => {
+        console.log('error:', error);
+
+        const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
+
+        Toast.show({
+            icon: 'Feather.AlertOctagon',
+            message,
+            type: Toast.TYPE.ERROR,
+        });
+
+        // what's the big hurry eh?
+        setTimeout(() => next(), 500);
     };
 
     const _onValidate = e => {
@@ -125,10 +182,6 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         'type',
         'types',
     ]);
-
-    useEffect(() => {
-        if (ready === true) console.log({ count });
-    }, [count]);
 
     // get content record
     useAsyncEffect(

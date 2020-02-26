@@ -7,6 +7,8 @@ const ENUMS = {
         NEW: __('New'),
         SAVE: __('Save %type'),
         SAVING: __('Saving %type...'),
+        SAVED: __('Saved %type!'),
+        SAVE_ERROR: __('Unable to save %type'),
     },
 };
 

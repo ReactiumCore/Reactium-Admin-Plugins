@@ -1,8 +1,8 @@
 import op from 'object-path';
-import React, { useCallback, useEffect, useState } from 'react';
 import ENUMS from 'components/Admin/Content/enums';
 import useRouteParams from '../_utils/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
     useAsyncEffect,
@@ -30,11 +30,11 @@ const SaveButton = ({ Editor, type }) => {
     const [status, setStatus] = useState();
     const [updatedEditor, ready] = useFulfilledObject(Editor, ['EventForm']);
 
-    const isBusy = useCallback(() =>
+    const isBusy = useCallback(stat =>
         [
             Editor.EventForm.ENUMS.STATUS.SUBMITTING,
             Editor.EventForm.ENUMS.STATUS.VALIDATING,
-        ].includes(status),
+        ].includes(stat),
     );
 
     const onStatus = e => {
@@ -51,7 +51,7 @@ const SaveButton = ({ Editor, type }) => {
     }, [ready]);
 
     const render = () => {
-        const busy = isBusy();
+        const busy = isBusy(status);
         const label = busy ? ENUMS.TEXT.SAVING : ENUMS.TEXT.SAVE;
         const icon = busy ? 'Feather.UploadCloud' : 'Feather.Check';
         return (
