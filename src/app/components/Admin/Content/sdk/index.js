@@ -1,6 +1,23 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
+import Parse from 'appdir/api';
+
+const serialize = data => {
+    if (!data || typeof data.toJSON === 'undefined') return data;
+
+    const obj = data.toJSON();
+    Object.entries(obj).forEach(([key, value]) => {
+        if (value && typeof value.toJSON !== 'undefined') {
+            obj[key] = value.toJSON();
+        }
+
+        // strip pointers
+        if (op.has(obj, [key, '__type'])) op.del(obj, [key, '__type']);
+    });
+
+    return obj;
+};
 
 const setType = typeParam => {
     const type = {};
@@ -534,7 +551,102 @@ Content.changelog = async (contentId, options = {}, handle) => {
 };
 
 /**
- * @api {Asynchronous} Content.list(params,handle) Content.list()
+
+ * @api {Async} Content.changelogSubscribe(contentId,advancedQuery) Content.changelogSubscribe()
+ * @apiDescription Subscribe to content changelog.
+ * @apiParam {String} [contentId] the objectId of the content, by default all changes for
+all content will be subscribed. Promise resolves to unsubscribe callback.
+ * @apiParam {Array} [advancedQuery] list of query operations and parameters
+ * @apiParam (advancedQueryItem) {String} operation method of Parse.Query to include in query. e.g. 'equalTo'
+ * @apiParam (advancedQueryItem) {Array} params parameters passed to Parse.Query operation. e.g. ['collection', 'Content_article']
+ * @apiName Content.changelogSubscribe
+ * @apiGroup Reactium.Content
+ * @apiExample Simple Usage:
+import Reactium from 'reactium-core/sdk';
+
+// simple subscription to content with objectId 'zJkUz6dD49'
+Reactium.Content.changelogSubscribe('zJkUz6dD49').then(unsubscribe => {
+    setTimeout(unsubscribe, 10 * 60 * 1000); // unsubscribe in 10 minutes
+});
+
+// listen for this content to be deleted
+Reactium.Hook.register('changelog-created-zJkUz6dD49', async logEntry => {
+    if (logEntry.changeType === 'TRASH') alert(`${logEntry.contentId} in ${logEntry.collection} deleted!`);
+});
+* @apiExample Advanced Usage:
+import Reactium from 'reactium-core/sdk';
+
+// subscribe to any article changes
+Reactium.Content.changelogSubscribe(null, [{
+    operation: 'equalTo',
+    params: ['collection', 'Content_article']
+}])
+.then(unsubscribe => {
+   setTimeout(unsubscribe, 10 * 60 * 1000); // unsubscribe in 10 minutes
+});
+
+// listen for deletion of any article
+Reactium.Hook.register('changelog-created', async logEntry => {
+    if (logEntry.collection === 'Content_article' && logEntry.changeType === 'TRASH')
+        alert(`Article ${logEntry.contentId} deleted!`);
+});
+ */
+Content.changelogSubscribe = async (contentId, advancedQuery = []) => {
+    const qry = new Parse.Query('Changelog');
+    if (contentId) qry.equalTo('contentId', contentId);
+
+    // allow special queries
+    if (advancedQuery.length) {
+        advancedQuery.forEach(({ operator, params }) => {
+            if (operator in qry) {
+                qry[operator](...params);
+            }
+        });
+    }
+
+    const subscription = await qry.subscribe();
+
+    subscription.on('create', logEntry => {
+        const logObj = serialize(logEntry);
+        Reactium.Hook.run('changelog-created', logObj);
+        Reactium.Hook.run(`changelog-created-${logEntry.contentId}`, logObj);
+    });
+
+    subscription.on('update', logEntry => {
+        const logObj = serialize(logEntry);
+        Reactium.Hook.run('changelog-updated', logObj);
+        Reactium.Hook.run(`changelog-updated-${logEntry.contentId}`, logObj);
+    });
+
+    subscription.on('enter', logEntry => {
+        const logObj = serialize(logEntry);
+        Reactium.Hook.run('changelog-entered', logObj);
+        Reactium.Hook.run(`changelog-entered-${logEntry.contentId}`, logObj);
+    });
+
+    subscription.on('leave', logEntry => {
+        const logObj = serialize(logEntry);
+        Reactium.Hook.run('changelog-left', logObj);
+        Reactium.Hook.run(`changelog-left-${logEntry.contentId}`, logObj);
+    });
+
+    subscription.on('delete', logEntry => {
+        const logObj = serialize(logEntry);
+        Reactium.Hook.run('changelog-deleted', logObj);
+        Reactium.Hook.run(`changelog-deleted-${logEntry.contentId}`, logObj);
+    });
+
+    // auto-unsubscribe on logout
+    const logoutId = Reactium.Hook.register('user.before.logout', async () => {
+        subscription.unsubscribe();
+    });
+    subscription.on('close', () => Reactium.Hook.unregister(logoutId));
+
+    return subscription.unsubscribe;
+};
+
+/**
+ * @api {Asynchronous} Content.list(params) Content.list()
  * @apiDescription Get list of content of a specific Type.
  * @apiParam {Object} params See below
  * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
