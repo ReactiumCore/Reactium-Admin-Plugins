@@ -68,6 +68,13 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 
+    const dispatch = (event, detail) => {
+        if (unMounted()) return;
+        const evt = new CustomEvent(event, { detail });
+        handle.dispatchEvent(evt);
+        return Reactium.Hook.run(event, detail, handle);
+    };
+
     const getContent = () => {
         if (isNew()) return Promise.resolve({});
         return Reactium.Content.retrieve({
@@ -110,7 +117,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const save = async (mergeValue = {}) => {
         const newValue = { ...value, ...mergeValue };
 
-        await Reactium.Hook.run('before-content-saved', newValue, handle);
+        await dispatch('before-content-saved', newValue);
 
         if (!op.get(newValue, 'slug')) {
             op.set(newValue, 'slug', `${type}-${uuid()}`);
@@ -119,24 +126,27 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             op.set(newValue, 'type', contentType);
         }
 
-        await Reactium.Hook.run('content-save', newValue, handle);
+        await dispatch('content-save', newValue);
 
-        return Reactium.Content.save(newValue);
+        return Reactium.Content.save(newValue, null, handle);
     };
 
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
         const newValue = { ...value, ...e.value };
-        await Reactium.Hook.run('content-change', newValue, handle);
+        await dispatch('content-change', newValue);
         setNewValue(newValue, true);
     };
 
-    const _onError = e => {};
+    const _onError = async e => {
+        await dispatch('content-save-error', e);
+        if (isMounted()) setError(e);
+    };
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            await Reactium.Hook.run('content-submit', result, handle);
+            await dispatch('content-submit', e);
             save()
                 .then(async result => {
                     if (unMounted()) return;
@@ -149,7 +159,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         });
 
     const _onSuccess = async (e, result, next) => {
-        await Reactium.Hook.run('content-save-success', result, handle);
+        await dispatch('content-save-success', result);
 
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
@@ -167,14 +177,12 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             return;
         } else {
             setValue(result);
+            next();
         }
-
-        // slow down bro!
-        setTimeout(() => next(), 250);
     };
 
     const _onFail = async (e, error, next) => {
-        await Reactium.Hook.run('content-save-fail', error, handle);
+        await dispatch('content-save-fail', error);
 
         const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
 
@@ -184,13 +192,12 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             type: Toast.TYPE.ERROR,
         });
 
+        if (isMounted()) setError(error);
         next();
-
-        if (unMounted()) return;
-        // setError(error);
     };
 
-    const _onValidate = e => {
+    const _onValidate = async e => {
+        await dispatch('content-validate', e);
         return e;
     };
 
@@ -199,6 +206,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         EventForm: formRef.current,
         contentType,
         cx,
+        dispatch,
         fieldTypes,
         isMounted,
         regions,

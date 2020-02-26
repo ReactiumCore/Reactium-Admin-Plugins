@@ -301,6 +301,7 @@ let EventForm = (initialProps, ref) => {
             errors.focus = errors.fields.length > 0 ? errors.fields[0] : null;
         }
 
+        // validator should return Object: { valid:Boolean, errors:Array }
         if (validator) {
             const validatorResult = await validator({
                 value,
