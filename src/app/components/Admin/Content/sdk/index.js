@@ -61,11 +61,12 @@ Content.ACLToReadWrite = async ACL => {
 };
 
 /**
- * @api {Asynchronous} Content.save(content,permissions) Content.save()
+ * @api {Asynchronous} Content.save(content,permissions,handle) Content.save()
  * @apiDescription Create/Update content of a defined Type.
  * @apiParam {Object} content The content to create or update. Requires type and slug, but
  can contain any properties defined by content type editor.
  * @apiParam {Array} [permissions] (new content only) List of permission objects. After creation, use `Content.setPermissions()`
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (content) {Mixed} type Type object, or type machineName
  * @apiParam (content) {String} slug The unique slug for the new content.
  * @apiParam (type) {String} [objectId] Parse objectId of content type
@@ -79,7 +80,7 @@ Content.ACLToReadWrite = async ACL => {
  * @apiName Content.save
  * @apiGroup Reactium.Content
  */
-Content.save = async (content = {}, permissions = []) => {
+Content.save = async (content = {}, permissions = [], handle) => {
     const request = {
         ...content,
     };
@@ -94,14 +95,15 @@ Content.save = async (content = {}, permissions = []) => {
 
     const contentObj = await Reactium.Cloud.run(saveFunction, request);
 
-    await Reactium.Hook.run('content-saved', contentObj);
+    await Reactium.Hook.run('content-saved', contentObj, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.retrieve(params) Content.retrieve()
+ * @api {Asynchronous} Content.retrieve(params,handle) Content.retrieve()
  * @apiDescription Retrieve one item of content.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {Boolean} [current=false] When true, get the currently committed content (not from revision system).
  otherwise, construct the content from the provided history (branch and revision index).
@@ -118,20 +120,21 @@ Content.save = async (content = {}, permissions = []) => {
  * @apiName Content.retrieve
  * @apiGroup Reactium.Content
  */
-Content.retrieve = async params => {
+Content.retrieve = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-retrieve', request);
 
-    await Reactium.Hook.run('content-retrieved', contentObj, request);
+    await Reactium.Hook.run('content-retrieved', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.setCurrent(params) Content.setCurrent()
+ * @api {Asynchronous} Content.setCurrent(params,handle) Content.setCurrent()
  * @apiDescription Take content from a specified branch or revision,
  and make it the "official" version of the content. If no `history` is param is
  specified the latest master branch revision will be used.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -145,19 +148,20 @@ Content.retrieve = async params => {
  * @apiName Content.setCurrent
  * @apiGroup Reactium.Content
  */
-Content.setCurrent = async params => {
+Content.setCurrent = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-set-current', request);
 
-    await Reactium.Hook.run('content-current-set', contentObj, request);
+    await Reactium.Hook.run('content-current-set', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.delete(params) Content.delete()
+ * @api {Asynchronous} Content.delete(params,handle) Content.delete()
  * @apiDescription Delete content of a defined Type. To identify the content, you must provided
 the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -168,11 +172,11 @@ the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.
  * @apiName Content.delete
  * @apiGroup Reactium.Content
  */
-Content.delete = async params => {
+Content.delete = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const recycled = await Reactium.Cloud.run('content-delete', request);
 
-    await Reactium.Hook.run('content-deleted', recycled, request);
+    await Reactium.Hook.run('content-deleted', recycled, request, handle);
     return recycled;
 };
 
@@ -182,6 +186,7 @@ Content.delete = async params => {
  To identify the content, you must provided the `type` object, and `objectId` of
  the content. Restores main record for content as well as any revisions.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} objectId The Parse object id of the deleted content.
  * @apiParam (type) {String} [objectId] Parse objectId of content type
@@ -190,18 +195,19 @@ Content.delete = async params => {
  * @apiName Content.restore
  * @apiGroup Reactium.Content
  */
-Content.restore = async params => {
+Content.restore = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-restore', request);
 
-    await Reactium.Hook.run('content-restored', contentObj, request);
+    await Reactium.Hook.run('content-restored', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.publish(params) Content.publish()
+ * @api {Asynchronous} Content.publish(params,handle) Content.publish()
  * @apiDescription Set revision to current version and publish content.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -215,19 +221,20 @@ Content.restore = async params => {
  * @apiName Content.publish
  * @apiGroup Reactium.Content
  */
-Content.publish = async params => {
+Content.publish = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-publish', request);
 
-    await Reactium.Hook.run('content-published', contentObj, request);
+    await Reactium.Hook.run('content-published', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.setStatus(params) Content.setStatus()
+ * @api {Asynchronous} Content.setStatus(params,handle) Content.setStatus()
  * @apiDescription Set revision to current version and set the status of the content. Only used to change
 status of non-published content.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -242,18 +249,19 @@ status of non-published content.
  * @apiName Content.setStatus
  * @apiGroup Reactium.Content
  */
-Content.setStatus = async params => {
+Content.setStatus = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-set-status', request);
 
-    await Reactium.Hook.run('content-status-set', contentObj, request);
+    await Reactium.Hook.run('content-status-set', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.unpublish(params) Content.unpublish()
+ * @api {Asynchronous} Content.unpublish(params,handle) Content.unpublish()
  * @apiDescription Unpublish current version of content, and set status to `DRAFT`
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -264,19 +272,20 @@ Content.setStatus = async params => {
  * @apiName Content.unpublish
  * @apiGroup Reactium.Content
  */
-Content.unpublish = async params => {
+Content.unpublish = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-unpublish', request);
 
-    await Reactium.Hook.run('content-unpublished', contentObj, request);
+    await Reactium.Hook.run('content-unpublished', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.setPermissions(content,permissions) Content.setPermissions()
+ * @api {Asynchronous} Content.setPermissions(content,permissions,handle) Content.setPermissions()
  * @apiDescription Set permissions to be used for Access Control List on existing content.
  * @apiParam {Object} content The content to create or update. Requires type and content objectId minimum.
  * @apiParam {Array} [permissions] (new content only) List of permission objects. After creation, use `Content.setPermissions()`
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (content) {Mixed} type Type object, or type machineName
  * @apiParam (content) {String} [objectId] The Parse objectId of the content.
  * @apiParam (content) {String} [slug] The unique slug of the content.
@@ -303,16 +312,17 @@ Content.setPermissions = async (content = {}, permissions = []) => {
     const { canRead = [], canWrite = [] } = await Content.ACLToReadWrite(ACL);
     const response = { ...content, ACL, canRead, canWrite };
 
-    await Reactium.Hook.run('content-permissions-set', response);
+    await Reactium.Hook.run('content-permissions-set', response, handle);
     return response;
 };
 
 /**
- * @api {Asynchronous} Content.schedule(params) Content.schedule()
+ * @api {Asynchronous} Content.schedule(params,handle) Content.schedule()
  * @apiDescription Schedule the publishing / unpublishing of content. If `history` is provided, that revision will be
  made current and published on optional `sunrise`. On optional `sunset`, the current version of the content will be unpublished.
  The requesting user must have publish and unpublish capabilities.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {String} [slug] The unique slug for the content.
  * @apiParam (params) {String} [objectId] The Parse object id of the content.
@@ -358,16 +368,16 @@ Reactium.Content.schedule({
         .format(),
 });
  */
-Content.schedule = async params => {
+Content.schedule = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-schedule', request);
 
-    await Reactium.Hook.run('content-scheduled', contentObj, request);
+    await Reactium.Hook.run('content-scheduled', contentObj, request, handle);
     return contentObj;
 };
 
 /**
- * @api {Asynchronous} Content.changelog(objectId,options) Content.changelog()
+ * @api {Asynchronous} Content.changelog(objectId,options,handle) Content.changelog()
  * @apiDescription Get changelog for content item.
  Some of the built-in changes that are tracked:
  - CREATED: meta.history to get starting branch and revision index
@@ -384,6 +394,7 @@ Content.schedule = async params => {
  - RESTORE
  * @apiParam {String} contentId Parse objectId of content.
  * @apiParam {Object} [options] options to request changelog
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (options) {String} [direction=descending] Order "descending" or "ascending"
  * @apiParam (options) {Number} [limit=1000] Limit page results
  * @apiParam (options) {Number} [page=1] Page number
@@ -514,17 +525,19 @@ Reactium.Content.changelog('zJkUz6dD49').then(data => {
   // }
 })
  */
-Content.changelog = async (contentId, options = {}) => {
+Content.changelog = async (contentId, options = {}, handle) => {
     return Reactium.Cloud.run('changelog', {
         contentId,
         ...options,
+        handle,
     });
 };
 
 /**
- * @api {Asynchronous} Content.list(params) Content.list()
+ * @api {Asynchronous} Content.list(params,handle) Content.list()
  * @apiDescription Get list of content of a specific Type.
  * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (params) {Mixed} type Type object, or type machineName
  * @apiParam (params) {Boolean} [refresh=false] skip cache check when true
  * @apiParam (params) {Boolean} [optimize=false] if optimize is true, and collection contains
@@ -551,11 +564,11 @@ Reactium.Content.list({
     "status": "DRAFT"
 });
  */
-Content.list = async params => {
+Content.list = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-list', request);
 
-    await Reactium.Hook.run('content-list', contentObj, request);
+    await Reactium.Hook.run('content-list', contentObj, request, handle);
     return contentObj;
 };
 

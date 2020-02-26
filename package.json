@@ -17,7 +17,8 @@
     "docker": "npm-run-all -s clean docker:*",
     "docker:build": "cross-env docker image build -t $npm_package_name:$npm_package_version -t $npm_package_name:latest .",
     "docker:push": "cross-env docker push $npm_package_name:$npm_package_version && cross-env docker push $npm_package_name:$npm_package_version:latest",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "docs": "gulp apidocs"
   },
   "keywords": [
     "react",

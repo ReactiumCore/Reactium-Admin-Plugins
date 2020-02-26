@@ -49,29 +49,51 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const { path, type, slug } = useRouteParams(['type', 'slug']);
 
     const [contentType, setContentType] = useState();
+    const [error, setError] = useState();
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState({ title: ENUMS.TEXT.EDITOR });
     const [types, setTypes] = useState();
     const [updated, update] = useState();
-    const [value, setValue] = useState();
+    const [value, setNewValue] = useState();
+
+    // Alias setValue to prevent memory leak
+    const setValue = (newValue = {}, checkReady = false) => {
+        if (unMounted(checkReady)) return;
+        newValue = { ...value, ...newValue };
+        setNewValue(newValue);
+    };
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 
     const getContent = () => {
-        console.log({ slug });
         if (isNew()) return Promise.resolve({});
-
-        return Promise.resolve({ test: 'fubar', blah: 'hahaha' });
+        return Reactium.Content.retrieve({
+            type: contentType,
+            slug,
+        });
     };
 
     const getContentType = () => _.findWhere(types, { type });
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
-    const isNew = () => String(slug).toLowerCase() === 'new';
+    const unMounted = (checkReady = false) => {
+        if (checkReady === true && !ready) return true;
+        return !formRef.current;
+    };
+
+    const isMounted = (checkReady = false) => {
+        if (unMounted(checkReady)) return false;
+        return true;
+    };
+
+    const isNew = () => {
+        const val = String(slug).toLowerCase() === 'new' ? true : null;
+        return val === true ? true : null;
+    };
 
     const properCase = useProperCase();
 
@@ -85,30 +107,49 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         return [content, sidebar];
     };
 
+    const save = async (mergeValue = {}) => {
+        const newValue = { ...value, ...mergeValue };
+
+        await Reactium.Hook.run('before-content-saved', newValue, handle);
+
+        if (!op.get(newValue, 'slug')) {
+            op.set(newValue, 'slug', `${type}-${uuid()}`);
+        }
+        if (!op.get(newValue, 'type')) {
+            op.set(newValue, 'type', contentType);
+        }
+
+        await Reactium.Hook.run('content-save', newValue, handle);
+
+        return Reactium.Content.save(newValue);
+    };
+
     const submit = () => formRef.current.submit();
+
+    const _onChange = async e => {
+        const newValue = { ...value, ...e.value };
+        await Reactium.Hook.run('content-change', newValue, handle);
+        setNewValue(newValue, true);
+    };
 
     const _onError = e => {};
 
-    const _onSubmit = e =>
-        new Promise((resolve, reject) => {
-            const { value } = e;
-            op.set(value, 'slug', 'testing-1-2-3');
-            op.set(value, 'type', contentType);
-            op.set(value, 'permission', { permission: 'read', type: 'public' });
-
-            Reactium.Content.save(value)
+    const _onSubmit = async e =>
+        new Promise(async (resolve, reject) => {
+            await Reactium.Hook.run('content-submit', result, handle);
+            save()
                 .then(async result => {
-                    if (!formRef.current) return;
+                    if (unMounted()) return;
                     await _onSuccess(e, result, resolve);
                 })
                 .catch(async error => {
-                    if (!formRef.current) return;
+                    if (unMounted()) return;
                     await _onFail(e, error, reject);
                 });
         });
 
-    const _onSuccess = (e, result, next) => {
-        console.log('success!', result);
+    const _onSuccess = async (e, result, next) => {
+        await Reactium.Hook.run('content-save-success', result, handle);
 
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
@@ -118,12 +159,22 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             type: Toast.TYPE.INFO,
         });
 
+        if (unMounted()) return;
+
+        if (isNew()) {
+            const newSlug = result.slug;
+            Reactium.Routing.history.push(`/admin/content/${type}/${newSlug}`);
+            return;
+        } else {
+            setValue(result);
+        }
+
         // slow down bro!
-        setTimeout(() => next(), 500);
+        setTimeout(() => next(), 250);
     };
 
-    const _onFail = (e, error, next) => {
-        console.log('error:', error);
+    const _onFail = async (e, error, next) => {
+        await Reactium.Hook.run('content-save-fail', error, handle);
 
         const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
 
@@ -133,8 +184,10 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             type: Toast.TYPE.ERROR,
         });
 
-        // what's the big hurry eh?
-        setTimeout(() => next(), 500);
+        next();
+
+        if (unMounted()) return;
+        // setError(error);
     };
 
     const _onValidate = e => {
@@ -147,13 +200,16 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         contentType,
         cx,
         fieldTypes,
+        isMounted,
         regions,
+        save,
         state,
         setState,
         setValue,
         submit,
         type,
         types,
+        unMounted,
         value,
     });
 
@@ -177,25 +233,15 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         'contentType',
         'type',
         'types',
-        'value',
     ]);
 
-    // get content record
-    useAsyncEffect(
-        async mounted => {
-            if (!contentType || !slug || !type) return () => {};
-
-            // if (slug === 'new' && mounted() === true) {
-            //     setValue({});
-            //     return () => {};
-            // }
-
-            const results = await getContent();
-            if (mounted()) setValue(results);
-            return () => {};
-        },
-        [contentType, slug, type],
-    );
+    useEffect(() => {
+        if (!formRef.current || !slug || value) return;
+        getContent().then(result => {
+            if (unMounted()) return;
+            setValue(result);
+        });
+    });
 
     // set content type
     useEffect(() => {
@@ -223,7 +269,6 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const render = () => {
         if (ready !== true) return null;
-
         const { title } = state;
         const [contentRegions, sidebarRegions] = regions();
 
@@ -235,11 +280,12 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
                 <EventForm
                     className={cname}
                     ref={formRef}
+                    onChange={_onChange}
                     onError={_onError}
                     onSubmit={_onSubmit}
                     validator={_onValidate}
                     value={value}>
-                    {contentRegions.length > 0 && (
+                    {value && contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
                                 {contentRegions.map(item => (
@@ -252,7 +298,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
                             </div>
                         </div>
                     )}
-                    {sidebarRegions.length > 0 && (
+                    {value && sidebarRegions.length > 0 && (
                         <div className={cx('meta')}>
                             <div className={cx('regions')}>
                                 {sidebarRegions.map(item => (
