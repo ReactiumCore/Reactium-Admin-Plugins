@@ -543,11 +543,14 @@ Reactium.Content.changelog('zJkUz6dD49').then(data => {
 })
  */
 Content.changelog = async (contentId, options = {}, handle) => {
-    return Reactium.Cloud.run('changelog', {
+    let results = await Reactium.Cloud.run('changelog', {
         contentId,
         ...options,
-        handle,
     });
+
+    await Reactium.Hook.run('changelog-retrieve', results, handle);
+
+    return Promise.resolve(results);
 };
 
 /**
