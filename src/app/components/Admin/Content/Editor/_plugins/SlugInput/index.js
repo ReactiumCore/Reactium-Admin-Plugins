@@ -44,7 +44,6 @@ export default props => {
 
     const genSlug = e => {
         if (!autoGen || !slugRef.current) return;
-
         const { value } = e.target;
         slugRef.current.value = slugify(value);
     };
