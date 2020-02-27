@@ -1,6 +1,7 @@
 $width-ace-sidebar: 420px;
+$admin-content-ns: admin-content;
 
-.admin-content {
+.#{$admin-content-ns} {
     position: relative;
     overflow-x: hidden;
     min-height: 100vh;
@@ -56,6 +57,15 @@ $width-ace-sidebar: 420px;
             box-shadow: $shadow-image;
             overflow: hidden;
             border-left: 1px solid $color-admin-header-border;
+        }
+
+        .#{$admin-content-ns}-editor-region {
+            padding: 0;
+
+            .ar-dialog {
+                box-shadow: none;
+                border-radius: 0;
+            }
         }
     }
 
