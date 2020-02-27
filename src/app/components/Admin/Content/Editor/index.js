@@ -63,11 +63,13 @@ let ContentEditor = (
     const alertRef = useRef();
     const formRef = useRef();
 
+    const SlugInput = useHookComponent('SlugInput');
+
     const tools = useHandle('AdminTools');
 
     const Toast = op.get(tools, 'Toast');
 
-    const { path, type, slug } = useRouteParams(['type', 'slug']);
+    let { path, type, slug } = useRouteParams(['type', 'slug']);
 
     const alertDefault = {
         color: Alert.ENUMS.COLOR.INFO,
@@ -131,7 +133,12 @@ let ContentEditor = (
             await dispatch('load', content, onLoad);
             return Promise.resolve(content);
         } else {
-            const message = `Unable to find ${type} - ${slug}`;
+            const message = (
+                <span>
+                    Unable to find {properCase(type)}:{' '}
+                    <span className='red strong'>{slug}</span>
+                </span>
+            );
             _onError({ message });
             return Promise.reject(message);
         }
@@ -181,6 +188,10 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
+        //delete newValue.title;
+
+        console.log({ save: newValue });
+
         await dispatch('before-content-saved', newValue);
 
         if (!op.get(newValue, 'slug')) {
@@ -192,15 +203,15 @@ let ContentEditor = (
 
         await dispatch('content-save', newValue, onChange);
 
-        return Reactium.Content.save(newValue, null, handle);
+        return Reactium.Content.save(newValue, [], handle);
     };
 
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
         const newValue = { ...value, ...e.value };
-        await dispatch('content-change', newValue, onChange);
         setValue(newValue, true);
+        await dispatch('content-change', newValue, onChange);
     };
 
     const _onError = async e => {
@@ -228,7 +239,7 @@ let ContentEditor = (
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
             await dispatch('content-submit', e, onSubmit);
-            save()
+            save(e.value)
                 .then(async result => {
                     if (unMounted()) return;
                     await _onSuccess(e, result, resolve);
@@ -252,14 +263,20 @@ let ContentEditor = (
 
         if (unMounted()) return;
 
-        if (isNew()) {
-            const newSlug = result.slug;
-            Reactium.Routing.history.push(`/admin/content/${type}/${newSlug}`);
-            return;
-        } else {
-            setValue(result);
-            next();
+        setValue(result);
+
+        const newSlug = result.slug;
+        if (isNew() || newSlug !== slug) {
+            setTimeout(
+                () =>
+                    Reactium.Routing.history.push(
+                        `/admin/content/${type}/${newSlug}`,
+                    ),
+                1,
+            );
         }
+
+        next();
     };
 
     const _onValidate = async e => {
@@ -277,6 +294,7 @@ let ContentEditor = (
         dispatch,
         fieldTypes,
         isMounted,
+        properCase,
         regions,
         save,
         state,
@@ -314,10 +332,14 @@ let ContentEditor = (
     // get content
     useEffect(() => {
         if (!formRef.current || !slug || value) return;
-        getContent().then(result => {
-            if (unMounted()) return;
-            setValue(result);
-        });
+        getContent()
+            .then(result => {
+                if (unMounted()) return;
+                setValue(result);
+            })
+            .catch(() => {
+                Reactium.Routing.history.push(`/admin/content/${type}/new`);
+            });
     });
 
     // set content type
@@ -351,7 +373,7 @@ let ContentEditor = (
 
     // dispatch status
     useEffect(() => {
-        if (ready !== true) return;
+        if (ready !== true || !formRef.current) return;
         formRef.current.addEventListener('status', _onStatus);
         return () => {
             formRef.current.removeEventListener('status', _onStatus);
@@ -361,6 +383,7 @@ let ContentEditor = (
     const render = () => {
         if (ready !== true) return null;
         const { sidebar, title } = state;
+        const currentValue = value || {};
         const [contentRegions, sidebarRegions] = regions();
 
         return (
@@ -375,7 +398,10 @@ let ContentEditor = (
                     onError={_onError}
                     onSubmit={_onSubmit}
                     validator={_onValidate}
-                    value={value}>
+                    value={currentValue}>
+                    {op.get(currentValue, 'objectId') && (
+                        <input type='hidden' name='objectId' />
+                    )}
                     {value && contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
@@ -384,6 +410,9 @@ let ContentEditor = (
                                         <Alert
                                             dismissable
                                             ref={alertRef}
+                                            onHide={() =>
+                                                setAlert(alertDefault)
+                                            }
                                             color={op.get(alert, 'color')}
                                             icon={
                                                 <Icon
@@ -398,6 +427,7 @@ let ContentEditor = (
                                         </Alert>
                                     </div>
                                 )}
+                                <SlugInput editor={handle} />
                                 {contentRegions.map(item => (
                                     <Region
                                         key={cx(item.slug)}

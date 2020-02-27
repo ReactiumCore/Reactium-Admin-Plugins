@@ -60,13 +60,18 @@ export const Editor = props => {
         type: 'text',
     };
 
-    const className = cn({ error: !!errorText, 'form-group': true });
+    const className = cn('form-group', { error: !!errorText });
 
     return (
         <ElementDialog {...props}>
             <div className='p-xs-20'>
                 <div className={className}>
-                    <input {...inputProps} />
+                    <label>
+                        <span className='sr-only'>
+                            {placeholder || fieldName}
+                        </span>
+                        <input {...inputProps} />
+                    </label>
                     {errorText && <small>{errorText}</small>}
                 </div>
             </div>

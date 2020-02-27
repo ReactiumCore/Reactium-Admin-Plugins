@@ -4,6 +4,7 @@ import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
+import SlugInput from './Editor/_plugins/SlugInput';
 import SDK from './sdk';
 
 const registerAdminContent = async () => {
@@ -15,6 +16,10 @@ const registerAdminContent = async () => {
     // Add SDK
     Reactium.Content = SDK;
 
+    // Register components
+    Reactium.Component.register('SlugInput', SlugInput);
+
+    // Add components to zones
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-CRUMBS',
         component: Breadcrumbs,

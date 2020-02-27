@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import cn from 'classnames';
 import op from 'object-path';
 import Element from '../Element';
 import React, { useEffect, useState } from 'react';
@@ -9,9 +10,9 @@ export default ({ editor, ...props }) => {
         const { contentType, cx } = editor;
 
         const { id, slug } = props;
-        const className = `${cx('editor-region')} ${cx(
-            `editor-region-${slug}`,
-        )}`;
+
+        const className = cn(cx('editor-region'), cx(`editor-region-${slug}`));
+
         const fields = _.where(
             Object.values(op.get(editor, 'contentType.fields')),
             { region: id },

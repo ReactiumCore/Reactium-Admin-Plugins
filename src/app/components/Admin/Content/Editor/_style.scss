@@ -11,6 +11,7 @@ $admin-content-ns: admin-content;
     justify-content: stretch;
     align-items: flex-start;
     flex-wrap: wrap;
+    font-weight: normal;
 
     @include breakpoint(md) {
         flex-direction: row;
@@ -34,6 +35,11 @@ $admin-content-ns: admin-content;
 
             &:empty {
                 display: none;
+            }
+
+            &-slug {
+                border-bottom: 1px solid darken($color-admin-header-border, 5%);
+                padding-bottom: $padding-admin-content-zone;
             }
         }
     }
@@ -72,6 +78,7 @@ $admin-content-ns: admin-content;
     &-help {
         @extend .p-xs-20;
         border-bottom: 1px solid $color-admin-header-border;
+
         .ar-alert {
             box-shadow: 0 0 1px 1px $color-admin-header-border;
 

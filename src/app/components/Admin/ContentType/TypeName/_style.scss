@@ -1,7 +1,7 @@
 .type-name {
     &-header, &-input {
         padding: 20px;
-        border-bottom: 1px solid lighten($color-grey, 10%);
+        border-bottom: 1px solid darken($color-admin-header-border, 5%);
 
         @include breakpoint(md-down) {
             padding-left: 100px;

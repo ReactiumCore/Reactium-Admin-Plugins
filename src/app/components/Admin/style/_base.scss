@@ -1,5 +1,7 @@
 a.icon-link {
-    &:hover, &:active, &:focus {
+    &:hover,
+    &:active,
+    &:focus {
         .icon {
             fill: $fill-focus-icon-link;
         }
@@ -7,6 +9,7 @@ a.icon-link {
 
     &:focus {
         outline: none;
+
         .icon {
             stroke: $stroke-focus-icon-link;
         }
@@ -22,5 +25,26 @@ button {
 .input-group {
     &.error {
         @extend .form-group.error;
+    }
+}
+
+.form-group,
+.form-group label {
+    input,
+    textarea,
+    select {
+        font-family: #{map-get($fonts, sans-serif)};
+        font-weight: 400;
+        letter-spacing: .5px;
+    }
+
+    .input-lg {
+        font-size: 24px;
+        font-weight: 400;
+    }
+
+    .input-sm {
+        font-size: 14px;
+        padding: 6px 10px;
     }
 }
