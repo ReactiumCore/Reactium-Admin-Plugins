@@ -1,3 +1,6 @@
+import SDK from './sdk';
+import _ from 'underscore';
+import cn from 'classnames';
 import ContentList from './List';
 import ContentEditor from './Editor';
 import Breadcrumbs from './Breadcrumbs';
@@ -6,8 +9,6 @@ import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
 import SlugInput from './Editor/_plugins/SlugInput';
 import ElementDialog from './Editor/ElementDialog';
-import SDK from './sdk';
-import cn from 'classnames';
 
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
