@@ -85,7 +85,9 @@ Content.ACLToReadWrite = async ACL => {
  * @apiParam {Array} [permissions] (new content only) List of permission objects. After creation, use `Content.setPermissions()`
  * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
  * @apiParam (content) {Mixed} type Type object, or type machineName
- * @apiParam (content) {String} slug The unique slug for the new content.
+ * @apiParam (content) {String} title The title of the content. (Required for creation.)
+ * @apiParam (content) {String} [slug] The unique slug for the new content. (Required for creation.
+ Used only for lookups on existing content.)
  * @apiParam (type) {String} [objectId] Parse objectId of content type
  * @apiParam (type) {String} [uuid] UUID of content type
  * @apiParam (type) {String} [machineName] the machine name of the existing content type
@@ -113,6 +115,38 @@ Content.save = async (content = {}, permissions = [], handle) => {
     const contentObj = await Reactium.Cloud.run(saveFunction, request);
 
     await Reactium.Hook.run('content-saved', contentObj, handle);
+    return contentObj;
+};
+
+/**
+ * @api {Asynchronous} Content.changeSlug(content,handle) Content.changeSlug()
+ * @apiDescription Create/Update content of a defined Type.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {Object} [history] revision history to retrieve, containing branch and revision index.
+ * @apiParam (params) {String} newSlug New unique slug for the content.
+ * @apiParam (params) {String} [slug] The existing slug for the content (used to lookup the content).
+ * @apiParam (params) {String} [objectId] The objectId for the content (used to lookup the content).
+ * @apiParam (params) {String} [uuid] The uuid for the content (used to lookup the content).
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiParam (history) {String} [branch=master] the revision branch of current content
+ * @apiParam (history) {Number} [revision] index in branch history to retrieve
+ (default index of latest revision)
+ * @apiName Content.changeSlug
+ * @apiGroup Reactium.Content
+ */
+Content.changeSlug = async (params = {}, handle) => {
+    const request = {
+        ...params,
+    };
+
+    request.type = setType(params.type);
+
+    const contentObj = await Reactium.Cloud.run('content-change-slug', request);
+    await Reactium.Hook.run('content-slug-changed', contentObj, handle);
     return contentObj;
 };
 
