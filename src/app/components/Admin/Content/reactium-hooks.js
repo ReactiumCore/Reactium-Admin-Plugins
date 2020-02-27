@@ -7,6 +7,7 @@ import SidebarWidget from './SidebarWidget';
 import SlugInput from './Editor/_plugins/SlugInput';
 import ElementDialog from './Editor/ElementDialog';
 import SDK from './sdk';
+import cn from 'classnames';
 
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
