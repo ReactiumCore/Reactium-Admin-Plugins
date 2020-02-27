@@ -73,10 +73,6 @@ $admin-content-ns: admin-content;
                 box-shadow: none;
                 border-radius: 0;
             }
-
-            &-sidebar {
-                @extend .p-xs-20;
-            }
         }
     }
 
