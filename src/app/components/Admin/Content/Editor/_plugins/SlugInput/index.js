@@ -27,6 +27,7 @@ export default props => {
 
     const [autoGen, setAuthGen] = useState(isNew());
     const [focused] = useFocusEffect(containerRef);
+    const [readOnly, setReadOnly] = useState(true);
 
     const titlePlaceholder = String(__('%type Title')).replace('%type', type);
 
@@ -38,7 +39,7 @@ export default props => {
     const slugProps = {
         name: 'slug',
         placeholder: __('slug'),
-        readOnly: true,
+        readOnly,
         type: 'text',
     };
 
@@ -52,9 +53,10 @@ export default props => {
         if (!slugRef.current) return;
         let currentSlug = slugRef.current.value;
         slugRef.current.value = String(currentSlug).replace(/-$/g, '');
-        slugRef.current.readOnly = true;
-        if (String(currentSlug).length > 0 && autoGen !== false)
+        setReadOnly(true);
+        if (String(currentSlug).length > 0 && autoGen !== false) {
             setAuthGen(false);
+        }
     };
 
     const onSlugChange = e => {
@@ -67,7 +69,7 @@ export default props => {
     };
 
     const enable = () => {
-        slugRef.current.readOnly = false;
+        setReadOnly(false);
         slugRef.current.select();
     };
 

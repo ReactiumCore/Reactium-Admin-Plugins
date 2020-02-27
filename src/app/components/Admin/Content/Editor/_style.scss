@@ -70,7 +70,7 @@ $admin-content-ns: admin-content;
             padding: 0;
 
             .ar-dialog {
-                box-shadow: none;
+                box-shadow: 0 0 1px 1px rgba($color-black, .025);
                 border-radius: 0;
             }
         }

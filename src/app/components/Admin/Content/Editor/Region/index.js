@@ -11,7 +11,6 @@ export default ({ editor, ...props }) => {
 
         const { id, slug } = props;
 
-        // const className = cn(cx('editor-region'), cx(`editor-region-${slug}`));
         const className = cx('editor-region', `editor-region-${slug}`);
 
         const fields = _.where(
