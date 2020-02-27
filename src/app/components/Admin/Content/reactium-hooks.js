@@ -5,6 +5,7 @@ import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
 import SlugInput from './Editor/_plugins/SlugInput';
+import ElementDialog from './Editor/ElementDialog';
 import SDK from './sdk';
 
 const registerAdminContent = async () => {
@@ -18,6 +19,7 @@ const registerAdminContent = async () => {
 
     // Register components
     Reactium.Component.register('SlugInput', SlugInput);
+    Reactium.Component.register('ElementDialog', ElementDialog);
 
     // Add components to zones
     Reactium.Zone.addComponent({

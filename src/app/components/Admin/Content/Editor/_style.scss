@@ -30,6 +30,7 @@ $admin-content-ns: admin-content;
         }
 
         &-region {
+            position: relative;
             padding: $padding-admin-content-zone;
             padding-bottom: 0;
 
@@ -71,10 +72,6 @@ $admin-content-ns: admin-content;
             .ar-dialog {
                 box-shadow: none;
                 border-radius: 0;
-            }
-
-            &-sidebar {
-                @extend .p-xs-20;
             }
         }
     }

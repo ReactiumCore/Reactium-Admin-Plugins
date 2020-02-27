@@ -30,6 +30,7 @@ button {
 
 .form-group,
 .form-group label {
+    position: relative;
     input,
     textarea,
     select {
@@ -46,5 +47,15 @@ button {
     .input-sm {
         font-size: 14px;
         padding: 6px 10px;
+    }
+}
+
+.form-group label {
+    &:first-child {
+        &:not(:last-child) {
+            * {
+                margin-top: 0;
+            }
+        }
     }
 }
