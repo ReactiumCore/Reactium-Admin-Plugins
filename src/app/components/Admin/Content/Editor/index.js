@@ -188,8 +188,6 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        //delete newValue.title;
-
         console.log({ save: newValue });
 
         await dispatch('before-content-saved', newValue);
@@ -264,6 +262,7 @@ let ContentEditor = (
         if (unMounted()) return;
 
         setValue(result);
+        next();
 
         const newSlug = result.slug;
         if (isNew() || newSlug !== slug) {
@@ -275,8 +274,6 @@ let ContentEditor = (
                 1,
             );
         }
-
-        next();
     };
 
     const _onValidate = async e => {
@@ -294,6 +291,7 @@ let ContentEditor = (
         dispatch,
         fieldTypes,
         isMounted,
+        isNew,
         properCase,
         regions,
         save,

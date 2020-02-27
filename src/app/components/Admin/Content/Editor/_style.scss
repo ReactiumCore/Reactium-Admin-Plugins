@@ -30,6 +30,7 @@ $admin-content-ns: admin-content;
         }
 
         &-region {
+            position: relative;
             padding: $padding-admin-content-zone;
             padding-bottom: 0;
 

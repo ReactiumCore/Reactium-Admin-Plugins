@@ -1,50 +1,121 @@
+import _ from 'underscore';
 import cn from 'classnames';
 import React, { useRef, useState, useEffect } from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useFocusEffect, useHookComponent } from 'reactium-core/sdk';
+import _slugify from 'slugify';
+import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-export const slugify = name => {
-    if (!name) return '';
-
-    return require('slugify')(name, {
+export const slugify = str => {
+    if (!str) return '';
+    str = String(str).replace(/\s/g, '-');
+    str = _slugify(str, {
         replacement: '-', // replace spaces with replacement
-        remove: /[^A-Za-z0-9-\s]/g, // regex to remove characters
+        remove: /[^\w-+]/g, // regex to remove characters
         lower: true, // result in lower case
     });
+
+    return str;
 };
 
 export default props => {
+    const containerRef = useRef();
+    const slugRef = useRef();
+
     const { editor, errorText } = props;
-    const { cx, properCase, type } = editor;
+    const { cx, isNew, properCase, type } = editor;
     const className = cn('form-group', { error: !!errorText });
+
+    const [autoGen, setAuthGen] = useState(isNew());
+    const [focused] = useFocusEffect(containerRef);
 
     const titlePlaceholder = String(__('%type Title')).replace('%type', type);
 
     const titleProps = {
         name: 'title',
-        //pattern: '[A-Za-z0-9\-\s]',
         placeholder: properCase(titlePlaceholder),
         type: 'text',
     };
     const slugProps = {
         name: 'slug',
-        //pattern: '[A-Za-z0-9\-]',
         placeholder: __('slug'),
+        readOnly: true,
         type: 'text',
     };
 
+    const genSlug = e => {
+        if (!autoGen || !slugRef.current) return;
+
+        const { value } = e.target;
+        slugRef.current.value = slugify(value);
+    };
+
+    const onBlur = e => {
+        if (!slugRef.current) return;
+        let currentSlug = slugRef.current.value;
+        slugRef.current.value = String(currentSlug).replace(/-$/g, '');
+        slugRef.current.readOnly = true;
+        if (String(currentSlug).length > 0 && autoGen !== false)
+            setAuthGen(false);
+    };
+
+    const onSlugChange = e => {
+        const value = e.target.value;
+        e.target.value = slugify(value);
+        const len = String(e.target.value).length;
+
+        if (len < 1) setAuthGen(true);
+        if (len > 0 && autoGen !== false) setAuthGen(false);
+    };
+
+    const enable = () => {
+        slugRef.current.readOnly = false;
+        slugRef.current.select();
+    };
+
+    const buttonStyle = {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        height: 32,
+        width: 32,
+        padding: 0,
+    };
+
     return (
-        <div className={cn(cx('editor-region'), cx('editor-region-slug'))}>
+        <div
+            ref={containerRef}
+            className={cn(cx('editor-region'), cx('editor-region-slug'))}>
             <div className={cn(cx('element'), cx('element-slug'))}>
                 <div className={className}>
                     <label>
                         <span className='sr-only'>
                             {titleProps.placeholder}
                         </span>
-                        <input {...titleProps} className='input-lg' />
+                        <input
+                            {...titleProps}
+                            className='input-lg'
+                            data-focus
+                            onChange={genSlug}
+                            onBlur={onBlur}
+                        />
                     </label>
                     <label>
                         <span className='sr-only'>{slugProps.placeholder}</span>
-                        <input {...slugProps} className='input-sm' />
+                        <input
+                            {...slugProps}
+                            className='input-sm'
+                            ref={slugRef}
+                            onKeyUp={onSlugChange}
+                            onBlur={onBlur}
+                            style={{ paddingRight: 32 }}
+                        />
+                        <Button
+                            size='xs'
+                            color='clear'
+                            onClick={enable}
+                            style={buttonStyle}>
+                            <Icon name='Feather.Edit2' size={16} />
+                        </Button>
                     </label>
                     {errorText && <small>{errorText}</small>}
                 </div>
