@@ -79,7 +79,7 @@ const NumberSlider = props => {
         .value();
 
     return (
-        <div className='pt-xs-24'>
+        <div className='pt-xs-40 px-xs-12'>
             <Slider
                 max={max}
                 min={min}
