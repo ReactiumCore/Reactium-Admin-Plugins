@@ -110,9 +110,9 @@ let ContentEditor = (
 
     // Functions
 
-    const cx = cls => _.compact([namespace, cls]).join('-');
+    const cx = Reactium.Utils.cxFactory('admin-editor');
 
-    const cname = cn({ [cx()]: true, [className]: !!className });
+    const cname = cn({ [className]: !!className }, cx());
 
     const dispatch = async (event, detail, callback) => {
         if (unMounted()) return;
@@ -189,15 +189,29 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        console.log({ save: newValue });
-
         await dispatch('before-content-saved', newValue);
 
-        if (!op.get(newValue, 'slug')) {
-            op.set(newValue, 'slug', `${type}-${uuid()}`);
-        }
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
+        }
+
+        const newSlug = op.get(newValue, 'slug');
+        if (!isNew() && newSlug !== slug) {
+            await Reactium.Content.changeSlug({
+                objectId: op.get(newValue, 'objectId'),
+                newSlug,
+                type: contentType,
+            });
+
+            op.del(newValue, 'slug');
+            op.del(newValue, 'uuid');
+        } else {
+            if (isNew() && !op.get(newValue, 'slug')) {
+                op.set(newValue, 'slug', `${type}-${uuid()}`);
+            } else {
+                op.del(newValue, 'slug');
+                op.del(newValue, 'uuid');
+            }
         }
 
         await dispatch('content-save', newValue, onChange);

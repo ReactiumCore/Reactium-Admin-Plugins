@@ -14,8 +14,13 @@ const registerAdminContent = async () => {
         Reactium.Enums.priority.high,
     );
 
-    // Add SDK
+    // Extend SDK
     Reactium.Content = SDK;
+    Reactium.Utils.cxFactory = namespace => (...params) =>
+        cn(...params)
+            .split(' ')
+            .map(cls => _.compact([namespace, cls]).join('-'))
+            .join(' ');
 
     // Register components
     Reactium.Component.register('SlugInput', SlugInput);
