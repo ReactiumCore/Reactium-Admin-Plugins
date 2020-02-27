@@ -1,12 +1,12 @@
 import React from 'react';
-import Reactium from 'reactium-core/sdk';
-import FieldTypeNumber from './index';
-import { __ } from 'reactium-core/sdk';
+import { Editor, FieldType } from '.';
+import Reactium, { __ } from 'reactium-core/sdk';
 
-const registerFieldTypePlugin = async () => {
-    await Reactium.Plugin.register('FieldTypeNumber');
+const ID = 'FieldTypeNumber';
 
-    Reactium.Component.register('FieldTypeNumber', FieldTypeNumber);
+Reactium.Plugin.register(ID).then(() => {
+    Reactium.Component.register(ID, FieldType);
+    Reactium.Component.register(`${ID}-editor`, Editor);
 
     Reactium.ContentType.FieldType.register({
         type: 'Number',
@@ -14,8 +14,6 @@ const registerFieldTypePlugin = async () => {
         icon: () => <small style={{ whiteSpace: 'nowrap' }}>1 2 3</small>,
         tooltip: __('Adds a number field to your content type.'),
         component: 'FieldTypeNumber',
-        order: Reactium.Enums.priority.neutral,
+        order: Reactium.Enums.priority.highest + 2,
     });
-};
-
-registerFieldTypePlugin();
+});

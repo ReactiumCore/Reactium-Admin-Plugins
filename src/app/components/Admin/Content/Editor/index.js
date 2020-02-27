@@ -79,6 +79,7 @@ let ContentEditor = (
     const [contentType, setContentType] = useState();
     const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
+    const [currentSlug, setCurrentSlug] = useState(slug);
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
@@ -326,6 +327,15 @@ let ContentEditor = (
         'type',
         'types',
     ]);
+
+    // slug change
+    useEffect(() => {
+        if (!slug) return;
+        if (currentSlug !== slug) {
+            setNewValue();
+            setCurrentSlug(slug);
+        }
+    }, [currentSlug, slug]);
 
     // get content
     useEffect(() => {

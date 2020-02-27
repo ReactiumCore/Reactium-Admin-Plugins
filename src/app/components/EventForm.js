@@ -117,7 +117,7 @@ let EventForm = (initialProps, ref) => {
     const [count, setCount] = useState(0);
 
     /* Functions */
-    const applyValue = (newValue, clear = false) => {
+    const applyValue = async (newValue, clear = false) => {
         if (!formRef.current) return;
         if (controlled === true || typeof newValue === 'undefined') return;
 
@@ -136,18 +136,17 @@ let EventForm = (initialProps, ref) => {
         Object.entries(elements).forEach(([, element]) => {
             const name = element.name;
             const type = element.type;
-            const val = op.get(newValue, name, '');
+            const val = op.get(newValue, name);
 
             if (Array.isArray(val)) {
                 // Checkbox & Radio
                 if (['checkbox', 'radio'].includes(type)) {
-                    const v = !isNaN(element.value)
-                        ? Number(element.value)
-                        : element.value;
-
                     if (isBoolean(val)) {
                         element.checked = val;
                     } else {
+                        const v = !isNaN(element.value)
+                            ? Number(element.value)
+                            : element.value;
                         element.checked = val.includes(v);
                     }
                 }
@@ -167,7 +166,7 @@ let EventForm = (initialProps, ref) => {
                     });
                 }
             } else {
-                element.value = val;
+                if (val) element.value = val;
 
                 if (isBoolean(val)) {
                     element.value = true;
@@ -175,6 +174,13 @@ let EventForm = (initialProps, ref) => {
                 }
             }
         });
+
+        const evt = new FormEvent('apply-values', {
+            target: formRef.current,
+            value: newValue,
+        });
+
+        handle.dispatchEvent(evt);
     };
 
     const setState = newState => {

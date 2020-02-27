@@ -1,13 +1,10 @@
-import { __ } from 'reactium-core/sdk';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import { Editor, FieldType, QuickEditor } from '.';
 
-const registerFieldTypePlugin = async () => {
-    const ID = 'FieldTypeText';
+const ID = 'FieldTypeText';
 
-    await Reactium.Plugin.register(ID);
-
+Reactium.Plugin.register(ID).then(() => {
     Reactium.Component.register(ID, FieldType);
     Reactium.Component.register(`${ID}-editor`, Editor);
     Reactium.Component.register(`${ID}-quick-editor`, QuickEditor);
@@ -18,8 +15,6 @@ const registerFieldTypePlugin = async () => {
         icon: Icon.Feather.Type,
         tooltip: __('Adds a text field to your content type.'),
         component: 'FieldTypeText',
-        order: Reactium.Enums.priority.highest,
+        order: Reactium.Enums.priority.highest + 1,
     });
-};
-
-registerFieldTypePlugin();
+});

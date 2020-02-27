@@ -69,6 +69,9 @@ body {
 .ar-dialog-content {
     background-color: $color-white;
 }
+.ar-collapsible.expanded {
+    overflow: visible !important;
+}
 
 .modal-spinner {
     display: flex;
