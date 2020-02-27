@@ -11,7 +11,8 @@ export default ({ editor, ...props }) => {
 
         const { id, slug } = props;
 
-        const className = cn(cx('editor-region'), cx(`editor-region-${slug}`));
+        // const className = cn(cx('editor-region'), cx(`editor-region-${slug}`));
+        const className = cx('editor-region', `editor-region-${slug}`);
 
         const fields = _.where(
             Object.values(op.get(editor, 'contentType.fields')),
@@ -28,7 +29,7 @@ export default ({ editor, ...props }) => {
                         {...item}
                     />
                 ))}
-                <Zone zone={editor.cx(slug)} editor={editor} />
+                <Zone zone={cx(slug)} editor={editor} />
             </div>
         );
     };

@@ -83,8 +83,8 @@ export default props => {
     return (
         <div
             ref={containerRef}
-            className={cn(cx('editor-region'), cx('editor-region-slug'))}>
-            <div className={cn(cx('element'), cx('element-slug'))}>
+            className={cx('editor-region', 'editor-region-slug')}>
+            <div className={cx('element', 'element-slug')}>
                 <div className={className}>
                     <label>
                         <span className='sr-only'>

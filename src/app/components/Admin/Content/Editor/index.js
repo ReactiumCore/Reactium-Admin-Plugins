@@ -110,9 +110,9 @@ let ContentEditor = (
 
     // Functions
 
-    const cx = Reactium.Utils.cxFactory('admin-editor');
+    const cx = Reactium.Utils.cxFactory(namespace);
 
-    const cname = cn({ [className]: !!className }, cx());
+    const cname = cn(cx(), { [className]: !!className });
 
     const dispatch = async (event, detail, callback) => {
         if (unMounted()) return;
@@ -188,6 +188,8 @@ let ContentEditor = (
         setAlert();
 
         const newValue = { ...value, ...mergeValue };
+
+        console.log({ save: newValue });
 
         await dispatch('before-content-saved', newValue);
 
@@ -452,7 +454,7 @@ let ContentEditor = (
                                 <SlugInput editor={handle} />
                                 {contentRegions.map(item => (
                                     <Region
-                                        key={cx(item.slug)}
+                                        key={item.slug}
                                         editor={handle}
                                         {...item}
                                     />
@@ -465,7 +467,7 @@ let ContentEditor = (
                             <div className={cx('regions')}>
                                 {sidebarRegions.map(item => (
                                     <Region
-                                        key={cx(item.slug)}
+                                        key={item.slug}
                                         editor={handle}
                                         {...item}
                                     />
