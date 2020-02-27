@@ -117,11 +117,12 @@ let EventForm = (initialProps, ref) => {
     const [count, setCount] = useState(0);
 
     /* Functions */
-    const applyValue = newValue => {
+    const applyValue = (newValue, clear = false) => {
         if (!formRef.current) return;
         if (controlled === true || typeof newValue === 'undefined') return;
 
-        const value = newValue;
+        newValue = clear === true ? newValue : { ...value, ...newValue };
+
         const elements = _.flatten(
             Object.values(getElements()).map(element => {
                 if (Array.isArray(element)) {
@@ -135,7 +136,7 @@ let EventForm = (initialProps, ref) => {
         Object.entries(elements).forEach(([, element]) => {
             const name = element.name;
             const type = element.type;
-            const val = op.get(value, name, '');
+            const val = op.get(newValue, name, '');
 
             if (Array.isArray(val)) {
                 // Checkbox & Radio
@@ -256,7 +257,7 @@ let EventForm = (initialProps, ref) => {
             keys.push(key);
         }
 
-        const value = keys.reduce((obj, key) => {
+        const currentValue = keys.reduce((obj, key) => {
             let v = _.compact(_.uniq(formData.getAll(key))) || [];
 
             v = v.length === 1 && v.length !== 0 ? v[0] : v;
@@ -268,9 +269,9 @@ let EventForm = (initialProps, ref) => {
         }, {});
 
         if (k) {
-            return op.get(value, k);
+            return op.get(currentValue, k);
         } else {
-            return value;
+            return currentValue;
         }
     };
 
@@ -279,15 +280,15 @@ let EventForm = (initialProps, ref) => {
         dispatchChange({ value: newValue, event: formRef.current });
     };
 
-    const validate = async value => {
+    const validate = async currentValue => {
         if (!formRef.current) return;
 
-        value = value || getValue();
+        currentValue = currentValue || getValue();
 
         let valid = true;
         let errors = { focus: null, fields: [], errors: [] };
 
-        const missing = required.filter(k => _.isEmpty(value[k]));
+        const missing = required.filter(k => _.isEmpty(currentValue[k]));
 
         if (missing.length > 0) {
             valid = false;
@@ -304,7 +305,7 @@ let EventForm = (initialProps, ref) => {
         // validator should return Object: { valid:Boolean, errors:Array }
         if (validator) {
             const validatorResult = await validator({
-                value,
+                currentValue,
                 valid,
                 errors,
                 target: handle,
@@ -411,7 +412,7 @@ let EventForm = (initialProps, ref) => {
 
     // Apply value
     useEffect(() => {
-        applyValue(value);
+        applyValue(value, true);
     }, [value]);
 
     // Update handle on change

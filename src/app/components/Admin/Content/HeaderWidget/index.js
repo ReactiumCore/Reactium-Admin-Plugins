@@ -44,9 +44,9 @@ const SaveButton = ({ Editor, type }) => {
 
     useEffect(() => {
         if (ready !== true) return;
-        Editor.EventForm.addEventListener('status', onStatus);
+        Editor.addEventListener('status', onStatus);
         return () => {
-            Editor.EventForm.removeEventListener('status', onStatus);
+            Editor.removeEventListener('status', onStatus);
         };
     }, [ready]);
 

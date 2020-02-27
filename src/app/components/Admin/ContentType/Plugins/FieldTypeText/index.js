@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import { __, useHookComponent } from 'reactium-core/sdk';
-import { Button, Checkbox, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import ElementDialog from 'components/Admin/Content/Editor/ElementDialog';
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldTypeRichText
@@ -50,29 +50,7 @@ export const FieldType = props => {
 };
 
 export const Editor = props => {
-    const {
-        defaultValue,
-        errorText,
-        fieldName,
-        helpText,
-        pattern,
-        placeholder,
-        pref,
-        title,
-    } = props;
-
-    const header = {
-        title,
-        elements: [
-            <Button
-                size={Button.ENUMS.SIZE.XS}
-                color={Button.ENUMS.COLOR.CLEAR}
-                className='ar-dialog-header-btn'
-                size='xs'>
-                <Icon name='Feather.HelpCircle' />
-            </Button>,
-        ],
-    };
+    const { defaultValue, errorText, fieldName, pattern, placeholder } = props;
 
     const inputProps = {
         defaultValue,
@@ -85,14 +63,14 @@ export const Editor = props => {
     const className = cn({ error: !!errorText, 'form-group': true });
 
     return (
-        <Dialog pref={pref} header={header}>
+        <ElementDialog {...props}>
             <div className='p-xs-20'>
                 <div className={className}>
                     <input {...inputProps} />
                     {errorText && <small>{errorText}</small>}
                 </div>
             </div>
-        </Dialog>
+        </ElementDialog>
     );
 };
 

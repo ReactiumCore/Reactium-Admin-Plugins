@@ -1,7 +1,6 @@
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
-import ENUMS from '../enums';
 import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
@@ -9,6 +8,9 @@ import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 import { slugify } from 'components/Admin/ContentType';
+import { Alert, Icon } from '@atomic-reactor/reactium-ui';
+import DEFAULT_ENUMS from 'components/Admin/Content/enums';
+
 // import { EventForm } from '@atomic-reactor/reactium-ui';
 import EventForm from 'components/EventForm';
 
@@ -38,8 +40,27 @@ import Reactium, {
  * Functional Component: ContentEditor
  * -----------------------------------------------------------------------------
  */
+const noop = () => {};
 
-let ContentEditor = ({ className, namespace, ...props }, ref) => {
+let ContentEditor = (
+    {
+        ENUMS,
+        className,
+        namespace,
+        onChange,
+        onError,
+        onFail,
+        onLoad,
+        onReady,
+        onStatus,
+        onSubmit,
+        onSuccess,
+        onValidate,
+        ...props
+    },
+    ref,
+) => {
+    const alertRef = useRef();
     const formRef = useRef();
 
     const tools = useHandle('AdminTools');
@@ -48,39 +69,72 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const { path, type, slug } = useRouteParams(['type', 'slug']);
 
+    const alertDefault = {
+        color: Alert.ENUMS.COLOR.INFO,
+        icon: 'Feather.Flag',
+    };
+
     const [contentType, setContentType] = useState();
-    const [error, setError] = useState();
+    const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
     const [status, setStatus] = useState('pending');
-    const [state, setState] = useDerivedState({ title: ENUMS.TEXT.EDITOR });
+    const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
     const [updated, update] = useState();
     const [value, setNewValue] = useState();
 
-    // Alias setValue to prevent memory leak
+    // Aliases prevent memory leaks
     const setValue = (newValue = {}, checkReady = false) => {
         if (unMounted(checkReady)) return;
         newValue = { ...value, ...newValue };
         setNewValue(newValue);
     };
 
+    const setAlert = newAlert => {
+        if (unMounted()) return;
+
+        newAlert = _.isObject(newAlert) ? newAlert : alertDefault;
+
+        const { color, icon, message } = newAlert;
+
+        if (message) {
+            if (!icon) op.set(newAlert, 'icon', 'Feather.AlertOctagon');
+            if (!color) op.set(newAlert, 'color', Alert.ENUMS.COLOR.DANGER);
+        }
+
+        setNewAlert(newAlert);
+    };
+
+    // Functions
+
     const cx = cls => _.compact([namespace, cls]).join('-');
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 
-    const dispatch = (event, detail) => {
+    const dispatch = async (event, detail, callback) => {
         if (unMounted()) return;
         const evt = new CustomEvent(event, { detail });
         handle.dispatchEvent(evt);
+        if (typeof callback === 'function') await callback(evt);
         return Reactium.Hook.run(event, detail, handle);
     };
 
-    const getContent = () => {
+    const getContent = async () => {
         if (isNew()) return Promise.resolve({});
-        return Reactium.Content.retrieve({
+
+        const content = await Reactium.Content.retrieve({
             type: contentType,
             slug,
         });
+
+        if (content) {
+            await dispatch('load', content, onLoad);
+            return Promise.resolve(content);
+        } else {
+            const message = `Unable to find ${type} - ${slug}`;
+            _onError({ message });
+            return Promise.reject(message);
+        }
     };
 
     const getContentType = () => _.findWhere(types, { type });
@@ -105,16 +159,26 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
     const properCase = useProperCase();
 
     const regions = () => {
-        const _regions = op.get(contentType, 'regions', {});
-        const content = _.without(Object.keys(_regions), 'sidebar').map(
-            key => _regions[key],
-        );
-        const sidebar = _.compact([op.get(_regions, 'sidebar')]);
+        const { sidebar } = state;
 
-        return [content, sidebar];
+        const _regions = op.get(contentType, 'regions', {});
+
+        const contentRegions = sidebar
+            ? _.without(Object.keys(_regions), 'sidebar').map(
+                  key => _regions[key],
+              )
+            : Object.values(_regions);
+
+        const sidebarRegions = sidebar
+            ? _.compact([op.get(_regions, 'sidebar')])
+            : [];
+
+        return [contentRegions, sidebarRegions];
     };
 
     const save = async (mergeValue = {}) => {
+        setAlert();
+
         const newValue = { ...value, ...mergeValue };
 
         await dispatch('before-content-saved', newValue);
@@ -126,7 +190,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
             op.set(newValue, 'type', contentType);
         }
 
-        await dispatch('content-save', newValue);
+        await dispatch('content-save', newValue, onChange);
 
         return Reactium.Content.save(newValue, null, handle);
     };
@@ -135,18 +199,35 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 
     const _onChange = async e => {
         const newValue = { ...value, ...e.value };
-        await dispatch('content-change', newValue);
-        setNewValue(newValue, true);
+        await dispatch('content-change', newValue, onChange);
+        setValue(newValue, true);
     };
 
     const _onError = async e => {
-        await dispatch('content-save-error', e);
-        if (isMounted()) setError(e);
+        await dispatch('content-save-error', e, onError);
+        if (isMounted()) setAlert(e);
     };
+
+    const _onFail = async (e, error, next) => {
+        await dispatch('content-save-fail', error, onFail);
+
+        const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
+
+        Toast.show({
+            icon: 'Feather.AlertOctagon',
+            message,
+            type: Toast.TYPE.ERROR,
+        });
+
+        if (isMounted()) setAlert(error);
+        next();
+    };
+
+    const _onStatus = e => dispatch('status', e, onStatus);
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            await dispatch('content-submit', e);
+            await dispatch('content-submit', e, onSubmit);
             save()
                 .then(async result => {
                     if (unMounted()) return;
@@ -159,7 +240,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         });
 
     const _onSuccess = async (e, result, next) => {
-        await dispatch('content-save-success', result);
+        await dispatch('content-save-success', result, onSuccess);
 
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
@@ -181,29 +262,16 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         }
     };
 
-    const _onFail = async (e, error, next) => {
-        await dispatch('content-save-fail', error);
-
-        const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
-
-        Toast.show({
-            icon: 'Feather.AlertOctagon',
-            message,
-            type: Toast.TYPE.ERROR,
-        });
-
-        if (isMounted()) setError(error);
-        next();
-    };
-
     const _onValidate = async e => {
-        await dispatch('content-validate', e);
+        await dispatch('content-validate', e, onValidate);
         return e;
     };
 
     // Handle
     const _handle = () => ({
         EventForm: formRef.current,
+        AlertBox: alertRef.current,
+        alert: setAlert,
         contentType,
         cx,
         dispatch,
@@ -243,6 +311,7 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         'types',
     ]);
 
+    // get content
     useEffect(() => {
         if (!formRef.current || !slug || value) return;
         getContent().then(result => {
@@ -275,9 +344,23 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
         setHandle(newHandle);
     });
 
+    // dispatch ready
+    useEffect(() => {
+        if (ready === true) dispatch('ready', { obj, ready, count }, onReady);
+    }, [ready]);
+
+    // dispatch status
+    useEffect(() => {
+        if (ready !== true) return;
+        formRef.current.addEventListener('status', _onStatus);
+        return () => {
+            formRef.current.removeEventListener('status', _onStatus);
+        };
+    }, [ready]);
+
     const render = () => {
         if (ready !== true) return null;
-        const { title } = state;
+        const { sidebar, title } = state;
         const [contentRegions, sidebarRegions] = regions();
 
         return (
@@ -296,6 +379,25 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
                     {value && contentRegions.length > 0 && (
                         <div className={cx('editor')}>
                             <div className={cx('regions')}>
+                                {op.get(alert, 'message') && (
+                                    <div className={cx('editor-region')}>
+                                        <Alert
+                                            dismissable
+                                            ref={alertRef}
+                                            color={op.get(alert, 'color')}
+                                            icon={
+                                                <Icon
+                                                    name={op.get(
+                                                        alert,
+                                                        'icon',
+                                                        'Feather.AlertOctagon',
+                                                    )}
+                                                />
+                                            }>
+                                            {op.get(alert, 'message')}
+                                        </Alert>
+                                    </div>
+                                )}
                                 {contentRegions.map(item => (
                                     <Region
                                         key={cx(item.slug)}
@@ -330,12 +432,36 @@ let ContentEditor = ({ className, namespace, ...props }, ref) => {
 ContentEditor = forwardRef(ContentEditor);
 
 ContentEditor.propTypes = {
+    ENUMS: PropTypes.object,
     className: PropTypes.string,
     namespace: PropTypes.string,
+    onChange: PropTypes.func,
+    onError: PropTypes.func,
+    onFail: PropTypes.func,
+    onLoad: PropTypes.func,
+    onReady: PropTypes.func,
+    onStatus: PropTypes.func,
+    onSubmit: PropTypes.func,
+    onSuccess: PropTypes.func,
+    onValidate: PropTypes.func,
+    sidebar: PropTypes.bool,
+    title: PropTypes.string,
 };
 
 ContentEditor.defaultProps = {
+    ENUMS: DEFAULT_ENUMS,
     namespace: 'admin-content',
+    onChange: noop,
+    onError: noop,
+    onFail: noop,
+    onLoad: noop,
+    onReady: noop,
+    onStatus: noop,
+    onSubmit: noop,
+    onSuccess: noop,
+    onValidate: noop,
+    sidebar: true,
+    title: DEFAULT_ENUMS.TEXT.EDITOR,
 };
 
 export default ContentEditor;

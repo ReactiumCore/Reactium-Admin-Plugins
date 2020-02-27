@@ -29,7 +29,8 @@ $width-ace-sidebar: 420px;
 
         &-region {
             padding: $padding-admin-content-zone;
-            
+            padding-bottom: 0;
+
             &:empty {
                 display: none;
             }
@@ -55,6 +56,19 @@ $width-ace-sidebar: 420px;
             box-shadow: $shadow-image;
             overflow: hidden;
             border-left: 1px solid $color-admin-header-border;
+        }
+    }
+
+    &-help {
+        @extend .p-xs-20;
+        border-bottom: 1px solid $color-admin-header-border;
+        .ar-alert {
+            box-shadow: 0 0 1px 1px $color-admin-header-border;
+
+            .content {
+                padding-bottom: 0;
+                padding-top: 2px;
+            }
         }
     }
 }
