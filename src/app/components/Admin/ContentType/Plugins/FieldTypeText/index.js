@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import { __, useHookComponent } from 'reactium-core/sdk';
-import ElementDialog from 'components/Admin/Content/Editor/ElementDialog';
+
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldTypeRichText
@@ -51,6 +51,7 @@ export const FieldType = props => {
 
 export const Editor = props => {
     const { defaultValue, errorText, fieldName, pattern, placeholder } = props;
+    const ElementDialog = useHookComponent('ElementDialog');
 
     const inputProps = {
         defaultValue,
