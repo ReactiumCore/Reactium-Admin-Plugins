@@ -1,14 +1,17 @@
 import React from 'react';
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import Publisher from './index';
+import { FieldType, Editor } from './index';
+
 import op from 'object-path';
 import _ from 'underscore';
 
 const registerPublisher = async () => {
     await Reactium.Plugin.register('Publisher');
 
-    Reactium.Component.register('Publisher', Publisher);
+    const ID = 'PublisherFieldType';
+    Reactium.Component.register(ID, FieldType);
+    Reactium.Component.register(`${ID}-editor`, Editor);
 
     Reactium.ContentType.FieldType.register({
         id: 'publisher',
@@ -16,7 +19,7 @@ const registerPublisher = async () => {
         label: __('Publisher'),
         icon: Icon.Feather.Send,
         tooltip: __('Place publisher widget.'),
-        component: 'Publisher',
+        component: 'PublisherFieldType',
         order: Reactium.Enums.priority.neutral,
         // this is 'default' by default :)
         defaultRegion: 'sidebar',
