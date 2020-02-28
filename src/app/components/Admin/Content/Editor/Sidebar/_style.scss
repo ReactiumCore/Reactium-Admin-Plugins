@@ -22,6 +22,7 @@
         right: 0;
         top: $height-admin-header;
         height: calc(100vh - #{$height-admin-header});
+        outline: none;
 
         &.expanded {
             .#{$admin-content-ns}-toolbar {
@@ -81,6 +82,7 @@
                     z-index: 100;
                 }
 
+                &:focus,
                 &:hover {
                     color: $color-blue;
                 }
@@ -88,7 +90,6 @@
 
             &:hover {
                 &:before {
-
                     background-color: $color-white;
                 }
             }
@@ -137,6 +138,7 @@
                 flex-shrink: 0;
                 outline: none;
                 box-shadow: none;
+                border-radius: 0;
 
                 @include breakpoint(md) {
                     width: 70px;
@@ -145,8 +147,9 @@
                 &:hover,
                 &:focus {
                     color: $color-blue;
-                    box-shadow: none;
                 }
+
+                &:focus { box-shadow: 0 0 2px 1px rgba($color-gray, 0.25); }
             }
         }
 

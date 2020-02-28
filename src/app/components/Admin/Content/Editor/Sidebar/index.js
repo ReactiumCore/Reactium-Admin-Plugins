@@ -61,6 +61,7 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
     const _onHotkey = e => {
         e.preventDefault();
         if (collapsibleRef.current) toggle();
+        if (!expanded) containerRef.current.focus();
     };
 
     useEffect(() => {
@@ -111,7 +112,10 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
     const render = () => {
         const icon = expanded ? 'Feather.ChevronRight' : 'Feather.ChevronLeft';
         return (
-            <div className={cn(className, { expanded })} ref={containerRef}>
+            <div
+                tabIndex={0}
+                className={cn(className, { expanded })}
+                ref={containerRef}>
                 <div className={cx('toolbar')}>
                     <Scrollbars autoHeight autoHeightMin='calc(100vh - 60px)'>
                         <div className={cx('toolbar-scroll')}>
