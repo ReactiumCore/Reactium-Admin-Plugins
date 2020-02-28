@@ -318,7 +318,7 @@ let ContentEditor = (
             op.set(newValue, 'type', contentType);
         }
 
-        await dispatch(`before-${action}`, newValue);
+        await dispatch(`before-${action}`, { value: newValue });
         const successMessage = {
             publish: __('%type published').replace('%type', type),
             unpublish: __('%type unpublished').replace('%type', type),
