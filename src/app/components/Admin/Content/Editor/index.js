@@ -207,7 +207,7 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        await dispatch('before-content-saved', newValue);
+        await dispatch('before-saved', newValue);
 
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
@@ -232,7 +232,7 @@ let ContentEditor = (
             }
         }
 
-        await dispatch('content-save', newValue, onChange);
+        await dispatch('save', newValue, onChange);
 
         return Reactium.Content.save(newValue, [], handle);
     };
@@ -286,17 +286,17 @@ let ContentEditor = (
         if (op.has(e, 'value')) {
             const newValue = { ...value, ...e.value };
             setValue(newValue, true);
-            await dispatch('content-change', newValue, onChange);
+            await dispatch('change', newValue, onChange);
         }
     };
 
     const _onError = async e => {
-        await dispatch('content-save-error', e, onError);
+        await dispatch('save-error', e, onError);
         if (isMounted()) setAlert(e);
     };
 
     const _onFail = async (e, error, next) => {
-        await dispatch('content-save-fail', error, onFail);
+        await dispatch('save-fail', error, onFail);
 
         const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
 
@@ -314,7 +314,7 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            await dispatch('content-submit', e, onSubmit);
+            await dispatch('submit', e, onSubmit);
             save(e.value)
                 .then(async result => {
                     if (unMounted()) return;
@@ -327,7 +327,7 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
-        await dispatch('content-save-success', result, onSuccess);
+        await dispatch('save-success', result, onSuccess);
 
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
@@ -355,7 +355,7 @@ let ContentEditor = (
     };
 
     const _onValidate = async e => {
-        await dispatch('content-validate', e, onValidate);
+        await dispatch('validate', e, onValidate);
         return e;
     };
 

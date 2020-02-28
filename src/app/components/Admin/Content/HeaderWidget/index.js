@@ -38,7 +38,7 @@ const SaveButton = ({ Editor, type }) => {
     );
 
     const onStatus = e => {
-        const newStatus = e.detail;
+        const newStatus = op.get(e, 'detail.type');
         if (newStatus !== status) setStatus(newStatus);
     };
 
