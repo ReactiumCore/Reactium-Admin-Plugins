@@ -142,12 +142,12 @@ let ContentEditor = (
         }
 
         // dispatch exact reactium hook
-        await Reactium.Hook.run(`form-${type}-${event}`, detail);
+        await Reactium.Hook.run(`form-${type}-${event}`, { detail });
 
         // dispatch status reactium hook
         await Reactium.Hook.run(`form-${type}-status`, {
             type: event,
-            data: detail,
+            detail,
         });
 
         // execute basic callback
@@ -278,7 +278,7 @@ let ContentEditor = (
             );
             Toast.show({
                 icon: 'Feather.Check',
-                message: __(`Content status %status`).replace(
+                message: __('Content status %status').replace(
                     '%status',
                     status,
                 ),
