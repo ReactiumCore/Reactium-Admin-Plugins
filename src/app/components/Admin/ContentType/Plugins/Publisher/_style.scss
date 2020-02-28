@@ -41,3 +41,48 @@
         }
     }
 }
+
+.admin-content-element-publish {
+    // min-height: 200px;
+    .status-label {
+        padding: 4px 16px;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        strong {
+            padding-left: 10px;
+        }
+    }
+}
+
+.publisher-editor {
+    min-height: 300px;
+}
+
+.publish-status {
+    &-dialog {
+        margin-bottom: 10px;
+        .ar-collapsible {
+            overflow: visible;
+        }
+
+        &-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            // min-height: 60px;
+            margin: 20px 10px;
+        }
+    }
+
+    &-dropdown {
+        flex: 1 0 50%;
+        margin-right: 10px;
+    }
+
+    &-dropdown, &-set {
+        // display: flex;
+        // justify-content: space-around;
+        // margin: 10px 20px;
+    }
+}
