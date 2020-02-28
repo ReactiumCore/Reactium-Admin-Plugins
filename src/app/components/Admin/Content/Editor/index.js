@@ -307,6 +307,47 @@ let ContentEditor = (
         }
     };
 
+    const publish = async (action = 'publish') => {
+        if (isNew()) return;
+
+        setAlert();
+
+        const newValue = { ...value, status };
+
+        if (!op.get(newValue, 'type')) {
+            op.set(newValue, 'type', contentType);
+        }
+
+        await dispatch(`before-${action}`, newValue);
+        const successMessage = {
+            publish: __('%type published').replace('%type', type),
+            unpublish: __('%type unpublished').replace('%type', type),
+        };
+        const errorMessage = {
+            publish: __('Unable to publish %type').replace('%type', type),
+            unpublish: __('Unable to unpublish %type').replace('%type', type),
+        };
+
+        try {
+            const contentObj = await Reactium.Content[action](newValue, handle);
+            if (unMounted()) return;
+
+            await dispatch(action, { value: contentObj }, _onChange);
+            Toast.show({
+                icon: 'Feather.Check',
+                message: successMessage[action],
+                type: Toast.TYPE.INFO,
+            });
+        } catch (error) {
+            Toast.show({
+                icon: 'Feather.AlertOctagon',
+                message: errorMessage[action],
+                type: Toast.TYPE.ERROR,
+            });
+            console.error({ error });
+        }
+    };
+
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
@@ -408,6 +449,7 @@ let ContentEditor = (
         save,
         state,
         setContentStatus,
+        publish,
         setState,
         setValue,
         submit,
