@@ -26,7 +26,7 @@ export default ({ editor }) => {
         );
     };
 
-    return (
+    return editor.isNew() ? null : (
         <Button
             color='clear'
             data-align='left'

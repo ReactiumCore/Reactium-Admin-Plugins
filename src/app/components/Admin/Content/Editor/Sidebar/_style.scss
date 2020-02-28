@@ -70,13 +70,17 @@
     &-toolbar {
         position: relative;
         height: calc(100vh - #{$height-admin-header});
-        background-color: $color-grey-light;
 
         &-scroll {
             min-height: calc(100vh - #{$height-admin-header});
-            display: flex;
+            display: none;
             flex-direction: column;
             position: relative;
+            background-color: $color-grey-light;
+
+            @include breakpoint(md) {
+                display: flex;
+            }
 
             &:empty {
                 display: none;
@@ -97,7 +101,7 @@
             }
 
             > button {
-                width: 100%;
+                width: 70px;
                 height: 70px;
                 padding: 0;
                 flex-shrink: 0;
@@ -126,5 +130,13 @@
     &-collapsible {
         box-shadow: $shadow-image;
         background-color: $color-white;
+    }
+}
+
+.expanded {
+    .#{$admin-content-ns}-toolbar {
+        &-scroll {
+            display: flex;
+        }
     }
 }

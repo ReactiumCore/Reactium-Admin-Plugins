@@ -19,13 +19,15 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 let Sidebar = ({ children, editor, ...props }, ref) => {
+    const hash = op.get(Reactium.Routing, 'history.location.hash', '');
+
     const collapsibleRef = useRef();
     const containerRef = useRef();
 
     const { cx, type } = editor;
 
     const [className, setClassName] = useState(cx('sidebar'));
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(String(hash).endsWith('sidebar'));
 
     const isContainer = useIsContainer();
 

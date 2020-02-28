@@ -4,6 +4,7 @@ import cn from 'classnames';
 import ContentList from './List';
 import ContentEditor from './Editor';
 import Sidebar from './Editor/Sidebar';
+import Loading from './Editor/Loading';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
@@ -29,6 +30,7 @@ const registerAdminContent = async () => {
 
     // Register components
     Reactium.Component.register('SlugInput', SlugInput);
+    Reactium.Component.register('AdminContentLoading', Loading);
     Reactium.Component.register('AdminContentSidebar', Sidebar);
     Reactium.Component.register('ElementDialog', ElementDialog);
 

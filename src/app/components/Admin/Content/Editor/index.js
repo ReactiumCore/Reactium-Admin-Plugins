@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 import { slugify } from 'components/Admin/ContentType';
-import { Alert, Icon } from '@atomic-reactor/reactium-ui';
+import { Alert, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 import DEFAULT_ENUMS from 'components/Admin/Content/enums';
 
 // import { EventForm } from '@atomic-reactor/reactium-ui';
@@ -65,6 +65,7 @@ let ContentEditor = (
     const formRef = useRef();
     const sidebarRef = useRef();
 
+    const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');
 
@@ -417,7 +418,7 @@ let ContentEditor = (
     }, [ready]);
 
     const render = () => {
-        if (ready !== true) return null;
+        if (ready !== true) return <Loading />;
         const { sidebar, title } = state;
         const currentValue = value || {};
         const [contentRegions, sidebarRegions] = regions();
