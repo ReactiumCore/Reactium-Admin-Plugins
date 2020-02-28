@@ -154,10 +154,6 @@ const ContentStatus = props => {
         return true;
     };
 
-    const dropdownExpanded = params => {
-        console.log({ params });
-    };
-
     if (!canChangeStatus()) {
         return <div className='status-label'>{statusLabel}</div>;
     }
@@ -178,7 +174,6 @@ const ContentStatus = props => {
                     }))}
                     maxHeight={160}
                     value={currentStatus}
-                    onExpand={dropdownExpanded}
                     onChange={val => setSelected(op.get(val, 'item.value'))}>
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
@@ -187,9 +182,11 @@ const ContentStatus = props => {
                     </Button>
                 </Dropdown>
                 <Button
+                    disabled={currentStatus === selectedStatus}
                     className='publish-status-set'
                     color={Button.ENUMS.COLOR.PRIMARY}
-                    data-dropdown-element>
+                    data-dropdown-element
+                    onClick={() => editor.setContentStatus(selectedStatus)}>
                     {changeButtonLabel}
                 </Button>
             </div>
