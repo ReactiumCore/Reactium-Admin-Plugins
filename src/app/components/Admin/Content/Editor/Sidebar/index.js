@@ -62,7 +62,7 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
         if (!containerRef.current) return;
         e.preventDefault();
         if (collapsibleRef.current) toggle();
-        if (expanded) containerRef.current.focus();
+        containerRef.current.focus();
     };
 
     useEffect(() => {
