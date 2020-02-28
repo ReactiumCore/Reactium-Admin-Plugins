@@ -29,7 +29,11 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
 
     const isContainer = useIsContainer();
 
-    const zoneToolbarID = cx(`${type}-toolbar`)
+    const zoneToolbarTypeID = cx(`${type}-toolbar`)
+        .split(' ')
+        .shift();
+
+    const zoneToolbarID = cx('toolbar')
         .split(' ')
         .shift();
 
@@ -91,22 +95,22 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
                     <Scrollbars autoHeight autoHeightMin='calc(100vh - 60px)'>
                         <div className={cx('toolbar-scroll')}>
                             <div className={cx('toolbar-top')}>
-                                <Button
-                                    color='clear'
-                                    data-align='left'
-                                    data-tooltip='Activity'
-                                    data-vertical-align='middle'
-                                    type='button'>
-                                    <Icon name='Feather.Activity' />
-                                </Button>
                                 <Zone
                                     zone={`${zoneToolbarID}-top`}
+                                    editor={editor}
+                                />
+                                <Zone
+                                    zone={`${zoneToolbarTypeID}-top`}
                                     editor={editor}
                                 />
                             </div>
                             <div className={cx('toolbar-bottom')}>
                                 <Zone
                                     zone={`${zoneToolbarID}-bottom`}
+                                    editor={editor}
+                                />
+                                <Zone
+                                    zone={`${zoneToolbarTypeID}-bottom`}
                                     editor={editor}
                                 />
                             </div>

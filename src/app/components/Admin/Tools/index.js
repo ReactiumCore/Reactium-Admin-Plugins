@@ -71,6 +71,11 @@ let Tools = (props, ref) => {
     useRegisterHandle('AdminTools', handle);
     useImperativeHandle(ref, handle);
 
+    useEffect(() => {
+        handle.Modal = modalRef.current;
+        handle.Tooltip = tooltipRef.current;
+    });
+
     // Render
     return (
         <>

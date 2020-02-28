@@ -10,6 +10,8 @@ import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
 import ElementDialog from './Editor/ElementDialog';
 import SlugInput from './Editor/_plugins/SlugInput';
+import RevisionsWidget from './Revisions/ToolbarWidget';
+import ActivityLogWidget from './ActivityLog/ToolbarWidget';
 
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
@@ -64,6 +66,19 @@ const registerAdminContent = async () => {
         component: SidebarWidget,
         order: 200, // don't change this - Cam
         zone: ['admin-sidebar-menu'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-ACTIVITY-WIDGET',
+        component: ActivityLogWidget,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-content-toolbar-top'],
+    });
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-REVISIONS-WIDGET',
+        component: RevisionsWidget,
+        order: Reactium.Enums.priority.lowest + 10,
+        zone: ['admin-content-toolbar-top'],
     });
 };
 

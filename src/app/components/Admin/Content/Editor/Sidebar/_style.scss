@@ -101,6 +101,14 @@
                 height: 70px;
                 padding: 0;
                 flex-shrink: 0;
+                outline: none;
+                box-shadow: none;
+
+                &:hover,
+                &:focus {
+                    color: $color-blue;
+                    box-shadow: none;
+                }
             }
         }
 
