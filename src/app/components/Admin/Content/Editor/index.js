@@ -193,8 +193,6 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        console.log({ save: newValue });
-
         await dispatch('before-content-saved', newValue);
 
         if (!op.get(newValue, 'type')) {

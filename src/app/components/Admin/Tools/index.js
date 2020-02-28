@@ -1,4 +1,4 @@
-import {
+import Reactium, {
     useRegisterHandle,
     useDocument,
     useWindowSize,
@@ -50,6 +50,12 @@ let Tools = (props, ref) => {
         header.style.width = `${width.current}px`;
     };
 
+    const onKeyDown = e => Reactium.Hotkeys.onKeyboardEvent(e);
+
+    const dismissModal = e => {
+        console.log('dismissModal', e);
+    };
+
     useLayoutEffect(() => {
         if (!headerRef.current) {
             headerRef.current = iDoc.querySelector('.zone-admin-header');
@@ -67,14 +73,38 @@ let Tools = (props, ref) => {
         return () => clearInterval(ival.current);
     });
 
-    // External Interface
-    useRegisterHandle('AdminTools', handle);
-    useImperativeHandle(ref, handle);
-
     useEffect(() => {
         handle.Modal = modalRef.current;
         handle.Tooltip = tooltipRef.current;
     });
+
+    useEffect(() => {
+        Reactium.Hotkeys.register('modal-esc', {
+            key: 'escape',
+            callback: dismissModal,
+            scope: window,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('modal-esc');
+        };
+    });
+
+    // Register keyboard hotkey listener
+    useEffect(() => {
+        if (!modalRef.current) return;
+        if (typeof window === 'undefined') return;
+
+        window.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    }, [Modal]);
+
+    // External Interface
+    useRegisterHandle('AdminTools', handle);
+    useImperativeHandle(ref, handle);
 
     // Render
     return (
