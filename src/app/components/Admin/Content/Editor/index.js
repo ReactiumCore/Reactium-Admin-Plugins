@@ -121,21 +121,35 @@ let ContentEditor = (
     const dispatch = async (event, detail, callback) => {
         if (unMounted()) return;
         const evt = new CustomEvent(event, { detail });
-        // dispatch exact event
-        handle.dispatchEvent(evt);
-        // dispatch status event
-        const statusEvt = new CustomEvent('status', {
-            type: event,
-            data: detail,
-        });
-        handle.dispatchEvent(statusEvt);
+
+        if (event !== 'status') {
+            // dispatch exact event
+            handle.dispatchEvent(evt);
+
+            // dispatch status event
+            const statusEvt = new CustomEvent('status', {
+                type: event,
+                detail,
+            });
+            handle.dispatchEvent(statusEvt);
+        } else {
+            // dispatch status event
+            const statusEvt = new CustomEvent('status', {
+                type: event,
+                detail,
+            });
+            handle.dispatchEvent(statusEvt);
+        }
+
         // dispatch exact reactium hook
         await Reactium.Hook.run(`form-${type}-${event}`, detail);
+
         // dispatch status reactium hook
         await Reactium.Hook.run(`form-${type}-status`, {
             type: event,
             data: detail,
         });
+
         // execute basic callback
         if (typeof callback === 'function') await callback(evt);
     };
@@ -149,7 +163,7 @@ let ContentEditor = (
         });
 
         if (content) {
-            await dispatch('load', content, onLoad);
+            await dispatch('status', { type: 'load', detail: content }, onLoad);
             return Promise.resolve(content);
         } else {
             const message = (
@@ -207,7 +221,7 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        await dispatch('before-saved', newValue);
+        await dispatch('before-save', newValue);
 
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
@@ -310,7 +324,10 @@ let ContentEditor = (
         next();
     };
 
-    const _onStatus = e => dispatch('status', e, onStatus);
+    const _onStatus = e => {
+        const { type, detail } = e;
+        dispatch('status', { type: detail }, onStatus);
+    };
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
@@ -463,7 +480,8 @@ let ContentEditor = (
 
     // dispatch ready
     useEffect(() => {
-        if (ready === true) dispatch('ready', { obj, ready, count }, onReady);
+        if (ready === true)
+            dispatch('status', { type: 'ready', obj, ready, count }, onReady);
     }, [ready]);
 
     // dispatch status
