@@ -121,9 +121,23 @@ let ContentEditor = (
     const dispatch = async (event, detail, callback) => {
         if (unMounted()) return;
         const evt = new CustomEvent(event, { detail });
+        // dispatch exact event
         handle.dispatchEvent(evt);
+        // dispatch status event
+        const statusEvt = new CustomEvent('status', {
+            type: event,
+            data: detail,
+        });
+        handle.dispatchEvent(statusEvt);
+        // dispatch exact reactium hook
+        await Reactium.Hook.run(`form-${type}-${event}`, detail);
+        // dispatch status reactium hook
+        await Reactium.Hook.run(`form-${type}-status`, {
+            type: event,
+            data: detail,
+        });
+        // execute basic callback
         if (typeof callback === 'function') await callback(evt);
-        return Reactium.Hook.run(event, detail, handle);
     };
 
     const getContent = async () => {
@@ -223,12 +237,57 @@ let ContentEditor = (
         return Reactium.Content.save(newValue, [], handle);
     };
 
+    const setContentStatus = async status => {
+        if (isNew()) return;
+
+        setAlert();
+
+        const newValue = { ...value, status };
+
+        if (!op.get(newValue, 'type')) {
+            op.set(newValue, 'type', contentType);
+        }
+
+        await dispatch('before-content-set-status', newValue);
+
+        try {
+            const contentObj = await Reactium.Content.setStatus(
+                newValue,
+                handle,
+            );
+            if (unMounted()) return;
+
+            await dispatch(
+                'content-set-status',
+                { value: contentObj },
+                _onChange,
+            );
+            Toast.show({
+                icon: 'Feather.Check',
+                message: __(`Content status %status`).replace(
+                    '%status',
+                    status,
+                ),
+                type: Toast.TYPE.INFO,
+            });
+        } catch (error) {
+            Toast.show({
+                icon: 'Feather.AlertOctagon',
+                message: __('Content status change failed'),
+                type: Toast.TYPE.ERROR,
+            });
+            console.error({ error });
+        }
+    };
+
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
-        const newValue = { ...value, ...e.value };
-        setValue(newValue, true);
-        await dispatch('content-change', newValue, onChange);
+        if (op.has(e, 'value')) {
+            const newValue = { ...value, ...e.value };
+            setValue(newValue, true);
+            await dispatch('content-change', newValue, onChange);
+        }
     };
 
     const _onError = async e => {
@@ -317,6 +376,7 @@ let ContentEditor = (
         regions,
         save,
         state,
+        setContentStatus,
         setState,
         setValue,
         submit,
