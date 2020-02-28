@@ -43,9 +43,8 @@
 }
 
 .admin-content-element-publish {
-    // min-height: 200px;
     .status-label {
-        padding: 4px 16px;
+        padding: 8px 16px;
         display: flex;
         width: 100%;
         align-items: center;
@@ -57,6 +56,9 @@
 
 .publisher-editor {
     min-height: 300px;
+    &.unsaved {
+        min-height: inherit;
+    }
 }
 
 .publish-status {

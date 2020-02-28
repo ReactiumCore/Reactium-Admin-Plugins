@@ -118,7 +118,11 @@ const usePublisherSettings = props => {
 };
 
 const UnsavedNotice = props => {
-    return __('Save content to see publishing options.');
+    return (
+        <div className='p-xs-20'>
+            {__('Save content to see publishing options.')}
+        </div>
+    );
 };
 
 const ContentStatus = props => {
@@ -199,6 +203,7 @@ const PublisherEditor = props => {
     const ElementDialog = useHookComponent('ElementDialog');
 
     const editor = op.get(props, 'editor');
+    const unsaved = !id;
 
     const render = () => {
         if (!id) return <UnsavedNotice {...props} />;
@@ -213,7 +218,9 @@ const PublisherEditor = props => {
     return (
         ready && (
             <ElementDialog {...props}>
-                <div className='publisher-editor'>{render()}</div>
+                <div className={cn('publisher-editor', { unsaved })}>
+                    {render()}
+                </div>
             </ElementDialog>
         )
     );
