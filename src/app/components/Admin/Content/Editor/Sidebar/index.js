@@ -58,6 +58,11 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
 
     const _onExpand = () => collapsibleRef.current && setExpanded(true);
 
+    const _onHotkey = e => {
+        e.preventDefault();
+        if (collapsibleRef.current) toggle();
+    };
+
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -69,6 +74,20 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
             window.removeEventListener('touchstart', dismiss);
         };
     }, [containerRef.current, expanded]);
+
+    useEffect(() => {
+        if (!collapsibleRef.current) return;
+        Reactium.Hotkeys.register('sidebar-toggle', {
+            callback: _onHotkey,
+            key: 'mod+\\',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('sidebar-toggle');
+        };
+    }, []);
 
     useEffect(() => {
         handle.expanded = expanded;

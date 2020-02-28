@@ -26,6 +26,20 @@
         &.expanded {
             .#{$admin-content-ns}-toolbar {
                 box-shadow: $shadow-image;
+
+                &-scroll {
+                    display: flex;
+                }
+            }
+
+            .#{$admin-content-ns}-sidebar-toggle {
+                &:before {
+                    background-color: $color-white;
+                }
+
+                button {
+                    color: $color-blue;
+                }
             }
         }
 
@@ -48,9 +62,10 @@
                 left: 0;
                 border-radius: 100%;
                 border: 1px solid darken($color-grey-light, 1%);
-                background-color: $color-white;
+                background-color: $color-blue;
                 z-index: 0;
                 pointer-events: none;
+                transition: background-color .25s ease-in-out;
             }
 
             button {
@@ -58,10 +73,23 @@
                 height: 100%;
                 padding: 0 0 0 10px;
                 z-index: 100;
+                color: $color-white;
+                transition: color .25s ease-in-out;
 
                 svg {
                     pointer-events: none;
                     z-index: 100;
+                }
+
+                &:hover {
+                    color: $color-blue;
+                }
+            }
+
+            &:hover {
+                &:before {
+
+                    background-color: $color-white;
                 }
             }
         }
@@ -136,13 +164,5 @@
     &-collapsible {
         box-shadow: $shadow-image;
         background-color: $color-white;
-    }
-}
-
-.expanded {
-    .#{$admin-content-ns}-toolbar {
-        &-scroll {
-            display: flex;
-        }
     }
 }

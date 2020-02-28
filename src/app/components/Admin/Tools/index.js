@@ -53,7 +53,10 @@ let Tools = (props, ref) => {
     const onKeyDown = e => Reactium.Hotkeys.onKeyboardEvent(e);
 
     const dismissModal = e => {
-        console.log('dismissModal', e);
+        if (!modalRef.current) return;
+        e.preventDefault();
+        handle.Modal.hide();
+        return false;
     };
 
     useLayoutEffect(() => {
@@ -80,15 +83,16 @@ let Tools = (props, ref) => {
 
     useEffect(() => {
         Reactium.Hotkeys.register('modal-esc', {
-            key: 'escape',
             callback: dismissModal,
-            scope: window,
+            key: 'esc',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
         });
 
         return () => {
             Reactium.Hotkeys.unregister('modal-esc');
         };
-    });
+    }, []);
 
     // Register keyboard hotkey listener
     useEffect(() => {

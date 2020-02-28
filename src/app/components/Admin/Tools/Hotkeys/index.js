@@ -19,14 +19,12 @@ export default class Hotkeys extends Registry {
             if (next === false) return;
 
             const { key, callback, scope } = item;
-
             if (!scope || !key || typeof callback !== 'function') return;
 
             const isKey = isHotkey(key, event);
             if (!isKey) return;
 
             if (!this.isContainer(event.target, scope)) return;
-
             next = callback(event, key) || true;
         });
     }
