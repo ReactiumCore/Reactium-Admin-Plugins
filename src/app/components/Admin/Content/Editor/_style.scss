@@ -24,10 +24,7 @@ $admin-content-ns: admin-content;
         flex-grow: 1;
         max-width: 100vw;
         width: 100%;
-
-        @include breakpoint(md) {
-            max-width: calc(100% - #{$width-ace-sidebar});
-        }
+        max-width: calc(100% - 50px);
 
         &-region {
             position: relative;
@@ -51,31 +48,6 @@ $admin-content-ns: admin-content;
         }
     }
 
-    &-meta {
-        width: 100%;
-        background-color: $color-white;
-
-        @include breakpoint(md) {
-            position: fixed;
-            top: $height-admin-header;
-            right: 0;
-            width: $width-ace-sidebar;
-            height: calc(100vh - #{$height-admin-header});
-            box-shadow: $shadow-image;
-            overflow: hidden;
-            border-left: 1px solid $color-admin-header-border;
-        }
-
-        .#{$admin-content-ns}-editor-region {
-            padding: 0;
-
-            .ar-dialog {
-                box-shadow: 0 0 1px 1px rgba($color-black, .025);
-                border-radius: 0;
-            }
-        }
-    }
-
     &-help {
         @extend .p-xs-20;
         border-bottom: 1px solid $color-admin-header-border;
@@ -90,3 +62,5 @@ $admin-content-ns: admin-content;
         }
     }
 }
+
+@import './Sidebar/style';

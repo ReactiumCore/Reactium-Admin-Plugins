@@ -46,6 +46,7 @@ let ContentEditor = (
     {
         ENUMS,
         className,
+        id,
         namespace,
         onChange,
         onError,
@@ -62,7 +63,10 @@ let ContentEditor = (
 ) => {
     const alertRef = useRef();
     const formRef = useRef();
+    const sidebarRef = useRef();
 
+    console.log({ id });
+    const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');
 
     const tools = useHandle('AdminTools');
@@ -91,6 +95,9 @@ let ContentEditor = (
         if (unMounted(checkReady)) return;
         newValue = { ...value, ...newValue };
         setNewValue(newValue);
+        handle.EventForm = formRef.current;
+
+        console.log(handle);
     };
 
     const setAlert = newAlert => {
@@ -300,13 +307,15 @@ let ContentEditor = (
 
     // Handle
     const _handle = () => ({
-        EventForm: formRef.current,
         AlertBox: alertRef.current,
+        EventForm: formRef.current,
+        Sidebar: sidebarRef.current,
         alert: setAlert,
         contentType,
         cx,
         dispatch,
         fieldTypes,
+        id,
         isMounted,
         isNew,
         properCase,
@@ -323,8 +332,8 @@ let ContentEditor = (
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
-    useImperativeHandle(ref, () => handle);
-    useRegisterHandle('AdminContentEditor', () => handle, [handle]);
+    useImperativeHandle(ref, () => handle, [handle]);
+    useRegisterHandle(`${id}Editor`, () => handle, [handle]);
 
     // get content types
     useAsyncEffect(
@@ -385,7 +394,7 @@ let ContentEditor = (
     // update handle
     useEffect(() => {
         const newHandle = _handle();
-        const equal = _.isEqual(newHandle, handle);
+        let equal = _.isEqual(newHandle, handle);
         if (equal === true) return;
         setHandle(newHandle);
     });
@@ -463,23 +472,24 @@ let ContentEditor = (
                         </div>
                     )}
                     {value && sidebarRegions.length > 0 && (
-                        <div className={cx('meta')}>
-                            <div className={cx('regions')}>
-                                {sidebarRegions.map(item => (
-                                    <Region
-                                        key={item.slug}
-                                        editor={handle}
-                                        {...item}
-                                    />
-                                ))}
+                        <Sidebar editor={handle} ref={sidebarRef}>
+                            <div className={cx('meta')}>
+                                <div className={cx('regions')}>
+                                    {sidebarRegions.map(item => (
+                                        <Region
+                                            key={item.slug}
+                                            editor={handle}
+                                            {...item}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        </Sidebar>
                     )}
                 </EventForm>
             </>
         );
     };
-
     return render();
 };
 
@@ -488,6 +498,7 @@ ContentEditor = forwardRef(ContentEditor);
 ContentEditor.propTypes = {
     ENUMS: PropTypes.object,
     className: PropTypes.string,
+    id: PropTypes.string,
     namespace: PropTypes.string,
     onChange: PropTypes.func,
     onError: PropTypes.func,
