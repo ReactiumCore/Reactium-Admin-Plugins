@@ -13,7 +13,6 @@ export default class Hotkeys extends Registry {
     }
 
     onKeyboardEvent(event: Object) {
-        // scan through registry and see if the e is there
         let next = true;
         this.list.forEach(item => {
             if (next === false) return;

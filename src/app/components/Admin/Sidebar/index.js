@@ -78,6 +78,13 @@ let AdminSidebar = (
 
     const onExpand = () => setState({ status: ENUMS.STATUS.EXPANDED });
 
+    const onHotkey = e => {
+        if (!containerRef.current) return;
+        e.preventDefault();
+
+        if (collapsibleRef.current) collapsibleRef.current.toggle();
+    };
+
     const cname = cls => {
         const { status } = stateRef.current;
         return cn({
@@ -169,6 +176,20 @@ let AdminSidebar = (
         setMaxSize(isDesktop() ? 320 : width);
         setMinSize(isMobile() ? 1 : 80);
     }, [breakpoint]);
+
+    useEffect(() => {
+        if (!collapsibleRef.current) return;
+        Reactium.Hotkeys.register('sidebar-toggle', {
+            callback: onHotkey,
+            key: 'mod+]',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('sidebar-toggle');
+        };
+    }, []);
 
     useLayoutEffect(() => {
         const { ival } = stateRef.current;

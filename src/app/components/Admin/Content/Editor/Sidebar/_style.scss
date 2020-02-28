@@ -24,26 +24,6 @@
         height: calc(100vh - #{$height-admin-header});
         outline: none;
 
-        &.expanded {
-            .#{$admin-content-ns}-toolbar {
-                box-shadow: $shadow-image;
-
-                &-scroll {
-                    display: flex;
-                }
-            }
-
-            .#{$admin-content-ns}-sidebar-toggle {
-                &:before {
-                    background-color: $color-white;
-                }
-
-                button {
-                    color: $color-blue;
-                }
-            }
-        }
-
         &-toggle {
             position: absolute;
             top: 50%;
@@ -52,9 +32,10 @@
             height: $height-admin-header;
             overflow: hidden;
             transform: translateY(-50%);
-            z-index: 5000000;
+            z-index: 1000;
+            display: flex;
 
-            &:before {
+            div.bg {
                 content: '';
                 width: $height-admin-header;
                 height: $height-admin-header;
@@ -73,24 +54,55 @@
                 width: 100%;
                 height: 100%;
                 padding: 0 0 0 10px;
-                z-index: 100;
+                z-index: 1001;
                 color: $color-white;
                 transition: color .25s ease-in-out;
 
                 svg {
                     pointer-events: none;
-                    z-index: 100;
+                    z-index: 100000;
                 }
 
-                &:focus,
-                &:hover {
+                &:hover,
+                &:focus {
                     color: $color-blue;
                 }
             }
 
-            &:hover {
-                &:before {
+            button:hover + div.bg,
+            button:focus + div.bg {
+                background-color: $color-white;
+            }
+        }
+
+        &.expanded {
+            .#{$admin-content-ns}-toolbar {
+                box-shadow: $shadow-image;
+
+                &-scroll {
+                    display: flex;
+                }
+            }
+
+            .#{$admin-content-ns}-sidebar-toggle {
+                div.bg {
+                    z-index: 0;
                     background-color: $color-white;
+                }
+
+                button {
+                    z-index: 1000;
+                    color: $color-blue;
+
+                    &:hover,
+                    &:focus {
+                        color: $color-white;
+                    }
+                }
+
+                button:hover + div.bg,
+                button:focus + div.bg {
+                    background-color: $color-blue;
                 }
             }
         }

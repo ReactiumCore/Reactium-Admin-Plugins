@@ -59,10 +59,25 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
     const _onExpand = () => collapsibleRef.current && setExpanded(true);
 
     const _onHotkey = e => {
+        if (!containerRef.current) return;
         e.preventDefault();
         if (collapsibleRef.current) toggle();
-        if (!expanded) containerRef.current.focus();
+        if (expanded) containerRef.current.focus();
     };
+
+    useEffect(() => {
+        if (!collapsibleRef.current) return;
+        Reactium.Hotkeys.register('content-sidebar-toggle', {
+            callback: _onHotkey,
+            key: 'mod+\\',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('content-sidebar-toggle');
+        };
+    }, []);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -75,20 +90,6 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
             window.removeEventListener('touchstart', dismiss);
         };
     }, [containerRef.current, expanded]);
-
-    useEffect(() => {
-        if (!collapsibleRef.current) return;
-        Reactium.Hotkeys.register('sidebar-toggle', {
-            callback: _onHotkey,
-            key: 'mod+\\',
-            order: Reactium.Enums.priority.lowest,
-            scope: document,
-        });
-
-        return () => {
-            Reactium.Hotkeys.unregister('sidebar-toggle');
-        };
-    }, []);
 
     useEffect(() => {
         handle.expanded = expanded;
@@ -145,6 +146,7 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
                         <Button color='clear' onClick={toggle}>
                             <Icon name={icon} size={20} />
                         </Button>
+                        <div className='bg' />
                     </div>
                 </div>
                 <Collapsible
