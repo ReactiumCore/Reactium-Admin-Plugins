@@ -42,6 +42,26 @@ import Reactium, {
  */
 const noop = () => {};
 
+export class ContentEditorEvent extends CustomEvent {
+    constructor(type, data) {
+        super(type, data);
+
+        op.del(data, 'type');
+        op.del(data, 'target');
+
+        Object.entries(data).forEach(([key, value]) => {
+            if (!this[key]) {
+                try {
+                    this[key] = value;
+                } catch (err) {}
+            } else {
+                key = `__${key}`;
+                this[key] = value;
+            }
+        });
+    }
+}
+
 let ContentEditor = (
     {
         ENUMS,
@@ -118,37 +138,30 @@ let ContentEditor = (
 
     const cname = cn(cx(), { [className]: !!className });
 
-    const dispatch = async (event, detail, callback) => {
+    const dispatch = async (eventType, event, callback) => {
         if (unMounted()) return;
-        const evt = new CustomEvent(event, { detail });
 
-        if (event !== 'status') {
-            // dispatch exact event
+        // dispatch exact eventType
+        const evt = new ContentEditorEvent(eventType, event);
+        if (eventType !== 'status') {
             handle.dispatchEvent(evt);
-
-            // dispatch status event
-            const statusEvt = new CustomEvent('status', {
-                type: event,
-                detail,
-            });
-            handle.dispatchEvent(statusEvt);
-        } else {
-            // dispatch status event
-            const statusEvt = new CustomEvent('status', {
-                type: event,
-                detail,
-            });
-            handle.dispatchEvent(statusEvt);
         }
 
+        // dispatch status event
+        const statusEvt = new ContentEditorEvent('status', {
+            ...event,
+            event: String(
+                eventType === 'status' ? op.get(event, 'event') : eventType,
+            ).toUpperCase(),
+        });
+
+        handle.dispatchEvent(statusEvt);
+
         // dispatch exact reactium hook
-        await Reactium.Hook.run(`form-${type}-${event}`, { detail });
+        await Reactium.Hook.run(`form-${type}-${eventType}`, evt);
 
         // dispatch status reactium hook
-        await Reactium.Hook.run(`form-${type}-status`, {
-            type: event,
-            detail,
-        });
+        await Reactium.Hook.run(`form-${type}-status`, statusEvt);
 
         // execute basic callback
         if (typeof callback === 'function') await callback(evt);
@@ -163,7 +176,7 @@ let ContentEditor = (
         });
 
         if (content) {
-            await dispatch('status', { type: 'load', detail: content }, onLoad);
+            await dispatch('status', { event: 'load', content }, onLoad);
             return Promise.resolve(content);
         } else {
             const message = (
@@ -221,7 +234,7 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
-        await dispatch('before-save', newValue);
+        await dispatch('before-save', { value: newValue });
 
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
@@ -246,7 +259,7 @@ let ContentEditor = (
             }
         }
 
-        await dispatch('save', newValue, onChange);
+        await dispatch('save', { value: newValue }, onChange);
 
         return Reactium.Content.save(newValue, [], handle);
     };
@@ -262,7 +275,7 @@ let ContentEditor = (
             op.set(newValue, 'type', contentType);
         }
 
-        await dispatch('before-content-set-status', newValue);
+        await dispatch('before-content-set-status', { value: newValue });
 
         try {
             const contentObj = await Reactium.Content.setStatus(
@@ -300,17 +313,17 @@ let ContentEditor = (
         if (op.has(e, 'value')) {
             const newValue = { ...value, ...e.value };
             setValue(newValue, true);
-            await dispatch('change', newValue, onChange);
+            await dispatch('change', { value: newValue }, onChange);
         }
     };
 
-    const _onError = async e => {
-        await dispatch('save-error', e, onError);
+    const _onError = async error => {
+        await dispatch('save-error', { error }, onError);
         if (isMounted()) setAlert(e);
     };
 
     const _onFail = async (e, error, next) => {
-        await dispatch('save-fail', error, onFail);
+        await dispatch('save-fail', { error }, onFail);
 
         const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
 
@@ -326,7 +339,7 @@ let ContentEditor = (
 
     const _onStatus = e => {
         const { type, detail } = e;
-        dispatch('status', { type: detail }, onStatus);
+        dispatch('status', { event: detail }, onStatus);
     };
 
     const _onSubmit = async e =>
@@ -344,7 +357,7 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
-        await dispatch('save-success', result, onSuccess);
+        await dispatch('save-success', { result }, onSuccess);
 
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
@@ -372,6 +385,7 @@ let ContentEditor = (
     };
 
     const _onValidate = async e => {
+        console.log('_onValidate', e);
         await dispatch('validate', e, onValidate);
         return e;
     };
@@ -481,7 +495,7 @@ let ContentEditor = (
     // dispatch ready
     useEffect(() => {
         if (ready === true)
-            dispatch('status', { type: 'ready', obj, ready, count }, onReady);
+            dispatch('status', { event: 'READY', obj, ready, count }, onReady);
     }, [ready]);
 
     // dispatch status

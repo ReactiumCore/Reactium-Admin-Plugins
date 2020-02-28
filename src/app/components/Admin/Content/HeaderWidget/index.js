@@ -38,10 +38,7 @@ const SaveButton = ({ Editor, type }) => {
     );
 
     const onStatus = e => {
-        const newStatus =
-            typeof e.detail.type === 'string'
-                ? String(e.detail.type).toUpperCase()
-                : null;
+        const newStatus = e.event;
         if (newStatus !== status) setStatus(newStatus);
     };
 
