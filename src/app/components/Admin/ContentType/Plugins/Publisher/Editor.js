@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Reactium, {
     __,
     useHookComponent,
@@ -126,10 +126,15 @@ const UnsavedNotice = props => {
 };
 
 const ContentStatus = props => {
+    const ddRef = useRef();
     const { editor, config } = props;
     const simple = op.get(config, 'simple', false);
-    const currentStatus = op.get(editor, 'value.status');
-    const [selectedStatus, setSelected] = useState(currentStatus);
+    const [statusState, setStatusState] = useState({
+        currentStatus: op.get(editor, 'value.status'),
+        selectedStatus: op.get(editor, 'value.status'),
+    });
+
+    const { currentStatus, selectedStatus } = statusState;
     const statusLabel = __('Status: %status')
         .split('%status')
         .map(label => {
@@ -139,9 +144,39 @@ const ContentStatus = props => {
 
     const changeButtonLabel = __('Change');
 
+    const updateStatus = status => {
+        const newStatusState = {
+            ...statusState,
+            ...status,
+        };
+        setStatusState(newStatusState);
+    };
+
     const statuses = config.statuses.filter(
         status => config.can.status[status],
     );
+
+    const _contentStatusEventHandler = e => {
+        const status = op.get(e.detail, 'value.status');
+        updateStatus({ currentStatus: status, selectedStatus: status });
+        ddRef.current.setState({ selection: [status] });
+    };
+
+    // On submit handler
+    useEffect(() => {
+        if (editor.unMounted()) return;
+        editor.addEventListener(
+            'content-set-status',
+            _contentStatusEventHandler,
+        );
+
+        return () => {
+            editor.removeEventListener(
+                'content-set-status',
+                _contentStatusEventHandler,
+            );
+        };
+    }, [editor]);
 
     const canChangeStatus = () => {
         // simple workflow
@@ -167,14 +202,21 @@ const ContentStatus = props => {
             dismissable={false}>
             <div className={'publish-status-dialog-content'}>
                 <Dropdown
+                    ref={ddRef}
                     className='publish-status-dropdown'
                     data={statuses.map(status => ({
                         label: status,
                         value: status,
                     }))}
                     maxHeight={160}
-                    value={currentStatus}
-                    onChange={val => setSelected(op.get(val, 'item.value'))}>
+                    selection={[selectedStatus]}
+                    onChange={val => {
+                        const selectedStatus = op.get(val, 'item.value');
+                        if (selectedStatus)
+                            updateStatus({
+                                selectedStatus,
+                            });
+                    }}>
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
                         data-dropdown-element>
