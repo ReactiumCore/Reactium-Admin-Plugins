@@ -65,7 +65,6 @@ let ContentEditor = (
     const formRef = useRef();
     const sidebarRef = useRef();
 
-    console.log({ id });
     const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');
 
@@ -95,9 +94,6 @@ let ContentEditor = (
         if (unMounted(checkReady)) return;
         newValue = { ...value, ...newValue };
         setNewValue(newValue);
-        handle.EventForm = formRef.current;
-
-        console.log(handle);
     };
 
     const setAlert = newAlert => {
@@ -397,6 +393,13 @@ let ContentEditor = (
         let equal = _.isEqual(newHandle, handle);
         if (equal === true) return;
         setHandle(newHandle);
+    });
+
+    // update handle refs
+    useEffect(() => {
+        handle.AlertBox = alertRef.current;
+        handle.EventForm = formRef.current;
+        handle.Sidebar = sidebarRef.current;
     });
 
     // dispatch ready
