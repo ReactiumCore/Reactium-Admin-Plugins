@@ -39,6 +39,7 @@ const SaveButton = ({ Editor, type }) => {
 
     const onStatus = e => {
         const newStatus = e.event;
+        console.log(e);
         if (newStatus !== status) setStatus(newStatus);
     };
 

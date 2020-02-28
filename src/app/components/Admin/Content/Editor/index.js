@@ -351,7 +351,7 @@ let ContentEditor = (
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
-        if (op.has(e, 'value')) {
+        if (e.value) {
             const newValue = { ...value, ...e.value };
             setValue(newValue, true);
             await dispatch('change', { value: newValue }, onChange);
