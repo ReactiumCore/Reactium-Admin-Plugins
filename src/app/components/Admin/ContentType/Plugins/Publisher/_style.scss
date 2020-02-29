@@ -100,20 +100,23 @@
 }
 
 .publish-button {
-    //margin: 20px 10px;
-    padding: $padding-admin-content-zone;;
+    padding: $padding-admin-content-zone;
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     button {
+        flex-shrink: 0;
         margin-right: 8px;
     }
 
     &-updated {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        align-items: space-between;
+        flex-grow: 1;
+        flex-shrink: 1;
 
         font-size: 12px;
         svg {
@@ -121,6 +124,9 @@
         }
         svg, strong {
             margin-right: 4px;
+        }
+        .updated-at {
+            margin-left: 24px;
         }
     }
 }
