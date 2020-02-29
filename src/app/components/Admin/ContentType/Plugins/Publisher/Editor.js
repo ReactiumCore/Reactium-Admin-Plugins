@@ -297,8 +297,17 @@ const PublishButton = props => {
     const updatedLabel = __('Updated: %updated')
         .split('%updated')
         .map(item => {
-            if (item.length) return <strong key='updated'>{item}</strong>;
-            return <span key='updated-at'>{updatedAt.fromNow()}</span>;
+            if (item.length)
+                return (
+                    <strong key='updated'>
+                        <Icon name='Linear.CalendarFull' /> {item}
+                    </strong>
+                );
+            return (
+                <span className='updated-at' key='updated-at'>
+                    {updatedAt.fromNow()}
+                </span>
+            );
         });
 
     return (
@@ -318,7 +327,6 @@ const PublishButton = props => {
             <div
                 className='publish-button-updated'
                 data-tooltip={__('Last Updated')}>
-                <Icon name='Linear.CalendarFull' />
                 {updatedLabel}
             </div>
         </div>
