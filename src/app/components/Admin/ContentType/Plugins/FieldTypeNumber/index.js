@@ -118,19 +118,20 @@ export const Editor = props => {
 
     const className = cn('form-group', { error: !!errorText });
 
-    const validate = e => {
-        e.detail.valid = false;
-        e.detail.errors.errors.push('invalid number');
-        e.detail.errors.fields.push(fieldName);
-        console.log('validate', e);
-        return e.detail;
+    const validate = ({ context, value }) => {
+        // context.valid = false;
+        // context.errors.push(`invalid ${fieldName} in ${editor.type}`);
+        // context.fields.push(fieldName);
+        return context;
     };
 
-    // useEffect(() => {
-    //     if (editor.unMounted()) return;
-    //     editor.addEventListener('validate', validate);
-    //     return () => { editor.removeEventListener('validate', validate); }
-    // }, []);
+    useEffect(() => {
+        if (editor.unMounted()) return;
+        editor.addEventListener('validate', validate);
+        return () => {
+            editor.removeEventListener('validate', validate);
+        };
+    }, []);
 
     return (
         <ElementDialog {...props}>

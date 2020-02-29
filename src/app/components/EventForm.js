@@ -291,44 +291,30 @@ let EventForm = (initialProps, ref) => {
 
         currentValue = currentValue || getValue();
 
-        let valid = true;
-        let errors = { focus: null, fields: [], errors: [] };
+        const context = {
+            errors: [],
+            fields: [],
+            focus,
+            valid: true,
+            value: currentValue,
+        };
 
         const missing = required.filter(k => _.isEmpty(currentValue[k]));
 
         if (missing.length > 0) {
-            valid = false;
-            missing.reduce((errors, field) => {
-                errors.fields.push(field);
-                errors.errors.push(`${field} is a required field`);
-
-                return errors;
-            }, errors);
-
-            errors.focus = errors.fields.length > 0 ? errors.fields[0] : null;
-        }
-
-        // validator should return Object: { valid:Boolean, errors:Array }
-        if (validator) {
-            const validatorResult = await validator({
-                currentValue,
-                valid,
-                errors,
-                target: handle,
+            missing.forEach(field => {
+                context.fields.push(field);
+                context.errors.push(`${field} is a required field`);
             });
 
-            if (_.isObject(validatorResult)) {
-                valid = op.get(validatorResult, 'valid', true) && valid;
-                const newErrors = op.get(validatorResult, 'errors', {});
-                errors = {
-                    focus: newErrors.focus || errors.focus,
-                    fields: _.unique([...errors.fields, ...newErrors.fields]),
-                    errors: _.unique([...errors.errors, ...newErrors.errors]),
-                };
-            }
+            context.focus =
+                context.fields.length > 0 ? context.fields[0] : null;
+            context.valid = false;
         }
 
-        return { valid, errors };
+        // validator should return Object: { valid:Boolean, errors:[Array], focus:[Array], focus:[Element] }
+        if (validator) await validator(context);
+        return context;
     };
 
     /* Event handlers */

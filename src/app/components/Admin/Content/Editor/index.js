@@ -426,8 +426,7 @@ let ContentEditor = (
     };
 
     const _onValidate = async e => {
-        console.log('_onValidate', e);
-        await dispatch('validate', e, onValidate);
+        await dispatch('validate', { context: e }, onValidate);
         return e;
     };
 
