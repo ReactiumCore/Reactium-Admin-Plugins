@@ -1,4 +1,4 @@
-//import Editor from './Editor';
+import Editor from './Editor';
 import { __ } from 'reactium-core/sdk';
 import FieldTypeRichText from './index';
 import Reactium from 'reactium-core/sdk';
@@ -9,7 +9,7 @@ const registerFieldTypePlugin = async () => {
     await Reactium.Plugin.register(ID);
 
     Reactium.Component.register(ID, FieldTypeRichText);
-    //Reactium.Component.register(`${ID}-editor`, Editor);
+    Reactium.Component.register(`${ID}-editor`, Editor);
 
     Reactium.ContentType.FieldType.register({
         type: 'RichText',
