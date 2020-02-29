@@ -1,5 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
+import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 /**
@@ -50,8 +51,13 @@ export const FieldType = props => {
 };
 
 export const Editor = props => {
-    const { defaultValue, errorText, fieldName, pattern, placeholder } = props;
+    const { defaultValue, editor, fieldName, pattern, placeholder } = props;
     const ElementDialog = useHookComponent('ElementDialog');
+
+    const value = editor.value[fieldName];
+
+    // Apply default value
+    if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
 
     const inputProps = {
         defaultValue,
@@ -61,7 +67,14 @@ export const Editor = props => {
         type: 'text',
     };
 
+    const { errors } = editor;
+    const errorText = op.get(errors, [fieldName, 'message']);
     const className = cn('form-group', { error: !!errorText });
+    const replacers = {
+        '%fieldName': fieldName,
+        '%type': editor.type,
+        '%value': editor.value[fieldName],
+    };
 
     return (
         <ElementDialog {...props}>
@@ -73,7 +86,11 @@ export const Editor = props => {
                         </span>
                         <input {...inputProps} />
                     </label>
-                    {errorText && <small>{errorText}</small>}
+                    {errorText && (
+                        <small>
+                            {editor.parseErrorMessage(errorText, replacers)}
+                        </small>
+                    )}
                 </div>
             </div>
         </ElementDialog>

@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect, useRef } from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
+import React, { useEffect, useRef, useState } from 'react';
 import { Checkbox, Slider } from '@atomic-reactor/reactium-ui';
 
 /**
@@ -106,7 +106,7 @@ export const Editor = props => {
 
     const ElementDialog = useHookComponent('ElementDialog');
     const inputRef = useRef();
-    const value = editor.value[fieldName];
+    const [value, setValue] = useState(editor.value[fieldName]);
 
     // Apply default value
     if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
@@ -126,9 +126,9 @@ export const Editor = props => {
 
         if (!v) return context;
 
-        const chk = isNaN(v);
+        if (inputRef.current) setValue(v);
 
-        if (chk === true) {
+        if (isNaN(v)) {
             context.error[fieldName] = {
                 field: fieldName,
                 focus: inputRef.current,
@@ -147,7 +147,7 @@ export const Editor = props => {
     const replacers = {
         '%fieldName': fieldName,
         '%type': editor.type,
-        '%value': editor.value[fieldName],
+        '%value': value,
     };
 
     useEffect(() => {
