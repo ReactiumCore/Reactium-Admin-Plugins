@@ -19,9 +19,9 @@ import op from 'object-path';
 import _ from 'underscore';
 import cn from 'classnames';
 import uuid from 'uuid/v4';
+import moment from 'moment';
 
 const ENUMS = {
-    DEFAULT_STATUSES: ['DRAFT', 'PUBLISHED'],
     MODES: {
         LOADING: 'LOADING',
         LOADED: 'LOADED',
@@ -44,14 +44,16 @@ const ENUMS = {
         PUBLISH: {
             text: __('Publish'),
             tooltip: __('Publish current version of content'),
+            action: 'publish',
         },
         UNPUBLISH: {
             text: __('Unpublish'),
             tooltip: __('Unpublish current version of content'),
+            action: 'unpublish',
         },
         SET_STATUS: {
-            text: __('Set Status'),
-            tooltip: __('Set status on current version of content.'),
+            text: __('Change'),
+            tooltip: __('Change status on current version of content.'),
         },
         DISABLED: {
             text: __('Disabled'),
@@ -62,11 +64,14 @@ const ENUMS = {
     },
 };
 
+// TODO: Make backend content-capabilities call, that give matrix is capabilities
+// for the content type, instead of checking these individually
+// Make this part of the editor handle
 const usePublisherSettings = props => {
     const contentType = op.get(props, 'editor.contentType');
     const collection = op.get(contentType, 'collection');
     const statuses = _.chain((op.get(props, 'statuses', '') || '').split(','))
-        .without(...ENUMS.DEFAULT_STATUSES)
+        .without('PUBLISHED')
         .compact()
         .uniq()
         .sort()
@@ -142,8 +147,6 @@ const ContentStatus = props => {
             else return <strong key={currentStatus}>{currentStatus}</strong>;
         });
 
-    const changeButtonLabel = __('Change');
-
     const updateStatus = status => {
         const newStatusState = {
             ...statusState,
@@ -157,26 +160,26 @@ const ContentStatus = props => {
     );
 
     const _contentStatusEventHandler = e => {
-        const status = op.get(e.detail, 'value.status');
-        updateStatus({ currentStatus: status, selectedStatus: status });
-        ddRef.current.setState({ selection: [status] });
+        const { value } = e;
+        const { currentStatus, updatedAt } = statusState;
+
+        if (currentStatus !== value.status) {
+            updateStatus({
+                currentStatus: value.status,
+                selectedStatus: value.status,
+            });
+        }
     };
 
     // On submit handler
     useEffect(() => {
         if (editor.unMounted()) return;
-        editor.addEventListener(
-            'content-set-status',
-            _contentStatusEventHandler,
-        );
+        editor.addEventListener('change', _contentStatusEventHandler);
 
         return () => {
-            editor.removeEventListener(
-                'content-set-status',
-                _contentStatusEventHandler,
-            );
+            editor.removeEventListener('change', _contentStatusEventHandler);
         };
-    }, [editor]);
+    }, [editor, statusState]);
 
     const canChangeStatus = () => {
         // simple workflow
@@ -220,7 +223,10 @@ const ContentStatus = props => {
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
                         data-dropdown-element>
-                        {selectedStatus}
+                        <div className={'publish-status-dropdown-label'}>
+                            <span>{selectedStatus}</span>
+                            <Icon name='Feather.ChevronDown' />
+                        </div>
                     </Button>
                 </Dropdown>
                 <Button
@@ -229,10 +235,93 @@ const ContentStatus = props => {
                     color={Button.ENUMS.COLOR.PRIMARY}
                     data-dropdown-element
                     onClick={() => editor.setContentStatus(selectedStatus)}>
-                    {changeButtonLabel}
+                    {ENUMS.BUTTON_MODES.SET_STATUS.text}
                 </Button>
             </div>
         </Dialog>
+    );
+};
+
+const PublishButton = props => {
+    const { editor, config } = props;
+    const [statusState, setStatusState] = useState({
+        currentStatus: op.get(editor, 'value.status'),
+        updatedAt: moment(op.get(editor, 'value.updatedAt')),
+    });
+
+    const { currentStatus, updatedAt } = statusState;
+
+    const updateStatus = update => {
+        const newStatusState = {
+            ...statusState,
+            ...update,
+        };
+        setStatusState(newStatusState);
+    };
+
+    const _contentStatusEventHandler = e => {
+        const { value } = e;
+        const { currentStatus, updatedAt } = statusState;
+
+        if (currentStatus !== value.status) {
+            updateStatus({
+                currentStatus: value.status,
+                updatedAt: moment(value.updatedAt),
+            });
+        }
+    };
+
+    // On submit handler
+    useEffect(() => {
+        if (editor.unMounted()) return;
+        editor.addEventListener('change', _contentStatusEventHandler);
+        return () => {
+            editor.removeEventListener('change', _contentStatusEventHandler);
+        };
+    }, [editor, currentStatus]);
+
+    let mode,
+        disabled = false;
+
+    if (!config.can.publish && !config.can.unpublish) {
+        mode = ENUMS.BUTTON_MODES.DISABLED;
+        disabled = true;
+    } else if (currentStatus === 'PUBLISHED') {
+        mode = ENUMS.BUTTON_MODES.UNPUBLISH;
+        if (!config.can.unpublish) disabled = true;
+    } else if (currentStatus !== 'PUBLISHED') {
+        mode = ENUMS.BUTTON_MODES.PUBLISH;
+        if (!config.can.publish) disabled = true;
+    }
+
+    const updatedLabel = __('Updated: %updated')
+        .split('%updated')
+        .map(item => {
+            if (item.length) return <strong key='updated'>{item}</strong>;
+            return <span key='updated-at'>{updatedAt.fromNow()}</span>;
+        });
+
+    return (
+        <div className='publish-button'>
+            {mode !== ENUMS.BUTTON_MODES.DISABLED && (
+                <Button
+                    disabled={!mode.action || disabled}
+                    appearance={Button.ENUMS.APPEARANCE.PILL}
+                    size={Button.ENUMS.SIZE.MD}
+                    color={Button.ENUMS.COLOR.PRIMARY}
+                    title={mode.tooltip}
+                    data-tooltip={mode.tooltip}
+                    onClick={() => editor.publish(mode.action)}>
+                    {mode.text}
+                </Button>
+            )}
+            <div
+                className='publish-button-updated'
+                data-tooltip={__('Last Updated')}>
+                <Icon name='Linear.CalendarFull' />
+                {updatedLabel}
+            </div>
+        </div>
     );
 };
 
@@ -250,6 +339,7 @@ const PublisherEditor = props => {
         return (
             <>
                 <ContentStatus editor={editor} config={config} />
+                <PublishButton editor={editor} config={config} />
             </>
         );
     };
