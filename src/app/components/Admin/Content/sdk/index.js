@@ -181,6 +181,38 @@ Content.retrieve = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.revisions(params,handle) Content.revisions()
+ * @apiDescription Retrieve revisions history of some content.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {Boolean} [current=false] When true, get the currently committed content (not from revision system).
+ otherwise, construct the content from the provided history (branch and revision index).
+ * @apiParam (params) {Object} [history] revision history to retrieve, containing branch and revision index.
+ * @apiParam (params) {String} [slug] The unique slug for the content.
+ * @apiParam (params) {String} [objectId] The objectId for the content.
+ * @apiParam (params) {String} [uuid] The uuid for the content.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiParam (history) {String} [branch=master] the revision branch of current content
+ * @apiName Content.revisions
+ * @apiGroup Reactium.Content
+ */
+Content.revisions = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const revisions = await Reactium.Cloud.run('content-revisions', request);
+
+    await Reactium.Hook.run(
+        'content-get-revisions',
+        revisions,
+        request,
+        handle,
+    );
+    return revisions;
+};
+
+/**
  * @api {Asynchronous} Content.setCurrent(params,handle) Content.setCurrent()
  * @apiDescription Take content from a specified branch or revision,
  and make it the "official" version of the content. If no `history` is param is
