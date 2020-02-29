@@ -141,6 +141,7 @@ let ContentEditor = (
     const [currentSlug, setCurrentSlug] = useState(slug);
     const [dirty, setNewDirty] = useState(true);
     const [errors, setErrors] = useState({});
+    const [stale, setStale] = useEffect(false);
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
@@ -555,8 +556,10 @@ let ContentEditor = (
         publish,
         setClean,
         setDirty,
+        setStale,
         setState,
         setValue,
+        stale,
         submit,
         type,
         types,
