@@ -139,6 +139,7 @@ let ContentEditor = (
     const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
     const [currentSlug, setCurrentSlug] = useState(slug);
+    const [dirty, setNewDirty] = useState(true);
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
@@ -168,6 +169,28 @@ let ContentEditor = (
         setNewAlert(newAlert);
     };
 
+    const setClean = (params = {}) => {
+        const newValue = op.get(params, 'value');
+
+        setNewDirty(false);
+        _.defer(() => {
+            if (unMounted()) return;
+            if (newValue) setNewValue(newValue);
+            dispatch('clean', { value: newValue });
+        });
+    };
+
+    const setDirty = (params = {}) => {
+        const newValue = op.get(params, 'value');
+
+        setNewDirty(true);
+        _.defer(() => {
+            if (unMounted()) return;
+            if (newValue) setNewValue(newValue);
+            dispatch('dirty', { value: newValue });
+        });
+    };
+
     // Functions
 
     const cx = Reactium.Utils.cxFactory(namespace);
@@ -186,10 +209,13 @@ let ContentEditor = (
         // dispatch status event
         const statusType =
             eventType === 'status' ? op.get(event, 'event') : eventType;
+
         const statusEvt = new ContentEditorEvent('status', {
             ...event,
             event: String(statusType).toUpperCase(),
         });
+
+        console.log('dispatch:', eventType, statusEvt.event);
 
         handle.dispatchEvent(statusEvt);
 
@@ -201,6 +227,13 @@ let ContentEditor = (
 
         // execute basic callback
         if (typeof callback === 'function') await callback(evt);
+
+        // passive clean/dirty events
+        const dirtyEvents = _.pluck(Reactium.Content.DirtyEvent.list, 'id');
+        const scrubEvents = _.pluck(Reactium.Content.ScrubEvent.list, 'id');
+
+        if (dirtyEvents.includes(eventType)) setDirty();
+        if (scrubEvents.includes(eventType)) setClean();
     };
 
     const getContent = async () => {
@@ -212,7 +245,7 @@ let ContentEditor = (
         });
 
         if (content) {
-            await dispatch('status', { event: 'load', content }, onLoad);
+            await dispatch('load', { content }, onLoad);
             return Promise.resolve(content);
         } else {
             const message = (
@@ -234,6 +267,10 @@ let ContentEditor = (
         if (checkReady === true && !ready) return true;
         return !formRef.current;
     };
+
+    const isClean = () => dirty !== true;
+
+    const isDirty = () => dirty === true;
 
     const isMounted = (checkReady = false) => {
         if (unMounted(checkReady)) return false;
@@ -505,6 +542,8 @@ let ContentEditor = (
         errors,
         fieldTypes,
         id,
+        isClean,
+        isDirty,
         isMounted,
         isNew,
         parseErrorMessage,
@@ -514,6 +553,8 @@ let ContentEditor = (
         state,
         setContentStatus,
         publish,
+        setClean,
+        setDirty,
         setState,
         setValue,
         submit,
@@ -729,3 +770,31 @@ ContentEditor.defaultProps = {
 };
 
 export default ContentEditor;
+
+/*
+    FLUSH
+
+    DIRTY
+    - value change
+    - isDirty()
+
+
+    CLEAN
+    - loaded
+    - saved
+    - isClean()
+
+
+    SCENARIO 1
+    When a user changes the publisher status the current revion is saved as the current version of the content (checked out) and sets the `status`.
+    Then the front-end loads that content to `value` field.
+
+    When this happens, set the `dirty` flag to false.
+
+    SCENARIO 2
+    The change log has been continously pinging and suddenly an outsider has created a new revions while my current checked out revision is marked as `clean`.
+    The editor show now mark itself as `stale` and throw an alert asking if the user wishes to load the newer revision.
+
+    scrub-events
+    dirty
+*/

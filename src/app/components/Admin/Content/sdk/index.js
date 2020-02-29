@@ -2,6 +2,7 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Parse from 'appdir/api';
+import Registry from 'components/Admin/Tools/Registry';
 
 const serialize = data => {
     if (!data || typeof data.toJSON === 'undefined') return data;
@@ -741,6 +742,15 @@ Content.list = async (params, handle) => {
     await Reactium.Hook.run('content-list', contentObj, request, handle);
     return contentObj;
 };
+
+Content.DirtyEvent = new Registry('DirtyEvent');
+Content.ScrubEvent = new Registry('ScrubEvent');
+
+Content.DirtyEvent.protect(['change']);
+Content.ScrubEvent.protect(['save-success', 'load']);
+
+Content.DirtyEvent.protected.forEach(id => Content.DirtyEvent.register(id));
+Content.ScrubEvent.protected.forEach(id => Content.ScrubEvent.register(id));
 
 Reactium.Hook.register('content-saved', async contentObj => {
     const { canRead = [], canWrite = [] } = await Content.ACLToReadWrite(
