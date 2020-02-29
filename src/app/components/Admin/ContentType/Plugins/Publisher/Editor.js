@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Reactium, {
     __,
+    useHandle,
     useHookComponent,
     useAsyncEffect,
     useFulfilledObject,
@@ -138,6 +139,7 @@ const ContentStatus = props => {
         currentStatus: op.get(editor, 'value.status'),
         selectedStatus: op.get(editor, 'value.status'),
     });
+    const dirtyCheck = props.dirtyCheck;
 
     const { currentStatus, selectedStatus } = statusState;
     const statusLabel = __('Status: %status')
@@ -160,6 +162,7 @@ const ContentStatus = props => {
     );
 
     const _contentStatusEventHandler = e => {
+        if (!e.value) return;
         const { value } = e;
         const { currentStatus, updatedAt } = statusState;
 
@@ -234,7 +237,9 @@ const ContentStatus = props => {
                     className='publish-status-set'
                     color={Button.ENUMS.COLOR.PRIMARY}
                     data-dropdown-element
-                    onClick={() => editor.setContentStatus(selectedStatus)}>
+                    onClick={dirtyCheck(() =>
+                        editor.setContentStatus(selectedStatus),
+                    )}>
                     {ENUMS.BUTTON_MODES.SET_STATUS.text}
                 </Button>
             </div>
@@ -244,6 +249,7 @@ const ContentStatus = props => {
 
 const PublishButton = props => {
     const { editor, config } = props;
+    const dirtyCheck = props.dirtyCheck;
     const [statusState, setStatusState] = useState({
         currentStatus: op.get(editor, 'value.status'),
         updatedAt: moment(op.get(editor, 'value.updatedAt')),
@@ -260,6 +266,7 @@ const PublishButton = props => {
     };
 
     const _contentStatusEventHandler = e => {
+        if (!e.value) return;
         const { value } = e;
         const { currentStatus, updatedAt } = statusState;
 
@@ -320,7 +327,7 @@ const PublishButton = props => {
                     color={Button.ENUMS.COLOR.PRIMARY}
                     title={mode.tooltip}
                     data-tooltip={mode.tooltip}
-                    onClick={() => editor.publish(mode.action)}>
+                    onClick={dirtyCheck(() => editor.publish(mode.action))}>
                     {mode.text}
                 </Button>
             )}
@@ -337,17 +344,45 @@ const PublisherEditor = props => {
     const id = op.get(props, 'editor.value.objectId');
     const [config, ready] = usePublisherSettings(props);
     const ElementDialog = useHookComponent('ElementDialog');
-
     const editor = op.get(props, 'editor');
     const unsaved = !id;
+    const tools = useHandle('AdminTools');
+    const Modal = op.get(tools, 'Modal');
+    const ConfirmBox = useHookComponent('ConfirmBox');
+
+    const dirtyCheck = action => () => {
+        if (editor.isDirty()) {
+            Modal.show(
+                <ConfirmBox
+                    message={__('You have unsaved changes. Proceed anyway?')}
+                    onCancel={() => Modal.hide()}
+                    onConfirm={() => {
+                        action();
+                        Modal.dismiss();
+                    }}
+                    title={__('Unsaved Changes')}
+                />,
+            );
+        } else {
+            action();
+        }
+    };
 
     const render = () => {
         if (!id) return <UnsavedNotice {...props} />;
 
         return (
             <>
-                <ContentStatus editor={editor} config={config} />
-                <PublishButton editor={editor} config={config} />
+                <ContentStatus
+                    editor={editor}
+                    config={config}
+                    dirtyCheck={dirtyCheck}
+                />
+                <PublishButton
+                    editor={editor}
+                    config={config}
+                    dirtyCheck={dirtyCheck}
+                />
             </>
         );
     };
