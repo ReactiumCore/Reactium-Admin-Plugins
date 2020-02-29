@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
+import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import ENUMS from 'components/Admin/Content/enums';
 import useRouteParams from '../_utils/useRouteParams';
@@ -14,6 +15,7 @@ export default () => {
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
 
+    const isNew = () => slug === 'new';
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
     useAsyncEffect(
@@ -53,6 +55,13 @@ export default () => {
                 </Button>
             </li>
             {slug && <li className='uppercase'>{slug}</li>}
+            {!isNew() && (
+                <li>
+                    <Link to={`/admin/content/${type}/new`}>
+                        <Icon name='Feather.Plus' size={14} />
+                    </Link>
+                </li>
+            )}
         </ul>
     ) : null;
 };
