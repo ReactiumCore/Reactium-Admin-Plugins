@@ -119,6 +119,7 @@ let ContentEditor = (
     const alertRef = useRef();
     const formRef = useRef();
     const sidebarRef = useRef();
+    const initialChange = useRef(true);
 
     const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
@@ -217,6 +218,11 @@ let ContentEditor = (
 
     const dispatch = async (eventType, event, callback) => {
         if (unMounted()) return;
+
+        if (eventType === 'change' && initialChange.current === true) {
+            initialChange.current = false;
+            return;
+        }
 
         // dispatch exact eventType
         const evt = new ContentEditorEvent(eventType, event);
@@ -753,6 +759,7 @@ let ContentEditor = (
             </>
         );
     };
+
     return render();
 };
 
