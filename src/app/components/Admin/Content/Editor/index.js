@@ -141,7 +141,7 @@ let ContentEditor = (
     const [currentSlug, setCurrentSlug] = useState(slug);
     const [dirty, setNewDirty] = useState(true);
     const [errors, setErrors] = useState({});
-    const [stale, setStale] = useEffect(false);
+    const [stale, setNewStale] = useState(false);
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
@@ -171,6 +171,8 @@ let ContentEditor = (
     };
 
     const setClean = (params = {}) => {
+        if (unMounted()) return;
+
         const newValue = op.get(params, 'value');
 
         setNewDirty(false);
@@ -182,6 +184,8 @@ let ContentEditor = (
     };
 
     const setDirty = (params = {}) => {
+        if (unMounted()) return;
+
         const newValue = op.get(params, 'value');
 
         setNewDirty(true);
@@ -189,6 +193,16 @@ let ContentEditor = (
             if (unMounted()) return;
             if (newValue) setNewValue(newValue);
             dispatch('dirty', { value: newValue });
+        });
+    };
+
+    const setStale = val => {
+        if (unMounted()) return;
+
+        setNewStale(val);
+        _.defer(() => {
+            if (unMounted()) return;
+            dispatch('stale', { stale: val });
         });
     };
 
@@ -282,6 +296,8 @@ let ContentEditor = (
         const val = String(slug).toLowerCase() === 'new' ? true : null;
         return val === true ? true : null;
     };
+
+    const isStale = () => stale;
 
     const parseErrorMessage = (str, replacers = {}) => {
         Object.entries(replacers).forEach(([key, value]) => {
@@ -547,19 +563,20 @@ let ContentEditor = (
         isDirty,
         isMounted,
         isNew,
+        isStale,
         parseErrorMessage,
         properCase,
         regions,
         save,
         state,
         setContentStatus,
+        setStale,
         publish,
         setClean,
         setDirty,
         setStale,
         setState,
         setValue,
-        stale,
         submit,
         type,
         types,
