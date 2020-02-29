@@ -26,7 +26,7 @@ export default ({ editor, ...props }) => {
     };
 
     useEffect(() => {
-        editor.setValue({ [name]: value });
+        editor.dispatch('change', { [name]: value });
     }, [value]);
 
     const render = () => {

@@ -162,6 +162,8 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 6.0 - Handlers
     const _onChange = newValue => {
+        const equal = _.isEqual(value, { children: newValue });
+        if (equal === true) return;
         setValue({ children: newValue });
     };
 
