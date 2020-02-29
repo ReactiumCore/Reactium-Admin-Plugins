@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
 import { Checkbox, Slider } from '@atomic-reactor/reactium-ui';
 
@@ -97,7 +97,6 @@ export const Editor = props => {
     const {
         defaultValue,
         editor,
-        errorText,
         fieldName,
         max,
         min,
@@ -106,6 +105,11 @@ export const Editor = props => {
     } = props;
 
     const ElementDialog = useHookComponent('ElementDialog');
+    const inputRef = useRef();
+    const value = editor.value[fieldName];
+
+    // Apply default value
+    if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
 
     const inputProps = {
         defaultValue: defaultValue ? Number(defaultValue) : defaultValue,
@@ -113,16 +117,37 @@ export const Editor = props => {
         min: min ? Number(min) : min,
         name: fieldName,
         placeholder,
+        ref: inputRef,
         type: 'number',
     };
 
-    const className = cn('form-group', { error: !!errorText });
-
     const validate = ({ context, value }) => {
-        // context.valid = false;
-        // context.errors.push(`invalid ${fieldName} in ${editor.type}`);
-        // context.fields.push(fieldName);
+        const v = value[fieldName];
+
+        if (!v) return context;
+
+        const chk = isNaN(v);
+
+        if (chk === true) {
+            context.error[fieldName] = {
+                field: fieldName,
+                focus: inputRef.current,
+                message: __('Invalid %fieldName: %value'),
+                value: v,
+            };
+            context.valid = false;
+        }
+
         return context;
+    };
+
+    const { errors } = editor;
+    const errorText = op.get(errors, [fieldName, 'message']);
+    const className = cn('form-group', { error: !!errorText });
+    const replacers = {
+        '%fieldName': fieldName,
+        '%type': editor.type,
+        '%value': editor.value[fieldName],
     };
 
     useEffect(() => {
@@ -147,7 +172,11 @@ export const Editor = props => {
                     ) : (
                         <NumberSlider {...props} />
                     )}
-                    {errorText && <small>{errorText}</small>}
+                    {errorText && (
+                        <small>
+                            {editor.parseErrorMessage(errorText, replacers)}
+                        </small>
+                    )}
                 </div>
             </div>
         </ElementDialog>

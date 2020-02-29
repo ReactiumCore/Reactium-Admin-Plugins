@@ -42,6 +42,41 @@ import Reactium, {
  */
 const noop = () => {};
 
+const ErrorMessages = ({ editor, errors }) => {
+    const canFocus = element => typeof element.focus === 'function';
+
+    const jumpTo = (e, element) => {
+        e.preventDefault();
+        element.focus();
+    };
+
+    return (
+        <ul className={editor.cx('errors')}>
+            {errors.map(({ message, field, focus, value = '' }, i) => {
+                const replacers = {
+                    '%fieldName': field,
+                    '%type': editor.type,
+                    '%value': value,
+                };
+                message = editor.parseErrorMessage(message, replacers);
+                message = !canFocus(focus) ? (
+                    message
+                ) : (
+                    <a href='#' onClick={e => jumpTo(e, focus)}>
+                        {message}
+                        <Icon
+                            name='Feather.CornerRightDown'
+                            size={12}
+                            className='ml-xs-8'
+                        />
+                    </a>
+                );
+                return <li key={`error-${i}`}>{message}</li>;
+            })}
+        </ul>
+    );
+};
+
 export class ContentEditorEvent extends CustomEvent {
     constructor(type, data) {
         super(type, data);
@@ -104,6 +139,7 @@ let ContentEditor = (
     const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
     const [currentSlug, setCurrentSlug] = useState(slug);
+    const [errors, setErrors] = useState({});
     const [status, setStatus] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
@@ -148,11 +184,11 @@ let ContentEditor = (
         }
 
         // dispatch status event
+        const statusType =
+            eventType === 'status' ? op.get(event, 'event') : eventType;
         const statusEvt = new ContentEditorEvent('status', {
             ...event,
-            event: String(
-                eventType === 'status' ? op.get(event, 'event') : eventType,
-            ).toUpperCase(),
+            event: String(statusType).toUpperCase(),
         });
 
         handle.dispatchEvent(statusEvt);
@@ -207,6 +243,14 @@ let ContentEditor = (
     const isNew = () => {
         const val = String(slug).toLowerCase() === 'new' ? true : null;
         return val === true ? true : null;
+    };
+
+    const parseErrorMessage = (str, replacers = {}) => {
+        Object.entries(replacers).forEach(([key, value]) => {
+            str = str.split(key).join(value);
+        });
+
+        return str;
     };
 
     const properCase = useProperCase();
@@ -358,9 +402,23 @@ let ContentEditor = (
         }
     };
 
-    const _onError = async error => {
+    const _onError = async context => {
+        const { error } = context;
+        const errors = Object.values(error);
+
+        const alertObj = {
+            message: <ErrorMessages errors={errors} editor={handle} />,
+            icon: 'Feather.AlertOctagon',
+            color: Alert.ENUMS.COLOR.DANGER,
+        };
+
         await dispatch('save-error', { error }, onError);
-        if (isMounted()) setAlert(e);
+        if (isMounted()) {
+            setErrors(error);
+            setAlert(alertObj);
+        }
+
+        return context;
     };
 
     const _onFail = async (e, error, next) => {
@@ -426,8 +484,13 @@ let ContentEditor = (
     };
 
     const _onValidate = async e => {
-        await dispatch('validate', { context: e }, onValidate);
-        return e;
+        setErrors({});
+
+        const { value: val, ...context } = e;
+        await dispatch('validate', { context, value: val }, onValidate);
+
+        if (context.valid !== true) _onError(context);
+        return { ...context, value };
     };
 
     // Handle
@@ -439,10 +502,12 @@ let ContentEditor = (
         contentType,
         cx,
         dispatch,
+        errors,
         fieldTypes,
         id,
         isMounted,
         isNew,
+        parseErrorMessage,
         properCase,
         regions,
         save,
@@ -563,7 +628,6 @@ let ContentEditor = (
                     className={cname}
                     ref={formRef}
                     onChange={_onChange}
-                    onError={_onError}
                     onSubmit={_onSubmit}
                     validator={_onValidate}
                     value={currentValue}>

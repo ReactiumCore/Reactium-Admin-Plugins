@@ -64,6 +64,20 @@ $admin-content-ns: admin-content;
             }
         }
     }
+
+    &-errors {
+        margin: 0;
+        padding: 0;
+
+        li {
+            line-height: 1.5;
+            list-style: none;
+
+            &:not(:first-child) {
+                margin-top: 10px;
+            }
+        }
+    }
 }
 
 @import './Sidebar/style';

@@ -102,14 +102,13 @@ let EventForm = (initialProps, ref) => {
         onError,
         onSubmit,
         required,
-        showError,
         validator,
         value: initialValue,
         ...props
     } = initialProps;
 
     const [state, update] = useDerivedState({
-        errors: null,
+        error: null,
         status: ENUMS.STATUS.READY,
     });
 
@@ -291,29 +290,37 @@ let EventForm = (initialProps, ref) => {
 
         currentValue = currentValue || getValue();
 
-        const context = {
-            errors: [],
-            fields: [],
-            focus,
+        let context = {
+            error: {},
             valid: true,
             value: currentValue,
         };
 
         const missing = required.filter(k => _.isEmpty(currentValue[k]));
+        const elements = getElements();
 
         if (missing.length > 0) {
-            missing.forEach(field => {
-                context.fields.push(field);
-                context.errors.push(`${field} is a required field`);
-            });
-
-            context.focus =
-                context.fields.length > 0 ? context.fields[0] : null;
             context.valid = false;
+            missing.forEach(field => {
+                error[field] = {
+                    field,
+                    focus: elements[field],
+                    message: `${field} is a required field`,
+                };
+            });
         }
 
-        // validator should return Object: { valid:Boolean, errors:[Array], focus:[Array], focus:[Element] }
-        if (validator) await validator(context);
+        // Validators should return :
+        // Object: {
+        //      valid:Boolean,
+        //      error: [Object, {
+        //        field:String,
+        //        focus:Element,
+        //        message:String,
+        //        value:Mixed
+        //      }],
+        //  }
+        if (validator) context = await validator(context);
         return context;
     };
 
@@ -337,15 +344,15 @@ let EventForm = (initialProps, ref) => {
         if (isBusy(status)) return;
 
         // validate
-        setState({ errors: null, status: ENUMS.STATUS.VALIDATING });
-        const { valid, errors } = await validate(value);
+        setState({ error: null, status: ENUMS.STATUS.VALIDATING });
+        const { valid, error } = await validate(value);
 
-        if (valid !== true) {
-            setState({ errors, status: ENUMS.STATUS.ERROR });
+        if (valid !== true || Object.keys(error).length > 0) {
+            setState({ error, status: ENUMS.STATUS.ERROR });
 
             evt = new FormEvent('error', {
                 element: formRef.current,
-                errors,
+                error,
                 target: handle,
                 value,
             });
@@ -383,7 +390,7 @@ let EventForm = (initialProps, ref) => {
         defaultValue,
         elements: getElements(),
         ENUMS,
-        errors: op.get(state, 'errors'),
+        error: op.get(state, 'error'),
         focus,
         form: formRef.current,
         getValue,
@@ -455,20 +462,16 @@ let EventForm = (initialProps, ref) => {
     }, [count, value]);
 
     /* Renderers */
-    const render = () => {
-        const { errors } = state;
-        return (
-            <form
-                {...props}
-                className={cx()}
-                onChange={_onChange}
-                onSubmit={_onSubmit}
-                ref={formRef}>
-                <Errors cx={cx} errors={errors} showError={showError} />
-                {children}
-            </form>
-        );
-    };
+    const render = () => (
+        <form
+            {...props}
+            className={cx()}
+            onChange={_onChange}
+            onSubmit={_onSubmit}
+            ref={formRef}>
+            {children}
+        </form>
+    );
 
     return render();
 };
@@ -489,7 +492,6 @@ EventForm.propTypes = {
     onChange: PropTypes.func,
     onError: PropTypes.func,
     onSubmit: PropTypes.func,
-    showError: PropTypes.bool,
     value: PropTypes.object,
     validator: PropTypes.func,
 };
@@ -501,23 +503,9 @@ EventForm.defaultProps = {
     onChange: noop,
     onError: noop,
     required: [],
-    showError: false,
-    validator: (value, valid = true, errors) => ({ valid, errors }),
 };
 
 export default EventForm;
-
-const Errors = ({ errors, showError, cx }) => {
-    return errors && showError ? (
-        <ul className={cx('errors')}>
-            {errors.errors.map(error => (
-                <li className={cx('error-item')} key={error}>
-                    {error}
-                </li>
-            ))}
-        </ul>
-    ) : null;
-};
 
 const isBoolean = val =>
     typeof val === 'boolean' ||
