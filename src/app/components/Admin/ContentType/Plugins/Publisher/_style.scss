@@ -80,11 +80,45 @@
     &-dropdown {
         flex: 1 0 50%;
         margin-right: 10px;
+        button {
+            padding: 0 8px;
+            height: 32px;
+        }
+
+        &-label {
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            svg {
+                height: 16px;
+                width: 16px;
+            }
+        }
+    }
+}
+
+.publish-button {
+    margin: 20px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+        margin-right: 8px;
     }
 
-    &-dropdown, &-set {
-        // display: flex;
-        // justify-content: space-around;
-        // margin: 10px 20px;
+    &-updated {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        font-size: 12px;
+        svg {
+            width: 16px;
+        }
+        svg, strong {
+            margin-right: 4px;
+        }
     }
 }
