@@ -1,12 +1,15 @@
-import Reactium from 'reactium-core/sdk';
-import FieldTypeRichText from './index';
+//import Editor from './Editor';
 import { __ } from 'reactium-core/sdk';
+import FieldTypeRichText from './index';
+import Reactium from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 
 const registerFieldTypePlugin = async () => {
-    await Reactium.Plugin.register('FieldTypeRichText');
+    const ID = 'FieldTypeRichText';
+    await Reactium.Plugin.register(ID);
 
-    Reactium.Component.register('FieldTypeRichText', FieldTypeRichText);
+    Reactium.Component.register(ID, FieldTypeRichText);
+    //Reactium.Component.register(`${ID}-editor`, Editor);
 
     Reactium.ContentType.FieldType.register({
         type: 'RichText',
