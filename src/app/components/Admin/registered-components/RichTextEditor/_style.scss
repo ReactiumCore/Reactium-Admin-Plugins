@@ -15,7 +15,6 @@ input[type='object'] {
 
 .ar-rte {
     position: relative;
-    padding-bottom: 100px;
     * { line-height: 1; }
 
     p, ol, ul, h1, h2, h3, img {
@@ -38,6 +37,7 @@ input[type='object'] {
         opacity: 0;
         transition: opacity 0.25s ease-in-out;
         font-family: Courier, serif;
+        z-index: map-get($z-indexes, popup);
 
         &-rect {
             height: $ar-height-rte-toolbar;
@@ -111,6 +111,7 @@ input[type='object'] {
         transition: opacity 0.25s ease-in-out;
         font-family: Courier, serif;
         padding-bottom: 20px;
+        z-index: map-get($z-indexes, popup);
 
         button {
             svg {

@@ -48,6 +48,7 @@ export default ({ editor, ...props }) => {
                         placeholder={__(placeholder)}
                     />
                 </div>
+                <div className='line' />
             </section>
         );
     };

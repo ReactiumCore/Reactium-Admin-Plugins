@@ -32,7 +32,6 @@ $admin-content-ns: admin-content;
         &-region {
             position: relative;
             padding: $padding-admin-content-zone;
-            padding-bottom: 0;
 
             &:empty {
                 display: none;
@@ -101,7 +100,12 @@ $admin-content-ns: admin-content;
         }
 
         .editor {
-            padding: 40px 0 48px 48px;
+            padding: 40px 0 24px 48px;
+        }
+
+        .line {
+            border-bottom: 1px solid darken($color-admin-header-border, 5%);
+            margin: 0 -24px 32px -24px;
         }
     }
 }
