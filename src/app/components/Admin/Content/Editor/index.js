@@ -461,6 +461,7 @@ let ContentEditor = (
         if (e.value) {
             const newValue = { ...value, ...e.value };
             setValue(newValue, true);
+            if (_.isEqual(newValue, value)) return;
             await dispatch('change', { value: newValue }, onChange);
         }
     };

@@ -22,7 +22,6 @@ export default ({ editor, ...props }) => {
     const [value, setValue] = useState(editor.value[name] || defaultValue);
 
     const onEditorChange = e => {
-        if (e.target.value === value) return;
         setValue(e.target.value);
     };
 

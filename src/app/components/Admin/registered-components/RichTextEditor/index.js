@@ -162,7 +162,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 6.0 - Handlers
     const _onChange = newValue => {
-        //if (editor.selection) { console.log('selection', editor.selection.focus.path); }
         setValue({ children: newValue });
     };
 
