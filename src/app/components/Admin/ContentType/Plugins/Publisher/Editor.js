@@ -174,10 +174,10 @@ const ContentStatus = props => {
     // On submit handler
     useEffect(() => {
         if (editor.unMounted()) return;
-        editor.addEventListener('change', _contentStatusEventHandler);
+        editor.addEventListener('clean', _contentStatusEventHandler);
 
         return () => {
-            editor.removeEventListener('change', _contentStatusEventHandler);
+            editor.removeEventListener('clean', _contentStatusEventHandler);
         };
     }, [editor, statusState]);
 
@@ -274,9 +274,9 @@ const PublishButton = props => {
     // On submit handler
     useEffect(() => {
         if (editor.unMounted()) return;
-        editor.addEventListener('change', _contentStatusEventHandler);
+        editor.addEventListener('clean', _contentStatusEventHandler);
         return () => {
-            editor.removeEventListener('change', _contentStatusEventHandler);
+            editor.removeEventListener('clean', _contentStatusEventHandler);
         };
     }, [editor, currentStatus]);
 

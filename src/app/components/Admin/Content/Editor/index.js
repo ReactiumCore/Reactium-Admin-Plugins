@@ -388,7 +388,7 @@ let ContentEditor = (
             await dispatch(
                 'content-set-status',
                 { value: contentObj },
-                _onChange,
+                setClean,
             );
             Toast.show({
                 icon: 'Feather.Check',
@@ -433,7 +433,7 @@ let ContentEditor = (
             const contentObj = await Reactium.Content[action](newValue, handle);
             if (unMounted()) return;
 
-            await dispatch(action, { value: contentObj }, _onChange);
+            await dispatch(action, { value: contentObj }, setClean);
             Toast.show({
                 icon: 'Feather.Check',
                 message: successMessage[action],
