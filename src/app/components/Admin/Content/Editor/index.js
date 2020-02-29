@@ -176,6 +176,7 @@ let ContentEditor = (
         const newValue = op.get(params, 'value');
 
         setNewDirty(false);
+
         _.defer(() => {
             if (unMounted()) return;
             if (newValue) setNewValue(newValue);
@@ -189,6 +190,7 @@ let ContentEditor = (
         const newValue = op.get(params, 'value');
 
         setNewDirty(true);
+
         _.defer(() => {
             if (unMounted()) return;
             if (newValue) setNewValue(newValue);
@@ -200,6 +202,7 @@ let ContentEditor = (
         if (unMounted()) return;
 
         setNewStale(val);
+
         _.defer(() => {
             if (unMounted()) return;
             dispatch('stale', { stale: val });
