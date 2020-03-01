@@ -345,6 +345,10 @@ let ContentEditor = (
 
         const newValue = { ...value, ...mergeValue };
 
+        // only track branch for saves
+        // always create new revision in current branch
+        op.del(newValue, 'history.revision');
+
         await dispatch('before-save', { value: newValue });
 
         if (!op.get(newValue, 'type')) {
