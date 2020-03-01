@@ -71,6 +71,14 @@ const Blueprint = () => {
             .flatten()
             .value();
 
+    const metaToDataAttributes = meta => {
+        return Object.keys(meta).reduce((data, key) => {
+            const dataKey = `data-${String(key).toLowerCase()}`;
+            data[dataKey] = op.get(meta, key);
+            return data;
+        }, {});
+    };
+
     // Renderer
     const render = () => (
         <main
@@ -81,28 +89,40 @@ const Blueprint = () => {
             {Object.entries(sections).map(([name, value]) => (
                 <section
                     key={name}
+                    {...metaToDataAttributes(op.get(value, 'meta', {}))}
                     className={cx(
                         op.get(value, 'meta', {}),
                         cname('section', name),
                     )}>
-                    {op.get(value, 'zones', []).map(zone => (
-                        <div key={zone} className={cname('zone', zone)}>
-                            <Zone
-                                route={route}
-                                params={params}
-                                search={search}
-                                zone={zone}
-                                zones={zones()}
-                                section={name}
-                                sections={Object.keys(sections)}
-                                meta={{
-                                    blueprint: blueprintMeta,
-                                    zone: zoneMeta(value),
-                                }}
-                                {...data}
-                            />
-                        </div>
-                    ))}
+                    {op.get(value, 'zones', []).map(zone => {
+                        const meta = op.get(zone, 'meta', {});
+                        zone =
+                            typeof zone === 'string'
+                                ? zone
+                                : op.get(zone, 'zone');
+
+                        return !zone ? null : (
+                            <div
+                                key={zone}
+                                className={cname('zone', zone)}
+                                {...metaToDataAttributes(meta)}>
+                                <Zone
+                                    route={route}
+                                    params={params}
+                                    search={search}
+                                    zone={zone}
+                                    zones={zones()}
+                                    section={name}
+                                    sections={Object.keys(sections)}
+                                    meta={{
+                                        blueprint: blueprintMeta,
+                                        zone: zoneMeta(value),
+                                    }}
+                                    {...data}
+                                />
+                            </div>
+                        );
+                    })}
                 </section>
             ))}
         </main>

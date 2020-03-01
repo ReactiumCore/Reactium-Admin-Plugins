@@ -76,6 +76,7 @@ const registerAdminContent = async () => {
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-content-toolbar-top'],
     });
+
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-REVISIONS-WIDGET',
         component: RevisionsWidget,

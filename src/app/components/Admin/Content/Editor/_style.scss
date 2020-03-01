@@ -109,5 +109,10 @@ $admin-content-ns: admin-content;
         }
     }
 }
+body.fullscreen {
+    .#{$admin-content-ns} {
+        padding-top: 0;
+    }
+}
 
 @import './Sidebar/style';
