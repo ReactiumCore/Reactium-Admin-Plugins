@@ -28,16 +28,16 @@ const AddButton = ({ type }) => {
     );
 };
 
-const SaveButton = ({ Editor, type }) => {
+const SaveButton = ({ type }) => {
     const [status, setStatus] = useState();
+    const Editor = useHandle('AdminContentEditor');
     const [updatedEditor, ready] = useFulfilledObject(Editor, ['EventForm']);
 
-    const isBusy = useCallback(stat =>
+    const isBusy = stat =>
         [
             Editor.EventForm.ENUMS.STATUS.SUBMITTING,
             Editor.EventForm.ENUMS.STATUS.VALIDATING,
-        ].includes(stat),
-    );
+        ].includes(stat);
 
     const onStatus = e => {
         const newStatus = e.event;
@@ -45,7 +45,7 @@ const SaveButton = ({ Editor, type }) => {
     };
 
     const saveHotkey = e => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         Editor.submit();
     };
 
@@ -75,7 +75,7 @@ const SaveButton = ({ Editor, type }) => {
                 className='mr-xs-24'
                 color='primary'
                 disabled={busy}
-                onClick={() => Editor.submit()}
+                onClick={saveHotkey}
                 size='xs'
                 type='button'>
                 <Icon name={icon} size={18} />
@@ -92,12 +92,7 @@ const SaveButton = ({ Editor, type }) => {
 export default () => {
     const { path, slug, type } = useRouteParams(['path', 'slug', 'type']);
     const visible = String(path).startsWith('/admin/content');
-    const Editor = useHandle('AdminContentEditor');
 
     if (!visible) return null;
-    return !slug ? (
-        <AddButton type={type} />
-    ) : Editor ? (
-        <SaveButton type={type} Editor={Editor} />
-    ) : null;
+    return !slug ? <AddButton type={type} /> : <SaveButton type={type} />;
 };

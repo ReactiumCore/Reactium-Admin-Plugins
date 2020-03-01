@@ -375,14 +375,13 @@ let EventForm = (initialProps, ref) => {
         });
 
         handle.dispatchEvent(evt);
+        _.defer(() => setState({ status: ENUMS.STATUS.READY }));
 
         if (typeof onSubmit === 'function') {
             try {
                 await onSubmit(evt);
             } catch (err) {}
         }
-
-        setState({ status: ENUMS.STATUS.READY });
     };
 
     /* Handle */
