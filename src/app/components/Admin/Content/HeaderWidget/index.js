@@ -4,7 +4,7 @@ import useRouteParams from '../_utils/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import {
+import Reactium, {
     useAsyncEffect,
     useFulfilledObject,
     useHandle,
@@ -42,11 +42,24 @@ const SaveButton = ({ Editor, type }) => {
         if (newStatus !== status) setStatus(newStatus);
     };
 
+    const saveHotkey = e => {
+        e.preventDefault();
+        Editor.submit();
+    };
+
     useEffect(() => {
         if (ready !== true) return;
         Editor.addEventListener('status', onStatus);
+        Reactium.Hotkeys.register('content-save', {
+            callback: saveHotkey,
+            key: 'mod+s',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
         return () => {
             Editor.removeEventListener('status', onStatus);
+            Reactium.Hotkeys.unregister('content-save');
         };
     }, [ready]);
 
