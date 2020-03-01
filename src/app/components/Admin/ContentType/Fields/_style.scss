@@ -7,9 +7,6 @@
         padding-top: 0;
     }
 
-    @include breakpoint(md-down) {
-        padding-left: 100px;
-    }
 
     @include breakpoint(sm-down) {
         padding-left: 20px;

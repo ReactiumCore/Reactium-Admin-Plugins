@@ -18,7 +18,7 @@
     }
 }
 
-.zone-admin-sidebar-container {
+.#{$admin-sidebar-ns} {
     .avatar {
         width: 100%;
         padding: 14px;
@@ -61,63 +61,30 @@
         }
     }
 
-    &.collapsing {
-        .avatar {
-            &-image {
-                opacity: 0;
-                width: 52px;
-                height: 52px;
-
-                @include breakpoint(sm) {
-                    opacity: 1;
-                }
-            }
-
-            &-labels {
-                opacity: 0;
-                height: 0px;
-                margin: 0;
-            }
-        }
-    }
-
     &.collapsed {
         .avatar {
-            &-labels {
-                opacity: 0;
-                height: 0px;
-                margin: 0;
-                overflow: hidden;
-            }
-
             &-image {
                 opacity: 0;
-                display: none;
-
                 width: 52px;
                 height: 52px;
 
                 @include breakpoint(sm) {
-                    max-width: 100px;
-                    display: flex;
                     opacity: 1;
                 }
             }
-        }
-    }
 
-    &.expanding {
-        .avatar {
-            &-image {
-                display: flex;
+            &-labels {
+                opacity: 0;
+                height: 0px;
+                margin: 0;
             }
         }
     }
 
-    &.expanded,
-    &.expanding {
+    &.expanded {
         .avatar {
             padding: 32px 14px;
+            display: flex;
 
             &-image {
                 opacity: 1;

@@ -163,8 +163,7 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
         }
     };
 
-    const expanded = () =>
-        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
+    const expanded = () => Sidebar.isExpanded();
 
     const cname = name => {
         const { namespace } = state;
@@ -173,8 +172,9 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
 
     const collapseSidebar = e => {
         hideTooltip(e);
-
-        if (expanded() && ['xs', 'sm'].includes(breakpoint)) {
+        const breaks = ['xs', 'sm'];
+        if (breaks.includes(breakpoint)) {
+            //_.defer(Sidebar.collapse);
             Sidebar.collapse();
         }
     };

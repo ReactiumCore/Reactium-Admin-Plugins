@@ -13,24 +13,12 @@
     flex-direction: row;
     padding: 0 8px 0 24px;
     border-bottom: 1px solid darken($color-admin-header-border, 2%);
-
-    @include breakpoint(md) {
-        padding-left: 100px;
-    }
-
-    @include breakpoint(lg) {
-        padding-left: $padding-admin-content-zone;
-    }
 }
 
 @mixin admin-content-zone() {
     padding: $padding-admin-content-zone;
     padding-top: #{$height-admin-header + $padding-admin-content-zone};
     z-index: map-get($z-indexes, 'default');
-
-    @include breakpoint(md) {
-        padding-left: 100px;
-    }
 
     @include breakpoint(lg) {
         padding-left: $padding-admin-content-zone;

@@ -3,10 +3,6 @@
         padding: 20px;
         border-bottom: 1px solid darken($color-admin-header-border, 5%);
 
-        @include breakpoint(md-down) {
-            padding-left: 100px;
-        }
-
         @include breakpoint(sm-down) {
             padding-left: 20px;
         }

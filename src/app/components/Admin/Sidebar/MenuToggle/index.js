@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
+import Reactium, { useHandle } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -11,44 +11,44 @@ import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
  * -----------------------------------------------------------------------------
  */
 
-const Toggle = ({ zones = [] }) => {
-    if (!zones.includes('admin-sidebar')) {
-        return null;
-    }
-
+const Toggle = () => {
     const Sidebar = useHandle('AdminSidebar');
 
-    const expanded = () =>
-        op.get(Sidebar, 'state.status') === Sidebar.ENUMS.STATUS.EXPANDED;
+    const [expanded, setExpanded] = useState(Sidebar.isExpanded());
 
-    const cname = () =>
-        cn({ 'admin-sidebar-toggle': true, expanded: expanded() });
+    const update = () => {
+        setExpanded(Sidebar.isCollapsed());
+    };
 
-    const { width, breakpoint } = useWindowSize({ delay: 0 });
+    useEffect(() => {
+        if (!Sidebar) return;
+        Sidebar.addEventListener('toggle', update);
 
-    const icon = () =>
-        !['xs', 'sm'].includes(breakpoint)
-            ? expanded()
-                ? 'Feather.MoreVertical'
-                : 'Feather.Menu'
-            : expanded()
-            ? 'Feather.X'
-            : 'Feather.Menu';
-
-    const tip = () => (expanded() ? 'collapse menu' : 'expand menu');
+        return () => {
+            Sidebar.removeEventListener('toggle', update);
+        };
+    }, [Sidebar]);
 
     const render = () => {
-        return (
+        return !Sidebar ? null : (
             <button
-                className={cname()}
+                className={cn(Sidebar.cx('toggle'), { expanded })}
                 onClick={() => Sidebar.toggle()}
-                type='button'
-                title={tip()}
-                data-tooltip={tip()}
-                data-align='right'
-                data-vertical-align='middle'>
+                type='button'>
                 <div className='button'>
-                    <Icon name={icon()} />
+                    {expanded && (
+                        <Icon
+                            name='Feather.X'
+                            className='show-xs-only hide-sm'
+                        />
+                    )}
+                    {expanded && (
+                        <Icon
+                            name='Feather.MoreVertical'
+                            className='hide-xs-only'
+                        />
+                    )}
+                    {!expanded && <Icon name='Feather.Menu' />}
                 </div>
             </button>
         );
