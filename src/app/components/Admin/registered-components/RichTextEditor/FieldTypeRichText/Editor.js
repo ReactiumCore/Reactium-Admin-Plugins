@@ -7,8 +7,8 @@ import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 export default ({ editor, ...props }) => {
     const {
         fieldName: name,
-        label = 'Content',
-        placeholder = 'Enter content',
+        label = __('Content'),
+        placeholder = __('Enter content'),
     } = props;
 
     const defaultValue = {
@@ -36,7 +36,7 @@ export default ({ editor, ...props }) => {
                     <div className='icon'>
                         <Icon name='Feather.Feather' />
                     </div>
-                    <h2>{__(label)}</h2>
+                    <h2>{label}</h2>
                 </header>
                 <div className='editor'>
                     <RichTextEditor
@@ -44,7 +44,7 @@ export default ({ editor, ...props }) => {
                         value={value}
                         name={name}
                         onChange={onEditorChange}
-                        placeholder={__(placeholder)}
+                        placeholder={placeholder}
                     />
                 </div>
                 <div className='line' />

@@ -40,7 +40,7 @@ export default () => {
                 key={`content-${uuid}`}
                 add={`/admin/content/${machineName}/new`}
                 exact={false}
-                label={__(pluralize(meta.label))}
+                label={pluralize(meta.label)}
                 icon={icon}
                 route={`/admin/content/${pluralize(type)}`}
             />
