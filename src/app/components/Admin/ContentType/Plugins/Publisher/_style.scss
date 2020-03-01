@@ -74,7 +74,7 @@
             align-items: flex-start;
             // min-height: 60px;
             //margin: 20px 10px;
-            padding: $padding-admin-content-zone;
+            padding: 20px;
         }
     }
 
@@ -100,33 +100,31 @@
 }
 
 .publish-button {
-    padding: $padding-admin-content-zone;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     button {
         flex-shrink: 0;
-        margin-right: 8px;
     }
 
     &-updated {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: space-between;
         flex-grow: 1;
         flex-shrink: 1;
-
+        padding-left: 16px;
         font-size: 12px;
+
         svg {
             width: 16px;
-        }
-        svg, strong {
             margin-right: 4px;
         }
+
         .updated-at {
-            margin-left: 24px;
+            padding-left: 24px;
         }
     }
 }
