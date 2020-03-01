@@ -10,21 +10,23 @@ import Reactium, {
     useHandle,
 } from 'reactium-core/sdk';
 
-const AddButton = ({ type }) => (
-    <Button
-        appearance='pill'
-        className='mr-xs-24'
-        color='primary'
-        outline
-        size='xs'
-        to={`/admin/content/${type}/new`}
-        type='link'>
-        <Icon name='Feather.Plus' size={18} />
-        <span className='hide-xs show-md ml-xs-12'>
-            {ENUMS.TEXT.NEW} {type}
-        </span>
-    </Button>
-);
+const AddButton = ({ type }) => {
+    return (
+        <Button
+            appearance='pill'
+            className='mr-xs-24'
+            color='primary'
+            outline
+            size='xs'
+            to={`/admin/content/${type}/new`}
+            type='link'>
+            <Icon name='Feather.Plus' size={18} />
+            <span className='hide-xs show-md ml-xs-12'>
+                {ENUMS.TEXT.NEW} {type}
+            </span>
+        </Button>
+    );
+};
 
 const SaveButton = ({ Editor, type }) => {
     const [status, setStatus] = useState();

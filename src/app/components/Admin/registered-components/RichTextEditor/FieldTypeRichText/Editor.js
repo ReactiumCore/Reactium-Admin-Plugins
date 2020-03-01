@@ -2,7 +2,11 @@ import _ from 'underscore';
 import op from 'object-path';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useFulfilledObject,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 export default ({ editor, ...props }) => {
     const {
@@ -10,6 +14,8 @@ export default ({ editor, ...props }) => {
         label = 'Content',
         placeholder = 'Enter content',
     } = props;
+
+    const { slug } = editor;
 
     const defaultValue = {
         children: [{ type: 'p', children: [{ text: '' }] }],
@@ -19,15 +25,33 @@ export default ({ editor, ...props }) => {
 
     const RichTextEditor = useHookComponent('RichTextEditor');
 
-    const [value, setValue] = useState(editor.value[name] || defaultValue);
+    const [previousSlug, setPreviousSlug] = useState();
+    const [value, setNewValue] = useState(editor.value[name] || defaultValue);
+    const [hasValue, ready] = useFulfilledObject(editor.value, [name]);
+
+    const setValue = newValue => {
+        if (_.isEqual(value, newValue)) return;
+        setNewValue(newValue);
+    };
 
     const onEditorChange = e => {
         setValue(e.target.value);
+        editor.setValue({ [name]: e.target.value });
+    };
+
+    const reload = () => {
+        const newValue = editor.value[name];
+        editorRef.current.setValue(newValue);
+        setPreviousSlug(slug);
+        setValue(newValue);
     };
 
     useEffect(() => {
-        editor.dispatch('change', { [name]: value });
-    }, [value]);
+        if (!ready) return;
+        if (!editorRef.current) return;
+        if (slug === previousSlug) return;
+        reload();
+    }, [editorRef.current, ready, slug]);
 
     const render = () => {
         return (

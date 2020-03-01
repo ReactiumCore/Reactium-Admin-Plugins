@@ -148,14 +148,9 @@ let ContentEditor = (
     const [types, setTypes] = useState();
     const [updated, update] = useState();
     const [value, setNewValue] = useState();
+    const [previous, setPrevious] = useState({});
 
     // Aliases prevent memory leaks
-    const setValue = (newValue = {}, checkReady = false) => {
-        if (unMounted(checkReady)) return;
-        newValue = { ...value, ...newValue };
-        setNewValue(newValue);
-    };
-
     const setAlert = newAlert => {
         if (unMounted()) return;
 
@@ -174,15 +169,13 @@ let ContentEditor = (
     const setClean = (params = {}) => {
         if (unMounted()) return;
 
-        const newValue = op.get(params, 'value');
-
         setNewDirty(false);
 
-        _.defer(() => {
-            if (unMounted()) return;
-            if (newValue) setNewValue(newValue);
-            dispatch('clean', { value: newValue });
-        });
+        const newValue = op.get(params, 'value');
+
+        if (unMounted()) return;
+        if (newValue) setValue(newValue);
+        dispatch('clean', { value: newValue });
     };
 
     const setDirty = (params = {}) => {
@@ -192,11 +185,9 @@ let ContentEditor = (
 
         setNewDirty(true);
 
-        _.defer(() => {
-            if (unMounted()) return;
-            if (newValue) setNewValue(newValue);
-            dispatch('dirty', { value: newValue });
-        });
+        if (unMounted()) return;
+        if (newValue) setValue(newValue);
+        dispatch('dirty', { value: newValue });
     };
 
     const setStale = val => {
@@ -208,6 +199,13 @@ let ContentEditor = (
             if (unMounted()) return;
             dispatch('stale', { stale: val });
         });
+    };
+
+    const setValue = (newValue = {}, checkReady = false) => {
+        if (unMounted(checkReady)) return;
+        newValue = { ...value, ...newValue };
+        //console.log(new Error(newValue));
+        setNewValue(newValue);
     };
 
     // Functions
@@ -239,7 +237,13 @@ let ContentEditor = (
             event: String(statusType).toUpperCase(),
         });
 
-        console.log('dispatch:', eventType, statusEvt.event);
+        console.log(
+            'dispatch:',
+            eventType,
+            statusEvt.event,
+            handle.value,
+            event,
+        );
 
         handle.dispatchEvent(statusEvt);
 
@@ -256,8 +260,8 @@ let ContentEditor = (
         const dirtyEvents = _.pluck(Reactium.Content.DirtyEvent.list, 'id');
         const scrubEvents = _.pluck(Reactium.Content.ScrubEvent.list, 'id');
 
-        if (dirtyEvents.includes(eventType)) setDirty();
-        if (scrubEvents.includes(eventType)) setClean();
+        if (dirtyEvents.includes(eventType)) setDirty(event);
+        if (scrubEvents.includes(eventType)) setClean(event);
     };
 
     const getContent = async () => {
@@ -348,6 +352,7 @@ let ContentEditor = (
         }
 
         const newSlug = op.get(newValue, 'slug');
+
         if (!isNew() && newSlug !== slug) {
             await Reactium.Content.changeSlug({
                 objectId: op.get(newValue, 'objectId'),
@@ -360,9 +365,6 @@ let ContentEditor = (
         } else {
             if (isNew() && !op.get(newValue, 'slug')) {
                 op.set(newValue, 'slug', `${type}-${uuid()}`);
-            } else {
-                op.del(newValue, 'slug');
-                op.del(newValue, 'uuid');
             }
         }
 
@@ -458,12 +460,7 @@ let ContentEditor = (
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
-        if (e.value) {
-            const newValue = { ...value, ...e.value };
-            setValue(newValue, true);
-            if (_.isEqual(newValue, value)) return;
-            await dispatch('change', { value: newValue }, onChange);
-        }
+        if (e.value) setValue(e.value, true);
     };
 
     const _onError = async context => {
@@ -507,7 +504,7 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            await dispatch('submit', e, onSubmit);
+            await dispatch('submit', e.value, onSubmit);
             save(e.value)
                 .then(async result => {
                     if (unMounted()) return;
@@ -520,8 +517,6 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
-        await dispatch('save-success', { result }, onSuccess);
-
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
         Toast.show({
@@ -531,20 +526,18 @@ let ContentEditor = (
         });
 
         if (unMounted()) return;
-
+        initialChange.current = true;
         setValue(result);
-        next();
+        await dispatch('save-success', { value: result }, onSuccess);
 
-        const newSlug = result.slug;
-        if (isNew() || newSlug !== slug) {
-            setTimeout(
-                () =>
-                    Reactium.Routing.history.push(
-                        `/admin/content/${type}/${newSlug}`,
-                    ),
-                1,
+        if (isNew() || result.slug !== slug) {
+            _.defer(
+                Reactium.Routing.history.push,
+                `/admin/content/${type}/${result.slug}`,
             );
         }
+
+        next();
     };
 
     const _onValidate = async e => {
@@ -578,6 +571,7 @@ let ContentEditor = (
         properCase,
         regions,
         save,
+        slug,
         state,
         setContentStatus,
         setStale,
@@ -683,6 +677,20 @@ let ContentEditor = (
             formRef.current.removeEventListener('status', _onStatus);
         };
     }, [ready]);
+
+    // dispatch change
+    useEffect(() => {
+        if (!ready || !value) {
+            return;
+        }
+
+        if (_.isEqual(previous, value)) {
+            return;
+        }
+
+        dispatch('change', { previous, value }, onChange);
+        setPrevious(value);
+    }, [value]);
 
     const render = () => {
         if (ready !== true) return <Loading />;

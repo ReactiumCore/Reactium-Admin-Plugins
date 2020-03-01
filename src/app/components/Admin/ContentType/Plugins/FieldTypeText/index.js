@@ -57,7 +57,7 @@ export const Editor = props => {
     const value = editor.value[fieldName];
 
     // Apply default value
-    if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
+    //if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
 
     const inputProps = {
         defaultValue,
