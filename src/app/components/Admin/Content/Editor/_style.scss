@@ -109,6 +109,17 @@ $admin-content-ns: admin-content;
         }
     }
 }
+
+.zone-#{$admin-content-ns}-actions {
+    @include admin-actions-zone;
+    display: none;
+    position: fixed;
+    top: auto;
+    left: 50%;
+    bottom: $padding-admin-content-zone;
+    transform: translateX(-50%);
+}
+
 body.fullscreen {
     .#{$admin-content-ns} {
         padding-top: 0;

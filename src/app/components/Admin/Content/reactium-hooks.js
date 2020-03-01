@@ -43,10 +43,10 @@ const registerAdminContent = async () => {
     });
 
     Reactium.Zone.addComponent({
-        id: 'ADMIN-CONTENT-ADD',
+        id: 'ADMIN-CONTENT-ACTIONS',
         component: HeaderWidget,
         order: 2, // don't change this - Cam
-        zone: ['admin-logo'],
+        zone: ['admin-logo', 'admin-content-actions'],
     });
 
     Reactium.Zone.addComponent({

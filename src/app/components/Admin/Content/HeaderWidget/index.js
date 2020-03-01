@@ -44,24 +44,11 @@ const SaveButton = ({ type }) => {
         if (newStatus !== status) setStatus(newStatus);
     };
 
-    const saveHotkey = e => {
-        if (e) e.preventDefault();
-        Editor.submit();
-    };
-
     useEffect(() => {
         if (ready !== true) return;
         Editor.addEventListener('status', onStatus);
-        Reactium.Hotkeys.register('content-save', {
-            callback: saveHotkey,
-            key: 'mod+s',
-            order: Reactium.Enums.priority.lowest,
-            scope: document,
-        });
-
         return () => {
             Editor.removeEventListener('status', onStatus);
-            Reactium.Hotkeys.unregister('content-save');
         };
     }, [ready]);
 
@@ -75,7 +62,7 @@ const SaveButton = ({ type }) => {
                 className='mr-xs-24'
                 color='primary'
                 disabled={busy}
-                onClick={saveHotkey}
+                onClick={e => Editor.submit(e)}
                 size='xs'
                 type='button'>
                 <Icon name={icon} size={18} />

@@ -554,6 +554,11 @@ let ContentEditor = (
         return { ...context, value };
     };
 
+    const saveHotkey = e => {
+        if (e) e.preventDefault();
+        submit();
+    };
+
     // Handle
     const _handle = () => ({
         AlertBox: alertRef.current,
@@ -695,6 +700,20 @@ let ContentEditor = (
         dispatch('change', { previous, value }, onChange);
         setPrevious(value);
     }, [value]);
+
+    useEffect(() => {
+        if (ready !== true) return;
+        Reactium.Hotkeys.register('content-save', {
+            callback: saveHotkey,
+            key: 'mod+s',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('content-save');
+        };
+    }, [ready]);
 
     const render = () => {
         if (ready !== true) return <Loading />;
