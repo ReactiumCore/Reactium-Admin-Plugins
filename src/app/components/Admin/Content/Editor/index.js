@@ -701,8 +701,9 @@ let ContentEditor = (
 
         if (_.isEmpty(previous)) return;
 
-        dispatch('change', { previous, value }, onChange);
         setPrevious(value);
+
+        dispatch('change', { previous, value }, onChange);
     }, [value]);
 
     useEffect(() => {
