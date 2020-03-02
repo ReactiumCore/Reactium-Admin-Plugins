@@ -20,12 +20,14 @@ export default ({ editor, ...props }) => {
         children: [{ type: 'p', children: [{ text: '' }] }],
     };
 
+    const currentValue = op.get(editor, ['value', name], defaultValue);
+
     const editorRef = useRef();
 
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const [previousSlug, setPreviousSlug] = useState();
-    const [value, setNewValue] = useState(editor.value[name] || defaultValue);
+    const [value, setNewValue] = useState(currentValue);
     const [ready] = useFulfilledObject(editor.value, [name]);
 
     const setValue = newValue => {
@@ -39,7 +41,7 @@ export default ({ editor, ...props }) => {
     };
 
     const reload = () => {
-        const newValue = editor.value[name];
+        const newValue = op.get(editor, ['value', name], defaultValue);
         editorRef.current.setValue(newValue);
         setPreviousSlug(slug);
         setValue(newValue);
