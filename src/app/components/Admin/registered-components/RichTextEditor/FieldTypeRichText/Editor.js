@@ -9,11 +9,10 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default ({ editor, ...props }) => {
-    const {
-        fieldName: name,
-        label = __('Content'),
-        placeholder = __('Enter content'),
-    } = props;
+    let { fieldName: name, label, placeholder } = props;
+
+    label = label || __('Content');
+    placeholder = placeholder || __('Enter content...');
 
     const { slug } = editor;
 
