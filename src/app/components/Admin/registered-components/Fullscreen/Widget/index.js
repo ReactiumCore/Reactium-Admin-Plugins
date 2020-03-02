@@ -23,23 +23,22 @@ let Widget = ({ children, className, icon, namespace, ...props }, ref) => {
         };
     });
 
-    const render = () => {
-        return children ? (
-            children
-        ) : (
-            <Button
-                ref={ref}
-                className={cname}
-                {...props}
-                onClick={e => {
-                    e.currentTarget.blur();
-                    toggle();
-                }}
-                type='button'>
+    const render = () => (
+        <Button
+            ref={ref}
+            className={cname}
+            {...props}
+            onClick={e => {
+                e.currentTarget.blur();
+                toggle();
+            }}
+            type='button'>
+            {children && <>{children}</>}
+            {!children && (
                 <Icon name={expanded ? icon.collapse : icon.expand} />
-            </Button>
-        );
-    };
+            )}
+        </Button>
+    );
 
     return render();
 };

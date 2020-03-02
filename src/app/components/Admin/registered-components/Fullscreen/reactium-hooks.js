@@ -1,5 +1,5 @@
-import Fullscreen from './sdk';
 import Widget from './Widget';
+import Fullscreen from './sdk';
 import Reactium, { __ } from 'reactium-core/sdk';
 
 Reactium.Plugin.register('Fullscreen').then(() => {
