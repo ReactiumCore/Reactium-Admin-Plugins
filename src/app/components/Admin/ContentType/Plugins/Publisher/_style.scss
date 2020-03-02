@@ -128,3 +128,10 @@
         }
     }
 }
+
+.content-scheduler {
+    min-height: 100px;
+    .ar-collapsible.expanded {
+        overflow: visible;
+    }
+}
