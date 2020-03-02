@@ -699,9 +699,9 @@ let ContentEditor = (
             return;
         }
 
-        if (_.isEmpty(previous)) return;
-
         setPrevious(value);
+
+        if (_.isEmpty(previous)) return;
 
         dispatch('change', { previous, value }, onChange);
     }, [value]);
