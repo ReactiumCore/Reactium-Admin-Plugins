@@ -9,6 +9,8 @@ import { Helmet } from 'react-helmet';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 
+import { Button, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+
 import React, {
     forwardRef,
     useEffect,
@@ -42,19 +44,36 @@ let ContentList = ({ className, namespace, ...props }, ref) => {
 
     const SearchBar = useHandle('SearchBar');
 
-    const cx = cls => _.compact([namespace, cls]).join('-');
+    const cx = Reactium.Utils.cxFactory(namespace);
 
-    const cname = cn({ [cx()]: true, [className]: !!className });
+    const cname = cn(cx(), { [className]: !!className });
 
-    const getContent = () => {};
+    const getContent = async refresh => {
+        const contentType = await Reactium.ContentType.retrieve({
+            machineName: type,
+        });
+
+        const { results: content, ...pagination } = await Reactium.Content.list(
+            {
+                refresh,
+                type: contentType,
+            },
+        );
+
+        return { content, contentType, pagination };
+    };
 
     const properCase = useProperCase();
 
     const [state, setState] = useDerivedState({
         content: undefined,
         contentType: undefined,
+        pagination: undefined,
         title: ENUMS.TEXT.LIST,
+        type,
     });
+
+    let [ready] = useFulfilledObject(state, ['content', 'contentType', 'type']);
 
     const _handle = () => ({
         state,
@@ -75,6 +94,16 @@ let ContentList = ({ className, namespace, ...props }, ref) => {
         setState({ title: newTitle });
     }, [group]);
 
+    useAsyncEffect(
+        async mounted => {
+            if (!type) return;
+            const results = await getContent(true);
+            if (mounted()) setState(results);
+            return () => {};
+        },
+        [type],
+    );
+
     // Show SearchBar
     useEffect(() => {
         if (!SearchBar) return;
@@ -82,10 +111,27 @@ let ContentList = ({ className, namespace, ...props }, ref) => {
         if (visible !== true) SearchBar.setState({ visible: true });
     }, [SearchBar]);
 
+    useEffect(() => {
+        if (type !== op.get(state, 'type')) {
+            ready = false;
+            setState({ type });
+        }
+    }, [type]);
+
     const render = () => {
+        if (ready) {
+            console.log('Content', ready, state);
+        }
+
         return (
             <div className={cname}>
-                <div className={cx('content')}>LIST</div>
+                {!ready ? (
+                    <div className={cx('spinner')}>
+                        <Spinner />
+                    </div>
+                ) : (
+                    <div className={cx('content')}>LIST</div>
+                )}
             </div>
         );
     };
@@ -101,7 +147,7 @@ ContentList.propTypes = {
 };
 
 ContentList.defaultProps = {
-    namespace: 'ar-content-list',
+    namespace: 'admin-content-list',
 };
 
 export default ContentList;
