@@ -100,7 +100,19 @@ $admin-content-ns: admin-content;
         }
 
         .editor {
-            padding: 40px 0 24px 48px;
+            // padding: 40px 0 24px 48px;
+            padding-left: 48px;
+            > .ar-rte {
+                > [data-gramm]:first-child {
+                    padding-top: 40px;
+                    padding-bottom: 40px;
+                }
+
+                p {
+                    line-height: 1.5;
+                    margin: 0;
+                }
+            }
         }
 
         .line {

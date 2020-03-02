@@ -60,6 +60,7 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
     const isExpanded = () => handle.status === ENUMS.STATUS.EXPANDED;
 
     const onHotkey = e => {
+        if (Reactium.Utils.Fullscreen.isExpanded()) return;
         e.preventDefault();
         toggle();
     };
