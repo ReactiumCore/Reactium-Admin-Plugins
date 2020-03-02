@@ -125,13 +125,8 @@ let ContentList = ({ className, namespace, ...props }, ref) => {
 
         return (
             <div className={cname}>
-                {!ready ? (
-                    <div className={cx('spinner')}>
-                        <Spinner />
-                    </div>
-                ) : (
-                    <div className={cx('content')}>LIST</div>
-                )}
+                <div className={cx('content')}>LIST</div>
+                {!ready && <Spinner className={cx('spinner')} />}
             </div>
         );
     };

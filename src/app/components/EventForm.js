@@ -133,6 +133,9 @@ let EventForm = (initialProps, ref) => {
         );
 
         Object.entries(elements).forEach(([, element]) => {
+            if (!element.name) return;
+            if (!element.type) return;
+
             const name = element.name;
             const type = element.type;
             const val = op.get(newValue, name);
@@ -327,6 +330,8 @@ let EventForm = (initialProps, ref) => {
     /* Event handlers */
     const _onChange = e => {
         if (!formRef.current) return;
+        if (e.target && !e.target.name) return;
+
         e.stopPropagation();
         dispatchChange({ event: e });
     };
@@ -487,6 +492,7 @@ EventForm.propTypes = {
     defaultValue: PropTypes.object,
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     required: PropTypes.array.isRequired,
+    name: PropTypes.string,
     namespace: PropTypes.string,
     onChange: PropTypes.func,
     onError: PropTypes.func,
@@ -498,6 +504,7 @@ EventForm.propTypes = {
 EventForm.defaultProps = {
     controlled: false,
     id: uuid(),
+    name: 'form',
     namespace: 'ar-event-form',
     onChange: noop,
     onError: noop,
