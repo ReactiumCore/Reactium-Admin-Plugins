@@ -36,8 +36,9 @@ export default ({ editor, ...props }) => {
     };
 
     const onEditorChange = e => {
-        setValue(e.target.value);
-        editor.setValue({ [name]: e.target.value });
+        const newValue = op.get(e.target, 'value', defaultValue);
+        setValue(newValue);
+        editor.setValue({ [name]: newValue });
     };
 
     const reload = () => {
