@@ -636,6 +636,7 @@ let ContentEditor = (
         getContent()
             .then(result => {
                 if (unMounted()) return;
+                initialChange.current = true;
                 setValue(result);
             })
             .catch(() => {
