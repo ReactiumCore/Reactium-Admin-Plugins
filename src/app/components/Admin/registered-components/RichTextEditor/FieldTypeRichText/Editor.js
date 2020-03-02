@@ -26,7 +26,7 @@ export default ({ editor, ...props }) => {
 
     const [previousSlug, setPreviousSlug] = useState();
     const [value, setNewValue] = useState(editor.value[name] || defaultValue);
-    const [hasValue, ready] = useFulfilledObject(editor.value, [name]);
+    const [ready] = useFulfilledObject(editor.value, [name]);
 
     const setValue = newValue => {
         if (_.isEqual(value, newValue)) return;

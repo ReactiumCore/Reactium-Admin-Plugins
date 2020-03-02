@@ -19,11 +19,15 @@ import React, {
 
 import Reactium, {
     __,
+    useAsyncEffect,
     useDerivedState,
     useEventHandle,
+    useFulfilledObject,
     useHandle,
+    useHookComponent,
     useRegisterHandle,
     useSelect,
+    Zone,
 } from 'reactium-core/sdk';
 
 /**
@@ -32,7 +36,7 @@ import Reactium, {
  * -----------------------------------------------------------------------------
  */
 let ContentList = ({ className, namespace, ...props }, ref) => {
-    const { type, group } = useRouteParams();
+    const { page, group, type } = useRouteParams(['page', 'group', 'type']);
 
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
@@ -42,16 +46,15 @@ let ContentList = ({ className, namespace, ...props }, ref) => {
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 
+    const getContent = () => {};
+
     const properCase = useProperCase();
 
-    const [state, setNewState] = useDerivedState({
+    const [state, setState] = useDerivedState({
+        content: undefined,
+        contentType: undefined,
         title: ENUMS.TEXT.LIST,
     });
-
-    const setState = newState => {
-        setNewState({ ...state, ...newState });
-        return () => {};
-    };
 
     const _handle = () => ({
         state,

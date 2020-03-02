@@ -342,7 +342,7 @@ const PublishButton = props => {
 
 const PublisherEditor = props => {
     const id = op.get(props, 'editor.value.objectId');
-    const [config, ready] = usePublisherSettings(props);
+    const [ready, config] = usePublisherSettings(props);
     const ElementDialog = useHookComponent('ElementDialog');
     const editor = op.get(props, 'editor');
     const unsaved = !id;

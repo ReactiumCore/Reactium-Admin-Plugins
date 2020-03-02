@@ -31,7 +31,7 @@ const AddButton = ({ type }) => {
 const SaveButton = ({ type }) => {
     const [status, setStatus] = useState();
     const Editor = useHandle('AdminContentEditor');
-    const [, ready] = useFulfilledObject(Editor, ['EventForm']);
+    const [ready] = useFulfilledObject(Editor, ['EventForm']);
 
     const isBusy = stat =>
         [

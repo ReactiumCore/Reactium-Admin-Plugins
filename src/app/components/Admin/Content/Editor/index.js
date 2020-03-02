@@ -613,7 +613,7 @@ let ContentEditor = (
     );
 
     // get fullfilled handle
-    const [obj, ready, count] = useFulfilledObject(handle, [
+    const [ready, obj, count] = useFulfilledObject(handle, [
         'contentType',
         'type',
         'types',
