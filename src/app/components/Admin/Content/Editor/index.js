@@ -613,17 +613,19 @@ let ContentEditor = (
     );
 
     // get fullfilled handle
-    const [ready, obj, count] = useFulfilledObject(handle, [
-        'contentType',
-        'type',
-        'types',
-    ]);
+    let [ready] = useFulfilledObject(handle, ['contentType', 'type', 'types']);
+
+    const reset = () => {
+        ready = false;
+        initialChange.current = true;
+        setNewValue(undefined);
+    };
 
     // slug change
     useEffect(() => {
         if (!slug) return;
         if (currentSlug !== slug) {
-            setNewValue();
+            reset();
             setCurrentSlug(slug);
         }
     }, [currentSlug, slug]);
@@ -675,7 +677,7 @@ let ContentEditor = (
     // dispatch ready
     useEffect(() => {
         if (ready === true)
-            dispatch('status', { event: 'READY', obj, ready, count }, onReady);
+            dispatch('status', { event: 'READY', ready }, onReady);
     }, [ready]);
 
     // dispatch status
@@ -696,6 +698,8 @@ let ContentEditor = (
         if (_.isEqual(previous, value)) {
             return;
         }
+
+        if (_.isEmpty(previous)) return;
 
         dispatch('change', { previous, value }, onChange);
         setPrevious(value);
