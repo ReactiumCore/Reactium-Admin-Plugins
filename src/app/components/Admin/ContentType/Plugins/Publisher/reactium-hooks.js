@@ -51,10 +51,13 @@ const registerPublisher = async () => {
                     .get(
                         savedRef.current,
                         'fields.publisher.statuses',
-                        'DRAFT,PUBLISHED',
+                        'TRASH,DRAFT,PUBLISHED',
                     )
                     .split(',')
-                    .filter(status => !['DRAFT', 'PUBLISHED'].includes(status)),
+                    .filter(
+                        status =>
+                            !['DRAFT', 'TRASH', 'PUBLISHED'].includes(status),
+                    ),
             );
 
             context.capabilities = [...capabilities];
