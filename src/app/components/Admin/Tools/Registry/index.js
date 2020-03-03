@@ -26,9 +26,12 @@ export default class Registry {
         const registered = Array.from(this.__registered).filter(
             ({ id }) => !unregister.includes(id),
         );
-        return _.chain(registered)
-            .sortBy('order')
-            .value();
+        return Object.values(
+            _.chain(registered)
+                .sortBy('order')
+                .indexBy('id')
+                .value(),
+        );
     }
 
     isProtected(id) {
@@ -44,6 +47,8 @@ export default class Registry {
             .flatten()
             .uniq()
             .value();
+
+        return this;
     }
 
     register(id, data = {}) {
@@ -53,17 +58,20 @@ export default class Registry {
             );
         }
 
-        data['order'] = op.get(data, 'order', 200);
+        data['order'] = op.get(data, 'order', 100);
         const item = { ...data, id };
         this.__registered.push(item);
-        return item;
+        return this;
     }
 
     unprotect(id) {
         this.__protected = _.without(this.__protected, id);
+        return this;
     }
 
     unregister(id) {
+        if (!id) return this;
+
         id = _.chain([id])
             .flatten()
             .uniq()
@@ -71,9 +79,9 @@ export default class Registry {
 
         id.forEach(() => {
             if (this.__protected.includes(id)) return;
-            if (id) this.__unregister.push(id);
+            this.__unregister.push(id);
         });
 
-        return this.__unregister;
+        return this;
     }
 }

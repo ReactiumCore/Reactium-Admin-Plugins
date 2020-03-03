@@ -748,6 +748,7 @@ less than 1000 records, the entire set will be delivered in one page for applica
  * @apiParam (params) {String} [status=PUBLISHED] "PUBLISHED" or "DRAFT" status of the content
  * @apiParam (params) {String} [orderBy=createdAt] Field to order the results by.
  * @apiParam (params) {String} [direction=descending] Order "descending" or "ascending"
+ * @apiParam (params) {Number} [page=1] The page or results to return.
  * @apiParam (params) {Number} [limit=20] Limit page results
  * @apiParam (type) {String} [objectId] Parse objectId of content type
  * @apiParam (type) {String} [uuid] UUID of content type
@@ -783,6 +784,14 @@ Content.ScrubEvent.protect(['save-success', 'load']);
 
 Content.DirtyEvent.protected.forEach(id => Content.DirtyEvent.register(id));
 Content.ScrubEvent.protected.forEach(id => Content.ScrubEvent.register(id));
+
+// ListColumn expects Object:
+// { order:Number, types:Array, className:String }
+Content.ListColumn = new Registry('ListColumn');
+Content.ListColumn.protect(['actions', 'status', 'title'])
+    .register('actions', { order: 120 })
+    .register('status', { order: 110 })
+    .register('title', { order: 100 });
 
 Reactium.Hook.register('content-saved', async contentObj => {
     const { canRead = [], canWrite = [] } = await Content.ACLToReadWrite(

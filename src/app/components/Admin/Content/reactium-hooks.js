@@ -14,6 +14,14 @@ import SlugInput from './Editor/_plugins/SlugInput';
 import RevisionsWidget from './Revisions/ToolbarWidget';
 import ActivityLogWidget from './ActivityLog/ToolbarWidget';
 
+import {
+    ListColumn,
+    ListItem,
+    ListItemActions,
+    ListItemStatus,
+    ListItemTitle,
+} from './List/ListItem';
+
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
         'AdminContent',
@@ -30,6 +38,8 @@ const registerAdminContent = async () => {
 
     // Register components
     Reactium.Component.register('SlugInput', SlugInput);
+    Reactium.Component.register('AdminContentListItem', ListItem);
+    Reactium.Component.register('AdminContentListColumn', ListColumn);
     Reactium.Component.register('AdminContentLoading', Loading);
     Reactium.Component.register('AdminContentSidebar', Sidebar);
     Reactium.Component.register('ElementDialog', ElementDialog);
@@ -57,7 +67,7 @@ const registerAdminContent = async () => {
     });
 
     Reactium.Zone.addComponent({
-        id: 'ADMIN-CONTENT-LIST',
+        id: 'AdminContentList',
         component: ContentList,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-content-list'],
@@ -82,6 +92,27 @@ const registerAdminContent = async () => {
         component: RevisionsWidget,
         order: Reactium.Enums.priority.lowest + 10,
         zone: ['admin-content-toolbar-top'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-LIST-ACTIONS',
+        component: ListItemActions,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-content-list-actions'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-LIST-STATUS',
+        component: ListItemStatus,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-content-list-status'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-LIST-TITLE',
+        component: ListItemTitle,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-content-list-title'],
     });
 };
 
