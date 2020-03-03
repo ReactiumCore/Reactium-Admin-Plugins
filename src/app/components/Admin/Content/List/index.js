@@ -50,7 +50,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     const loadingStatus = useRef();
 
-    const { page, group, type } = useRouteParams(['page', 'group', 'type']);
+    const { page = 1, group, type } = useRouteParams(['page', 'group', 'type']);
 
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
@@ -77,7 +77,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             setState({ content });
 
             // remove at server
-            await Reactium.Content.delete({ type: contentType, objectId });
+            await Reactium.Content.trash({ type: contentType, objectId });
 
             // fetch the current page again.
             getContent();
@@ -151,6 +151,8 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             {
                 page,
                 refresh,
+                limit: 20,
+                optimize: false,
                 type: contentType,
             },
         );
@@ -210,7 +212,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     useImperativeHandle(ref, () => handle, [handle]);
 
-    useRegisterHandle(`${id}List`, () => handle, [handle]);
+    useRegisterHandle(id, () => handle, [handle]);
 
     // get content
     useAsyncEffect(
@@ -267,16 +269,18 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group, page, type]);
 
     const render = () => {
-        if (ready) console.log(state);
+        if (ready) console.log(handle);
         const { content, group, page } = state;
 
         return (
             <div ref={containerRef} className={cname}>
+                <Zone list={handle} zone={cx('top')} />
                 {content &&
                     content.map(item => (
                         <ListItem key={item.objectId} list={handle} {...item} />
                     ))}
                 {isBusy() && <Spinner className={cx('spinner')} />}
+                <Zone list={handle} zone={cx('bottom')} />
             </div>
         );
     };

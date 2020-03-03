@@ -1,6 +1,7 @@
 $admin-content-list-height: 80px;
+$admin-content-list-ns: admin-content-list;
 
-.admin-content-list {
+.#{$admin-content-list-ns} {
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
     min-height: 100vh;
@@ -77,8 +78,10 @@ $admin-content-list-height: 80px;
     &-column-title {
         flex-grow: 1;
         display: flex;
-        align-items: center;
-        padding: 10px 20px;
+        align-items: stretch;
+        padding: 0 20px;
+        position: relative;
+        min-height: $admin-content-list-height;
 
         &:hover { text-decoration: none; }
 
