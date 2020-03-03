@@ -37,6 +37,31 @@ const Scheduler = props => {
         sunset: null,
     });
 
+    const _contentStatusEventHandler = e => {
+        if (!e.value) return;
+        const { value } = e;
+
+        const schedule = op.get(value, 'publish', {});
+        const branch = op.get(value, 'history.branch', 'master');
+
+        setPublish({
+            schedule,
+            branch,
+            sunrise: null,
+            sunset: null,
+        });
+    };
+
+    // On submit handler
+    useEffect(() => {
+        if (editor.unMounted()) return;
+        editor.addEventListener('clean', _contentStatusEventHandler);
+
+        return () => {
+            editor.removeEventListener('clean', _contentStatusEventHandler);
+        };
+    }, [editor, publish]);
+
     const setBranch = (selection = []) => {
         const [branch] = selection;
         if (op.has(editor.value, ['branches', branch])) {
@@ -246,7 +271,8 @@ const Scheduler = props => {
     );
 
     const renderScheduleManager = () => {
-        if (!Object.values(publish.schedule).length) return null;
+        const schedule = op.get(publish, 'schedule', {}) || {};
+        if (!Object.values(schedule).length) return null;
 
         const timeItem = (time, label) => {
             return (
