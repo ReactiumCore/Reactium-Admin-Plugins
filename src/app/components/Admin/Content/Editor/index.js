@@ -120,6 +120,7 @@ let ContentEditor = (
     const formRef = useRef();
     const sidebarRef = useRef();
     const initialChange = useRef(true);
+    const loadingStatus = useRef(false);
 
     const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
@@ -267,6 +268,8 @@ let ContentEditor = (
     const getContent = async () => {
         if (isNew()) return Promise.resolve({});
 
+        loadingStatus.current = Date.now();
+
         const content = await Reactium.Content.retrieve({
             type: contentType,
             slug,
@@ -274,6 +277,7 @@ let ContentEditor = (
 
         if (content) {
             await dispatch('load', { content }, onLoad);
+            loadingStatus.current = undefined;
             return Promise.resolve(content);
         } else {
             const message = (
@@ -338,6 +342,13 @@ let ContentEditor = (
             : [];
 
         return [contentRegions, sidebarRegions];
+    };
+
+    const reset = () => {
+        ready = false;
+        loadingStatus.current = undefined;
+        initialChange.current = true;
+        setNewValue(undefined);
     };
 
     const save = async (mergeValue = {}) => {
@@ -615,12 +626,6 @@ let ContentEditor = (
     // get fullfilled handle
     let [ready] = useFulfilledObject(handle, ['contentType', 'type', 'types']);
 
-    const reset = () => {
-        ready = false;
-        initialChange.current = true;
-        setNewValue(undefined);
-    };
-
     // slug change
     useEffect(() => {
         if (!slug) return;
@@ -629,21 +634,6 @@ let ContentEditor = (
             setCurrentSlug(slug);
         }
     }, [currentSlug, slug]);
-
-    // get content
-    useEffect(() => {
-        if (!formRef.current || !slug || value) return;
-        getContent()
-            .then(result => {
-                if (unMounted()) return;
-                initialChange.current = true;
-                setValue(result);
-                _.defer(() => (initialChange.current = false));
-            })
-            .catch(() => {
-                Reactium.Routing.history.push(`/admin/content/${type}/new`);
-            });
-    });
 
     // set content type
     useEffect(() => {
@@ -721,6 +711,23 @@ let ContentEditor = (
             Reactium.Hotkeys.unregister('content-save');
         };
     }, [ready]);
+
+    // get content
+    useEffect(() => {
+        if (loadingStatus.current) return;
+        if (!formRef.current || !slug || !type || value) return;
+        getContent()
+            .then(result => {
+                if (unMounted()) return;
+                if (!result) return;
+                initialChange.current = true;
+                setValue(result);
+                _.defer(() => (initialChange.current = false));
+            })
+            .catch(() => {
+                Reactium.Routing.history.push(`/admin/content/${type}/new`);
+            });
+    });
 
     const render = () => {
         if (ready !== true) return <Loading />;
