@@ -23,7 +23,7 @@ const usePublisherSettings = props => {
     const contentType = op.get(props, 'editor.contentType');
     const collection = op.get(contentType, 'collection');
     const statuses = _.chain((op.get(props, 'statuses', '') || '').split(','))
-        .without('PUBLISHED')
+        .without('PUBLISHED', 'TRASH')
         .compact()
         .uniq()
         .sort()

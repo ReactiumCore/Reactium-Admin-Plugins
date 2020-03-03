@@ -241,6 +241,30 @@ Content.setCurrent = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.trash(params,handle) Content.trash()
+ * @apiDescription Mark content for future deletion of a defined Type. To identify the content, you must provided
+the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {String} [slug] The unique slug for the content.
+ * @apiParam (params) {String} [objectId] The Parse object id of the content.
+ * @apiParam (params) {String} [uuid] The uuid of the content.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiName Content.trash
+ * @apiGroup Reactium.Content
+ */
+Content.trash = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const recycled = await Reactium.Cloud.run('content-trash', request);
+
+    await Reactium.Hook.run('content-trashed', recycled, request, handle);
+    return recycled;
+};
+
+/**
  * @api {Asynchronous} Content.delete(params,handle) Content.delete()
  * @apiDescription Delete content of a defined Type. To identify the content, you must provided
 the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.
