@@ -275,10 +275,12 @@ const ContentType = memo(
                 savedRef.current = contentType;
 
                 op.set(regionRef.current, 'regions', regions);
-
+                console.log(op.get(contentType, 'fields', {}));
                 Object.entries(op.get(contentType, 'fields', {})).forEach(
                     ([fieldId, fieldDefinition], index) => {
                         const { fieldType } = fieldDefinition;
+                        if (!fieldType) return;
+
                         let region = op.get(
                             fieldDefinition,
                             'region',
@@ -290,6 +292,11 @@ const ContentType = memo(
                         const type = Object.values(Enums.TYPES).find(
                             ({ type }) => fieldType === type,
                         );
+
+                        if (!type) {
+                            console.log(`No field type ${type}`);
+                            return;
+                        }
 
                         Reactium.Zone.addComponent({
                             ...type,

@@ -63,7 +63,6 @@
 
 .publish-status {
     &-dialog {
-        // margin-bottom: 10px;
         .ar-collapsible {
             overflow: visible;
         }
@@ -72,8 +71,6 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            // min-height: 60px;
-            //margin: 20px 10px;
             padding: 20px;
         }
     }
@@ -130,8 +127,53 @@
 }
 
 .content-scheduler {
-    min-height: 100px;
+    padding: 20px;
     .ar-collapsible.expanded {
         overflow: visible;
+    }
+
+    &-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+
+        .branch-dropdown {
+            flex: 1 0 50%;
+            margin-right: 10px;
+
+            button {
+                padding: 0 8px;
+                height: 32px;
+            }
+
+            &-label {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                svg {
+                    height: 16px;
+                    width: 16px;
+                }
+            }
+        }
+    }
+
+    &-pickers {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .ar-picker {
+            flex-grow: 0;
+            flex-shrink: 1;
+            width: 160px;
+
+            &:first-child {
+                flex-grow: 1;
+                flex-shrink: 0;
+                margin-right: 10px;
+            }
+        }
     }
 }

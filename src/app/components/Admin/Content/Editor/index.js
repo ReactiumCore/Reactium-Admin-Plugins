@@ -475,6 +475,55 @@ let ContentEditor = (
         }
     };
 
+    const schedule = async (request = {}) => {
+        if (isNew()) return;
+
+        setAlert();
+
+        const payload = {
+            type,
+            objectId: value.objectId,
+            ...request,
+        };
+
+        if (!op.get(payload, 'type')) {
+            op.set(payload, 'type', contentType);
+        }
+
+        await dispatch('before-schedule', { value: payload });
+        const successMessage = __('%type scheduled').replace('%type', type);
+        const errorMessage = __('Unable to schedule %type').replace(
+            '%type',
+            type,
+        );
+
+        try {
+            const response = await Reactium.Content.schedule(payload, handle);
+            const newValue = {
+                ...value,
+                publish: response.publish,
+            };
+
+            if (unMounted()) return;
+
+            initialChange.current = true;
+            await dispatch('schedule', { value: newValue }, setClean);
+
+            Toast.show({
+                icon: 'Feather.Check',
+                message: successMessage,
+                type: Toast.TYPE.INFO,
+            });
+        } catch (error) {
+            Toast.show({
+                icon: 'Feather.AlertOctagon',
+                message: errorMessage,
+                type: Toast.TYPE.ERROR,
+            });
+            console.error({ error });
+        }
+    };
+
     const submit = () => formRef.current.submit();
 
     const _onChange = async e => {
@@ -598,6 +647,7 @@ let ContentEditor = (
         state,
         setContentStatus,
         setStale,
+        schedule,
         publish,
         setClean,
         setDirty,
