@@ -485,6 +485,28 @@ Content.schedule = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.unschedule(params,handle) Content.unschedule()
+ * @apiDescription Remove scheduled publishing job by id.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam {String} [slug] The unique slug for the content.
+ * @apiParam {String} [objectId] The Parse object id of the content.
+ * @apiParam {String} [uuid] The uuid of the content.
+ * @apiParam {String} jobId The id of the schedule job.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiName Content.unschedule
+ * @apiGroup Actinium
+ */
+Content.unschedule = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const contentObj = await Reactium.Cloud.run('content-unschedule', request);
+
+    await Reactium.Hook.run('content-unscheduled', contentObj, request, handle);
+    return contentObj;
+};
+
+/**
  * @api {Asynchronous} Content.changelog(objectId,options,handle) Content.changelog()
  * @apiDescription Get changelog for content item.
  Some of the built-in changes that are tracked:

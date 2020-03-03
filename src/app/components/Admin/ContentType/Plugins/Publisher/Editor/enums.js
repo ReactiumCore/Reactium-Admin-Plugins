@@ -54,5 +54,9 @@ export default {
             tooltip: __('Unpublish on date'),
             label: __('Sunset'),
         },
+        unschedule: {
+            tooltip: __('Remove this action from schedule.'),
+            label: __('Unschedule'),
+        },
     },
 };

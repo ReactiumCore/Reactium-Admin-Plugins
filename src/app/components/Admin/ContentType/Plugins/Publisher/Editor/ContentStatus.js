@@ -78,6 +78,7 @@ const ContentStatus = props => {
 
     return (
         <Dialog
+            pref='admin.dialog.publisher.status'
             className={'publish-status-dialog'}
             header={{
                 title: <div className='status-label'>{statusLabel}</div>,

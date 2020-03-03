@@ -506,8 +506,57 @@ let ContentEditor = (
 
             if (unMounted()) return;
 
-            initialChange.current = true;
+            if (isClean()) initialChange.current = true;
             await dispatch('schedule', { value: newValue }, setClean);
+
+            Toast.show({
+                icon: 'Feather.Check',
+                message: successMessage,
+                type: Toast.TYPE.INFO,
+            });
+        } catch (error) {
+            Toast.show({
+                icon: 'Feather.AlertOctagon',
+                message: errorMessage,
+                type: Toast.TYPE.ERROR,
+            });
+            console.error({ error });
+        }
+    };
+
+    const unschedule = async jobId => {
+        if (isNew()) return;
+
+        setAlert();
+
+        const payload = {
+            type,
+            objectId: value.objectId,
+            jobId,
+        };
+
+        if (!op.get(payload, 'type')) {
+            op.set(payload, 'type', contentType);
+        }
+
+        await dispatch('before-unschedule', { value: payload });
+        const successMessage = __('%type unscheduled').replace('%type', type);
+        const errorMessage = __('Unable to unschedule %type').replace(
+            '%type',
+            type,
+        );
+
+        try {
+            const response = await Reactium.Content.unschedule(payload, handle);
+            const newValue = {
+                ...value,
+                publish: response.publish,
+            };
+
+            if (unMounted()) return;
+
+            if (isClean()) initialChange.current = true;
+            await dispatch('unschedule', { value: newValue }, setClean);
 
             Toast.show({
                 icon: 'Feather.Check',
@@ -648,6 +697,7 @@ let ContentEditor = (
         setContentStatus,
         setStale,
         schedule,
+        unschedule,
         publish,
         setClean,
         setDirty,

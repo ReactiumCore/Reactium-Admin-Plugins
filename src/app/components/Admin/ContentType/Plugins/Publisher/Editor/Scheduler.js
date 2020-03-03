@@ -6,7 +6,7 @@ import Reactium, {
     useAsyncEffect,
     useFulfilledObject,
 } from 'reactium-core/sdk';
-
+import { Scrollbars } from 'react-custom-scrollbars';
 import {
     Button,
     Icon,
@@ -26,9 +26,12 @@ import ENUMS from './enums';
 const today = moment().startOf('day');
 
 const Scheduler = props => {
+    const aclTargets = Reactium.Cache.get('acl-targets') || {};
+    const users = _.indexBy(aclTargets.users, 'objectId');
     const { editor, config } = props;
     const branches = Object.keys(op.get(editor.value, 'branches'));
     const [publish, setPublish] = useState({
+        schedule: op.get(editor.value, 'publish', {}),
         branch: op.get(editor.value, 'history.branch', 'master'),
         sunrise: null,
         sunset: null,
@@ -63,7 +66,6 @@ const Scheduler = props => {
     const setTime = (time, type = 'sunrise') => {
         const date = publish[type] || publish.sunrise || today;
         if (time) {
-            console.log({ time });
             const ofDay = moment(time, 'hh:mm:ss A');
             setPublish({
                 ...publish,
@@ -95,6 +97,25 @@ const Scheduler = props => {
         if (!config.can.publish && !config.can.unpublish) return false;
 
         return true;
+    };
+
+    const doSchedule = () => {
+        const request = {};
+        if (publish.sunrise) {
+            request.sunrise = publish.sunrise.format();
+            request.history = { branch: publish.branch };
+        }
+        if (publish.sunset) {
+            request.sunset = publish.sunset.format();
+        }
+
+        if (Object.values(request).length > 0) {
+            editor.schedule(request);
+        }
+    };
+
+    const doUnSchedule = jobId => {
+        editor.unschedule(jobId);
     };
 
     if (!canSchedule()) {
@@ -172,74 +193,177 @@ const Scheduler = props => {
         </div>
     );
 
-    const doSchedule = () => {
-        const request = {};
-        if (publish.sunrise) {
-            request.sunrise = publish.sunrise.format();
-            request.history = { branch: publish.branch };
-        }
-        if (publish.sunset) {
-            request.sunset = publish.sunset.format();
-        }
+    const renderScheduler = () => (
+        <div className='content-scheduler'>
+            {['sunrise', 'sunset'].map(type => renderPickers(type))}
+            <div className='content-scheduler-branch'>
+                <h4 className='my-xs-8 h5'>
+                    <span
+                        data-tooltip={__('Version of content to schedule')}
+                        data-vertical-align='top'
+                        data-align='left'>
+                        {__('Content Version')}
+                    </span>
+                </h4>
 
-        if (Object.values(request).length > 0) {
-            editor.schedule(request);
-        }
-    };
+                <div className='content-scheduler-controls'>
+                    <Dropdown
+                        className='branch-dropdown'
+                        data={branches.map(branch => ({
+                            label: branch,
+                            value: branch,
+                        }))}
+                        maxHeight={160}
+                        selection={[publish.branch]}
+                        onChange={({ selection }) => setBranch(selection)}>
+                        <Button
+                            size={Button.ENUMS.SIZE.XS}
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            data-dropdown-element>
+                            <div className={'branch-dropdown-label'}>
+                                <span>{publish.branch}</span>
+                                <Icon name='Feather.ChevronDown' />
+                            </div>
+                        </Button>
+                    </Dropdown>
 
-    return (
-        <Dialog header={{ title: __('Scheduled Publishing') }}>
-            <div className='content-scheduler'>
-                {['sunrise', 'sunset'].map(type => renderPickers(type))}
-                <div className='content-scheduler-branch'>
-                    <h4 className='my-xs-8 h5'>
-                        <span
-                            data-tooltip={__('Version of content to schedule')}
+                    <div className='content-scheduler-button'>
+                        <Button
+                            disabled={!(publish.sunrise || publish.sunset)}
+                            size={Button.ENUMS.SIZE.SM}
+                            color={Button.ENUMS.COLOR.PRIMARY}
+                            title={ENUMS.BUTTON_MODES.SCHEDULE.tooltip}
+                            data-tooltip={ENUMS.BUTTON_MODES.SCHEDULE.tooltip}
                             data-vertical-align='top'
-                            data-align='left'>
-                            {__('Content Version')}
-                        </span>
-                    </h4>
-
-                    <div className='content-scheduler-controls'>
-                        <Dropdown
-                            className='branch-dropdown'
-                            data={branches.map(branch => ({
-                                label: branch,
-                                value: branch,
-                            }))}
-                            maxHeight={160}
-                            selection={[publish.branch]}
-                            onChange={({ selection }) => setBranch(selection)}>
-                            <Button
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.TERTIARY}
-                                data-dropdown-element>
-                                <div className={'branch-dropdown-label'}>
-                                    <span>{publish.branch}</span>
-                                    <Icon name='Feather.ChevronDown' />
-                                </div>
-                            </Button>
-                        </Dropdown>
-
-                        <div className='content-scheduler-button'>
-                            <Button
-                                disabled={!(publish.sunrise || publish.sunset)}
-                                size={Button.ENUMS.SIZE.SM}
-                                color={Button.ENUMS.COLOR.PRIMARY}
-                                title={ENUMS.BUTTON_MODES.SCHEDULE.tooltip}
-                                data-tooltip={
-                                    ENUMS.BUTTON_MODES.SCHEDULE.tooltip
-                                }
-                                data-vertical-align='top'
-                                data-align='left'
-                                onClick={doSchedule}>
-                                {ENUMS.BUTTON_MODES.SCHEDULE.text}
-                            </Button>
-                        </div>
+                            data-align='left'
+                            onClick={doSchedule}>
+                            {ENUMS.BUTTON_MODES.SCHEDULE.text}
+                        </Button>
                     </div>
                 </div>
             </div>
+        </div>
+    );
+
+    const renderScheduleManager = () => {
+        if (!Object.values(publish.schedule).length) return null;
+
+        const timeItem = (time, label) => {
+            return (
+                <div className='content-schedule-item-time'>
+                    <strong>{label}</strong>
+                    <span>{moment(time).format('MMM DD YYYY hh:mm A')}</span>
+                </div>
+            );
+        };
+
+        return (
+            <Dialog
+                pref='admin.dialog.publisher.manager'
+                className='content-schedule'
+                header={{ title: __('Scheduled Actions') }}>
+                <Scrollbars height={200} autoHeight={true} autoHeightMin={200}>
+                    <ul className='content-schedule-list'>
+                        {Object.entries(publish.schedule).map(
+                            ([jobId, instructions]) => {
+                                const { history, userId } = instructions;
+
+                                const user = (
+                                    <div className='content-schedule-user'>
+                                        <strong>{__('User:')}</strong>
+                                        <span>
+                                            {op.get(
+                                                users,
+                                                [userId, 'username'],
+                                                __('Unknown User'),
+                                            )}
+                                        </span>
+                                    </div>
+                                );
+
+                                const branch = (
+                                    <div className='content-schedule-version'>
+                                        <strong>{__('Version:')}</strong>
+                                        <span>
+                                            <span>
+                                                {op.get(
+                                                    history,
+                                                    'branch',
+                                                    'master',
+                                                )}
+                                            </span>
+                                            <span className='content-schedule-version-rev'>
+                                                {op.has(history, 'revision') &&
+                                                    `v${history.revision + 1}`}
+                                            </span>
+                                        </span>
+                                    </div>
+                                );
+
+                                return (
+                                    <li
+                                        key={jobId}
+                                        className='content-schedule-item'>
+                                        <div className='content-schedule-item-detail'>
+                                            {user}
+                                            {branch}
+                                            {instructions.sunrise &&
+                                                timeItem(
+                                                    instructions.sunrise,
+                                                    ENUMS.SCHEDULING.sunrise
+                                                        .label + ':',
+                                                )}
+                                            {instructions.sunset &&
+                                                timeItem(
+                                                    instructions.sunset,
+                                                    ENUMS.SCHEDULING.sunset
+                                                        .label + ':',
+                                                )}
+                                        </div>
+                                        <div className='content-schedule-item-control'>
+                                            <Button
+                                                size={Button.ENUMS.SIZE.XS}
+                                                appearance={
+                                                    Button.ENUMS.APPEARANCE.PILL
+                                                }
+                                                color={
+                                                    Button.ENUMS.COLOR.PRIMARY
+                                                }
+                                                title={
+                                                    ENUMS.SCHEDULING.unschedule
+                                                        .tooltip
+                                                }
+                                                data-tooltip={
+                                                    ENUMS.SCHEDULING.unschedule
+                                                        .tooltip
+                                                }
+                                                data-vertical-align='top'
+                                                data-align='left'
+                                                onClick={() =>
+                                                    doUnSchedule(jobId)
+                                                }>
+                                                {
+                                                    ENUMS.SCHEDULING.unschedule
+                                                        .label
+                                                }
+                                            </Button>
+                                        </div>
+                                    </li>
+                                );
+                            },
+                        )}
+                    </ul>
+                </Scrollbars>
+            </Dialog>
+        );
+    };
+
+    return (
+        <Dialog
+            pref='admin.dialog.publisher.main'
+            header={{ title: __('Scheduled Publishing') }}>
+            <>{renderScheduler()}</>
+            <>{renderScheduleManager()}</>
         </Dialog>
     );
 };
