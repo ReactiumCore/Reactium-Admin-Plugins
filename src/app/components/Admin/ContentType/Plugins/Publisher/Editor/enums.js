@@ -34,11 +34,25 @@ export default {
             text: __('Change'),
             tooltip: __('Change status on current version of content.'),
         },
+        SCHEDULE: {
+            text: __('Schedule'),
+            tooltip: __('Schedule sunrise and sunset of this content'),
+        },
         DISABLED: {
             text: __('Disabled'),
             tooltip: __(
                 'You do not have permission to do anything to this content.',
             ),
+        },
+    },
+    SCHEDULING: {
+        sunrise: {
+            tooltip: __('Publish on date'),
+            label: __('Sunrise'),
+        },
+        sunset: {
+            tooltip: __('Unpublish on date'),
+            label: __('Sunset'),
         },
     },
 };
