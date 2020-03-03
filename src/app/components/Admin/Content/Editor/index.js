@@ -266,9 +266,12 @@ let ContentEditor = (
     };
 
     const getContent = async () => {
-        if (isNew()) return Promise.resolve({});
-
         loadingStatus.current = Date.now();
+
+        if (isNew()) {
+            await dispatch('load', { content }, onLoad);
+            return Promise.resolve({});
+        }
 
         const content = await Reactium.Content.retrieve({
             type: contentType,
@@ -698,6 +701,7 @@ let ContentEditor = (
         dispatch('change', { previous, value }, onChange);
     }, [value]);
 
+    // save hotkey
     useEffect(() => {
         if (ready !== true) return;
         Reactium.Hotkeys.register('content-save', {
