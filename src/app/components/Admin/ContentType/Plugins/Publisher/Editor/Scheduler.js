@@ -288,7 +288,7 @@ const Scheduler = props => {
                 pref='admin.dialog.publisher.manager'
                 className='content-schedule'
                 header={{ title: __('Scheduled Actions') }}>
-                <Scrollbars height={200} autoHeight={true} autoHeightMin={200}>
+                <Scrollbars height={140} autoHeight={true} autoHeightMin={140}>
                     <ul className='content-schedule-list'>
                         {Object.entries(publish.schedule).map(
                             ([jobId, instructions]) => {

@@ -119,7 +119,7 @@ let ContentEditor = (
     const alertRef = useRef();
     const formRef = useRef();
     const sidebarRef = useRef();
-    const initialChange = useRef(true);
+    const ignoreChangeEvent = useRef(true);
     const loadingStatus = useRef(false);
 
     const Loading = useHookComponent(`${id}Loading`);
@@ -217,10 +217,13 @@ let ContentEditor = (
 
     const dispatch = async (eventType, event, callback) => {
         if (unMounted()) return;
-
-        if (eventType === 'change' && initialChange.current === true) {
-            initialChange.current = false;
+        if (eventType === 'change' && ignoreChangeEvent.current === true) {
+            ignoreChangeEvent.current = false;
             return;
+        } else {
+            if (op.get(event, 'ignoreChangeEvent') === true) {
+                ignoreChangeEvent.current = true;
+            }
         }
 
         // dispatch exact eventType
@@ -350,7 +353,7 @@ let ContentEditor = (
     const reset = () => {
         ready = false;
         loadingStatus.current = undefined;
-        initialChange.current = true;
+        ignoreChangeEvent.current = true;
         setNewValue(undefined);
     };
 
@@ -413,7 +416,7 @@ let ContentEditor = (
 
             await dispatch(
                 'content-set-status',
-                { value: contentObj },
+                { value: contentObj, ignoreChangeEvent: true },
                 setClean,
             );
             Toast.show({
@@ -459,7 +462,11 @@ let ContentEditor = (
             const contentObj = await Reactium.Content[action](newValue, handle);
             if (unMounted()) return;
 
-            await dispatch(action, { value: contentObj }, setClean);
+            await dispatch(
+                action,
+                { value: contentObj, ignoreChangeEvent: true },
+                setClean,
+            );
             Toast.show({
                 icon: 'Feather.Check',
                 message: successMessage[action],
@@ -506,8 +513,11 @@ let ContentEditor = (
 
             if (unMounted()) return;
 
-            if (isClean()) initialChange.current = true;
-            await dispatch('schedule', { value: newValue }, setClean);
+            await dispatch(
+                'schedule',
+                { value: newValue, ignoreChangeEvent: true },
+                isDirty() ? setDirty : setClean,
+            );
 
             Toast.show({
                 icon: 'Feather.Check',
@@ -555,8 +565,11 @@ let ContentEditor = (
 
             if (unMounted()) return;
 
-            if (isClean()) initialChange.current = true;
-            await dispatch('unschedule', { value: newValue }, setClean);
+            await dispatch(
+                'unschedule',
+                { value: newValue, ignoreChangeEvent: true },
+                isDirty() ? setDirty : setClean,
+            );
 
             Toast.show({
                 icon: 'Feather.Check',
@@ -642,9 +655,13 @@ let ContentEditor = (
         });
 
         if (unMounted()) return;
-        initialChange.current = true;
+
         setValue(result);
-        await dispatch('save-success', { value: result }, onSuccess);
+        await dispatch(
+            'save-success',
+            { value: result, ignoreChangeEvent: true },
+            onSuccess,
+        );
 
         if (isNew() || result.slug !== slug) {
             _.defer(
@@ -824,9 +841,9 @@ let ContentEditor = (
             .then(result => {
                 if (unMounted()) return;
                 if (!result) return;
-                initialChange.current = true;
+                ignoreChangeEvent.current = true;
                 setValue(result);
-                _.defer(() => (initialChange.current = false));
+                _.defer(() => (ignoreChangeEvent.current = false));
             })
             .catch(() => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);
