@@ -9,6 +9,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default ({ editor, ...props }) => {
+    console.log(props);
     let { fieldName: name, label, placeholder } = props;
 
     label = label || __('Content');

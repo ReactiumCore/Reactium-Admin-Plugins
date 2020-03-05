@@ -6,8 +6,10 @@ const ID = 'FieldTypeText';
 
 Reactium.Plugin.register(ID).then(() => {
     Reactium.Component.register(ID, FieldType);
-    Reactium.Component.register(`${ID}-editor`, Editor);
-    Reactium.Component.register(`${ID}-quick-editor`, QuickEditor);
+
+    Reactium.Content.Editor.register(ID, { component: Editor });
+
+    Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
 
     Reactium.ContentType.FieldType.register({
         type: 'Text',

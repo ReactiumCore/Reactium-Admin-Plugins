@@ -10,8 +10,10 @@ const registerPublisher = async () => {
     await Reactium.Plugin.register('Publisher');
 
     const ID = 'PublisherFieldType';
+
     Reactium.Component.register(ID, FieldType);
-    Reactium.Component.register(`${ID}-editor`, Editor);
+
+    Reactium.Content.Editor.register(ID, { component: Editor });
 
     Reactium.ContentType.FieldType.register({
         id: 'publisher',

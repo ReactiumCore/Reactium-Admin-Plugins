@@ -1,22 +1,27 @@
+import React from 'react';
+import _ from 'underscore';
 import op from 'object-path';
 import { slugify } from 'components/Admin/ContentType';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
-import React, { useEffect, useImperativeHandle, useState } from 'react';
 
 export default ({ editor, region, ...props }) => {
     const { cx, fieldTypes } = editor;
     let { fieldName, fieldType } = props;
 
-    const cid = op.get(fieldTypes, [fieldType, 'component']);
+    const id = op.get(fieldTypes, [fieldType, 'component']);
 
-    const Component = cid ? useHookComponent(`${cid}-editor`) : null;
-    const [isComponent, setIsComponent] = useState(!!Component);
+    const RegisteredEditor = id
+        ? _.findWhere(Reactium.Content.Editor.list, { id })
+        : undefined;
 
-    useEffect(() => {
-        setIsComponent(!!Component);
-    }, [Component]);
+    const isEditor = () => {
+        if (typeof RegisteredEditor === 'undefined') return false;
+        return op.has(RegisteredEditor, 'component');
+    };
 
-    if (!isComponent) return null;
+    if (!isEditor()) return null;
+
+    const { component: Component } = RegisteredEditor;
 
     const title = fieldName;
     fieldName = slugify(fieldName);

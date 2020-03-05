@@ -6,7 +6,8 @@ const ID = 'FieldTypeNumber';
 
 Reactium.Plugin.register(ID).then(() => {
     Reactium.Component.register(ID, FieldType);
-    Reactium.Component.register(`${ID}-editor`, Editor);
+
+    Reactium.Content.Editor.register(ID, { component: Editor });
 
     Reactium.ContentType.FieldType.register({
         type: 'Number',

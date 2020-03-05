@@ -839,6 +839,10 @@ Content.ListColumn.protect(['actions', 'status', 'title'])
     .register('status', { order: 110 })
     .register('title', { order: 100 });
 
+Content.Editor = new Registry('ContentEditor');
+Content.QuickEditor = new Registry('ContentQuickEditor');
+
+// Register hooks
 Reactium.Hook.register('content-saved', async contentObj => {
     const { canRead = [], canWrite = [] } = await Content.ACLToReadWrite(
         contentObj.ACL,

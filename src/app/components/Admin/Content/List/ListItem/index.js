@@ -3,7 +3,13 @@ import cn from 'classnames';
 import op from 'object-path';
 
 import { Link } from 'react-router-dom';
-import { __, useHookComponent, useIsContainer, Zone } from 'reactium-core/sdk';
+import {
+    __,
+    useEventHandle,
+    useHookComponent,
+    useIsContainer,
+    Zone,
+} from 'reactium-core/sdk';
 import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
@@ -13,6 +19,20 @@ import React, {
     useRef,
     useState,
 } from 'react';
+
+const statusToColor = status => {
+    const COLOR = Button.ENUMS.COLOR;
+
+    const def = COLOR.INFO;
+
+    const map = {
+        PUBLISHED: COLOR.SUCCESS,
+        DELETE: COLOR.DANGER,
+        DRAFT: COLOR.TERTIARY,
+    };
+
+    return op.get(map, String(status).toUpperCase(), def);
+};
 
 export const ListColumn = ({ column, list, row, ...props }) => {
     const { className, id, zones } = column;
@@ -94,7 +114,7 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         return output;
     };
 
-    const [handle, setHandle] = useState(_handle());
+    const [handle, setHandle] = useEventHandle(_handle());
 
     useEffect(() => {
         if (!collapsibleRef.current) return;
@@ -159,47 +179,35 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
 });
 
 export const ListItemActions = ({ url, column, row }) => {
+    const buttonProps = {
+        color: Button.ENUMS.COLOR.CLEAR,
+        size: Button.ENUMS.SIZE.XS,
+        style: { padding: 0, width: 50 },
+        type: 'button',
+    };
+
     return (
         <>
-            <Button
-                type='link'
-                to={url}
-                style={{ padding: 0, width: 50 }}
-                color={Button.ENUMS.COLOR.CLEAR}
-                size={Button.ENUMS.SIZE.XS}>
+            <Button {...buttonProps} onClick={() => row.deleteConfirmToggle()}>
+                <span className='red'>
+                    <Icon name='Feather.Trash2' />
+                </span>
+            </Button>
+            <Button {...buttonProps} to={url} type='link'>
                 <span>
                     <Icon name='Feather.Edit2' />
                 </span>
             </Button>
-            <Button
-                color={Button.ENUMS.COLOR.CLEAR}
-                type='button'
-                style={{ padding: 0, width: 50 }}
-                onClick={() => row.deleteConfirmToggle()}
-                size={Button.ENUMS.SIZE.XS}>
-                <span className='red'>
-                    <Icon name='Feather.Trash2' />
+            <Button {...buttonProps} onClick={() => row.toggle()}>
+                <span>
+                    <Icon name='Feather.MoreVertical' />
                 </span>
             </Button>
         </>
     );
 };
 
-const statusToColor = status => {
-    const COLOR = Button.ENUMS.COLOR;
-
-    const def = COLOR.INFO;
-
-    const map = {
-        PUBLISHED: COLOR.SUCCESS,
-        DELETE: COLOR.DANGER,
-        DRAFT: COLOR.TERTIARY,
-    };
-
-    return op.get(map, String(status).toUpperCase(), def);
-};
-
-export const ListItemStatus = ({ column, status }) => (
+export const ListItemStatus = ({ column, status, ...props }) => (
     <Button
         appearance={Button.ENUMS.APPEARANCE.PILL}
         readOnly
@@ -210,20 +218,22 @@ export const ListItemStatus = ({ column, status }) => (
     </Button>
 );
 
-export const ListItemTitle = ({ column, slug, title, url }) => (
-    <Link
-        to={url}
-        className='flex middle'
-        style={{
-            flexGrow: 1,
-            textDecoration: 'none',
-            height: '100%',
-            marginLeft: -20,
-            paddingLeft: 20,
-        }}>
-        <div>
-            <div className='title'>{title}</div>
-            <div className='slug'>/{slug}</div>
+export const ListItemTitle = ({ column, slug, title, url, row }) => {
+    return (
+        <div
+            onClick={e => row.toggle()}
+            className='flex middle'
+            style={{
+                flexGrow: 1,
+                textDecoration: 'none',
+                height: '100%',
+                marginLeft: -20,
+                paddingLeft: 20,
+            }}>
+            <div>
+                <div className='title'>{title}</div>
+                <div className='slug'>/{slug}</div>
+            </div>
         </div>
-    </Link>
-);
+    );
+};

@@ -84,21 +84,23 @@ $admin-content-list-ns: admin-content-list;
         padding: 0 20px;
         position: relative;
         min-height: $admin-content-list-height;
+        user-select: none;
 
         &:hover {
             text-decoration: none;
+            cursor: pointer;
         }
 
         .title {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             font-weight: 500;
             color: $color-gray-dark;
         }
 
         .slug {
-            font-size: 16px;
+            font-size: 14px;
             color: $color-gray;
-            font-family: map-get($fonts, mono);
+            font-family: monospace;
         }
     }
 
