@@ -153,7 +153,8 @@ let ContentEditor = (
 
         setNewDirty(false);
 
-        const newValue = op.get(params, 'value');
+        const newValue = op.get(params, 'value', op.get(params, 'content'));
+
         if (newValue) setValue(newValue);
         dispatch('clean', { value: newValue });
     };

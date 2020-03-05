@@ -20,38 +20,6 @@ import React, {
     useState,
 } from 'react';
 
-const statusToColor = status => {
-    const COLOR = Button.ENUMS.COLOR;
-
-    const def = COLOR.INFO;
-
-    const map = {
-        PUBLISHED: COLOR.SUCCESS,
-        DELETE: COLOR.DANGER,
-        DRAFT: COLOR.TERTIARY,
-    };
-
-    return op.get(map, String(status).toUpperCase(), def);
-};
-
-export const ListColumn = ({ column, list, row, ...props }) => {
-    const { className, id, zones } = column;
-    return (
-        <div className={className}>
-            {zones.map(zone => (
-                <Zone
-                    key={zone}
-                    zone={zone}
-                    list={list}
-                    row={row}
-                    column={column}
-                    {...props}
-                />
-            ))}
-        </div>
-    );
-};
-
 export const ListItem = forwardRef(({ list, ...props }, ref) => {
     const containerRef = useRef();
     const collapsibleRef = useRef();
@@ -93,6 +61,10 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         handle.collapse();
     };
 
+    const loadQuickEdit = e => {
+        console.log(e.target);
+    };
+
     const _handle = () => {
         const output = {
             deleteCancel,
@@ -128,10 +100,15 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         if (!containerRef.current || typeof window === 'undefined') return;
         window.addEventListener('mousedown', deleteCancel);
         window.addEventListener('touchstart', deleteCancel);
+        collapsibleRef.current.addEventListener('before-expand', loadQuickEdit);
 
         return () => {
             window.removeEventListener('mousedown', deleteCancel);
             window.removeEventListener('touchstart', deleteCancel);
+            collapsibleRef.current.removeEventListener(
+                'before-expand',
+                loadQuickEdit,
+            );
         };
     }, [containerRef.current]);
 
@@ -177,6 +154,24 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         </div>
     );
 });
+
+export const ListColumn = ({ column, list, row, ...props }) => {
+    const { className, id, zones } = column;
+    return (
+        <div className={className}>
+            {zones.map(zone => (
+                <Zone
+                    key={zone}
+                    zone={zone}
+                    list={list}
+                    row={row}
+                    column={column}
+                    {...props}
+                />
+            ))}
+        </div>
+    );
+};
 
 export const ListItemActions = ({ url, column, row }) => {
     const buttonProps = {
@@ -236,4 +231,18 @@ export const ListItemTitle = ({ column, slug, title, url, row }) => {
             </div>
         </div>
     );
+};
+
+const statusToColor = status => {
+    const COLOR = Button.ENUMS.COLOR;
+
+    const def = COLOR.INFO;
+
+    const map = {
+        PUBLISHED: COLOR.SUCCESS,
+        DELETE: COLOR.DANGER,
+        DRAFT: COLOR.TERTIARY,
+    };
+
+    return op.get(map, String(status).toUpperCase(), def);
 };
