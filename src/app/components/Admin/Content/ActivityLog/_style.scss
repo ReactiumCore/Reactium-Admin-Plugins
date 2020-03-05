@@ -19,17 +19,23 @@ $restored-color: $color-green !default;
 
 .activity-log {
     @extend .row;
-    width: calc(100vw - 40px);
+    // uncomment when chart implemented
+    // width: calc(100vw - 40px);
     max-height: $activity-log-max-height;
     background: $color-activity-log-bg;
     overflow: hidden;
 
     &-chart {
+        // remove when chart implemented
+        display: none;
+
         background: $color-activity-chart;
     }
 
     &-updates {
         max-height: $activity-log-max-height;
+        min-width: 300px;
+        width: 100%;
         padding: 20px;
         height: 100%;
     }

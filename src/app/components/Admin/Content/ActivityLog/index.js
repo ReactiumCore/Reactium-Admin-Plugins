@@ -19,14 +19,15 @@ const ChangeItem = props => {
         'objectId',
     );
     const cx = Reactium.Utils.cxFactory('activity-list');
-
     const getDescriptionParts = (who, changeType, meta) => {
-        const description = ENUMS.CHANGES[changeType].description;
-        let parts = description;
+        const parts = Reactium.Utils.splitParts(
+            ENUMS.CHANGES[changeType].description,
+        );
+
         switch (changeType) {
             case 'SLUG_CHANGED': {
                 const slug = op.get(meta, 'slug', '');
-                parts = Reactium.Utils.splitParts(parts, 'slug', slug);
+                parts.replace('slug', slug);
                 break;
             }
             case 'REVISED':
@@ -34,41 +35,30 @@ const ChangeItem = props => {
                 const { branch, revision } = op.get(meta, 'history');
                 const rev = revision !== undefined ? ` v${revision + 1}` : '';
                 const version = `${branch}${rev}`;
-                parts = Reactium.Utils.splitParts(parts, 'version', version);
+                parts.replace('version', version);
                 break;
             }
             case 'SET_STATUS': {
                 const status = op.get(meta, 'status', '');
-                parts = Reactium.Utils.splitParts(parts, 'status', status);
+                parts.replace('status', status);
                 break;
             }
         }
 
         // who
-        parts = Reactium.Utils.splitParts(parts, 'who', who);
-        return parts;
+        parts.replace('who', who);
+        return parts.value();
     };
 
     const renderParts = (who, changeType, meta) =>
-        getDescriptionParts(who, changeType, meta).map(part => {
-            if (typeof part === 'string') {
-                return (
-                    <span key={part} className={cx('item-part')}>
-                        {part}
-                    </span>
-                );
-            }
-
-            if (typeof part === 'object') {
-                const { key, value } = part;
-                return (
-                    <span key={key} className={cn(cx('item-part'), value)}>
-                        {value}
-                    </span>
-                );
-            }
-
-            return null;
+        getDescriptionParts(who, changeType, meta).map(({ key, value }) => {
+            return (
+                <span
+                    key={key}
+                    className={cn(cx('item-part'), { value: value !== key })}>
+                    {value}
+                </span>
+            );
         });
 
     const renderItem = item => {
