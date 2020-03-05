@@ -154,8 +154,6 @@ let ContentEditor = (
         setNewDirty(false);
 
         const newValue = op.get(params, 'value');
-
-        if (unMounted()) return;
         if (newValue) setValue(newValue);
         dispatch('clean', { value: newValue });
     };
@@ -186,11 +184,18 @@ let ContentEditor = (
     const setValue = (newValue = {}, checkReady = false) => {
         if (unMounted(checkReady)) return;
         newValue = { ...value, ...newValue };
-        //console.log(new Error(newValue));
         setNewValue(newValue);
     };
 
     // Functions
+
+    const debug = (...args) => {
+        const qstring = Reactium.Routing.history.location.search;
+        if (!qstring) return;
+        const params = new URLSearchParams(qstring);
+        if (!params.get('debug')) return;
+        console.log(...args);
+    };
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
@@ -222,13 +227,7 @@ let ContentEditor = (
             event: String(statusType).toUpperCase(),
         });
 
-        console.log(
-            'dispatch:',
-            eventType,
-            statusEvt.event,
-            handle.value,
-            event,
-        );
+        debug('dispatch:', eventType, statusEvt.event, handle.value, event);
 
         handle.dispatchEvent(statusEvt);
 
@@ -266,7 +265,7 @@ let ContentEditor = (
         });
 
         if (content) {
-            await dispatch('load', { content }, onLoad);
+            await dispatch('load', { value: content }, onLoad);
             loadingStatus.current = undefined;
             return Promise.resolve(content);
         } else {

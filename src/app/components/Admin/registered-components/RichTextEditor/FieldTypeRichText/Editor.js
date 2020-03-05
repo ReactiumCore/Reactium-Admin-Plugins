@@ -9,7 +9,6 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default ({ editor, ...props }) => {
-    console.log(props);
     let { fieldName: name, label, placeholder } = props;
 
     label = label || __('Content');
@@ -36,11 +35,13 @@ export default ({ editor, ...props }) => {
         setNewValue(newValue);
     };
 
-    const onEditorChange = e => {
+    const _onEditorChange = e => {
         const newValue = op.get(e.target, 'value', defaultValue);
         setValue(newValue);
         editor.setValue({ [name]: newValue });
     };
+
+    const onEditorChange = _.throttle(_onEditorChange, 500, { leading: false });
 
     const reload = () => {
         const newValue = op.get(editor, ['value', name], defaultValue);
