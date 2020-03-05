@@ -7,6 +7,7 @@ import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
 import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+
 import Reactium, {
     __,
     useDerivedState,

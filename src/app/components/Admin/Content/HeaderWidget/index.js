@@ -78,7 +78,7 @@ const SaveButton = ({ type }) => {
 
 export default () => {
     const { path, slug, type } = useRouteParams(['path', 'slug', 'type']);
-    const visible = String(path).startsWith('/admin/content');
+    const visible = String(path).startsWith('/admin/content/:type/:slug');
 
     if (!visible) return null;
     return !slug ? <AddButton type={type} /> : <SaveButton type={type} />;

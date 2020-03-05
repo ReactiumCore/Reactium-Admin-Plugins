@@ -8,14 +8,26 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
 
 export default () => {
-    const { group, machineName, path, slug, type } = useRouteParams();
-    const visible = String(path).startsWith('/admin/content');
+    const { group, page, path, slug, type } = useRouteParams([
+        'type',
+        'slug',
+        'page',
+        'group',
+    ]);
+    const visible = String(path).startsWith('/admin/content/:type');
 
     const [icon, setIcon] = useState();
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
 
-    const isNew = () => slug === 'new';
+    const isSlug = () => {
+        return String(path).includes('/:slug');
+    };
+
+    const isNew = () => {
+        return isSlug() && slug === 'new';
+    };
+
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
     useAsyncEffect(
@@ -48,15 +60,15 @@ export default () => {
                     className='px-0'
                     color='clear'
                     size='sm'
-                    to={`/admin/content/${group}`}
+                    to={`/admin/content/${group}/page/1`}
                     type='link'>
                     <Icon name={icon} className='mr-xs-12' />
                     {group}
                 </Button>
             </li>
-            {slug && <li className='uppercase'>{slug}</li>}
-            {!isNew() && (
-                <li>
+            {isSlug() && <li className='uppercase'>{slug}</li>}
+            {!isNew() && !page && (
+                <li className='hide-xs-only'>
                     <Link to={`/admin/content/${type}/new`}>
                         <Icon name='Feather.Plus' size={14} />
                     </Link>

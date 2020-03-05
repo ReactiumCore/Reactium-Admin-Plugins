@@ -72,9 +72,9 @@ const registerAdminContent = async () => {
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-PAGINATION',
-        component: Pagination,
+        component: props => <Pagination {...props} />,
         listID: 'AdminContentList',
-        zoneID: 'admin-contnet-list-bottom',
+        zoneID: 'admin-content-list-bottom',
         zone: ['admin-content-list-bottom'],
     });
 

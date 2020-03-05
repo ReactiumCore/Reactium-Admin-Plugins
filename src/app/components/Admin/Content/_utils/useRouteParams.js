@@ -2,20 +2,34 @@ import _ from 'underscore';
 import op from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { useSelect } from 'reactium-core/sdk';
+import { useDerivedState, useSelect } from 'reactium-core/sdk';
 
-export default (keys = ['type', 'slug']) => {
+export default (keys = ['type', 'slug', 'page']) => {
+    const timestamp = Date.now();
     const path = useSelect(state => op.get(state, 'Router.match.path'));
     const params = useSelect(state => op.get(state, 'Router.params'));
-    const [value, setValue] = useState({ type: null, slug: null, group: null });
+    const [value, setValue] = useState({
+        type: null,
+        slug: null,
+        group: null,
+        page: null,
+        path,
+        timestamp,
+    });
 
     useEffect(() => {
         if (!params || !path) return;
 
+        const paramClone = JSON.parse(JSON.stringify(params));
+
         const newValue = { path };
 
+        if (keys.includes('group') && !keys.includes('type')) {
+            keys.push('type');
+        }
+
         keys.forEach(key => {
-            let val = op.get(params, key);
+            let val = op.get(paramClone, key);
             if (!val) return;
 
             if (key === 'type') {
@@ -29,8 +43,6 @@ export default (keys = ['type', 'slug']) => {
 
             return op.set(newValue, key, val);
         });
-
-        if (_.isEqual(value, newValue)) return;
 
         setValue(newValue);
     }, [params, path]);

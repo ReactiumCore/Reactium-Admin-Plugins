@@ -63,14 +63,17 @@ const DirectoryWidget = props => {
 
     return (
         <div className={Media.cname('dir-dropdown')}>
-            <div className='btn-group'>
-                <Dropdown
-                    selection={[directory]}
-                    onItemClick={e => onChange(e.item.value)}
-                    data={data()}>
+            <Dropdown
+                checkbox={false}
+                color={Button.ENUMS.COLOR.TERTIARY}
+                size={Button.ENUMS.SIZE.SM}
+                selection={[directory]}
+                onItemClick={e => onChange(e.item.value)}
+                data={data()}>
+                <div className='btn-group'>
                     <Button
-                        color='tertiary'
-                        size='xs'
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        size={Button.ENUMS.SIZE.XS}
                         data-dropdown-element
                         data-tooltip={ENUMS.TEXT.FOLDER}
                         data-align='left'
@@ -86,51 +89,52 @@ const DirectoryWidget = props => {
                         </div>
                         <Icon name='Feather.ChevronDown' size={18} />
                     </Button>
-                </Dropdown>
-                <Button
-                    color='tertiary'
-                    data-tooltip={ENUMS.TEXT.NEW_FOLDER}
-                    data-align='left'
-                    data-vertical-align='middle'
-                    onClick={showCreator}
-                    size='xs'
-                    style={{
-                        padding: '8px 8px 8px 9px',
-                        borderLeft: '1px solid #909090',
-                        width: 38,
-                    }}>
-                    <Icon name='Feather.Plus' size={18} />
-                </Button>
-                <Button
-                    color='tertiary'
-                    data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
-                    data-align='left'
-                    data-vertical-align='middle'
-                    onClick={showEditor}
-                    size='xs'
-                    style={{
-                        padding: '8px 8px 8px 9px',
-                        borderLeft: '1px solid #909090',
-                        width: 38,
-                    }}>
-                    <Icon name='Feather.Settings' size={16} />
-                </Button>
-                {!Media.isEmpty() && props.filter === true && (
+
                     <Button
-                        color='tertiary'
-                        data-tooltip={ENUMS.TEXT.FILTER}
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        data-tooltip={ENUMS.TEXT.NEW_FOLDER}
                         data-align='left'
                         data-vertical-align='middle'
-                        size='xs'
+                        onClick={showCreator}
+                        size={Button.ENUMS.SIZE.XS}
                         style={{
                             padding: '8px 8px 8px 9px',
                             borderLeft: '1px solid #909090',
                             width: 38,
                         }}>
-                        <Icon name='Feather.Filter' size={16} />
+                        <Icon name='Feather.Plus' size={18} />
                     </Button>
-                )}
-            </div>
+                    <Button
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
+                        data-align='left'
+                        data-vertical-align='middle'
+                        onClick={showEditor}
+                        size={Button.ENUMS.SIZE.XS}
+                        style={{
+                            padding: '8px 8px 8px 9px',
+                            borderLeft: '1px solid #909090',
+                            width: 38,
+                        }}>
+                        <Icon name='Feather.Settings' size={16} />
+                    </Button>
+                    {!Media.isEmpty() && props.filter === true && (
+                        <Button
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            data-tooltip={ENUMS.TEXT.FILTER}
+                            data-align='left'
+                            data-vertical-align='middle'
+                            size={Button.ENUMS.SIZE.XS}
+                            style={{
+                                padding: '8px 8px 8px 9px',
+                                borderLeft: '1px solid #909090',
+                                width: 38,
+                            }}>
+                            <Icon name='Feather.Filter' size={16} />
+                        </Button>
+                    )}
+                </div>
+            </Dropdown>
         </div>
     );
 };
