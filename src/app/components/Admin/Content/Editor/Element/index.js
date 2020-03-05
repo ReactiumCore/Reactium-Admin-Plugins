@@ -5,10 +5,8 @@ import { slugify } from 'components/Admin/ContentType';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 export default ({ editor, region, ...props }) => {
-    const { cx, fieldTypes } = editor;
-    let { fieldName, fieldType } = props;
-
-    const id = op.get(fieldTypes, [fieldType, 'component']);
+    const { cx } = editor;
+    let { fieldName, fieldType: id } = props;
 
     const RegisteredEditor = id
         ? _.findWhere(Reactium.Content.Editor.list, { id })

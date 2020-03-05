@@ -9,15 +9,11 @@ import _ from 'underscore';
 const registerPublisher = async () => {
     await Reactium.Plugin.register('Publisher');
 
-    const ID = 'PublisherFieldType';
+    const type = 'Publisher';
 
-    Reactium.Component.register(ID, FieldType);
-
-    Reactium.Content.Editor.register(ID, { component: Editor });
-
-    Reactium.ContentType.FieldType.register({
+    const fieldType = {
         id: 'publisher',
-        type: 'Publisher',
+        type,
         label: __('Publisher'),
         icon: Icon.Feather.Send,
         tooltip: __('Place publisher widget.'),
@@ -36,7 +32,13 @@ const registerPublisher = async () => {
         },
         // add this field type automatically on new content type
         autoInclude: true,
-    });
+    };
+
+    Reactium.Component.register(fieldType.component, FieldType);
+
+    Reactium.Content.Editor.register(type, { component: Editor });
+
+    Reactium.ContentType.FieldType.register(fieldType);
 
     Reactium.Hook.register(
         'content-type-capabilities',
