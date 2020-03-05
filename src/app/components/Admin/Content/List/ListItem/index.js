@@ -143,19 +143,31 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
                     ))}
                 </div>
             </div>
-            <Collapsible
-                ref={collapsibleRef}
-                className={cx('item-editor')}
-                expanded={expanded}>
-                QUICK EDIT
-                <Zone zone={cx('item-quick-edit')} />
-                <Zone zone={cx(`item-quick-edit-${type}`)} />
+            <Collapsible ref={collapsibleRef} expanded={expanded}>
+                <QuickEdit list={list} {...props} item={handle} />
             </Collapsible>
         </div>
     );
 });
 
-const QuickEdit = ({ list, ...props }) => {};
+const QuickEdit = ({ list, ...props }) => {
+    //console.log(list, props);
+    const cx = op.get(list, 'cx');
+    const contentType = op.get(list, 'state.contentType');
+    const type = op.get(list, 'state.type');
+
+    //const fields = Object.values(contentType.fields);
+
+    console.log(contentType);
+
+    return (
+        <div className={cx('item-quick-editor')}>
+            QUICK EDIT
+            <Zone zone={cx('item-quick-editor')} />
+            <Zone zone={cx(`item-quick-editor-${type}`)} />
+        </div>
+    );
+};
 
 export const ListColumn = ({ column, list, row, ...props }) => {
     const { className, id, zones } = column;

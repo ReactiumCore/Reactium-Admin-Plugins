@@ -77,6 +77,10 @@ $admin-content-list-ns: admin-content-list;
         }
     }
 
+    &-item-quick-editor {
+        @extend .row;
+    }
+
     &-column-title {
         flex-grow: 1;
         display: flex;
