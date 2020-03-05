@@ -13,7 +13,8 @@ const registerPlugin = async () => {
         async (statusEvt, type, handle) => {
             const store = Reactium.Plugin.redux.store;
             const event = op.get(statusEvt, 'event');
-            const contentId = op.get(statusEvt, 'content.objectId');
+            const contentId = op.get(statusEvt, 'value.objectId');
+
             if (!event || !contentId) return;
 
             try {

@@ -51,15 +51,19 @@ const ChangeItem = props => {
     };
 
     const renderParts = (who, changeType, meta) =>
-        getDescriptionParts(who, changeType, meta).map(({ key, value }) => {
-            return (
-                <span
-                    key={key}
-                    className={cn(cx('item-part'), { value: value !== key })}>
-                    {value}
-                </span>
-            );
-        });
+        getDescriptionParts(who, changeType, meta).map(
+            ({ key, value, type }) => {
+                return (
+                    <span
+                        key={key}
+                        className={cn(cx('item-part'), {
+                            key: type !== 'part',
+                        })}>
+                        {value}
+                    </span>
+                );
+            },
+        );
 
     const renderItem = item => {
         const { userId, changeType, meta, updatedAt } = item;

@@ -7,7 +7,7 @@ import Reactium from 'reactium-core/sdk';
 
 export default {
     load: (event, type, handle) => async (dispatch, getState) => {
-        const content = op.get(event, 'content');
+        const content = op.get(event, 'value');
         const contentId = op.get(content, 'objectId');
         const data = op.get(getState(), domain.name);
 
