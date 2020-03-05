@@ -155,6 +155,8 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
     );
 });
 
+const QuickEdit = ({ list, ...props }) => {};
+
 export const ListColumn = ({ column, list, row, ...props }) => {
     const { className, id, zones } = column;
     return (
