@@ -2,8 +2,9 @@ import _ from 'underscore';
 import op from 'object-path';
 
 export default class Registry {
-    constructor(name) {
+    constructor(name, idField) {
         this.__name = name || 'Registry';
+        this.__idField = idField || 'id';
         this.__protected = [];
         this.__registered = [];
         this.__unregister = [];
@@ -59,7 +60,7 @@ export default class Registry {
         }
 
         data['order'] = op.get(data, 'order', 100);
-        const item = { ...data, id };
+        const item = { ...data, [this.__idField]: id };
         this.__registered.push(item);
         return this;
     }

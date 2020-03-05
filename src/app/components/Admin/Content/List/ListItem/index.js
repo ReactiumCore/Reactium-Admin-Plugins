@@ -151,14 +151,15 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
 });
 
 const QuickEdit = ({ list, ...props }) => {
-    //console.log(list, props);
-    const cx = op.get(list, 'cx');
     const contentType = op.get(list, 'state.contentType');
+    if (!contentType) return null;
+
+    const cx = op.get(list, 'cx');
     const type = op.get(list, 'state.type');
+    const fields = Object.values(contentType.fields);
 
-    //const fields = Object.values(contentType.fields);
-
-    console.log(contentType);
+    console.log(fields);
+    const components = fields.filter(item => {});
 
     return (
         <div className={cx('item-quick-editor')}>
