@@ -20,55 +20,32 @@ const ChangeItem = props => {
     );
     const cx = Reactium.Utils.cxFactory('activity-list');
 
-    const mapParts = (parts, key, value) => {
-        const search = `%${key}%`;
-        if (typeof parts === 'string' && parts.includes(search)) {
-            parts = parts.replace(search, '|FOUND_IT|');
-            return _.compact(
-                parts.split('|').map(part => {
-                    if (part === 'FOUND_IT')
-                        return {
-                            type: key,
-                            [key]: value,
-                        };
-
-                    if (part === '') return;
-
-                    return part;
-                }),
-            );
-        } else if (Array.isArray(parts)) {
-            return _.flatten(parts.map(part => mapParts(part, key, value)));
-        } else {
-            return parts;
-        }
-    };
-
     const getDescriptionParts = (who, changeType, meta) => {
         const description = ENUMS.CHANGES[changeType].description;
         let parts = description;
         switch (changeType) {
             case 'SLUG_CHANGED': {
                 const slug = op.get(meta, 'slug', '');
-                parts = mapParts(parts, 'slug', slug);
+                parts = Reactium.Utils.splitParts(parts, 'slug', slug);
                 break;
             }
+            case 'REVISED':
             case 'SET_REVISION': {
                 const { branch, revision } = op.get(meta, 'history');
                 const rev = revision !== undefined ? ` v${revision + 1}` : '';
                 const version = `${branch}${rev}`;
-                parts = mapParts(parts, 'version', version);
+                parts = Reactium.Utils.splitParts(parts, 'version', version);
                 break;
             }
             case 'SET_STATUS': {
                 const status = op.get(meta, 'status', '');
-                parts = mapParts(parts, 'status', status);
+                parts = Reactium.Utils.splitParts(parts, 'status', status);
                 break;
             }
         }
 
         // who
-        parts = mapParts(parts, 'who', who);
+        parts = Reactium.Utils.splitParts(parts, 'who', who);
         return parts;
     };
 
@@ -83,11 +60,10 @@ const ChangeItem = props => {
             }
 
             if (typeof part === 'object') {
+                const { key, value } = part;
                 return (
-                    <span
-                        key={part.type}
-                        className={cn(cx('item-part'), part.type)}>
-                        {part[part.type]}
+                    <span key={key} className={cn(cx('item-part'), value)}>
+                        {value}
                     </span>
                 );
             }

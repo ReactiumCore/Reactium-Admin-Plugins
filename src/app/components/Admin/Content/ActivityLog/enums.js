@@ -7,7 +7,7 @@ export default {
             description: __('Created by %who%'),
         },
         REVISED: {
-            description: __('Revised by %who%'),
+            description: __('Revised by %who%. Version %version%'),
         },
         SLUG_CHANGED: {
             description: __('Slug changed to %slug% by %who%'),
