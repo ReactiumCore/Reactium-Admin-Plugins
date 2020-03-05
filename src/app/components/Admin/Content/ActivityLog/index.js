@@ -57,9 +57,7 @@ const ChangeItem = props => {
                 const { branch, revision } = op.get(meta, 'history');
                 const rev = revision !== undefined ? ` v${revision + 1}` : '';
                 const version = `${branch}${rev}`;
-                console.log({ version });
                 parts = mapParts(parts, 'version', version);
-                console.log({ parts });
                 break;
             }
             case 'SET_STATUS': {
