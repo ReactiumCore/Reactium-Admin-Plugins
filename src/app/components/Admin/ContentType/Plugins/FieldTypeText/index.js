@@ -54,7 +54,9 @@ export const Editor = props => {
     const { defaultValue, editor, fieldName, pattern, placeholder } = props;
     const ElementDialog = useHookComponent('ElementDialog');
 
-    const value = editor.value[fieldName];
+    const editorValue = op.get(editor, 'value', {});
+
+    const value = editorValue[fieldName];
 
     // Apply default value
     //if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
@@ -73,7 +75,7 @@ export const Editor = props => {
     const replacers = {
         '%fieldName': fieldName,
         '%type': editor.type,
-        '%value': editor.value[fieldName],
+        '%value': editorValue[fieldName],
     };
 
     return (

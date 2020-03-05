@@ -104,9 +104,11 @@ export const Editor = props => {
         slider,
     } = props;
 
+    const editorValue = op.get(editor, 'value', {});
+
     const ElementDialog = useHookComponent('ElementDialog');
     const inputRef = useRef();
-    const [value, setValue] = useState(editor.value[fieldName]);
+    const [value, setValue] = useState(editorValue[fieldName]);
 
     // Apply default value
     if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
