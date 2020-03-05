@@ -57,7 +57,7 @@ const ChangeItem = props => {
                     <span
                         key={key}
                         className={cn(cx('item-part'), {
-                            key: type !== 'part',
+                            [key]: type !== 'part',
                         })}>
                         {value}
                     </span>
