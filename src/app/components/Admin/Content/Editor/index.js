@@ -384,6 +384,8 @@ let ContentEditor = (
         setAlert();
 
         const newValue = { ...value, status };
+        // only latest revision
+        op.del(newValue, 'history.revision');
 
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
@@ -427,6 +429,8 @@ let ContentEditor = (
         setAlert();
 
         const newValue = { ...value, status };
+        // only latest revision
+        op.del(newValue, 'history.revision');
 
         if (!op.get(newValue, 'type')) {
             op.set(newValue, 'type', contentType);
