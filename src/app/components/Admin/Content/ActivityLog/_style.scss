@@ -36,7 +36,7 @@ $restored-color: $color-green !default;
         max-height: $activity-log-max-height;
         min-width: 300px;
         width: 100%;
-        padding: 20px;
+        padding: 20px 0;
         height: 100%;
     }
 }
@@ -48,11 +48,12 @@ $restored-color: $color-green !default;
     max-height: $activity-log-max-height;
     margin: 0;
     margin-top: 20px;
+    padding: 0 20px;
     padding-bottom: 80px;
     overflow-x: hidden;
-    overflow-y: scroll;
 
     &-header {
+        margin-left: 20px;
         font-weight: 600;
         text-transform: uppercase;
     }
@@ -169,7 +170,6 @@ $restored-color: $color-green !default;
                 border-color: $restored-color;
             }
         }
-
 
         &-part {
             &.status, &.version {

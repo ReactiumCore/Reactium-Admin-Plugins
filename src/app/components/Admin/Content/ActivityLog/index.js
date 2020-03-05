@@ -6,6 +6,7 @@ import op from 'object-path';
 import cn from 'classnames';
 import domain from './domain';
 import ENUMS from './enums';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 /**
  * -----------------------------------------------------------------------------
@@ -110,11 +111,15 @@ const Activity = props => {
             </div>
             <div className='activity-log-updates col-xs-12 col-md-4 col-lg-2'>
                 <h2 className='activity-list-header h6'>{ENUMS.HEADER}</h2>
-                <ul className='activity-list'>
-                    {log.map(item => (
-                        <ChangeItem key={item.objectId} item={item} />
-                    ))}
-                </ul>
+                <Scrollbars
+                    autoHeight={true}
+                    autoHeightMin={'calc(100vh - 100px)'}>
+                    <ul className='activity-list'>
+                        {log.map(item => (
+                            <ChangeItem key={item.objectId} item={item} />
+                        ))}
+                    </ul>
+                </Scrollbars>
             </div>
         </div>
     );

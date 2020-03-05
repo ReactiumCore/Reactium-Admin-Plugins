@@ -96,10 +96,11 @@ const PublisherEditor = props => {
         if (editor.isDirty()) {
             Modal.show(
                 <ConfirmBox
-                    message={__('You have unsaved changes. Proceed anyway?')}
+                    message={__('You have unsaved changes. Save?')}
                     onCancel={() => Modal.hide()}
-                    onConfirm={() => {
-                        action();
+                    onConfirm={async () => {
+                        await editor.save();
+                        await action();
                         Modal.dismiss();
                     }}
                     title={__('Unsaved Changes')}
