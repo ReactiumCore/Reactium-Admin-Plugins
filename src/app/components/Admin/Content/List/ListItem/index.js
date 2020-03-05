@@ -3,7 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 
 import { Link } from 'react-router-dom';
-import {
+import Reactium, {
     __,
     useEventHandle,
     useHookComponent,
@@ -35,7 +35,7 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
 
     const [confirm, setConfirm] = useState(false);
 
-    const [expanded] = useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     const isContainer = useIsContainer();
 
@@ -61,8 +61,9 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         handle.collapse();
     };
 
-    const loadQuickEdit = e => {
-        console.log(e.target);
+    const onExpand = () => {
+        setExpanded(true);
+        setConfirm(false);
     };
 
     const _handle = () => {
@@ -100,15 +101,10 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         if (!containerRef.current || typeof window === 'undefined') return;
         window.addEventListener('mousedown', deleteCancel);
         window.addEventListener('touchstart', deleteCancel);
-        collapsibleRef.current.addEventListener('before-expand', loadQuickEdit);
 
         return () => {
             window.removeEventListener('mousedown', deleteCancel);
             window.removeEventListener('touchstart', deleteCancel);
-            collapsibleRef.current.removeEventListener(
-                'before-expand',
-                loadQuickEdit,
-            );
         };
     }, [containerRef.current]);
 
@@ -143,29 +139,50 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
                     ))}
                 </div>
             </div>
-            <Collapsible ref={collapsibleRef} expanded={expanded}>
-                <QuickEdit list={list} {...props} item={handle} />
+            <Collapsible
+                ref={collapsibleRef}
+                expanded={expanded}
+                onExpand={onExpand}>
+                <QuickEditor {...props} list={list} row={handle} />
             </Collapsible>
         </div>
     );
 });
 
-const QuickEdit = ({ list, ...props }) => {
+const QuickEditor = ({ list, row, ...props }) => {
     const contentType = op.get(list, 'state.contentType');
     if (!contentType) return null;
 
     const cx = op.get(list, 'cx');
     const type = op.get(list, 'state.type');
-    const fields = Object.values(contentType.fields);
 
-    console.log(fields);
-    const components = fields.filter(item => {});
+    const components = _.pluck(
+        Reactium.Content.QuickEditor.list.filter(
+            ({ contentTypes }) => !contentTypes || contentTypes.includes(type),
+        ),
+        'component',
+    );
+
+    const componentProps = {
+        list,
+        row,
+        item: props,
+    };
+
+    console.log(componentProps);
 
     return (
         <div className={cx('item-quick-editor')}>
-            QUICK EDIT
-            <Zone zone={cx('item-quick-editor')} />
-            <Zone zone={cx(`item-quick-editor-${type}`)} />
+            <div>
+                {components.map((Component, id) => (
+                    <Component key={`quick-editor-${id}`} {...componentProps} />
+                ))}
+                <Zone zone={cx('item-quick-editor')} {...componentProps} />
+                <Zone
+                    zone={cx(`item-quick-editor-${type}`)}
+                    {...componentProps}
+                />
+            </div>
         </div>
     );
 };

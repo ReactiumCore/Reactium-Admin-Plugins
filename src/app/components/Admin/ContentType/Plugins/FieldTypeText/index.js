@@ -100,5 +100,5 @@ export const Editor = props => {
 };
 
 export const QuickEditor = props => {
-    return 'QuickEditor';
+    return 'Text QuickEditor';
 };
