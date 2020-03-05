@@ -168,6 +168,7 @@ const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const ContentType = memo(
     props => {
+        const fieldTypes = Reactium.ContentType.FieldType.list;
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
         const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
@@ -192,9 +193,9 @@ const ContentType = memo(
         useEffect(() => {
             clear();
             if (id === 'new') {
-                const autoIncludes = Object.values(
-                    Enums.TYPES,
-                ).filter(fieldType => op.get(fieldType, 'autoInclude', false));
+                const autoIncludes = fieldTypes.filter(fieldType =>
+                    op.get(fieldType, 'autoInclude', false),
+                );
 
                 for (const type of autoIncludes) {
                     addField(type.type);
@@ -275,7 +276,7 @@ const ContentType = memo(
                 savedRef.current = contentType;
 
                 op.set(regionRef.current, 'regions', regions);
-                console.log(op.get(contentType, 'fields', {}));
+
                 Object.entries(op.get(contentType, 'fields', {})).forEach(
                     ([fieldId, fieldDefinition], index) => {
                         const { fieldType } = fieldDefinition;
@@ -289,12 +290,11 @@ const ContentType = memo(
 
                         if (!(region in regions)) region = 'default';
 
-                        const type = Object.values(Enums.TYPES).find(
+                        const type = fieldTypes.find(
                             ({ type }) => fieldType === type,
                         );
 
                         if (!type) {
-                            console.log(`No field type ${type}`);
                             return;
                         }
 
@@ -794,10 +794,7 @@ const ContentType = memo(
         };
 
         const addField = type => {
-            const types = _.indexBy(
-                Object.values(op.get(Enums, 'TYPES')),
-                'type',
-            );
+            const types = _.indexBy(fieldTypes, 'type');
             if (op.has(types, type)) {
                 updateRestore(
                     () =>

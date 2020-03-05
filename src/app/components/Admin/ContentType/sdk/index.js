@@ -1,6 +1,8 @@
 import Reactium from 'reactium-core/sdk';
 import ENUMS from '../enums';
 import op from 'object-path';
+import Registry from 'components/Admin/Tools/Registry';
+
 Reactium.Enums.cache.types = 10000;
 
 const ContentType = { FieldType: {} };
@@ -107,50 +109,6 @@ ContentType.delete = async options => {
     return response;
 };
 
-// type: 'Text',
-// label: __('Text Field'),
-// icon: Icon.Feather.Type,
-// tooltip: __('Adds a text field to your content type.'),
-// component: 'FieldTypeText',
-// order: Reactium.Enums.priority.highest,
-
-/**
- * @api {Function} ContentType.FieldType.register(fieldType) ContentType.FieldType.register()
- * @apiDescription Register a field type for the content type editor UI.
- * @apiParam {Object} fieldType Describes the field type information used to render the field type button in the toolbar,
- as well as identify the form component used to save the field type configuration when the content type is save. Returns a
- hook id, such as `Reactium.Hook.register()`
- * @apiParam (fieldType) {String} type the identifier used to describe the field type (e.g. 'Text', 'Image')
- * @apiParam (fieldType) {String} label the label describing the field type (e.g. 'Text Field', 'Image Field')
- * @apiParam (fieldType) {Component} icon React component used for the Icon in the toolbar
- * @apiParam (fieldType) {String} tooltip the test that will appear in the hover tooltip when over the icon in the toolbar
- * @apiParam (fieldType) {String} component the name of the registered component (registered with `Reactium.Component.register()`)
- used to render the form component in content type editor.
- * @apiParam (fieldType) {Number} order the higher this number, the higher in the toolbar the button will appear
- * @apiName ContentType.FieldType.register
- * @apiGroup Reactium.ContentType
- */
-ContentType.FieldType.register = async (fieldType = {}) => {
-    const typeId = op.get(fieldType, 'type');
-    if (typeId) {
-        op.set(ContentType.FieldType.list, typeId, fieldType);
-        return Reactium.Hook.register('content-type-enums', async Enums => {
-            op.set(Enums, ['TYPES', typeId], fieldType);
-        });
-    }
-};
-
-/**
- * @api {Function} ContentType.FieldType.unregister(hookId) ContentType.FieldType.unregister()
- * @apiDescription Unregister a field type for the content type editor UI, by registration
-  id received from `ContentType.FieldType.register()`.
- * @apiParam {String} hookId the id received from `ContentType.FieldType.register()`
- * @apiName ContentType.FieldType.unregister
- * @apiGroup Reactium.ContentType
- */
-ContentType.FieldType.unregister = async hookId =>
-    Reactium.Hook.unregister(hookId);
-
-ContentType.FieldType.list = {};
+ContentType.FieldType = new Registry('FieldType', 'type');
 
 export default ContentType;

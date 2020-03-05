@@ -25,12 +25,13 @@ export default class Registry {
     get list() {
         const unregister = _.uniq(this.__unregister);
         const registered = Array.from(this.__registered).filter(
-            ({ id }) => !unregister.includes(id),
+            item => !unregister.includes(item[this.__idField]),
         );
+
         return Object.values(
             _.chain(registered)
                 .sortBy('order')
-                .indexBy('id')
+                .indexBy(this.__idField)
                 .value(),
         );
     }

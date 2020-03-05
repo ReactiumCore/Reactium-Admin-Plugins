@@ -4,7 +4,6 @@ import Reactium, { __ } from 'reactium-core/sdk';
 
 const ID = 'Number';
 const fieldType = {
-    type: ID,
     label: __('Number Field'),
     icon: () => <small style={{ whiteSpace: 'nowrap' }}>1 2 3</small>,
     tooltip: __('Adds a number field to your content type.'),
@@ -17,5 +16,5 @@ Reactium.Plugin.register(ID).then(() => {
 
     Reactium.Content.Editor.register(ID, { component: Editor });
 
-    Reactium.ContentType.FieldType.register(fieldType);
+    Reactium.ContentType.FieldType.register(ID, fieldType);
 });

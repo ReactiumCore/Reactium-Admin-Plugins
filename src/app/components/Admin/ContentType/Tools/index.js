@@ -23,32 +23,38 @@ const Tools = ({ enums = {} }) => {
     const { addField, addRegion } = useHandle('ContentTypeEditor');
 
     const renderTools = () => {
-        return _.sortBy(Object.values(enums.TYPES), 'order').map(type => {
-            const tooltip = op.get(
-                type,
-                'tooltip',
-                __(
-                    'Click to add %type field type to your content type.',
-                ).replace(
-                    '%type',
-                    op.get(type, 'label', op.get(type, 'type').toLowerCase()),
-                ),
-            );
+        return _.sortBy(Reactium.ContentType.FieldType.list, 'order').map(
+            type => {
+                const tooltip = op.get(
+                    type,
+                    'tooltip',
+                    __(
+                        'Click to add %type field type to your content type.',
+                    ).replace(
+                        '%type',
+                        op.get(
+                            type,
+                            'label',
+                            op.get(type, 'type').toLowerCase(),
+                        ),
+                    ),
+                );
 
-            const Icon = op.get(type, 'icon');
-            return (
-                <Button
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    key={op.get(type, 'type')}
-                    data-tooltip={tooltip}
-                    data-align='left'
-                    data-vertical-align='middle'
-                    onClick={() => addField(op.get(type, 'type'))}>
-                    <span className={'sr-only'}>{tooltip}</span>
-                    <Icon />
-                </Button>
-            );
-        });
+                const Icon = op.get(type, 'icon');
+                return (
+                    <Button
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        key={op.get(type, 'type')}
+                        data-tooltip={tooltip}
+                        data-align='left'
+                        data-vertical-align='middle'
+                        onClick={() => addField(op.get(type, 'type'))}>
+                        <span className={'sr-only'}>{tooltip}</span>
+                        <Icon />
+                    </Button>
+                );
+            },
+        );
     };
 
     const addRegionLabel = __('Add Region');
