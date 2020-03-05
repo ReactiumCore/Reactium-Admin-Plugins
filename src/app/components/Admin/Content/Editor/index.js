@@ -252,10 +252,13 @@ let ContentEditor = (
         handle.dispatchEvent(statusEvt);
 
         // dispatch exact reactium hook
-        await Reactium.Hook.run(`form-${type}-${eventType}`, evt);
+        await Reactium.Hook.run(`form-${type}-${eventType}`, evt, handle);
 
         // dispatch status reactium hook
-        await Reactium.Hook.run(`form-${type}-status`, statusEvt);
+        await Reactium.Hook.run(`form-${type}-status`, statusEvt, handle);
+
+        // dispatch generic status reactium hook
+        await Reactium.Hook.run('form-editor-status', statusEvt, type, handle);
 
         // execute basic callback
         if (typeof callback === 'function') await callback(evt);
