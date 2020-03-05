@@ -213,7 +213,14 @@ export const ListItemStatus = ({ column, status }) => (
 export const ListItemTitle = ({ column, slug, title, url }) => (
     <Link
         to={url}
-        style={{ display: 'block', flexGrow: 1, textDecoration: 'none' }}>
+        className='flex middle'
+        style={{
+            flexGrow: 1,
+            textDecoration: 'none',
+            height: '100%',
+            marginLeft: -20,
+            paddingLeft: 20,
+        }}>
         <div>
             <div className='title'>{title}</div>
             <div className='slug'>/{slug}</div>

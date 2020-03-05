@@ -1,6 +1,10 @@
 $admin-content-list-height: 80px;
+$admin-content-list-ns: admin-content-list;
 
-.admin-content-list {
+/*
+ pagination styles
+ */
+.#{$admin-content-list-ns} {
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
     min-height: 100vh;
@@ -32,8 +36,8 @@ $admin-content-list-height: 80px;
         z-index: 1;
         width: $admin-content-list-height;
         height: $admin-content-list-height;
-        opacity: .5;
-        transition: opacity .5s ease-in-out;
+        opacity: 0.5;
+        transition: opacity 0.5s ease-in-out;
         overflow: hidden;
         pointer-events: none;
 
@@ -65,8 +69,7 @@ $admin-content-list-height: 80px;
         background-color: $color-white;
         border-radius: 2px;
         overflow: hidden;
-        transition: margin-left .25s ease-in-out;
-
+        transition: margin-left 0.25s ease-in-out;
 
         &.confirm {
             margin-left: -#{$admin-content-list-height};
@@ -77,10 +80,14 @@ $admin-content-list-height: 80px;
     &-column-title {
         flex-grow: 1;
         display: flex;
-        align-items: center;
-        padding: 10px 20px;
+        align-items: stretch;
+        padding: 0 20px;
+        position: relative;
+        min-height: $admin-content-list-height;
 
-        &:hover { text-decoration: none; }
+        &:hover {
+            text-decoration: none;
+        }
 
         .title {
             margin-bottom: 4px;
@@ -126,11 +133,55 @@ $admin-content-list-height: 80px;
         top: 50%;
         left: 50%;
         transform: translateX(-50%) translateY(-50%);
+        z-index: map-get($z-indexes, popup);
+    }
+
+    .pagination-bottom {
+        padding: $padding-admin-content-zone;
+        padding-bottom: 0;
+        display: flex;
+        justify-content: center;
+
+        .ar-dropdown {
+            &-menu {
+                box-shadow: none;
+                margin-top: 1px;
+            }
+
+            .btn-group {
+                > * {
+                    transition: border-radius 0.125s ease-in-out;
+                }
+            }
+
+            &.expanded {
+                margin-top: 0;
+
+                .btn-group {
+                    > *:first-child {
+                        border-top-left-radius: 0;
+                    }
+
+                    > *:last-child {
+                        border-top-right-radius: 0;
+                    }
+                }
+            }
+        }
     }
 }
 
 body.fullscreen {
     .admin-content-list {
         padding-top: 0;
+    }
+}
+
+.pagination-header {
+    display: none;
+    margin-right: 16px;
+
+    @include breakpoint(sm) {
+        display: inline-flex;
     }
 }

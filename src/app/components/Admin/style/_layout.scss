@@ -140,3 +140,13 @@ body {
         }
     }
 }
+
+.ar-dropdown {
+    &-menu {
+        box-shadow: 0 2px 2px 1px rgba($color-black, 0.025);
+
+        button {
+            text-transform: none;
+        }
+    }
+}

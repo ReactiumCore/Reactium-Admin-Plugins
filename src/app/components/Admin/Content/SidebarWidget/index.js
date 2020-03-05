@@ -42,7 +42,7 @@ export default () => {
                 exact={false}
                 label={pluralize(meta.label)}
                 icon={icon}
-                route={`/admin/content/${pluralize(type)}`}
+                route={`/admin/content/${pluralize(type)}/page/1`}
             />
         );
     });

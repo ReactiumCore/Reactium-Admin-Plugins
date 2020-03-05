@@ -5,6 +5,7 @@ import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
+import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 import { slugify } from 'components/Admin/ContentType';
@@ -76,26 +77,6 @@ const ErrorMessages = ({ editor, errors }) => {
         </ul>
     );
 };
-
-export class ContentEditorEvent extends CustomEvent {
-    constructor(type, data) {
-        super(type, data);
-
-        op.del(data, 'type');
-        op.del(data, 'target');
-
-        Object.entries(data).forEach(([key, value]) => {
-            if (!this[key]) {
-                try {
-                    this[key] = value;
-                } catch (err) {}
-            } else {
-                key = `__${key}`;
-                this[key] = value;
-            }
-        });
-    }
-}
 
 let ContentEditor = (
     {
@@ -227,7 +208,7 @@ let ContentEditor = (
         }
 
         // dispatch exact eventType
-        const evt = new ContentEditorEvent(eventType, event);
+        const evt = new ContentEvent(eventType, event);
         if (eventType !== 'status') {
             handle.dispatchEvent(evt);
         }
@@ -236,7 +217,7 @@ let ContentEditor = (
         const statusType =
             eventType === 'status' ? op.get(event, 'event') : eventType;
 
-        const statusEvt = new ContentEditorEvent('status', {
+        const statusEvt = new ContentEvent('status', {
             ...event,
             event: String(statusType).toUpperCase(),
         });

@@ -5,7 +5,7 @@ import op from 'object-path';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-
+import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
 
@@ -48,7 +48,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     const containerRef = useRef();
 
-    const loadingStatus = useRef();
+    const loadingStatus = useRef(undefined);
 
     const { page, group, type } = useRouteParams(['page', 'group', 'type']);
 
@@ -71,16 +71,17 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         const { status } = item;
 
         const confirmed = async () => {
-            Modal.hide();
             // instantly remove from content
             content.splice(index, 1);
             setState({ content });
 
-            // remove at server
-            await Reactium.Content.delete({ type: contentType, objectId });
+            // trash the item.
+            await Reactium.Content.trash({ type: contentType, objectId });
 
             // fetch the current page again.
-            getContent();
+            await getContent();
+
+            Modal.hide();
         };
 
         const Message = () => (
@@ -114,6 +115,15 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         );
     };
 
+    const dispatch = async (eventType, event, callback) => {
+        if (unMounted()) return;
+
+        // dispatch exact eventType
+        const evt = new ContentEvent(eventType, event);
+
+        handle.dispatchEvent(evt);
+    };
+
     const getColumns = () => {
         if (!type) return [];
 
@@ -141,27 +151,28 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     };
 
     const getContent = async refresh => {
-        if (loadingStatus.current) return;
+        loadingStatus.current = Date.now();
 
         const contentType = await Reactium.ContentType.retrieve({
             machineName: type,
         });
 
-        const { results: content, ...pagination } = await Reactium.Content.list(
-            {
-                page,
-                refresh,
-                type: contentType,
-            },
-        );
+        let { results: content, ...pagination } = await Reactium.Content.list({
+            page,
+            refresh,
+            limit: 20,
+            optimize: false,
+            type: contentType,
+        });
 
         loadingStatus.current = undefined;
 
         if (content.length < 1 && page > 1) {
             const pg = Math.min(page - 1, pagination.pages);
             const route = `/admin/content/${group}/page/${pg}`;
-            setState({ page: pg, content: undefined });
-            Reactium.Routing.history.replace(route);
+            //setState({ page: pg });
+            Reactium.Routing.history.push(route);
+            return;
         }
 
         return { content, contentType, pagination };
@@ -173,7 +184,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     const properCase = useProperCase();
 
-    const [state, setState] = useDerivedState({
+    const [state, setNewState] = useDerivedState({
         columns: undefined,
         content: undefined,
         contentType: undefined,
@@ -183,6 +194,11 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         title: ENUMS.TEXT.LIST,
         type: undefined,
     });
+
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
+    };
 
     const [ready] = useFulfilledObject(state, [
         'columns',
@@ -210,31 +226,33 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     useImperativeHandle(ref, () => handle, [handle]);
 
-    useRegisterHandle(`${id}List`, () => handle, [handle]);
+    useRegisterHandle(id, () => handle, [handle]);
 
     // get content
     useAsyncEffect(
         async mounted => {
             if (!type) return;
             const results = await getContent(true);
-            if (mounted()) setState(results);
+            if (mounted()) {
+                setState(results);
+                _.defer(() => dispatch('load', { ...state, ...results }));
+            }
             return () => {};
         },
         [type, page],
     );
-
-    useEffect(() => {
-        const newHandle = _handle();
-        if (_.isEqual(handle, newHandle)) return;
-        setHandle(newHandle);
-    }, [state]);
 
     // update handle
     useEffect(() => {
         const newHandle = _handle();
         if (_.isEqual(handle, newHandle)) return;
         setHandle(newHandle);
-    }, [group, page, type]);
+    }, [state, page, op.get(state, 'page')]);
+
+    useEffect(() => {
+        if (page === op.get(state, 'page')) return;
+        setState({ page });
+    }, [page]);
 
     // set title
     useEffect(() => {
@@ -245,11 +263,9 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group]);
 
     // Show SearchBar
-    useEffect(() => {
-        if (!SearchBar) return;
-        const { visible } = SearchBar.state;
-        if (visible !== true) SearchBar.setState({ visible: true });
-    }, [SearchBar]);
+    try {
+        SearchBar.setState({ visible: true });
+    } catch (err) {}
 
     // set state -> group, page, type
     useEffect(() => {
@@ -267,15 +283,17 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group, page, type]);
 
     const render = () => {
-        if (ready) console.log(state);
+        // if (ready) console.log(handle);
         const { content, group, page } = state;
 
         return (
             <div ref={containerRef} className={cname}>
+                <Zone list={handle} zone={cx('top')} />
                 {content &&
                     content.map(item => (
                         <ListItem key={item.objectId} list={handle} {...item} />
                     ))}
+                <Zone list={handle} zone={cx('bottom')} />
                 {isBusy() && <Spinner className={cx('spinner')} />}
             </div>
         );

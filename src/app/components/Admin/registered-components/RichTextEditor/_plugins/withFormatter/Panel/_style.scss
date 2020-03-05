@@ -152,21 +152,9 @@ $height-min-arp: 500px !default;
         width: 100%;
 
         &-menu {
-            background-color: $color-white;
-            box-shadow: 0 2px 2px 1px rgba($color-black, 0.025);
-
-            ul li button {
-                padding: 12px 10px 12px 20px;
-            }
-
             .color-block {
                 @extend %color-block;
-                margin-left: -14px;
             }
-        }
-
-        .checkbox {
-            display: none;
         }
 
         &.center {
@@ -183,6 +171,7 @@ $height-min-arp: 500px !default;
             }
         }
     }
+
 
     .ar-collapsible.expanded {
         overflow: visible;

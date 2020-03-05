@@ -41,6 +41,7 @@ import {
 
 const ThumbnailSelect = forwardRef(
     ({ id, property, tooltip, ...props }, ref) => {
+        const ready = useRef(false);
         // TODO: Create settings option for these values
         const DEFAULT_OPTIONS = {
             property,
@@ -465,7 +466,7 @@ const ThumbnailSelect = forwardRef(
 
         // Thumbnail update
         useEffect(() => {
-            if (!expanded || active !== 'thumb') return;
+            if (expanded === false || active !== 'thumb') return;
             onThumbnailUpdate();
         }, [active, thumbnail]);
 
