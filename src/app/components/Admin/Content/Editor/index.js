@@ -100,7 +100,7 @@ let ContentEditor = (
     const alertRef = useRef();
     const formRef = useRef();
     const sidebarRef = useRef();
-    const initialChange = useRef(true);
+    const ignoreChangeEvent = useRef(true);
     const loadingStatus = useRef(false);
 
     const Loading = useHookComponent(`${id}Loading`);
@@ -198,10 +198,13 @@ let ContentEditor = (
 
     const dispatch = async (eventType, event, callback) => {
         if (unMounted()) return;
-
-        if (eventType === 'change' && initialChange.current === true) {
-            initialChange.current = false;
+        if (eventType === 'change' && ignoreChangeEvent.current === true) {
+            ignoreChangeEvent.current = false;
             return;
+        } else {
+            if (op.get(event, 'ignoreChangeEvent') === true) {
+                ignoreChangeEvent.current = true;
+            }
         }
 
         // dispatch exact eventType
@@ -230,10 +233,13 @@ let ContentEditor = (
         handle.dispatchEvent(statusEvt);
 
         // dispatch exact reactium hook
-        await Reactium.Hook.run(`form-${type}-${eventType}`, evt);
+        await Reactium.Hook.run(`form-${type}-${eventType}`, evt, handle);
 
         // dispatch status reactium hook
-        await Reactium.Hook.run(`form-${type}-status`, statusEvt);
+        await Reactium.Hook.run(`form-${type}-status`, statusEvt, handle);
+
+        // dispatch generic status reactium hook
+        await Reactium.Hook.run('form-editor-status', statusEvt, type, handle);
 
         // execute basic callback
         if (typeof callback === 'function') await callback(evt);
@@ -331,7 +337,7 @@ let ContentEditor = (
     const reset = () => {
         ready = false;
         loadingStatus.current = undefined;
-        initialChange.current = true;
+        ignoreChangeEvent.current = true;
         setNewValue(undefined);
     };
 
@@ -394,7 +400,7 @@ let ContentEditor = (
 
             await dispatch(
                 'content-set-status',
-                { value: contentObj },
+                { value: contentObj, ignoreChangeEvent: true },
                 setClean,
             );
             Toast.show({
@@ -440,7 +446,11 @@ let ContentEditor = (
             const contentObj = await Reactium.Content[action](newValue, handle);
             if (unMounted()) return;
 
-            await dispatch(action, { value: contentObj }, setClean);
+            await dispatch(
+                action,
+                { value: contentObj, ignoreChangeEvent: true },
+                setClean,
+            );
             Toast.show({
                 icon: 'Feather.Check',
                 message: successMessage[action],
@@ -487,8 +497,63 @@ let ContentEditor = (
 
             if (unMounted()) return;
 
-            initialChange.current = true;
-            await dispatch('schedule', { value: newValue }, setClean);
+            await dispatch(
+                'schedule',
+                { value: newValue, ignoreChangeEvent: true },
+                isDirty() ? setDirty : setClean,
+            );
+
+            Toast.show({
+                icon: 'Feather.Check',
+                message: successMessage,
+                type: Toast.TYPE.INFO,
+            });
+        } catch (error) {
+            Toast.show({
+                icon: 'Feather.AlertOctagon',
+                message: errorMessage,
+                type: Toast.TYPE.ERROR,
+            });
+            console.error({ error });
+        }
+    };
+
+    const unschedule = async jobId => {
+        if (isNew()) return;
+
+        setAlert();
+
+        const payload = {
+            type,
+            objectId: value.objectId,
+            jobId,
+        };
+
+        if (!op.get(payload, 'type')) {
+            op.set(payload, 'type', contentType);
+        }
+
+        await dispatch('before-unschedule', { value: payload });
+        const successMessage = __('%type unscheduled').replace('%type', type);
+        const errorMessage = __('Unable to unschedule %type').replace(
+            '%type',
+            type,
+        );
+
+        try {
+            const response = await Reactium.Content.unschedule(payload, handle);
+            const newValue = {
+                ...value,
+                publish: response.publish,
+            };
+
+            if (unMounted()) return;
+
+            await dispatch(
+                'unschedule',
+                { value: newValue, ignoreChangeEvent: true },
+                isDirty() ? setDirty : setClean,
+            );
 
             Toast.show({
                 icon: 'Feather.Check',
@@ -574,9 +639,13 @@ let ContentEditor = (
         });
 
         if (unMounted()) return;
-        initialChange.current = true;
+
         setValue(result);
-        await dispatch('save-success', { value: result }, onSuccess);
+        await dispatch(
+            'save-success',
+            { value: result, ignoreChangeEvent: true },
+            onSuccess,
+        );
 
         if (isNew() || result.slug !== slug) {
             _.defer(
@@ -629,6 +698,7 @@ let ContentEditor = (
         setContentStatus,
         setStale,
         schedule,
+        unschedule,
         publish,
         setClean,
         setDirty,
@@ -755,9 +825,9 @@ let ContentEditor = (
             .then(result => {
                 if (unMounted()) return;
                 if (!result) return;
-                initialChange.current = true;
+                ignoreChangeEvent.current = true;
                 setValue(result);
-                _.defer(() => (initialChange.current = false));
+                _.defer(() => (ignoreChangeEvent.current = false));
             })
             .catch(() => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);

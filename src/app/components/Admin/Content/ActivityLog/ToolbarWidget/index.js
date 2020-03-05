@@ -4,6 +4,7 @@ import op from 'object-path';
 import React, { useState } from 'react';
 import { useHandle } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import ActivityLog from '../index';
 
 export default ({ editor }) => {
     const tools = useHandle('AdminTools');
@@ -13,17 +14,7 @@ export default ({ editor }) => {
     const [visible, setVisible] = useState(false);
 
     const show = () => {
-        Modal.show(
-            <img
-                src='https://cdn.reactium.io/activity-comp.png'
-                style={{
-                    width: '100vw',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                }}
-            />,
-        );
+        Modal.show(<ActivityLog />);
     };
 
     return editor.isNew() ? null : (
