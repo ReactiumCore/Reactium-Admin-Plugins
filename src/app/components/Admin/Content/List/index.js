@@ -38,6 +38,8 @@ import Reactium, {
  * -----------------------------------------------------------------------------
  */
 let ContentList = ({ className, id, namespace, ...props }, ref) => {
+    const initialStatus = useRef(true);
+
     const tools = useHandle('AdminTools');
 
     const Modal = op.get(tools, 'Modal');
@@ -50,7 +52,12 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     const loadingStatus = useRef(undefined);
 
-    const { page, group, type } = useRouteParams(['page', 'group', 'type']);
+    const { group, page, path, type } = useRouteParams([
+        'group',
+        'page',
+        'path',
+        'type',
+    ]);
 
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
@@ -150,7 +157,9 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             });
     };
 
-    const getContent = async refresh => {
+    const getContent = async ({ refresh, page: pg, status }) => {
+        pg = pg || page;
+
         loadingStatus.current = Date.now();
 
         const contentType = await Reactium.ContentType.retrieve({
@@ -158,19 +167,19 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         });
 
         let { results: content, ...pagination } = await Reactium.Content.list({
-            page,
-            refresh,
             limit: 20,
             optimize: false,
+            page: pg,
+            refresh,
+            status,
             type: contentType,
         });
 
         loadingStatus.current = undefined;
 
         if (content.length < 1 && page > 1) {
-            const pg = Math.min(page - 1, pagination.pages);
+            pg = Math.min(pg - 1, pagination.pages);
             const route = `/admin/content/${group}/page/${pg}`;
-            //setState({ page: pg });
             Reactium.Routing.history.push(route);
             return;
         }
@@ -191,6 +200,8 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         group: undefined,
         page: 1,
         pagination: undefined,
+        path,
+        status: null,
         title: ENUMS.TEXT.LIST,
         type: undefined,
     });
@@ -232,7 +243,10 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     useAsyncEffect(
         async mounted => {
             if (!type) return;
-            const results = await getContent(true);
+            const results = await getContent({
+                refresh: true,
+                status: op.get(state, 'status'),
+            });
             if (mounted()) {
                 setState(results);
                 _.defer(() => dispatch('load', { ...state, ...results }));
@@ -242,12 +256,33 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         [type, page],
     );
 
+    useAsyncEffect(
+        async mounted => {
+            if (initialStatus.current === true) {
+                initialStatus.current = false;
+                return;
+            }
+
+            const results = await getContent({
+                page: 1,
+                status: op.get(state, 'status'),
+            });
+
+            if (mounted()) {
+                setState(results);
+                _.defer(() => dispatch('load', { ...state, ...results }));
+            }
+            return () => {};
+        },
+        [op.get(state, 'status')],
+    );
+
     // update handle
     useEffect(() => {
         const newHandle = _handle();
         if (_.isEqual(handle, newHandle)) return;
         setHandle(newHandle);
-    }, [state, page, op.get(state, 'page')]);
+    }, [state, page, op.get(state, 'page'), op.get(state, 'pagination')]);
 
     useEffect(() => {
         if (page === op.get(state, 'page')) return;
@@ -283,16 +318,40 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group, page, type]);
 
     const render = () => {
-        // if (ready) console.log(handle);
-        const { content, group, page } = state;
+        const { content, group, page, status, type } = state;
+        let count = Number(op.get(state, 'pagination.count', 0));
+        count = count === 0 ? __('No') : count;
 
         return (
             <div ref={containerRef} className={cname}>
+                <div className={cx('heading')}>
+                    {!isBusy() && (
+                        <h2>
+                            <span className={cx('heading-count')}>{count}</span>
+                            {status && (
+                                <span className='blue mr-xs-8 lowercase'>
+                                    {status && status === 'TRASH'
+                                        ? 'TRASHED'
+                                        : status}
+                                </span>
+                            )}
+                            {count === 1 ? type : group}
+                        </h2>
+                    )}
+                    <div className={cx('toolbar')}>
+                        <div className='btn-group'>
+                            <Zone list={handle} zone={cx('toolbar')} />
+                        </div>
+                    </div>
+                </div>
+
                 <Zone list={handle} zone={cx('top')} />
+
                 {content &&
                     content.map(item => (
                         <ListItem key={item.objectId} list={handle} {...item} />
                     ))}
+
                 <Zone list={handle} zone={cx('bottom')} />
                 {isBusy() && <Spinner className={cx('spinner')} />}
             </div>

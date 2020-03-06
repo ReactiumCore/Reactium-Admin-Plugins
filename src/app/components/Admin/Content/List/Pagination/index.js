@@ -33,12 +33,12 @@ const Wrap = ({ children, zone, ...props }) => {
     }
 };
 
-const PaginationComponent = ({ zoneID: zone, props, listID }) => {
-    const { page = 1, group, path } = useRouteParams(['page', 'group']);
+const PaginationComponent = ({ list, zone, ...props }) => {
+    const { state = {} } = list;
 
-    const List = useHandle(listID);
+    const { group, pagination = {}, path } = state;
 
-    const [ready] = useFulfilledObject(List, ['state.pagination.pages']);
+    const { page, pages } = pagination;
 
     const nav = p => {
         Reactium.Routing.history.push(`/admin/content/${group}/page/${p}`);
@@ -47,13 +47,12 @@ const PaginationComponent = ({ zoneID: zone, props, listID }) => {
     const onChange = (e, p) => nav(p);
 
     const render = () => {
-        if (!ready) return null;
-
-        const pages = op.get(List.state, 'pagination.pages');
+        //console.log({ page, pages, pagination });
 
         if (!page || !pages) return null;
 
         let color, size, verticalAlign;
+
         switch (zone) {
             case 'admin-content-list-bottom':
                 color = Pagination.COLOR.CLEAR;
@@ -87,7 +86,7 @@ const PaginationComponent = ({ zoneID: zone, props, listID }) => {
     return render();
 };
 
-export default props => {
+export default ({ list, props }) => {
     const { page, group, path, type } = useRouteParams([
         'page',
         'path',
@@ -96,10 +95,11 @@ export default props => {
     ]);
 
     const isVisible = () => {
+        if (!list) return false;
         if (!page || !path || !group) return false;
         if (String(path).startsWith('/admin/content/:type/:slug')) return false;
         return String(path).startsWith('/admin/content/:type');
     };
 
-    return isVisible() ? <PaginationComponent {...props} /> : null;
+    return isVisible() ? <PaginationComponent list={list} {...props} /> : null;
 };

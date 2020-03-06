@@ -16,8 +16,6 @@ const registerFieldTypePlugin = async () => {
         component: 'FieldTypeLink',
         order: Reactium.Enums.priority.high,
     });
-
-    console.log('Link', Reactium.ContentType.FieldType.list);
 };
 
 registerFieldTypePlugin();

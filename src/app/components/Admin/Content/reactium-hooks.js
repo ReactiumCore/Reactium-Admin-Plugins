@@ -2,6 +2,7 @@ import SDK from './sdk';
 import _ from 'underscore';
 import cn from 'classnames';
 import ContentList from './List';
+import Filters from './List/Filters';
 import ContentEditor from './Editor';
 import Sidebar from './Editor/Sidebar';
 import Loading from './Editor/Loading';
@@ -132,6 +133,13 @@ const registerAdminContent = async () => {
         component: ListItemTitle,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-content-list-title'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-LIST-TOOLBAR',
+        component: Filters,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-content-list-toolbar'],
     });
 };
 

@@ -169,8 +169,6 @@ const QuickEditor = ({ list, row, ...props }) => {
         item: props,
     };
 
-    console.log(componentProps);
-
     return (
         <div className={cx('item-quick-editor')}>
             <div>
@@ -272,7 +270,7 @@ const statusToColor = status => {
 
     const map = {
         PUBLISHED: COLOR.SUCCESS,
-        DELETE: COLOR.DANGER,
+        TRASH: COLOR.DANGER,
         DRAFT: COLOR.TERTIARY,
     };
 
