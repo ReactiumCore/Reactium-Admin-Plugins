@@ -3,10 +3,16 @@ import actions from './actions';
 import domain from './domain';
 import op from 'object-path';
 import _ from 'underscore';
+import ENUMS from './enums';
 
 const subscriptions = {};
 const registerPlugin = async () => {
-    await Reactium.Plugin.register(domain.name);
+    await Reactium.Plugin.register(
+        domain.name,
+        Reactium.Enums.priority.highest,
+    );
+
+    await Reactium.Hook.run('activity-log-enums', ENUMS);
 
     Reactium.Hook.register(
         'form-editor-status',
