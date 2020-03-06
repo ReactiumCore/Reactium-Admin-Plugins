@@ -16,7 +16,7 @@ const fieldType = {
 const registerFieldTypePlugin = async () => {
     await Reactium.Plugin.register(fieldType.component);
 
-    Reactium.Component.register(ID, FieldTypeRichText);
+    Reactium.Component.register('FieldTypeRichText', FieldTypeRichText);
 
     Reactium.Content.Editor.register(ID, { component: Editor });
 

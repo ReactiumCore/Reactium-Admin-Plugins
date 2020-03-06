@@ -168,7 +168,10 @@ const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), update: noop });
 const ContentType = memo(
     props => {
-        const fieldTypes = Reactium.ContentType.FieldType.list;
+        const fieldTypes = _.indexBy(
+            Object.values(Reactium.ContentType.FieldType.list),
+            'type',
+        );
         const id = op.get(props, 'params.id', 'new');
         const Enums = op.get(props, 'Enums', {});
         const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
@@ -193,9 +196,9 @@ const ContentType = memo(
         useEffect(() => {
             clear();
             if (id === 'new') {
-                const autoIncludes = fieldTypes.filter(fieldType =>
-                    op.get(fieldType, 'autoInclude', false),
-                );
+                const autoIncludes = Object.values(
+                    fieldTypes,
+                ).filter(fieldType => op.get(fieldType, 'autoInclude', false));
 
                 for (const type of autoIncludes) {
                     addField(type.type);
@@ -272,6 +275,7 @@ const ContentType = memo(
                     ...op.get(contentType, 'regions', {}),
                 };
                 const label = op.get(contentType, 'meta.label');
+
                 op.set(contentType, 'type', label);
                 savedRef.current = contentType;
 
@@ -290,9 +294,7 @@ const ContentType = memo(
 
                         if (!(region in regions)) region = 'default';
 
-                        const type = fieldTypes.find(
-                            ({ type }) => fieldType === type,
-                        );
+                        const type = op.get(fieldTypes, fieldType);
 
                         if (!type) {
                             return;
@@ -448,6 +450,7 @@ const ContentType = memo(
 
                 // make sure all fields are unique
                 const { fieldName, fieldType } = ref.getValue();
+
                 const slug = slugify(fieldName || '').toLowerCase();
                 const errors = op.get(ref, 'errors') || {
                     focus: null,
@@ -794,8 +797,7 @@ const ContentType = memo(
         };
 
         const addField = type => {
-            const types = _.indexBy(fieldTypes, 'type');
-            if (op.has(types, type)) {
+            if (op.has(fieldTypes, type)) {
                 updateRestore(
                     () =>
                         new Promise(resolve => {

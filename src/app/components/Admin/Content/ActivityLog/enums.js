@@ -3,6 +3,9 @@ import { __ } from 'reactium-core/sdk';
 export default {
     HEADER: __('Updates'),
     CHANGES: {
+        DEFAULT: {
+            description: __('Change %changetype% made by %who%'),
+        },
         CREATED: {
             description: __('Created by %who%'),
         },

@@ -1,5 +1,5 @@
 import React from 'react';
-import Reactium, { useReduxState } from 'reactium-core/sdk';
+import Reactium, { useReduxState, __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import _ from 'underscore';
 import op from 'object-path';
@@ -22,7 +22,11 @@ const ChangeItem = props => {
     const cx = Reactium.Utils.cxFactory('activity-list');
     const getDescriptionParts = (who, changeType, meta) => {
         const parts = Reactium.Utils.splitParts(
-            ENUMS.CHANGES[changeType].description,
+            op.get(
+                ENUMS.CHANGES,
+                [changeType, 'description'],
+                ENUMS.CHANGES.DEFAULT.description,
+            ),
         );
 
         switch (changeType) {
@@ -44,10 +48,15 @@ const ChangeItem = props => {
                 parts.replace('status', status);
                 break;
             }
+            default: {
+                const status = op.get(meta, 'changetype', '');
+                parts.replace('changetype', changeType);
+                break;
+            }
         }
 
         // who
-        parts.replace('who', who);
+        parts.replace('who', who ? who : __('Unknown'));
         return parts.value();
     };
 
