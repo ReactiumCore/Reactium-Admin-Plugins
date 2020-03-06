@@ -12,24 +12,16 @@ import Reactium, {
     useHandle,
 } from 'reactium-core/sdk';
 
-const Wrap = ({ children, zone, ...props }) => {
+const Wrap = ({ children, zone }) => {
     switch (zone) {
         case 'admin-content-list-bottom':
-            return (
-                <div {...props} className='pagination-bottom'>
-                    {children}
-                </div>
-            );
+            return <div className='pagination-bottom'>{children}</div>;
 
         case 'admin-logo':
-            return (
-                <span {...props} className='pagination-header'>
-                    {children}
-                </span>
-            );
+            return <span className='pagination-header'>{children}</span>;
 
         default:
-            return <span {...props}>{children}</span>;
+            return <span>{children}</span>;
     }
 };
 
@@ -47,13 +39,11 @@ const PaginationComponent = ({ list, zone, ...props }) => {
     const onChange = (e, p) => nav(p);
 
     const render = () => {
-        //console.log({ page, pages, pagination });
-
         if (!page || !pages) return null;
 
         let color, size, verticalAlign;
 
-        switch (zone) {
+        switch (zone[0]) {
             case 'admin-content-list-bottom':
                 color = Pagination.COLOR.CLEAR;
                 verticalAlign = 'top';
@@ -86,7 +76,7 @@ const PaginationComponent = ({ list, zone, ...props }) => {
     return render();
 };
 
-export default ({ list, props }) => {
+export default ({ list, ...props }) => {
     const { page, group, path, type } = useRouteParams([
         'page',
         'path',
@@ -100,6 +90,10 @@ export default ({ list, props }) => {
         if (String(path).startsWith('/admin/content/:type/:slug')) return false;
         return String(path).startsWith('/admin/content/:type');
     };
+
+    const { zone } = props;
+
+    //console.log(zone[0], list);
 
     return isVisible() ? <PaginationComponent list={list} {...props} /> : null;
 };
