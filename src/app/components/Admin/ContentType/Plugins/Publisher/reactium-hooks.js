@@ -9,11 +9,10 @@ import _ from 'underscore';
 const registerPublisher = async () => {
     await Reactium.Plugin.register('Publisher');
 
-    const type = 'Publisher';
+    const ID = 'Publisher';
 
     const fieldType = {
         id: 'publisher',
-        type,
         label: __('Publisher'),
         icon: Icon.Feather.Send,
         tooltip: __('Place publisher widget.'),
@@ -36,9 +35,9 @@ const registerPublisher = async () => {
 
     Reactium.Component.register(fieldType.component, FieldType);
 
-    Reactium.Content.Editor.register(type, { component: Editor });
+    Reactium.Content.Editor.register(ID, { component: Editor });
 
-    Reactium.ContentType.FieldType.register(fieldType);
+    Reactium.ContentType.FieldType.protect(ID).register(ID, fieldType);
 
     Reactium.Hook.register(
         'content-type-capabilities',

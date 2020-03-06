@@ -6,7 +6,6 @@ import op from 'object-path';
 const ID = 'Text';
 
 const fieldType = {
-    type: ID,
     label: __('Text Field'),
     icon: Icon.Feather.Type,
     tooltip: __('Adds a text field to your content type.'),
@@ -21,5 +20,5 @@ Reactium.Plugin.register(ID).then(() => {
 
     Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
 
-    Reactium.ContentType.FieldType.register(fieldType);
+    Reactium.ContentType.FieldType.register(ID, fieldType);
 });

@@ -6,7 +6,6 @@ import { Icon } from '@atomic-reactor/reactium-ui';
 
 const ID = 'RichText';
 const fieldType = {
-    type: 'RichText',
     label: __('Rich Text Field'),
     icon: Icon.Feather.Feather,
     tooltip: __('Adds a rich text field to your content type.'),
@@ -21,7 +20,7 @@ const registerFieldTypePlugin = async () => {
 
     Reactium.Content.Editor.register(ID, { component: Editor });
 
-    Reactium.ContentType.FieldType.register(fieldType);
+    Reactium.ContentType.FieldType.register(ID, fieldType);
 };
 
 registerFieldTypePlugin();
