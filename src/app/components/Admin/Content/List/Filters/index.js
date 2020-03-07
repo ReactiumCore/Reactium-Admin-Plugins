@@ -29,6 +29,16 @@ export default ({ list, ...props }) => {
             .value()
             .map(item => ({ label: item, value: item }));
 
+    const setStatus = newStatus => {
+        if (newStatus === op.get(state, 'status')) return;
+        setState({ busy: true, status: newStatus });
+    };
+
+    const clearStatus = () => {
+        op.set(state, 'status', null);
+        Reactium.Routing.history.push(`/admin/content/${state.group}/page/1`);
+    };
+
     useEffect(() => {
         ddRef.current.setState({ selection: [op.get(state, 'status')] });
     }, [op.get(state, 'status')]);
@@ -37,9 +47,7 @@ export default ({ list, ...props }) => {
         <Dropdown
             align={Dropdown.ENUMS.ALIGN.RIGHT}
             data={statuses()}
-            onItemSelect={({ item }) =>
-                setState({ busy: true, status: item.value })
-            }
+            onItemSelect={({ item }) => setStatus(item.value)}
             ref={ddRef}
             selection={[op.get(state, 'status', null)]}>
             <div className='flex middle'>
@@ -47,7 +55,7 @@ export default ({ list, ...props }) => {
                     <Button
                         className='mr-xs-8 ml-xs-12'
                         color={Button.ENUMS.COLOR.TERTIARY}
-                        onClick={() => setState({ busy: true, status: null })}
+                        onClick={() => clearStatus()}
                         outline
                         size={Button.ENUMS.SIZE.XS}
                         style={{ padding: '2px 4px 2px 5px', maxHeight: 20 }}

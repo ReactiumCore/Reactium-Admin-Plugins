@@ -175,7 +175,6 @@ $admin-content-list-ns: admin-content-list;
         .ar-dropdown {
             &-menu {
                 min-width: 120px;
-                transform: translateY(0);
             }
         }
 
@@ -228,10 +227,7 @@ body.fullscreen {
 }
 
 .pagination-header {
-    display: none;
-    margin-right: 16px;
-
-    @include breakpoint(sm) {
-        display: inline-flex;
+    @include breakpoint(xs-only) {
+        display: none;
     }
 }

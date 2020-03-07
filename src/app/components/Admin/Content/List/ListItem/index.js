@@ -238,6 +238,7 @@ export const ListItemStatus = ({ column, list, status, ...props }) => (
         color={statusToColor(status)}
         onClick={e => {
             e.currentTarget.blur();
+            if (op.get(list, 'state.status') === status) return;
             list.setState({ busy: true, status });
         }}
         outline

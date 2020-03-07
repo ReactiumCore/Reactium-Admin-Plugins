@@ -17,7 +17,7 @@ const Wrap = ({ children, zone }) => {
         case 'admin-content-list-bottom':
             return <div className='pagination-bottom'>{children}</div>;
 
-        case 'admin-logo':
+        case 'admin-content-list-toolbar':
             return <span className='pagination-header'>{children}</span>;
 
         default:

@@ -83,7 +83,11 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             setState({ content });
 
             // trash the item.
-            await Reactium.Content.trash({ type: contentType, objectId });
+            if (stauts !== 'TRASH') {
+                await Reactium.Content.trash({ type: contentType, objectId });
+            } else {
+                await Reactium.Content.delete({ type: contentType, objectId });
+            }
 
             // fetch the current page again.
             await getContent();
@@ -157,7 +161,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             });
     };
 
-    const getContent = async ({ refresh, page: pg, status }) => {
+    const _getContent = async ({ refresh, page: pg, status }) => {
         pg = pg || page;
 
         state.busy = true;
@@ -185,6 +189,8 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
         return { busy: false, content, contentType, pagination };
     };
+
+    const getContent = _.throttle(_getContent, 100, { trailing: false });
 
     const isBusy = () => Boolean(state.busy);
 
@@ -235,13 +241,12 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     // get content
     useAsyncEffect(
         async mounted => {
-            if (!type || state.busy === true) return;
+            if (!type) return;
             const results = await getContent({
-                refresh: true,
+                refresh: false,
                 status: op.get(state, 'status'),
             });
             if (mounted()) {
-                state.busy = false;
                 setState(results);
                 _.defer(() => dispatch('load', { ...state, ...results }));
             }
@@ -264,15 +269,9 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             });
 
             if (mounted()) {
-                // change route back to page 1 w/o triggering state update:
-                state.busy = true;
-                const route = `/admin/content/${group}/page/1`;
-                Reactium.Routing.history.push(route);
-
-                // Update state after we're done changing rounte:
+                setState(results);
                 _.defer(() => {
                     dispatch('load', { ...state, ...results });
-                    setState(results);
                 });
             }
             return () => {};
@@ -321,6 +320,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group, page, type]);
 
     const render = () => {
+        console.log(state.busy);
         const { content, group, page, status, type } = state;
         let count = Number(op.get(state, 'pagination.count', 0));
         count = count === 0 ? __('No') : count;

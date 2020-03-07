@@ -93,7 +93,8 @@ export const useDerivedState = (
         return false;
     };
     // public setState always respected and merged everything
-    const setState = newExternalState => {
+    const setState = (newExternalState = {}) => {
+        if (!newExternalState) return;
         Object.entries(newExternalState).forEach(([key, value]) => {
             op.set(derivedStateRef.current, key, value);
         });
