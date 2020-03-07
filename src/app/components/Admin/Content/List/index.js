@@ -83,7 +83,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             setState({ content });
 
             // trash the item.
-            if (stauts !== 'TRASH') {
+            if (status !== 'TRASH') {
                 await Reactium.Content.trash({ type: contentType, objectId });
             } else {
                 await Reactium.Content.delete({ type: contentType, objectId });
@@ -161,7 +161,8 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             });
     };
 
-    const _getContent = async ({ refresh, page: pg, status }) => {
+    const getContent = async (params = {}) => {
+        let { refresh, page: pg, status } = params;
         pg = pg || page;
 
         state.busy = true;
@@ -181,7 +182,9 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
         if (pg > pagination.pages) {
             state.busy = false;
-            pg = Math.min(pg - 1, pagination.pages);
+            pg -= 1;
+            pg = Math.max(1, pg);
+            pg = Math.min(pg, pagination.pages);
             const route = `/admin/content/${group}/page/${pg}`;
             Reactium.Routing.history.push(route);
             return;
@@ -189,8 +192,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
         return { busy: false, content, contentType, pagination };
     };
-
-    const getContent = _.throttle(_getContent, 100, { trailing: false });
 
     const isBusy = () => Boolean(state.busy);
 
@@ -243,7 +244,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         async mounted => {
             if (!type) return;
             const results = await getContent({
-                refresh: false,
+                refresh: true,
                 status: op.get(state, 'status'),
             });
             if (mounted()) {
@@ -265,6 +266,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
             const results = await getContent({
                 page: 1,
+                refresh: true,
                 status: op.get(state, 'status'),
             });
 
@@ -320,7 +322,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [group, page, type]);
 
     const render = () => {
-        console.log(state.busy);
         const { content, group, page, status, type } = state;
         let count = Number(op.get(state, 'pagination.count', 0));
         count = count === 0 ? __('No') : count;

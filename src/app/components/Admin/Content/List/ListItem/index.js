@@ -235,6 +235,7 @@ export const ListItemActions = ({ url, column, row }) => {
 export const ListItemStatus = ({ column, list, status, ...props }) => (
     <Button
         appearance={Button.ENUMS.APPEARANCE.PILL}
+        block
         color={statusToColor(status)}
         onClick={e => {
             e.currentTarget.blur();
@@ -242,6 +243,7 @@ export const ListItemStatus = ({ column, list, status, ...props }) => (
             list.setState({ busy: true, status });
         }}
         outline
+        readOnly={op.get(list, 'state.status') === status}
         size={Button.ENUMS.SIZE.XS}
         type={Button.ENUMS.TYPE.BUTTON}>
         {status}

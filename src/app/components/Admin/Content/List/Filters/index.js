@@ -30,6 +30,7 @@ export default ({ list, ...props }) => {
             .map(item => ({ label: item, value: item }));
 
     const setStatus = newStatus => {
+        newStatus = newStatus === 'ALL' ? null : newStatus;
         if (newStatus === op.get(state, 'status')) return;
         setState({ busy: true, status: newStatus });
     };
