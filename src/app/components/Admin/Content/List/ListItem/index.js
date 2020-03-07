@@ -232,36 +232,38 @@ export const ListItemActions = ({ url, column, row }) => {
     );
 };
 
-export const ListItemStatus = ({ column, status, ...props }) => (
+export const ListItemStatus = ({ column, list, status, ...props }) => (
     <Button
         appearance={Button.ENUMS.APPEARANCE.PILL}
-        readOnly
-        outline
         color={statusToColor(status)}
-        size={Button.ENUMS.SIZE.XS}>
+        onClick={e => {
+            e.currentTarget.blur();
+            list.setState({ busy: true, status });
+        }}
+        outline
+        size={Button.ENUMS.SIZE.XS}
+        type={Button.ENUMS.TYPE.BUTTON}>
         {status}
     </Button>
 );
 
-export const ListItemTitle = ({ column, slug, title, url, row }) => {
-    return (
-        <div
-            onClick={e => row.toggle()}
-            className='flex middle'
-            style={{
-                flexGrow: 1,
-                textDecoration: 'none',
-                height: '100%',
-                marginLeft: -20,
-                paddingLeft: 20,
-            }}>
-            <div>
-                <div className='title'>{title}</div>
-                <div className='slug'>/{slug}</div>
-            </div>
+export const ListItemTitle = ({ column, slug, title, url, row }) => (
+    <div
+        onClick={e => row.toggle()}
+        className='flex middle'
+        style={{
+            flexGrow: 1,
+            textDecoration: 'none',
+            height: '100%',
+            marginLeft: -20,
+            paddingLeft: 20,
+        }}>
+        <div>
+            <div className='title'>{title}</div>
+            <div className='slug'>/{slug}</div>
         </div>
-    );
-};
+    </div>
+);
 
 const statusToColor = status => {
     const COLOR = Button.ENUMS.COLOR;

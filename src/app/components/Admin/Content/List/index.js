@@ -22,7 +22,7 @@ import React, {
 import Reactium, {
     __,
     useAsyncEffect,
-    useDerivedState,
+    // useDerivedState,
     useEventHandle,
     useFulfilledObject,
     useHandle,
@@ -31,6 +31,8 @@ import Reactium, {
     useSelect,
     Zone,
 } from 'reactium-core/sdk';
+
+import { useDerivedState } from './useDerivedStateAlt';
 
 /**
  * -----------------------------------------------------------------------------
@@ -49,8 +51,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     const ListItem = useHookComponent(`${id}Item`);
 
     const containerRef = useRef();
-
-    const loadingStatus = useRef(undefined);
 
     const { group, page, path, type } = useRouteParams([
         'group',
@@ -160,7 +160,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     const getContent = async ({ refresh, page: pg, status }) => {
         pg = pg || page;
 
-        loadingStatus.current = Date.now();
+        state.busy = true;
 
         const contentType = await Reactium.ContentType.retrieve({
             machineName: type,
@@ -175,25 +175,26 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             type: contentType,
         });
 
-        loadingStatus.current = undefined;
-
-        if (content.length < 1 && page > 1) {
+        if (pg > pagination.pages) {
+            state.busy = false;
             pg = Math.min(pg - 1, pagination.pages);
             const route = `/admin/content/${group}/page/${pg}`;
             Reactium.Routing.history.push(route);
             return;
         }
 
-        return { content, contentType, pagination };
+        return { busy: false, content, contentType, pagination };
     };
 
-    const isBusy = () => !ready || loadingStatus.current;
+    const isBusy = () => Boolean(state.busy);
+
     const isMounted = () => containerRef.current;
     const unMounted = () => !containerRef.current;
 
     const properCase = useProperCase();
 
     const [state, setNewState] = useDerivedState({
+        busy: false,
         columns: undefined,
         content: undefined,
         contentType: undefined,
@@ -210,14 +211,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         if (unMounted()) return;
         setNewState(newState);
     };
-
-    const [ready] = useFulfilledObject(state, [
-        'columns',
-        'content',
-        'contentType',
-        'group',
-        'type',
-    ]);
 
     const _handle = () => ({
         cx,
@@ -242,12 +235,13 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     // get content
     useAsyncEffect(
         async mounted => {
-            if (!type) return;
+            if (!type || state.busy === true) return;
             const results = await getContent({
                 refresh: true,
                 status: op.get(state, 'status'),
             });
             if (mounted()) {
+                state.busy = false;
                 setState(results);
                 _.defer(() => dispatch('load', { ...state, ...results }));
             }
@@ -256,6 +250,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         [type, page],
     );
 
+    // filter by status
     useAsyncEffect(
         async mounted => {
             if (initialStatus.current === true) {
@@ -269,8 +264,16 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             });
 
             if (mounted()) {
-                setState(results);
-                _.defer(() => dispatch('load', { ...state, ...results }));
+                // change route back to page 1 w/o triggering state update:
+                state.busy = true;
+                const route = `/admin/content/${group}/page/1`;
+                Reactium.Routing.history.push(route);
+
+                // Update state after we're done changing rounte:
+                _.defer(() => {
+                    dispatch('load', { ...state, ...results });
+                    setState(results);
+                });
             }
             return () => {};
         },
@@ -280,7 +283,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     // update handle
     useEffect(() => {
         const newHandle = _handle();
-        if (_.isEqual(handle, newHandle)) return;
+        //if (_.isEqual(handle, newHandle)) return;
         setHandle(newHandle);
     }, [state, page, op.get(state, 'page'), op.get(state, 'pagination')]);
 
@@ -329,7 +332,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
                         <h2>
                             <span className={cx('heading-count')}>{count}</span>
                             {status && (
-                                <span className='blue mr-xs-8 lowercase'>
+                                <span className='blue mr-xs-8 lowercase hide-xs-only'>
                                     {status && status === 'TRASH'
                                         ? 'TRASHED'
                                         : status}
@@ -339,9 +342,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
                         </h2>
                     )}
                     <div className={cx('toolbar')}>
-                        <div className='btn-group'>
-                            <Zone list={handle} zone={cx('toolbar')} />
-                        </div>
+                        <Zone list={handle} zone={cx('toolbar')} />
                     </div>
                 </div>
 

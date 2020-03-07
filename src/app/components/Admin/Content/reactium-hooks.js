@@ -63,23 +63,6 @@ const registerAdminContent = async () => {
     });
 
     Reactium.Zone.addComponent({
-        id: 'ADMIN-CONTENT-HEADER-PAGINATION',
-        component: Pagination,
-        order: 1, // don't change this - Cam
-        listID: 'AdminContentList',
-        zoneID: 'admin-logo',
-        zone: ['admin-logo'],
-    });
-
-    Reactium.Zone.addComponent({
-        id: 'ADMIN-CONTENT-PAGINATION',
-        component: props => <Pagination {...props} />,
-        listID: 'AdminContentList',
-        zoneID: 'admin-content-list-bottom',
-        zone: ['admin-content-list-bottom'],
-    });
-
-    Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-SIDEBAR-WIDGET',
         component: SidebarWidget,
         order: 200, // don't change this - Cam
@@ -133,6 +116,19 @@ const registerAdminContent = async () => {
         component: ListItemTitle,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-content-list-title'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-PAGINATION',
+        component: Pagination,
+        zone: ['admin-content-list-bottom'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-PAGINATION-TOOLBAR',
+        component: Pagination,
+        order: Reactium.Enums.priority.highest,
+        zone: ['admin-content-list-toolbar'],
     });
 
     Reactium.Zone.addComponent({

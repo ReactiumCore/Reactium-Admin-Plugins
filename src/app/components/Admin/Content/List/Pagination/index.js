@@ -25,7 +25,9 @@ const Wrap = ({ children, zone }) => {
     }
 };
 
-const PaginationComponent = ({ list, zone, ...props }) => {
+const PaginationComponent = ({ list, zone: zones, ...props }) => {
+    const zone = zones[0];
+
     const { state = {} } = list;
 
     const { group, pagination = {}, path } = state;
@@ -43,7 +45,7 @@ const PaginationComponent = ({ list, zone, ...props }) => {
 
         let color, size, verticalAlign;
 
-        switch (zone[0]) {
+        switch (zone) {
             case 'admin-content-list-bottom':
                 color = Pagination.COLOR.CLEAR;
                 verticalAlign = 'top';
@@ -92,8 +94,6 @@ export default ({ list, ...props }) => {
     };
 
     const { zone } = props;
-
-    //console.log(zone[0], list);
 
     return isVisible() ? <PaginationComponent list={list} {...props} /> : null;
 };

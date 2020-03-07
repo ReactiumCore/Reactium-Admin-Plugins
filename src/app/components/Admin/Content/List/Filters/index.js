@@ -5,7 +5,10 @@ import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 export default ({ list, ...props }) => {
+    const ddRef = useRef();
     const { setState, state = {} } = list;
+
+    const status = op.get(state, 'status');
 
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
@@ -15,26 +18,53 @@ export default ({ list, ...props }) => {
 
     const statuses = () =>
         _.chain([
-            { label: 'ALL', value: null },
+            'ALL',
             op
                 .get(state, 'contentType.fields.publisher.statuses', '')
-                .split(',')
-                .map(item => ({ label: item, value: item })),
-            { label: 'TRASHED', value: 'TRASH' },
+                .split(','),
+            'TRASH',
         ])
             .flatten()
             .uniq()
-            .value();
+            .value()
+            .map(item => ({ label: item, value: item }));
+
+    useEffect(() => {
+        ddRef.current.setState({ selection: [op.get(state, 'status')] });
+    }, [op.get(state, 'status')]);
 
     return (
         <Dropdown
             align={Dropdown.ENUMS.ALIGN.RIGHT}
             data={statuses()}
-            onItemSelect={({ item }) => setState({ status: item.value })}
+            onItemSelect={({ item }) =>
+                setState({ busy: true, status: item.value })
+            }
+            ref={ddRef}
             selection={[op.get(state, 'status', null)]}>
-            <Button {...buttonProps} data-dropdown-element>
-                <Icon name='Feather.Filter' size={20} />
-            </Button>
+            <div className='flex middle'>
+                {status && (
+                    <Button
+                        className='mr-xs-8 ml-xs-12'
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        onClick={() => setState({ busy: true, status: null })}
+                        outline
+                        size={Button.ENUMS.SIZE.XS}
+                        style={{ padding: '2px 4px 2px 5px', maxHeight: 20 }}
+                        type={Button.ENUMS.TYPE.BUTTON}>
+                        {status}
+                        <Icon
+                            name='Feather.X'
+                            size={14}
+                            className='ml-xs-4'
+                            style={{ marginTop: -1 }}
+                        />
+                    </Button>
+                )}
+                <Button {...buttonProps} data-dropdown-element>
+                    <Icon name='Feather.Filter' size={20} />
+                </Button>
+            </div>
         </Dropdown>
     );
 };
