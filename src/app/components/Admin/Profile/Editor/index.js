@@ -231,13 +231,7 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
 
         let userObj;
         try {
-            userObj = await Reactium.Cloud.run('user-save', value).then(
-                result => {
-                    return isMe()
-                        ? Reactium.User.current(true).fetch()
-                        : result;
-                },
-            );
+            userObj = await Reactium.Cloud.run('user-save', value);
 
             if (userObj) {
                 toastSuccess();
@@ -247,8 +241,11 @@ let Profile = ({ children, user, zone, ...props }, ref) => {
                 setState({
                     error: {},
                     status: ENUMS.STATUS.COMPLETE,
-                    value: getValue(userObj.toJSON()),
+                    value: getValue(userObj),
                 });
+
+                // Update current user object if isMe().
+                if (isMe()) Reactium.User.current(true).fetch();
             } else {
                 toastError({ message: ENUMS.TEXT.ERROR }, value);
             }

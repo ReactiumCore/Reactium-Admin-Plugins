@@ -1,0 +1,47 @@
+.admin-user-list {
+    padding-top: $height-admin-header;
+    padding-bottom: $padding-admin-content-zone;
+    padding-left: $padding-admin-content-zone;
+
+    &-row {
+        @extend .row;
+        position: relative;
+    }
+
+    &-column {
+        @extend .col-xs-12;
+        @extend .col-sm-6;
+        @extend .col-md-4;
+        @extend .col-lg-3;
+
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        position: relative;
+        height: calc(80vw - #{$padding-admin-content-zone * 2});
+        padding-right: $padding-admin-content-zone;
+        padding-top: $padding-admin-content-zone;
+
+        @include breakpoint(sm) {
+            height: calc(50vw - #{$padding-admin-content-zone * 2});
+        }
+
+        @include breakpoint(md) {
+            height: calc(33vw - #{$padding-admin-content-zone * 2});
+        }
+
+        @include breakpoint(xl) {
+            height: calc(24vw - #{$padding-admin-content-zone * 2});
+        }
+    }
+
+    &-card {
+        border-radius: 2px;
+        background-color: $color-white;
+        box-shadow: $shadow-image;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

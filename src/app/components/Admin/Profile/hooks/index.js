@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import inputs from '../inputs';
-import Reactium, { useHandle } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
 
 const getRole = user => {
@@ -31,36 +31,38 @@ const noop = () => {
  * @apiGroup ReactHook
  * @apiParam {Object} [user=Reactium.User.current] The user object. If an empty user object is supplied, the system default avatar will be used.
  */
-const useProfileAvatar = user => {
-    user = user || Reactium.User.current() || {};
 
-    // TODO: Use Settings to get this value
-    const defaultAvatar = '/assets/images/avatar.png';
+const defaultAvatar = '/assets/images/avatar.png';
 
-    const ref = useRef(op.get(user, 'avatar', defaultAvatar) || defaultAvatar);
-    const [, updateRef] = useState(ref.current);
+const useProfileAvatar = (initialUser = {}) => {
+    const getAvatar = () => op.get(user, 'avatar', defaultAvatar);
+    const [avatar, setAvatar] = useState();
+    const [user, setUser] = useState(initialUser);
 
-    const Profile = useHandle('ProfileEditor');
+    // Reactium.User.current() ||
 
-    const setState = (avatar, force) => {
-        if (avatar !== ref.current || force === true) {
-            ref.current = avatar;
-            updateRef(ref.current);
-        }
-    };
+    useAsyncEffect(
+        async mounted => {
+            if (mounted() && avatar !== getAvatar()) {
+                const context = await Reactium.Hook.run(
+                    'profile-avatar',
+                    avatar,
+                    user,
+                );
+                const newAvatar = op.get(context, 'avatar') || getAvatar();
+                setAvatar(newAvatar);
+            }
+            return () => {};
+        },
+        [user, op.get(user, 'avatar')],
+    );
 
     useEffect(() => {
-        Reactium.Hook.run('profile-avatar', ref.current, user).then(context => {
-            setState(op.get(context, 'avatar') || ref.current || defaultAvatar);
-        });
-    }, [ref.current, op.get(user, 'objectId')]);
+        if (_.isEqual(user, initialUser)) return;
+        setUser(initialUser);
+    }, [initialUser]);
 
-    useEffect(() => {
-        const avatar = op.get(user, 'avatar');
-        setState(avatar, true);
-    }, [op.get(Profile, 'updated')]);
-
-    return ref.current;
+    return avatar;
 };
 
 /**

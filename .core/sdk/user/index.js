@@ -124,7 +124,7 @@ User.register = async user => {
 };
 
 /**
- * @api {Function} User.find({userId,username,email}) User.find()
+ * @api {Asyncronous} User.find({userId,username,email}) User.find()
  * @apiDescription Asyncronously find a user.
  * @apiName User.find
  * @apiParam {String} email Search by the email field.
@@ -152,6 +152,15 @@ User.find = async ({ userId, username, email }) => {
 
     return u;
 };
+
+/**
+ * @api {Asyncronous} User.list(params) User.list()
+ * @apiDescription Asyncronously get the user list.
+ * @apiName User.list
+ * @apiGroup Reactium.User
+ * @apiParam (params) {Boolean} [refresh=false] Force the results to be fresh.
+ */
+User.list = params => Parse.Cloud.run('user-list', params);
 
 /**
  * @api {Function} User.isRole(role,userId) User.isRole()
