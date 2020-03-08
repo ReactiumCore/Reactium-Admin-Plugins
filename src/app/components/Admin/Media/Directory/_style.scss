@@ -35,7 +35,7 @@
                 flex-direction: column;
                 border-radius: 4px;
                 overflow: hidden;
-                background-color: $color-white;
+                background-color: $color-text-light;
                 position: relative;
 
                 &:hover {
@@ -80,7 +80,7 @@
                 justify-content: center;
                 align-items: center;
                 flex-grow: 1;
-                background-color: $color-black;
+                background-color: $color-text-dark;
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-size: cover;
@@ -134,7 +134,7 @@
                 height: 60px;
                 min-height: 60px;
                 flex-shrink: 0;
-                color: $color-gray-dark;
+                color: $color-text-dark;
                 font-size: 11px;
                 font-family: sans-serif;
                 line-height: 14px;

@@ -2,19 +2,19 @@ $color-activity-chart: $color-gray-dark !default;
 $color-activity-log-bg: $color-white !default;
 $activity-log-max-height: calc(100vh - 40px) !default;
 $activity-log-default-border: $color-gray !default;
-$activity-log-who-color: $color-blue !default;
+$activity-log-who-color: $color-primary !default;
 $created-color: $color-green !default;
-$revised-color: $color-red !default;
+$revised-color: $color-danger !default;
 $slug-changed-color: $color-orange !default;
 $set-revision-color: $color-orange !default;
 $set-acl-color: $color-purple !default;
-$set-status-color: $color-blue !default;
+$set-status-color: $color-primary !default;
 $published-color: $color-green !default;
-$unpublished-color: $color-red !default;
+$unpublished-color: $color-danger !default;
 $schedule-color: $color-green !default;
 $unschedule-color: $color-orange !default;
-$trashed-color: $color-red !default;
-$deleted-color: $color-red !default;
+$trashed-color: $color-danger !default;
+$deleted-color: $color-danger !default;
 $restored-color: $color-green !default;
 
 .activity-log {

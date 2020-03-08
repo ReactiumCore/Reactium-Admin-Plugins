@@ -47,7 +47,7 @@ $height-min-arp: 500px !default;
     border: none;
     border-radius: 1px;
     background-color: lighten($color-grey-light, 2.5%);
-    color: $color-gray-dark;
+    color: $color-text-dark;
     padding: 0 10px;
     display: flex;
     justify-content: flex-start;
@@ -62,7 +62,7 @@ $height-min-arp: 500px !default;
 
     span,
     input {
-        color: $color-gray-dark;
+        color: $color-text-dark;
         flex-grow: 1;
         line-height: 1;
         text-align: left;
@@ -243,7 +243,7 @@ $height-min-arp: 500px !default;
 }
 
 .formatter {
-    background-color: $color-white;
+    background-color: $color-text-light;
 }
 
 button.formatter-text-style {

@@ -25,21 +25,6 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-const Avatar = ({ user, className }) => {
-    const image = useProfileAvatar(user);
-    return (
-        <div
-            className={className}
-            style={{ backgroundImage: `url(${image})` }}
-        />
-    );
-};
-
-const Role = ({ user, className }) => {
-    const role = useProfileRole(user);
-    return <div className={className}>{role}</div>;
-};
-
 const ENUMS = {
     STATUS: {
         INIT: 'INIT',
@@ -135,7 +120,7 @@ const UserList = ({ className, id, namespace, ...props }) => {
                                 className={cx('column')}>
                                 <Link
                                     to={`/admin/user/${item.objectId}`}
-                                    className={cx('card')}>
+                                    className={cn(cx('card'), 'link')}>
                                     <Avatar
                                         user={item}
                                         className={cx('card-avatar')}
@@ -181,16 +166,45 @@ const UserList = ({ className, id, namespace, ...props }) => {
                         ))}
                     </div>
                 )}
-                {isBusy() && (
-                    <div className={cx('spinner')}>
-                        <Spinner />
-                    </div>
-                )}
+                {isBusy() && <PlaceHolder {...handle} />}
+                {isBusy() && <Spinner className={cx('spinner')} />}
             </div>
         );
     };
 
     return render();
+};
+
+const Avatar = ({ user, className }) => {
+    const image = useProfileAvatar(user);
+    return (
+        <div
+            className={className}
+            style={{ backgroundImage: `url(${image})` }}
+        />
+    );
+};
+
+const Role = ({ user, className }) => {
+    const role = useProfileRole(user);
+    return <div className={className}>{role}</div>;
+};
+
+const PlaceHolder = ({ cx }) => {
+    return (
+        <div className={cx('row')}>
+            {_.times(12, index => (
+                <div key={`placeholder-${index}`} className={cx('column')}>
+                    <div className={cx('card')}>
+                        <div className={cn(cx('card-avatar'), 'placeholder')} />
+                        <span className={cn(cx('card-title'), 'placeholder')} />
+                        <div className={cn(cx('card-role'), 'placeholder')} />
+                        <span className={cn(cx('card-email'), 'placeholder')} />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 };
 
 UserList.defaultProps = {

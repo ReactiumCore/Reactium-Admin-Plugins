@@ -1,6 +1,6 @@
 .#{$admin-content-ns} {
     &-meta {
-        background-color: $color-white;
+        background-color: $color-text-light;
         width: $width-ace-sidebar;
         min-height: calc(100vh - #{$height-admin-header});
         border-left: 1px solid $color-admin-header-border;
@@ -44,7 +44,7 @@
                 left: 0;
                 border-radius: 100%;
                 border: 1px solid darken($color-grey-light, 1%);
-                background-color: $color-blue;
+                background-color: $color-primary;
                 z-index: 0;
                 pointer-events: none;
                 transition: background-color .25s ease-in-out;
@@ -55,7 +55,7 @@
                 height: 100%;
                 padding: 0 0 0 10px;
                 z-index: 1001;
-                color: $color-white;
+                color: $color-text-light;
                 transition: color .25s ease-in-out;
 
                 svg {
@@ -65,13 +65,13 @@
 
                 &:hover,
                 &:focus {
-                    color: $color-blue;
+                    color: $color-primary;
                 }
             }
 
             button:hover + div.bg,
             button:focus + div.bg {
-                background-color: $color-white;
+                background-color: $color-text-light;
             }
         }
 
@@ -87,22 +87,22 @@
             .#{$admin-content-ns}-sidebar-toggle {
                 div.bg {
                     z-index: 0;
-                    background-color: $color-white;
+                    background-color: $color-text-light;
                 }
 
                 button {
                     z-index: 1000;
-                    color: $color-blue;
+                    color: $color-primary;
 
                     &:hover,
                     &:focus {
-                        color: $color-white;
+                        color: $color-text-light;
                     }
                 }
 
                 button:hover + div.bg,
                 button:focus + div.bg {
-                    background-color: $color-blue;
+                    background-color: $color-primary;
                 }
             }
         }
@@ -151,7 +151,7 @@
 
                 &:hover,
                 &:focus {
-                    color: $color-blue;
+                    color: $color-primary;
                 }
 
                 &:focus { box-shadow: 0 0 2px 1px rgba($color-gray, 0.25); }
@@ -171,6 +171,6 @@
 
     &-collapsible {
         box-shadow: $shadow-image;
-        background-color: $color-white;
+        background-color: $color-text-light;
     }
 }

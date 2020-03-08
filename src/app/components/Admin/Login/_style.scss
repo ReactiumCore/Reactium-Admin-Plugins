@@ -15,7 +15,7 @@
     form {
         width: 100%;
         max-width: 400px;
-        background-color: $color-white;
+        background-color: $color-text-light;
         padding: 40px;
         box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.05);
         border-radius: 4px;
@@ -40,7 +40,7 @@
             color: $color-gray;
 
             &:hover {
-                color: $color-black;
+                color: $color-text-dark;
             }
         }
     }

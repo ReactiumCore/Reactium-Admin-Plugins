@@ -1,4 +1,8 @@
-.admin-user-list {
+$admin-user-list-ns: admin-user-list;
+$color-place-holder: $color-grey-light;
+
+.#{$admin-user-list-ns} {
+    position: relative;
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
     padding-left: $padding-admin-content-zone;
@@ -36,16 +40,21 @@
     }
 
     &-spinner {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-50%);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         z-index: map-get($z-indexes, overlay);
+        pointer-events: none;
     }
 
     &-card {
         border-radius: 2px;
-        background-color: $color-white;
+        background-color: $color-text-light;
         box-shadow: $shadow-image;
         width: 100%;
         display: flex;
@@ -53,10 +62,13 @@
         justify-content: center;
         align-items: center;
         padding: 12px 24px;
+        color: $color-text-dark;
+        transition: all .25s ease-in-out;
 
-        &:hover {
+        &.link:hover {
             text-decoration: none;
-            background-color: $color-white-dark;
+            background-color: $color-primary;
+            color: $color-text-light;
         }
 
         &-avatar {
@@ -66,25 +78,48 @@
             background-repeat: no-repeat;
             border-radius: 100%;
             margin-bottom: 24px;
+
+            &.placeholder {
+                background-color: $color-place-holder;
+            }
         }
 
         &-title {
+            color: inherit;
             font-weight: 600;
             font-size: 18px;
             margin-bottom: 2px;
+
+            &.placeholder {
+                width: 100px;
+                height: 8px;
+                background-color: $color-place-holder;
+            }
         }
 
         &-role {
-            color: $color-gray;
+            color: inherit;
             font-size: 12px;
             margin-bottom: 16px;
             text-transform: capitalize;
+
+            &.placeholder {
+                width: 75px;
+                height: 8px;
+                background-color: $color-place-holder;
+            }
         }
 
         &-email {
-            color: $color-gray;
+            color: inherit;
             font-family: Helvetica, Arial, sans-serif;
             font-size: 14px;
+
+            &.placeholder {
+                width: 110px;
+                height: 8px;
+                background-color: $color-place-holder;
+            }
         }
     }
 
@@ -94,7 +129,7 @@
         position: absolute;
         top: $padding-admin-content-zone;
         width: 40px;
-        height: calc(100% - #{$padding-admin-content-zone});
+        max-height: calc(100% - #{$padding-admin-content-zone});
 
         &:empty {
             display: none;

@@ -13,7 +13,7 @@
 
     &-card {
         position: relative;
-        color: $color-black;
+        color: $color-text-dark;
         margin-right: $padding-admin-content-zone;
         margin-bottom: $padding-admin-content-zone;
         box-shadow: $shadow-image;
@@ -23,7 +23,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        background-color: $color-white;
+        background-color: $color-text-light;
         border-radius: 4px;
         padding: $padding-admin-content-zone;
 

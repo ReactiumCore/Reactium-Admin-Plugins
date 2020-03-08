@@ -36,8 +36,8 @@
             border: 1px solid darken($color-grey-light, 1.5%);
 
             &.focus {
-                border: 1px solid $color-blue;
-                box-shadow: 0 0 0 2px rgba($color-blue, 0.25);
+                border: 1px solid $color-primary;
+                box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
             }
         }
 
@@ -73,7 +73,7 @@
 
         &-meta {
             width: 100%;
-            background-color: $color-white;
+            background-color: $color-text-light;
 
             @include breakpoint(md) {
                 box-shadow: $shadow-image;

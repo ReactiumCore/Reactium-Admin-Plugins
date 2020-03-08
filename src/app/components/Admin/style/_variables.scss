@@ -1,9 +1,9 @@
 // Colors
-$color-primary: $color-blue !default;
+$color-primary: $color-primary !default;
 $color-border: #F7F7F7 !default;
 
 // Link Icon
-$fill-focus-icon-link: $color-blue !default;
+$fill-focus-icon-link: $color-primary !default;
 $stroke-focus-icon-link: $color-black !default;
 
 // Spacing
@@ -29,7 +29,7 @@ $width-sidebar-expanded: 320px !default;
 $width-sidebar-collapsed: 80px !default;
 
 // Sidebar menu
-$color-menu-item-active: $color-blue !default;
+$color-menu-item-active: $color-primary !default;
 $font-size-menu-item: 16px !default;
 $font-weight-menu-item: 500 !default;
 $width-menu-item: 50px !default;

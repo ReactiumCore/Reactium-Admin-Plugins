@@ -50,7 +50,7 @@
     &-form {
         flex-grow: 1;
         padding-top: $width-profile-avatar/2;
-        background-color: $color-white;
+        background-color: $color-text-light;
         border-radius: 24px;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
 
@@ -62,7 +62,7 @@
     &-footer {
         width: 100%;
         padding: 20px;
-        background-color: $color-white-dark;
+        background-color: $color-text-light-dark;
         border-top: 1px solid $color-grey-light;
         border-radius: 0px 0px 24px 24px;
     }
@@ -80,7 +80,7 @@
         &-image {
             width: $width-profile-avatar;
             height: $width-profile-avatar;
-            background-color: $color-white;
+            background-color: $color-text-light;
             border-radius: 100%;
             background-position: center;
             background-size: cover;
