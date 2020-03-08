@@ -1,6 +1,3 @@
-$admin-user-list-ns: admin-user-list;
-$color-place-holder: $color-grey-light;
-
 .#{$admin-user-list-ns} {
     position: relative;
     padding-top: $height-admin-header;
@@ -63,7 +60,7 @@ $color-place-holder: $color-grey-light;
         align-items: center;
         padding: 12px 24px;
         color: $color-text-dark;
-        transition: all .25s ease-in-out;
+        transition: all 0.25s ease-in-out;
 
         &.link:hover {
             text-decoration: none;

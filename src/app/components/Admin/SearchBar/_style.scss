@@ -1,4 +1,4 @@
-$border-admin-search-bar: 1px solid darken($color-grey-light, 2%);
+$border-admin-search-bar: 1px solid darken($color-grey-light, 2%) !default;
 
 .admin-search-bar {
     position: relative;

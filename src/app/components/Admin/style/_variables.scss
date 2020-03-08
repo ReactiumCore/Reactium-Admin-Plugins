@@ -34,6 +34,7 @@ $font-weight-menu-item: 500 !default;
 $width-menu-item: 50px !default;
 $height-menu-item: 60px !default;
 $height-menu-item-expanded: 40px !default;
+$admin-sidebar-ns: admin-sidebar !default;
 
 // Avatar
 $color-avatar-stroke: $color-dark !default;
@@ -49,13 +50,19 @@ $height-media-form: calc(100vh - #{$height-admin-header}) !default;
 $width-media-form: 420px !default;
 $shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05) !default;
 
-// User List
+// Content List
 $admin-content-list-height: 80px !default;
 $admin-content-list-ns: admin-content-list !default;
 
 // Content Editor
 $width-ace-sidebar: 420px !default;
 $admin-content-ns: admin-content !default;
+
+// User List
+$admin-user-list-ns: admin-user-list !default;
+
+// Placeholder 
+$color-place-holder: $color-grey-light !default;
 
 $z-indexes: (
     "popup": 20000,
