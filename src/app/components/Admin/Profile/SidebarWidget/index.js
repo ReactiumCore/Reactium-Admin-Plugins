@@ -36,7 +36,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
 
     const Profile = useHandle('ProfileEditor');
 
-    const role = useProfileRole();
+    const role = useProfileRole(Reactium.User.current());
 
     const getAvatar = useProfileAvatar(Reactium.User.current());
 

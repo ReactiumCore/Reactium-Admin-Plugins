@@ -148,35 +148,39 @@ const useProfileInputs = () => {
  * @apiGroup ReactHook
  * @apiParam {Object} [user=Reactium.User.current] The user object.
  */
-const useProfileRole = user => {
-    user = user || Reactium.User.current() || {};
+const useProfileRole = initialUser => {
+    const [role, setRole] = useState();
+    const [user, setUser] = useState(initialUser);
 
-    const ref = useRef(op.get(user, 'role'));
-    const [, updateRef] = useState(ref.current);
+    useAsyncEffect(
+        async mounted => {
+            if (role) {
+                const context = await Reactium.Hook.run(
+                    'profile-role-name',
+                    role,
+                    user,
+                );
 
-    const Profile = useHandle('ProfileEditor');
-
-    const setState = newState => {
-        if (newState !== ref.current) {
-            ref.current = newState;
-            updateRef(ref.current);
-        }
-    };
+                if (mounted()) {
+                    const newRole = op.get(context, 'role') || getRole(user);
+                    setRole(newRole);
+                }
+            }
+            return () => {};
+        },
+        [role, user, op.get(user, 'role')],
+    );
 
     useEffect(() => {
-        if (!ref.current) {
-            setState(getRole(user));
-        }
+        if (_.isEqual(user, initialUser)) return;
+        setUser(initialUser);
+    }, [initialUser]);
 
-        Reactium.Hook.run('profile-role-name', ref.current, user).then(
-            context => {
-                const { role } = context;
-                setState(role || ref.current);
-            },
-        );
-    }, [op.get(Profile, 'updated'), op.get(user, 'objectId')]);
+    useEffect(() => {
+        setRole(getRole(user));
+    }, [user]);
 
-    return ref.current;
+    return role;
 };
 
 export {
