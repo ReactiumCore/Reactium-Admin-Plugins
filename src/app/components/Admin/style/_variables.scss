@@ -1,5 +1,4 @@
 // Colors
-$color-primary: $color-primary !default;
 $color-border: #F7F7F7 !default;
 
 // Link Icon
@@ -16,13 +15,13 @@ $color-admin-bg: $color-grey-light !default;
 
 // Admin Header
 $color-admin-header: $color-gray !default;
-$color-admin-header-bg: $color-white !default;
+$color-admin-header-bg: $color-light !default;
 $color-admin-header-border: $color-grey-light !default;
 $height-admin-header: 60px !default;
 $height-admin-header-button: 30px !default;
 
 // Sidebar
-$color-sidebar-bg: $color-gray-dark !default;
+$color-sidebar-bg: $color-dark !default;
 $color-sidebar-text: $color-grey-light !default;
 $font-size-sidebar: 14px !default;
 $width-sidebar-expanded: 320px !default;
@@ -37,7 +36,7 @@ $height-menu-item: 60px !default;
 $height-menu-item-expanded: 40px !default;
 
 // Avatar
-$color-avatar-stroke: $color-gray-dark !default;
+$color-avatar-stroke: $color-dark !default;
 $color-avatar-text: $color-grey-light !default;
 
 // Profile
@@ -48,7 +47,15 @@ $width-profile-avatar-button: 30px !default;
 $width-upload-action-button: 30px !default;
 $height-media-form: calc(100vh - #{$height-admin-header}) !default;
 $width-media-form: 420px !default;
-$shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05);
+$shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05) !default;
+
+// User List
+$admin-content-list-height: 80px !default;
+$admin-content-list-ns: admin-content-list !default;
+
+// Content Editor
+$width-ace-sidebar: 420px !default;
+$admin-content-ns: admin-content !default;
 
 $z-indexes: (
     "popup": 20000,

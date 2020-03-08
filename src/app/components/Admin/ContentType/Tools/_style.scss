@@ -4,7 +4,7 @@ $size-types-tool: 45px;
     display: flex;
     flex-direction: column;
     width: $size-types-tool;
-    background: $color-white;
+    background: $color-light;
     z-index: map-get($z-indexes, actions);
     box-shadow: 0 0 2px 1px rgba($color-black, 0.05);
 

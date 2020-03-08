@@ -1,4 +1,4 @@
-$color-type-icon-picker-bg: $color-white !default;
+$color-type-icon-picker-bg: $color-light !default;
 .type-icon {
     position: relative;
     z-index: map-get($z-indexes, normal);
