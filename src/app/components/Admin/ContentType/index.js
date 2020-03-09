@@ -802,7 +802,7 @@ const ContentType = memo(
                     () =>
                         new Promise(resolve => {
                             const existing = getComponents();
-                            const fieldType = types[type];
+                            const fieldType = fieldTypes[type];
                             const region = op.get(
                                 fieldType,
                                 'defaultRegion',

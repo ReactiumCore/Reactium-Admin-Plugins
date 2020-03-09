@@ -28,7 +28,7 @@ import Pagination from './List/Pagination';
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
         'AdminContent',
-        Reactium.Enums.priority.lowest,
+        Reactium.Enums.priority.highest,
     );
 
     // Extend SDK
