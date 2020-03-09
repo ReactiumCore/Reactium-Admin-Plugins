@@ -62,10 +62,10 @@ User.reset = (token, password) =>
 
 /**
  * @api {Function} User.current(parseObject) User.current()
- * @apiDescription Retrieve the current authenticated user.
+ * @apiGroup Reactium.User
  * @apiName User.current
  * @apiSuccess {Object} user the current user
- * @apiGroup Reactium.User
+ * @apiDescription Retrieve the current authenticated user.
  * @apiParam {Boolean} [parseObject=false] By default the return value is an object. If you need the Parse.User object instead pass `true`.
  */
 User.current = (parseObject = false) => {
@@ -125,10 +125,9 @@ User.register = async user => {
 
 /**
  * @api {Asyncronous} User.list(params) User.list()
- * @apiDescription Asyncronously get the user list.
- * @apiName User.list
  * @apiGroup Reactium.User
- * @apiDescription Retrieve a list of `Parse.User` objects.
+ * @apiName User.list
+ * @apiDescription Retrieve a list of `Parse.User` objects. Calls the `user-list` cloud function.
  * @apiParam (params) {String} [role] Filter the results to the specified `Parse.Role` name.
  * @apiParam (params) {String} [search] Search using logical `or`. The query will RegExp compare to the default fields: `username`, `email`, `fname`, `lname`.
 
@@ -149,6 +148,14 @@ _Note:_ You can add or remove fields via the `user-search-fields` hook.
  * @apiParam (params) {String} [orderBy='username'] Order the results by the specified field.
  * @apiParam (params) {Number} [page=1] The page number of results to return.
  * @apiParam (params) {Number} [limit=20] The number of results to return per page.
+ * @apiParam (hooks) {Hook} before-user-list Triggered before the user-list Cloud function is called.
+```
+Arguments: params:Object
+```
+ * @apiParam (hooks) {Hook} user-list-response Triggered after the user-list Cloud function is called.
+ ```
+ Arguments: response:Object, params:Object
+ ```
  * @apiExample Usage:
 const superAdmins = await User.list({ role: 'super-admin', refresh: true });
 
@@ -163,11 +170,84 @@ User.list = async params => {
     return response;
 };
 
-User.save = params => Parse.Cloud.run('user-save', params);
+/**
+ * @api {Asyncronous} User.save(params) User.save()
+ * @apiGroup Reactium.User
+ * @apiName User.save
+ * @apiDescription Save a `Parse.User` object.
+ * @apiParam {Object} params Key value pairs to apply to the `Parse.User` object. Calls the `user-save` cloud function.
 
-User.trash = objectId => Parse.Cloud.run('user-trash', { objectId });
+_Note:_ Any additional key value pairs will be added to the user object as a new column.
 
-User.retrieve = params => Parse.Cloud.run('user-retrieve', params);
+ * @apiParam (params) {String} username The unique username used when signing in.
+ * @apiParam (params) {String} email The email address to associate with the user account.
+ * @apiParam (params) {String} password The password used when signing in.
+ * @apiParam (params) {String} [role] The `Parse.Role` name to add the user to.
+ * @apiParam (hooks) {Hook} user-before-save Mutate the `Parse.User` object before save is complete.
+
+```
+Arguments:  req:Object:Parse.User
+```
+ * @apiParam (hooks) {Hook} user-after-save Take action after the `Parse.User` object has been saved.
+```
+Arguments: req:Object:Parse.User
+```
+*/
+User.save = async params => {
+    await Hook.run('before-user-save', params);
+    const response = await Parse.Cloud.run('user-save', params);
+    await Hook.run('user-save-response', response, params);
+    return response;
+};
+
+/**
+ * @api {Asyncronous} User.trash(params) User.trash()
+ * @apiGroup Reactium.User
+ * @apiName User.trash
+ * @apiDescription Send a single `Parse.User` object to the recycle bin. Calls `user-trash` cloud function.
+ * @apiParam {Object} params Object containing parameters for deleting a user.
+ * @apiParam (params) {String} objectId The Parse.User objectId.
+ * @apiParam (hooks) {Hook} before-user-trash Triggered before the `user-trash` cloud function is run.
+```
+Arguments: user:Parse.User
+```
+ * @apiParam (hooks) {Hook} user-trash Triggered after the `user-trash` cloud function is run.
+ ```
+ Arguments: user:Parse.User
+ ```
+ */
+User.trash = async objectId => {
+    const user = await User.retrieve({ objectId });
+    await Hook.run('before-user-trash', user);
+    await Parse.Cloud.run('user-trash', { objectId });
+    await Hook.run('user-trash', user);
+    return user;
+};
+
+/**
+ * @api {Asyncronous} User.retrieve(params,options) User.retrieve()
+ * @apiGroup Reactium.User
+ * @apiName User.retrieve
+ * @apiDescription Retrieve a single `Parse.User` object. Calls the `user-retrieve` cloud function.
+ * @apiParam {Object} params Query parameters. See [User.list()](#api-Reactium.User-User.list) for more details.
+ * @apiParam (params) {String} [objectId] Retrieve by the objectId field.
+ * @apiParam (params) {String} [username] Retrieve by the username field.
+ * @apiParam (params) {String} [email] Retrieve by the email address field.
+ * @apiParam (hooks) {Hook} before-user-retrieve Triggered before the `user-retrieve` cloud function is called.
+```
+Arguments: params:Object
+```
+ * @apiParam (hooks) {Hook} user-retrieve Triggered after the `user-retrieve` cloud function is called.
+```
+Arguments: user:Object, params:Object
+```
+ */
+User.retrieve = async params => {
+    await Hook.run('before-user-retrieve', params);
+    const response = await Parse.Cloud.run('user-retrieve', params);
+    await Hook.run('user-retrieve', response, params);
+    return response;
+};
 
 /**
  * @api {Function} User.isRole(role,userId) User.isRole()

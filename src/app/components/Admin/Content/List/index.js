@@ -4,7 +4,6 @@ import ENUMS from '../enums';
 import op from 'object-path';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';

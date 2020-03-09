@@ -2,6 +2,7 @@ import { __ } from 'reactium-core/sdk';
 
 export default {
     HEADER: __('Updates'),
+    DASH_HEADER: __('Content Activity'),
     CHANGES: {
         DEFAULT: {
             general: __('Change %changetype% to %slug% made by %who%'),

@@ -19,6 +19,7 @@ const ChangeItem = props => {
         op.get(Reactium.Cache.get('acl-targets'), 'users'),
         'objectId',
     );
+
     const cx = Reactium.Utils.cxFactory('activity-list');
     const getDescriptionParts = (who, changeType, meta) => {
         const parts = Reactium.Utils.splitParts(
@@ -107,12 +108,13 @@ const ActivityUpdates = props => {
         className,
         autoHeight,
         autoHeightMin,
+        header,
     } = props;
     log = _.sortBy(log, 'updatedAt').reverse();
 
     return (
         <div className={cn('activity-log-updates', className)}>
-            <h2 className='activity-list-header h6'>{ENUMS.HEADER}</h2>
+            <h2 className='activity-list-header h6'>{header}</h2>
             <Scrollbars autoHeight={autoHeight} autoHeightMin={autoHeightMin}>
                 <ul className='activity-list'>
                     {log.map(item => (
@@ -129,7 +131,8 @@ const ActivityUpdates = props => {
 };
 ActivityUpdates.defaultProps = {
     log: [],
-    scope: 'general',
+    header: ENUMS.HEADER,
+    scope: 'specific',
     autoHeight: true,
     autoHeightMin: 'calc(100vh - 100px)',
     className: 'col-xs-12 col-md-4 col-lg-2',

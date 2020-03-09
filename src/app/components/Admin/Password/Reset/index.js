@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
-import { Helmet } from 'react-helmet';
 import { useSelect } from 'reactium-core/sdk';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
@@ -15,6 +14,8 @@ import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
  * -----------------------------------------------------------------------------
  */
 let Reset = props => {
+    const Helmet = useHookComponent('Helmet');
+
     const Logo = useHookComponent('Logo');
 
     const token = useSelect({

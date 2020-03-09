@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
-import { Helmet } from 'react-helmet';
 import React, { useEffect } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
 import useMediaObject from './_utils/useMediaObject';

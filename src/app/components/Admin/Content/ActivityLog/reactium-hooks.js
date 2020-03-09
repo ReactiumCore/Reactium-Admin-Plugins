@@ -4,6 +4,7 @@ import domain from './domain';
 import op from 'object-path';
 import _ from 'underscore';
 import ENUMS from './enums';
+import DashboardWidget from './DashboardWidget';
 
 const subscriptions = {};
 const registerPlugin = async () => {
@@ -14,6 +15,7 @@ const registerPlugin = async () => {
 
     await Reactium.Hook.run('activity-log-enums', ENUMS);
 
+    // Subscribe to Content Editor Form load
     Reactium.Hook.register(
         'form-editor-status',
         async (statusEvt, type, handle) => {
@@ -65,6 +67,24 @@ const registerPlugin = async () => {
                 }
             } catch (error) {
                 console.log({ error });
+            }
+        },
+    );
+
+    const dashId = 'DASHBOARD_ACTIVITY_LOG';
+
+    Reactium.Dashboard.register(dashId, {
+        component: DashboardWidget,
+    });
+
+    Reactium.Hook.register(
+        'dashboard-data-load',
+        async (getStateById, setState) => {
+            try {
+                const { results = [] } = await Reactium.Content.changelog();
+                setState(dashId, results);
+            } catch (error) {
+                console.log('Error loading dashboard activity log', error);
             }
         },
     );

@@ -1,5 +1,6 @@
-import Reactium from 'reactium-core/sdk';
-import Helmet from 'react-helmet';
+import React from 'react';
+import Reactium, { __ } from 'reactium-core/sdk';
+import ReactHelmet from 'react-helmet';
 import Blueprint from './index';
 import actions from './actions';
 import op from 'object-path';
@@ -25,7 +26,33 @@ const defaultBlueprint = {
     description: 'Default blueprint',
 };
 
-Reactium.Component.register('Helmet', Helmet);
+// Implement `helmet-props` hook with priority order than highest
+// in your plugin to override these values
+Reactium.Hook.register(
+    'helmet-props',
+    async context => {
+        context.props = {
+            titleTemplate: __('%s - Reactium CMS'),
+        };
+    },
+    Reactium.Enums.priority.highest,
+);
+
+Reactium.Hook.register(
+    'plugin-init',
+    async () => {
+        const context = await Reactium.Hook.run('helmet-props');
+
+        const helmetProps = op.get(context, 'props', {});
+        const Helmet = props => {
+            const { children = null } = props;
+            return <ReactHelmet {...helmetProps}>{children}</ReactHelmet>;
+        };
+
+        Reactium.Component.register('Helmet', Helmet);
+    },
+    Reactium.Enums.priority.lowest,
+);
 
 /**
  * @api {Hook} default-blueprint default-blueprint

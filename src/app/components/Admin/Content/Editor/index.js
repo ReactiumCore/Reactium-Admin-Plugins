@@ -4,7 +4,6 @@ import cn from 'classnames';
 import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from '../_utils/useProperCase';
 import useRouteParams from '../_utils/useRouteParams';
@@ -102,7 +101,7 @@ let ContentEditor = (
     const sidebarRef = useRef();
     const ignoreChangeEvent = useRef(true);
     const loadingStatus = useRef(false);
-
+    const Helmet = useHookComponent('Helmet');
     const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');

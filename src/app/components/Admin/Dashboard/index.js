@@ -1,18 +1,17 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import deps from 'dependencies';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { __, useHandle, useStore } from 'reactium-core/sdk';
+import domain from './domain';
 
-import React, {
-    forwardRef,
-    useImperativeHandle,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import Reactium, {
+    __,
+    Zone,
+    useHookComponent,
+    useReduxState,
+} from 'reactium-core/sdk';
+
+import React, { useEffect, useRef, useState } from 'react';
 
 const ENUMS = {
     TEXT: {
@@ -25,77 +24,35 @@ const ENUMS = {
  * Hook Component: Dashboard
  * -----------------------------------------------------------------------------
  */
-let Dashboard = ({ children, ...props }, ref) => {
-    // Refs
-    const containerRef = useRef();
-    const stateRef = useRef({
-        ...props,
-    });
+let Dashboard = props => {
+    const { title, namespace } = props;
+    const Helmet = useHookComponent('Helmet');
+    const cx = Reactium.Utils.cxFactory(namespace);
+    const [data, setData] = useReduxState(domain.name);
 
-    // State
-    const [, setNewState] = useState(stateRef.current);
+    return (
+        <div className={cx()}>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+            {Reactium.Dashboard.list.map(({ id, component: Component }) => (
+                <Component
+                    key={id}
+                    id={id}
+                    cx={cx}
+                    data={data}
+                    setData={setData}
+                />
+            ))}
 
-    // Internal Interface
-    const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
-    };
-
-    const cx = () => {
-        const { className, namespace } = stateRef.current;
-        return cn({ [className]: !!className, [namespace]: !!namespace });
-    };
-
-    // Side Effects
-    useEffect(() => setState(props), Object.values(props));
-
-    // Renderer
-    const render = () => {
-        const { title } = stateRef.current;
-
-        return (
-            <>
-                <Helmet>
-                    <title>{title}</title>
-                </Helmet>
-                <div ref={containerRef} className={cx()}>
-                    {title}
-                </div>
-            </>
-        );
-    };
-
-    // External Interface
-    useImperativeHandle(ref, () => ({
-        container: containerRef.current,
-        ref,
-        setState,
-        state: stateRef.current,
-    }));
-
-    // Render
-    return render();
-};
-
-Dashboard = forwardRef(Dashboard);
-
-Dashboard.ENUMS = ENUMS;
-
-Dashboard.propTypes = {
-    className: PropTypes.string,
-    namespace: PropTypes.string,
-    title: PropTypes.string,
+            <Zone zone={namespace} cx={cx} data={data} setData={setData} />
+        </div>
+    );
 };
 
 Dashboard.defaultProps = {
     namespace: 'admin-dashboard',
-    title: ENUMS.TEXT.TITLE,
+    title: __('Dashboard'),
 };
 
 export { Dashboard as default };

@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
-import { Helmet } from 'react-helmet';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';
@@ -14,6 +13,8 @@ import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
  * -----------------------------------------------------------------------------
  */
 let Forgot = props => {
+    const Helmet = useHookComponent('Helmet');
+
     const Logo = useHookComponent('Logo');
 
     // Refs

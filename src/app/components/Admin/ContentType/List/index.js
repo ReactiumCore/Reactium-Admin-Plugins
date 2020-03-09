@@ -4,7 +4,6 @@ import ENUMS from '../enums';
 import op from 'object-path';
 import IconImg from './IconImg';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import useProperCase from 'components/Admin/Content/_utils/useProperCase';
@@ -25,6 +24,7 @@ import Reactium, {
     useHandle,
     useRegisterHandle,
     useSelect,
+    useHookComponent,
     Zone,
 } from 'reactium-core/sdk';
 
@@ -39,6 +39,7 @@ const Card = ({ handle, Ico, label, id }) => (
 );
 
 let ContentTypeList = ({ className, namespace, ...props }, ref) => {
+    const Helmet = useHookComponent('Helmet');
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
     const SearchBar = useHandle('SearchBar');
 

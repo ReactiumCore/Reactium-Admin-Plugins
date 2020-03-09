@@ -1,7 +1,6 @@
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
-import { Helmet } from 'react-helmet';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Spinner, WebForm } from '@atomic-reactor/reactium-ui';
@@ -13,6 +12,8 @@ import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
  * -----------------------------------------------------------------------------
  */
 const Login = ({ className, forgot, redirect, signup, ...props }) => {
+    const Helmet = useHookComponent('Helmet');
+
     const Logo = useHookComponent('Logo');
 
     const tools = useHandle('AdminTools');
