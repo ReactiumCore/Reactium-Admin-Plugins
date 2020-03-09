@@ -1,3 +1,17 @@
+// THEME
+$color-danger: #E09797 !default;
+$color-primary: #4F82BA !default;
+$color-secondary: #000000 !default;
+$color-tertiary: #999999 !default;
+$color-light: #FFFFFF !default;
+$color-dark: #333333 !default;
+
+$color-text-light: #FFFFFF !default;
+$color-text-light-dark: #FDFDFD !default;
+$color-text-dark: #000000 !default;
+$color-text-dark-light: #222222 !default;
+
+
 // Colors
 $color-border: #F7F7F7 !default;
 
@@ -61,7 +75,7 @@ $admin-content-ns: admin-content !default;
 // User List
 $admin-user-list-ns: admin-user-list !default;
 
-// Placeholder 
+// Placeholder
 $color-place-holder: $color-grey-light !default;
 
 $z-indexes: (

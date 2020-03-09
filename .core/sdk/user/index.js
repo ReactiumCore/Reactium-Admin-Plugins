@@ -85,7 +85,7 @@ User.getSessionToken = () => {
 };
 
 /**
- * @api {Function} hasValidSession() hasValidSession()
+ * @api {Function} User.hasValidSession() User.hasValidSession()
  * @apiDescription Check to make sure the current user and associated session are valid.
  * @apiName User.hasValidSession
  * @apiGroup Reactium.User
@@ -106,51 +106,21 @@ User.hasValidSession = async () => {
 };
 
 /**
- * @api {Function} User.register({...params}) User.register()
+ * @api {Function} User.register(params) User.register()
  * @apiDescription Asyncronously create a new user.
  * @apiName User.register
- * @apiParam {String} username Unique username used when authenticating.
- * @apiParam {String} password Password used when authenticating.
- * @apiParam {String} confirm Password confirmation.
- * @apiParam {String} email Email address used when resetting password and for system messaging.
+ * @apiParam (params) {String} username Unique username used when authenticating.
+ * @apiParam (params) {String} password Password used when authenticating.
+ * @apiParam (params) {String} confirm Password confirmation.
+ * @apiParam (params) {String} email Email address used when resetting password and for system messaging.
  * @apiSuccess {Promise} user The new user object.
  * @apiGroup Reactium.User
  */
 User.register = async user => {
     await Hook.run('user.before.register', user);
-    const newUser = await Parse.Cloud.run('user-save', user);
-    await Hook.run('user.after.register', newUser);
-    return newUser;
-};
-
-/**
- * @api {Asyncronous} User.find({userId,username,email}) User.find()
- * @apiDescription Asyncronously find a user.
- * @apiName User.find
- * @apiParam {String} email Search by the email field.
- * @apiParam {String} userId Search by the objectId field.
- * @apiParam {String} username Search by the username field.
- * @apiSuccess {Promise} user The new user object.
- * @apiGroup Reactium.User
- */
-User.find = async ({ userId, username, email }) => {
-    const current = User.current() || {};
-
-    const u = await Parse.Cloud.run('user-find', {
-        objectId: userId,
-        username,
-        email,
-    });
-
-    if (op.get(u, 'objectId') === op.get(current, 'objectId')) {
-        await Parse.User.current().fetch();
-    }
-
-    if (u) {
-        await Hook.run('user.find', u);
-    }
-
-    return u;
+    let response = await Parse.Cloud.run('user-save', user);
+    await Hook.run('user.after.register', response);
+    return response;
 };
 
 /**
@@ -158,9 +128,46 @@ User.find = async ({ userId, username, email }) => {
  * @apiDescription Asyncronously get the user list.
  * @apiName User.list
  * @apiGroup Reactium.User
- * @apiParam (params) {Boolean} [refresh=false] Force the results to be fresh.
+ * @apiDescription Retrieve a list of `Parse.User` objects.
+ * @apiParam (params) {String} [role] Filter the results to the specified `Parse.Role` name.
+ * @apiParam (params) {String} [search] Search using logical `or`. The query will RegExp compare to the default fields: `username`, `email`, `fname`, `lname`.
+
+_Note:_ You can add or remove fields via the `user-search-fields` hook.
+ * @apiParam (params) {Mixed} [objectId] `{String|Array}` Search for a specific objectId or array of objectIds.
+
+ _Note:_ If `search` is specified, this value is ignored.
+ * @apiParam (params) {Mixed} [email] `{String|Array}` Search for a specific email address or array of email addresses.
+
+ _Note:_ If `search` is specified, this value is ignored.
+ * @apiParam (params) {Mixed} [username] `{String|Array}` Search for a specific username or array of usernames.
+
+ _Note:_ If `search` is specified, this value is ignored.
+ * @apiParam (params) {Boolean} [optimize=false] If the count of the results is less than or equal to 1000, all objects will be returned. The page number will be set to 1 and the number of pages will also be 1.
+ * @apiParam (params) {Boolean} [refresh=false] By default the results are cached for 90 seconds. You can flush the cache with this parameter.
+ * @apiParam (params) {String} [indexBy] Index the results by the specified field and return them as an Object.
+ * @apiParam (params) {String} [order] Order the results `ascending` or `descending`.
+ * @apiParam (params) {String} [orderBy='username'] Order the results by the specified field.
+ * @apiParam (params) {Number} [page=1] The page number of results to return.
+ * @apiParam (params) {Number} [limit=20] The number of results to return per page.
+ * @apiExample Usage:
+const superAdmins = await User.list({ role: 'super-admin', refresh: true });
+
+const user = await User.list({ objectId: 'tlakQ34VOI' });
+
+const search = await User.list({ search: 'jeff' });
  */
-User.list = params => Parse.Cloud.run('user-list', params);
+User.list = async params => {
+    await Hook.run('before-user-list', params);
+    let response = await Parse.Cloud.run('user-list', params);
+    await Hook.run('user-list-response', response, params);
+    return response;
+};
+
+User.save = params => Parse.Cloud.run('user-save', params);
+
+User.trash = objectId => Parse.Cloud.run('user-trash', { objectId });
+
+User.retrieve = params => Parse.Cloud.run('user-retrieve', params);
 
 /**
  * @api {Function} User.isRole(role,userId) User.isRole()

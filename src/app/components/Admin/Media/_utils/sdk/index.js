@@ -399,4 +399,4 @@ class Media {
     }
 }
 
-export default new Media();
+export default Media;

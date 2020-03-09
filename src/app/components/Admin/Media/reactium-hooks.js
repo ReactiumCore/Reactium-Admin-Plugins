@@ -14,7 +14,7 @@ Reactium.Plugin.register(domain.name).then(() => {
     Reactium['File'] = op.get(Reactium, 'File', Parse.File);
 
     // Create Reactium.Media SDK
-    Reactium[domain.name] = op.get(Reactium, domain.name, MediaSdk);
+    Reactium[domain.name] = op.get(Reactium, domain.name, new MediaSdk());
 
     // Register components
     Reactium.Zone.addComponent({
