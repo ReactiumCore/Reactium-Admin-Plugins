@@ -79,6 +79,8 @@ const Blueprint = () => {
         }, {});
     };
 
+    console.log({ blueprint });
+
     // Renderer
     const render = () => (
         <main
