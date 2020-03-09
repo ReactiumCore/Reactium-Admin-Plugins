@@ -163,8 +163,6 @@ User.list = async params => {
     return response;
 };
 
-/**
-
 User.save = params => Parse.Cloud.run('user-save', params);
 
 User.trash = objectId => Parse.Cloud.run('user-trash', { objectId });
