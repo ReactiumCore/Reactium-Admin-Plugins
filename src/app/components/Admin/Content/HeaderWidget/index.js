@@ -1,6 +1,6 @@
 import op from 'object-path';
 import ENUMS from 'components/Admin/Content/enums';
-import useRouteParams from '../_utils/useRouteParams';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useCallback, useEffect, useState } from 'react';
 

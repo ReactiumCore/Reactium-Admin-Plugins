@@ -5,8 +5,8 @@ import op from 'object-path';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
-import useProperCase from '../_utils/useProperCase';
-import useRouteParams from '../_utils/useRouteParams';
+import useProperCase from 'components/Admin/Tools/useProperCase';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 import { Button, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 

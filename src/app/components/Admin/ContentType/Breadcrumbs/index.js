@@ -4,7 +4,7 @@ import op from 'object-path';
 import React, { useState, useEffect } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
-import useRouteParams from 'components/Admin/Content/_utils/useRouteParams';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 export default () => {
     const { id, path } = useRouteParams(['id']);

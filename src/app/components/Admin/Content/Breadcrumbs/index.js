@@ -3,7 +3,7 @@ import op from 'object-path';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import ENUMS from 'components/Admin/Content/enums';
-import useRouteParams from '../_utils/useRouteParams';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
 
