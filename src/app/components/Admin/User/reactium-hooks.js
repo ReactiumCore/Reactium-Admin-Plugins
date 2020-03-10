@@ -1,8 +1,9 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import UserList, { EmailWidget, ListWidgets } from './List';
-import SidebarWidget from './SidebarWidget';
+import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
+import SidebarWidget from './SidebarWidget';
+import UserList, { EmailWidget, ListWidgets } from './List';
 
 Reactium.Plugin.register(
     'AdminUsers',
@@ -20,6 +21,13 @@ Reactium.Plugin.register(
         component: SidebarWidget,
         order: 500,
         zone: ['admin-sidebar-menu'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USERS-BREADCRUMBS-WIDGET',
+        component: Breadcrumbs,
+        order: 1,
+        zone: ['admin-header'],
     });
 
     Reactium.Zone.addComponent({

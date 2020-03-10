@@ -7,32 +7,46 @@
     &-row {
         @extend .row;
         position: relative;
+        justify-content: center;
+
+        @include breakpoint(xl) {
+            justify-content: flex-start;
+        }
     }
 
     &-column {
-        @extend .col-xs-12;
-        @extend .col-sm-6;
-        @extend .col-md-4;
-        @extend .col-lg-3;
-
         display: flex;
         justify-content: center;
         align-items: stretch;
+        flex-shrink: 0;
         position: relative;
-        height: calc(80vw - #{$padding-admin-content-zone * 2});
+        width: 100%;
+        height: 380px;
         padding-right: $padding-admin-content-zone;
         padding-top: $padding-admin-content-zone;
+        color: $color-text-dark;
+
+        &.current {
+            order: -1;
+        }
+
+        &:hover {
+            .#{$admin-user-list-ns}-item-actions-left,
+            .#{$admin-user-list-ns}-item-actions-right {
+                svg {
+                    fill: $color-text-light;
+                }
+
+                &:hover {
+                    svg {
+                        fill: $color-primary;
+                    }
+                }
+            }
+        }
 
         @include breakpoint(sm) {
-            height: calc(50vw - #{$padding-admin-content-zone * 2});
-        }
-
-        @include breakpoint(md) {
-            height: calc(33vw - #{$padding-admin-content-zone * 2});
-        }
-
-        @include breakpoint(xl) {
-            height: calc(24vw - #{$padding-admin-content-zone * 2});
+            width: 320px;
         }
     }
 
@@ -59,7 +73,7 @@
         justify-content: center;
         align-items: center;
         padding: 12px 24px;
-        color: $color-text-dark;
+        color: inherit;
         transition: all 0.25s ease-in-out;
 
         &.link:hover {
@@ -127,6 +141,7 @@
         top: $padding-admin-content-zone;
         width: 40px;
         max-height: calc(100% - #{$padding-admin-content-zone});
+        color: inherit;
 
         &:empty {
             display: none;

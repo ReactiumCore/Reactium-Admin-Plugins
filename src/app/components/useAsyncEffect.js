@@ -1,4 +1,5 @@
 import op from 'object-path';
+import uuid from 'uuid/v4';
 import React, { useState, useEffect } from 'react';
 
 class AsyncUpdate {
@@ -54,17 +55,36 @@ const MyComponent = props => {
 * @apiExample StandAlone Import
 import { useAsyncEffect } from '@atomic-reactor/reactium-sdk-core';
  */
+// export const useAsyncEffect = (cb, deps) => {
+//     const updater = new AsyncUpdate();
+//
+//     const doEffect = async () => {
+//         return cb(updater.isMounted);
+//     }
+//
+//     useEffect(() => {
+//         updater.mounted = true;
+//         const effectPromise = doEffect();
+//
+//         return () => {
+//             updater.mounted = false;
+//             effectPromise.then(unmountCB => {
+//                 if (typeof unmountCB === 'function') {
+//                     unmountCB();
+//                 }
+//             });
+//         };
+//     }, deps);
+//
+// };
 export const useAsyncEffect = (cb, deps) => {
-    const updater = new AsyncUpdate();
-
-    const doEffect = async () => {
+    const doEffect = async updater => {
         return cb(updater.isMounted);
     };
-
     useEffect(() => {
+        const updater = new AsyncUpdate();
         updater.mounted = true;
-        const effectPromise = doEffect();
-
+        const effectPromise = doEffect(updater);
         return () => {
             updater.mounted = false;
             effectPromise.then(unmountCB => {

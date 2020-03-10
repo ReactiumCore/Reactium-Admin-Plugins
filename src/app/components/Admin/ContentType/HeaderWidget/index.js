@@ -1,6 +1,6 @@
 import React from 'react';
 import ENUMS from '../enums';
-import useRouteParams from 'components/Admin/Content/_utils/useRouteParams';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 export default () => {

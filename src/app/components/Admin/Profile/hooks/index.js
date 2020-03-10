@@ -1,8 +1,10 @@
 import _ from 'underscore';
 import op from 'object-path';
 import inputs from '../inputs';
-import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
+import Reactium, { useHandle } from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
+
+import { useAsyncEffect } from 'components/useAsyncEffect';
 
 const getRole = user => {
     const roles = Object.entries(op.get(user, 'roles', {})).map(
@@ -155,13 +157,12 @@ const useProfileRole = initialUser => {
     useAsyncEffect(
         async mounted => {
             if (role) {
-                const context = await Reactium.Hook.run(
-                    'profile-role-name',
-                    role,
-                    user,
-                );
-
                 if (mounted()) {
+                    const context = await Reactium.Hook.run(
+                        'profile-role-name',
+                        role,
+                        user,
+                    );
                     const newRole = op.get(context, 'role') || getRole(user);
                     setRole(newRole);
                 }

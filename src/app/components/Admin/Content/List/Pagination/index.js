@@ -3,8 +3,7 @@ import op from 'object-path';
 import uuid from 'uuid/v4';
 import React, { useEffect, useState } from 'react';
 import { Dropdown, Pagination } from '@atomic-reactor/reactium-ui';
-
-import useRouteParams from '../../_utils/useRouteParams';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 import Reactium, {
     useDerivedState,
