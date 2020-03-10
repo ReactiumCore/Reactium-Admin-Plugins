@@ -2,54 +2,73 @@ import { __ } from 'reactium-core/sdk';
 
 export default {
     HEADER: __('Updates'),
+    DASH_HEADER: __('Content Activity'),
     CHANGES: {
         DEFAULT: {
-            description: __('Change %changetype% made by %who%'),
+            general: __('Change %changetype% to %slug% made by %who%'),
+            specific: __('Change %changetype% made by %who%'),
         },
         CREATED: {
-            description: __('Created by %who%'),
+            general: __('%type% %slug% created by %who%'),
+            specific: __('Created by %who%'),
         },
         REVISED: {
-            description: __('Revised by %who%. Version %version%'),
+            general: __('%type% %slug% revised by %who%. Version %version%'),
+            specific: __('Revised by %who%. Version %version%'),
         },
         SLUG_CHANGED: {
-            description: __('Slug changed to %slug% by %who%'),
+            general: __(
+                '%type% %originalSlug% slug changed to %slug% by %who%',
+            ),
+            specific: __('Slug changed to %slug% by %who%'),
         },
         SET_REVISION: {
-            description: __('Set to version %version% by %who%'),
+            general: __('%type% %slug% set to version %version% by %who%'),
+            specific: __('Set to version %version% by %who%'),
         },
         SET_ACL: {
-            description: __('%who% set permissions'),
+            general: __('%who% set permissions on %type% %slug%'),
+            specific: __('%who% set permissions'),
         },
         SET_STATUS: {
-            description: __('%who% set status to %status%'),
+            general: __('%who% set status to %status% on %type% %slug%'),
+            specific: __('%who% set status to %status%'),
         },
         PUBLISHED: {
-            description: __('Published by %who%'),
+            general: __('%type% %slug% published by %who%'),
+            specific: __('Published by %who%'),
         },
         UNPUBLISHED: {
-            description: __('Published by %who%'),
+            general: __('%type% %slug% unpublished by %who%'),
+            specific: __('Unpublished by %who%'),
         },
         SCHEDULE: {
-            description: __('Scheduled by %who%'),
+            general: __('%type% %slug% scheduled by %who%'),
+            specific: __('Scheduled by %who%'),
         },
         UNSCHEDULE: {
-            description: __('Unschedule by %who%'),
+            general: __('%type% %slug% unschedule by %who%'),
+            specific: __('Unschedule by %who%'),
         },
         SCHEDULED_PUBLISH: {
-            description: __('Scheduled publish by %who%'),
+            general: __('Scheduled publish of %type% %slug% by %who%'),
+            specific: __('Scheduled publish by %who%'),
         },
-        SCHEDULED_UNPUBLISH: {
-            description: __('Scheduled unpublish by %who%'),
+        SCHEDULED_UNPUBPLISH: {
+            general: __('Scheduled unpublish of %type% %slug% by %who%'),
+            specific: __('Scheduled unpublish by %who%'),
         },
         TRASHED: {
-            description: __('Trashed by %who%'),
+            general: __('%type% %slug% trashed by %who%'),
+            specific: __('Trashed by %who%'),
         },
         DELETED: {
-            description: __('Deleted by %who%'),
+            general: __('%type% %slug% deleted by %who%'),
+            specific: __('Deleted by %who%'),
         },
         RESTORED: {
-            description: __('Restored by %who%'),
+            general: __('%type% %slug% restored by %who%'),
+            specific: __('Restored by %who%'),
         },
     },
 };

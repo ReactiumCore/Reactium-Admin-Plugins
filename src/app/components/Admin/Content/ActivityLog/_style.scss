@@ -181,3 +181,13 @@ $restored-color: $color-green !default;
         }
     }
 }
+
+.admin-dashboard {
+    &-activity-updates {
+        width: 400px;
+        height: 600px;
+        margin: 20px;
+        background: $color-white;
+        border-radius: 20px;
+    }
+}

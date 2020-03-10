@@ -14,6 +14,7 @@ const registerPlugin = async () => {
 
     await Reactium.Hook.run('activity-log-enums', ENUMS);
 
+    // Subscribe to Content Editor Form load
     Reactium.Hook.register(
         'form-editor-status',
         async (statusEvt, type, handle) => {

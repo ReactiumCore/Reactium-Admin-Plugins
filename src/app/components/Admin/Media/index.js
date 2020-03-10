@@ -6,7 +6,6 @@ import op from 'object-path';
 import domain from './domain';
 import Toolbar from './Toolbar';
 import Directory from './Directory';
-import { Helmet } from 'react-helmet';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -38,6 +37,8 @@ const useLayoutEffect =
  * -----------------------------------------------------------------------------
  */
 let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
+    const Helmet = useHookComponent('Helmet');
+
     const Uploads = useHookComponent('MediaUploads');
 
     const [state, setState] = useReduxState(domain.name);
