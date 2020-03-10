@@ -29,7 +29,7 @@ const Scheduler = props => {
     const aclTargets = Reactium.Cache.get('acl-targets') || {};
     const users = _.indexBy(aclTargets.users, 'objectId');
     const { editor, config } = props;
-    const branches = Object.keys(op.get(editor.value, 'branches'));
+    const branches = op.get(editor.value, 'branches');
     const [publish, setPublish] = useState({
         schedule: op.get(editor.value, 'publish', {}),
         branch: op.get(editor.value, 'history.branch', 'master'),
@@ -234,10 +234,12 @@ const Scheduler = props => {
                 <div className='content-scheduler-controls'>
                     <Dropdown
                         className='branch-dropdown'
-                        data={branches.map(branch => ({
-                            label: branch,
-                            value: branch,
-                        }))}
+                        data={Object.entries(branches).map(
+                            ([branchId, value]) => ({
+                                label: op.get(value, 'label', branchId),
+                                value: branchId,
+                            }),
+                        )}
                         maxHeight={160}
                         selection={[publish.branch]}
                         onChange={({ selection }) => setBranch(selection)}>
@@ -246,7 +248,13 @@ const Scheduler = props => {
                             color={Button.ENUMS.COLOR.TERTIARY}
                             data-dropdown-element>
                             <div className={'branch-dropdown-label'}>
-                                <span>{publish.branch}</span>
+                                <span>
+                                    {op.get(
+                                        branches,
+                                        [publish.branch, 'label'],
+                                        publish.branch,
+                                    )}
+                                </span>
                                 <Icon name='Feather.ChevronDown' />
                             </div>
                         </Button>
