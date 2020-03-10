@@ -4,6 +4,7 @@ import op from 'object-path';
 import React, { useState } from 'react';
 import { useHandle } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Revisions from '../index';
 
 export default ({ editor }) => {
     const tools = useHandle('AdminTools');
@@ -14,14 +15,10 @@ export default ({ editor }) => {
 
     const show = () => {
         Modal.show(
-            <img
-                src='https://cdn.reactium.io/activity-comp.png'
-                style={{
-                    width: '100vw',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                }}
+            <Revisions
+                startingContent={editor.value}
+                onClose={() => Modal.hide()}
+                editor={editor}
             />,
         );
     };

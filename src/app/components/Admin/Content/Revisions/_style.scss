@@ -1,0 +1,32 @@
+$revision-manager-bg-color: $color-white !default;
+$close-button-focus-outline: $color-dark !default;
+
+.revision-manager {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: $revision-manager-bg-color;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: map-get($z-indexes, overlay);
+
+    &-close {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        &:focus {
+            outline: 1px solid $close-button-focus-outline;
+        }
+    }
+}
