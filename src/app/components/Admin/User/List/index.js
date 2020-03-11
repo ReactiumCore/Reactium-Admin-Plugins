@@ -213,6 +213,13 @@ const UserList = ({
         setHandle(newHandle);
     }, [Object.values(state), containerRef.current]);
 
+    // Update route on state.page changed
+    useEffect(() => {
+        if (state.page !== op.get(urlParams, 'page')) {
+            Reactium.Routing.history.push(`/admin/users/page/${state.page}`);
+        }
+    }, [state.page]);
+
     // Initialize
     useEffect(initialize, [state.page]);
 

@@ -24,10 +24,7 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
     const { state = {} } = list;
     const { page, pages } = state;
 
-    const nav = p => {
-        list.setState({ page: p });
-        Reactium.Routing.history.push(`/admin/users/page/${p}`);
-    };
+    const nav = p => list.setState({ page: p });
 
     const onChange = (e, p) => nav(p);
 
