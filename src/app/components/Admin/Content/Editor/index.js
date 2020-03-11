@@ -259,7 +259,7 @@ let ContentEditor = (
         loadingStatus.current = Date.now();
 
         if (isNew()) {
-            await dispatch('load', { content }, onLoad);
+            await dispatch('load', { value: null }, onLoad);
             return Promise.resolve({});
         }
 
