@@ -65,6 +65,7 @@ const UserList = ({
         role: undefined,
         roleLabel: undefined,
         search,
+        order: 'ascending',
         status: ENUMS.STATUS.INIT,
         users: undefined,
     });
@@ -145,7 +146,7 @@ const UserList = ({
 
     const onInitialize = () => {
         if (state.status === ENUMS.STATUS.INIT) {
-            getData({ page: state.page });
+            getData({ page: state.page, order: state.order });
         }
 
         return () => {};
@@ -175,14 +176,14 @@ const UserList = ({
         }
     }, [search]);
 
-    // Fetch users on search, page, & role change
+    // Fetch users on search, page, role, order change
     useAsyncEffect(
         async mounted => {
             if (isBusy()) return;
 
             const oldFetchParams = {};
             const newFetchParams = {};
-            const fields = ['page', 'role', 'search'];
+            const fields = ['page', 'role', 'search', 'order'];
 
             fields.forEach(fld => {
                 let curr = op.get(state, fld);

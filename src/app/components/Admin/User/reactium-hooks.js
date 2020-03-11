@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import Order from './List/Order';
 import Filters from './List/Filters';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
@@ -55,8 +56,15 @@ Reactium.Plugin.register(
     });
 
     Reactium.Zone.addComponent({
-        id: 'ADMIN-USER-LIST-TOOLBAR',
+        id: 'ADMIN-USER-LIST-FILTER',
         component: Filters,
+        order: Reactium.Enums.priority.lowest + 1,
+        zone: ['admin-user-list-toolbar'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-LIST-ORDER',
+        component: Order,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-user-list-toolbar'],
     });

@@ -28,9 +28,9 @@
         padding-top: $padding-admin-content-zone;
         color: $color-text-dark;
 
-        &.current {
-            order: -1;
-        }
+        // &.current {
+        //     order: -1;
+        // }
 
         &:hover {
             .#{$admin-user-list-ns}-item-actions-left,
