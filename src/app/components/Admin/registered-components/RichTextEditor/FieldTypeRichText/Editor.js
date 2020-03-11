@@ -43,8 +43,11 @@ export default ({ editor, ...props }) => {
 
     const onEditorChange = _.throttle(_onEditorChange, 500, { leading: false });
 
-    const reload = () => {
-        const newValue = op.get(editor, ['value', name], defaultValue);
+    const reload = e => {
+        let currentEditor = e ? e.target : editor;
+        console.log({ currentEditor });
+
+        const newValue = op.get(currentEditor, ['value', name], defaultValue);
         editorRef.current.setValue(newValue);
         setPreviousSlug(slug);
         setValue(newValue);
@@ -63,7 +66,7 @@ export default ({ editor, ...props }) => {
         return () => {
             editor.removeEventListener('load', reload);
         };
-    }, [editor]);
+    });
 
     const render = () => {
         return (
