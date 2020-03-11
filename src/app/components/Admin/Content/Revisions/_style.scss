@@ -71,6 +71,9 @@ $close-button-focus-outline: $color-dark !default;
         &-options {
             &-item {
                 margin-bottom: 20px;
+                button {
+                    width: 260px;
+                }
             }
         }
     }
@@ -88,8 +91,8 @@ $close-button-focus-outline: $color-dark !default;
         align-items: center;
         justify-content: space-between;
         svg {
-            max-width: 24px;
-            max-height: 24px;
+            max-width: 16px;
+            max-height: 16px;
         }
     }
 }

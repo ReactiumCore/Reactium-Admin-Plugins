@@ -15,15 +15,15 @@ export default {
     },
     SET_BRANCH: {
         label: __('Set Version'),
-        tooltip: __('Set the content version to selected version'),
+        tooltip: __('Set to version %version'),
     },
     REVISIONS: {
-        label: __('Revisions'),
-        tooltip: __('Compare revisions in selected version'),
+        label: __('%version Revisions'),
+        tooltip: __('Compare revisions in %version'),
     },
     CLONE: {
-        label: __('Clone Version'),
-        tooltip: __('Clone the select version'),
+        label: __('Clone Version %version'),
+        tooltip: __('Clone version %version'),
     },
     BACK_BUTTON: {
         label: __('Back'),

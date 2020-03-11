@@ -20,10 +20,18 @@ const defaultBlueprint = {
             zones: ['admin-header', 'admin-content', 'admin-actions'],
             meta: {},
         },
+        tools: {
+            zones: ['admin-tools'],
+        },
     },
-    meta: {},
+    meta: {
+        builtIn: true,
+        admin: true,
+        namespace: 'admin-page',
+    },
     ID: 'Default',
-    description: 'Default blueprint',
+    description: 'Admin default blueprint',
+    className: 'Blueprint',
 };
 
 // Implement `helmet-props` hook with priority order than highest
@@ -69,9 +77,10 @@ Reactium.Routing.subscribe(async () => {
             const config = op.get(routesConfig, route.path);
             const blueprint = op.get(
                 blueprints,
-                config.blueprint,
+                op.get(config, 'blueprint', 'default'),
                 defaultBlueprint,
             );
+
             route.load = actions.loadFactory(route, config, blueprint);
         }
     });

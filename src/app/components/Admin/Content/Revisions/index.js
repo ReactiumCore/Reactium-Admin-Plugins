@@ -26,7 +26,7 @@ const Revisions = props => {
     const startingBranch = op.get(startingContent, 'history.branch', 'master');
     const startingRevision = op.get(startingRevision, 'history.revision', 0);
     const onClose = op.get(props, 'onClose');
-
+    console.log({ editor, startingContent, startingBranch });
     const [state, setState] = useDerivedState(
         {
             branches: startingBranches,
@@ -98,6 +98,8 @@ const Revisions = props => {
         navTo,
         setBranch,
         setBranchContent,
+        editor,
+        onClose,
     };
 
     return (
