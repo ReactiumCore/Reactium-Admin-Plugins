@@ -45,12 +45,8 @@ const UserList = ({
 }) => {
     // SearchBar
     const SearchBar = useHandle('SearchBar');
-
+    SearchBar.setState({ visible: true });
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
-
-    try {
-        SearchBar.setState({ visible: true });
-    } catch (err) {}
 
     const containerRef = useRef();
 
@@ -184,12 +180,15 @@ const UserList = ({
         async mounted => {
             if (isBusy()) return;
 
+            const oldFetchParams = {};
             const newFetchParams = {};
             const fields = ['page', 'role', 'search'];
 
             fields.forEach(fld => {
                 let curr = op.get(state, fld);
                 let prev = op.get(prevState, fld);
+
+                oldFetchParams[fld] = prev;
 
                 if (_.isNumber(curr)) prev = Number(prev);
 
@@ -198,7 +197,8 @@ const UserList = ({
             });
 
             if (Object.keys(newFetchParams).length > 0) {
-                getData(newFetchParams);
+                const fetchParams = { ...oldFetchParams, ...newFetchParams };
+                getData(fetchParams);
             }
 
             return () => {};
