@@ -223,72 +223,67 @@ const UserList = ({
     // Initialize
     useEffect(initialize, [state.page]);
 
-    const render = () => {
-        return (
-            <div className={cname()} ref={containerRef}>
-                <Header list={handle} search={search} />
-                <Zone list={handle} zone={cx('top')} />
-                <div className={cx('row')}>
-                    {state.users &&
-                        state.users.map(item => (
-                            <div
-                                key={`user-${item.objectId}`}
-                                className={cn(cx('column'), {
-                                    current: Reactium.User.isCurrent(item),
-                                })}>
-                                <Link
-                                    to={`/admin/user/${item.objectId}`}
-                                    className={cn(cx('card'), 'link')}>
-                                    <Avatar
-                                        user={item}
-                                        className={cx('card-avatar')}
-                                        unMounted={unMounted}
-                                    />
-                                    <span className={cx('card-title')}>
-                                        {getName(item)}
+    const render = () => (
+        <div className={cname()} ref={containerRef}>
+            <Header list={handle} search={search} />
+            <Zone list={handle} zone={cx('top')} />
+            <div className={cx('row')}>
+                {state.users &&
+                    state.users.map(item => (
+                        <div
+                            key={`user-${item.objectId}`}
+                            className={cn(cx('column'), {
+                                current: Reactium.User.isCurrent(item),
+                            })}>
+                            <Link
+                                to={`/admin/user/${item.objectId}`}
+                                className={cn(cx('card'), 'link')}>
+                                <Avatar
+                                    user={item}
+                                    className={cx('card-avatar')}
+                                    unMounted={unMounted}
+                                />
+                                <span className={cx('card-title')}>
+                                    {getName(item)}
+                                </span>
+
+                                <Role className={cx('card-role')} user={item} />
+
+                                {item.email && (
+                                    <span className={cx('card-email')}>
+                                        {op.get(item, 'email')}
                                     </span>
+                                )}
 
-                                    <Role
-                                        className={cx('card-role')}
-                                        user={item}
-                                    />
+                                <Zone
+                                    list={handle}
+                                    user={item}
+                                    zone={cx('item')}
+                                />
+                            </Link>
 
-                                    {item.email && (
-                                        <span className={cx('card-email')}>
-                                            {op.get(item, 'email')}
-                                        </span>
-                                    )}
-
-                                    <Zone
-                                        list={handle}
-                                        user={item}
-                                        zone={cx('item')}
-                                    />
-                                </Link>
-
-                                <div className={cx('item-actions-left')}>
-                                    <Zone
-                                        list={handle}
-                                        user={item}
-                                        zone={cx('item-actions-left')}
-                                    />
-                                </div>
-
-                                <div className={cx('item-actions-right')}>
-                                    <Zone
-                                        list={handle}
-                                        user={item}
-                                        zone={cx('item-actions-right')}
-                                    />
-                                </div>
+                            <div className={cx('item-actions-left')}>
+                                <Zone
+                                    list={handle}
+                                    user={item}
+                                    zone={cx('item-actions-left')}
+                                />
                             </div>
-                        ))}
-                </div>
-                <Zone list={handle} zone={cx('bottom')} />
-                {isBusy() && <Spinner className={cx('spinner')} />}
+
+                            <div className={cx('item-actions-right')}>
+                                <Zone
+                                    list={handle}
+                                    user={item}
+                                    zone={cx('item-actions-right')}
+                                />
+                            </div>
+                        </div>
+                    ))}
             </div>
-        );
-    };
+            <Zone list={handle} zone={cx('bottom')} />
+            {isBusy() && <Spinner className={cx('spinner')} />}
+        </div>
+    );
 
     return render();
 };
