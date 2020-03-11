@@ -48,6 +48,7 @@ export default ({ list, ...props }) => {
         <Dropdown
             align={Dropdown.ENUMS.ALIGN.RIGHT}
             data={statuses()}
+            maxHeight='calc(100vh - 150px)'
             onItemSelect={({ item }) => setStatus(item.value)}
             ref={ddRef}
             selection={[op.get(state, 'status', null)]}>

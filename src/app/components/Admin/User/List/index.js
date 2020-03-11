@@ -18,11 +18,15 @@ import Reactium, {
     useEventHandle,
     useHandle,
     useRegisterHandle,
+    useRoles,
     useSelect,
     Zone,
 } from 'reactium-core/sdk';
 
-import { useProfileAvatar } from 'components/Admin/Profile/hooks';
+import {
+    useProfileAvatar,
+    useProfileRole,
+} from 'components/Admin/Profile/hooks';
 
 const ENUMS = {
     STATUS: {
@@ -32,7 +36,13 @@ const ENUMS = {
     },
 };
 
-const UserList = ({ className, id, namespace, ...props }) => {
+const UserList = ({
+    className,
+    id,
+    namespace,
+    page: initialPage,
+    ...props
+}) => {
     // SearchBar
     const SearchBar = useHandle('SearchBar');
 
@@ -46,17 +56,6 @@ const UserList = ({ className, id, namespace, ...props }) => {
 
     const urlParams = useSelect(state => op.get(state, 'Router.params'));
 
-    const cx = Reactium.Utils.cxFactory(namespace);
-
-    const cname = () => cn(cx(), { [className]: !!className });
-
-    const fetch = params => {
-        if (state.req) return state.req;
-        const req = Reactium.User.list(params);
-        setState({ status: ENUMS.STATUS.FETCHING, users: undefined, req });
-        return req;
-    };
-
     const [prevState, setPrevState] = useDerivedState({
         page: op.get(urlParams, 'page', 1),
         search,
@@ -64,9 +63,11 @@ const UserList = ({ className, id, namespace, ...props }) => {
     });
 
     const [state, setNewState] = useDerivedState({
-        page: op.get(urlParams, 'page', 1),
+        page: initialPage || op.get(urlParams, 'page', 1),
         pages: undefined,
         req: undefined,
+        role: undefined,
+        roleLabel: undefined,
         search,
         status: ENUMS.STATUS.INIT,
         users: undefined,
@@ -78,6 +79,17 @@ const UserList = ({ className, id, namespace, ...props }) => {
         setNewState(newState);
     };
 
+    const cx = Reactium.Utils.cxFactory(namespace);
+
+    const cname = () => cn(cx(), { [className]: !!className });
+
+    const fetch = params => {
+        if (state.req) return state.req;
+        const req = Reactium.User.list(params);
+        setState({ status: ENUMS.STATUS.FETCHING, users: undefined, req });
+        return req;
+    };
+
     const getName = user => {
         const fname = op.get(user, 'fname', op.get(user, 'firstName'));
         const lname = op.get(user, 'lname', op.get(user, 'lastName'));
@@ -86,18 +98,28 @@ const UserList = ({ className, id, namespace, ...props }) => {
         return String(name).length < 1 ? uname : name;
     };
 
-    const getUsers = (fetchParams, mounted) => {
-        if (isBusy()) return;
+    const getData = fetchParams =>
         fetch(fetchParams).then(({ results: users, ...params }) => {
-            if (!mounted()) return;
-            setState({
-                ...params,
-                users,
-                req: undefined,
-                status: ENUMS.STATUS.READY,
-            });
+            if (unMounted()) return;
+
+            const { page, pages } = params;
+
+            if (page > pages) {
+                setState({
+                    page: pages,
+                    req: undefined,
+                    status: ENUMS.STATUS.READY,
+                });
+                Reactium.Routing.history.push('/admin/users/page/1');
+            } else {
+                setState({
+                    ...params,
+                    users,
+                    req: undefined,
+                    status: ENUMS.STATUS.READY,
+                });
+            }
         });
-    };
 
     const isBusy = () =>
         Boolean(state.req || state.status !== ENUMS.STATUS.READY);
@@ -106,28 +128,34 @@ const UserList = ({ className, id, namespace, ...props }) => {
 
     const unMounted = () => !containerRef.current;
 
-    const _onSearch = newSearch => {
+    const onSearch = newSearch => {
+        if (
+            newSearch !== null &&
+            String(newSearch).length > 0 &&
+            String(newSearch).length < 3
+        ) {
+            return;
+        }
+
         newSearch =
-            newSearch !== null && newSearch.length < 1 ? null : newSearch;
+            newSearch !== null && String(newSearch).length < 1
+                ? null
+                : newSearch;
+
+        if (unMounted()) return;
+
         setState({ search: newSearch });
     };
 
-    const onSearch = _.throttle(_onSearch, 125, { leading: false });
-
-    const _onInit = () => {
+    const onInitialize = () => {
         if (state.status === ENUMS.STATUS.INIT) {
-            fetch({ page: state.page }).then(({ results: users, ...params }) =>
-                setState({
-                    ...params,
-                    users,
-                    req: undefined,
-                    status: ENUMS.STATUS.READY,
-                }),
-            );
+            getData({ page: state.page });
         }
+
+        return () => {};
     };
 
-    const initialize = _.once(_onInit);
+    const initialize = _.once(onInitialize);
 
     const _handle = () => ({
         cx,
@@ -143,6 +171,7 @@ const UserList = ({ className, id, namespace, ...props }) => {
 
     useRegisterHandle(id, () => handle, [handle]);
 
+    // Search changed
     useEffect(() => {
         if (isBusy() || state.status === ENUMS.STATUS.INIT) return;
         if (state.search !== search) {
@@ -150,13 +179,13 @@ const UserList = ({ className, id, namespace, ...props }) => {
         }
     }, [search]);
 
-    // Fetch users on state changes
+    // Fetch users on search, page, & role change
     useAsyncEffect(
         async mounted => {
             if (isBusy()) return;
 
-            const fields = ['search', 'page'];
             const newFetchParams = {};
+            const fields = ['page', 'role', 'search'];
 
             fields.forEach(fld => {
                 let curr = op.get(state, fld);
@@ -168,39 +197,33 @@ const UserList = ({ className, id, namespace, ...props }) => {
                 newFetchParams[fld] = op.get(state, fld);
             });
 
-            if (Object.keys(newFetchParams).length < 1) return () => {};
+            if (Object.keys(newFetchParams).length > 0) {
+                getData(newFetchParams);
+            }
 
-            fetch(newFetchParams).then(({ results: users, ...params }) => {
-                setState({
-                    ...params,
-                    users,
-                    req: undefined,
-                    status: ENUMS.STATUS.READY,
-                });
-            });
-
-            //getUsers(newFetchParams, mounted);
             return () => {};
         },
         [Object.values(state)],
     );
 
+    // Update handle
     useEffect(() => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
     }, [Object.values(state), containerRef.current]);
 
-    useEffect(() => {
-        initialize();
-    }, [state.page]);
+    // Initialize
+    useEffect(initialize, [state.page]);
 
     const render = () => {
         return (
             <div className={cname()} ref={containerRef}>
-                {state.users && (
-                    <div className={cx('row')}>
-                        {state.users.map(item => (
+                <Header list={handle} search={search} />
+                <Zone list={handle} zone={cx('top')} />
+                <div className={cx('row')}>
+                    {state.users &&
+                        state.users.map(item => (
                             <div
                                 key={`user-${item.objectId}`}
                                 className={cn(cx('column'), {
@@ -218,9 +241,10 @@ const UserList = ({ className, id, namespace, ...props }) => {
                                         {getName(item)}
                                     </span>
 
-                                    <div className={cx('card-role')}>
-                                        {getRole(item)}
-                                    </div>
+                                    <Role
+                                        className={cx('card-role')}
+                                        user={item}
+                                    />
 
                                     {item.email && (
                                         <span className={cx('card-email')}>
@@ -252,9 +276,8 @@ const UserList = ({ className, id, namespace, ...props }) => {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                )}
-                {isBusy() && <PlaceHolder {...handle} />}
+                </div>
+                <Zone list={handle} zone={cx('bottom')} />
                 {isBusy() && <Spinner className={cx('spinner')} />}
             </div>
         );
@@ -263,32 +286,19 @@ const UserList = ({ className, id, namespace, ...props }) => {
     return render();
 };
 
-const getRole = user => {
-    const roles = Object.entries(op.get(user, 'roles', {})).map(
-        ([role, level]) => ({
-            role,
-            level,
-        }),
-    );
-
-    const role = _.chain(roles)
-        .sortBy('level')
-        .value()
-        .pop();
-
-    return op.get(role, 'role', 'anonymous');
-};
-
 const Avatar = ({ className, user }) => {
-    //const image = op.get(user, 'avatar', '/assets/images/avatar.png');
     const image = useProfileAvatar(user);
-
     return (
         <div
             className={className}
             style={{ backgroundImage: `url(${image})` }}
         />
     );
+};
+
+const Role = ({ className, user }) => {
+    const role = useProfileRole(user);
+    return <div className={className}>{role}</div>;
 };
 
 const PlaceHolder = ({ cx }) => (
@@ -305,6 +315,42 @@ const PlaceHolder = ({ cx }) => (
         ))}
     </div>
 );
+
+const Header = ({ list }) => {
+    const { cx, state } = list;
+    const { count, role, roleLabel, search, users } = state;
+    const countLabel = count ? `${count} ` : 'No';
+    let label = count !== 1 ? __('Users') : __('User');
+
+    if (search) {
+        label =
+            count !== 1 ? __('search results for ') : __('search result for ');
+    }
+
+    return !users ? (
+        <div className={cx('heading')} />
+    ) : (
+        <div className={cx('heading')}>
+            {search && (
+                <h2>
+                    <span className={cx('heading-count')}>{countLabel}</span>
+                    {label}
+                    <span className='blue'>{search}</span>
+                </h2>
+            )}
+            {!search && (
+                <h2>
+                    <span className={cx('heading-count')}>{countLabel}</span>
+                    {role && <span className='blue'>{roleLabel} </span>}
+                    {label}
+                </h2>
+            )}
+            <div className={cx('toolbar')}>
+                <Zone list={list} zone={cx('toolbar')} />
+            </div>
+        </div>
+    );
+};
 
 UserList.defaultProps = {
     namespace: 'admin-user-list',

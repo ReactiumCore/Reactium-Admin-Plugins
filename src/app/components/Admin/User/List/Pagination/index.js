@@ -1,22 +1,17 @@
 import _ from 'underscore';
 import op from 'object-path';
 import uuid from 'uuid/v4';
+import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import { Pagination } from '@atomic-reactor/reactium-ui';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
-import Reactium, {
-    useDerivedState,
-    useFulfilledObject,
-    useHandle,
-} from 'reactium-core/sdk';
-
 const Wrap = ({ children, zone }) => {
     switch (zone) {
-        case 'admin-content-list-bottom':
+        case 'admin-user-list-bottom':
             return <div className='pagination-bottom'>{children}</div>;
 
-        case 'admin-content-list-toolbar':
+        case 'admin-user-list-toolbar':
             return <span className='pagination-header'>{children}</span>;
 
         default:
@@ -24,17 +19,14 @@ const Wrap = ({ children, zone }) => {
     }
 };
 
-const PaginationComponent = ({ list, zone: zones, ...props }) => {
+const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
     const zone = zones[0];
-
     const { state = {} } = list;
-
-    const { group, pagination = {}, path } = state;
-
-    const { page, pages } = pagination;
+    const { page, pages } = state;
 
     const nav = p => {
-        Reactium.Routing.history.push(`/admin/content/${group}/page/${p}`);
+        list.setState({ page: p });
+        Reactium.Routing.history.push(`/admin/users/page/${p}`);
     };
 
     const onChange = (e, p) => nav(p);
@@ -45,7 +37,7 @@ const PaginationComponent = ({ list, zone: zones, ...props }) => {
         let color, size, verticalAlign;
 
         switch (zone) {
-            case 'admin-content-list-bottom':
+            case 'admin-user-list-bottom':
                 color = Pagination.COLOR.CLEAR;
                 verticalAlign = 'top';
                 size = 'md';
@@ -77,22 +69,10 @@ const PaginationComponent = ({ list, zone: zones, ...props }) => {
     return render();
 };
 
-export default ({ list, ...props }) => {
-    const { page, group, path, type } = useRouteParams([
-        'page',
-        'path',
-        'group',
-        'type',
-    ]);
-
-    const isVisible = () => {
-        if (!list) return false;
-        if (!page || !path || !group) return false;
-        if (String(path).startsWith('/admin/content/:type/:slug')) return false;
-        return String(path).startsWith('/admin/content/:type');
-    };
-
-    const { zone } = props;
-
-    return isVisible() ? <PaginationComponent list={list} {...props} /> : null;
+export default props => {
+    const list = op.get(props, 'list');
+    const { path } = useRouteParams(['path']);
+    const isVisible = () =>
+        Boolean(String(path).startsWith('/admin/users/') && list);
+    return isVisible() ? <PaginationComponent {...props} path={path} /> : null;
 };

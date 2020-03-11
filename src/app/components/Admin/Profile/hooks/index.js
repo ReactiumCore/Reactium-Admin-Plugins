@@ -1,10 +1,8 @@
 import _ from 'underscore';
 import op from 'object-path';
 import inputs from '../inputs';
-import Reactium, { useHandle } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
-
-import { useAsyncEffect } from 'components/useAsyncEffect';
 
 const getRole = user => {
     const roles = Object.entries(op.get(user, 'roles', {})).map(
@@ -45,12 +43,14 @@ const useProfileAvatar = (initialUser = {}) => {
 
     useAsyncEffect(
         async mounted => {
-            if (mounted() && avatar !== getAvatar()) {
+            if (avatar !== getAvatar()) {
                 const context = await Reactium.Hook.run(
                     'profile-avatar',
                     avatar,
                     user,
                 );
+
+                if (!mounted()) return;
                 const newAvatar = op.get(context, 'avatar') || getAvatar();
                 setAvatar(newAvatar);
             }
@@ -157,15 +157,14 @@ const useProfileRole = initialUser => {
     useAsyncEffect(
         async mounted => {
             if (role) {
-                if (mounted()) {
-                    const context = await Reactium.Hook.run(
-                        'profile-role-name',
-                        role,
-                        user,
-                    );
-                    const newRole = op.get(context, 'role') || getRole(user);
-                    setRole(newRole);
-                }
+                const context = await Reactium.Hook.run(
+                    'profile-role-name',
+                    role,
+                    user,
+                );
+                if (!mounted()) return;
+                const newRole = op.get(context, 'role') || getRole(user);
+                setRole(newRole);
             }
             return () => {};
         },

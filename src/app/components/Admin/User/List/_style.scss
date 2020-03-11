@@ -2,16 +2,18 @@
     position: relative;
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
-    padding-left: $padding-admin-content-zone;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
 
     &-row {
         @extend .row;
+        flex-grow: 1;
         position: relative;
         justify-content: center;
-
-        @include breakpoint(xl) {
-            justify-content: flex-start;
-        }
+        padding-left: $padding-admin-content-zone;
     }
 
     &-column {
@@ -51,10 +53,10 @@
     }
 
     &-spinner {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
-        width: 100vw;
+        width: 100%;
         height: 100vh;
         display: flex;
         justify-content: center;
@@ -154,5 +156,59 @@
 
     &-item-actions-right {
         right: $padding-admin-content-zone;
+    }
+
+    &-heading {
+        display: flex;
+        align-items: center;
+        min-height: $height-admin-list-toolbar;
+        padding: $padding-admin-content-zone 16px;
+        border-bottom: 1px solid darken($color-admin-header-border, 2%);
+        background-color: $color-text-light;
+        flex-shrink: 0;
+
+        @include breakpoint(sm) {
+            padding: $padding-admin-content-zone 40px;
+        }
+
+        h2 {
+            font-size: 14px;
+            @include breakpoint(sm) {
+                font-size: 20px;
+            }
+        }
+
+        &-count {
+            margin-right: 8px;
+        }
+    }
+
+    &-toolbar {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-shrink: 0;
+
+        .ar-dropdown {
+            &-menu {
+                width: 100%;
+                min-width: 200px;
+            }
+        }
+
+        .ar-pagination {
+            @include breakpoint(xs-only) {
+                display: none;
+            }
+        }
+    }
+
+    .pagination-bottom {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: $padding-admin-content-zone;
     }
 }

@@ -144,6 +144,7 @@
     &-heading {
         display: flex;
         align-items: center;
+        min-height: $height-admin-list-toolbar;
 
         padding: $padding-admin-content-zone;
         padding-left: 40px;
@@ -184,6 +185,10 @@
         padding-bottom: 0;
         display: flex;
         justify-content: center;
+
+        &:empty {
+            display: none;
+        }
 
         .ar-dropdown {
             &-menu {
