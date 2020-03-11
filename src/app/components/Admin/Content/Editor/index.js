@@ -110,7 +110,11 @@ let ContentEditor = (
 
     const Toast = op.get(tools, 'Toast');
 
-    let { path, type, slug } = useRouteParams(['type', 'slug']);
+    let { path, type, slug, branch = 'master' } = useRouteParams([
+        'type',
+        'slug',
+        'branch',
+    ]);
 
     const alertDefault = {
         color: Alert.ENUMS.COLOR.INFO,
@@ -259,10 +263,15 @@ let ContentEditor = (
             return Promise.resolve({});
         }
 
-        const content = await Reactium.Content.retrieve({
+        const request = {
             type: contentType,
             slug,
-        });
+            history: {
+                branch,
+            },
+        };
+
+        const content = await Reactium.Content.retrieve(request);
 
         if (content) {
             await dispatch('load', { value: content }, onLoad);
@@ -832,8 +841,16 @@ let ContentEditor = (
                 setValue(result);
                 _.defer(() => (ignoreChangeEvent.current = false));
             })
-            .catch(() => {
+            .catch(error => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);
+                _.defer(() => {
+                    Toast.show({
+                        icon: 'Feather.AlertOctagon',
+                        message: __('Error loading content'),
+                        type: Toast.TYPE.ERROR,
+                    });
+                    console.error({ error });
+                });
             });
     });
 
