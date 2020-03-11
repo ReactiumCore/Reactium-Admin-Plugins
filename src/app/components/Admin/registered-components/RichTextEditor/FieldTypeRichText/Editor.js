@@ -8,7 +8,8 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 
-export default ({ editor, ...props }) => {
+export default props => {
+    let editor = props.editor;
     let { fieldName: name, label, placeholder } = props;
 
     label = label || __('Content');
@@ -44,10 +45,10 @@ export default ({ editor, ...props }) => {
     const onEditorChange = _.throttle(_onEditorChange, 500, { leading: false });
 
     const reload = e => {
-        let currentEditor = e ? e.target : editor;
-        console.log({ currentEditor });
+        const newValue = e
+            ? op.get(e, ['value', name])
+            : op.get(editor, ['value', name], defaultValue);
 
-        const newValue = op.get(currentEditor, ['value', name], defaultValue);
         editorRef.current.setValue(newValue);
         setPreviousSlug(slug);
         setValue(newValue);
