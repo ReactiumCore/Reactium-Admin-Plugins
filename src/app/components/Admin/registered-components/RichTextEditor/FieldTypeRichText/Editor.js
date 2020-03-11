@@ -57,6 +57,14 @@ export default ({ editor, ...props }) => {
         reload();
     }, [editorRef.current, ready, slug]);
 
+    useEffect(() => {
+        editor.addEventListener('load', reload);
+
+        return () => {
+            editor.removeEventListener('load', reload);
+        };
+    }, [editor]);
+
     const render = () => {
         return (
             <section className={editor.cx('rte')}>
