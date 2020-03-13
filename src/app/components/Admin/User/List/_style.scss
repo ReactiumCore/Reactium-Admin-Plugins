@@ -1,18 +1,16 @@
 .#{$admin-user-list-ns} {
-    position: relative;
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-
+    position: relative;
 
     &-row {
-        @extend .row;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
         flex-grow: 1;
-        position: relative;
         justify-content: center;
+        align-items: center;
         padding-left: $padding-admin-content-zone;
     }
 
@@ -206,6 +204,10 @@
     }
 
     .pagination-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
         flex-shrink: 0;
         display: flex;
         justify-content: center;

@@ -1,0 +1,5 @@
+$admin-user-editor-ns: 'admin-user-editor';
+
+.#{$admin-user-editor-ns} {
+    padding-top: $height-admin-header;
+}

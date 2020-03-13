@@ -822,8 +822,8 @@ Content.list = async (params, handle) => {
     return contentObj;
 };
 
-Content.DirtyEvent = new Registry('DirtyEvent');
-Content.ScrubEvent = new Registry('ScrubEvent');
+Content.DirtyEvent = new Registry('ContentDirtyEvent');
+Content.ScrubEvent = new Registry('ContentScrubEvent');
 
 Content.DirtyEvent.protect(['change']);
 Content.ScrubEvent.protect(['save-success', 'load']);

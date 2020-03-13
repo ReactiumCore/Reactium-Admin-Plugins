@@ -5,14 +5,11 @@ import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
+import { slugify } from 'components/Admin/ContentType';
+import DEFAULT_ENUMS from 'components/Admin/Content/enums';
 import useProperCase from 'components/Admin/Tools/useProperCase';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
-import { slugify } from 'components/Admin/ContentType';
-import { Alert, Icon, Spinner } from '@atomic-reactor/reactium-ui';
-import DEFAULT_ENUMS from 'components/Admin/Content/enums';
-
-// import { EventForm } from '@atomic-reactor/reactium-ui';
-import EventForm from 'components/EventForm';
+import { Alert, EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -971,31 +968,3 @@ ContentEditor.defaultProps = {
 };
 
 export default ContentEditor;
-
-/*
-    FLUSH
-
-    DIRTY
-    - value change
-    - isDirty()
-
-
-    CLEAN
-    - loaded
-    - saved
-    - isClean()
-
-
-    SCENARIO 1
-    When a user changes the publisher status the current revion is saved as the current version of the content (checked out) and sets the `status`.
-    Then the front-end loads that content to `value` field.
-
-    When this happens, set the `dirty` flag to false.
-
-    SCENARIO 2
-    The change log has been continously pinging and suddenly an outsider has created a new revions while my current checked out revision is marked as `clean`.
-    The editor show now mark itself as `stale` and throw an alert asking if the user wishes to load the newer revision.
-
-    scrub-events
-    dirty
-*/

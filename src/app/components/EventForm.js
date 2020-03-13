@@ -132,6 +132,31 @@ let EventForm = (initialProps, ref) => {
             }),
         );
 
+        if (clear === true) {
+            Object.entries(elements).forEach(([, element]) => {
+                if (!element.name) return;
+                if (!element.type) return;
+
+                const type = element.type;
+
+                if (['checkbox', 'radio'].includes(type)) {
+                    element.checked = false;
+                    return;
+                }
+
+                if (type === 'select-multiple') {
+                    const ids = Object.keys(element.options).filter(
+                        key => !isNaN(key),
+                    );
+                    const options = ids.map(i => element.options[i]);
+                    options.forEach(option => (option.selected = false));
+                    return;
+                }
+
+                element.value = null;
+            });
+        }
+
         Object.entries(elements).forEach(([, element]) => {
             if (!element.name) return;
             if (!element.type) return;
@@ -144,7 +169,7 @@ let EventForm = (initialProps, ref) => {
                 // Checkbox & Radio
                 if (['checkbox', 'radio'].includes(type)) {
                     if (isBoolean(val)) {
-                        element.checked = val;
+                        element.checked = !!val;
                     } else {
                         const v = !isNaN(element.value)
                             ? Number(element.value)
@@ -285,6 +310,7 @@ let EventForm = (initialProps, ref) => {
 
     const setValue = newValue => {
         if (!formRef.current) return;
+        if (newValue === null) applyValue(newValue, true);
         dispatchChange({ value: newValue, event: formRef.current });
     };
 
@@ -416,7 +442,7 @@ let EventForm = (initialProps, ref) => {
     // Apply value
     useEffect(() => {
         applyValue(value, true);
-    }, [value]);
+    }, [Object.values(value)]);
 
     // Update handle on change
     useEffect(() => {
@@ -511,7 +537,7 @@ EventForm.defaultProps = {
     required: [],
 };
 
-export default EventForm;
+export { EventForm, EventForm as default };
 
 const isBoolean = val =>
     typeof val === 'boolean' ||

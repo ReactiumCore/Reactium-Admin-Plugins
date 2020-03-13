@@ -7,17 +7,38 @@ import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
 import Pagination from './List/Pagination';
 import SidebarWidget from './SidebarWidget';
+import UserEditor from './Editor';
 import UserList, { EmailWidget, ListWidgets } from './List';
 
 Reactium.Plugin.register(
     'AdminUsers',
     Reactium.Enums.priority.high.lowest,
 ).then(() => {
+    // User SKD Additions DirtyEvent, ScrubEvent
+    Reactium.User.DirtyEvent = Reactium.Utils.registryFactory('UserDirtyEvent');
+    Reactium.User.DirtyEvent.protect(['change', 'loading']);
+    Reactium.User.DirtyEvent.protected.forEach(id =>
+        Reactium.User.DirtyEvent.register(id),
+    );
+
+    Reactium.User.ScrubEvent = Reactium.Utils.registryFactory('UserScrubEvent');
+    Reactium.User.ScrubEvent.protect(['loaded', 'save-success']);
+    Reactium.User.ScrubEvent.protected.forEach(id =>
+        Reactium.User.ScrubEvent.register(id),
+    );
+
     Reactium.Zone.addComponent({
         id: 'AdminUserList',
         component: UserList,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-user-list'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'AdminUserEditor',
+        component: UserEditor,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-user-editor'],
     });
 
     Reactium.Zone.addComponent({
