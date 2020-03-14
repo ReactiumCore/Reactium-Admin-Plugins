@@ -13,17 +13,6 @@ const MainScene = props => {
     const getVersionLabel = branchId =>
         op.get(state, ['branches', branchId, 'label'], 'Unknown');
 
-    const labels = key => ({
-        label: ENUMS[key].label.replace(
-            '%version',
-            getVersionLabel(currentBranch),
-        ),
-        tooltip: ENUMS[key].tooltip.replace(
-            '%version',
-            getVersionLabel(currentBranch),
-        ),
-    });
-
     const changeBranch = async () => {
         const value = op.get(state, 'working.content', {});
 
@@ -58,13 +47,13 @@ const MainScene = props => {
                 collapsible={false}
                 header={{ title: __('Manage Versions') }}
                 className={cx('dialog')}>
-                <div className={cx('main-option')}>
+                <div className={cx('option')}>
                     <h3
                         className={'h5 pb-xs-8'}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('SELECT_BRANCH').tooltip}>
-                        {labels('SELECT_BRANCH').label}
+                        data-tooltip={handle.labels('SELECT_BRANCH').tooltip}>
+                        {handle.labels('SELECT_BRANCH').label}
                     </h3>
                     <Dropdown
                         className='select-dropdown'
@@ -87,10 +76,10 @@ const MainScene = props => {
                                 size={Button.ENUMS.SIZE.MD}
                                 data-vertical-align='top'
                                 data-align='left'
-                                data-tooltip={labels('SETTINGS').tooltip}
+                                data-tooltip={handle.labels('SETTINGS').tooltip}
                                 onClick={() => handle.navTo('settings')}>
                                 <span className='sr-only'>
-                                    {labels('SETTINGS').label}
+                                    {handle.labels('SETTINGS').label}
                                 </span>
                                 <Icon name='Feather.Settings' />
                             </Button>
@@ -98,7 +87,7 @@ const MainScene = props => {
                                 className='selected-button'
                                 size={Button.ENUMS.SIZE.MD}
                                 color={Button.ENUMS.COLOR.PRIMARY}
-                                title={labels('SELECT_BRANCH').tooltip}
+                                title={handle.labels('SELECT_BRANCH').tooltip}
                                 data-dropdown-element>
                                 <div className={'select-dropdown-label'}>
                                     <span>
@@ -115,13 +104,13 @@ const MainScene = props => {
                     </Dropdown>
                 </div>
 
-                <div className={cx('main-option')}>
+                <div className={cx('option')}>
                     <h3
                         className={'h5 pb-xs-8'}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('COMPARE_BRANCH').tooltip}>
-                        {labels('COMPARE_BRANCH').label}
+                        data-tooltip={handle.labels('COMPARE_BRANCH').tooltip}>
+                        {handle.labels('COMPARE_BRANCH').label}
                     </h3>
                     <Dropdown
                         className='select-dropdown'
@@ -145,88 +134,92 @@ const MainScene = props => {
                         <Button
                             size={Button.ENUMS.SIZE.MD}
                             color={Button.ENUMS.COLOR.PRIMARY}
-                            title={labels('COMPARE_BRANCH').tooltip}
+                            title={handle.labels('COMPARE_BRANCH').tooltip}
                             data-vertical-align='top'
                             data-align='left'
-                            data-tooltip={labels('COMPARE_BRANCH').tooltip}
+                            data-tooltip={
+                                handle.labels('COMPARE_BRANCH').tooltip
+                            }
                             data-dropdown-element>
                             <div className={'select-dropdown-label'}>
-                                <span>{labels('COMPARE_BRANCH').label}</span>
+                                <span>
+                                    {handle.labels('COMPARE_BRANCH').label}
+                                </span>
                                 <Icon name='Feather.ChevronDown' />
                             </div>
                         </Button>
                     </Dropdown>
                 </div>
 
-                <div className={cx('main-option')}>
+                <div className={cx('option')}>
                     <h3
                         className={'h5 pb-xs-8'}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('SET_BRANCH').tooltip}>
-                        {labels('SET_BRANCH').tooltip}
+                        data-tooltip={handle.labels('SET_BRANCH').tooltip}>
+                        {handle.labels('SET_BRANCH').tooltip}
                     </h3>
                     <Button
                         size={Button.ENUMS.SIZE.MD}
                         color={Button.ENUMS.COLOR.PRIMARY}
-                        title={labels('SET_BRANCH').tooltip}
+                        title={handle.labels('SET_BRANCH').tooltip}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('SET_BRANCH').tooltip}
+                        data-tooltip={handle.labels('SET_BRANCH').tooltip}
                         data-dropdown-element
                         disabled={
                             op.get(handle, 'editor.value.history.branch') ===
                             currentBranch
                         }
                         onClick={changeBranch}>
-                        {labels('SET_BRANCH').label}
+                        {handle.labels('SET_BRANCH').label}
                     </Button>
                 </div>
 
-                <div className={cx('main-option')}>
+                <div className={cx('option')}>
                     <h3
                         className={'h5 pb-xs-8'}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('REVISIONS').tooltip}>
-                        {labels('REVISIONS').tooltip}
+                        data-tooltip={handle.labels('REVISIONS').tooltip}>
+                        {handle.labels('REVISIONS').tooltip}
                     </h3>
                     <Button
                         size={Button.ENUMS.SIZE.MD}
                         color={Button.ENUMS.COLOR.PRIMARY}
-                        appearance={'outline'}
-                        title={labels('REVISIONS').tooltip}
+                        outline
+                        title={handle.labels('REVISIONS').tooltip}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('REVISIONS').tooltip}
+                        data-tooltip={handle.labels('REVISIONS').tooltip}
                         onClick={() => {
                             handle.navTo('revisions');
                         }}>
-                        {labels('REVISIONS').label}
+                        {handle.labels('REVISIONS').label}
                     </Button>
                 </div>
 
-                <div className={cx('main-option')}>
+                <div className={cx('option')}>
                     <h3
                         className={'h5 pb-xs-8'}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('CLONE').tooltip}>
-                        {labels('CLONE').tooltip}
+                        data-tooltip={handle.labels('CLONE').tooltip}>
+                        {handle.labels('CLONE').tooltip}
                     </h3>
                     <Button
                         size={Button.ENUMS.SIZE.MD}
-                        appearance={'outline'}
+                        outline
                         color={Button.ENUMS.COLOR.PRIMARY}
-                        title={labels('CLONE').tooltip}
+                        title={handle.labels('CLONE').tooltip}
                         data-vertical-align='top'
                         data-align='left'
-                        data-tooltip={labels('CLONE').tooltip}
+                        data-tooltip={handle.labels('CLONE').tooltip}
                         onClick={() => {
                             handle.cloneBranch();
                             handle.navTo('settings');
                         }}>
-                        {labels('CLONE').label}
+                        {handle.labels('CLONE').label}
                     </Button>
                 </div>
             </Dialog>

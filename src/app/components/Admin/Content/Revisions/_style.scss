@@ -74,17 +74,17 @@ $close-button-focus-outline: $color-dark !default;
         }
     }
 
-    &-main {
+    &-main, &-settings {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100%;
+    }
 
-        &-option {
-            margin-bottom: 16px;
-            button {
-                width: 260px;
-            }
+    &-option {
+        margin-bottom: 16px;
+        button {
+            width: 260px;
         }
     }
 }

@@ -46,8 +46,6 @@ const Revisions = props => {
         ['branches'],
     );
 
-    console.log({ state });
-
     const cx = Reactium.Utils.cxFactory('revision-manager');
 
     const navTo = (panel, direction = 'left', newState) => {
@@ -118,6 +116,24 @@ const Revisions = props => {
         });
     };
 
+    const currentBranch = op.get(state, 'working.branch');
+
+    const getVersionLabel = branchId =>
+        op.get(state, ['branches', branchId, 'label'], 'Unknown');
+
+    const labels = key => {
+        const enums = {};
+        Object.entries(op.get(ENUMS, key, {})).forEach(([name, value = '']) => {
+            op.set(
+                enums,
+                name,
+                value.replace('%version', getVersionLabel(currentBranch)),
+            );
+        });
+
+        return enums;
+    };
+
     useEffect(() => {
         // focus frame on load
         if (modalFrame.current) {
@@ -135,6 +151,7 @@ const Revisions = props => {
         labelBranch,
         editor,
         onClose,
+        labels,
     };
 
     return (

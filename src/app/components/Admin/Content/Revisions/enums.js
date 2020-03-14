@@ -41,4 +41,9 @@ export default {
         label: __('Copy of %version'),
         tooltip: __('Label of version'),
     },
+    SET_LABEL: {
+        label: __('Save Label'),
+        tooltip: __('Change version label.'),
+        placeholder: __('Enter Version Label'),
+    },
 };
