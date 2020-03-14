@@ -1,32 +1,24 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import Order from './List/Order';
-import Filters from './List/Filters';
+
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
-import Pagination from './List/Pagination';
+
 import SidebarWidget from './SidebarWidget';
-import UserEditor from './Editor';
+
 import UserList, { EmailWidget, ListWidgets } from './List';
+import Order from './List/Order';
+import Filters from './List/Filters';
+import Pagination from './List/Pagination';
+
+import UserEditor from './Editor';
+import UserProfile from './Editor/_plugins/UserProfile';
 
 Reactium.Plugin.register(
     'AdminUsers',
     Reactium.Enums.priority.high.lowest,
 ).then(() => {
-    // User SKD Additions DirtyEvent, ScrubEvent
-    Reactium.User.DirtyEvent = Reactium.Utils.registryFactory('UserDirtyEvent');
-    Reactium.User.DirtyEvent.protect(['change', 'loading']);
-    Reactium.User.DirtyEvent.protected.forEach(id =>
-        Reactium.User.DirtyEvent.register(id),
-    );
-
-    Reactium.User.ScrubEvent = Reactium.Utils.registryFactory('UserScrubEvent');
-    Reactium.User.ScrubEvent.protect(['loaded', 'save-success']);
-    Reactium.User.ScrubEvent.protected.forEach(id =>
-        Reactium.User.ScrubEvent.register(id),
-    );
-
     Reactium.Zone.addComponent({
         id: 'AdminUserList',
         component: UserList,
@@ -101,5 +93,11 @@ Reactium.Plugin.register(
         id: 'ADMIN-USER-LIST-PAGINATION',
         component: Pagination,
         zone: ['admin-user-list-bottom'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-EDITOR-PROFILE',
+        component: UserProfile,
+        zone: ['admin-user-editor-form'],
     });
 });

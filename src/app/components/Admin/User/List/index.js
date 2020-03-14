@@ -23,10 +23,9 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-import {
-    useProfileAvatar,
-    useProfileRole,
-} from 'components/Admin/Profile/hooks';
+import { useProfileRole } from 'components/Admin/Profile/hooks';
+
+import useAvatar from '../useAvatar';
 
 const ENUMS = {
     STATUS: {
@@ -145,6 +144,8 @@ const UserList = ({
     };
 
     const onInitialize = () => {
+        Reactium.User.selected = null;
+
         if (state.status === ENUMS.STATUS.INIT) {
             getData({ page: state.page, order: state.order });
         }
@@ -237,6 +238,7 @@ const UserList = ({
                                 current: Reactium.User.isCurrent(item),
                             })}>
                             <Link
+                                onClick={() => (Reactium.User.selected = item)}
                                 to={`/admin/user/${item.objectId}`}
                                 className={cn(cx('card'), 'link')}>
                                 <Avatar
@@ -290,11 +292,11 @@ const UserList = ({
 };
 
 const Avatar = ({ className, user }) => {
-    const image = useProfileAvatar(user);
+    const [avatar] = useAvatar(user);
     return (
         <div
             className={className}
-            style={{ backgroundImage: `url(${image})` }}
+            style={{ backgroundImage: `url(${avatar})` }}
         />
     );
 };
