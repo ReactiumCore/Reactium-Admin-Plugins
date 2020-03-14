@@ -8,7 +8,12 @@ import { Button, Icon, Scene } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import _ from 'underscore';
 import ENUMS from './enums';
-import { MainScene, BranchesScene, RevisionsScene } from './Scenes';
+import {
+    MainScene,
+    BranchesScene,
+    RevisionsScene,
+    SettingsScene,
+} from './Scenes';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 /**
@@ -26,21 +31,22 @@ const Revisions = props => {
     const startingBranch = op.get(startingContent, 'history.branch', 'master');
     const startingRevision = op.get(startingRevision, 'history.revision', 0);
     const onClose = op.get(props, 'onClose');
-    console.log({ editor, startingContent, startingBranch });
+
     const [state, setState] = useDerivedState(
         {
             branches: startingBranches,
-            currentBranch: startingBranch,
             working: {
                 content: startingContent,
                 branch: startingBranch,
                 revision: startingRevision,
             },
-            compare: null,
+            compare: {},
             activeScene: 'main',
         },
         ['branches'],
     );
+
+    console.log({ state });
 
     const cx = Reactium.Utils.cxFactory('revision-manager');
 
@@ -57,30 +63,58 @@ const Revisions = props => {
         });
     };
 
-    const setBranch = branch => {
-        if (branch !== state.currentBranch) {
-            setState({ currentBranch: branch });
-            setBranchContent(branch);
-        }
-    };
-
-    const setBranchContent = (branch, target = 'working') => {
+    const setBranch = async (branch, target = 'working') => {
         const request = {
             ...op.get(state, 'working.content', {}),
             history: {
                 branch,
             },
         };
+        console.log({ branch, target, request });
+        const content = await Reactium.Content.retrieve(request);
 
-        Reactium.Content.retrieve(request).then(content => {
-            const history = op.get(content, 'history', {});
-            setState({
-                [target]: {
-                    content,
-                    branch: history.branch,
-                    revision: history.revision,
-                },
-            });
+        updateBranchInfo(content, target);
+    };
+
+    const cloneBranch = async branchLabel => {
+        const fromContent = op.get(state, 'working.content');
+        const fromBranch = op.get(state, 'working.branch');
+        const fromLabel = op.get(state, ['branches', fromBranch, 'label']);
+        if (!branchLabel)
+            branchLabel = __('Copy of %label').replace('%label', fromLabel);
+
+        const request = {
+            ...fromContent,
+            branchLabel,
+        };
+
+        const content = await Reactium.Content.cloneBranch(request);
+        updateBranchInfo(content);
+    };
+
+    const labelBranch = async branchLabel => {
+        const fromContent = op.get(state, 'working.content');
+
+        const request = {
+            ...fromContent,
+            branchLabel,
+        };
+
+        const content = await Reactium.Content.labelBranch(request);
+        updateBranchInfo(content);
+    };
+
+    const updateBranchInfo = (content, target = 'working') => {
+        const branches = op.get(content, 'branches', {});
+        const history = op.get(content, 'history', {});
+
+        setState({
+            branches,
+            [target]: {
+                content,
+                branch: history.branch,
+                revision: history.revision,
+            },
         });
     };
 
@@ -97,7 +131,8 @@ const Revisions = props => {
         setState,
         navTo,
         setBranch,
-        setBranchContent,
+        cloneBranch,
+        labelBranch,
         editor,
         onClose,
     };
@@ -110,6 +145,7 @@ const Revisions = props => {
                         main: MainScene,
                         branches: BranchesScene,
                         revisions: RevisionsScene,
+                        settings: SettingsScene,
                     }).map(([id, Component]) => (
                         <Scrollbars
                             id={id}

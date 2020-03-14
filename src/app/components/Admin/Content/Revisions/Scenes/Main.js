@@ -2,12 +2,13 @@ import React from 'react';
 import ENUMS from '../enums';
 import op from 'object-path';
 import _ from 'underscore';
-import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium from 'reactium-core/sdk';
+import { Dialog, Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { __ } from 'reactium-core/sdk';
 
-const BranchesScene = props => {
+const MainScene = props => {
     const { handle } = props;
     const { cx, state } = handle;
+    const currentBranch = op.get(state, 'working.branch');
 
     const getVersionLabel = branchId =>
         op.get(state, ['branches', branchId, 'label'], 'Unknown');
@@ -15,11 +16,11 @@ const BranchesScene = props => {
     const labels = key => ({
         label: ENUMS[key].label.replace(
             '%version',
-            getVersionLabel(op.get(state, 'currentBranch')),
+            getVersionLabel(currentBranch),
         ),
         tooltip: ENUMS[key].tooltip.replace(
             '%version',
-            getVersionLabel(op.get(state, 'currentBranch')),
+            getVersionLabel(currentBranch),
         ),
     });
 
@@ -53,13 +54,16 @@ const BranchesScene = props => {
 
     return (
         <div className={cx('main')}>
-            <div className={cx('main-options')}>
-                <div className={cx('main-options-item')}>
+            <Dialog
+                collapsible={false}
+                header={{ title: __('Manage Versions') }}
+                className={cx('dialog')}>
+                <div className={cx('main-option')}>
                     <h3
                         className={'h5 pb-xs-8'}
-                        data-tooltip={labels('SELECT_BRANCH').tooltip}
-                        data-align='top'
-                        data-vertical-align='center'>
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('SELECT_BRANCH').tooltip}>
                         {labels('SELECT_BRANCH').label}
                     </h3>
                     <Dropdown
@@ -72,47 +76,58 @@ const BranchesScene = props => {
                         )}
                         size={Button.ENUMS.SIZE.MD}
                         maxHeight={160}
-                        selection={[state.currentBranch]}
+                        selection={[currentBranch]}
                         onChange={({ selection }) => {
                             const [branchId] = selection;
                             handle.setBranch(branchId);
                         }}>
-                        <Button
-                            size={Button.ENUMS.SIZE.MD}
-                            color={Button.ENUMS.COLOR.PRIMARY}
-                            title={labels('SELECT_BRANCH').tooltip}
-                            data-dropdown-element>
-                            <div className={'select-dropdown-label'}>
-                                <span>
-                                    {op.get(
-                                        state.branches,
-                                        [state.currentBranch, 'label'],
-                                        state.currentBranch,
-                                    )}
+                        <div className='selected'>
+                            <Button
+                                className='selected-settings'
+                                size={Button.ENUMS.SIZE.MD}
+                                data-vertical-align='top'
+                                data-align='left'
+                                data-tooltip={labels('SETTINGS').tooltip}
+                                onClick={() => handle.navTo('settings')}>
+                                <span className='sr-only'>
+                                    {labels('SETTINGS').label}
                                 </span>
-                                <Icon name='Feather.ChevronDown' />
-                            </div>
-                        </Button>
+                                <Icon name='Feather.Settings' />
+                            </Button>
+                            <Button
+                                className='selected-button'
+                                size={Button.ENUMS.SIZE.MD}
+                                color={Button.ENUMS.COLOR.PRIMARY}
+                                title={labels('SELECT_BRANCH').tooltip}
+                                data-dropdown-element>
+                                <div className={'select-dropdown-label'}>
+                                    <span>
+                                        {op.get(
+                                            state.branches,
+                                            [currentBranch, 'label'],
+                                            currentBranch,
+                                        )}
+                                    </span>
+                                    <Icon name='Feather.ChevronDown' />
+                                </div>
+                            </Button>
+                        </div>
                     </Dropdown>
                 </div>
 
-                <div className={cx('main-options-item')}>
+                <div className={cx('main-option')}>
                     <h3
                         className={'h5 pb-xs-8'}
-                        data-tooltip={labels('COMPARE_BRANCH').tooltip}
-                        data-align='top'
-                        data-vertical-align='center'>
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('COMPARE_BRANCH').tooltip}>
                         {labels('COMPARE_BRANCH').label}
                     </h3>
                     <Dropdown
                         className='select-dropdown'
                         data={Object.entries(state.branches)
                             // exclude the current branch
-                            .filter(
-                                ([branch]) =>
-                                    branch !==
-                                    op.get(handle, 'state.currentBranch'),
-                            )
+                            .filter(([branch]) => branch !== currentBranch)
                             .map(([branchId, value]) => ({
                                 label: op.get(value, 'label', branchId),
                                 value: branchId,
@@ -123,7 +138,7 @@ const BranchesScene = props => {
                         onChange={({ selection }) => {
                             const [branchId] = selection;
                             if (branchId) {
-                                handle.setBranchContent(branchId, 'compare');
+                                handle.setBranch(branchId, 'compare');
                                 handle.navTo('branches');
                             }
                         }}>
@@ -131,9 +146,9 @@ const BranchesScene = props => {
                             size={Button.ENUMS.SIZE.MD}
                             color={Button.ENUMS.COLOR.PRIMARY}
                             title={labels('COMPARE_BRANCH').tooltip}
+                            data-vertical-align='top'
+                            data-align='left'
                             data-tooltip={labels('COMPARE_BRANCH').tooltip}
-                            data-align='top'
-                            data-vertical-align='center'
                             data-dropdown-element>
                             <div className={'select-dropdown-label'}>
                                 <span>{labels('COMPARE_BRANCH').label}</span>
@@ -143,33 +158,80 @@ const BranchesScene = props => {
                     </Dropdown>
                 </div>
 
-                <div className={cx('main-options-item')}>
+                <div className={cx('main-option')}>
                     <h3
                         className={'h5 pb-xs-8'}
-                        data-tooltip={labels('SET_BRANCH').tooltip}
-                        data-align='top'
-                        data-vertical-align='center'>
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('SET_BRANCH').tooltip}>
                         {labels('SET_BRANCH').tooltip}
                     </h3>
                     <Button
                         size={Button.ENUMS.SIZE.MD}
                         color={Button.ENUMS.COLOR.PRIMARY}
                         title={labels('SET_BRANCH').tooltip}
+                        data-vertical-align='top'
+                        data-align='left'
                         data-tooltip={labels('SET_BRANCH').tooltip}
-                        data-align='top'
-                        data-vertical-align='center'
                         data-dropdown-element
                         disabled={
                             op.get(handle, 'editor.value.history.branch') ===
-                            op.get(state, 'currentBranch')
+                            currentBranch
                         }
                         onClick={changeBranch}>
                         {labels('SET_BRANCH').label}
                     </Button>
                 </div>
-            </div>
+
+                <div className={cx('main-option')}>
+                    <h3
+                        className={'h5 pb-xs-8'}
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('REVISIONS').tooltip}>
+                        {labels('REVISIONS').tooltip}
+                    </h3>
+                    <Button
+                        size={Button.ENUMS.SIZE.MD}
+                        color={Button.ENUMS.COLOR.PRIMARY}
+                        appearance={'outline'}
+                        title={labels('REVISIONS').tooltip}
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('REVISIONS').tooltip}
+                        onClick={() => {
+                            handle.navTo('revisions');
+                        }}>
+                        {labels('REVISIONS').label}
+                    </Button>
+                </div>
+
+                <div className={cx('main-option')}>
+                    <h3
+                        className={'h5 pb-xs-8'}
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('CLONE').tooltip}>
+                        {labels('CLONE').tooltip}
+                    </h3>
+                    <Button
+                        size={Button.ENUMS.SIZE.MD}
+                        appearance={'outline'}
+                        color={Button.ENUMS.COLOR.PRIMARY}
+                        title={labels('CLONE').tooltip}
+                        data-vertical-align='top'
+                        data-align='left'
+                        data-tooltip={labels('CLONE').tooltip}
+                        onClick={() => {
+                            handle.cloneBranch();
+                            handle.navTo('settings');
+                        }}>
+                        {labels('CLONE').label}
+                    </Button>
+                </div>
+            </Dialog>
         </div>
     );
 };
 
-export default BranchesScene;
+export default MainScene;
