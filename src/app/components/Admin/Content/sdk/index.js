@@ -241,6 +241,78 @@ Content.setCurrent = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.labelBranch(params,handle) Content.labelBranch()
+ * @apiDescription Clone a branch / specific region as a new branch.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {Object} branchLabel New branch label.
+ * @apiParam (params) {Boolean} [current=false] When true, get the currently committed content (not from revision system).
+ otherwise, construct the content from the provided history (branch and revision index).
+ * @apiParam (params) {Object} [history] revision history to retrieve, containing branch and revision index.
+ * @apiParam (params) {String} [slug] The unique slug for the content.
+ * @apiParam (params) {String} [objectId] The objectId for the content.
+ * @apiParam (params) {String} [uuid] The uuid for the content.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiParam (history) {String} [branch=master] the revision branch of current content
+ * @apiName Content.labelBranch
+ * @apiGroup Reactium.Content
+ */
+Content.labelBranch = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const contentObj = await Reactium.Cloud.run(
+        'content-label-branch',
+        request,
+    );
+
+    await Reactium.Hook.run(
+        'content-branch-labeled',
+        contentObj,
+        request,
+        handle,
+    );
+    return contentObj;
+};
+
+/**
+  * @api {Asynchronous} Content.cloneBranch(params,handle) Content.cloneBranch()
+  * @apiDescription Clone a branch / specific revision as a new branch.
+  * @apiParam {Object} params See below
+  * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+  * @apiParam (params) {Mixed} type Type object, or type machineName
+  * @apiParam (params) {Object} branchLabel New branch label.
+  * @apiParam (params) {Boolean} [current=false] When true, get the currently committed content (not from revision system).
+  otherwise, construct the content from the provided history (branch and revision index).
+  * @apiParam (params) {Object} [history] revision history to retrieve, containing branch and revision index.
+  * @apiParam (params) {String} [slug] The unique slug for the content.
+  * @apiParam (params) {String} [objectId] The objectId for the content.
+  * @apiParam (params) {String} [uuid] The uuid for the content.
+  * @apiParam (type) {String} [objectId] Parse objectId of content type
+  * @apiParam (type) {String} [uuid] UUID of content type
+  * @apiParam (type) {String} [machineName] the machine name of the existing content type
+  * @apiParam (history) {String} [branch=master] the revision branch of current content
+  * @apiName Content.cloneBranch
+  * @apiGroup Cloud
+  */
+Content.cloneBranch = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const contentObj = await Reactium.Cloud.run(
+        'content-clone-branch',
+        request,
+    );
+
+    await Reactium.Hook.run(
+        'content-branch-cloned',
+        contentObj,
+        request,
+        handle,
+    );
+    return contentObj;
+};
+
+/**
  * @api {Asynchronous} Content.trash(params,handle) Content.trash()
  * @apiDescription Mark content for future deletion of a defined Type. To identify the content, you must provided
 the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.

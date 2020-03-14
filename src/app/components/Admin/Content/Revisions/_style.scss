@@ -10,6 +10,18 @@ $close-button-focus-outline: $color-dark !default;
     background: $revision-manager-bg-color;
     z-index: map-get($z-indexes, overlay);
 
+    &-dialog {
+        width: 90vw;
+        max-width: 400px;
+        .ar-dialog-content {
+            padding: 20px;
+            & > * {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    }
+
     &-content {
         overflow-y: hidden;
     }
@@ -62,20 +74,40 @@ $close-button-focus-outline: $color-dark !default;
         }
     }
 
-    &-main {
+    &-main, &-settings {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100%;
+    }
 
-        &-options {
-            &-item {
-                margin-bottom: 20px;
-                button {
-                    width: 260px;
-                }
-            }
+    &-option {
+        margin-bottom: 16px;
+        button {
+            width: 260px;
         }
+    }
+}
+
+.selected {
+    display: flex;
+    &-settings {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 0 1 26px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        padding: 0;
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    &-button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
     }
 }
 
@@ -83,6 +115,13 @@ $close-button-focus-outline: $color-dark !default;
     button {
         padding-left: 8px;
         padding-right: 8px;
+    }
+
+    .selected-settings {
+        padding-right: 4px;
+    }
+    .selected-button {
+        padding-left: 4px;
     }
 
     &-label {
