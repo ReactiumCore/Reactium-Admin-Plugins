@@ -266,6 +266,15 @@ const UserList = ({
                             </Link>
 
                             <div className={cx('item-actions-left')}>
+                                <Button
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    type={Button.ENUMS.TYPE.LINK}
+                                    onClick={() =>
+                                        (Reactium.User.selected = item)
+                                    }
+                                    to={`/admin/user/${item.objectId}/edit`}>
+                                    <Icon name='Feather.Edit2' size={16} />
+                                </Button>
                                 <Zone
                                     list={handle}
                                     user={item}

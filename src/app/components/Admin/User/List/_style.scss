@@ -143,6 +143,14 @@
         width: 40px;
         max-height: calc(100% - #{$padding-admin-content-zone});
         color: inherit;
+        
+        > a,
+        > button {
+            width: 100%;
+            padding: 0;
+            height: 40px;
+        }
+
 
         &:empty {
             display: none;

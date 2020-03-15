@@ -22,19 +22,7 @@ $admin-user-editor-height-min: 124px;
             flex-direction: row;
         }
 
-        &-actions {
-            order: 2;
-            padding-bottom: $padding-admin-content-zone;
-
-            @include breakpoint(sm) {
-                order: 3;
-                padding-left: $padding-admin-content-zone;
-                padding-bottom: 0;
-            }
-        }
-
         &-avatar {
-            order: 1;
             border-radius: 100%;
             width: $admin-user-editor-height-min;
             height: $admin-user-editor-height-min;
@@ -42,7 +30,6 @@ $admin-user-editor-height-min: 124px;
             background-size: cover;
             background-repeat: no-repeat;
             border: 4px solid $color-light;
-            z-index: map-get($z-indexes, header);
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
@@ -57,7 +44,6 @@ $admin-user-editor-height-min: 124px;
                 padding: 0;
                 width: 32px;
                 height: 32px;
-                opacity: 0;
                 transition: opacity 0.25s ease-in-out;
             }
         }
@@ -65,14 +51,10 @@ $admin-user-editor-height-min: 124px;
         &-info {
             flex-grow: 1;
             width: 100%;
-            min-height: $admin-user-editor-height-max;
             position: relative;
-            order: 3;
 
             @include breakpoint(sm) {
-                order: 2;
                 width: auto;
-                min-height: $admin-user-editor-height-min;
             }
 
             &-scene {
@@ -148,18 +130,45 @@ $admin-user-editor-height-min: 124px;
                 }
             }
         }
+
+        &-actions {
+            padding-top: $padding-admin-content-zone;
+
+            @include breakpoint(sm) {
+                padding-left: $padding-admin-content-zone;
+                padding-top: 0;
+            }
+        }
     }
 
     &-content {
-        z-index: map-get($z-indexes, content);
+        // z-index: map-get($z-indexes, content);
     }
 
-    .edit-mode {
-        .#{$admin-user-editor-ns}-profile-avatar {
-            button {
-                opacity: 1;
-            }
+    &-inputs {
+        padding: $padding-admin-content-zone * 2;
+        max-width: 920px;
+        margin: 0 auto;
+
+        @include breakpoint(md) {
+            padding: $padding-admin-content-zone;
         }
+
+        &:empty {
+            display: none;
+        }
+
+        &:not(:first-child) {
+            padding-top: 0;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid darken($color-admin-header-border, 5%);
     }
 
     input {

@@ -1,10 +1,17 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { __, useAsyncEffect, useRoles } from 'reactium-core/sdk';
+import Password from '../Password';
 import useAvatar from 'components/Admin/User/useAvatar';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, Icon, Scene } from '@atomic-reactor/reactium-ui';
+
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useRoles,
+    Zone,
+} from 'reactium-core/sdk';
 
 const Fullname = ({ className, ...user }) => {
     const { fname, lname, username } = user;
@@ -61,10 +68,15 @@ const Roles = ({ className, ...user }) => {
 const RoleSelect = ({ editor, ...user }) => {
     const ref = useRef();
     const roles = useRoles() || {};
-    const isMe = () => Reactium.User.isCurrent(user);
+    const isHidden = () => {
+        if (editor.isNew()) return true;
+        if (!op.has(user, 'objectId')) return true;
+
+        return Reactium.User.isCurrent(user);
+    };
 
     useEffect(() => {
-        if (!ref.current || isMe()) return;
+        if (!ref.current || isHidden()) return;
         let r = Object.keys(op.get(user, 'roles', {}));
 
         if (r.length > 0) {
@@ -100,8 +112,7 @@ const RoleSelect = ({ editor, ...user }) => {
         });
     };
 
-    return (!op.has(user, 'objectId') && !editor.isNew()) ||
-        isMe() === true ? null : (
+    return isHidden() ? null : (
         <Dropdown
             align={Dropdown.ENUMS.ALIGN.RIGHT}
             checkbox
@@ -125,6 +136,91 @@ const RoleSelect = ({ editor, ...user }) => {
     );
 };
 
+const Inputs = ({ editing, editor, ...value }) => {
+    return !editing ? null : (
+        <div>
+            <div className={cn(editor.cx('inputs'), 'row', 'mt-md-40')}>
+                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
+                    <Icon name='Linear.Profile' className='mr-xs-16' />
+                    <h2>{__('Profile Information')}</h2>
+                </div>
+                <div className='col-xs-12 col-sm-6 pr-xs-0 pr-sm-8 mb-xs-20'>
+                    <div className='form-group'>
+                        <input
+                            type='text'
+                            name='fname'
+                            placeholder={__('First Name')}
+                        />
+                    </div>
+                </div>
+                <div className='col-xs-12 col-sm-6 pl-xs-0 pl-sm-8 mb-xs-20'>
+                    <div className='form-group'>
+                        <input
+                            type='text'
+                            name='lname'
+                            placeholder={__('Last Name')}
+                        />
+                    </div>
+                </div>
+                <Zone zone={editor.cx('inputs-profile')} />
+            </div>
+            <div className={cn(editor.cx('inputs'), 'row')}>
+                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
+                    <Icon name='Linear.License2' className='mr-xs-16' />
+                    <h2>{__('Account Information')}</h2>
+                </div>
+                <div className='col-xs-12'>
+                    <div
+                        className={cn('form-group', {
+                            'input-group': !Reactium.User.isCurrent(value),
+                        })}>
+                        <input
+                            type='email'
+                            name='email'
+                            placeholder={__('Email')}
+                            style={{ marginTop: 0 }}
+                        />
+                        <RoleSelect editor={editor} {...value} />
+                    </div>
+                    {editor.isNew() && (
+                        <div className='form-group'>
+                            <input
+                                type='text'
+                                name='username'
+                                placeholder={__('Username')}
+                            />
+                        </div>
+                    )}
+                    {(editor.isNew() || Reactium.User.isCurrent(value)) && (
+                        <>
+                            <div className='form-group'>
+                                <input
+                                    type='password'
+                                    name='password'
+                                    placeholder={__('Password')}
+                                />
+                            </div>
+                            <div className='form-group'>
+                                <input
+                                    type='password'
+                                    placeholder={__('Confirm')}
+                                />
+                            </div>
+                        </>
+                    )}
+                </div>
+                <Zone zone={editor.cx('inputs-account')} />
+            </div>
+            <div className={cn(editor.cx('inputs'), 'row')}>
+                <Zone zone={editor.cx('inputs')} />
+                {!editor.isNew() && !Reactium.User.isCurrent(value) && (
+                    <Password className='col-xs-12' user={value} />
+                )}
+            </div>
+        </div>
+    );
+};
+
 const fileReader = file =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -139,15 +235,11 @@ const fileReader = file =>
     });
 
 export default ({ editor, ...props }) => {
-    const sceneRef = useRef();
     const uploadRef = useRef();
 
-    const { cx, setState, state = {}, submit, unMounted } = editor;
-    const { editing = false } = state;
-    const value = op.get(state, 'value');
+    const { cx, isNew, setState, state = {}, submit, unMounted } = editor;
+    const { editing = false, value = {} } = state;
     const [avatar] = useAvatar(value);
-
-    // console.log(value);
 
     const onFileSelected = async e => {
         if (e.target.files.length < 1) return;
@@ -167,143 +259,114 @@ export default ({ editor, ...props }) => {
     };
 
     const toggleEditMode = e => {
-        e.target.blur();
-
-        const panel =
-            sceneRef.current.active() === 'overview' ? 'edit' : 'overview';
-        const direction =
-            panel === 'overview'
-                ? Scene.ENUMS.DIRECTION.IN
-                : Scene.ENUMS.DIRECTION.OUT;
-
-        sceneRef.current.navTo({
-            panel,
-            direction,
-            animation: Scene.ENUMS.ANIMATION.FADE,
-        });
+        e.currentTarget.blur();
+        setState({ editing: !editing });
     };
 
-    const sceneChange = e => {
-        if (unMounted()) return;
-        setState({ editing: e.active !== 'overview' });
-    };
-
-    const render = () => {
-        return (
-            <div className={cn(cx('profile'), { 'edit-mode': editing })}>
-                <input
-                    type='file'
-                    ref={uploadRef}
-                    hidden
-                    onChange={onFileSelected}
-                />
-                <input type='hidden' name='avatar' />
-                <div
-                    className={cx('profile-avatar')}
-                    style={{ backgroundImage: `url(${avatar})` }}>
-                    <Button
-                        appearance={Button.ENUMS.APPEARANCE.CIRCLE}
-                        color={Button.ENUMS.COLOR.DANGER}
-                        onClick={() => onClearAvatar()}
-                        size={Button.ENUMS.SIZE.XS}>
-                        <Icon name='Feather.X' size={18} />
-                    </Button>
+    const Avatar = useCallback(() => (
+        <div
+            className={cx('profile-avatar')}
+            style={{ backgroundImage: `url(${avatar})` }}>
+            {editing && (
+                <>
+                    <input
+                        type='file'
+                        ref={uploadRef}
+                        hidden
+                        onChange={onFileSelected}
+                    />
+                    <input type='hidden' name='avatar' />
                     <Button
                         appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                         onClick={() => uploadRef.current.click()}
                         size={Button.ENUMS.SIZE.XS}>
-                        <Icon name='Feather.Edit2' size={16} />
-                    </Button>
-                </div>
-                <div className={cx('profile-info')}>
-                    <Scene
-                        active={editing ? 'edit' : 'overview'}
-                        height='auto'
-                        width='100%'
-                        ref={sceneRef}
-                        onChange={sceneChange}>
-                        <div className={cx('profile-info-scene')} id='overview'>
-                            <div>
-                                <Fullname
-                                    {...value}
-                                    className={cx('profile-info-name')}
-                                />
-
-                                <Email
-                                    {...value}
-                                    className={cx('profile-info-email')}
-                                />
-
-                                <Roles
-                                    {...value}
-                                    className={cx('profile-info-role')}
-                                />
-                            </div>
-                        </div>
-                        <div className={cx('profile-info-scene')} id='edit'>
-                            <div className='row p-xs-4'>
-                                <div className='col-xs-12 col-lg-6'>
-                                    <div className='row'>
-                                        <div className='col-xs-12 col-sm-6 pr-sm-12 pb-xs-12 pb-sm-0'>
-                                            <div className='form-group'>
-                                                <input
-                                                    type='text'
-                                                    name='fname'
-                                                    placeholder='First'
-                                                    id='fname'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className='col-xs-12 col-sm-6 pb-xs-12'>
-                                            <div className='form-group'>
-                                                <input
-                                                    type='text'
-                                                    name='lname'
-                                                    placeholder='Last'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className='col-xs-12 mb-xs-4'>
-                                            <div className='form-group'>
-                                                <div className='input-group'>
-                                                    <input
-                                                        type='email'
-                                                        name='email'
-                                                        placeholder='Email'
-                                                        style={{ marginTop: 0 }}
-                                                    />
-                                                    <RoleSelect
-                                                        editor={editor}
-                                                        {...value}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Scene>
-                </div>
-                <div className={cx('profile-actions')}>
-                    <Button
-                        appearance={Button.ENUMS.APPEARANCE.CIRCLE}
-                        color={
-                            editing
-                                ? Button.ENUMS.COLOR.DANGER
-                                : Button.ENUMS.COLOR.PRIMARY
-                        }
-                        onClick={e => toggleEditMode(e)}
-                        outline={!editing}
-                        size={Button.ENUMS.SIZE.XS}
-                        style={{ width: 32, height: 32, padding: 0 }}>
                         <Icon
-                            name={editing ? 'Feather.X' : 'Feather.Edit2'}
+                            name={
+                                editor.isNew()
+                                    ? 'Feather.Plus'
+                                    : 'Feather.Edit2'
+                            }
                             size={16}
                         />
                     </Button>
-                </div>
+                    {!editor.isNew() && (
+                        <Button
+                            appearance={Button.ENUMS.APPEARANCE.CIRCLE}
+                            color={Button.ENUMS.COLOR.DANGER}
+                            onClick={() => onClearAvatar()}
+                            size={Button.ENUMS.SIZE.XS}>
+                            <Icon name='Feather.X' size={18} />
+                        </Button>
+                    )}
+                </>
+            )}
+        </div>
+    ));
+
+    const Info = useCallback(
+        () => (
+            <div className={cx('profile-info')}>
+                {isNew() ? (
+                    <div className='text-xs-center text-sm-left'>
+                        <div>{__('Enter user information')}</div>
+                        <small>
+                            You can add the user to a role after the initial
+                            save
+                        </small>
+                    </div>
+                ) : (
+                    <>
+                        <Fullname
+                            {...value}
+                            className={cx('profile-info-name')}
+                        />
+
+                        <Email
+                            {...value}
+                            className={cx('profile-info-email')}
+                        />
+
+                        <Roles {...value} className={cx('profile-info-role')} />
+                    </>
+                )}
             </div>
+        ),
+        [value],
+    );
+
+    const Actions = useCallback(() => (
+        <div className={cx('profile-actions')}>
+            {!editor.isNew() && (
+                <Button
+                    appearance={Button.ENUMS.APPEARANCE.CIRCLE}
+                    color={
+                        editing
+                            ? Button.ENUMS.COLOR.DANGER
+                            : Button.ENUMS.COLOR.PRIMARY
+                    }
+                    onClick={e => toggleEditMode(e)}
+                    outline={!editing}
+                    size={Button.ENUMS.SIZE.XS}
+                    style={{ width: 32, height: 32, padding: 0 }}>
+                    <Icon
+                        name={editing ? 'Feather.X' : 'Feather.Edit2'}
+                        size={16}
+                    />
+                </Button>
+            )}
+        </div>
+    ));
+
+    const render = () => {
+        return (
+            <>
+                <div className={cn(cx('profile'), { 'edit-mode': editing })}>
+                    <Avatar />
+                    <Info />
+                    <Actions />
+                </div>
+                <Inputs editing={editing} editor={editor} {...value} />
+            </>
         );
     };
 

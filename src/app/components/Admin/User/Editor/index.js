@@ -2,9 +2,9 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { EventForm } from '@atomic-reactor/reactium-ui';
+//import { EventForm } from '@atomic-reactor/reactium-ui';
 
-//import { EventForm } from 'components/EventForm';
+import { EventForm } from 'components/EventForm';
 
 import React, {
     forwardRef,
@@ -99,14 +99,17 @@ let UserEditor = (
         ...params,
         clean: true,
         dirty: false,
-        editing: true,
+        editing: op.has(params, 'edit'),
         initialized: false,
         status: ENUMS.STATUS.INIT,
         title: op.get(props, 'title'),
         value: {},
     };
 
-    const [prevState, setPrevState] = useDerivedState({ ...defaultState });
+    const [prevState, setPrevState] = useDerivedState({
+        ...defaultState,
+        id: null,
+    });
 
     const [state, update] = useDerivedState(
         {
@@ -134,7 +137,7 @@ let UserEditor = (
 
         if (op.has(event, 'event')) {
             op.set(event, 'event', String(event.event).toUpperCase());
-            if (eventType === 'status') {
+            if (eventType === 'STATUS') {
                 setState({ status: event.event });
             }
         }
@@ -146,7 +149,7 @@ let UserEditor = (
         await Reactium.Hook.run(`form-user-${eventType}`, evt, handle);
         if (unMounted()) return;
 
-        if (eventType === 'status') callback = onStatus;
+        if (eventType === 'STATUS') callback = onStatus;
         if (typeof callback === 'function') await callback(evt);
         if (unMounted()) return;
 
@@ -181,6 +184,8 @@ let UserEditor = (
             ? Reactium.User.selected
             : await Reactium.User.retrieve({ objectId });
 
+        Reactium.User.selected = null;
+
         if (unMounted()) return;
 
         setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
@@ -198,6 +203,10 @@ let UserEditor = (
     };
 
     const _initialize = () => {
+        if (isNew()) {
+            setState({ editing: true });
+        }
+
         if (state.status === ENUMS.STATUS.INIT) {
             getData(state.id);
         }
@@ -238,7 +247,12 @@ let UserEditor = (
         return str;
     };
 
+    const reset = () => {
+        if (isMounted()) setState({ value: {} });
+    };
+
     const save = async value => {
+        if (!state.editing) return;
         await dispatch(ENUMS.STATUS.VALIDATED, { value });
         await dispatch('status', { event: ENUMS.STATUS.VALIDATED, value });
 
@@ -259,11 +273,12 @@ let UserEditor = (
 
     const saveHotkey = e => {
         if (e) e.preventDefault();
+        if (!state.editing) return;
         submit();
     };
 
     const submit = () => {
-        if (unMounted() || isBusy()) return;
+        if (unMounted() || isBusy() || !state.editing) return;
         formRef.current.submit();
     };
 
@@ -344,7 +359,7 @@ let UserEditor = (
             if (state.initialized !== true) return;
 
             const changed = {};
-            const watch = ['value', 'id', 'objectId'];
+            const watch = ['value', 'id', 'objectId', 'editing'];
 
             watch.forEach(field => {
                 const current = op.get(state, field);
@@ -367,6 +382,20 @@ let UserEditor = (
         },
         [Object.values(state)],
     );
+
+    // Route changed to 'new'
+    useEffect(() => {
+        if (state.id !== params.id && params.id === 'new') reset();
+    }, [params.id]);
+
+    // Route change /edit
+    useEffect(() => {
+        if (params.id !== state.editing && !isNew()) {
+            let route = `/admin/user/${params.id}`;
+            route += state.editing === true ? '/edit' : '';
+            Reactium.Routing.history.replace(route);
+        }
+    }, [state.editing]);
 
     // Update handle
     useEffect(() => {
