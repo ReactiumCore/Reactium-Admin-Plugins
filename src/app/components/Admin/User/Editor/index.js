@@ -2,7 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-//import { EventForm } from '@atomic-reactor/reactium-ui';
+import { Alert, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import { EventForm } from 'components/EventForm';
 
@@ -30,6 +30,7 @@ const ENUMS = {
     DEBUG: true,
     STATUS: {
         FAILED: 'FAILED',
+        ERROR: 'ERROR',
         INIT: 'INIT',
         LOADING: 'LOADING',
         LOADED: 'LOADED',
@@ -72,6 +73,39 @@ export class UserEvent extends CustomEvent {
         });
     }
 }
+const ErrorMessages = ({ editor, errors }) => {
+    const canFocus = element => typeof element.focus === 'function';
+
+    const jumpTo = (e, element) => {
+        e.preventDefault();
+        element.focus();
+    };
+
+    return (
+        <ul className={editor.cx('errors')}>
+            {errors.map(({ message, field, focus, value = '' }, i) => {
+                const replacers = {
+                    '%fieldName': field,
+                    '%value': value,
+                };
+                message = editor.parseErrorMessage(message, replacers);
+                message = !canFocus(focus) ? (
+                    message
+                ) : (
+                    <a href='#' onClick={e => jumpTo(e, focus)}>
+                        {message}
+                        <Icon
+                            name='Feather.CornerRightDown'
+                            size={12}
+                            className='ml-xs-8'
+                        />
+                    </a>
+                );
+                return <li key={`error-${i}`}>{message}</li>;
+            })}
+        </ul>
+    );
+};
 
 let UserEditor = (
     {
@@ -106,6 +140,10 @@ let UserEditor = (
         title: op.get(props, 'title'),
         value: {},
     };
+
+    const [alert, setAlert] = useState();
+
+    const [errors, setErrors] = useState();
 
     const [prevState, setPrevState] = useDerivedState({
         ...defaultState,
@@ -240,6 +278,14 @@ let UserEditor = (
         return val === true ? true : null;
     };
 
+    const parseErrorMessage = (str, replacers = {}) => {
+        Object.entries(replacers).forEach(([key, value]) => {
+            str = str.split(key).join(value);
+        });
+
+        return str;
+    };
+
     const parseTitle = () => {
         if (state.id === 'new') return __('New User');
 
@@ -254,22 +300,43 @@ let UserEditor = (
 
     const save = async value => {
         if (!state.editing) return;
+        setErrors(undefined);
+        setAlert(undefined);
+
         await dispatch(ENUMS.STATUS.VALIDATED, { value });
         await dispatch('status', { event: ENUMS.STATUS.VALIDATED, value });
 
-        await dispatch(ENUMS.STATUS.SAVING, { value });
+        await dispatch(ENUMS.STATUS.SAVING, { value }, onSubmit);
         await dispatch('status', { event: ENUMS.STATUS.SAVING, value });
         await Reactium.Hook.run('user-submit', value);
 
-        const updatedUser = await Reactium.User.save(value);
+        return Reactium.User.save(value)
+            .then(async updatedUser => {
+                if (_.isError(updatedUser)) {
+                    return Promise.reject(updatedUser);
+                } else {
+                    if (isNew()) {
+                        Reactium.Routing.history.push(
+                            `/admin/user/${op.get(updatedUser, 'objectId')}`,
+                        );
+                    }
 
-        if (isNew()) {
-            Reactium.Routing.history.push(
-                `/admin/user/${op.get(updatedUser, 'objectId')}`,
-            );
-        }
-
-        setState({ value: updatedUser });
+                    setState({ value: updatedUser });
+                    await dispatch(ENUMS.STATUS.SAVED, { value });
+                    await dispatch('status', {
+                        event: ENUMS.STATUS.SAVED,
+                        value,
+                    });
+                }
+            })
+            .catch(async error => {
+                await dispatch(ENUMS.STATUS.FAILED, { value, error });
+                await dispatch('status', {
+                    event: ENUMS.STATUS.FAILED,
+                    value,
+                    error,
+                });
+            });
     };
 
     const saveHotkey = e => {
@@ -279,8 +346,6 @@ let UserEditor = (
     };
 
     const submit = () => {
-        console.log(unMounted(), isBusy(), state.editing);
-
         if (unMounted() || isBusy() || !state.editing) return;
         formRef.current.submit();
     };
@@ -288,8 +353,29 @@ let UserEditor = (
     const unMounted = () => !formRef.current;
 
     const _onError = async context => {
+        const { error } = context;
+        const errors = Object.values(error);
+
+        const alertObj = {
+            message: <ErrorMessages errors={errors} editor={handle} />,
+            icon: 'Feather.AlertOctagon',
+            color: Alert.ENUMS.COLOR.DANGER,
+        };
+
+        if (isMounted()) {
+            setErrors(errors);
+            setAlert(alertObj);
+        }
+
+        _.defer(async () => {
+            await dispatch(ENUMS.STATUS.ERROR, { error }, onError);
+            await dispatch('status', { event: ENUMS.STATUS.ERROR, error });
+        });
+
         return context;
     };
+
+    const _onFail = e => {};
 
     const _onFormChange = e => {
         if (state.status === ENUMS.STATUS.LOADED) return;
@@ -311,7 +397,7 @@ let UserEditor = (
         const { value, ...context } = e;
         if (context.valid !== true) _onError(context);
 
-        await dispatch(ENUMS.STATUS.VALIDATING, { context, value });
+        await dispatch(ENUMS.STATUS.VALIDATING, { context, value }, onValidate);
         await dispatch('status', {
             event: ENUMS.STATUS.VALIDATING,
             context,
@@ -323,14 +409,20 @@ let UserEditor = (
     };
 
     const _handle = () => ({
+        EventForm: formRef,
+        alert,
         cx,
         dispatch,
+        errors,
         isBusy,
         isClean,
         isDirty,
         isMounted,
         isNew,
+        parseErrorMessage,
         save,
+        setAlert,
+        setErrors,
         setState,
         state,
         submit,
@@ -364,9 +456,16 @@ let UserEditor = (
             const changed = {};
             const watch = ['value', 'id', 'objectId', 'editing'];
 
+            const cstate = JSON.parse(JSON.stringify(op.get(state)));
+            const pstate = JSON.parse(JSON.stringify(op.get(prevState)));
+
+            // ignore the status field
+            op.del(cstate, 'status');
+            op.del(pstate, 'status');
+
             watch.forEach(field => {
-                const current = op.get(state, field);
-                const previous = op.get(prevState, field);
+                const current = op.get(cstate, field);
+                const previous = op.get(pstate, field);
 
                 if (!_.isEqual(current, previous)) {
                     op.set(changed, field, { current, previous });
@@ -414,12 +513,15 @@ let UserEditor = (
         const { value } = state;
         const { objectId } = value;
 
+        const reqs = isNew() ? ['email', 'username', 'password'] : ['email'];
+
         return (
             <>
                 <Helmet>
                     <title>{parseTitle()}</title>
                 </Helmet>
                 <EventForm
+                    required={reqs}
                     id={ComponentID}
                     className={cname}
                     onChange={_onFormChange}

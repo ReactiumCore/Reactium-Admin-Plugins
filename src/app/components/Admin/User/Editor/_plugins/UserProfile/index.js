@@ -4,7 +4,13 @@ import op from 'object-path';
 import Password from '../Password';
 import useAvatar from 'components/Admin/User/useAvatar';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Dropdown, Icon, Scene } from '@atomic-reactor/reactium-ui';
+import {
+    Alert,
+    Button,
+    Dropdown,
+    Icon,
+    Scene,
+} from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,
@@ -12,6 +18,39 @@ import Reactium, {
     useRoles,
     Zone,
 } from 'reactium-core/sdk';
+
+const Email = ({ className, ...user }) => {
+    return (
+        <div className={cn(className, 'text-xs-center', 'text-sm-left')}>
+            {op.get(user, 'email')}
+        </div>
+    );
+};
+
+const Errors = ({ editing, editor }) => {
+    const { alert, cx, state, setAlert, setState } = editor;
+
+    const Ico = useCallback(() => (
+        <Icon name={op.get(alert, 'icon', 'Feather.AlertOctagon')} />
+    ));
+
+    const onHide = () => {
+        setAlert(undefined);
+        setState(state);
+    };
+
+    return !editing || !alert ? null : (
+        <div className={cx('alert')}>
+            <Alert
+                color={op.get(alert, 'color')}
+                dismissable
+                icon={<Ico />}
+                onHide={onHide}>
+                {op.get(alert, 'message')}
+            </Alert>
+        </div>
+    );
+};
 
 const Fullname = ({ className, ...user }) => {
     const { fname, lname, username } = user;
@@ -39,10 +78,135 @@ const Fullname = ({ className, ...user }) => {
     );
 };
 
-const Email = ({ className, ...user }) => {
-    return (
-        <div className={cn(className, 'text-xs-center', 'text-sm-left')}>
-            {op.get(user, 'email')}
+const Inputs = ({ editing, editor, ...value }) => {
+    const { errors, isNew } = editor;
+
+    const isError = field => {
+        const errs = _.indexBy(errors, 'field');
+        return op.get(errs, field, false);
+    };
+
+    return !editing ? null : (
+        <div>
+            <div className={cn(editor.cx('inputs'), 'row', 'mt-md-40')}>
+                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
+                    <Icon name='Linear.Profile' className='mr-xs-16' />
+                    <h2>{__('Profile Information')}</h2>
+                </div>
+                <div className='col-xs-12 col-sm-6 pr-xs-0 pr-sm-8 mb-xs-20'>
+                    <div
+                        className={cn('form-group', {
+                            error: isError('fname'),
+                        })}>
+                        <input
+                            type='text'
+                            name='fname'
+                            placeholder={__('First Name')}
+                        />
+                    </div>
+                </div>
+                <div className='col-xs-12 col-sm-6 pl-xs-0 pl-sm-8 mb-xs-20'>
+                    <div
+                        className={cn('form-group', {
+                            error: isError('lname'),
+                        })}>
+                        <input
+                            type='text'
+                            name='lname'
+                            placeholder={__('Last Name')}
+                        />
+                    </div>
+                </div>
+                <Zone
+                    zone={editor.cx('inputs-profile')}
+                    editing={editing}
+                    editor={editor}
+                    {...value}
+                />
+            </div>
+            <div className={cn(editor.cx('inputs'), 'row')}>
+                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
+                    <Icon name='Linear.License2' className='mr-xs-16' />
+                    <h2>{__('Account Information')}</h2>
+                </div>
+                <div className='col-xs-12'>
+                    <div
+                        className={cn('form-group', {
+                            error: isError('email'),
+                            'input-group':
+                                !Reactium.User.isCurrent(value) && !isNew(),
+                        })}>
+                        <input
+                            type='email'
+                            name='email'
+                            placeholder={__('Email')}
+                            style={{ marginTop: 0 }}
+                        />
+                        <RoleSelect editor={editor} {...value} />
+                        {isError('email') && (
+                            <small>{isError('email').message}</small>
+                        )}
+                    </div>
+                    {editor.isNew() && (
+                        <div
+                            className={cn('form-group', {
+                                error: isError('username'),
+                            })}>
+                            <input
+                                type='text'
+                                name='username'
+                                placeholder={__('Username')}
+                            />
+                            {isError('email') && (
+                                <small>{isError('username').message}</small>
+                            )}
+                        </div>
+                    )}
+                    {(editor.isNew() || Reactium.User.isCurrent(value)) && (
+                        <>
+                            <div
+                                className={cn('form-group', {
+                                    error: isError('password'),
+                                })}>
+                                <input
+                                    type='password'
+                                    name='password'
+                                    placeholder={__('Password')}
+                                />
+                                {isError('password') && (
+                                    <small>{isError('password').message}</small>
+                                )}
+                            </div>
+                            <div className='form-group'>
+                                <input
+                                    type='password'
+                                    placeholder={__('Confirm')}
+                                />
+                                {isError('confirm') && (
+                                    <small>{isError('confirm').message}</small>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+                <Zone
+                    zone={editor.cx('inputs-account')}
+                    editing={editing}
+                    editor={editor}
+                    {...value}
+                />
+            </div>
+            <div className={cn(editor.cx('inputs'), 'row')}>
+                <Zone
+                    zone={editor.cx('inputs')}
+                    editing={editing}
+                    editor={editor}
+                    {...value}
+                />
+                {!editor.isNew() && !Reactium.User.isCurrent(value) && (
+                    <Password className='col-xs-12' user={value} />
+                )}
+            </div>
         </div>
     );
 };
@@ -133,91 +297,6 @@ const RoleSelect = ({ editor, ...user }) => {
                 </Button>
             </div>
         </Dropdown>
-    );
-};
-
-const Inputs = ({ editing, editor, ...value }) => {
-    return !editing ? null : (
-        <div>
-            <div className={cn(editor.cx('inputs'), 'row', 'mt-md-40')}>
-                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
-                    <Icon name='Linear.Profile' className='mr-xs-16' />
-                    <h2>{__('Profile Information')}</h2>
-                </div>
-                <div className='col-xs-12 col-sm-6 pr-xs-0 pr-sm-8 mb-xs-20'>
-                    <div className='form-group'>
-                        <input
-                            type='text'
-                            name='fname'
-                            placeholder={__('First Name')}
-                        />
-                    </div>
-                </div>
-                <div className='col-xs-12 col-sm-6 pl-xs-0 pl-sm-8 mb-xs-20'>
-                    <div className='form-group'>
-                        <input
-                            type='text'
-                            name='lname'
-                            placeholder={__('Last Name')}
-                        />
-                    </div>
-                </div>
-                <Zone zone={editor.cx('inputs-profile')} />
-            </div>
-            <div className={cn(editor.cx('inputs'), 'row')}>
-                <div className='col-xs-12 mb-xs-16 pb-xs-16 flex middle border-bottom'>
-                    <Icon name='Linear.License2' className='mr-xs-16' />
-                    <h2>{__('Account Information')}</h2>
-                </div>
-                <div className='col-xs-12'>
-                    <div
-                        className={cn('form-group', {
-                            'input-group': !Reactium.User.isCurrent(value),
-                        })}>
-                        <input
-                            type='email'
-                            name='email'
-                            placeholder={__('Email')}
-                            style={{ marginTop: 0 }}
-                        />
-                        <RoleSelect editor={editor} {...value} />
-                    </div>
-                    {editor.isNew() && (
-                        <div className='form-group'>
-                            <input
-                                type='text'
-                                name='username'
-                                placeholder={__('Username')}
-                            />
-                        </div>
-                    )}
-                    {(editor.isNew() || Reactium.User.isCurrent(value)) && (
-                        <>
-                            <div className='form-group'>
-                                <input
-                                    type='password'
-                                    name='password'
-                                    placeholder={__('Password')}
-                                />
-                            </div>
-                            <div className='form-group'>
-                                <input
-                                    type='password'
-                                    placeholder={__('Confirm')}
-                                />
-                            </div>
-                        </>
-                    )}
-                </div>
-                <Zone zone={editor.cx('inputs-account')} />
-            </div>
-            <div className={cn(editor.cx('inputs'), 'row')}>
-                <Zone zone={editor.cx('inputs')} />
-                {!editor.isNew() && !Reactium.User.isCurrent(value) && (
-                    <Password className='col-xs-12' user={value} />
-                )}
-            </div>
-        </div>
     );
 };
 
@@ -365,6 +444,7 @@ export default ({ editor, ...props }) => {
                     <Info />
                     <Actions />
                 </div>
+                <Errors editing={editing} editor={editor} {...value} />
                 <Inputs editing={editing} editor={editor} {...value} />
             </>
         );
