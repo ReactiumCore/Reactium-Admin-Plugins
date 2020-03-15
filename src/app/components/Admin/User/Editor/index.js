@@ -27,6 +27,7 @@ import Reactium, {
 const noop = () => {};
 
 const ENUMS = {
+    DEBUG: true,
     STATUS: {
         FAILED: 'FAILED',
         INIT: 'INIT',
@@ -45,11 +46,11 @@ const ENUMS = {
 };
 
 const debug = (...args) => {
-    const qstring = Reactium.Routing.history.location.search;
-    if (!qstring) return;
-    const params = new URLSearchParams(qstring);
-    if (!params.get('debug')) return;
-    console.log(...args);
+    // const qstring = Reactium.Routing.history.location.search;
+    // if (!qstring) return;
+    // const params = new URLSearchParams(qstring);
+    // if (!params.get('debug')) return;
+    if (ENUMS.DEBUG === true) console.log(...args);
 };
 
 export class UserEvent extends CustomEvent {
@@ -184,8 +185,6 @@ let UserEditor = (
             ? Reactium.User.selected
             : await Reactium.User.retrieve({ objectId });
 
-        Reactium.User.selected = null;
-
         if (unMounted()) return;
 
         setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
@@ -195,7 +194,9 @@ let UserEditor = (
             objectId,
             value,
         });
+
         dispatch(ENUMS.STATUS.LOADED, { objectId, value }, onLoad);
+
         _.defer(() => {
             setState({ status: ENUMS.STATUS.READY });
             dispatch('status', { event: ENUMS.STATUS.READY });
@@ -278,6 +279,8 @@ let UserEditor = (
     };
 
     const submit = () => {
+        console.log(unMounted(), isBusy(), state.editing);
+
         if (unMounted() || isBusy() || !state.editing) return;
         formRef.current.submit();
     };
