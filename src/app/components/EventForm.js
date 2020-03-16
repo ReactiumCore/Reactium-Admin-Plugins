@@ -331,7 +331,7 @@ let EventForm = (initialProps, ref) => {
         if (missing.length > 0) {
             context.valid = false;
             missing.forEach(field => {
-                error[field] = {
+                context.error[field] = {
                     field,
                     focus: elements[field],
                     message: `${field} is a required field`,

@@ -107,6 +107,12 @@ $admin-user-editor-height-min: 124px;
                 color: $color-dark;
             }
 
+            &-username {
+                font-size: 14px;
+                color: $color-gray;
+                margin-top: 4px;
+            }
+
             &-email {
                 font-size: 12px;
                 margin-top: 2px;
@@ -164,6 +170,42 @@ $admin-user-editor-height-min: 124px;
 
         h2 {
             font-size: 20px;
+        }
+    }
+
+    &-alert {
+        padding: $padding-admin-content-zone;
+        padding-bottom: 0;
+
+        &:empty {
+            display: none;
+        }
+
+        ul, li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ico {
+            display: flex;
+            margin-right: 12px !important;
+        }
+
+        .dismiss {
+            margin-top: 2px;
+        }
+
+        .content {
+            padding: 0;
+            line-height: 24px;
+        }
+    }
+
+    &-errors,
+    &-notice {
+        > li {
+            line-height: 24px;
         }
     }
 

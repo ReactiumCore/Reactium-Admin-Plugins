@@ -7,13 +7,17 @@ import HeaderWidget from './HeaderWidget';
 
 import SidebarWidget from './SidebarWidget';
 
-import UserList, { EmailWidget, ListWidgets } from './List';
-import Order from './List/Order';
-import Filters from './List/Filters';
-import Pagination from './List/Pagination';
+import UserList from './List';
+import {
+    EmailWidget,
+    Filters,
+    ListWidgets,
+    Order,
+    Pagination,
+} from './List/_plugins';
 
 import UserEditor from './Editor';
-import UserProfile from './Editor/_plugins/UserProfile';
+import { Notice, UserInputs, UserProfile } from './Editor/_plugins';
 
 Reactium.Plugin.register(
     'AdminUsers',
@@ -98,6 +102,20 @@ Reactium.Plugin.register(
     Reactium.Zone.addComponent({
         id: 'ADMIN-USER-EDITOR-PROFILE',
         component: UserProfile,
+        zone: ['admin-user-editor-profile'],
+        order: Reactium.Enums.priority.lowest,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-EDITOR-NOTICE',
+        component: Notice,
+        zone: ['admin-user-editor-profile'],
+        order: Reactium.Enums.priority.lowest + 1,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-EDITOR-FORM',
+        component: UserInputs,
         zone: ['admin-user-editor-form'],
     });
 });

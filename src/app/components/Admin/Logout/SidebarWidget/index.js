@@ -1,6 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import { useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const noop = {
     dismiss: () => {},

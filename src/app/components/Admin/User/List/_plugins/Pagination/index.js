@@ -3,8 +3,8 @@ import op from 'object-path';
 import uuid from 'uuid/v4';
 import Reactium from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
-import { Pagination } from '@atomic-reactor/reactium-ui';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
+import { Pagination as PaginationUI } from '@atomic-reactor/reactium-ui';
 
 const Wrap = ({ children, zone }) => {
     switch (zone) {
@@ -35,13 +35,13 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
 
         switch (zone) {
             case 'admin-user-list-bottom':
-                color = Pagination.COLOR.CLEAR;
+                color = PaginationUI.COLOR.CLEAR;
                 verticalAlign = 'top';
                 size = 'md';
                 break;
 
             default:
-                color = Pagination.COLOR.CLEAR;
+                color = PaginationUI.COLOR.CLEAR;
                 verticalAlign = 'bottom';
                 size = 'sm';
                 break;
@@ -49,7 +49,7 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
 
         return (
             <Wrap zone={zone}>
-                <Pagination
+                <PaginationUI
                     dropdown
                     color={color}
                     onChange={onChange}
@@ -66,10 +66,12 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
     return render();
 };
 
-export default props => {
+const Pagination = props => {
     const list = op.get(props, 'list');
     const { path } = useRouteParams(['path']);
     const isVisible = () =>
         Boolean(String(path).startsWith('/admin/users/') && list);
     return isVisible() ? <PaginationComponent {...props} path={path} /> : null;
 };
+
+export { Pagination, Pagination as default };
