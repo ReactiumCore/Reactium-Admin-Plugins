@@ -41,6 +41,9 @@ const SettingsScene = props => {
                         data-tooltip={labels.tooltip}>
                         {labels.tooltip}
                     </h3>
+                    <strong className={'pb-xs-4'}>
+                        {__('Version ID:')} {currentBranch}
+                    </strong>
                     <div className='form-group pb-xs-16'>
                         <input
                             type='text'
