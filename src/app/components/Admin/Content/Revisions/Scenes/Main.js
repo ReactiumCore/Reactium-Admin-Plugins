@@ -87,7 +87,11 @@ const MainScene = props => {
                                 className='selected-button'
                                 size={Button.ENUMS.SIZE.MD}
                                 color={Button.ENUMS.COLOR.PRIMARY}
-                                title={handle.labels('SELECT_BRANCH').tooltip}
+                                data-vertical-align='top'
+                                data-align='left'
+                                data-tooltip={
+                                    handle.labels('SELECT_BRANCH').tooltip
+                                }
                                 data-dropdown-element>
                                 <div className={'select-dropdown-label'}>
                                     <span>
