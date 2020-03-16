@@ -1,9 +1,8 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Password from '../Password';
 import useAvatar from 'components/Admin/User/useAvatar';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
@@ -48,10 +47,12 @@ const Actions = ({ editor }) => {
 };
 
 const Avatar = ({ editor }) => {
-    const { cx, isNew, setState, state = {} } = editor;
+    const { cx, isNew, refs, state = {} } = editor;
     const { editing = false, value = {} } = state;
 
-    const [avatar] = useAvatar(value);
+    const [avatar, updateAvatar] = useAvatar(value);
+    const [updated, forceUpdate] = useState(Date.now());
+    const avatarRef = useRef();
     const uploadRef = useRef();
 
     const fileReader = file =>
@@ -68,20 +69,14 @@ const Avatar = ({ editor }) => {
         });
 
     const onClearAvatar = () => {
-        op.set(value, 'avatar', null);
-        setState({ value });
+        editor.setAvatar();
     };
 
     const onFileSelected = async e => {
         if (e.target.files.length < 1) return;
-
         const data = await fileReader(_.last(e.target.files));
-
-        op.set(value, 'avatar', data);
-
-        setState({ value });
-
         uploadRef.current.value = null;
+        editor.setAvatar(data);
     };
 
     return (
@@ -96,7 +91,6 @@ const Avatar = ({ editor }) => {
                         hidden
                         onChange={onFileSelected}
                     />
-                    <input type='hidden' name='avatar' />
                     <Button
                         appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                         onClick={() => uploadRef.current.click()}
@@ -106,7 +100,7 @@ const Avatar = ({ editor }) => {
                             size={16}
                         />
                     </Button>
-                    {!isNew() && (
+                    {op.get(value, 'avatar') && (
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                             color={Button.ENUMS.COLOR.DANGER}

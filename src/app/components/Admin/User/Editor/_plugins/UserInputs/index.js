@@ -17,6 +17,7 @@ const UserInputs = ({ editor }) => {
 
     return (
         <div>
+            <input type='hidden' name='avatar' />
             {op.get(value, 'objectId') && (
                 <input type='hidden' name='objectId' />
             )}

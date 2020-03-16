@@ -28,7 +28,7 @@ import Reactium, {
 const noop = () => {};
 
 const ENUMS = {
-    DEBUG: true,
+    DEBUG: false,
     STATUS: {
         FAILED: 'FAILED',
         ERROR: 'ERROR',
@@ -48,10 +48,6 @@ const ENUMS = {
 };
 
 const debug = (...args) => {
-    // const qstring = Reactium.Routing.history.location.search;
-    // if (!qstring) return;
-    // const params = new URLSearchParams(qstring);
-    // if (!params.get('debug')) return;
     if (ENUMS.DEBUG === true) console.log(...args);
 };
 
@@ -179,6 +175,12 @@ let UserEditor = (
         forceUpdate(Date.now());
     };
 
+    const setAvatar = avatar => {
+        if (unMounted()) return;
+        const value = { ...state.value, avatar };
+        setState({ value });
+    };
+
     const setState = newState => {
         if (unMounted()) return;
         setPrevState(JSON.parse(JSON.stringify(state)));
@@ -193,6 +195,16 @@ let UserEditor = (
         if (unMounted()) return;
 
         eventType = String(eventType).toUpperCase();
+
+        // passive dirty events
+        const dirtyEvents = _.pluck(Reactium.User.DirtyEvent.list, 'id');
+        if (dirtyEvents.includes(String(eventType).toLowerCase())) {
+            setState({ dirty: event, clean: false });
+
+            // NOTE: DONOT await these dispatch calls so that they happen after the current process
+            dispatch('dirty', event);
+            dispatch('status', { event: 'dirty', ...event });
+        }
 
         if (op.has(event, 'event')) {
             op.set(event, 'event', String(event.event).toUpperCase());
@@ -212,15 +224,8 @@ let UserEditor = (
         if (typeof callback === 'function') await callback(evt);
         if (unMounted()) return;
 
-        // passive clean/dirty events
-        const dirtyEvents = _.pluck(Reactium.User.DirtyEvent.list, 'id');
+        // passive clean events
         const scrubEvents = _.pluck(Reactium.User.ScrubEvent.list, 'id');
-
-        if (dirtyEvents.includes(String(eventType).toLowerCase())) {
-            setState({ dirty: event, clean: false });
-            await dispatch('dirty', event);
-            await dispatch('status', { event: 'dirty', ...event });
-        }
         if (scrubEvents.includes(String(eventType).toLowerCase())) {
             setState({ clean: event, dirty: false });
             await dispatch('clean', event);
@@ -237,15 +242,28 @@ let UserEditor = (
         await dispatch('status', { event: ENUMS.STATUS.LOADING, objectId });
         await dispatch(ENUMS.STATUS.LOADING, { objectId });
 
-        const value = isNew()
+        let value = isNew()
             ? {}
             : Reactium.User.selected
             ? Reactium.User.selected
             : await Reactium.User.retrieve({ objectId });
 
+        Reactium.User.selected = null;
+
         if (unMounted()) return;
 
-        setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
+        if (!isNew() && (!value || _.isEmpty(value))) {
+            Reactium.Routing.history.replace('/admin/user/new');
+            value = {};
+            setState({
+                value,
+                status: ENUMS.STATUS.LOADED,
+                initialized: true,
+                editing: true,
+            });
+        } else {
+            setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
+        }
 
         await dispatch('status', {
             event: ENUMS.STATUS.LOADED,
@@ -455,6 +473,12 @@ let UserEditor = (
             }
         }, 3000);
 
+        if (isNew()) {
+            Reactium.Routing.history.push(
+                `/admin/user/${op.get(user, 'objectId')}`,
+            );
+        }
+
         setState({ value: user });
 
         await dispatch(ENUMS.STATUS.SAVED, { value: user }, onSuccess);
@@ -462,12 +486,6 @@ let UserEditor = (
             event: ENUMS.STATUS.SAVED,
             value: user,
         });
-
-        if (isNew()) {
-            Reactium.Routing.history.push(
-                `/admin/user/${op.get(user, 'objectId')}`,
-            );
-        }
 
         let message = __('Saved %username!');
         message = message.replace(/\%username/gi, user.username);
@@ -493,7 +511,7 @@ let UserEditor = (
                     focus: op.get(formRef.current, 'elements.confirm'),
                     message: __('confirm password'),
                 };
-            } else if (value.password !== confirm.password) {
+            } else if (value.password !== value.confirm) {
                 context.valid = false;
                 context.error['confirm'] = {
                     field: 'confirm',
@@ -527,6 +545,7 @@ let UserEditor = (
         cx,
         dispatch,
         errors,
+        forceUpdate,
         isBusy,
         isClean,
         isDirty,
@@ -535,6 +554,7 @@ let UserEditor = (
         parseErrorMessage,
         save,
         setAlert,
+        setAvatar,
         setErrors,
         setState,
         state,
@@ -571,10 +591,6 @@ let UserEditor = (
 
             const cstate = JSON.parse(JSON.stringify(op.get(state)));
             const pstate = JSON.parse(JSON.stringify(op.get(prevState)));
-
-            // ignore the status field
-            // op.del(cstate, 'status');
-            // op.del(pstate, 'status');
 
             watch.forEach(field => {
                 const current = op.get(cstate, field);
