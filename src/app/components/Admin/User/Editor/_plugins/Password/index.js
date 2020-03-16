@@ -12,7 +12,7 @@ const Message = () => (
     </>
 );
 
-export default ({ className, disabled = false, state, user, ...props }) => {
+const Password = ({ className, disabled = false, state, user, ...props }) => {
     const ConfirmBox = useHookComponent('ConfirmBox');
 
     const tools = useHandle('AdminTools');
@@ -99,3 +99,5 @@ export default ({ className, disabled = false, state, user, ...props }) => {
 
     return render();
 };
+
+export { Password, Password as default };

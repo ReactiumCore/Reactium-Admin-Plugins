@@ -2,7 +2,7 @@ import React from 'react';
 import op from 'object-path';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
-export default ({ list: List }) => {
+const Order = ({ list: List }) => {
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
         style: { width: 40, height: 40, padding: 0 },
@@ -31,3 +31,5 @@ export default ({ list: List }) => {
         </Button>
     );
 };
+
+export { Order, Order as default };

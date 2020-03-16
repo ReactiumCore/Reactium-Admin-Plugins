@@ -107,6 +107,12 @@ $admin-user-editor-height-min: 124px;
                 color: $color-dark;
             }
 
+            &-username {
+                font-size: 14px;
+                color: $color-gray;
+                margin-top: 4px;
+            }
+
             &-email {
                 font-size: 12px;
                 margin-top: 2px;
@@ -183,7 +189,6 @@ $admin-user-editor-height-min: 124px;
 
         .ico {
             display: flex;
-            padding-top: 4px;
             margin-right: 12px !important;
         }
 
@@ -193,6 +198,14 @@ $admin-user-editor-height-min: 124px;
 
         .content {
             padding: 0;
+            line-height: 24px;
+        }
+    }
+
+    &-errors,
+    &-notice {
+        > li {
+            line-height: 24px;
         }
     }
 

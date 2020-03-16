@@ -19,6 +19,7 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
+    useHandle,
     useHookComponent,
     useRegisterHandle,
     Zone,
@@ -126,6 +127,12 @@ let UserEditor = (
     },
     ref,
 ) => {
+    const tools = useHandle('AdminTools');
+
+    const Toast = op.get(tools, 'Toast');
+
+    const alertRef = useRef();
+    const containerRef = useRef();
     const formRef = useRef();
 
     const Helmet = useHookComponent('Helmet');
@@ -141,9 +148,11 @@ let UserEditor = (
         value: {},
     };
 
-    const [alert, setAlert] = useState();
+    const [alert, setNewAlert] = useState();
 
     const [errors, setErrors] = useState();
+
+    const [updated, setUpdated] = useState();
 
     const [prevState, setPrevState] = useDerivedState({
         ...defaultState,
@@ -158,6 +167,17 @@ let UserEditor = (
         },
         ['dirty', 'id', 'initialized', 'status', 'title'],
     );
+
+    const forceUpdate = () => {
+        if (unMounted()) return;
+        setUpdated(Date.now());
+    };
+
+    const setAlert = newAlert => {
+        if (unMounted()) return;
+        setNewAlert(newAlert);
+        forceUpdate(Date.now());
+    };
 
     const setState = newState => {
         if (unMounted()) return;
@@ -210,12 +230,12 @@ let UserEditor = (
 
     const getData = async objectId => {
         if (unMounted()) return;
-        formRef.current.setValue(null);
+        if (formRef.current) formRef.current.setValue(null);
 
         setState({ status: ENUMS.STATUS.LOADING, initialized: false });
 
-        dispatch('status', { event: ENUMS.STATUS.LOADING, objectId });
-        dispatch(ENUMS.STATUS.LOADING, { objectId });
+        await dispatch('status', { event: ENUMS.STATUS.LOADING, objectId });
+        await dispatch(ENUMS.STATUS.LOADING, { objectId });
 
         const value = isNew()
             ? {}
@@ -227,17 +247,17 @@ let UserEditor = (
 
         setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
 
-        dispatch('status', {
+        await dispatch('status', {
             event: ENUMS.STATUS.LOADED,
             objectId,
             value,
         });
 
-        dispatch(ENUMS.STATUS.LOADED, { objectId, value }, onLoad);
+        await dispatch(ENUMS.STATUS.LOADED, { objectId, value }, onLoad);
 
-        _.defer(() => {
+        _.defer(async () => {
             setState({ status: ENUMS.STATUS.READY });
-            dispatch('status', { event: ENUMS.STATUS.READY });
+            await dispatch('status', { event: ENUMS.STATUS.READY });
         });
     };
 
@@ -300,8 +320,15 @@ let UserEditor = (
 
     const save = async value => {
         if (!state.editing) return;
+        const saveMessage = __('Saving...');
+        const alertObj = {
+            color: Alert.ENUMS.COLOR.INFO,
+            message: saveMessage,
+            icon: 'Feather.UploadCloud',
+        };
+
+        setAlert(alertObj);
         setErrors(undefined);
-        setAlert(undefined);
 
         await dispatch(ENUMS.STATUS.VALIDATED, { value });
         await dispatch('status', { event: ENUMS.STATUS.VALIDATED, value });
@@ -311,32 +338,14 @@ let UserEditor = (
         await Reactium.Hook.run('user-submit', value);
 
         return Reactium.User.save(value)
-            .then(async updatedUser => {
-                if (_.isError(updatedUser)) {
-                    return Promise.reject(updatedUser);
+            .then(async response => {
+                if (_.isError(response)) {
+                    return Promise.reject(response);
                 } else {
-                    if (isNew()) {
-                        Reactium.Routing.history.push(
-                            `/admin/user/${op.get(updatedUser, 'objectId')}`,
-                        );
-                    }
-
-                    setState({ value: updatedUser });
-                    await dispatch(ENUMS.STATUS.SAVED, { value });
-                    await dispatch('status', {
-                        event: ENUMS.STATUS.SAVED,
-                        value,
-                    });
+                    return _onSuccess({ user: response });
                 }
             })
-            .catch(async error => {
-                await dispatch(ENUMS.STATUS.FAILED, { value, error });
-                await dispatch('status', {
-                    event: ENUMS.STATUS.FAILED,
-                    value,
-                    error,
-                });
-            });
+            .catch(error => _onFail({ error, value }));
     };
 
     const saveHotkey = e => {
@@ -350,7 +359,7 @@ let UserEditor = (
         formRef.current.submit();
     };
 
-    const unMounted = () => !formRef.current;
+    const unMounted = () => !containerRef;
 
     const _onError = async context => {
         const { error } = context;
@@ -375,7 +384,43 @@ let UserEditor = (
         return context;
     };
 
-    const _onFail = e => {};
+    const _onFail = async e => {
+        const { error, value } = e;
+        if (error) {
+            const alertObj = {
+                color: Alert.ENUMS.COLOR.DANGER,
+                message: (
+                    <ul className={cx('errors')}>
+                        <li>{op.get(error, 'message')}</li>
+                    </ul>
+                ),
+                icon: 'Feather.AlertOctagon',
+            };
+
+            setAlert(alertObj);
+        }
+
+        await dispatch(ENUMS.STATUS.FAILED, { error, value }, onFail);
+        await dispatch('status', {
+            event: ENUMS.STATUS.FAILED,
+            error,
+            value,
+        });
+
+        let message = __('Unable to save %username');
+        message = String(message).replace(
+            /\%username/gi,
+            op.get(value, 'username', 'user'),
+        );
+
+        Toast.show({
+            icon: 'Feather.AlertOctagon',
+            message,
+            type: Toast.TYPE.ERROR,
+        });
+
+        return Promise.resolve(e);
+    };
 
     const _onFormChange = e => {
         if (state.status === ENUMS.STATUS.LOADED) return;
@@ -393,9 +438,70 @@ let UserEditor = (
         return save(value);
     };
 
+    const _onSuccess = async e => {
+        const { user } = e;
+
+        const alertObj = {
+            color: Alert.ENUMS.COLOR.INFO,
+            message: __('Save Complete!'),
+            icon: 'Feather.Check',
+        };
+
+        setAlert(alertObj);
+
+        setTimeout(() => {
+            if (isMounted() && alertRef.current) {
+                alertRef.current.hide();
+            }
+        }, 3000);
+
+        setState({ value: user });
+
+        await dispatch(ENUMS.STATUS.SAVED, { value: user }, onSuccess);
+        await dispatch('status', {
+            event: ENUMS.STATUS.SAVED,
+            value: user,
+        });
+
+        if (isNew()) {
+            Reactium.Routing.history.push(
+                `/admin/user/${op.get(user, 'objectId')}`,
+            );
+        }
+
+        let message = __('Saved %username!');
+        message = message.replace(/\%username/gi, user.username);
+
+        Toast.show({
+            icon: 'Feather.UserCheck',
+            message,
+            type: Toast.TYPE.INFO,
+        });
+
+        return Promise.resolve(e);
+    };
+
     const _onValidate = async e => {
         const { value, ...context } = e;
-        if (context.valid !== true) _onError(context);
+
+        // check password
+        if (op.get(value, 'password')) {
+            if (!op.get(value, 'confirm')) {
+                context.valid = false;
+                context.error['confirm'] = {
+                    field: 'confirm',
+                    focus: op.get(formRef.current, 'elements.confirm'),
+                    message: __('confirm password'),
+                };
+            } else if (value.password !== confirm.password) {
+                context.valid = false;
+                context.error['confirm'] = {
+                    field: 'confirm',
+                    focus: op.get(formRef.current, 'elements.confirm'),
+                    message: __('passwords do not match'),
+                };
+            }
+        }
 
         await dispatch(ENUMS.STATUS.VALIDATING, { context, value }, onValidate);
         await dispatch('status', {
@@ -403,13 +509,20 @@ let UserEditor = (
             context,
             value,
         });
+
         await Reactium.Hook.run('user-validate', { context, value });
+
+        if (context.valid !== true) _onError(context);
 
         return { ...context, value };
     };
 
     const _handle = () => ({
-        EventForm: formRef,
+        refs: {
+            alertRef,
+            containerRef,
+            formRef,
+        },
         alert,
         cx,
         dispatch,
@@ -460,8 +573,8 @@ let UserEditor = (
             const pstate = JSON.parse(JSON.stringify(op.get(prevState)));
 
             // ignore the status field
-            op.del(cstate, 'status');
-            op.del(pstate, 'status');
+            // op.del(cstate, 'status');
+            // op.del(pstate, 'status');
 
             watch.forEach(field => {
                 const current = op.get(cstate, field);
@@ -502,7 +615,7 @@ let UserEditor = (
     // Update handle
     useEffect(() => {
         updateHandle(_handle());
-    }, [Object.values(state)]);
+    }, [Object.values(state), alert, errors]);
 
     // Register handle
     useImperativeHandle(ref, () => handle, [handle]);
@@ -510,9 +623,7 @@ let UserEditor = (
 
     // Render
     const render = () => {
-        const { value } = state;
-        const { objectId } = value;
-
+        const { editing, value } = state;
         const reqs = isNew() ? ['email', 'username', 'password'] : ['email'];
 
         return (
@@ -520,18 +631,24 @@ let UserEditor = (
                 <Helmet>
                     <title>{parseTitle()}</title>
                 </Helmet>
-                <EventForm
-                    required={reqs}
-                    id={ComponentID}
-                    className={cname}
-                    onChange={_onFormChange}
-                    onSubmit={_onFormSubmit}
-                    ref={formRef}
-                    validator={_onValidate}
-                    value={value}>
-                    {objectId && <input type='hidden' name='objectId' />}
-                    <Zone editor={handle} zone={cx('form')} />
-                </EventForm>
+                <div className={cname} ref={containerRef}>
+                    <Zone editor={handle} zone={cx('profile')} />
+
+                    {editing ? (
+                        <EventForm
+                            required={reqs}
+                            id={ComponentID}
+                            onChange={_onFormChange}
+                            onSubmit={_onFormSubmit}
+                            ref={formRef}
+                            validator={_onValidate}
+                            value={value}>
+                            <Zone editor={handle} zone={cx('form')} />
+                        </EventForm>
+                    ) : (
+                        <Zone editor={handle} zone={cx('content')} />
+                    )}
+                </div>
             </>
         );
     };

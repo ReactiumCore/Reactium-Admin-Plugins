@@ -8,7 +8,7 @@ import Reactium, {
     useRoles,
 } from 'reactium-core/sdk';
 
-export default ({ list: List }) => {
+const Filters = ({ list: List }) => {
     const ddRef = useRef();
 
     const state = op.get(List, 'state', {});
@@ -65,3 +65,5 @@ export default ({ list: List }) => {
         </Dropdown>
     );
 };
+
+export { Filters, Filters as default };

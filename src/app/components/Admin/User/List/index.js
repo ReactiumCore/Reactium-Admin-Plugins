@@ -1,15 +1,9 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import copy from 'copy-to-clipboard';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useRef } from 'react';
-import {
-    Button,
-    Collapsible,
-    Icon,
-    Spinner,
-} from '@atomic-reactor/reactium-ui';
+import { Button, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,
@@ -370,67 +364,4 @@ UserList.defaultProps = {
     namespace: 'admin-user-list',
 };
 
-const EmailWidget = ({ user }) => {
-    const { email } = user;
-
-    const tools = useHandle('AdminTools');
-
-    const Toast = op.get(tools, 'Toast');
-
-    const onClick = () => {
-        copy(email);
-        Toast.show({
-            icon: 'Linear.EnvelopeOpen',
-            message: `${email} ${__('copied to clipboard')}`,
-            type: Toast.TYPE.INFO,
-        });
-    };
-
-    const buttonProps = {
-        height: 40,
-        padding: 0,
-    };
-
-    return (
-        <Button
-            block
-            color={Button.ENUMS.COLOR.CLEAR}
-            onClick={onClick}
-            style={buttonProps}>
-            <Icon name='Linear.EnvelopeOpen' size={16} />
-        </Button>
-    );
-};
-
-const ListWidgets = ({ user, list }) => {
-    const ref = useRef();
-
-    const toggle = () => ref.current.toggle();
-
-    const buttonProps = {
-        height: 40,
-        padding: 0,
-    };
-
-    return (
-        <div>
-            <Button
-                block
-                color={Button.ENUMS.COLOR.CLEAR}
-                onClick={toggle}
-                style={buttonProps}>
-                <Icon name='Feather.MoreVertical' size={16} />
-            </Button>
-            <Collapsible ref={ref} expanded={false}>
-                <Zone
-                    zone={list.cx('item-actions')}
-                    user={user}
-                    list={list}
-                    collapsible={ref}
-                />
-            </Collapsible>
-        </div>
-    );
-};
-
-export { UserList as default, EmailWidget, ListWidgets };
+export { UserList as default };
