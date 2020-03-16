@@ -1,13 +1,13 @@
 import _ from 'underscore';
 import cn from 'classnames';
 
+import UserList from './List';
+import UserEditor from './Editor';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
-
 import SidebarWidget from './SidebarWidget';
 
-import UserList from './List';
 import {
     EmailWidget,
     Filters,
@@ -16,8 +16,12 @@ import {
     Pagination,
 } from './List/_plugins';
 
-import UserEditor from './Editor';
-import { Notice, UserInputs, UserProfile } from './Editor/_plugins';
+import {
+    Notice,
+    UserContent,
+    UserInputs,
+    UserProfile,
+} from './Editor/_plugins';
 
 Reactium.Plugin.register(
     'AdminUsers',
@@ -111,6 +115,13 @@ Reactium.Plugin.register(
         component: Notice,
         zone: ['admin-user-editor-profile'],
         order: Reactium.Enums.priority.lowest + 1,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-EDITOR-PROFILE',
+        component: UserContent,
+        zone: ['admin-user-editor-content'],
+        order: Reactium.Enums.priority.lowest,
     });
 
     Reactium.Zone.addComponent({

@@ -38,7 +38,7 @@ const UserList = ({
 }) => {
     // SearchBar
     const SearchBar = useHandle('SearchBar');
-    SearchBar.setState({ visible: true });
+
     const search = useSelect(state => op.get(state, 'SearchBar.value'));
 
     const containerRef = useRef();
@@ -162,6 +162,9 @@ const UserList = ({
     const [handle, setHandle] = useEventHandle(_handle());
 
     useRegisterHandle(id, () => handle, [handle]);
+
+    // SearchBar show
+    useEffect(() => SearchBar.setState({ visible: true }), [SearchBar]);
 
     // Search changed
     useEffect(() => {

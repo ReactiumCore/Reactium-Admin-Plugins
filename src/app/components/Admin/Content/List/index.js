@@ -238,6 +238,9 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
     useRegisterHandle(id, () => handle, [handle]);
 
+    // SearchBar show
+    useEffect(() => SearchBar.setState({ visible: true }), [SearchBar]);
+
     // get content
     useAsyncEffect(
         async mounted => {
@@ -299,11 +302,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         if (op.get(state, 'title') === newTitle) return;
         setState({ title: newTitle });
     }, [group]);
-
-    // Show SearchBar
-    try {
-        SearchBar.setState({ visible: true });
-    } catch (err) {}
 
     // set state -> group, page, type
     useEffect(() => {
