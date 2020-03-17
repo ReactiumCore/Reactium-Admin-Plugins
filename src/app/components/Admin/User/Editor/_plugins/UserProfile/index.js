@@ -198,7 +198,9 @@ const Roles = ({ className, ...user }) => {
 };
 
 const Username = ({ className, ...user }) => (
-    <div className={className}>{user.username}</div>
+    <div className={cn(className, 'text-xs-center', 'text-sm-left')}>
+        {user.username}
+    </div>
 );
 
 const UserProfile = ({ editor }) => (

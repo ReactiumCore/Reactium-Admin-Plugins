@@ -147,10 +147,6 @@ $admin-user-editor-height-min: 124px;
         }
     }
 
-    &-content {
-        // z-index: map-get($z-indexes, content);
-    }
-
     &-inputs {
         padding: $padding-admin-content-zone * 2;
         max-width: 920px;
@@ -162,10 +158,6 @@ $admin-user-editor-height-min: 124px;
 
         &:empty {
             display: none;
-        }
-
-        &:not(:first-child) {
-            padding-top: 0;
         }
 
         h2 {

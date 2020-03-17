@@ -1,0 +1,46 @@
+
+.#{$admin-user-editor-ns} {
+    &-content {
+        position: relative;
+        width: 100%;
+
+        &-empty {
+            width: 100%;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: $padding-admin-content-zone * 2;
+
+            h2 {
+                font-size: px2vw(52);
+            }
+
+            svg {
+                width: 100%;
+                height: auto;
+                max-width: 400px;
+            }
+
+            @include breakpoint(sm) {
+                h2 { font-size: px2vw(40); }
+            }
+
+            @include breakpoint(md) {
+                h2 {
+                    font-size: px2vw(32);
+                }
+                svg {
+                    width: 100%;
+                    height: auto;
+                    max-width: 560px;
+                }
+            }
+
+            @include breakpoint(xl) {
+                h2 { font-size: 32px; }
+            }
+        }
+    }
+}

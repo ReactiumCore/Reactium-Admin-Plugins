@@ -59,7 +59,7 @@ const Filters = ({ list: List }) => {
                     </Button>
                 )}
                 <Button {...buttonProps} data-dropdown-element>
-                    <Icon name='Feather.Filter' size={20} />
+                    <Icon name='Linear.Funnel' size={22} />
                 </Button>
             </div>
         </Dropdown>
