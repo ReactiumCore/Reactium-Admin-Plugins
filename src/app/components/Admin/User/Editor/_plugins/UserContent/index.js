@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import Empty from './Empty';
 import op from 'object-path';
-import { Button, Carousel, Icon, Slide } from '@atomic-reactor/reactium-ui';
+import Content from './Content';
 
 const UserContent = ({ editor }) => {
     const { cx, isNew, state = {} } = editor;
@@ -10,17 +10,21 @@ const UserContent = ({ editor }) => {
     const { meta = {} } = value;
 
     const isEmpty = () => {
-        return Object.keys(op.get(meta, 'content')).length < 1;
+        return (
+            _.isEmpty(op.get(meta, 'content', {})) &&
+            _.isEmpty(op.get(meta, 'media', {}))
+        );
     };
 
-    const isVisible = () => {
-        return !_.isEmpty(value) && !editing && !isNew();
-    };
+    const isVisible = () => !_.isEmpty(value) && !editing && !isNew();
 
     const render = () => {
         return (
             <div className={cx('content')}>
-                <Empty className={cx('content-empty')} editor={editor} />
+                {isEmpty() && (
+                    <Empty className={cx('content-empty')} editor={editor} />
+                )}
+                <Content editor={editor} data={op.get(meta, 'content', {})} />
             </div>
         );
     };

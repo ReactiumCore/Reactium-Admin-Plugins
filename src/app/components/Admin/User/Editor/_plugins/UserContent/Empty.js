@@ -2,7 +2,7 @@ import _ from 'underscore';
 import op from 'object-path';
 import React, { useState } from 'react';
 import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
-import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dropdown, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 export default ({ className, editor }) => {
     const value = op.get(editor, 'state.value', {});
@@ -19,43 +19,55 @@ export default ({ className, editor }) => {
 
     msg = msg.replace(/\%name/gi, name);
 
+    const onItemSelect = ({ item }) =>
+        Reactium.Routing.history.push(op.get(item, 'value'));
+
     useAsyncEffect(async mounted => {
         if (!types) {
-            const response = await getTypes(true);
-            if (!mounted()) return;
-            setTypes(
-                _.compact(
-                    response.map(item => {
-                        const { icon, label } = op.get(item, 'meta');
+            const response = await getTypes();
+            if (mounted()) {
+                setTypes(
+                    _.compact(
+                        response.map(item => {
+                            const { icon, label } = op.get(item, 'meta');
 
-                        if (!icon || !label) return null;
+                            if (!icon || !label) return null;
 
-                        const type = op.get(item, 'type');
-                        const value = `/admin/content/${type}`;
+                            const type = op.get(item, 'type');
+                            const value = `/admin/content/${type}/new`;
 
-                        return {
-                            icon,
-                            label,
-                            value,
-                        };
-                    }),
-                ),
-            );
+                            return { icon, label, value };
+                        }),
+                    ),
+                );
+            }
         }
         return () => {};
     });
 
-    return (
+    return !types ? (
+        <div className={className}>
+            <Spinner />
+        </div>
+    ) : (
         <div className={className}>
             <h2 className='text-center'>{msg}</h2>
             <div className='py-xs-32 text-center'>
-                <Button
-                    appearance={Button.ENUMS.APPEARANCE.PILL}
-                    data-dropdown-element
-                    size={Button.ENUMS.SIZE.MD}
-                    type='button'>
-                    {__('Create Content')}
-                </Button>
+                {types && (
+                    <Dropdown
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        data={types}
+                        onItemClick={onItemSelect}
+                        size={Button.ENUMS.SIZE.MD}>
+                        <Button
+                            appearance={Button.ENUMS.APPEARANCE.PILL}
+                            data-dropdown-element
+                            size={Button.ENUMS.SIZE.MD}
+                            type='button'>
+                            {__('Create Content')}
+                        </Button>
+                    </Dropdown>
+                )}
             </div>
             <Svg />
         </div>

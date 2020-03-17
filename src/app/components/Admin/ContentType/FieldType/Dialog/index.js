@@ -36,7 +36,7 @@ const Header = props => {
           }
         : {};
 
-    return (
+    const render = () => (
         <div className='fieldtype-header'>
             <div className='fieldtype-header-icon'>
                 <FieldIcon />
@@ -70,6 +70,8 @@ const Header = props => {
             <DragHandle />
         </div>
     );
+
+    return render();
 };
 
 /**
@@ -86,9 +88,7 @@ const FieldTypeDialog = props => {
     const removeField = op.get(ContentTypeEditor, 'removeField', () => {});
     const isNew = op.get(ContentTypeEditor, 'isNew', () => true);
     const { id, type, dialogProps, children } = props;
-    const header = {
-        elements: [<Header key='header' {...props} />],
-    };
+    const header = { elements: [<Header key='header' {...props} />] };
 
     const pref = isNew()
         ? {}

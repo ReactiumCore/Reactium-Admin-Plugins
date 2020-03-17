@@ -56,6 +56,13 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
 
     const toggle = () => Profile.toggle();
 
+    const nav = () => {
+        Reactium.User.selected = null;
+        Reactium.Routing.history.push(
+            `/admin/user/${Reactium.User.current().objectId}`,
+        );
+    };
+
     // State
     const [, setNewState] = useState(stateRef.current);
 
@@ -89,12 +96,12 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
                 <button
                     className='avatar-image'
                     ref={avatarRef}
-                    onClick={() => toggle()}
+                    onClick={nav}
                     style={{
                         backgroundImage: `url(${avatar})`,
                     }}
                 />
-                <button className='avatar-labels' onClick={() => toggle()}>
+                <button className='avatar-labels' onClick={nav}>
                     {greeting && (
                         <span className='avatar-greeting'>{greeting}</span>
                     )}

@@ -248,7 +248,7 @@ let UserEditor = (
             ? Reactium.User.selected
             : await Reactium.User.retrieve({ objectId });
 
-        Reactium.User.selected = null;
+        // Reactium.User.selected = null;
 
         if (unMounted()) return;
 

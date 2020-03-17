@@ -1,45 +1,155 @@
+$padding-user-content-stat: 16px;
 
-.#{$admin-user-editor-ns} {
-    &-content {
-        position: relative;
-        width: 100%;
+.#{$admin-user-editor-ns}-content {
+    display: block;
 
-        &-empty {
-            width: 100%;
-            min-height: 320px;
+    &-stats {
+        .ar-carousel {
+            height: auto;
+            display: block !important;
+        }
+
+        .ar-carousel-slide {
             display: flex;
+
             flex-direction: column;
+            overflow: hidden;
+            padding: $padding-admin-content-zone;
+            padding-bottom: $padding-admin-content-zone;
+
+            @include breakpoint(md) {
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: stretch;
+                padding: $padding-admin-content-zone;
+                padding-bottom: $padding-admin-content-zone;
+                padding-right: 0;
+            }
+        }
+    }
+
+    &-stat {
+        display: flex;
+        flex-direction: column;
+        height: 150px;
+        width: 100%;
+        background-color: $color-light;
+        box-shadow: $shadow-image;
+        margin: 0;
+        margin-bottom: $padding-admin-content-zone;
+        padding: $padding-user-content-stat;
+
+        @include breakpoint(md) {
+            width: calc(25% - #{$padding-admin-content-zone});
+            margin-right: $padding-admin-content-zone;
+            margin-bottom: 0;
+        }
+
+        &-icon {
+            border-radius: 100%;
+            color: $color-primary;
+            display: flex;
             justify-content: center;
             align-items: center;
-            padding: $padding-admin-content-zone * 2;
+            width: 40px;
+            height: 40px;
+            background-color: rgba($color-primary, 0.2);
+            margin-left: $padding-user-content-stat;
+            flex-shrink: 0;
 
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        &-label {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            font-size: 14px;
+            text-transform: capitalize;
+            padding-left: $padding-user-content-stat/2;
+
+            @include breakpoint(md) {
+                flex-direction: row;
+            }
+        }
+
+        &-count {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding-left: $padding-user-content-stat/2;
+            font-weight: 600;
+            font-size: px2rem(50);
+        }
+    }
+
+    &-empty {
+        width: 100%;
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: $padding-admin-content-zone * 2;
+
+        h2 {
+            font-size: px2vw(52);
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+        }
+
+        .ar-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+
+        .ar-dropdown-menu {
+            max-width: 200px;
+            padding-top: 4px;
+
+            .btn-clear-md {
+                font-size: 14px;
+                text-transform: uppercase;
+            }
+        }
+
+        @include breakpoint(sm) {
             h2 {
-                font-size: px2vw(52);
+                font-size: px2vw(40);
+            }
+        }
+
+        @include breakpoint(md) {
+            h2 {
+                font-size: px2vw(32);
             }
 
             svg {
                 width: 100%;
                 height: auto;
-                max-width: 400px;
+                max-width: 560px;
+            }
+        }
+
+        @include breakpoint(xl) {
+            h2 {
+                font-size: 32px;
             }
 
-            @include breakpoint(sm) {
-                h2 { font-size: px2vw(40); }
-            }
-
-            @include breakpoint(md) {
-                h2 {
-                    font-size: px2vw(32);
-                }
-                svg {
-                    width: 100%;
-                    height: auto;
-                    max-width: 560px;
-                }
-            }
-
-            @include breakpoint(xl) {
-                h2 { font-size: 32px; }
+            svg {
+                max-width: 520px;
             }
         }
     }
