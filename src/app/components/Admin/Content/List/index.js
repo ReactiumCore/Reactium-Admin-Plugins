@@ -21,7 +21,7 @@ import React, {
 import Reactium, {
     __,
     useAsyncEffect,
-    // useDerivedState,
+    useDerivedState,
     useEventHandle,
     useFulfilledObject,
     useHandle,
@@ -31,7 +31,7 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-import { useDerivedState } from './useDerivedStateAlt';
+// import { useDerivedState } from './useDerivedStateAlt';
 
 /**
  * -----------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 import Reactium from 'reactium-core/sdk';
 import ENUMS from '../enums';
 import op from 'object-path';
-import Registry from 'components/Admin/Tools/Registry';
 
 Reactium.Enums.cache.types = 10000;
 
@@ -109,6 +108,6 @@ ContentType.delete = async options => {
     return response;
 };
 
-ContentType.FieldType = new Registry('FieldType', 'type');
+ContentType.FieldType = Reactium.Utils.registryFactory('FieldType', 'type');
 
 export default ContentType;
