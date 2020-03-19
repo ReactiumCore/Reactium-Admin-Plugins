@@ -1,31 +1,23 @@
 import React, { useRef, useEffect } from 'react';
-import Reactium, {
-    __,
-    useDerivedState,
-    useAsyncEffect,
-} from 'reactium-core/sdk';
+import Reactium, { __, useDerivedState } from 'reactium-core/sdk';
 import { Button, Icon, Scene } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import _ from 'underscore';
 import ENUMS from './enums';
-import {
-    MainScene,
-    BranchesScene,
-    RevisionsScene,
-    SettingsScene,
-} from './Scenes';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 /**
  * -----------------------------------------------------------------------------
- * Functional Component: Revisions
+ * Functional Component: RevisionManager
  * -----------------------------------------------------------------------------
  */
-const Revisions = props => {
+const RevisionManager = props => {
     // props derived
     const modalFrame = useRef();
     const sceneRef = useRef();
     const editor = op.get(props, 'editor');
+    const type = op.get(editor, 'type');
+    const types = op.get(editor, 'types');
     const startingContent = op.get(props, 'startingContent');
     const startingBranches = op.get(startingContent, 'branches', {});
     const startingBranch = op.get(startingContent, 'history.branch', 'master');
@@ -41,12 +33,17 @@ const Revisions = props => {
                 revision: startingRevision,
             },
             compare: {},
-            activeScene: 'main',
+            // activeScene: 'main',
+            activeScene: 'branches',
+            type,
+            types,
         },
         ['branches'],
     );
 
     const cx = Reactium.Utils.cxFactory('revision-manager');
+
+    console.log({ state });
 
     const navTo = (panel, direction = 'left', newState) => {
         const sceneState = {
@@ -68,7 +65,7 @@ const Revisions = props => {
                 branch,
             },
         };
-        console.log({ branch, target, request });
+
         const content = await Reactium.Content.retrieve(request);
 
         updateBranchInfo(content, target);
@@ -158,23 +155,30 @@ const Revisions = props => {
         <div className={cx()} tabIndex={0} ref={modalFrame}>
             <div className={cx('content')}>
                 <Scene ref={sceneRef} active={state.activeScene}>
-                    {Object.entries({
-                        main: MainScene,
-                        branches: BranchesScene,
-                        revisions: RevisionsScene,
-                        settings: SettingsScene,
-                    }).map(([id, Component]) => (
-                        <Scrollbars
-                            id={id}
-                            key={id}
-                            className={cx('scene')}
-                            style={{
-                                width: 'calc(100vw - 40px)',
-                                height: 'calc(100vh - 120px)',
-                            }}>
-                            <Component handle={handle} />
-                        </Scrollbars>
-                    ))}
+                    {Object.entries(op.get(ENUMS, 'SCENES', {})).map(
+                        ([id, config]) => {
+                            const { Component, scrollbars } = config;
+                            if (scrollbars) {
+                                return (
+                                    <Scrollbars
+                                        id={id}
+                                        key={id}
+                                        className={cx('scene')}
+                                        style={{
+                                            width: 'calc(100vw - 40px)',
+                                            height: 'calc(100vh - 120px)',
+                                        }}>
+                                        <Component handle={handle} />
+                                    </Scrollbars>
+                                );
+                            }
+                            return (
+                                <div id={id} key={id} className={cx('scene')}>
+                                    <Component handle={handle} />
+                                </div>
+                            );
+                        },
+                    )}
                 </Scene>
             </div>
 
@@ -194,7 +198,9 @@ const Revisions = props => {
                     <Icon name={'Feather.ChevronLeft'} />
                     <span className='sr-only'>{ENUMS.BACK_BUTTON.label}</span>
                 </Button>
-
+                <h2 className='h3 strong'>
+                    {op.get(ENUMS, ['SCENES', state.activeScene, 'title'], '')}
+                </h2>
                 <Button
                     className={cx('close')}
                     size={Button.ENUMS.SIZE.XS}
@@ -212,4 +218,4 @@ const Revisions = props => {
     );
 };
 
-export default Revisions;
+export default RevisionManager;
