@@ -38,8 +38,9 @@ const ChangeItem = props => {
             case 'REVISED':
             case 'SET_REVISION': {
                 const { branch, revision } = op.get(meta, 'history');
+                const label = op.get(meta, 'branch.label', branch);
                 const rev = revision !== undefined ? ` v${revision + 1}` : '';
-                const version = `${branch}${rev}`;
+                const version = `${label}${rev}`;
                 parts.replace('version', version);
                 break;
             }
