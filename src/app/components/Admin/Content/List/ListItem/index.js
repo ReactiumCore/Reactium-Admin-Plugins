@@ -268,7 +268,7 @@ export const ListItemTitle = ({ column, slug, title, url, row }) => (
     </div>
 );
 
-const statusToColor = status => {
+export const statusToColor = status => {
     const COLOR = Button.ENUMS.COLOR;
 
     const def = COLOR.INFO;

@@ -120,7 +120,7 @@ Reactium.Plugin.register(
     Reactium.Zone.addComponent({
         id: 'ADMIN-USER-EDITOR-PROFILE',
         component: UserContent,
-        zone: ['admin-user-editor-content'],
+        zone: ['admin-user-content'],
         order: Reactium.Enums.priority.lowest,
     });
 

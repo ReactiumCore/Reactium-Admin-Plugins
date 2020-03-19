@@ -236,7 +236,7 @@ const UserList = ({
                             })}>
                             <Link
                                 onClick={() => (Reactium.User.selected = item)}
-                                to={`/admin/user/${item.objectId}`}
+                                to={`/admin/user/${item.objectId}/content`}
                                 className={cn(cx('card'), 'link')}>
                                 <Avatar
                                     user={item}
