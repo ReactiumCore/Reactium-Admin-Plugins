@@ -1,5 +1,5 @@
 $revision-manager-bg-color: $color-white !default;
-$close-button-focus-outline: $color-dark !default;
+$close-button-focus-outline: $color-tertiary !default;
 
 .version-id {
     font-size: 12px;
@@ -108,6 +108,7 @@ $close-button-focus-outline: $color-dark !default;
             align-items: center;
         }
         &-control {
+            margin: 20px 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -163,5 +164,70 @@ $close-button-focus-outline: $color-dark !default;
             max-width: 16px;
             max-height: 16px;
         }
+    }
+}
+
+$compare-border: $color-border !default;
+$compare-shadow: $shadow-image !default;
+$compare-desktop-basis: 45% !default;
+$compare-desktop-border-offset: 55% !default;
+.branch-compare {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    margin: 20px;
+
+    &-row {
+        margin: 20px 0;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    &-from, &-to {
+        overflow-x: hidden;
+        padding: 20px;
+        flex: 0 0 $compare-desktop-basis;
+        // border: 2px solid green;
+    }
+
+    &-copy {
+        position: absolute;
+    }
+
+    &-from {
+        .branch-compare-copy {
+            right: calc(50% + 40px);
+        }
+    }
+
+    &-to {
+        .branch-compare-copy {
+            left: calc(50% + 40px);
+        }
+    }
+
+    &:before, &:after {
+        // z-index: -1;
+        display: block;
+        content: ' ';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border: 1px solid $compare-border;
+        box-shadow: $compare-shadow;
+    }
+
+    &:before {
+        left: $compare-desktop-border-offset;
+        right: 0;
+    }
+
+    &:after {
+        left: 0;
+        right: $compare-desktop-border-offset;
     }
 }
