@@ -2,7 +2,6 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Parse from 'appdir/api';
-import Registry from 'components/Admin/Tools/Registry';
 
 const serialize = data => {
     if (!data || typeof data.toJSON === 'undefined') return data;
@@ -894,8 +893,8 @@ Content.list = async (params, handle) => {
     return contentObj;
 };
 
-Content.DirtyEvent = new Registry('ContentDirtyEvent');
-Content.ScrubEvent = new Registry('ContentScrubEvent');
+Content.DirtyEvent = Reactium.Utils.registryFactory('ContentDirtyEvent');
+Content.ScrubEvent = Reactium.Utils.registryFactory('ContentScrubEvent');
 
 Content.DirtyEvent.protect(['change']);
 Content.ScrubEvent.protect(['save-success', 'load']);
@@ -905,14 +904,15 @@ Content.ScrubEvent.protected.forEach(id => Content.ScrubEvent.register(id));
 
 // ListColumn expects Object:
 // { order:Number, types:Array, className:String }
-Content.ListColumn = new Registry('ListColumn');
+Content.ListColumn = Reactium.Utils.registryFactory('ListColumn');
 Content.ListColumn.protect(['actions', 'status', 'title'])
     .register('actions', { order: 120 })
     .register('status', { order: 110 })
     .register('title', { order: 100 });
 
-Content.Editor = new Registry('ContentEditor');
-Content.QuickEditor = new Registry('ContentQuickEditor');
+Content.Editor = Reactium.Utils.registryFactory('ContentEditor');
+Content.QuickEditor = Reactium.Utils.registryFactory('ContentQuickEditor');
+Content.Comparison = Reactium.Utils.registryFactory('ContentComparison');
 
 // Register hooks
 Reactium.Hook.register('content-saved', async contentObj => {

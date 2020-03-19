@@ -7,6 +7,7 @@ import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
+// TODO: Convert to Reactium.Utils.registryFactory
 export class Registry {
     constructor() {
         this.__registered = [];

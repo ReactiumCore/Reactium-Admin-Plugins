@@ -11,6 +11,7 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 import { WebForm, Icon } from '@atomic-reactor/reactium-ui';
+// import WebForm from 'components/Reactium-UI/WebForm';
 import cn from 'classnames';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -281,9 +282,14 @@ const ContentType = memo(
 
                 op.set(regionRef.current, 'regions', regions);
 
-                Object.entries(op.get(contentType, 'fields', {})).forEach(
-                    ([fieldId, fieldDefinition], index) => {
-                        const { fieldType } = fieldDefinition;
+                Object.values(
+                    _.groupBy(
+                        Object.values(op.get(contentType, 'fields', {})),
+                        'region',
+                    ),
+                ).forEach(fields => {
+                    fields.forEach((fieldDefinition, index) => {
+                        const { fieldId, fieldType } = fieldDefinition;
                         if (!fieldType) return;
 
                         let region = op.get(
@@ -309,8 +315,8 @@ const ContentType = memo(
                             component: 'FieldType',
                             fieldTypeComponent: type.component,
                         });
-                    },
-                );
+                    });
+                });
 
                 setVersion(uuid());
                 setTimeout(() => {
@@ -591,9 +597,9 @@ const ContentType = memo(
 
                 fieldIds.splice(sourceIndex, 1);
                 fieldIds.splice(destinationIndex, 0, id);
-                fieldIds.forEach((id, order) =>
-                    Reactium.Zone.updateComponent(id, { order }),
-                );
+                fieldIds.forEach((id, order) => {
+                    Reactium.Zone.updateComponent(id, { order });
+                });
             };
 
             const moveToRegion = (

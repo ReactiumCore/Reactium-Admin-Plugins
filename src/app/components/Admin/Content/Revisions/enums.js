@@ -1,4 +1,10 @@
 import { __ } from 'reactium-core/sdk';
+import {
+    MainScene,
+    BranchesScene,
+    RevisionsScene,
+    SettingsScene,
+} from './Scenes';
 
 export default {
     CLOSE: {
@@ -45,5 +51,25 @@ export default {
         label: __('Save Label'),
         tooltip: __('Change version label.'),
         placeholder: __('Enter Version Label'),
+    },
+    SCENES: {
+        main: {
+            title: __('Version Manager'),
+            scrollbars: true,
+            Component: MainScene,
+        },
+        branches: {
+            title: __('Compare Versions'),
+            Component: BranchesScene,
+        },
+        revisions: {
+            title: __('Version History'),
+            Component: RevisionsScene,
+        },
+        settings: {
+            title: __('Version Settings'),
+            scrollbars: true,
+            Component: SettingsScene,
+        },
     },
 };
