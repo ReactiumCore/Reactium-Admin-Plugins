@@ -137,7 +137,7 @@ let UserEditor = (
         ...params,
         clean: true,
         dirty: false,
-        editing: op.has(params, 'edit'),
+        editing: op.get(params, 'tab') === 'edit',
         initialized: false,
         status: ENUMS.STATUS.INIT,
         title: op.get(props, 'title'),
@@ -155,14 +155,11 @@ let UserEditor = (
         id: null,
     });
 
-    const [state, update] = useDerivedState(
-        {
-            ...defaultState,
-            errors: {},
-            value: {},
-        },
-        ['dirty', 'id', 'initialized', 'status', 'title'],
-    );
+    const [state, update] = useDerivedState({
+        ...defaultState,
+        errors: {},
+        value: {},
+    });
 
     const forceUpdate = () => {
         if (unMounted()) return;
@@ -372,6 +369,11 @@ let UserEditor = (
         submit();
     };
 
+    const showTab = (e, tab) => {
+        if (e.currentTarget) e.currentTarget.blur();
+        setState({ tab });
+    };
+
     const submit = () => {
         if (unMounted() || isBusy() || !state.editing) return;
         formRef.current.submit();
@@ -475,7 +477,7 @@ let UserEditor = (
 
         if (isNew()) {
             Reactium.Routing.history.push(
-                `/admin/user/${op.get(user, 'objectId')}`,
+                `/admin/user/${op.get(user, 'objectId')}/content`,
             );
         }
 
@@ -536,6 +538,7 @@ let UserEditor = (
     };
 
     const _handle = () => ({
+        ...params,
         refs: {
             alertRef,
             containerRef,
@@ -557,6 +560,7 @@ let UserEditor = (
         setAvatar,
         setErrors,
         setState,
+        showTab,
         state,
         submit,
         unMounted,
@@ -619,19 +623,49 @@ let UserEditor = (
         if (state.id !== params.id && params.id === 'new') reset();
     }, [params.id]);
 
-    // Route change /edit
+    // Update if no tab
     useEffect(() => {
-        if (params.id !== state.editing && !isNew()) {
-            let route = `/admin/user/${params.id}`;
-            route += state.editing === true ? '/edit' : '';
-            Reactium.Routing.history.replace(route);
+        if (!op.get(state, 'tab') && state.id) showTab('content');
+    }, [state.id, op.get(state, 'tab')]);
+
+    // Update route if no tab
+    useEffect(() => {
+        if (!state.id) return;
+
+        if (!params.tab) {
+            Reactium.Routing.history.replace(`/admin/user/${state.id}/content`);
         }
-    }, [state.editing]);
+    }, [state.id, params.tab]);
+
+    // Update route on state.tab change
+    useEffect(() => {
+        //if (!state.id) return;
+        if (params.tab !== state.tab) {
+            Reactium.Routing.history.replace(
+                `/admin/user/${state.id}/${state.tab}`,
+            );
+        }
+    });
+
+    // Update on params change
+    useEffect(() => {
+        if (params.id !== handle.id) {
+            setState({
+                id: params.id,
+                initialized: false,
+                status: ENUMS.STATUS.INIT,
+            });
+            _.defer(() => {
+                if (unMounted()) return;
+                _initialize();
+            });
+        }
+    }, [params.id]);
 
     // Update handle
     useEffect(() => {
         updateHandle(_handle());
-    }, [Object.values(state), alert, errors]);
+    }, [Object.values(state), Object.values(params), alert, errors]);
 
     // Register handle
     useImperativeHandle(ref, () => handle, [handle]);
@@ -662,7 +696,7 @@ let UserEditor = (
                             <Zone editor={handle} zone={cx('form')} />
                         </EventForm>
                     ) : (
-                        <Zone editor={handle} zone={cx('content')} />
+                        <ContentTabs editor={handle} />
                     )}
                 </div>
             </>
@@ -670,6 +704,44 @@ let UserEditor = (
     };
 
     return render();
+};
+
+const ContentTabs = ({ editor }) => {
+    return (
+        <>
+            <div className={editor.cx('content-tabs')}>
+                {Reactium.User.Content.list.map((item, i) => {
+                    if (!item.tab) return null;
+
+                    const { id, label } = op.get(item, 'tab');
+                    if (!id || !label) return null;
+                    const className = cn({
+                        [editor.cx('content-tab')]: true,
+                        active: editor.state.tab === id,
+                    });
+
+                    return (
+                        <button
+                            key={`content-tab-button-${id}`}
+                            className={className}
+                            onClick={e => editor.showTab(e, id)}>
+                            {label}
+                        </button>
+                    );
+                })}
+            </div>
+            {Reactium.User.Content.list.map(item =>
+                op.has(item, 'tab.id') &&
+                op.get(item, 'tab.id') === op.get(editor.state, 'tab') ? (
+                    <Zone
+                        key={`content-tab-${item.id}`}
+                        editor={editor}
+                        zone={item.id}
+                    />
+                ) : null,
+            )}
+        </>
+    );
 };
 
 UserEditor = forwardRef(UserEditor);

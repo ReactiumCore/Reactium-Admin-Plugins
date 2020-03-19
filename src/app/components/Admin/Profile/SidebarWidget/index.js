@@ -59,7 +59,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
     const nav = () => {
         Reactium.User.selected = null;
         Reactium.Routing.history.push(
-            `/admin/user/${Reactium.User.current().objectId}`,
+            `/admin/user/${Reactium.User.current().objectId}/content`,
         );
     };
 

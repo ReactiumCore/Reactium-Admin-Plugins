@@ -18,7 +18,10 @@ const Actions = ({ editor }) => {
 
     const toggleEditMode = e => {
         e.currentTarget.blur();
-        setState({ editing: !editing });
+        setState({
+            editing: !editing,
+            tab: editing === true ? 'content' : 'edit',
+        });
     };
 
     return (
