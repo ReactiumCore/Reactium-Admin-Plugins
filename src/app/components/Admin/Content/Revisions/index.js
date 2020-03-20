@@ -127,6 +127,21 @@ const RevisionManager = props => {
         });
     };
 
+    const unstageBranchChange = (slug, target = 'working') => {
+        const currentTarget = op.get(state, target, {});
+        const currentChanges = op.get(state, [target, 'changes'], {});
+        op.del(currentChanges, slug);
+
+        setState({
+            [target]: {
+                ...currentTarget,
+                changes: {
+                    ...currentChanges,
+                },
+            },
+        });
+    };
+
     const currentBranch = op.get(state, 'working.branch');
 
     const getVersionLabel = branchId =>
@@ -164,6 +179,7 @@ const RevisionManager = props => {
         onClose,
         labels,
         stageBranchChanges,
+        unstageBranchChange,
     };
 
     return (

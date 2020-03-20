@@ -36,13 +36,17 @@ const BranchesScene = props => {
     const toBranch = op.get(to, 'history.branch', '');
     const toBranchLabel = op.get(to, ['branches', toBranch, 'label'], toBranch);
 
-    const copyFieldLabel = (fieldName, fromLabel, toLabel) => {
-        const label = __('Copy %fieldName from %fromLabel to %toLabel');
-
-        return label
-            .replace('%fieldName', fieldName)
-            .replace('%fromLabel', fromLabel)
-            .replace('%toLabel', toLabel);
+    const getFieldLabels = (fieldName, fromLabel, toLabel) => {
+        return {
+            copy: __('Copy %fieldName from %fromLabel to %toLabel')
+                .replace('%fieldName', fieldName)
+                .replace('%fromLabel', fromLabel)
+                .replace('%toLabel', toLabel),
+            undo: __('Undo change to %fieldName in version %toLabel')
+                .replace('%fieldName', fieldName)
+                .replace('%fromLabel', fromLabel)
+                .replace('%toLabel', toLabel),
+        };
     };
 
     const fieldData = () => {
@@ -159,16 +163,27 @@ const BranchesScene = props => {
             const fieldName = op.get(fieldType, 'fieldName', '');
             const fieldSlug = op.get(fieldType, 'fieldSlug', '');
 
-            const fromCopyLabel = copyFieldLabel(
+            const fromLabels = getFieldLabels(
                 fieldName,
                 fromBranchLabel,
                 toBranchLabel,
             );
-            const toCopyLabel = copyFieldLabel(
+            const fromCopyLabel = fromLabels.copy;
+            const fromUndoLabel = fromLabels.undo;
+            const toLabels = getFieldLabels(
                 fieldName,
                 toBranchLabel,
                 fromBranchLabel,
             );
+            const toCopyLabel = toLabels.copy;
+            const toUndoLabel = toLabels.undo;
+
+            console.log({
+                fromCopyLabel,
+                fromUndoLabel,
+                toCopyLabel,
+                toUndoLabel,
+            });
 
             const Component = op.get(
                 components,
@@ -189,24 +204,48 @@ const BranchesScene = props => {
                 <li key={fId} className={className}>
                     <div className='branch-compare-from'>
                         <div className='branch-compare-copy'>
-                            <Button
-                                disabled={!diff}
-                                data-tooltip={fromCopyLabel}
-                                data-align='left'
-                                data-vertical-align='middle'
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}
-                                onClick={() => {
-                                    handle.stageBranchChanges(
-                                        {
-                                            [fieldSlug]: from,
-                                        },
-                                        'compare',
-                                    );
-                                }}>
-                                <span className='sr-only'>{fromCopyLabel}</span>
-                                <Icon name='Feather.ArrowRight' />
-                            </Button>
+                            {!op.has(toChanges, fieldSlug) ? (
+                                <Button
+                                    key={'from-copy'}
+                                    disabled={!diff}
+                                    data-tooltip={fromCopyLabel}
+                                    data-align='left'
+                                    data-vertical-align='middle'
+                                    size={Button.ENUMS.SIZE.XS}
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    onClick={() => {
+                                        handle.stageBranchChanges(
+                                            {
+                                                [fieldSlug]: from,
+                                            },
+                                            'compare',
+                                        );
+                                    }}>
+                                    <span className='sr-only'>
+                                        {fromCopyLabel}
+                                    </span>
+                                    <Icon name='Feather.ArrowRight' />
+                                </Button>
+                            ) : (
+                                <Button
+                                    key={'from-undo'}
+                                    data-tooltip={fromUndoLabel}
+                                    data-align='left'
+                                    data-vertical-align='middle'
+                                    size={Button.ENUMS.SIZE.XS}
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    onClick={() => {
+                                        handle.unstageBranchChange(
+                                            fieldSlug,
+                                            'compare',
+                                        );
+                                    }}>
+                                    <span className='sr-only'>
+                                        {fromUndoLabel}
+                                    </span>
+                                    <Icon name='Linear.Undo' />
+                                </Button>
+                            )}
                         </div>
                         <div className='comparison-component'>
                             <Component value={from} field={fieldType} />
@@ -215,24 +254,48 @@ const BranchesScene = props => {
 
                     <div className='branch-compare-to'>
                         <div className='branch-compare-copy'>
-                            <Button
-                                disabled={!diff}
-                                data-tooltip={toCopyLabel}
-                                data-align='left'
-                                data-vertical-align='middle'
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}
-                                onClick={() => {
-                                    handle.stageBranchChanges(
-                                        {
-                                            [fieldSlug]: to,
-                                        },
-                                        'working',
-                                    );
-                                }}>
-                                <span className='sr-only'>{toCopyLabel}</span>
-                                <Icon name='Feather.ArrowLeft' />
-                            </Button>
+                            {!op.has(fromChanges, fieldSlug) ? (
+                                <Button
+                                    key={'to-copy'}
+                                    disabled={!diff}
+                                    data-tooltip={toCopyLabel}
+                                    data-align='left'
+                                    data-vertical-align='middle'
+                                    size={Button.ENUMS.SIZE.XS}
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    onClick={() => {
+                                        handle.stageBranchChanges(
+                                            {
+                                                [fieldSlug]: to,
+                                            },
+                                            'working',
+                                        );
+                                    }}>
+                                    <span className='sr-only'>
+                                        {toCopyLabel}
+                                    </span>
+                                    <Icon name='Feather.ArrowLeft' />
+                                </Button>
+                            ) : (
+                                <Button
+                                    key={'to-undo'}
+                                    data-tooltip={toUndoLabel}
+                                    data-align='left'
+                                    data-vertical-align='middle'
+                                    size={Button.ENUMS.SIZE.XS}
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    onClick={() => {
+                                        handle.unstageBranchChange(
+                                            fieldSlug,
+                                            'working',
+                                        );
+                                    }}>
+                                    <span className='sr-only'>
+                                        {toUndoLabel}
+                                    </span>
+                                    <Icon name='Linear.Undo2' />
+                                </Button>
+                            )}
                         </div>
                         <div className='comparison-component'>
                             <Component value={to} field={fieldType} />
