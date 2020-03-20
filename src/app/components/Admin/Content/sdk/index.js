@@ -312,6 +312,40 @@ Content.cloneBranch = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.deleteBranch(params,options) Content.deleteBranch()
+ * @apiDescription Delete a branch and mark its revisions for deletion. Note that
+ although the 'master' branch is the default, you may not delete the master branch.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {Object} [history] revision history to retrieve, containing branch.
+ * @apiParam (params) {String} [slug] The unique slug for the content.
+ * @apiParam (params) {String} [objectId] The objectId for the content.
+ * @apiParam (params) {String} [uuid] The uuid for the content.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type
+ * @apiParam (history) {String} [branch=master] the revision branch of current content
+ * @apiName Content.deleteBranch()
+ * @apiGroup Cloud
+ */
+Content.deleteBranch = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    const contentObj = await Reactium.Cloud.run(
+        'content-delete-branch',
+        request,
+    );
+
+    await Reactium.Hook.run(
+        'content-branch-deleted',
+        contentObj,
+        request,
+        handle,
+    );
+    return contentObj;
+};
+
+/**
  * @api {Asynchronous} Content.trash(params,handle) Content.trash()
  * @apiDescription Mark content for future deletion of a defined Type. To identify the content, you must provided
 the `type` object, and one of `slug`, `objectId`, or `uuid` of the content.

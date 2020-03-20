@@ -4,6 +4,7 @@ import {
     BranchesScene,
     RevisionsScene,
     SettingsScene,
+    DeleteConfirmScene,
 } from './Scenes';
 
 export default {
@@ -52,6 +53,10 @@ export default {
         tooltip: __('Change version label.'),
         placeholder: __('Enter Version Label'),
     },
+    DELETE_LABEL: {
+        label: __('Delete Version'),
+        tooltip: __('Delete this version of the content.'),
+    },
     SCENES: {
         main: {
             title: __('Version Manager'),
@@ -70,6 +75,11 @@ export default {
             title: __('Version Settings'),
             scrollbars: true,
             Component: SettingsScene,
+        },
+        delete: {
+            title: __('Delete Version?'),
+            scrollbars: true,
+            Component: DeleteConfirmScene,
         },
     },
 };

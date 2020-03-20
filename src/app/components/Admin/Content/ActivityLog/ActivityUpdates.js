@@ -35,7 +35,13 @@ const ChangeItem = props => {
                 parts.replace('originalSlug', op.get(meta, 'originalSlug', ''));
                 break;
             }
+            case 'LABELED_BRANCH': {
+                const branchLabel = op.get(meta, 'branchLabel');
+                parts.replace('version', branchLabel);
+                break;
+            }
             case 'REVISED':
+            case 'CREATED_BRANCH':
             case 'SET_REVISION': {
                 const { branch, revision } = op.get(meta, 'history');
                 const label = op.get(meta, 'branch.label', branch);
@@ -44,12 +50,17 @@ const ChangeItem = props => {
                 parts.replace('version', version);
                 break;
             }
+            case 'DELETED_BRANCH': {
+                const deleted = op.get(meta, 'branch.label');
+                parts.replace('deleted', deleted);
+                break;
+            }
             case 'SET_STATUS': {
                 parts.replace('status', op.get(meta, 'status', ''));
                 break;
             }
             default: {
-                parts.replace('changetype', op.get(meta, 'changetype', ''));
+                parts.replace('changetype', changeType);
                 break;
             }
         }
@@ -57,7 +68,10 @@ const ChangeItem = props => {
         // who
         parts.replace('who', who ? who : __('Unknown'));
         parts.replace('slug', op.get(meta, 'slug', ''));
-        parts.replace('type', op.get(meta, 'type', ''));
+        parts.replace(
+            'type',
+            op.get(meta, 'type.objectId', op.get(meta, 'type', '')),
+        );
         parts.replace('uuid', op.get(meta, 'uuid', ''));
 
         return parts.value();

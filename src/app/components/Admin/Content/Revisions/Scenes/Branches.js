@@ -36,8 +36,6 @@ const BranchesScene = props => {
     const toBranchLabel = op.get(to, ['branches', toBranch, 'label'], toBranch);
 
     const render = () => {
-        console.log({ diffs });
-
         const { rows, diffs } = getRowsData();
 
         return (

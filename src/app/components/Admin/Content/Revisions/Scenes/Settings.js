@@ -26,6 +26,7 @@ const SettingsScene = props => {
     }, [currentBranch]);
 
     const labels = handle.labels('SET_LABEL');
+    const deleteLabels = handle.labels('DELETE_LABEL');
 
     return (
         <div className={cx('settings')}>
@@ -61,24 +62,44 @@ const SettingsScene = props => {
                             }
                         />
                     </div>
-                    <Button
-                        size={Button.ENUMS.SIZE.MD}
-                        color={Button.ENUMS.COLOR.PRIMARY}
-                        title={labels.tooltip}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={labels.tooltip}
-                        data-dropdown-element
-                        disabled={
-                            !branchSettings.label ||
-                            branchSettings.label.length < 1
-                        }
-                        onClick={() => {
-                            handle.labelBranch(branchSettings.label);
-                            handle.navTo('main');
-                        }}>
-                        {labels.label}
-                    </Button>
+                    <div className='pb-xs-16'>
+                        <Button
+                            size={Button.ENUMS.SIZE.MD}
+                            color={Button.ENUMS.COLOR.PRIMARY}
+                            title={labels.tooltip}
+                            data-vertical-align='top'
+                            data-align='left'
+                            data-tooltip={labels.tooltip}
+                            data-dropdown-element
+                            disabled={
+                                !branchSettings.label ||
+                                branchSettings.label.length < 1
+                            }
+                            onClick={() => {
+                                handle.labelBranch(branchSettings.label);
+                                handle.navTo('main');
+                            }}>
+                            {labels.label}
+                        </Button>
+                    </div>
+                    {currentBranch !== 'master' && (
+                        <div className='pb-xs-16'>
+                            <Button
+                                size={Button.ENUMS.SIZE.MD}
+                                color={Button.ENUMS.COLOR.WARNING}
+                                title={deleteLabels.tooltip}
+                                data-vertical-align='top'
+                                data-align='left'
+                                data-tooltip={deleteLabels.tooltip}
+                                data-dropdown-element
+                                disabled={currentBranch === 'master'}
+                                onClick={() => {
+                                    handle.navTo('delete');
+                                }}>
+                                {deleteLabels.label}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </Dialog>
         </div>

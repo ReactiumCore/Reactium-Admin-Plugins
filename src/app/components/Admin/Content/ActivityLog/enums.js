@@ -16,6 +16,22 @@ export default {
             general: __('%type% %slug% revised by %who%. Version %version%'),
             specific: __('Revised by %who%. Version %version%'),
         },
+        CREATED_BRANCH: {
+            general: __(
+                'New version %version% of %type% %slug% created by %who%',
+            ),
+            specific: __('New version %version% of %slug% by %who%'),
+        },
+        DELETED_BRANCH: {
+            general: __('Version %deleted% of %type% %slug% deleted by %who%'),
+            specific: __('Version %deleted% of %slug% deleted by %who%'),
+        },
+        LABELED_BRANCH: {
+            general: __(
+                'Version labeled change to %version% of %type% %slug% by %who%',
+            ),
+            specific: __('Version labeled %version% of %slug% by %who%'),
+        },
         SLUG_CHANGED: {
             general: __(
                 '%type% %originalSlug% slug changed to %slug% by %who%',

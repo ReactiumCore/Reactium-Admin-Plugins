@@ -37,6 +37,7 @@ const RevisionManager = props => {
             compare: {},
             activeScene: 'main',
             // activeScene: 'branches',
+            // activeScene: 'delete',
             type,
             types,
         },
@@ -44,8 +45,6 @@ const RevisionManager = props => {
     );
 
     const cx = Reactium.Utils.cxFactory('revision-manager');
-
-    console.log({ state });
 
     const navTo = (panel, direction = 'left', newState) => {
         const sceneState = {
@@ -144,6 +143,40 @@ const RevisionManager = props => {
         });
     };
 
+    const deleteBranch = async () => {
+        try {
+            const working = op.get(state, 'working.content', {});
+            const branch = op.get(working, 'history.branch');
+            if (branch === 'master') return;
+
+            const updated = await Reactium.Content.deleteBranch(working);
+            op.set(updated, 'history', { branch: 'master' });
+            const content = await Reactium.Content.retrieve(updated);
+            updateBranchInfo(content);
+            Toast.show({
+                type: Toast.TYPE.SUCCESS,
+                message: __('Version deleted'),
+                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+
+            await editor.dispatch('load', {
+                value: content,
+                ignoreChangeEvent: true,
+            });
+            onClose();
+        } catch (error) {
+            Toast.show({
+                type: Toast.TYPE.ERROR,
+                message: __('Unable to deleted version'),
+                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+
+            navTo('main', 'right');
+        }
+    };
+
     const saveChanges = async () => {
         const workingChanges = op.get(state, 'working.changes', {});
         const compareChanges = op.get(state, 'compare.changes', {});
@@ -168,7 +201,7 @@ const RevisionManager = props => {
 
         Toast.show({
             type: Toast.TYPE.SUCCESS,
-            message: __('Content updated.'),
+            message: __('Content updated'),
             icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
             autoClose: 1000,
         });
@@ -207,6 +240,7 @@ const RevisionManager = props => {
         setBranch,
         cloneBranch,
         labelBranch,
+        deleteBranch,
         editor,
         onClose,
         labels,
