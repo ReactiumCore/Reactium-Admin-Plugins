@@ -201,6 +201,16 @@ $compare-mobile-basis: calc(100% - 40px) !default;
 
     &-copy {
         position: absolute;
+        button {
+            padding: 0;
+            width: 26px;
+            height: 26px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
     }
 
     &-from {
@@ -262,4 +272,17 @@ $compare-mobile-basis: calc(100% - 40px) !default;
 
 .comparison-component {
     overflow-x: hidden;
+}
+
+$missing-fields-color: $color-danger !default;
+.missing {
+    &-fields {
+        list-style: none;
+        margin: 0;
+    }
+
+    &-field {
+        text-decoration: line-through;
+        color: $missing-fields-color;
+    }
 }
