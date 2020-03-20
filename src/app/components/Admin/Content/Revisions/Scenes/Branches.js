@@ -55,13 +55,7 @@ const BranchesScene = props => {
             Object.values(contentType.fields),
             'region',
         );
-        const fields = [
-            {
-                fieldId: 'title',
-                fieldType: 'Text',
-                fieldName: __('Title'),
-            },
-        ];
+        const fields = [];
         _.sortBy(
             Object.values(contentType.regions).map(region => {
                 let order;
@@ -95,6 +89,7 @@ const BranchesScene = props => {
                 fieldSlug =>
                     ![
                         'objectId',
+                        'title',
                         'uuid',
                         'slug',
                         'type',
@@ -106,6 +101,8 @@ const BranchesScene = props => {
                         'meta',
                         'createdAt',
                         'updatedAt',
+                        'canRead',
+                        'canWrite',
                     ].includes(fieldSlug),
             );
         return missingKeys;
@@ -177,13 +174,6 @@ const BranchesScene = props => {
             );
             const toCopyLabel = toLabels.copy;
             const toUndoLabel = toLabels.undo;
-
-            console.log({
-                fromCopyLabel,
-                fromUndoLabel,
-                toCopyLabel,
-                toUndoLabel,
-            });
 
             const Component = op.get(
                 components,
@@ -326,7 +316,9 @@ const BranchesScene = props => {
                 </Scrollbars>
                 <div className={cx('branches-controls')}>
                     <div className={cx('branches-control')}>
-                        <Button disabled={changes < 1}>
+                        <Button
+                            disabled={changes < 1}
+                            onClick={handle.saveChanges}>
                             {__('Save Changes')}
                         </Button>
                     </div>

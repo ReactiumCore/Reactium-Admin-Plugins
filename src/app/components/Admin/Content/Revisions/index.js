@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import Reactium, { __, useDerivedState } from 'reactium-core/sdk';
+import Reactium, { __, useDerivedState, useHandle } from 'reactium-core/sdk';
 import { Button, Icon, Scene } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import _ from 'underscore';
@@ -23,6 +23,8 @@ const RevisionManager = props => {
     const startingBranch = op.get(startingContent, 'history.branch', 'master');
     const startingRevision = op.get(startingRevision, 'history.revision', 0);
     const onClose = op.get(props, 'onClose');
+    const tools = useHandle('AdminTools');
+    const Toast = op.get(tools, 'Toast');
 
     const [state, setState] = useDerivedState(
         {
@@ -33,8 +35,8 @@ const RevisionManager = props => {
                 revision: startingRevision,
             },
             compare: {},
-            // activeScene: 'main',
-            activeScene: 'branches',
+            activeScene: 'main',
+            // activeScene: 'branches',
             type,
             types,
         },
@@ -142,6 +144,36 @@ const RevisionManager = props => {
         });
     };
 
+    const saveChanges = async () => {
+        const workingChanges = op.get(state, 'working.changes', {});
+        const compareChanges = op.get(state, 'compare.changes', {});
+        const working = op.get(state, 'working.content', {});
+        const compare = op.get(state, 'compare.content', {});
+
+        if (Object.keys(workingChanges).length) {
+            const content = await Reactium.Content.save({
+                ...working,
+                ...workingChanges,
+            });
+            updateBranchInfo(content, 'working');
+        }
+
+        if (Object.keys(compareChanges).length) {
+            const content = await Reactium.Content.save({
+                ...compare,
+                ...compareChanges,
+            });
+            updateBranchInfo(content, 'compare');
+        }
+
+        Toast.show({
+            type: Toast.TYPE.SUCCESS,
+            message: __('Content updated.'),
+            icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+            autoClose: 1000,
+        });
+    };
+
     const currentBranch = op.get(state, 'working.branch');
 
     const getVersionLabel = branchId =>
@@ -180,6 +212,7 @@ const RevisionManager = props => {
         labels,
         stageBranchChanges,
         unstageBranchChange,
+        saveChanges,
     };
 
     return (
