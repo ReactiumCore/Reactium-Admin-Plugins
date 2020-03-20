@@ -19,6 +19,7 @@ import {
     Collapsible,
     Icon,
     Slide,
+    Spinner,
 } from '@atomic-reactor/reactium-ui';
 
 const Content = ({ editor, data }) => {
@@ -61,18 +62,12 @@ const Content = ({ editor, data }) => {
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
-    const isEmpty = () => _.isEmpty(data);
-
     const isExpanded = group => {
         if (op.get(expanded, group)) {
             return op.get(expanded, group);
         } else {
             return Reactium.Prefs.get(`admin.user.content.${group}`, true);
         }
-    };
-
-    const isVisible = () => {
-        return !isEmpty() && types;
     };
 
     const getCount = contentType => {
@@ -202,70 +197,80 @@ const Content = ({ editor, data }) => {
 
     const render = () => (
         <>
-            <div className={cx('content-stats')}>
-                <Carousel ref={carouselRef} loop>
-                    {stats().map((chunk, i) => (
-                        <Slide key={`slide-${i}`}>
-                            <div>
-                                {chunk.map((item, k) => (
-                                    <Stat key={`stat-${k}`} {...item} cx={cx} />
-                                ))}
+            {types && (
+                <div className={cx('content-stats')}>
+                    <Carousel ref={carouselRef} loop>
+                        {stats().map((chunk, i) => (
+                            <Slide key={`slide-${i}`}>
+                                <div>
+                                    {chunk.map((item, k) => (
+                                        <Stat
+                                            key={`stat-${k}`}
+                                            {...item}
+                                            cx={cx}
+                                        />
+                                    ))}
+                                </div>
+                            </Slide>
+                        ))}
+                    </Carousel>
+                    <Button
+                        className='nav nav-left'
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        onClick={() => carouselRef.current.prev()}
+                        size={Button.ENUMS.SIZE.MD}>
+                        <Icon name='Feather.ChevronLeft' />
+                    </Button>
+                    <Button
+                        className='nav nav-right'
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        onClick={() => carouselRef.current.next()}
+                        size={Button.ENUMS.SIZE.MD}>
+                        <Icon name='Feather.ChevronRight' />
+                    </Button>
+                </div>
+            )}
+            {types && (
+                <div className={cx('content-list')}>
+                    {Object.entries(data).map(([key, value]) => {
+                        const type = op.get(types, key);
+                        if (!type) return null;
+
+                        const { group } = type;
+                        const items = Object.values(value);
+
+                        return (
+                            <div key={key} className={cx('content-list-group')}>
+                                <ListHeading
+                                    editor={editor}
+                                    type={type}
+                                    {..._handle()}
+                                />
+                                <Collapsible
+                                    expanded={isExpanded(group)}
+                                    onCollapse={e => onCollapse(e, group)}
+                                    onExpand={e => onExpand(e, group)}
+                                    ref={elm => {
+                                        if (elm)
+                                            op.set(refs.current, group, elm);
+                                    }}>
+                                    {items.map(item => (
+                                        <ListItem
+                                            {...item}
+                                            key={`ugc-${item.typeID}-${item.contentID}`}
+                                        />
+                                    ))}
+                                </Collapsible>
                             </div>
-                        </Slide>
-                    ))}
-                </Carousel>
-                <Button
-                    className='nav nav-left'
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    onClick={() => carouselRef.current.prev()}
-                    size={Button.ENUMS.SIZE.MD}>
-                    <Icon name='Feather.ChevronLeft' />
-                </Button>
-                <Button
-                    className='nav nav-right'
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    onClick={() => carouselRef.current.next()}
-                    size={Button.ENUMS.SIZE.MD}>
-                    <Icon name='Feather.ChevronRight' />
-                </Button>
-            </div>
-            <div className={cx('content-list')}>
-                {Object.entries(data).map(([key, value]) => {
-                    const type = op.get(types, key);
-                    if (!type) return null;
-
-                    const { group } = type;
-                    const items = Object.values(value);
-
-                    return (
-                        <div key={key} className={cx('content-list-group')}>
-                            <ListHeading
-                                editor={editor}
-                                type={type}
-                                {..._handle()}
-                            />
-                            <Collapsible
-                                expanded={isExpanded(group)}
-                                onCollapse={e => onCollapse(e, group)}
-                                onExpand={e => onExpand(e, group)}
-                                ref={elm => {
-                                    if (elm) op.set(refs.current, group, elm);
-                                }}>
-                                {items.map(item => (
-                                    <ListItem
-                                        {...item}
-                                        key={`ugc-${item.typeID}-${item.contentID}`}
-                                    />
-                                ))}
-                            </Collapsible>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
+            {!types && <Spinner className={cx('spinner')} />}
         </>
     );
 
-    return isVisible() ? render() : null;
+    return render();
 };
 
 const ListHeading = ({ editor, type, ...props }) => (

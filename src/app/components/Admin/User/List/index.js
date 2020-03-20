@@ -11,6 +11,7 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHandle,
+    useHookComponent,
     useRegisterHandle,
     useRoles,
     useSelect,
@@ -36,6 +37,8 @@ const UserList = ({
     page: initialPage,
     ...props
 }) => {
+    const Helmet = useHookComponent('Helmet');
+
     // SearchBar
     const SearchBar = useHandle('SearchBar');
 
@@ -224,6 +227,9 @@ const UserList = ({
 
     const render = () => (
         <div className={cname()} ref={containerRef}>
+            <Helmet>
+                <title>{__('Users')}</title>
+            </Helmet>
             <Header list={handle} search={search} />
             <Zone list={handle} zone={cx('top')} />
             <div className={cx('row')}>

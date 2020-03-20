@@ -8,6 +8,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useEffect, useState } from 'react';
 import Reactium, {
+    useAsyncEffect,
     useDerivedState,
     useHandle,
     useSelect,
@@ -43,23 +44,23 @@ const useActions = () => {
     const [status, setStatus] = useState(ENUMS.STATUS.INIT);
 
     useEffect(() => {
-        if (status !== ENUMS.STATUS.INIT) return;
-        if (!actions) {
-            const acts = {};
+        if (status === ENUMS.STATUS.INIT && !actions) {
             setStatus(ENUMS.STATUS.PENDING);
+
+            let acts = {};
 
             Reactium.Hook.run('media-file-actions', acts).then(() => {
                 setStatus(ENUMS.STATUS.READY);
                 setActions(acts);
             });
         }
-    }, [actions, status]);
+    });
 
-    return actions || {};
+    return [actions || {}, setActions];
 };
 
-export default () => {
-    const actions = useActions();
+const Media = () => {
+    const [actions] = useActions();
 
     const Media = useHandle(domain.name);
 
@@ -138,6 +139,13 @@ export default () => {
             case 'delete':
                 confirmDelete(file);
                 break;
+
+            default:
+                Reactium.Hook.run('media-action-button-click', {
+                    ...e,
+                    action,
+                    file,
+                });
         }
     };
 
@@ -474,3 +482,5 @@ export default () => {
 
     return render();
 };
+
+export { ENUMS, useActions, ActionButton, Media as default };

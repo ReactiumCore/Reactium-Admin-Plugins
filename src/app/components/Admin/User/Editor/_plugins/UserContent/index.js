@@ -3,28 +3,36 @@ import _ from 'underscore';
 import Empty from './Empty';
 import op from 'object-path';
 import Content from './Content';
+import { __, useHookComponent } from 'reactium-core/sdk';
 
 const UserContent = ({ editor }) => {
+    const Helmet = useHookComponent('Helmet');
+
     const { cx, isNew, state = {} } = editor;
-    const { editing, value = {} } = state;
+    const { editing, tab, value = {} } = state;
     const { meta = {} } = value;
 
-    const isEmpty = () => {
-        return (
-            _.isEmpty(op.get(meta, 'content', {})) &&
-            _.isEmpty(op.get(meta, 'media', {}))
-        );
-    };
+    const isEmpty = () => _.isEmpty(op.get(meta, 'content', {}));
 
-    const isVisible = () => !_.isEmpty(value) && !editing && !isNew();
+    const isVisible = () => !isNew() && tab === 'content';
+
+    const title = __('User Content');
 
     const render = () => {
         return (
             <div className={cx('content')}>
+                <Helmet>
+                    <title>{title}</title>
+                </Helmet>
                 {isEmpty() && (
                     <Empty className={cx('content-empty')} editor={editor} />
                 )}
-                <Content editor={editor} data={op.get(meta, 'content', {})} />
+                {!isEmpty() && (
+                    <Content
+                        editor={editor}
+                        data={op.get(meta, 'content', {})}
+                    />
+                )}
             </div>
         );
     };

@@ -43,7 +43,7 @@ const ENUMS = {
         VALIDATED: 'VALIDATED',
     },
     TEXT: {
-        TITLE: __('Edit User %id'),
+        TITLE: __('User Edit | %id'),
     },
 };
 
@@ -123,6 +123,8 @@ let UserEditor = (
     },
     ref,
 ) => {
+    const Helmet = useHookComponent('Helmet');
+
     const tools = useHandle('AdminTools');
 
     const Toast = op.get(tools, 'Toast');
@@ -130,8 +132,6 @@ let UserEditor = (
     const alertRef = useRef();
     const containerRef = useRef();
     const formRef = useRef();
-
-    const Helmet = useHookComponent('Helmet');
 
     const defaultState = {
         ...params,
@@ -677,29 +677,27 @@ let UserEditor = (
         const reqs = isNew() ? ['email', 'username', 'password'] : ['email'];
 
         return (
-            <>
-                <Helmet>
-                    <title>{parseTitle()}</title>
-                </Helmet>
-                <div className={cname} ref={containerRef}>
-                    <Zone editor={handle} zone={cx('profile')} />
+            <div className={cname} ref={containerRef}>
+                <Zone editor={handle} zone={cx('profile')} />
 
-                    {editing ? (
-                        <EventForm
-                            required={reqs}
-                            id={ComponentID}
-                            onChange={_onFormChange}
-                            onSubmit={_onFormSubmit}
-                            ref={formRef}
-                            validator={_onValidate}
-                            value={value}>
-                            <Zone editor={handle} zone={cx('form')} />
-                        </EventForm>
-                    ) : (
-                        <ContentTabs editor={handle} />
-                    )}
-                </div>
-            </>
+                {editing ? (
+                    <EventForm
+                        required={reqs}
+                        id={ComponentID}
+                        onChange={_onFormChange}
+                        onSubmit={_onFormSubmit}
+                        ref={formRef}
+                        validator={_onValidate}
+                        value={value}>
+                        <Helmet>
+                            <title>{parseTitle()}</title>
+                        </Helmet>
+                        <Zone editor={handle} zone={cx('form')} />
+                    </EventForm>
+                ) : (
+                    <ContentTabs editor={handle} />
+                )}
+            </div>
         );
     };
 
@@ -709,20 +707,20 @@ let UserEditor = (
 const ContentTabs = ({ editor }) => {
     return (
         <>
-            <div className={editor.cx('content-tabs')}>
+            <div className={editor.cx('tabs')}>
                 {Reactium.User.Content.list.map((item, i) => {
                     if (!item.tab) return null;
 
                     const { id, label } = op.get(item, 'tab');
                     if (!id || !label) return null;
                     const className = cn({
-                        [editor.cx('content-tab')]: true,
+                        [editor.cx('tab')]: true,
                         active: editor.state.tab === id,
                     });
 
                     return (
                         <button
-                            key={`content-tab-button-${id}`}
+                            key={`user-tab-button-${id}`}
                             className={className}
                             onClick={e => editor.showTab(e, id)}>
                             {label}
@@ -734,7 +732,7 @@ const ContentTabs = ({ editor }) => {
                 op.has(item, 'tab.id') &&
                 op.get(item, 'tab.id') === op.get(editor.state, 'tab') ? (
                     <Zone
-                        key={`content-tab-${item.id}`}
+                        key={`user-tab-${item.id}`}
                         editor={editor}
                         zone={item.id}
                     />

@@ -45,7 +45,7 @@ export default ({ className, editor }) => {
         return () => {};
     });
 
-    return !types ? (
+    return !types || _.isEmpty(value) ? (
         <div className={className}>
             <Spinner />
         </div>

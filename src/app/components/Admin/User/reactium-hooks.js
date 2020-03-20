@@ -18,6 +18,7 @@ import {
 
 import {
     Notice,
+    UserMedia,
     UserContent,
     UserInputs,
     UserProfile,
@@ -118,9 +119,16 @@ Reactium.Plugin.register(
     });
 
     Reactium.Zone.addComponent({
-        id: 'ADMIN-USER-EDITOR-PROFILE',
+        id: 'ADMIN-USER-EDITOR-CONTENT',
         component: UserContent,
         zone: ['admin-user-content'],
+        order: Reactium.Enums.priority.lowest,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-USER-EDITOR-MEDIA',
+        component: UserMedia,
+        zone: ['admin-user-media'],
         order: Reactium.Enums.priority.lowest,
     });
 
