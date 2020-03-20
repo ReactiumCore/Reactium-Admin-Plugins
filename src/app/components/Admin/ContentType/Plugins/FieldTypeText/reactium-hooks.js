@@ -20,5 +20,12 @@ Reactium.Plugin.register(ID).then(() => {
 
     Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
 
+    Reactium.Content.Comparison.register(ID, {
+        component: ({ value }) => {
+            if (value) return value;
+            return null;
+        },
+    });
+
     Reactium.ContentType.FieldType.register(ID, fieldType);
 });
