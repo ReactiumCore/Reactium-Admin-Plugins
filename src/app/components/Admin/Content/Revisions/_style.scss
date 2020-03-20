@@ -117,6 +117,12 @@ $close-button-focus-outline: $color-tertiary !default;
                 width: 260px;
             }
         }
+
+        @include breakpoint(xs-only) {
+            &-controls {
+                display: block;
+            }
+        }
     }
 }
 
@@ -171,6 +177,7 @@ $compare-border: $color-border !default;
 $compare-shadow: $shadow-image !default;
 $compare-desktop-basis: 45% !default;
 $compare-desktop-border-offset: 55% !default;
+$compare-mobile-basis: calc(100% - 40px) !default;
 .branch-compare {
     position: relative;
     list-style: none;
@@ -178,7 +185,6 @@ $compare-desktop-border-offset: 55% !default;
     margin: 20px;
 
     &-row {
-        margin: 20px 0;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
@@ -188,10 +194,9 @@ $compare-desktop-border-offset: 55% !default;
     }
 
     &-from, &-to {
-        overflow-x: hidden;
-        padding: 20px;
+        position: relative;
         flex: 0 0 $compare-desktop-basis;
-        // border: 2px solid green;
+        max-width: $compare-desktop-basis;
     }
 
     &-copy {
@@ -200,18 +205,17 @@ $compare-desktop-border-offset: 55% !default;
 
     &-from {
         .branch-compare-copy {
-            right: calc(50% + 40px);
+            right: -48px;
         }
     }
 
     &-to {
         .branch-compare-copy {
-            left: calc(50% + 40px);
+            left: -48px;
         }
     }
 
     &:before, &:after {
-        // z-index: -1;
         display: block;
         content: ' ';
         position: absolute;
@@ -230,4 +234,32 @@ $compare-desktop-border-offset: 55% !default;
         left: 0;
         right: $compare-desktop-border-offset;
     }
+
+    @include breakpoint(xs-only) {
+        &-row {
+            display: block;
+        }
+
+        &-from, &-to {
+            max-width: $compare-mobile-basis;
+            border: 1px solid $compare-border;
+            box-shadow: $compare-shadow;
+            margin-bottom: 20px;
+            .branch-compare-copy {
+                top: 0px;
+                right: -48px;
+                left: inherit;
+                transform-origin: center;
+                transform: rotate(90deg);
+            }
+        }
+
+        &:before, &:after {
+            display: none;
+        }
+    }
+}
+
+.comparison-component {
+    overflow-x: hidden;
 }

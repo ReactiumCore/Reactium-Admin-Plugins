@@ -1,5 +1,5 @@
 import React from 'react';
-import { Editor, FieldType } from '.';
+import { Editor, FieldType, Comparison } from '.';
 import Reactium, { __ } from 'reactium-core/sdk';
 
 const ID = 'Number';
@@ -15,6 +15,10 @@ Reactium.Plugin.register(ID).then(() => {
     Reactium.Component.register(fieldType.component, FieldType);
 
     Reactium.Content.Editor.register(ID, { component: Editor });
+
+    Reactium.Content.Comparison.register(ID, {
+        component: Comparison,
+    });
 
     Reactium.ContentType.FieldType.register(ID, fieldType);
 });

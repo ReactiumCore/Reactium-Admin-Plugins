@@ -20,8 +20,13 @@ const slugify = name => {
 const BranchesScene = props => {
     const { handle } = props;
     const { cx, state } = handle;
-    const from = op.get(state, 'working.content', {});
-    const to = op.get(state, 'compare.content', {});
+    const fromChanges = op.get(state, 'working.changes', {});
+    const toChanges = op.get(state, 'compare.changes', {});
+    const changes =
+        Object.values(fromChanges).length + Object.values(toChanges).length;
+    console.log({ changes });
+    const from = { ...op.get(state, 'working.content', {}), ...fromChanges };
+    const to = { ...op.get(state, 'compare.content', {}), ...toChanges };
     const fromBranch = op.get(from, 'history.branch', '');
     const fromBranchLabel = op.get(
         from,
@@ -106,9 +111,11 @@ const BranchesScene = props => {
         const fields = fieldData();
         const missingFrom = missingFieldsInType(from, fields);
         const missingTo = missingFieldsInType(to, fields);
-        const rowsData = [];
+        const rows = [];
+        const diffs = {};
+
         if (missingFrom.length || missingTo.length) {
-            rowsData.push({
+            rows.push({
                 fieldType: {
                     fieldId: 'missing',
                     fieldSlug: 'missing',
@@ -121,24 +128,36 @@ const BranchesScene = props => {
         }
 
         Object.values(fields).forEach(fieldType => {
-            rowsData.push({
+            const slug = fieldType.fieldSlug;
+            const fromFieldData = op.get(from, slug);
+            const toFieldData = op.get(to, slug);
+            const diff = !_.isEqual(fromFieldData, toFieldData);
+            rows.push({
                 fieldType,
-                from: op.get(from, fieldType.fieldSlug),
-                to: op.get(to, fieldType.fieldSlug),
+                from: fromFieldData,
+                to: toFieldData,
+                diff,
             });
+
+            diffs[slug] = diff;
         });
 
-        return rowsData;
+        return {
+            rows,
+            diffs,
+        };
     };
 
     const renderRows = () => {
         const components = _.indexBy(Reactium.Content.Comparison.list, 'id');
+        const { rows, diffs } = getRowsData();
 
-        return getRowsData().map(row => {
-            const { fieldType, from, to } = row;
+        return rows.map(row => {
+            const { fieldType, from, to, diff = false } = row;
             const fId = op.get(fieldType, 'fieldId', '');
             const ftId = op.get(fieldType, 'fieldType', '');
             const fieldName = op.get(fieldType, 'fieldName', '');
+            const fieldSlug = op.get(fieldType, 'fieldSlug', '');
 
             const fromCopyLabel = copyFieldLabel(
                 fieldName,
@@ -171,30 +190,52 @@ const BranchesScene = props => {
                     <div className='branch-compare-from'>
                         <div className='branch-compare-copy'>
                             <Button
+                                disabled={!diff}
                                 data-tooltip={fromCopyLabel}
+                                data-align='left'
+                                data-vertical-align='middle'
                                 size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}>
+                                color={Button.ENUMS.COLOR.CLEAR}
+                                onClick={() => {
+                                    handle.stageBranchChanges(
+                                        {
+                                            [fieldSlug]: from,
+                                        },
+                                        'compare',
+                                    );
+                                }}>
                                 <span className='sr-only'>{fromCopyLabel}</span>
                                 <Icon name='Feather.ArrowRight' />
                             </Button>
                         </div>
                         <div className='comparison-component'>
-                            <Component value={from} />
+                            <Component value={from} field={fieldType} />
                         </div>
                     </div>
 
                     <div className='branch-compare-to'>
                         <div className='branch-compare-copy'>
                             <Button
+                                disabled={!diff}
                                 data-tooltip={toCopyLabel}
+                                data-align='left'
+                                data-vertical-align='middle'
                                 size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}>
+                                color={Button.ENUMS.COLOR.CLEAR}
+                                onClick={() => {
+                                    handle.stageBranchChanges(
+                                        {
+                                            [fieldSlug]: to,
+                                        },
+                                        'working',
+                                    );
+                                }}>
                                 <span className='sr-only'>{toCopyLabel}</span>
                                 <Icon name='Feather.ArrowLeft' />
                             </Button>
                         </div>
                         <div className='comparison-component'>
-                            <Component value={to} />
+                            <Component value={to} field={fieldType} />
                         </div>
                     </div>
                 </li>
@@ -215,11 +256,18 @@ const BranchesScene = props => {
                 </div>
                 <Scrollbars
                     autoHeight={true}
-                    autoHeightMin={'calc(100vh - 200px)'}>
+                    autoHeightMin={'calc(100vh - 300px)'}>
                     <ul className={cn(cx('branches-diff'), 'branch-compare')}>
                         {renderRows()}
                     </ul>
                 </Scrollbars>
+                <div className={cx('branches-controls')}>
+                    <div className={cx('branches-control')}>
+                        <Button disabled={changes < 1}>
+                            {__('Save Changes')}
+                        </Button>
+                    </div>
+                </div>
             </div>
         )
     );

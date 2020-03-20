@@ -1,6 +1,7 @@
 import Editor from './Editor';
 import { __ } from 'reactium-core/sdk';
 import FieldTypeRichText from './index';
+import Comparison from './Comparison';
 import Reactium from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 
@@ -19,6 +20,10 @@ const registerFieldTypePlugin = async () => {
     Reactium.Component.register('FieldTypeRichText', FieldTypeRichText);
 
     Reactium.Content.Editor.register(ID, { component: Editor });
+
+    Reactium.Content.Comparison.register(ID, {
+        component: Comparison,
+    });
 
     Reactium.ContentType.FieldType.register(ID, fieldType);
 };
