@@ -7,6 +7,7 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SelectBranch from '../_helpers/SelectBranch';
 import SelectRevision from '../_helpers/SelectRevision';
+import moment from 'moment';
 
 const slugify = name => {
     if (!name) return '';
@@ -25,6 +26,11 @@ const RevisionsScene = props => {
     const revisions = op.get(history, 'revisions', []);
     const revId = op.get(state, 'revId');
     const vIndex = revisions.findIndex(({ revId: id }) => id === revId);
+    const revision = op.get(revisions, vIndex);
+    const revisionLabel = handle
+        .labels('SELECT_REVISION')
+        .select.replace('%rev', vIndex + 1)
+        .replace('%date', moment(op.get(revision, 'updatedAt')).fromNow());
 
     const fromChanges = op.get(state, 'working.changes', {});
     const toChanges = {};
@@ -301,11 +307,10 @@ const RevisionsScene = props => {
         return {
             copy: __('Copy %fieldName from %fromLabel to %toLabel')
                 .replace('%fieldName', fieldName)
-                .replace('%fromLabel', fromLabel)
+                .replace('%fromLabel', revisionLabel)
                 .replace('%toLabel', toLabel),
             undo: __('Undo change to %fieldName in version %toLabel')
                 .replace('%fieldName', fieldName)
-                .replace('%fromLabel', fromLabel)
                 .replace('%toLabel', toLabel),
         };
     };
