@@ -57,6 +57,11 @@ export default {
         label: __('Delete Version'),
         tooltip: __('Delete this version of the content.'),
     },
+    SELECT_REVISION: {
+        select: __('Revision %rev (%date)'),
+        label: __('Select Revision'),
+        tooltip: __('Select changes made to this version'),
+    },
     SCENES: {
         main: {
             title: __('Version Manager'),

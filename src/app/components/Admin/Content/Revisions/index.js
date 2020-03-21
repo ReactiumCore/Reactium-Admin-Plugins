@@ -36,8 +36,6 @@ const RevisionManager = props => {
             },
             compare: {},
             activeScene: 'main',
-            // activeScene: 'branches',
-            // activeScene: 'delete',
             type,
             types,
         },
@@ -231,6 +229,23 @@ const RevisionManager = props => {
             modalFrame.current.focus();
         }
     }, []);
+
+    useEffect(() => {
+        const loadRevisions = async () => {
+            const revHistory = await Reactium.Content.revisions(
+                op.get(state, 'working.content'),
+            );
+            const revisions = op.get(revHistory, 'revisions', []);
+            setState({
+                revHistory,
+                revId: op.get(revisions, [revisions.length - 1, 'revId']),
+            });
+        };
+
+        if (currentBranch) {
+            loadRevisions();
+        }
+    }, [currentBranch, state.branches]);
 
     const handle = {
         cx,
