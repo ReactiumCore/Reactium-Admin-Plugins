@@ -1,13 +1,12 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import PropTypes from 'prop-types';
-import { Alert, Icon, Spinner } from '@atomic-reactor/reactium-ui';
-
-import { EventForm } from 'components/EventForm';
+import Sidebar from './Sidebar';
+import ENUMS from 'components/Admin/Media/enums';
 
 import React, {
     forwardRef,
+    useCallback,
     useEffect,
     useImperativeHandle,
     useRef,
@@ -25,33 +24,43 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
+import { Alert, Icon, EventForm, Spinner } from '@atomic-reactor/reactium-ui';
+
 const noop = () => {};
 
-const ENUMS = {
-    DEBUG: false,
-    STATUS: {
-        FAILED: 'FAILED',
-        ERROR: 'ERROR',
-        INIT: 'INIT',
-        LOADING: 'LOADING',
-        LOADED: 'LOADED',
-        READY: 'READY',
-        SAVING: 'SAVING',
-        SAVED: 'SAVED',
-        SUCCESS: 'SUCCESS',
-        VALIDATING: 'VALIDATING',
-        VALIDATED: 'VALIDATED',
-    },
-    TEXT: {
-        TITLE: __('User Edit | %id'),
-    },
-};
+ENUMS.DEBUG = false;
 
 const debug = (...args) => {
     if (ENUMS.DEBUG === true) console.log(...args);
 };
 
-export class UserEvent extends CustomEvent {
+export const useDirectories = (params = {}) => {
+    const [state, setNewState] = useState({
+        data: undefined,
+        status: ENUMS.STATUS.INIT,
+    });
+
+    const setState = newState =>
+        setNewState({
+            ...state,
+            ...newState,
+        });
+
+    useEffect(() => {
+        const { status } = state;
+
+        if (status === ENUMS.STATUS.INIT && !op.get(state, 'data')) {
+            setState({ status: ENUMS.STATUS.FETCHING });
+            Reactium.Cloud.run('directories', params).then(results =>
+                setState({ status: ENUMS.STATUS.READY, data: results }),
+            );
+        }
+    });
+
+    return state.data;
+};
+
+export class MediaEvent extends CustomEvent {
     constructor(type, data) {
         super(type, data);
 
@@ -71,44 +80,9 @@ export class UserEvent extends CustomEvent {
     }
 }
 
-const ErrorMessages = ({ editor, errors }) => {
-    const canFocus = element => typeof element.focus === 'function';
-
-    const jumpTo = (e, element) => {
-        e.preventDefault();
-        element.focus();
-    };
-
-    return (
-        <ul className={editor.cx('errors')}>
-            {errors.map(({ message, field, focus, value = '' }, i) => {
-                const replacers = {
-                    '%fieldName': field,
-                    '%value': value,
-                };
-                message = editor.parseErrorMessage(message, replacers);
-                message = !canFocus(focus) ? (
-                    message
-                ) : (
-                    <a href='#' onClick={e => jumpTo(e, focus)}>
-                        {message}
-                        <Icon
-                            name='Feather.CornerRightDown'
-                            size={12}
-                            className='ml-xs-8'
-                        />
-                    </a>
-                );
-                return <li key={`error-${i}`}>{message}</li>;
-            })}
-        </ul>
-    );
-};
-
-let UserEditor = (
+let Editor = (
     {
         className,
-        id: ComponentID,
         namespace,
         onChange,
         onError,
@@ -130,15 +104,15 @@ let UserEditor = (
 
     const Toast = op.get(tools, 'Toast');
 
+    const directories = useDirectories();
+
     const alertRef = useRef();
-    const containerRef = useRef();
     const formRef = useRef();
 
     const defaultState = {
         ...params,
         clean: true,
         dirty: false,
-        editing: op.get(params, 'tab') === 'edit',
         initialized: false,
         status: ENUMS.STATUS.INIT,
         title: op.get(props, 'title'),
@@ -173,12 +147,6 @@ let UserEditor = (
         forceUpdate(Date.now());
     };
 
-    const setAvatar = avatar => {
-        if (unMounted()) return;
-        const value = { ...state.value, avatar };
-        setState({ value });
-    };
-
     const setState = newState => {
         if (unMounted()) return;
         setPrevState(JSON.parse(JSON.stringify(state)));
@@ -187,7 +155,7 @@ let UserEditor = (
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const cname = cn(cx(), { [className]: !!className });
+    const cname = cn(cx(), className);
 
     const dispatch = async (eventType, event, callback) => {
         if (unMounted()) return;
@@ -195,7 +163,7 @@ let UserEditor = (
         eventType = String(eventType).toUpperCase();
 
         // passive dirty events
-        const dirtyEvents = _.pluck(Reactium.User.DirtyEvent.list, 'id');
+        const dirtyEvents = _.pluck(Reactium.Media.DirtyEvent.list, 'id');
         if (dirtyEvents.includes(String(eventType).toLowerCase())) {
             setState({ dirty: event, clean: false });
 
@@ -211,7 +179,7 @@ let UserEditor = (
             }
         }
 
-        const evt = new UserEvent(eventType, event);
+        const evt = new MediaEvent(eventType, event);
         handle.dispatchEvent(evt);
         debug(eventType, evt);
 
@@ -223,7 +191,7 @@ let UserEditor = (
         if (unMounted()) return;
 
         // passive clean events
-        const scrubEvents = _.pluck(Reactium.User.ScrubEvent.list, 'id');
+        const scrubEvents = _.pluck(Reactium.Media.ScrubEvent.list, 'id');
         if (scrubEvents.includes(String(eventType).toLowerCase())) {
             setState({ clean: event, dirty: false });
             await dispatch('clean', event);
@@ -233,35 +201,22 @@ let UserEditor = (
 
     const getData = async objectId => {
         if (unMounted()) return;
-        if (formRef.current) formRef.current.setValue(null);
-
         setState({ status: ENUMS.STATUS.LOADING, initialized: false });
+
+        if (formRef.current) formRef.current.setValue(null);
 
         await dispatch('status', { event: ENUMS.STATUS.LOADING, objectId });
         await dispatch(ENUMS.STATUS.LOADING, { objectId });
 
-        let value = isNew()
-            ? {}
-            : Reactium.User.selected
-            ? Reactium.User.selected
-            : await Reactium.User.retrieve({ objectId });
+        let value = Reactium.Media.selected
+            ? Reactium.Media.selected
+            : await Reactium.Media.retrieve(objectId);
 
-        // Reactium.User.selected = null;
+        // Reactium.Media.selected = null;
 
         if (unMounted()) return;
 
-        if (!isNew() && (!value || _.isEmpty(value))) {
-            Reactium.Routing.history.replace('/admin/user/new');
-            value = {};
-            setState({
-                value,
-                status: ENUMS.STATUS.LOADED,
-                initialized: true,
-                editing: true,
-            });
-        } else {
-            setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
-        }
+        setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
 
         await dispatch('status', {
             event: ENUMS.STATUS.LOADED,
@@ -278,10 +233,6 @@ let UserEditor = (
     };
 
     const _initialize = () => {
-        if (isNew()) {
-            setState({ editing: true });
-        }
-
         if (state.status === ENUMS.STATUS.INIT) {
             getData(state.id);
         }
@@ -309,11 +260,6 @@ let UserEditor = (
 
     const isMounted = () => !unMounted();
 
-    const isNew = () => {
-        const val = String(state.id).toLowerCase() === 'new' ? true : null;
-        return val === true ? true : null;
-    };
-
     const parseErrorMessage = (str, replacers = {}) => {
         Object.entries(replacers).forEach(([key, value]) => {
             str = str.split(key).join(value);
@@ -335,7 +281,6 @@ let UserEditor = (
     };
 
     const save = async value => {
-        if (!state.editing) return;
         const saveMessage = __('Saving...');
         const alertObj = {
             color: Alert.ENUMS.COLOR.INFO,
@@ -351,14 +296,14 @@ let UserEditor = (
 
         await dispatch(ENUMS.STATUS.SAVING, { value }, onSubmit);
         await dispatch('status', { event: ENUMS.STATUS.SAVING, value });
-        await Reactium.Hook.run('user-submit', value);
+        await Reactium.Hook.run('media-submit', value);
 
-        return Reactium.User.save(value)
+        return Reactium.Media.save(value)
             .then(async response => {
                 if (_.isError(response)) {
                     return Promise.reject(response);
                 } else {
-                    return _onSuccess({ user: response });
+                    return _onSuccess({ media: response });
                 }
             })
             .catch(error => _onFail({ error, value }));
@@ -366,13 +311,7 @@ let UserEditor = (
 
     const saveHotkey = e => {
         if (e) e.preventDefault();
-        if (!state.editing) return;
         submit();
-    };
-
-    const showTab = (e, tab) => {
-        if (e.currentTarget) e.currentTarget.blur();
-        setState({ tab });
     };
 
     const submit = () => {
@@ -380,7 +319,12 @@ let UserEditor = (
         formRef.current.submit();
     };
 
-    const unMounted = () => !containerRef;
+    const unMounted = () => {
+        if (!formRef.current) return true;
+        if (!formRef.current.form) return true;
+
+        return false;
+    };
 
     const _onError = async context => {
         const { error } = context;
@@ -428,10 +372,10 @@ let UserEditor = (
             value,
         });
 
-        let message = __('Unable to save %username');
+        let message = __('Unable to save %filename');
         message = String(message).replace(
-            /\%username/gi,
-            op.get(value, 'username', 'user'),
+            /\%filename/gi,
+            op.get(value, 'filename', 'file'),
         );
 
         Toast.show({
@@ -460,7 +404,7 @@ let UserEditor = (
     };
 
     const _onSuccess = async e => {
-        const { user } = e;
+        const { file } = e;
 
         const alertObj = {
             color: Alert.ENUMS.COLOR.INFO,
@@ -476,25 +420,19 @@ let UserEditor = (
             }
         }, 3000);
 
-        if (isNew()) {
-            Reactium.Routing.history.push(
-                `/admin/user/${op.get(user, 'objectId')}/content`,
-            );
-        }
+        setState({ value: file });
 
-        setState({ value: user });
-
-        await dispatch(ENUMS.STATUS.SAVED, { value: user }, onSuccess);
+        await dispatch(ENUMS.STATUS.SAVED, { value: file }, onSuccess);
         await dispatch('status', {
             event: ENUMS.STATUS.SAVED,
-            value: user,
+            value: file,
         });
 
-        let message = __('Saved %username!');
-        message = message.replace(/\%username/gi, user.username);
+        let message = __('Saved %filename!');
+        message = message.replace(/\%filename/gi, file.filename);
 
         Toast.show({
-            icon: 'Feather.UserCheck',
+            icon: 'Feather.Check',
             message,
             type: Toast.TYPE.INFO,
         });
@@ -505,25 +443,6 @@ let UserEditor = (
     const _onValidate = async e => {
         const { value, ...context } = e;
 
-        // check password
-        if (op.get(value, 'password')) {
-            if (!op.get(value, 'confirm')) {
-                context.valid = false;
-                context.error['confirm'] = {
-                    field: 'confirm',
-                    focus: op.get(formRef.current, 'elements.confirm'),
-                    message: __('confirm password'),
-                };
-            } else if (value.password !== value.confirm) {
-                context.valid = false;
-                context.error['confirm'] = {
-                    field: 'confirm',
-                    focus: op.get(formRef.current, 'elements.confirm'),
-                    message: __('passwords do not match'),
-                };
-            }
-        }
-
         await dispatch(ENUMS.STATUS.VALIDATING, { context, value }, onValidate);
         await dispatch('status', {
             event: ENUMS.STATUS.VALIDATING,
@@ -531,7 +450,7 @@ let UserEditor = (
             value,
         });
 
-        await Reactium.Hook.run('user-validate', { context, value });
+        await Reactium.Hook.run('media-validate', { context, value });
 
         if (context.valid !== true) _onError(context);
 
@@ -542,11 +461,11 @@ let UserEditor = (
         ...params,
         refs: {
             alertRef,
-            containerRef,
             formRef,
         },
         alert,
         cx,
+        directories,
         dispatch,
         errors,
         forceUpdate,
@@ -554,14 +473,11 @@ let UserEditor = (
         isClean,
         isDirty,
         isMounted,
-        isNew,
         parseErrorMessage,
         save,
         setAlert,
-        setAvatar,
         setErrors,
         setState,
-        showTab,
         state,
         submit,
         unMounted,
@@ -574,7 +490,7 @@ let UserEditor = (
 
     // Save hotkey
     useEffect(() => {
-        Reactium.Hotkeys.register('user-save', {
+        Reactium.Hotkeys.register('media-save', {
             callback: saveHotkey,
             key: 'mod+s',
             order: Reactium.Enums.priority.lowest,
@@ -582,7 +498,7 @@ let UserEditor = (
         });
 
         return () => {
-            Reactium.Hotkeys.unregister('user-save');
+            Reactium.Hotkeys.unregister('media-save');
         };
     });
 
@@ -619,35 +535,6 @@ let UserEditor = (
         [Object.values(state)],
     );
 
-    // Route changed to 'new'
-    useEffect(() => {
-        if (state.id !== params.id && params.id === 'new') reset();
-    }, [params.id]);
-
-    // Update if no tab
-    useEffect(() => {
-        if (!op.get(state, 'tab') && state.id) showTab('content');
-    }, [state.id, op.get(state, 'tab')]);
-
-    // Update route if no tab
-    useEffect(() => {
-        if (!state.id) return;
-
-        if (!params.tab) {
-            Reactium.Routing.history.replace(`/admin/user/${state.id}/content`);
-        }
-    }, [state.id, params.tab]);
-
-    // Update route on state.tab change
-    useEffect(() => {
-        //if (!state.id) return;
-        if (params.tab !== state.tab) {
-            Reactium.Routing.history.replace(
-                `/admin/user/${state.id}/${state.tab}`,
-            );
-        }
-    });
-
     // Update on params change
     useEffect(() => {
         if (params.id !== handle.id) {
@@ -670,99 +557,44 @@ let UserEditor = (
 
     // Register handle
     useImperativeHandle(ref, () => handle, [handle]);
-    useRegisterHandle(ComponentID, () => handle, [handle]);
+    //useRegisterHandle('MediaEditor', () => handle, [handle]);
 
-    // Render
     const render = () => {
-        const { editing, value } = state;
-        const reqs = isNew() ? ['email', 'username', 'password'] : ['email'];
+        const type = op.get(state, 'value.type');
+        if (state.value) console.log(state.value);
 
         return (
-            <div className={cname} ref={containerRef}>
-                <Zone editor={handle} zone={cx('profile')} />
-
-                {editing ? (
-                    <EventForm
-                        required={reqs}
-                        id={ComponentID}
-                        onChange={_onFormChange}
-                        onSubmit={_onFormSubmit}
-                        ref={formRef}
-                        validator={_onValidate}
-                        value={value}>
-                        <Helmet>
-                            <title>{parseTitle()}</title>
-                        </Helmet>
-                        <Zone editor={handle} zone={cx('form')} />
-                    </EventForm>
-                ) : (
-                    <ContentTabs editor={handle} />
-                )}
-            </div>
+            <EventForm
+                className={cname}
+                onChange={_onFormChange}
+                onSubmit={_onFormSubmit}
+                ref={formRef}
+                validator={_onValidate}
+                value={state.value}>
+                media editor
+                <Zone zone={cx('main')} />
+                <Sidebar editor={handle}>
+                    <div className={cx('meta')}>
+                        <Zone zone={cx('meta')} editor={handle} />
+                        {type && (
+                            <Zone
+                                zone={cx(`meta-${String(type).toLowerCase()}`)}
+                                editor={handle}
+                            />
+                        )}
+                    </div>
+                </Sidebar>
+            </EventForm>
         );
     };
 
     return render();
 };
 
-const ContentTabs = ({ editor }) => {
-    return (
-        <>
-            <div className={editor.cx('tabs')}>
-                {Reactium.User.Content.list.map((item, i) => {
-                    if (!item.tab) return null;
+Editor = forwardRef(Editor);
 
-                    const { id, label } = op.get(item, 'tab');
-                    if (!id || !label) return null;
-                    const className = cn({
-                        [editor.cx('tab')]: true,
-                        active: editor.state.tab === id,
-                    });
-
-                    return (
-                        <button
-                            key={`user-tab-button-${id}`}
-                            className={className}
-                            onClick={e => editor.showTab(e, id)}>
-                            {label}
-                        </button>
-                    );
-                })}
-            </div>
-            {Reactium.User.Content.list.map(item =>
-                op.has(item, 'tab.id') &&
-                op.get(item, 'tab.id') === op.get(editor.state, 'tab') ? (
-                    <Zone
-                        key={`user-tab-${item.id}`}
-                        editor={editor}
-                        zone={item.id}
-                    />
-                ) : null,
-            )}
-        </>
-    );
-};
-
-UserEditor = forwardRef(UserEditor);
-
-UserEditor.propTypes = {
-    className: PropTypes.string,
-    id: PropTypes.string,
-    namespace: PropTypes.string,
-    onChange: PropTypes.func,
-    onError: PropTypes.func,
-    onFail: PropTypes.func,
-    onLoad: PropTypes.func,
-    onReady: PropTypes.func,
-    onStatus: PropTypes.func,
-    onSubmit: PropTypes.func,
-    onSuccess: PropTypes.func,
-    onValidate: PropTypes.func,
-    title: PropTypes.string,
-};
-
-UserEditor.defaultProps = {
-    namespace: 'admin-user-editor',
+Editor.defaultProps = {
+    namespace: 'admin-media-editor',
     onChange: noop,
     onError: noop,
     onFail: noop,
@@ -772,7 +604,7 @@ UserEditor.defaultProps = {
     onSubmit: noop,
     onSuccess: noop,
     onValidate: noop,
-    title: ENUMS.TEXT.TITLE,
+    title: 'Media',
 };
 
-export default UserEditor;
+export { Editor, Editor as default };

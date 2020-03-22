@@ -1,13 +1,17 @@
 import op from 'object-path';
 import ENUMS from './enums';
 import domain from './domain';
+import Editor from './Editor';
 import Parse from 'appdir/api';
 import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
 import Breadcrumbs from './Breadcrumbs';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import SidebarWidget from './Widget/SidebarWidget';
 import DirectoryWidget from './Widget/DirectoryWidget';
+import { MediaCopy, MediaDelete, MediaDownload } from './List/_plugins';
+import { Meta, ThumbnailSelect } from './Editor/_plugins';
+// import { Directory, Tags } from './_utils/components';
 
 Reactium.Plugin.register(domain.name).then(() => {
     // Alias the Parse.File SDK
@@ -16,7 +20,29 @@ Reactium.Plugin.register(domain.name).then(() => {
     // Create Reactium.Media SDK
     Reactium[domain.name] = op.get(Reactium, domain.name, new MediaSdk());
 
+    // Register hooks
+    Reactium.Hook.register('app-ready', () => {
+        Reactium.Pulse.register('MediaClear', () => Reactium.Media.clear());
+    });
+
+    Reactium.Hook.register('plugin-unregister', ({ ID }) => {
+        // Tear down Reactium.Media SDK
+        if (ID === domain.name) delete Reactium[domain.name];
+    });
+
     // Register components
+    Reactium.Component.register('AdminMediaEditor', Editor);
+    Reactium.Component.register('MediaMeta', Meta);
+    Reactium.Component.register('ThumbnailSelect', ThumbnailSelect);
+
+    // Register components
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR',
+        component: 'AdminMediaEditor',
+        order: -1000,
+        zone: ['admin-media-editor'],
+    });
+
     Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-LIBRARY',
         component: MediaLibrary,
@@ -45,66 +71,44 @@ Reactium.Plugin.register(domain.name).then(() => {
         zone: ['admin-header'],
     });
 
-    // Register hooks
-    Reactium.Hook.register('app-ready', () => {
-        Reactium.Pulse.register('MediaClear', () => Reactium.Media.clear());
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-META-INPUTS',
+        component: Meta,
+        order: 1000,
+        zone: ['admin-media-editor-meta'],
     });
 
-    Reactium.Hook.register('plugin-unregister', ({ ID }) => {
-        // Tear down Reactium.Media SDK
-        if (ID === domain.name) delete Reactium[domain.name];
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-THUMBNAIL-SELECT',
+        component: ThumbnailSelect,
+        label: __('Thumbnail'),
+        property: 'thumbnail',
+        order: 2000,
+        zone: [
+            'admin-media-editor-meta-audio',
+            'admin-media-editor-meta-file',
+            'admin-media-editor-meta-video',
+        ],
     });
 
-    Reactium.Hook.register('media-file-actions', actions => {
-        actions['delete'] = {
-            color: 'danger',
-            icon: 'Feather.X',
-            iconSize: 20,
-            id: 'delete',
-            order: 0,
-            tooltip: ENUMS.TEXT.DELETE,
-            types: ['audio', 'image', 'other', 'video'],
-        };
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-ACTIONS-COPY',
+        component: MediaCopy,
+        order: 200,
+        zone: ['media-actions'],
+    });
 
-        actions['download'] = {
-            icon: 'Linear.CloudDownload',
-            iconSize: 20,
-            id: 'download',
-            order: 1,
-            tooltip: ENUMS.TEXT.DOWNLOAD_FILE,
-            types: ['audio', 'image', 'other', 'video'],
-        };
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-ACTIONS-DELETE',
+        component: MediaDelete,
+        order: -100,
+        zone: ['media-actions'],
+    });
 
-        actions['edit-audio'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit-audio',
-            order: 2,
-            tooltip: ENUMS.TEXT.EDIT_FILE,
-            types: ['audio'],
-        };
-
-        actions['edit-image'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit-image',
-            order: 2,
-            tooltip: ENUMS.TEXT.EDIT_FILE,
-            types: ['image'],
-        };
-
-        actions['edit-other'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit-other',
-            order: 2,
-            tooltip: ENUMS.TEXT.EDIT_FILE,
-            types: ['other'],
-        };
-
-        actions['edit-video'] = {
-            icon: 'Feather.Edit2',
-            id: 'edit-video',
-            order: 2,
-            tooltip: ENUMS.TEXT.EDIT_FILE,
-            types: ['video'],
-        };
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-ACTIONS-DOWNLOAD',
+        component: MediaDownload,
+        order: 100,
+        zone: ['media-actions'],
     });
 });

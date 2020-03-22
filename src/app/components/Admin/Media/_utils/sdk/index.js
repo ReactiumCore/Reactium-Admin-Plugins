@@ -40,6 +40,7 @@ const mapFileToUpload = file => {
 class Media {
     constructor() {
         this.ENUMS = ENUMS;
+        this.selected = null;
         this.worker = null;
         this.fetching = false;
         this.__filters = [Object.keys(ENUMS.TYPE)];
@@ -67,6 +68,18 @@ class Media {
                 params: { ...api, sessionToken },
             });
         }
+
+        // User DirtyEvent, ScrubEvent
+        this.DirtyEvent = Reactium.Utils.registryFactory('MediaDirtyEvent');
+        this.DirtyEvent.protect(['change']).protected.forEach(id =>
+            this.DirtyEvent.register(id),
+        );
+
+        this.ScrubEvent = Reactium.Utils.registryFactory('MediaScrubEvent');
+        this.ScrubEvent.protect([
+            'loaded',
+            'save-success',
+        ]).protected.forEach(id => this.ScrubEvent.register(id));
     }
 
     __onStatus(params) {
@@ -195,8 +208,8 @@ class Media {
     }
 
     download(objectId) {
-        const file = this.file(objectId);
-        console.log(file);
+        const file =
+            typeof objectId === 'string' ? this.file(objectId) : objectId;
         const url = this.url(file);
         const { filename } = file;
 

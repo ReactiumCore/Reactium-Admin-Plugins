@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'underscore';
 import Empty from './Empty';
-import Media from './Media';
 import op from 'object-path';
+import Media from 'components/Admin/Media/List';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 const UserMedia = ({ editor }) => {
@@ -18,17 +18,19 @@ const UserMedia = ({ editor }) => {
 
     const title = __('User Media');
 
+    const emptyClassName = cx('media-empty');
+
     const render = () => {
         return (
             <div className={cx('media')}>
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                {isEmpty() ? (
-                    <Empty className={cx('media-empty')} editor={editor} />
-                ) : (
-                    <Media editor={editor} data={op.get(meta, 'media', {})} />
-                )}
+                <Media
+                    data={op.get(meta, 'media', {})}
+                    empty={isEmpty()}
+                    emptyComponent={<Empty value={value} />}
+                />
             </div>
         );
     };

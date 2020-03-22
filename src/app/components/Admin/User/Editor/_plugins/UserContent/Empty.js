@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
 import { Button, Dropdown, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
-export default ({ className, editor }) => {
-    const value = op.get(editor, 'state.value', {});
+export default ({ className = 'media-empty', value = {} }) => {
     const name = op.get(value, 'fname', op.get(value, 'username'));
     const isMe = Reactium.User.isCurrent(value);
 

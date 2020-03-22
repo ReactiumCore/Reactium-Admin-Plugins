@@ -130,7 +130,7 @@ const DirectoryWidget = props => {
                                 borderLeft: '1px solid #909090',
                                 width: 38,
                             }}>
-                            <Icon name='Feather.Filter' size={16} />
+                            <Icon name='Linear.Funnel' size={16} />
                         </Button>
                     )}
                 </div>

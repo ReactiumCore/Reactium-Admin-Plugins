@@ -61,8 +61,6 @@ const ThumbnailSelect = forwardRef(
         const [picker, setPicker] = useState();
 
         // MediaEditor Handle
-        //const { data, setState, state } = useHandle('MediaEditor');
-
         const { data, setState, state } = editor;
 
         // Internal state
@@ -500,4 +498,4 @@ ThumbnailSelect.defaultProps = {
     title: __('Thumbnail'),
 };
 
-export default ThumbnailSelect;
+export { ThumbnailSelect, ThumbnailSelect as default };

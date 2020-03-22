@@ -1,3 +1,21 @@
-.style {
+.admin-dashboard {
+    @extend .row;
+    position: relative;
+    padding-top: $height-admin-header;
+    width: 100%;
+    min-height: 100vh;
+    align-items: stretch;
 
+    .activity-log {
+        position: relative !important;
+        height: calc(100vh - #{$height-admin-header}) !important;
+        background-color: transparent;
+
+        &-updates {
+            height: 100%;
+            background-color: $color-light;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+    }
 }

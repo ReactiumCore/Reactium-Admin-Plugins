@@ -9,13 +9,12 @@ const DashboardWidget = props => {
     const cx = op.get(props, 'cx');
 
     return (
-        <div className={cx('activity-updates')}>
+        <div className='col-xs-12 col-md-4 col-xl-3 p-xs-24'>
             <ActivityUpdates
-                log={log}
-                className='dashboard'
+                className='col-xs-12'
                 header={ENUMS.DASH_HEADER}
-                scope={'general'}
-                autoHeightMin={'600px'}
+                log={log}
+                scope='general'
             />
         </div>
     );

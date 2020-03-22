@@ -44,8 +44,12 @@ let Dashboard = props => {
                     setData={setData}
                 />
             ))}
-
-            <Zone zone={namespace} cx={cx} data={data} setData={setData} />
+            <Zone
+                zone={`${namespace}-widgets`}
+                cx={cx}
+                data={data}
+                setData={setData}
+            />
         </div>
     );
 };

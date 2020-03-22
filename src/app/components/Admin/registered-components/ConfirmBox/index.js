@@ -62,7 +62,7 @@ const ConfirmBox = ({
             <Dialog
                 header={{ title }}
                 {...props}
-                onDismiss={_onCancel}
+                onDismiss={() => _onCancel()}
                 dismissable={true}
                 collapsible={false}>
                 <div className='admin-confirm-box-message'>{message}</div>

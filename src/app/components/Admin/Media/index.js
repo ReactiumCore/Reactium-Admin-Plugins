@@ -5,6 +5,7 @@ import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 import Toolbar from './Toolbar';
+import List from './List';
 import Directory from './Directory';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
@@ -125,39 +126,43 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     ]);
 
     // Render
-    const render = () => (
-        <>
-            <Helmet>
-                <title>{title}</title>
-            </Helmet>
-            {op.get(state, 'fetched') ? (
-                <Dropzone
-                    {...dropzoneProps}
-                    className={cx('dropzone')}
-                    files={{}}
-                    onError={onError}
-                    onFileAdded={e => onFileAdded(e)}
-                    ref={dropzoneRef}>
-                    <Toolbar />
-                    <Uploads
-                        onRemoveFile={onFileRemoved}
-                        uploads={op.get(state, 'uploads', {})}
-                    />
-                    <div className={cn(cx('library'), { empty: isEmpty() })}>
-                        <Empty />
-                        <Directory />
+    const render = () => {
+        return (
+            <>
+                <Helmet>
+                    <title>{title}</title>
+                </Helmet>
+                {op.get(state, 'fetched') ? (
+                    <Dropzone
+                        {...dropzoneProps}
+                        className={cx('dropzone')}
+                        files={{}}
+                        onError={onError}
+                        onFileAdded={e => onFileAdded(e)}
+                        ref={dropzoneRef}>
+                        <Toolbar />
+                        <Uploads
+                            onRemoveFile={onFileRemoved}
+                            uploads={op.get(state, 'uploads', {})}
+                        />
+                        <List
+                            data={mapLibraryToList(state.library)}
+                            empty={isEmpty()}
+                        />
+                    </Dropzone>
+                ) : (
+                    <div className={cx('spinner')}>
+                        <Spinner />
                     </div>
-                </Dropzone>
-            ) : (
-                <div className={cx('spinner')}>
-                    <Spinner />
-                </div>
-            )}
-        </>
-    );
+                )}
+            </>
+        );
+    };
 
     return render();
 };
+
+const mapLibraryToList = library => _.indexBy(library, 'objectId');
 
 Media = forwardRef(Media);
 

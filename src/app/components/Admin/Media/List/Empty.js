@@ -1,36 +1,38 @@
-import _ from 'underscore';
-import op from 'object-path';
-import React, { useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Reactium, { __ } from 'reactium-core/sdk';
-import { Button, Spinner } from '@atomic-reactor/reactium-ui';
+import { Button } from '@atomic-reactor/reactium-ui';
 
-export default ({ className = 'media-empty', value = {} }) => {
-    const name = op.get(value, 'fname', op.get(value, 'username'));
-    const isMe = Reactium.User.isCurrent(value);
-
-    let msg = isMe
-        ? __("Hey %name, looks like you haven't uploaded any media yet!")
-        : __("%name hasn't uploaded any media yet!");
-
-    msg = msg.replace(/\%name/gi, name);
-
-    return _.isEmpty(value) ? (
-        <Spinner />
-    ) : (
+const Empty = ({ buttonText, className, onClick, message }) => {
+    return (
         <div className={className}>
-            <h2 className='text-center'>{msg}</h2>
-            <div className='py-xs-32 text-center'>
-                <Button
-                    appearance={Button.ENUMS.APPEARANCE.PILL}
-                    size={Button.ENUMS.SIZE.MD}
-                    to='/admin/media/1'
-                    type={Button.ENUMS.TYPE.LINK}>
-                    {__('Get Started')}
-                </Button>
-            </div>
+            <h2 className='text-center pb-xs-32'>{message}</h2>
+            {onClick && (
+                <div className='pb-xs-32 text-center'>
+                    <Button
+                        appearance={Button.ENUMS.APPEARANCE.PILL}
+                        size={Button.ENUMS.SIZE.MD}
+                        onClick={onClick}
+                        type={Button.ENUMS.TYPE.BUTTON}>
+                        {buttonText}
+                    </Button>
+                </div>
+            )}
             <Svg />
         </div>
     );
+};
+
+Empty.defaultProps = {
+    buttonText: __('Get Started'),
+    message: __("It doesn't look there's any media uploaded"),
+};
+
+Empty.propTypes = {
+    buttonText: PropTypes.node,
+    className: PropTypes.string,
+    message: PropTypes.node,
+    onClick: PropTypes.func,
 };
 
 const Svg = ({ color = '#4F82BA', ...props }) => (
@@ -1219,3 +1221,5 @@ const Svg = ({ color = '#4F82BA', ...props }) => (
         />
     </svg>
 );
+
+export { Empty, Empty as default };

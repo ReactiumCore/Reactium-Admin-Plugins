@@ -24,9 +24,7 @@ const UserContent = ({ editor }) => {
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                {isEmpty() && (
-                    <Empty className={cx('content-empty')} editor={editor} />
-                )}
+                {isEmpty() && <Empty value={value} />}
                 {!isEmpty() && (
                     <Content
                         editor={editor}

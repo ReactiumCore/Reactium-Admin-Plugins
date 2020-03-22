@@ -1,5 +1,5 @@
-$padding-user-content-stat: 16px;
-$padding-user-content-zone: 40px;
+$padding-user-content-stat: 16px !default;
+$padding-user-content-zone: 40px !default;
 
 .#{$admin-user-editor-ns}-content {
     display: block;

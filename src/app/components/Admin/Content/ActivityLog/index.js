@@ -16,16 +16,7 @@ const Activity = props => {
 
     return (
         <div className='activity-log'>
-            <div className='activity-log-chart col-xs-12 col-md-8 col-lg-10'>
-                {
-                    // <img
-                    // src='https://cdn.reactium.io/activity-comp.png'
-                    // style={{
-                    //     width: '100%',
-                    // }}
-                    // />
-                }
-            </div>
+            <div className='activity-log-chart col-xs-12 col-md-8 col-lg-10'></div>
             <ActivityUpdates log={log} />
         </div>
     );

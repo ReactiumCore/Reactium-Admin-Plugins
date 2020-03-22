@@ -1,0 +1,14 @@
+$width-media-editor-meta: 420px;
+$admin-media-editor-ns: 'admin-media-editor';
+
+.#{$admin-media-editor-ns} {
+    width: 100%;
+    min-height: 100vh;
+    padding-top: $height-admin-header;
+
+    @include breakpoint(sm) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

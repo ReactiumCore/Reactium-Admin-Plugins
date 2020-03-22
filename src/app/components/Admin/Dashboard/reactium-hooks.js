@@ -1,11 +1,10 @@
+import SDK from './sdk';
 import React from 'react';
 import Dashboard from './index';
+import actions from './actions';
+import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
-import SDK from './sdk';
-import actions from './actions';
-
-const DB = () => 'Dash';
 
 const AdminDashboardPlugin = async () => {
     await Reactium.Plugin.register(
@@ -16,8 +15,8 @@ const AdminDashboardPlugin = async () => {
     Reactium.Zone.addComponent({
         id: 'ADMIN-DASHBOARD',
         component: Dashboard,
-        zone: ['admin-content'],
-        order: -1000,
+        zone: ['admin-dashboard'],
+        order: Reactium.Enums.priority.highest,
     });
 
     Reactium.Zone.addComponent({
@@ -25,6 +24,13 @@ const AdminDashboardPlugin = async () => {
         component: SidebarWidget,
         zone: ['admin-sidebar-menu'],
         order: 100,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-DASHBOARD-BREADCRUMBS-WIDGET',
+        component: Breadcrumbs,
+        order: Reactium.Enums.priority.lowest,
+        zone: ['admin-header'],
     });
 
     Reactium.Dashboard = SDK;

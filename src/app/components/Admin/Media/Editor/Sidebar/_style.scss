@@ -1,0 +1,164 @@
+.#{$admin-media-editor-ns} {
+    &-meta {
+        background-color: $color-text-light;
+        width: $width-ace-sidebar;
+        min-height: calc(100vh - #{$height-admin-header});
+        border-left: 1px solid $color-admin-header-border;
+
+        .#{$admin-media-editor-ns}-editor-region {
+            padding: 0;
+
+            .ar-dialog {
+                box-shadow: 0 0 1px 1px rgba($color-black, 0.025);
+                border-radius: 0;
+            }
+        }
+    }
+
+    &-sidebar {
+        position: fixed;
+        display: flex;
+        align-items: stretch;
+        right: 0;
+        top: $height-admin-header;
+        height: calc(100vh - #{$height-admin-header});
+        outline: none;
+
+        &-toggle {
+            position: absolute;
+            top: 50%;
+            right: -1px;
+            width: $height-admin-header/2;
+            height: $height-admin-header;
+            overflow: hidden;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+
+            div.bg {
+                content: '';
+                width: $height-admin-header;
+                height: $height-admin-header;
+                position: absolute;
+                top: 0;
+                left: 0;
+                border-radius: 100%;
+                border: 1px solid darken($color-grey-light, 1%);
+                background-color: $color-primary;
+                z-index: 0;
+                pointer-events: none;
+                transition: background-color .25s ease-in-out;
+            }
+
+            button {
+                width: 100%;
+                height: 100%;
+                padding: 0 0 0 10px;
+                z-index: 1001;
+                color: $color-text-light;
+                transition: color .25s ease-in-out;
+
+                svg {
+                    pointer-events: none;
+                    z-index: 100000;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $color-primary;
+                }
+            }
+
+            button:hover + div.bg,
+            button:focus + div.bg {
+                background-color: $color-text-light;
+            }
+        }
+
+        &.expanded {
+            .#{$admin-media-editor-ns}-toolbar {
+                box-shadow: $shadow-image;
+
+                &-scroll {
+                    display: flex;
+                }
+            }
+
+            .#{$admin-media-editor-ns}-sidebar-toggle {
+                div.bg {
+                    z-index: 0;
+                    background-color: $color-text-light;
+                }
+
+                button {
+                    z-index: 1000;
+                    color: $color-primary;
+
+                    &:hover,
+                    &:focus {
+                        color: $color-text-light;
+                    }
+                }
+
+                button:hover + div.bg,
+                button:focus + div.bg {
+                    background-color: $color-primary;
+                }
+            }
+        }
+    }
+
+    &-toolbar {
+        position: relative;
+        height: calc(100vh - #{$height-admin-header});
+
+        &-top,
+        &-bottom {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            z-index: 1;
+
+            &:empty {
+                display: none;
+            }
+
+            > button {
+                width: 80px;
+                height: 70px;
+                padding: 0;
+                flex-shrink: 0;
+                outline: none;
+                box-shadow: none;
+                border-radius: 0;
+
+                @include breakpoint(md) {
+                    width: 70px;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $color-primary;
+                }
+
+                &:focus { box-shadow: 0 0 2px 1px rgba($color-gray, 0.25); }
+            }
+        }
+
+        &-top {
+            padding-top: $padding-admin-content-zone/2;
+            justify-content: flex-start;
+        }
+
+        &-bottom {
+            padding-bottom: 6px;
+            justify-content: flex-end;
+        }
+    }
+
+    &-collapsible {
+        box-shadow: $shadow-image;
+        background-color: $color-text-light;
+    }
+}

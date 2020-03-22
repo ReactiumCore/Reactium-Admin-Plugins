@@ -72,7 +72,7 @@ export default ({ list, ...props }) => {
                     </Button>
                 )}
                 <Button {...buttonProps} data-dropdown-element>
-                    <Icon name='Feather.Filter' size={20} />
+                    <Icon name='Linear.Funnel' size={20} />
                 </Button>
             </div>
         </Dropdown>

@@ -103,30 +103,25 @@ const ChangeItem = props => {
 };
 
 const ActivityUpdates = props => {
-    let {
-        log = [],
-        scope = 'specific',
-        className,
-        autoHeight,
-        autoHeightMin,
-        header,
-    } = props;
+    let { log = [], scope = 'specific', className, header } = props;
     log = _.sortBy(log, 'updatedAt').reverse();
 
     return (
         <div className={cn('activity-log-updates', className)}>
             <h2 className='activity-list-header h6'>{header}</h2>
-            <Scrollbars autoHeight={autoHeight} autoHeightMin={autoHeightMin}>
-                <ul className='activity-list'>
-                    {log.map(item => (
-                        <ChangeItem
-                            key={item.objectId}
-                            item={item}
-                            scope={scope}
-                        />
-                    ))}
-                </ul>
-            </Scrollbars>
+            <div className='activity-list-container'>
+                <Scrollbars>
+                    <ul className='activity-list'>
+                        {log.map(item => (
+                            <ChangeItem
+                                key={item.objectId}
+                                item={item}
+                                scope={scope}
+                            />
+                        ))}
+                    </ul>
+                </Scrollbars>
+            </div>
         </div>
     );
 };
@@ -134,8 +129,6 @@ ActivityUpdates.defaultProps = {
     log: [],
     header: ENUMS.HEADER,
     scope: 'specific',
-    autoHeight: true,
-    autoHeightMin: 'calc(100vh - 100px)',
     className: 'col-xs-12 col-md-4 col-lg-2',
 };
 
