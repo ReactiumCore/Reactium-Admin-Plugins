@@ -195,11 +195,3 @@ const Meta = ({ editor, props }) => {
 };
 
 export { Meta, Meta as default };
-
-// <Tags onChange={e => console.log(e)} ref={tagsRef} />
-// <Directory
-//     data={directories}
-//     label='Directory:'
-//     name='directory'
-//     value={op.get(state, 'value.directory')}
-// />
