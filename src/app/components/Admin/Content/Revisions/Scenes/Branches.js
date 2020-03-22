@@ -20,8 +20,12 @@ const slugify = name => {
 const BranchesScene = props => {
     const { handle } = props;
     const { cx, state } = handle;
-    const from = op.get(state, 'working.content', {});
-    const to = op.get(state, 'compare.content', {});
+    const fromChanges = op.get(state, 'working.changes', {});
+    const toChanges = op.get(state, 'compare.changes', {});
+    const changes =
+        Object.values(fromChanges).length + Object.values(toChanges).length;
+    const from = { ...op.get(state, 'working.content', {}), ...fromChanges };
+    const to = { ...op.get(state, 'compare.content', {}), ...toChanges };
     const fromBranch = op.get(from, 'history.branch', '');
     const fromBranchLabel = op.get(
         from,
@@ -31,13 +35,133 @@ const BranchesScene = props => {
     const toBranch = op.get(to, 'history.branch', '');
     const toBranchLabel = op.get(to, ['branches', toBranch, 'label'], toBranch);
 
-    const copyFieldLabel = (fieldName, fromLabel, toLabel) => {
-        const label = __('Copy %fieldName from %fromLabel to %toLabel');
+    const render = () => {
+        const { rows, diffs } = getRowsData();
 
-        return label
-            .replace('%fieldName', fieldName)
-            .replace('%fromLabel', fromLabel)
-            .replace('%toLabel', toLabel);
+        return (
+            state.activeScene === 'branches' && (
+                <div className={cx('branches')}>
+                    <div className={cx('branches-controls')}>
+                        <div className={cx('branches-control')}>
+                            <SelectBranch handle={handle} />
+                        </div>
+                        <div className={cx('branches-control')}>
+                            <SelectCompare handle={handle} />
+                        </div>
+                    </div>
+                    <Scrollbars
+                        autoHeight={true}
+                        autoHeightMin={'calc(100vh - 300px)'}>
+                        <ul
+                            className={cn(
+                                cx('branches-diff'),
+                                'branch-compare',
+                            )}>
+                            {renderRows(rows)}
+                        </ul>
+                    </Scrollbars>
+                    <div className={cx('branches-controls')}>
+                        <div className={cx('branch-diff-count')}></div>
+                        <div className={cx('branches-control')}>
+                            <Button
+                                disabled={changes < 1}
+                                onClick={handle.saveChanges}>
+                                {__('Save Changes')}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )
+        );
+    };
+
+    const renderRows = rows => {
+        const components = _.indexBy(Reactium.Content.Comparison.list, 'id');
+
+        return rows.map(row => {
+            const { fieldType } = row;
+            const fId = op.get(fieldType, 'fieldId', '');
+            const ftId = op.get(fieldType, 'fieldType', '');
+
+            const Component = op.get(
+                components,
+                [ftId, 'component'],
+                ({ value }) => (
+                    <div>
+                        <pre>{JSON.stringify(value, null, 2)}</pre>
+                    </div>
+                ),
+            );
+
+            const className = cn(
+                'branch-compare-row',
+                `branch-compare-row-${slugify(ftId)}`,
+            );
+
+            return (
+                <li key={fId} className={className}>
+                    {['from', 'to'].map(direction => {
+                        const value = row[direction];
+                        return (
+                            <div
+                                key={direction}
+                                className={`branch-compare-${direction}`}>
+                                <div className='branch-compare-copy'>
+                                    {renderCopyControl(direction, value, row)}
+                                </div>
+                                <div className='comparison-component'>
+                                    <Component
+                                        value={value}
+                                        field={fieldType}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </li>
+            );
+        });
+    };
+
+    const getRowsData = () => {
+        const fields = fieldData();
+        const missingFrom = missingFieldsInType(from, fields);
+        const missingTo = missingFieldsInType(to, fields);
+        const rows = [];
+        const diffs = {};
+
+        if (missingFrom.length || missingTo.length) {
+            rows.push({
+                fieldType: {
+                    fieldId: 'missing',
+                    fieldSlug: 'missing',
+                    fieldType: 'Missing',
+                    fieldName: __('Missing Fields'),
+                },
+                from: missingFrom,
+                to: missingTo,
+            });
+        }
+
+        Object.values(fields).forEach(fieldType => {
+            const slug = fieldType.fieldSlug;
+            const fromFieldData = op.get(from, slug);
+            const toFieldData = op.get(to, slug);
+            const diff = !_.isEqual(fromFieldData, toFieldData);
+            rows.push({
+                fieldType,
+                from: fromFieldData,
+                to: toFieldData,
+                diff,
+            });
+
+            diffs[slug] = diff;
+        });
+
+        return {
+            rows,
+            diffs,
+        };
     };
 
     const fieldData = () => {
@@ -46,13 +170,7 @@ const BranchesScene = props => {
             Object.values(contentType.fields),
             'region',
         );
-        const fields = [
-            {
-                fieldId: 'title',
-                fieldType: 'Text',
-                fieldName: __('Title'),
-            },
-        ];
+        const fields = [];
         _.sortBy(
             Object.values(contentType.regions).map(region => {
                 let order;
@@ -86,6 +204,7 @@ const BranchesScene = props => {
                 fieldSlug =>
                     ![
                         'objectId',
+                        'title',
                         'uuid',
                         'slug',
                         'type',
@@ -97,132 +216,80 @@ const BranchesScene = props => {
                         'meta',
                         'createdAt',
                         'updatedAt',
+                        'canRead',
+                        'canWrite',
                     ].includes(fieldSlug),
             );
         return missingKeys;
     };
 
-    const getRowsData = () => {
-        const fields = fieldData();
-        const missingFrom = missingFieldsInType(from, fields);
-        const missingTo = missingFieldsInType(to, fields);
-        const rowsData = [];
-        if (missingFrom.length || missingTo.length) {
-            rowsData.push({
-                fieldType: {
-                    fieldId: 'missing',
-                    fieldSlug: 'missing',
-                    fieldType: 'Missing',
-                    fieldName: __('Missing'),
-                },
-                from: missingFrom,
-                to: missingTo,
-            });
-        }
+    const renderCopyControl = (direction, value, row) => {
+        const { fieldType, diff = false } = row;
 
-        Object.values(fields).forEach(fieldType => {
-            rowsData.push({
-                fieldType,
-                from: op.get(from, fieldType.fieldSlug),
-                to: op.get(to, fieldType.fieldSlug),
-            });
-        });
+        if (op.get(fieldType, 'fieldType') === 'Missing') return null;
 
-        return rowsData;
+        const changes = direction === 'to' ? fromChanges : toChanges;
+        const target = direction === 'to' ? 'working' : 'compare';
+        const icon =
+            direction === 'to' ? 'Feather.ArrowLeft' : 'Feather.ArrowRight';
+        const fieldName = op.get(fieldType, 'fieldName', '');
+        const fieldSlug = op.get(fieldType, 'fieldSlug', '');
+
+        const labels = {};
+        labels.from = getFieldLabels(fieldName, fromBranchLabel, toBranchLabel);
+        labels.to = getFieldLabels(fieldName, toBranchLabel, fromBranchLabel);
+
+        return !op.has(changes, fieldSlug) ? (
+            <Button
+                key={`${direction}-copy`}
+                disabled={!diff}
+                data-tooltip={labels[direction].copy}
+                data-align='left'
+                data-vertical-align='middle'
+                size={Button.ENUMS.SIZE.XS}
+                color={Button.ENUMS.COLOR.CLEAR}
+                onClick={() => {
+                    handle.stageBranchChanges(
+                        {
+                            [fieldSlug]: value,
+                        },
+                        target,
+                    );
+                }}>
+                <span className='sr-only'>{labels[direction].copy}</span>
+                <Icon name={icon} />
+            </Button>
+        ) : (
+            <Button
+                key={`${direction}-undo`}
+                data-tooltip={labels[direction].undo}
+                data-align='left'
+                data-vertical-align='middle'
+                size={Button.ENUMS.SIZE.XS}
+                color={Button.ENUMS.COLOR.CLEAR}
+                onClick={() => {
+                    handle.unstageBranchChange(fieldSlug, target);
+                }}>
+                <span className='sr-only'>{labels[direction].undo}</span>
+                <Icon name='Linear.Undo2' />
+            </Button>
+        );
     };
 
-    const renderRows = () => {
-        const components = _.indexBy(Reactium.Content.Comparison.list, 'id');
-
-        return getRowsData().map(row => {
-            const { fieldType, from, to } = row;
-            const fId = op.get(fieldType, 'fieldId', '');
-            const ftId = op.get(fieldType, 'fieldType', '');
-            const fieldName = op.get(fieldType, 'fieldName', '');
-
-            const fromCopyLabel = copyFieldLabel(
-                fieldName,
-                fromBranchLabel,
-                toBranchLabel,
-            );
-            const toCopyLabel = copyFieldLabel(
-                fieldName,
-                toBranchLabel,
-                fromBranchLabel,
-            );
-
-            const Component = op.get(
-                components,
-                [ftId, 'component'],
-                ({ value }) => (
-                    <div>
-                        <pre>{JSON.stringify(value, null, 2)}</pre>
-                    </div>
-                ),
-            );
-
-            const className = cn(
-                'branch-compare-row',
-                `branch-compare-row-${slugify(ftId)}`,
-            );
-
-            return (
-                <li key={fId} className={className}>
-                    <div className='branch-compare-from'>
-                        <div className='branch-compare-copy'>
-                            <Button
-                                data-tooltip={fromCopyLabel}
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}>
-                                <span className='sr-only'>{fromCopyLabel}</span>
-                                <Icon name='Feather.ArrowRight' />
-                            </Button>
-                        </div>
-                        <div className='comparison-component'>
-                            <Component value={from} />
-                        </div>
-                    </div>
-
-                    <div className='branch-compare-to'>
-                        <div className='branch-compare-copy'>
-                            <Button
-                                data-tooltip={toCopyLabel}
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}>
-                                <span className='sr-only'>{toCopyLabel}</span>
-                                <Icon name='Feather.ArrowLeft' />
-                            </Button>
-                        </div>
-                        <div className='comparison-component'>
-                            <Component value={to} />
-                        </div>
-                    </div>
-                </li>
-            );
-        });
+    const getFieldLabels = (fieldName, fromLabel, toLabel) => {
+        return {
+            copy: __('Copy %fieldName from %fromLabel to %toLabel')
+                .replace('%fieldName', fieldName)
+                .replace('%fromLabel', fromLabel)
+                .replace('%toLabel', toLabel),
+            undo: __('Undo change to %fieldName in version %toLabel')
+                .replace('%fieldName', fieldName)
+                .replace('%fromLabel', fromLabel)
+                .replace('%toLabel', toLabel),
+        };
     };
 
-    return (
-        state.activeScene === 'branches' && (
-            <div className={cx('branches')}>
-                <div className={cx('branches-controls')}>
-                    <div className={cx('branches-control')}>
-                        <SelectBranch handle={handle} />
-                    </div>
-                    <div className={cx('branches-control')}>
-                        <SelectCompare handle={handle} />
-                    </div>
-                </div>
-                <Scrollbars
-                    autoHeight={true}
-                    autoHeightMin={'calc(100vh - 200px)'}>
-                    <ul className={cn(cx('branches-diff'), 'branch-compare')}>
-                        {renderRows()}
-                    </ul>
-                </Scrollbars>
-            </div>
-        )
-    );
+    return render();
 };
 
 export default BranchesScene;

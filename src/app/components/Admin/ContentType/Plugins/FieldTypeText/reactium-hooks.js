@@ -1,6 +1,6 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { Editor, FieldType, QuickEditor } from '.';
+import { Editor, FieldType, QuickEditor, Comparison } from '.';
 import op from 'object-path';
 
 const ID = 'Text';
@@ -21,10 +21,7 @@ Reactium.Plugin.register(ID).then(() => {
     Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
 
     Reactium.Content.Comparison.register(ID, {
-        component: ({ value }) => {
-            if (value) return value;
-            return null;
-        },
+        component: Comparison,
     });
 
     Reactium.ContentType.FieldType.register(ID, fieldType);

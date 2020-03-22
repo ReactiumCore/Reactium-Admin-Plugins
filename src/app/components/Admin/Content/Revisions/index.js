@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import Reactium, { __, useDerivedState } from 'reactium-core/sdk';
+import Reactium, { __, useDerivedState, useHandle } from 'reactium-core/sdk';
 import { Button, Icon, Scene } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
 import _ from 'underscore';
@@ -23,6 +23,8 @@ const RevisionManager = props => {
     const startingBranch = op.get(startingContent, 'history.branch', 'master');
     const startingRevision = op.get(startingRevision, 'history.revision', 0);
     const onClose = op.get(props, 'onClose');
+    const tools = useHandle('AdminTools');
+    const Toast = op.get(tools, 'Toast');
 
     const [state, setState] = useDerivedState(
         {
@@ -33,8 +35,7 @@ const RevisionManager = props => {
                 revision: startingRevision,
             },
             compare: {},
-            // activeScene: 'main',
-            activeScene: 'branches',
+            activeScene: 'main',
             type,
             types,
         },
@@ -42,8 +43,6 @@ const RevisionManager = props => {
     );
 
     const cx = Reactium.Utils.cxFactory('revision-manager');
-
-    console.log({ state });
 
     const navTo = (panel, direction = 'left', newState) => {
         const sceneState = {
@@ -113,6 +112,99 @@ const RevisionManager = props => {
         });
     };
 
+    const stageBranchChanges = (changes, target = 'working') => {
+        const currentTarget = op.get(state, target, {});
+        const currentChanges = op.get(state, [target, 'changes'], {});
+        setState({
+            [target]: {
+                ...currentTarget,
+                changes: {
+                    ...currentChanges,
+                    ...changes,
+                },
+            },
+        });
+    };
+
+    const unstageBranchChange = (slug, target = 'working') => {
+        const currentTarget = op.get(state, target, {});
+        const currentChanges = op.get(state, [target, 'changes'], {});
+        op.del(currentChanges, slug);
+
+        setState({
+            [target]: {
+                ...currentTarget,
+                changes: {
+                    ...currentChanges,
+                },
+            },
+        });
+    };
+
+    const deleteBranch = async () => {
+        try {
+            const working = op.get(state, 'working.content', {});
+            const branch = op.get(working, 'history.branch');
+            if (branch === 'master') return;
+
+            const updated = await Reactium.Content.deleteBranch(working);
+            op.set(updated, 'history', { branch: 'master' });
+            const content = await Reactium.Content.retrieve(updated);
+            updateBranchInfo(content);
+            Toast.show({
+                type: Toast.TYPE.SUCCESS,
+                message: __('Version deleted'),
+                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+
+            await editor.dispatch('load', {
+                value: content,
+                ignoreChangeEvent: true,
+            });
+            onClose();
+        } catch (error) {
+            Toast.show({
+                type: Toast.TYPE.ERROR,
+                message: __('Unable to deleted version'),
+                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+
+            navTo('main', 'right');
+        }
+    };
+
+    const saveChanges = async () => {
+        const workingChanges = op.get(state, 'working.changes', {});
+        const compareChanges = op.get(state, 'compare.changes', {});
+        const working = op.get(state, 'working.content', {});
+        const compare = op.get(state, 'compare.content', {});
+
+        if (Object.keys(workingChanges).length) {
+            const content = await Reactium.Content.save({
+                ...working,
+                ...workingChanges,
+            });
+            updateBranchInfo(content, 'working');
+        }
+
+        if (Object.keys(compareChanges).length) {
+            const content = await Reactium.Content.save({
+                ...compare,
+                ...compareChanges,
+            });
+            updateBranchInfo(content, 'compare');
+        }
+
+        Toast.show({
+            type: Toast.TYPE.SUCCESS,
+            message: __('Content updated'),
+            icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+            autoClose: 1000,
+        });
+    };
+
     const currentBranch = op.get(state, 'working.branch');
 
     const getVersionLabel = branchId =>
@@ -138,6 +230,23 @@ const RevisionManager = props => {
         }
     }, []);
 
+    useEffect(() => {
+        const loadRevisions = async () => {
+            const revHistory = await Reactium.Content.revisions(
+                op.get(state, 'working.content'),
+            );
+            const revisions = op.get(revHistory, 'revisions', []);
+            setState({
+                revHistory,
+                revId: op.get(revisions, [revisions.length - 1, 'revId']),
+            });
+        };
+
+        if (currentBranch) {
+            loadRevisions();
+        }
+    }, [currentBranch, state.branches]);
+
     const handle = {
         cx,
         state,
@@ -146,9 +255,13 @@ const RevisionManager = props => {
         setBranch,
         cloneBranch,
         labelBranch,
+        deleteBranch,
         editor,
         onClose,
         labels,
+        stageBranchChanges,
+        unstageBranchChange,
+        saveChanges,
     };
 
     return (
