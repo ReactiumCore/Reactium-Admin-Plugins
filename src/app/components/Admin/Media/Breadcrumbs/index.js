@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import op from 'object-path';
 import ENUMS from 'components/Admin/Media/enums';
-import { useHandle, useSelect } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useDocument,
+    useHandle,
+    useSelect,
+    useWindow,
+} from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 export default () => {
@@ -17,24 +23,67 @@ export default () => {
 
     const visible = String(path).startsWith('/admin/media');
 
+    const doc = useDocument();
+
+    const win = useWindow();
+
+    const [location, setLocation] = useState(win.location.href);
+
+    const [referrer, setReferrer] = useState();
+
+    useEffect(() => {
+        if (location !== win.location.href) {
+            if (String(path).includes('/admin/media/:page')) {
+                setReferrer(false);
+            } else {
+                if (String(location).includes('/admin/media')) {
+                    setReferrer(false);
+                } else {
+                    setReferrer(true);
+                }
+            }
+
+            setLocation(win.location.href);
+        } else {
+            if (String(path).includes('/admin/media/:page')) {
+                setReferrer(false);
+            }
+        }
+    });
+
     return (
         visible && (
-            <ul className='ar-breadcrumbs'>
-                <li>
+            <>
+                {referrer && (
                     <Button
-                        appearance='pill'
-                        className='px-0'
+                        className='px-0 mr-xs-12'
                         color='clear'
+                        data-tooltip={__('Back')}
+                        data-align='right'
+                        data-vertical-align='middle'
                         size='sm'
-                        to='/admin/media/1'
-                        type='link'>
-                        <Icon name='Linear.Pictures' className='mr-xs-12' />
-                        {ENUMS.TEXT.MEDIA}
+                        onClick={() => Reactium.Routing.history.goBack()}
+                        type='button'>
+                        <Icon name='Feather.ArrowLeft' />
                     </Button>
-                </li>
-                {type && <li className='uppercase'>{type}</li>}
-                {ID && <li>{ID}</li>}
-            </ul>
+                )}
+
+                <ul className='ar-breadcrumbs'>
+                    <li>
+                        <Button
+                            className='px-0'
+                            color='clear'
+                            size='sm'
+                            to='/admin/media/1'
+                            type='link'>
+                            <Icon name='Linear.Pictures' className='mr-xs-12' />
+                            {ENUMS.TEXT.MEDIA}
+                        </Button>
+                    </li>
+                    {type && <li className='uppercase'>{type}</li>}
+                    {ID && <li>{ID}</li>}
+                </ul>
+            </>
         )
     );
 };

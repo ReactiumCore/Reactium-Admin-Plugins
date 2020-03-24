@@ -257,8 +257,7 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
         }
 
         image.style.opacity = 1;
-        let rCount = thumbrendered === false ? 0 : thumbrendered;
-        setRendered(rCount + 1);
+        setRendered(true);
     };
 
     const setOptions = newOptions =>
@@ -344,7 +343,7 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
     const onSidebarToggle = e => {
         const { expanded } = e;
         if (expanded !== true) return;
-        if (!isNaN(thumbrendered) && thumbrendered < 3) onThumbnailUpdate(true);
+        onThumbnailUpdate(true);
     };
 
     const onSizeChange = e => setSize(e.item.value);

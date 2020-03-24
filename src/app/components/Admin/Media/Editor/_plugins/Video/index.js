@@ -57,7 +57,7 @@ const Video = ({ editor, ...props }) => {
             <>
                 <div className={cx('filename')}>{value.filename}</div>
                 <div className={cx('video')}>
-                    <video poster={poster} width='100%' height='auto' controls>
+                    <video width='100%' height='auto' controls>
                         <source src={url} type={`video/${value.ext}`} />
                         {ENUMS.TEXT.VIDEO_UNSUPPORTED}
                     </video>
