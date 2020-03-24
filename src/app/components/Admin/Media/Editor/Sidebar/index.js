@@ -85,6 +85,10 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
 
     useEffect(() => {
         handle.expanded = expanded;
+        editor.dispatch(`sidebar-toggled`, { expanded });
+        editor.dispatch(`sidebar-${expanded ? 'expanded' : 'collapsed'}`, {
+            expanded,
+        });
     }, [expanded]);
 
     // handle

@@ -28,7 +28,6 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useRegisterHandle,
-    useSelect,
     Zone,
 } from 'reactium-core/sdk';
 

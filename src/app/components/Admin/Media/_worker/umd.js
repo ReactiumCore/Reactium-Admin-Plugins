@@ -99,6 +99,15 @@ class Uploader {
                     type: 'status',
                     params: {
                         progress: 1,
+                        status: ENUMS.STATUS.UPLOADING,
+                        result: null,
+                    },
+                });
+
+                this.worker.postMessage({
+                    type: 'status',
+                    params: {
+                        progress: 1,
                         status: ENUMS.STATUS.COMPLETE,
                         result: resp.data.result,
                     },

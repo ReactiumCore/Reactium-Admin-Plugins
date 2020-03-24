@@ -19,7 +19,7 @@
 //         Reactium.Component.register('MediaEditorDirectory', Directory);
 //         Reactium.Component.register('FileEditor', FileEditor);
 //         Reactium.Component.register('ImageEditor', ImageEditor);
-//         Reactium.Component.register('MediaMetaEditor', MetaEditor);
+//         Reactium.Component.register('MediaEditorMetaEditor', MetaEditor);
 //         Reactium.Component.register('MediaEditorTags', Tags);
 //         Reactium.Component.register('MediaImageCrop', ImageCrop);
 //         Reactium.Component.register('VideoEditor', VideoEditor);

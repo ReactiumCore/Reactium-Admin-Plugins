@@ -7,11 +7,19 @@ import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium, { __ } from 'reactium-core/sdk';
+import HeaderWidget from './Editor/HeaderWidget';
 import SidebarWidget from './Widget/SidebarWidget';
 import DirectoryWidget from './Widget/DirectoryWidget';
 import { MediaCopy, MediaDelete, MediaDownload } from './List/_plugins';
-import { Meta, ThumbnailSelect } from './Editor/_plugins';
-// import { Directory, Tags } from './_utils/components';
+import {
+    Audio,
+    File,
+    Image,
+    ImageCrop,
+    Meta,
+    ThumbnailSelect,
+    Video,
+} from './Editor/_plugins';
 
 Reactium.Plugin.register(domain.name).then(() => {
     // Alias the Parse.File SDK
@@ -31,14 +39,26 @@ Reactium.Plugin.register(domain.name).then(() => {
     });
 
     // Register components
-    Reactium.Component.register('AdminMediaEditor', Editor);
-    Reactium.Component.register('MediaMeta', Meta);
-    Reactium.Component.register('ThumbnailSelect', ThumbnailSelect);
+    Reactium.Component.register('MediaEditor', Editor);
+    Reactium.Component.register('MediaEditorAudio', Audio);
+    Reactium.Component.register('MediaEditorFile', File);
+    Reactium.Component.register('MediaEditorImage', Image);
+    Reactium.Component.register('MediaEditorMeta', Meta);
+    Reactium.Component.register('MediaEditorThumbnail', ImageCrop);
+    Reactium.Component.register('MediaEditorThumbnailSelect', ThumbnailSelect);
+    Reactium.Component.register('MediaEditorVideo', Video);
 
-    // Register components
+    // Add components to zones
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR-HEADER-WIDGET',
+        component: HeaderWidget,
+        order: 1,
+        zone: ['admin-logo'],
+    });
+
     Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-EDITOR',
-        component: 'AdminMediaEditor',
+        component: 'MediaEditor',
         order: -1000,
         zone: ['admin-media-editor'],
     });
@@ -92,6 +112,19 @@ Reactium.Plugin.register(domain.name).then(() => {
     });
 
     Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-THUMBNAIL-GENERATE',
+        component: ImageCrop,
+        order: 2000,
+        label: __('Thumbnail'),
+        field: 'thumbnail',
+        tooltip: {
+            copy: __('copy url to clipboard'),
+            generate: __('create a new thumbnail'),
+        },
+        zone: ['admin-media-editor-meta-image'],
+    });
+
+    Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-ACTIONS-COPY',
         component: MediaCopy,
         order: 200,
@@ -110,5 +143,33 @@ Reactium.Plugin.register(domain.name).then(() => {
         component: MediaDownload,
         order: 100,
         zone: ['media-actions'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR-IMAGE',
+        component: 'MediaEditorImage',
+        order: 100,
+        zone: ['admin-media-editor-image'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR-VIDEO',
+        component: 'MediaEditorVideo',
+        order: 100,
+        zone: ['admin-media-editor-video'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR-AUDIO',
+        component: 'MediaEditorAudio',
+        order: 100,
+        zone: ['admin-media-editor-audio'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-EDITOR-FILE',
+        component: 'MediaEditorFile',
+        order: 100,
+        zone: ['admin-media-editor-file'],
     });
 });

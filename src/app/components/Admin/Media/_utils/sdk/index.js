@@ -105,7 +105,8 @@ class Media {
     }
 
     async __onWorkerMessage(e) {
-        const { params, type, ...data } = e.data;
+        const { type, ...data } = e.data;
+        const params = op.get(e.data, 'params');
 
         await Reactium.Hook.run('media-worker', { data, params, type });
 

@@ -13,6 +13,10 @@
                 border-radius: 0;
             }
         }
+
+        .ar-tags-input {
+            border-color: darken($color-border, 1.5%);
+        }
     }
 
     &-sidebar {

@@ -53,7 +53,9 @@ export default ({
                         <Button
                             appearance='circle'
                             color='danger'
-                            data-tooltip={`${__('Delete')} ${label}`}
+                            data-tooltip={`${__('Delete')} ${String(
+                                title,
+                            ).toLowerCase()}`}
                             data-align='left'
                             data-vertical-align='middle'
                             onClick={() => navTo('delete', 'left')}>

@@ -114,7 +114,7 @@ $padding-media-content-zone: 40px !default;
         }
 
         @include breakpoint(xl) {
-            height: calc(10vw - 60px);
+            height: calc(13vw - 60px);
         }
 
         > a,

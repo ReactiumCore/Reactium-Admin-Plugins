@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import Sidebar from './Sidebar';
 import ENUMS from 'components/Admin/Media/enums';
 
@@ -24,7 +25,14 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-import { Alert, Icon, EventForm, Spinner } from '@atomic-reactor/reactium-ui';
+import {
+    Alert,
+    Dropzone,
+    EventForm,
+    Icon,
+    Spinner,
+    Toast,
+} from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
 
@@ -32,6 +40,11 @@ ENUMS.DEBUG = false;
 
 const debug = (...args) => {
     if (ENUMS.DEBUG === true) console.log(...args);
+};
+
+const alertDefault = {
+    color: Alert.ENUMS.COLOR.INFO,
+    icon: 'Feather.Flag',
 };
 
 export const useDirectories = (params = {}) => {
@@ -83,6 +96,7 @@ export class MediaEvent extends CustomEvent {
 let Editor = (
     {
         className,
+        dropzoneProps,
         namespace,
         onChange,
         onError,
@@ -98,17 +112,18 @@ let Editor = (
     },
     ref,
 ) => {
+    // Hooks and External Components
     const Helmet = useHookComponent('Helmet');
-
-    const tools = useHandle('AdminTools');
-
-    const Toast = op.get(tools, 'Toast');
 
     const directories = useDirectories();
 
+    // Refs
     const alertRef = useRef();
+    const dropzoneRef = useRef();
     const formRef = useRef();
+    const persist = useRef({});
 
+    // States
     const defaultState = {
         ...params,
         clean: true,
@@ -119,9 +134,9 @@ let Editor = (
         value: {},
     };
 
-    const [alert, setNewAlert] = useState();
+    const [alert, setNewAlert] = useState(alertDefault);
 
-    const [errors, setErrors] = useState();
+    const [errors, setNewErrors] = useState();
 
     const [updated, setUpdated] = useState();
 
@@ -136,6 +151,7 @@ let Editor = (
         value: {},
     });
 
+    // Set operations
     const forceUpdate = () => {
         if (unMounted()) return;
         setUpdated(Date.now());
@@ -147,10 +163,24 @@ let Editor = (
         forceUpdate(Date.now());
     };
 
+    const setErrors = newErrors => {
+        if (unMounted()) return;
+        setNewErrors(newErrors);
+    };
+
     const setState = newState => {
         if (unMounted()) return;
-        setPrevState(JSON.parse(JSON.stringify(state)));
+        setPrevState(Object.assign(state));
         update(newState);
+    };
+
+    // Functions
+    const browse = () => dropzoneRef.current.browseFiles();
+
+    const cancel = () => {
+        const { filename } = persist.current;
+        const value = { ...state.value, filename };
+        setState({ upload: null, value });
     };
 
     const cx = Reactium.Utils.cxFactory(namespace);
@@ -165,11 +195,18 @@ let Editor = (
         // passive dirty events
         const dirtyEvents = _.pluck(Reactium.Media.DirtyEvent.list, 'id');
         if (dirtyEvents.includes(String(eventType).toLowerCase())) {
-            setState({ dirty: event, clean: false });
+            if (!_.isEqual(persist.current, state.value)) {
+                setState({ dirty: event, clean: false });
 
-            // NOTE: DONOT await these dispatch calls so that they happen after the current process
-            dispatch('dirty', event);
-            dispatch('status', { event: 'dirty', ...event });
+                // NOTE: DONOT await these dispatch calls so that they happen after the current process
+                dispatch('status', { event: 'dirty', ...event });
+                dispatch('dirty', event);
+            } else {
+                setState({ clean: event, dirty: false });
+                await dispatch('status', { event: 'clean', ...event });
+                await dispatch('clean', event);
+                return;
+            }
         }
 
         if (op.has(event, 'event')) {
@@ -181,6 +218,7 @@ let Editor = (
 
         const evt = new MediaEvent(eventType, event);
         handle.dispatchEvent(evt);
+
         debug(eventType, evt);
 
         await Reactium.Hook.run(`form-user-${eventType}`, evt, handle);
@@ -194,8 +232,8 @@ let Editor = (
         const scrubEvents = _.pluck(Reactium.Media.ScrubEvent.list, 'id');
         if (scrubEvents.includes(String(eventType).toLowerCase())) {
             setState({ clean: event, dirty: false });
-            await dispatch('clean', event);
             await dispatch('status', { event: 'clean', ...event });
+            await dispatch('clean', event);
         }
     };
 
@@ -212,11 +250,13 @@ let Editor = (
             ? Reactium.Media.selected
             : await Reactium.Media.retrieve(objectId);
 
+        persist.current = Object.assign(value);
+
         // Reactium.Media.selected = null;
 
         if (unMounted()) return;
 
-        setState({ value, status: ENUMS.STATUS.LOADED, initialized: true });
+        setState({ value, status: ENUMS.STATUS.LOADED });
 
         await dispatch('status', {
             event: ENUMS.STATUS.LOADED,
@@ -227,8 +267,9 @@ let Editor = (
         await dispatch(ENUMS.STATUS.LOADED, { objectId, value }, onLoad);
 
         _.defer(async () => {
-            setState({ status: ENUMS.STATUS.READY });
+            setState({ status: ENUMS.STATUS.READY, initialized: true });
             await dispatch('status', { event: ENUMS.STATUS.READY });
+            await dispatch('ready', { value });
         });
     };
 
@@ -281,7 +322,30 @@ let Editor = (
     };
 
     const save = async value => {
-        const saveMessage = __('Saving...');
+        const upload = op.get(state, 'upload');
+        if (upload) {
+            op.set(value, 'file', upload);
+        } else {
+            op.del(value, 'file');
+        }
+
+        const type = String(op.get(state, 'value.type')).toLowerCase();
+
+        // Clean up value object:
+        [
+            'capabilities',
+            'createdAt',
+            'fetched',
+            'type',
+            'uuid',
+            'updateAt',
+            'upload',
+            'user',
+        ].forEach(param => op.del(value, param));
+
+        let saveMessage = __('Saving %type...');
+        saveMessage = saveMessage.replace(/\%type/gi, type);
+
         const alertObj = {
             color: Alert.ENUMS.COLOR.INFO,
             message: saveMessage,
@@ -291,14 +355,15 @@ let Editor = (
         setAlert(alertObj);
         setErrors(undefined);
 
-        await dispatch(ENUMS.STATUS.VALIDATED, { value });
         await dispatch('status', { event: ENUMS.STATUS.VALIDATED, value });
+        await dispatch(ENUMS.STATUS.VALIDATED, { value });
 
-        await dispatch(ENUMS.STATUS.SAVING, { value }, onSubmit);
         await dispatch('status', { event: ENUMS.STATUS.SAVING, value });
+        await dispatch(ENUMS.STATUS.SAVING, { value }, onSubmit);
+
         await Reactium.Hook.run('media-submit', value);
 
-        return Reactium.Media.save(value)
+        return Reactium.Media.update(value)
             .then(async response => {
                 if (_.isError(response)) {
                     return Promise.reject(response);
@@ -315,7 +380,7 @@ let Editor = (
     };
 
     const submit = () => {
-        if (unMounted() || isBusy() || !state.editing) return;
+        if (unMounted() || isBusy()) return;
         formRef.current.submit();
     };
 
@@ -342,8 +407,8 @@ let Editor = (
         }
 
         _.defer(async () => {
-            await dispatch(ENUMS.STATUS.ERROR, { error }, onError);
             await dispatch('status', { event: ENUMS.STATUS.ERROR, error });
+            await dispatch(ENUMS.STATUS.ERROR, { error }, onError);
         });
 
         return context;
@@ -365,12 +430,12 @@ let Editor = (
             setAlert(alertObj);
         }
 
-        await dispatch(ENUMS.STATUS.FAILED, { error, value }, onFail);
         await dispatch('status', {
             event: ENUMS.STATUS.FAILED,
             error,
             value,
         });
+        await dispatch(ENUMS.STATUS.FAILED, { error, value }, onFail);
 
         let message = __('Unable to save %filename');
         message = String(message).replace(
@@ -387,6 +452,117 @@ let Editor = (
         return Promise.resolve(e);
     };
 
+    const _onFileAdded = async e => {
+        // Already processing an upload?
+        if (state.status === ENUMS.STATUS.PROCESSING) {
+            Toast.show({
+                type: Toast.TYPE.ERROR,
+                icon: 'Feather.AlertOctagon',
+                message: 'Upload in progress',
+            });
+
+            return;
+        }
+
+        const value = { ...state.value };
+
+        // Get the added file
+        const file = e.added[0];
+
+        await dispatch('status', { event: 'before-file-added', file, value });
+        await dispatch('before-file-added', { file, value });
+
+        // Check file size
+        if (file.size > ENUMS.MAX_SIZE) {
+            const error = {
+                color: Alert.ENUMS.COLOR.DANGER,
+                icon: 'Feather.AlertOctagon',
+                message: `File exceeds the max file size of ${ENUMS.MAX_SIZE /
+                    1048576}mb`,
+            };
+
+            setAlert(error);
+
+            await dispatch('status', {
+                error,
+                detail: e,
+                value,
+                event: 'file-error',
+            });
+            await dispatch('file-error', { error, detail: e, value });
+
+            return;
+        }
+
+        // Check file type
+        const { type } = value;
+        const ext = String(
+            String(file.name)
+                .split('.')
+                .pop(),
+        ).toUpperCase();
+
+        if (!ENUMS.TYPE[type].includes(ext)) {
+            const error = {
+                color: Alert.ENUMS.COLOR.DANGER,
+                icon: 'Feather.AlertOctagon',
+                message: `Invalid ${type} file type ${ext}`,
+            };
+
+            setAlert(error);
+
+            await dispatch('status', {
+                error,
+                detail: e,
+                value,
+                event: 'file-error',
+            });
+            await dispatch('file-error', { error, detail: e, value });
+
+            return;
+        }
+
+        // Read file
+        const reader = new FileReader();
+        reader.onload = async evt => {
+            op.set(value, 'filename', String(slugify(file.name)).toLowerCase());
+            op.set(value, 'meta.size', file.size);
+            op.set(value, 'ext', ext);
+
+            await dispatch('status', { event: 'file-added', file, value });
+            await dispatch('file-added', { file, value });
+
+            dropzoneRef.current.dropzone.removeAllFiles();
+
+            setState({
+                upload: file,
+                value,
+            });
+        };
+
+        reader.readAsText(file.slice(0, 4));
+    };
+
+    const _onFileError = e => {
+        let { message } = e;
+        message = String(message)
+            .toLowerCase()
+            .includes('file is too big')
+            ? `File exceeds the max file size of ${ENUMS.MAX_SIZE / 1048576}mb`
+            : message;
+
+        const error = {
+            color: Alert.ENUMS.COLOR.DANGER,
+            icon: 'Feather.AlertOctagon',
+            message,
+        };
+
+        setAlert(error);
+
+        dispatch('status', { detail: e, event: 'file-error', error });
+        dispatch('file-error', { error, event: e });
+    };
+
     const _onFormChange = e => {
         if (state.status === ENUMS.STATUS.LOADED) return;
 
@@ -399,12 +575,21 @@ let Editor = (
     };
 
     const _onFormSubmit = e => {
-        const value = JSON.parse(JSON.stringify(e.value));
+        const value = Object.assign(e.value);
         return save(value);
     };
 
-    const _onSuccess = async e => {
-        const { file } = e;
+    const _onSuccess = async value => {
+        let message = __('Saved %filename!');
+        message = message.replace(/\%filename/gi, value.filename);
+
+        persist.current = value;
+
+        Toast.show({
+            icon: 'Feather.Check',
+            message,
+            type: Toast.TYPE.INFO,
+        });
 
         const alertObj = {
             color: Alert.ENUMS.COLOR.INFO,
@@ -420,35 +605,26 @@ let Editor = (
             }
         }, 3000);
 
-        setState({ value: file });
-
-        await dispatch(ENUMS.STATUS.SAVED, { value: file }, onSuccess);
         await dispatch('status', {
             event: ENUMS.STATUS.SAVED,
-            value: file,
+            value,
         });
+        await dispatch(ENUMS.STATUS.SAVED, { value }, onSuccess);
 
-        let message = __('Saved %filename!');
-        message = message.replace(/\%filename/gi, file.filename);
+        setState({ value, upload: undefined });
 
-        Toast.show({
-            icon: 'Feather.Check',
-            message,
-            type: Toast.TYPE.INFO,
-        });
-
-        return Promise.resolve(e);
+        return Promise.resolve(value);
     };
 
     const _onValidate = async e => {
         const { value, ...context } = e;
 
-        await dispatch(ENUMS.STATUS.VALIDATING, { context, value }, onValidate);
         await dispatch('status', {
             event: ENUMS.STATUS.VALIDATING,
             context,
             value,
         });
+        await dispatch(ENUMS.STATUS.VALIDATING, { context, value }, onValidate);
 
         await Reactium.Hook.run('media-validate', { context, value });
 
@@ -457,13 +633,36 @@ let Editor = (
         return { ...context, value };
     };
 
+    const _onWorkerMessage = async (...args) => {
+        const props = args[0];
+
+        const { type, ...e } = props;
+        if (type !== 'status') return;
+
+        const { params } = e;
+        const progress = op.get(params, 'progress');
+        const result = op.get(params, 'result');
+        const status = op.get(params, 'status');
+
+        await dispatch('status', { event: status, progress });
+        await dispatch(status, { progress });
+
+        if (status === ENUMS.STATUS.COMPLETE) {
+            await _onSuccess(result);
+        }
+    };
+
     const _handle = () => ({
         ...params,
         refs: {
             alertRef,
+            dropzoneRef,
             formRef,
+            persist,
         },
         alert,
+        browse,
+        cancel,
         cx,
         directories,
         dispatch,
@@ -508,10 +707,14 @@ let Editor = (
             if (state.initialized !== true) return;
 
             const changed = {};
-            const watch = ['value', 'id', 'objectId', 'editing'];
+            let watch = ['value', 'id', 'objectId', 'upload'];
 
-            const cstate = JSON.parse(JSON.stringify(op.get(state)));
-            const pstate = JSON.parse(JSON.stringify(op.get(prevState)));
+            await Reactium.Hook.run('media-watch-fields', watch);
+            watch = _.uniq(watch);
+            watch.sort();
+
+            const cstate = op.get(state);
+            const pstate = op.get(prevState);
 
             watch.forEach(field => {
                 const current = op.get(cstate, field);
@@ -526,9 +729,9 @@ let Editor = (
                 if (op.has(changed, 'id')) {
                     getData(changed.id.current);
                 } else {
-                    await dispatch('change', { changed });
                     if (!mounted()) return;
                     await dispatch('status', { event: 'change', changed });
+                    await dispatch('change', { changed });
                 }
             }
         },
@@ -555,45 +758,133 @@ let Editor = (
         updateHandle(_handle());
     }, [Object.values(state), Object.values(params), alert, errors]);
 
+    // Regsiter media-worker hook
+    useEffect(() => {
+        const workerHook = Reactium.Hook.register(
+            'media-worker',
+            _onWorkerMessage,
+        );
+
+        return () => {
+            Reactium.Hook.unregister(workerHook);
+        };
+    }, []);
+
     // Register handle
-    useImperativeHandle(ref, () => handle, [handle]);
-    //useRegisterHandle('MediaEditor', () => handle, [handle]);
+    // useImperativeHandle(ref, () => handle, [handle]);
+    useRegisterHandle('MediaEditor', () => handle, [handle]);
 
     const render = () => {
-        const type = op.get(state, 'value.type');
-        if (state.value) console.log(state.value);
+        let type = op.get(state, 'value.type');
+        type = type ? String(type).toLowerCase() : type;
+
+        const title = op.get(state, 'title');
+        const metaZoneName = type ? cx('meta-' + type) : null;
 
         return (
-            <EventForm
-                className={cname}
-                onChange={_onFormChange}
-                onSubmit={_onFormSubmit}
-                ref={formRef}
-                validator={_onValidate}
-                value={state.value}>
-                media editor
-                <Zone zone={cx('main')} />
-                <Sidebar editor={handle}>
-                    <div className={cx('meta')}>
-                        <Zone zone={cx('meta')} editor={handle} />
-                        {type && (
-                            <Zone
-                                zone={cx(`meta-${String(type).toLowerCase()}`)}
-                                editor={handle}
-                            />
-                        )}
+            <Dropzone
+                {...dropzoneProps}
+                className={cx('dropzone')}
+                onError={e => _onFileError(e)}
+                onFileAdded={e => _onFileAdded(e)}
+                ref={dropzoneRef}>
+                <EventForm
+                    className={cname}
+                    onChange={_onFormChange}
+                    onSubmit={_onFormSubmit}
+                    ref={formRef}
+                    validator={_onValidate}
+                    value={state.value}>
+                    <Helmet>
+                        <title>{title}</title>
+                    </Helmet>
+                    {op.get(alert, 'message') && (
+                        <div className={cx('alert')}>
+                            <Alert
+                                dismissable
+                                ref={alertRef}
+                                onHide={() => setAlert(alertDefault)}
+                                color={op.get(alert, 'color')}
+                                icon={
+                                    <Icon
+                                        name={op.get(
+                                            alert,
+                                            'icon',
+                                            'Feather.AlertOctagon',
+                                        )}
+                                    />
+                                }>
+                                {op.get(alert, 'message')}
+                            </Alert>
+                        </div>
+                    )}
+                    <div className={cn(cx('main'), { visible: !!type })}>
+                        {type && <Zone zone={cx(type)} editor={handle} />}
                     </div>
-                </Sidebar>
-            </EventForm>
+                    {!type && <Spinner />}
+                    <Sidebar editor={handle}>
+                        <div className={cx('meta')}>
+                            <Zone zone={cx('meta')} editor={handle} />
+                            {type && (
+                                <Zone zone={metaZoneName} editor={handle} />
+                            )}
+                        </div>
+                    </Sidebar>
+                </EventForm>
+            </Dropzone>
         );
     };
 
     return render();
 };
 
+const ErrorMessages = ({ editor, errors }) => {
+    const canFocus = element => typeof element.focus === 'function';
+
+    const jumpTo = (e, element) => {
+        e.preventDefault();
+        element.focus();
+    };
+
+    return (
+        <ul className={editor.cx('errors')}>
+            {errors.map(({ message, field, focus, value = '' }, i) => {
+                const replacers = {
+                    '%fieldName': field,
+                    '%value': value,
+                };
+                message = editor.parseErrorMessage(message, replacers);
+                message = !canFocus(focus) ? (
+                    message
+                ) : (
+                    <a href='#' onClick={e => jumpTo(e, focus)}>
+                        {message}
+                        <Icon
+                            name='Feather.CornerRightDown'
+                            size={12}
+                            className='ml-xs-8'
+                        />
+                    </a>
+                );
+                return <li key={`error-${i}`}>{message}</li>;
+            })}
+        </ul>
+    );
+};
+
 Editor = forwardRef(Editor);
 
 Editor.defaultProps = {
+    dropzoneProps: {
+        config: {
+            chunking: false,
+            clickable: true,
+            maxFiles: 1,
+            maxFilesize: ENUMS.MAX_SIZE / 1048576,
+            previewTemplate: '<span />',
+        },
+        debug: false,
+    },
     namespace: 'admin-media-editor',
     onChange: noop,
     onError: noop,
@@ -604,7 +895,7 @@ Editor.defaultProps = {
     onSubmit: noop,
     onSuccess: noop,
     onValidate: noop,
-    title: 'Media',
+    title: __('Media Editor'),
 };
 
 export { Editor, Editor as default };

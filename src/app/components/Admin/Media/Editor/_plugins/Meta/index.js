@@ -3,54 +3,20 @@ import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
 import ENUMS from 'components/Admin/Media/enums';
+import Reactium, { __ } from 'reactium-core/sdk';
+import React, { forwardRef, useEffect, useRef } from 'react';
 import { Dialog, TagsInput } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
-
-import React, {
-    forwardRef,
-    useEffect,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-} from 'react';
-
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 const noop = () => {};
-
-const Directory = ({ data, label, name }) => (
-    <div className='form-group'>
-        <label>
-            {label}
-            <select name={name}>
-                {data &&
-                    data.map((item, i) => (
-                        <option key={`${name}-${i}`}>{item}</option>
-                    ))}
-            </select>
-        </label>
-    </div>
-);
-
-const Tags = forwardRef(({ value = {}, onChange = noop }, ref) => (
-    <>
-        <div className='form-group mb-xs-0'>
-            <label>{__('Tags')}:</label>
-        </div>
-        <TagsInput
-            ref={ref}
-            placeholder={__('Add tag')}
-            name='meta.tags'
-            onChange={e => onChange(e)}
-            value={op.get(value, 'meta.tags')}
-        />
-    </>
-));
 
 const Meta = ({ editor, props }) => {
     const tagsRef = useRef();
 
     const { directories, state = {} } = editor;
+
+    const applyWatch = fields => {
+        fields.push('value.directory', 'value.url', 'value.filename');
+    };
 
     const error = op.get(state, 'error', {});
 
@@ -83,53 +49,48 @@ const Meta = ({ editor, props }) => {
             <small>{String(error.errors[idx]).replace('meta.', '')}</small>
         ) : null;
     };
-    //
-    // const onFormChange = ({ value, e }) => {
-    //     const { name } = e.target;
-    //
-    //     if (!name) return;
-    //
-    //     let val = name !== 'meta.tags' ? e.target.value : e.value;
-    //
-    //     if (name === 'filename') {
-    //         val = String(slugify(val)).toLowerCase();
-    //     }
-    //
-    //     if (name === 'directory') {
-    //         let { directory, url } = value;
-    //
-    //         directory = `/${directory}/`;
-    //
-    //         if (url) {
-    //             url = url.split(directory).join(`/${e.target.value}/`);
-    //             op.set(value, 'url', url);
-    //         }
-    //     }
-    //
-    //     op.set(value, name, val);
-    // };
 
-    // Regsiter admin-media-change hook
-    // useEffect(() => {
-    //     const hooks = [
-    //         Reactium.Hook.register('admin-media-change', onFormChange),
-    //     ];
-    //
-    //     return () => {
-    //         hooks.forEach(id => Reactium.Hook.unregister(id));
-    //     };
-    // });
+    const _onChange = ({ changed }) => {
+        // Update url on directory change
+        if (op.get(changed, 'value.directory')) {
+            const { current, previous } = changed.value.directory;
+            let { url } = state.value;
 
-    // Focus on error
-    // useLayoutEffect(() => {
-    //     focus();
-    // }, [op.get(error, 'fields'), state.update]);
-    //
-    // useEffect(() => {
-    //     if (!op.get(state, 'value') || !tagsRef.current) return;
-    //     const tags = op.get(state, 'value.meta.tags', []);
-    //     tagsRef.current.setState({ value: tags });
-    // });
+            url = String(url)
+                .split(`/${previous}/`)
+                .join(`/${current}/`);
+
+            const value = { ...state.value, url };
+
+            editor.setState({ value });
+        }
+
+        // Update filename on url change
+        if (op.get(changed, 'value.url')) {
+            const { current } = changed.value.url;
+            let { filename } = state.value;
+            const newFilename = current.split('/').pop();
+            if (filename === newFilename) return;
+
+            const value = { ...state.value, filename: newFilename };
+            editor.setState({ value });
+        }
+
+        // Update url on filename change
+        if (op.get(changed, 'value.filename')) {
+            const { current } = changed.value.filename;
+            let { url } = state.value;
+
+            const arr = url.split('/');
+            arr.pop();
+
+            url = arr.join('/') + '/' + current;
+            if (state.value === url) return;
+
+            const value = { ...state.value, url };
+            editor.setState({ value });
+        }
+    };
 
     const render = () => (
         <>
@@ -185,13 +146,64 @@ const Meta = ({ editor, props }) => {
                         </label>
                         <ErrorMsg field='meta.description' />
                     </div>
-                    <Tags ref={tagsRef} value={state.value} />
+                    <Tags editor={editor} />
                 </div>
             </Dialog>
         </>
     );
 
+    useEffect(() => {
+        Reactium.Hook.register('media-watch-fields', applyWatch);
+        editor.addEventListener('DIRTY', _onChange);
+
+        return () => {
+            editor.removeEventListener('DIRTY', _onChange);
+            Reactium.Hook.unregister('media-watch-fields', applyWatch);
+        };
+    });
+
     return render();
+};
+
+const Directory = ({ data, label, name }) => (
+    <div className='form-group'>
+        <label>
+            {label}
+            <select name={name}>
+                {data &&
+                    data.map((item, i) => (
+                        <option key={`${name}-${i}`}>{item}</option>
+                    ))}
+            </select>
+        </label>
+    </div>
+);
+
+const Tags = ({ editor }) => {
+    const ref = useRef();
+    const { setState = noop, state = {} } = editor;
+    const { value = {} } = state;
+
+    const onChange = e => {
+        const newValue = { ...value };
+        op.set(newValue, 'meta.tags', e.value);
+        setState(newValue);
+    };
+
+    return (
+        <>
+            <div className='form-group mb-xs-0'>
+                <label>{__('Tags')}:</label>
+            </div>
+            <TagsInput
+                ref={ref}
+                placeholder={__('Add tag')}
+                name='meta.tags'
+                onChange={e => onChange(e)}
+                value={op.get(value, 'meta.tags')}
+            />
+        </>
+    );
 };
 
 export { Meta, Meta as default };
