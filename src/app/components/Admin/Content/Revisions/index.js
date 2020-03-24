@@ -235,6 +235,7 @@ const RevisionManager = props => {
             const revHistory = await Reactium.Content.revisions(
                 op.get(state, 'working.content'),
             );
+
             const revisions = op.get(revHistory, 'revisions', []);
             setState({
                 revHistory,

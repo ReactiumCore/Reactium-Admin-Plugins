@@ -16,7 +16,7 @@ const SelectBranch = props => {
     const labels = handle.labels('SELECT_REVISION');
     const revLabel = index => {
         const revision = revisions[index];
-        return labels.select
+        return (index === 0 ? labels.base : labels.select)
             .replace('%rev', index + 1)
             .replace('%date', moment(revision.updatedAt).fromNow());
     };

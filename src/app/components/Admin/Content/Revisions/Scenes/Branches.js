@@ -79,7 +79,7 @@ const BranchesScene = props => {
         const components = _.indexBy(Reactium.Content.Comparison.list, 'id');
 
         return rows.map(row => {
-            const { fieldType } = row;
+            const { fieldType, diff = false } = row;
             const fId = op.get(fieldType, 'fieldId', '');
             const ftId = op.get(fieldType, 'fieldType', '');
 
@@ -105,7 +105,9 @@ const BranchesScene = props => {
                         return (
                             <div
                                 key={direction}
-                                className={`branch-compare-${direction}`}>
+                                className={cn(`branch-compare-${direction}`, {
+                                    'branch-compare-diff': diff,
+                                })}>
                                 <div className='branch-compare-copy'>
                                     {renderCopyControl(direction, value, row)}
                                 </div>
@@ -213,6 +215,7 @@ const BranchesScene = props => {
                         'status',
                         'history',
                         'branches',
+                        'publish',
                         'meta',
                         'createdAt',
                         'updatedAt',
