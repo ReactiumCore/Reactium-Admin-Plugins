@@ -60,6 +60,7 @@ export default {
     SELECT_REVISION: {
         base: __('Initial (%date)'),
         select: __('Revision %rev (%date)'),
+        current: __('Current %rev (%date)'),
         label: __('Select Revision'),
         tooltip: __('Select changes made to this version'),
     },

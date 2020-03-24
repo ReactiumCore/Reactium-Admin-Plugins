@@ -179,6 +179,11 @@
 }
 
 .content-schedule {
+    .ar-dialog-content {
+        position: relative;
+        height: 148px;
+    }
+
     &-list {
         list-style: none;
         margin: 0;
