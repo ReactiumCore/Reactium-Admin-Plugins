@@ -296,13 +296,22 @@ const Scheduler = props => {
                 pref='admin.dialog.publisher.manager'
                 className='content-schedule'
                 header={{ title: __('Scheduled Actions') }}>
-                <Scrollbars height={140} autoHeight={true} autoHeightMin={140}>
+                <Scrollbars>
                     <ul className='content-schedule-list'>
                         {Object.entries(publish.schedule).map(
                             ([jobId, instructions]) => {
                                 const { history, userId } = instructions;
-
-                                const user = (
+                                const branch = op.get(
+                                    history,
+                                    'branch',
+                                    'master',
+                                );
+                                const branchLabel = op.get(
+                                    editor,
+                                    ['value', 'branches', branch, 'label'],
+                                    branch,
+                                );
+                                const renderedUser = (
                                     <div className='content-schedule-user'>
                                         <strong>{__('User:')}</strong>
                                         <span>
@@ -315,17 +324,11 @@ const Scheduler = props => {
                                     </div>
                                 );
 
-                                const branch = (
+                                const renderedBranch = (
                                     <div className='content-schedule-version'>
                                         <strong>{__('Version:')}</strong>
                                         <span>
-                                            <span>
-                                                {op.get(
-                                                    history,
-                                                    'branch',
-                                                    'master',
-                                                )}
-                                            </span>
+                                            <span>{branchLabel}</span>
                                             <span className='content-schedule-version-rev'>
                                                 {op.has(history, 'revision') &&
                                                     `v${history.revision + 1}`}
@@ -339,8 +342,8 @@ const Scheduler = props => {
                                         key={jobId}
                                         className='content-schedule-item'>
                                         <div className='content-schedule-item-detail'>
-                                            {user}
-                                            {branch}
+                                            {renderedUser}
+                                            {renderedBranch}
                                             {instructions.sunrise &&
                                                 timeItem(
                                                     instructions.sunrise,
