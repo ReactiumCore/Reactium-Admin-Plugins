@@ -1,7 +1,8 @@
-import React from 'react';
+import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
+import React, { useEffect, useState } from 'react';
 import Editor from 'components/Admin/Media/Directory/Editor';
 import Creator from 'components/Admin/Media/Directory/Creator';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
@@ -21,19 +22,18 @@ import Reactium, {
  * Functional Component: DirectoryWidget
  * -----------------------------------------------------------------------------
  */
-const DirectoryWidget = props => {
+const defaultDirectories = ['uploads', 'avatars'];
+
+const DirectoryWidget = ({ Media, ...props }) => {
     const tools = useHandle('AdminTools');
 
     const Modal = op.get(tools, 'Modal');
 
-    const Media = useHandle(domain.name);
+    Media = Media || useHandle(domain.name);
 
-    const directories = op.get(Media.state, 'directories', [
-        'uploads',
-        'avatars',
-    ]);
+    const directories = op.get(Media.state, 'directories', defaultDirectories);
 
-    const directory = Media.directory;
+    const [directory, setDirectory] = useState(Media.directory);
 
     const data = () => {
         const dirs = [
@@ -51,7 +51,9 @@ const DirectoryWidget = props => {
         );
     };
 
-    const onChange = e => Media.folderSelect(e);
+    const onChange = e => {
+        Media.folderSelect(e);
+    };
 
     const showCreator = () => {
         Modal.show(<Creator />);
@@ -60,6 +62,12 @@ const DirectoryWidget = props => {
     const showEditor = () => {
         Modal.show(<Editor />);
     };
+
+    useEffect(() => {
+        if (directory !== Media.directory) {
+            setDirectory(Media.directory);
+        }
+    });
 
     return (
         <div className={Media.cname('dir-dropdown')}>

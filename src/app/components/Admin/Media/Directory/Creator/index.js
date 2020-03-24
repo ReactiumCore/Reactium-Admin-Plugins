@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 
 import Reactium, {
+    useDerivedState,
     useHandle,
     useHookComponent,
     useReduxState,
@@ -75,35 +76,67 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
     const containerRef = useRef();
     const folderRef = useRef();
     const permRef = useRef();
-    const stateRef = useRef({
+
+    // State
+    const [state, setNewState] = useDerivedState({
         ...props,
         data: null,
         error: null,
         status: ENUMS.STATUS.READY,
     });
 
-    // State
-    const [, setNewState] = useState(stateRef.current);
-
-    // Internal Interface
     const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
+        if (unMounted()) return;
+        setNewState(newState);
     };
 
     const cname = () => {
-        const { className, namespace } = stateRef.current;
+        const { className, namespace } = state;
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
+    const footer = () => ({
+        elements: [
+            <Button
+                color='primary'
+                size='sm'
+                onClick={save}
+                style={{ width: 175, marginLeft: 8 }}>
+                {ENUMS.TEXT.FOLDER_CREATOR.SAVE}
+            </Button>,
+        ],
+    });
+
+    const isMounted = () => !unMounted();
+
+    const onSave = e => {
+        const { directory, permissions } = e;
+        const { canRead = [], canWrite = [] } = permissions.state;
+
+        setState({
+            canRead,
+            canWrite,
+            directory,
+            error: null,
+            status: ENUMS.STATUS.PROCESSING,
+        });
+    };
+
+    const onError = e => {
+        const { directory, error, permissions } = e;
+        const { canRead = [], canWrite = [] } = permissions.state;
+
+        setState({
+            canRead,
+            canWrite,
+            directory,
+            error,
+            status: ENUMS.STATUS.READY,
+        });
+    };
+
     const save = async () => {
-        const { status } = stateRef.current;
+        const { status } = state;
         if (status === ENUMS.STATUS.PROCESSING) return;
 
         const permissions = permRef.current;
@@ -145,53 +178,11 @@ let DirectoryCreator = ({ children, ...props }, ref) => {
             );
     };
 
-    const onSave = e => {
-        const { directory, permissions } = e;
-        const { canRead = [], canWrite = [] } = permissions.state;
-
-        setState({
-            canRead,
-            canWrite,
-            directory,
-            error: null,
-            status: ENUMS.STATUS.PROCESSING,
-        });
-    };
-
-    const onError = e => {
-        const { directory, error, permissions } = e;
-        const { canRead = [], canWrite = [] } = permissions.state;
-
-        setState({
-            canRead,
-            canWrite,
-            directory,
-            error,
-            status: ENUMS.STATUS.READY,
-        });
-    };
-
-    const footer = () => ({
-        elements: [
-            <Button
-                color='primary'
-                size='sm'
-                onClick={save}
-                style={{ width: 175, marginLeft: 8 }}>
-                {ENUMS.TEXT.FOLDER_CREATOR.SAVE}
-            </Button>,
-        ],
-    });
+    const unMounted = () => !containerRef.current;
 
     // Renderer
     const render = () => {
-        const {
-            canRead = [],
-            canWrite = [],
-            directory,
-            error,
-            status,
-        } = stateRef.current;
+        const { canRead = [], canWrite = [], directory, error, status } = state;
 
         return (
             <div ref={containerRef} className={cname()}>

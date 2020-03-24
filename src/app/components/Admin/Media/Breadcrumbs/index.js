@@ -64,7 +64,7 @@ export default () => {
                         size='sm'
                         onClick={() => Reactium.Routing.history.goBack()}
                         type='button'>
-                        <Icon name='Feather.ArrowLeft' />
+                        <Icon name='Linear.ArrowLeft' size={18} />
                     </Button>
                 )}
 

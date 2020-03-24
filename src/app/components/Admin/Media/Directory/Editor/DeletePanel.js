@@ -39,7 +39,7 @@ const DeletePanel = forwardRef((props, ref) => {
 
         setState({ status: ENUMS.STATUS.PROCESSING });
 
-        List.deleteDirectory({ directory, content });
+        List.directoryDelete({ directory, content });
 
         setTimeout(() => List.navTo('list', null, 'right'), 1);
     };

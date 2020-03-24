@@ -194,7 +194,7 @@ class Media {
         });
     }
 
-    delete(objectId) {
+    async delete(objectId) {
         const library = _.indexBy(
             op.get(this.state, 'library', []),
             'objectId',
@@ -205,7 +205,9 @@ class Media {
             this.setState({ library: Object.values(library) });
         }
 
-        return Reactium.Cloud.run('media-delete', { objectId });
+        const result = await Reactium.Cloud.run('media-delete', { objectId });
+        await Reactium.Hook.run('media-delete', { objectId });
+        return result;
     }
 
     download(objectId) {
@@ -227,12 +229,20 @@ class Media {
         });
     }
 
-    async fetch(params) {
+    async fetch(params = {}) {
         const library = {};
+
         const limit = op.get(params, 'limit', 50);
         const page = op.get(params, 'page', this.page);
+        const directory = op.get(params, 'directory');
+        const search = op.get(params, 'search');
 
-        const media = await Reactium.Cloud.run('media', { page: -1 });
+        const media = await Reactium.Cloud.run('media', {
+            directory,
+            limit,
+            page,
+            search,
+        });
 
         let { directories = [ENUMS.DIRECTORY], files } = media;
 
