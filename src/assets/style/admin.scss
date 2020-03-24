@@ -29,6 +29,7 @@
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withMediaVideo/Panel/style';
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
 @import '../../app/components/Admin/registered-components/IconPicker/style';
+@import '../../app/components/Admin/registered-components/ProfileWidget/style';
 
 // Admin Styles
 @import '../../app/components/Admin/style/base';
@@ -38,8 +39,6 @@
 @import '../../app/components/Admin/Login/style';
 @import '../../app/components/Admin/Sidebar/style';
 @import '../../app/components/Admin/Dashboard/style';
-@import '../../app/components/Admin/Profile/SidebarWidget/style';
-@import '../../app/components/Admin/Profile/Editor/style';
 @import '../../app/components/Admin/Settings/style';
 @import '../../app/components/Admin/Password/style';
 @import '../../app/components/Admin/SearchBar/style';
@@ -69,15 +68,12 @@
 @import '../../app/components/Admin/Media/Editor/Sidebar/style';
 @import '../../app/components/Admin/Media/Editor/_plugins/ImageCrop/style';
 @import '../../app/components/Admin/Media/Editor/_plugins/ThumbnailSelect/style';
-// @import '../../app/components/Admin/Media/MediaEditor/style';
-// @import '../../app/components/Admin/Media/MediaEditor/AudioEditor/style';
-// @import '../../app/components/Admin/Media/MediaEditor/ImageEditor/style';
-// @import '../../app/components/Admin/Media/MediaEditor/FileEditor/style';
-// @import '../../app/components/Admin/Media/MediaEditor/VideoEditor/style';
-// @import '../../app/components/Admin/Media/MediaEditor/AudioEditor/style';
 @import '../../app/components/Admin/Media/MediaPicker/style';
 @import '../../app/components/Admin/User/Editor/style';
 @import '../../app/components/Admin/User/Editor/_plugins/UserContent/style';
 @import '../../app/components/Admin/User/Editor/_plugins/UserMedia/style';
+@import '../../app/components/Admin/User/Editor/_plugins/UserProfile/style';
+@import '../../app/components/Admin/User/Editor/_plugins/UserInputs/style';
+@import '../../app/components/Admin/User/Editor/_plugins/Notice/style';
 @import '../../app/components/Admin/User/List/style';
 @import '../../app/components/Admin/Content/Revisions/style';

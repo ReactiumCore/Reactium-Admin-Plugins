@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import op from 'object-path';
-import inputs from '../inputs';
 import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
 
@@ -115,35 +114,6 @@ const useProfileGreeting = user => {
 };
 
 /**
- * @api {ReactHook} userProfileInputs() userProfileInputs()
- * @apiDescription React Hook that gets the profile editor inputs.
- * @apiName useProfileINputs
- * @apiGroup ReactHook
- */
-const useProfileInputs = () => {
-    const initRef = useRef(false);
-    const ref = useRef(Array.from(inputs));
-
-    const [, updateRef] = useState(ref.current);
-
-    const setState = newState => {
-        ref.current = newState;
-        updateRef(ref.current);
-    };
-
-    useEffect(() => {
-        if (initRef.current === false) {
-            initRef.current = true;
-            Reactium.Hook.run('profile-inputs', ref.current).then(() =>
-                setState(ref.current),
-            );
-        }
-    }, [initRef.current]);
-
-    return ref.current;
-};
-
-/**
  * @api {ReactHook} useProfileRole(user) useProfileRole()
  * @apiDescription React Hook that gets the profile role message.
  * @apiName useProfileRole
@@ -183,12 +153,7 @@ const useProfileRole = initialUser => {
     return role;
 };
 
-export {
-    useProfileAvatar,
-    useProfileGreeting,
-    useProfileInputs,
-    useProfileRole,
-};
+export { useProfileAvatar, useProfileGreeting, useProfileRole };
 
 /**
  * @api {Hook} profile-avatar profile-avatar
@@ -216,35 +181,6 @@ Reactium.Hook.register('profile-greeting', (greeting, user, context) => {
     context['greeting'] = String(greeting).replace('Hello', '¡Hola') + '!';
 }, Reactium.Enums.priority.lowest);
  */
-
-/**
- * @api {Hook} profile-inputs profile-inputs
- * @apiDescription Customize the default input fields associated with the Profile Editor.
- * @apiName profile-inputs
- * @apiGroup Reactium.Hooks
- * @apiParam {Array} inputs Object array of input fields.
-
-Input objects can contain any attribute associated with an `<input />`, `<textarea />`, or `<select />` element.
- * @apiParam {Object} context The hook context object.
- * @apiExample Example Usage:
-// Add a new section heading:
-Reactium.Hook.register('profile-inputs', (inputs, context) =>
-    inputs.push({
-        children: 'Test Heading', // valid PropType.node object.
-        type: 'heading',
-    }),
-);
-
-// Add a text input named "test" to the profile editor:
-Reactium.Hook.register('profile-inputs', (inputs, context) =>
-    inputs.push({
-        autoComplete: 'off',
-        name: 'test',
-        placeholder: 'Test',
-        type: 'text', // textarea and select are also valid.
-    }),
-);
-*/
 
 /**
  * @api {Hook} profile-role-name profile-role-name

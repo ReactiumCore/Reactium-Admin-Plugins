@@ -1,220 +1,22 @@
-$admin-user-editor-ns: 'admin-user-editor';
-$admin-user-editor-height-max: 156px;
-$admin-user-editor-height-min: 124px;
-
-.zone-#{$admin-user-editor-ns} {
-    border: 1px solid transparent;
-}
+$admin-user-editor-ns: 'admin-user-editor' !default;
 
 .#{$admin-user-editor-ns} {
-    padding-top: $height-admin-header - 2px;
+    padding-top: $height-admin-header;
     position: relative;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 
-    &-profile {
-        background-color: $color-light-dark;
-        border-bottom: $color-admin-header-border;
-        padding: $padding-admin-content-zone;
-        box-shadow: $shadow-image;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        flex-direction: column;
-        position: relative;
-
-        @include breakpoint(sm) {
-            flex-direction: row;
-        }
-
-        &-avatar {
-            border-radius: 100%;
-            width: $admin-user-editor-height-min;
-            height: $admin-user-editor-height-min;
-            background-position: center center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            border: 4px solid $color-light;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            margin-bottom: $padding-admin-content-zone;
-
-            @include breakpoint(sm) {
-                margin-right: $padding-admin-content-zone;
-                margin-bottom: 0;
-            }
-
-            button {
-                padding: 0;
-                width: 32px;
-                height: 32px;
-                transition: opacity 0.25s ease-in-out;
-            }
-        }
-
-        &-info {
-            flex-grow: 1;
-            width: 100%;
-            position: relative;
-
-            @include breakpoint(sm) {
-                width: auto;
-            }
-
-            &-scene {
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                background-color: $color-light-dark;
-                align-items: center;
-                justify-content: flex-start;
-
-                @include breakpoint(sm) {
-                    flex-direction: row;
-                }
-
-                > div {
-                    &:not(:last-child) {
-                        padding: 0 0 24px 0;
-
-                        @include breakpoint(sm) {
-                            padding: 0 24px 0 0;
-                        }
-                    }
-                }
-            }
-
-            .ar-scene {
-                display: block;
-                width: 100%;
-                min-height: $admin-user-editor-height-max;
-                background-color: $color-light-dark;
-                overflow: visible;
-
-                @include breakpoint(sm) {
-                    min-height: $admin-user-editor-height-min;
-
-                    .ar-scene-panel {
-                        height: 100%;
-                        background-color: $color-light-dark;
-                    }
-                }
-
-                &-panel {
-                    overflow: visible;
-                }
-            }
-
-            &-name {
-                font-size: 18px;
-                font-weight: bold;
-                color: $color-dark;
-            }
-
-            &-username {
-                font-size: 14px;
-                color: $color-gray;
-                margin-top: 4px;
-            }
-
-            &-email {
-                font-size: 12px;
-                margin-top: 2px;
-            }
-
-            &-roles {
-                margin-top: 12px;
-
-                > span {
-                    font-size: 12px;
-                    font-family: Helvetica, Arial;
-                    font-weight: 600;
-                    color: $color-dark-light;
-
-                    &:not(:last-child) {
-                        margin-right: 8px;
-
-                        &:after {
-                            content: ',';
-                        }
-                    }
-                }
-            }
-        }
-
-        &-actions {
-            padding-top: $padding-admin-content-zone;
-
-            @include breakpoint(sm) {
-                padding-left: $padding-admin-content-zone;
-                padding-top: 0;
-            }
-        }
-    }
-
-    &-inputs {
-        padding: $padding-admin-content-zone * 2;
-        max-width: 920px;
-        margin: 0 auto;
-
-        @include breakpoint(md) {
-            padding: $padding-admin-content-zone;
-        }
-
-        &:empty {
-            display: none;
-        }
-
-        h2 {
-            font-size: 20px;
-        }
-    }
-
-    &-alert {
-        padding: $padding-admin-content-zone;
-        padding-bottom: 0;
-
-        &:empty {
-            display: none;
-        }
-
-        ul,
-        li {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .ico {
-            display: flex;
-            margin-right: 12px !important;
-        }
-
-        .dismiss {
-            margin-top: 2px;
-        }
-
-        .content {
-            padding: 0;
-            line-height: 24px;
-        }
-    }
-
-    &-errors,
-    &-notice {
-        > li {
-            line-height: 24px;
-        }
-    }
-
     &-tabs {
         display: flex;
         align-items: stretch;
+        justify-content: center;
         background-color: $color-light;
         padding: 0;
+
+        @include breakpoint(md) {
+            justify-content: flex-start;
+        }
     }
 
     &-tab {
@@ -234,6 +36,14 @@ $admin-user-editor-height-min: 124px;
         margin-bottom: -1px;
         user-select: none;
         transition: box-shadow 0.25s ease-in-out;
+        flex-grow: 1;
+        font-size: 12px;
+
+        @include breakpoint(sm) {
+            min-width: 120px;
+            flex-grow: 0;
+            font-size: 14px;
+        }
 
         &:after {
             content: '';
@@ -291,10 +101,6 @@ $admin-user-editor-height-min: 124px;
                 right: auto;
             }
         }
-    }
-
-    input {
-        width: auto;
     }
 
     .border-bottom {

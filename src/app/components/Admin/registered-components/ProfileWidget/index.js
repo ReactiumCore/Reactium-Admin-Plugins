@@ -3,12 +3,7 @@ import op from 'object-path';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
-
-import {
-    useProfileAvatar,
-    useProfileGreeting,
-    useProfileRole,
-} from 'components/Admin/Profile/hooks';
+import { useProfileAvatar, useProfileGreeting, useProfileRole } from './hooks';
 
 import React, {
     useEffect,

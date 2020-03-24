@@ -18,7 +18,7 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-import { useProfileRole } from 'components/Admin/Profile/hooks';
+import { useProfileRole } from 'components/Admin/registered-components/ProfileWidget/hooks';
 
 import useAvatar from '../useAvatar';
 

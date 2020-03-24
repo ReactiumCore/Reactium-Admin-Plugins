@@ -1,0 +1,30 @@
+.#{$admin-user-editor-ns} {
+    input {
+        width: auto;
+    }
+
+    &-inputs {
+        padding: $padding-admin-content-zone * 2;
+        max-width: 920px;
+        margin: 0 auto;
+
+        @include breakpoint(md) {
+            padding: $padding-admin-content-zone;
+        }
+
+        &:empty {
+            display: none;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+    }
+
+    &-errors,
+    &-notice {
+        > li {
+            line-height: 24px;
+        }
+    }
+}
