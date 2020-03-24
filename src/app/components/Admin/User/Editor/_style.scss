@@ -9,8 +9,10 @@ $admin-user-editor-height-min: 124px;
 .#{$admin-user-editor-ns} {
     padding-top: $height-admin-header - 2px;
     position: relative;
-    border: 1px solid transparent;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 
     &-profile {
         background-color: $color-light-dark;
@@ -22,7 +24,6 @@ $admin-user-editor-height-min: 124px;
         justify-content: flex-start;
         flex-direction: column;
         position: relative;
-        margin: 0 -2px;
 
         @include breakpoint(sm) {
             flex-direction: row;

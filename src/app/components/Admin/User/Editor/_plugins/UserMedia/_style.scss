@@ -3,6 +3,7 @@ $padding-user-media: 12px !default;
 .#{$admin-user-editor-ns}-media {
     display: block;
     position: relative;
+    flex-grow: 1;
 
     .ar-spinner {
         position: absolute;
