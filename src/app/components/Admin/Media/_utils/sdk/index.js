@@ -194,7 +194,7 @@ class Media {
         });
     }
 
-    delete(objectId) {
+    async delete(objectId) {
         const library = _.indexBy(
             op.get(this.state, 'library', []),
             'objectId',
@@ -205,7 +205,9 @@ class Media {
             this.setState({ library: Object.values(library) });
         }
 
-        return Reactium.Cloud.run('media-delete', { objectId });
+        const result = await Reactium.Cloud.run('media-delete', { objectId });
+        await Reactium.Hook.run('media-delete', { objectId });
+        return result;
     }
 
     download(objectId) {

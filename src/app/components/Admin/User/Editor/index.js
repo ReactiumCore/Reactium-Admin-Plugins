@@ -244,9 +244,9 @@ let UserEditor = (
             ? {}
             : Reactium.User.selected
             ? Reactium.User.selected
-            : await Reactium.User.retrieve({ objectId });
+            : await Reactium.User.retrieve({ objectId, refresh: true });
 
-        // Reactium.User.selected = null;
+        Reactium.User.selected = null;
 
         if (unMounted()) return;
 
@@ -380,7 +380,7 @@ let UserEditor = (
         formRef.current.submit();
     };
 
-    const unMounted = () => !containerRef;
+    const unMounted = () => !containerRef.current;
 
     const _onError = async context => {
         const { error } = context;
