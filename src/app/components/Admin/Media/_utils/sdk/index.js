@@ -227,12 +227,20 @@ class Media {
         });
     }
 
-    async fetch(params) {
+    async fetch(params = {}) {
         const library = {};
+
         const limit = op.get(params, 'limit', 50);
         const page = op.get(params, 'page', this.page);
+        const directory = op.get(params, 'directory');
+        const search = op.get(params, 'search');
 
-        const media = await Reactium.Cloud.run('media', { page: -1 });
+        const media = await Reactium.Cloud.run('media', {
+            directory,
+            limit,
+            page,
+            search,
+        });
 
         let { directories = [ENUMS.DIRECTORY], files } = media;
 

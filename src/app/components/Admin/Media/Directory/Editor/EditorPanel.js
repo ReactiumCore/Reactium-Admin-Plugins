@@ -75,7 +75,7 @@ const EditorPanel = forwardRef((props, ref) => {
         onSave({ directory, permissions, objectId });
 
         // Create the object
-        List.saveDirectory({
+        List.directorySave({
             directory,
             objectId,
             permissions: permissions.value,

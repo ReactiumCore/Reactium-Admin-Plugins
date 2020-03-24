@@ -9,9 +9,7 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
  * Functional Component: Toolbar
  * -----------------------------------------------------------------------------
  */
-const Toolbar = ({ directory }) => {
-    const Media = useHandle(domain.name);
-
+const Toolbar = ({ Media }) => {
     return Media.isEmpty() ? null : (
         <div className={Media.cname('toolbar')}>
             <div className='flex middle flex-grow'>
@@ -31,7 +29,7 @@ const Toolbar = ({ directory }) => {
                 </div>
             </div>
             <div>
-                <Zone zone='admin-media-toolbar' />
+                <Zone zone='admin-media-toolbar' Media={Media} />
             </div>
         </div>
     );

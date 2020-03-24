@@ -9,6 +9,8 @@ import domain from 'components/Admin/Media/domain';
 import { FolderInput } from 'components/Admin/Media/Directory/Creator';
 
 import Reactium, {
+    useDerivedState,
+    useEventHandle,
     useHandle,
     useHookComponent,
     useReduxState,
@@ -66,7 +68,33 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     const sceneRef = useRef();
 
-    const stateRef = useRef({
+    // const stateRef = useRef({
+    //     active: 'list',
+    //     deleteFiles: false,
+    //     objectId: null,
+    //     search: null,
+    //     selection: [],
+    //     status: ENUMS.STATUS.INIT,
+    // });
+
+    const tableRef = useRef();
+
+    // State
+    // const [, forceRender] = useState(stateRef.current);
+    //
+    // // Internal Interface
+    // const setState = newState => {
+    //     // Update the stateRef
+    //     stateRef.current = {
+    //         ...stateRef.current,
+    //         ...newState,
+    //     };
+    //
+    //     // Trigger render()
+    //     forceRender({ updated: Date.now(), keys: Object.keys(newState) });
+    // };
+
+    const [state, setState] = useDerivedState({
         active: 'list',
         deleteFiles: false,
         objectId: null,
@@ -75,66 +103,10 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
         status: ENUMS.STATUS.INIT,
     });
 
-    const tableRef = useRef();
-
-    // State
-    const [, forceRender] = useState(stateRef.current);
-
-    // Internal Interface
-    const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger render()
-        forceRender({ updated: Date.now(), keys: Object.keys(newState) });
-    };
-
     const cname = () =>
         cn({ [className]: !!className, [namespace]: !!namespace });
 
     const cx = cls => _.compact([namespace, cls]).join('-');
-
-    const onDeleteFilesChange = e => {
-        const deleteFiles = e.target.checked;
-        deleteRef.current.setState({ deleteFiles });
-        stateRef.current.deleteFiles = deleteFiles;
-    };
-
-    const onItemSelect = e => {
-        const { data = [] } = tableRef.current;
-        const selection = data.filter(item => item.selected === true);
-        setState({ selection });
-    };
-
-    const onSaveClick = e => {
-        editorRef.current.save();
-    };
-
-    const onSceneBeforeChange = e => {
-        const { staged } = e;
-
-        if (staged === 'add') {
-            const { edit } = stateRef.current;
-            editorRef.current.reset(edit);
-        }
-
-        if (staged === 'delete') {
-            const { item } = stateRef.current;
-            deleteRef.current.setState({
-                ...item,
-                status: ENUMS.STATUS.READY,
-                table: tableRef.current,
-            });
-        }
-    };
-
-    const onSceneChange = e => {
-        const { active } = e;
-        setState({ active });
-    };
 
     const columns = () => {
         return {
@@ -152,6 +124,175 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
         };
     };
 
+    const directoryDelete = ({ directory, content }) => {
+        const updateRedux = () => {
+            let { directories = [] } = getState;
+
+            directories = _.without(directories, directory);
+            directories.sort();
+
+            dispatch({ directories });
+        };
+
+        const updateTable = () => {
+            const { directories = [] } = state;
+            const i = _.findIndex(directories, { directory });
+            if (i > -1) directories.splice(i, 1);
+
+            setState({ directories });
+        };
+
+        const updateFiles = () => {
+            if (content !== true) return;
+
+            const { library = {} } = getState;
+
+            Object.entries(library).forEach(([p, files]) => {
+                Object.entries(files).forEach(([id, file]) => {
+                    if (file.directory !== directory) return;
+                    delete files[id];
+                });
+            });
+
+            dispatch({ library });
+        };
+
+        updateTable();
+        updateRedux();
+        updateFiles();
+
+        return Reactium.Cloud.run('directory-delete', {
+            directory,
+            content,
+        }).then(result => {
+            Toast.show({
+                icon: 'Feather.Check',
+                message: `Deleted ${directory}`,
+                type: Toast.TYPE.INFO,
+            });
+
+            return result;
+        });
+    };
+
+    const directorySave = ({ directory, objectId, permissions }) => {
+        const updateRedux = () => {
+            let { directories = [] } = getState;
+
+            directories.push(directory);
+            directories.sort();
+            directories = _.uniq(directories);
+
+            dispatch({ directories });
+        };
+
+        const updateTable = () => {
+            Reactium.Cloud.run('directories', { verbose: true }).then(
+                updateDirectories,
+            );
+        };
+
+        // Optimistically update the store
+        updateRedux();
+
+        // Save to server
+        return Reactium.Cloud.run('directory-save', {
+            directory,
+            objectId,
+            permissions,
+        }).then(result => {
+            Toast.show({
+                icon: 'Feather.Check',
+                message: `Saved ${directory}`,
+                type: Toast.TYPE.INFO,
+            });
+
+            updateTable();
+            return result;
+        });
+    };
+
+    const footer = () => {
+        const { state: sceneState } = sceneRef.current || {};
+        const { active, deleteFiles, selection = [] } = state;
+
+        const elements = [];
+        const btnStyle = { padding: 0, width: 32, height: 32, marginRight: 8 };
+        const tooltip = {
+            'data-align': 'right',
+            'data-vertical-align': 'middle',
+        };
+
+        if (active === 'list') {
+            if (selection.length > 0) {
+                elements.push(
+                    <Button
+                        {...tooltip}
+                        color='danger'
+                        outline
+                        data-tooltip={ENUMS.TEXT.FOLDER_EDITOR.DELETE_ALL}
+                        style={btnStyle}>
+                        <Icon name='Feather.X' size={20} />
+                    </Button>,
+                );
+            }
+
+            elements.push(
+                <Button
+                    {...tooltip}
+                    color='clear'
+                    data-tooltip={ENUMS.TEXT.FOLDER_CREATOR.TITLE}
+                    style={btnStyle}
+                    onClick={() => navTo('add', { edit: null })}>
+                    <Icon name='Feather.Plus' size={22} />
+                </Button>,
+            );
+        }
+
+        if (active !== 'list') {
+            elements.push(
+                <Button
+                    {...tooltip}
+                    color='clear'
+                    data-tooltip={ENUMS.TEXT.BACK}
+                    onClick={() => sceneRef.current.back()}
+                    style={btnStyle}>
+                    <Icon name='Feather.ChevronLeft' size={22} />
+                </Button>,
+            );
+        }
+
+        if (active === 'add') {
+            elements.push(
+                <div className='flex flex-grow right middle'>
+                    <Button
+                        onClick={() => onSaveClick()}
+                        style={{ width: 175 }}>
+                        {ENUMS.TEXT.FOLDER_CREATOR.SAVE}
+                    </Button>
+                </div>,
+            );
+        }
+
+        if (active === 'delete') {
+            elements.push(
+                <div className='flex flex-grow right middle'>
+                    <Toggle
+                        defaultChecked={deleteFiles}
+                        label='Delete Files?'
+                        onChange={e => onDeleteFilesChange(e)}
+                        value={true}
+                    />
+                </div>,
+            );
+        }
+
+        return {
+            align: 'left',
+            elements,
+        };
+    };
+
     const navTo = (panel, newState, direction = 'left') => {
         if (newState) setState(newState);
 
@@ -159,6 +300,45 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
             panel,
             direction,
         });
+    };
+
+    const onDeleteFilesChange = e => {
+        const deleteFiles = e.target.checked;
+        deleteRef.current.setState({ deleteFiles });
+        state.deleteFiles = deleteFiles;
+    };
+
+    const onItemSelect = e => {
+        const { data = [] } = tableRef.current;
+        const selection = data.filter(item => item.selected === true);
+        setState({ selection });
+    };
+
+    const onSaveClick = e => {
+        editorRef.current.save();
+    };
+
+    const onSceneBeforeChange = e => {
+        const { staged } = e;
+
+        if (staged === 'add') {
+            const { edit } = state;
+            editorRef.current.reset(edit);
+        }
+
+        if (staged === 'delete') {
+            const { item } = state;
+            deleteRef.current.setState({
+                ...item,
+                status: ENUMS.STATUS.READY,
+                table: tableRef.current,
+            });
+        }
+    };
+
+    const onSceneChange = e => {
+        const { active } = e;
+        setState({ active });
     };
 
     const updateDirectories = directories => {
@@ -254,89 +434,28 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
         return buttons;
     };
 
-    const footer = () => {
-        const { state: sceneState } = sceneRef.current || {};
-        const { active, deleteFiles, selection = [] } = stateRef.current;
-
-        const elements = [];
-        const btnStyle = { padding: 0, width: 32, height: 32, marginRight: 8 };
-        const tooltip = {
-            'data-align': 'right',
-            'data-vertical-align': 'middle',
-        };
-
-        if (active === 'list') {
-            if (selection.length > 0) {
-                elements.push(
-                    <Button
-                        {...tooltip}
-                        color='danger'
-                        outline
-                        data-tooltip={ENUMS.TEXT.FOLDER_EDITOR.DELETE_ALL}
-                        style={btnStyle}>
-                        <Icon name='Feather.X' size={20} />
-                    </Button>,
-                );
-            }
-
-            elements.push(
-                <Button
-                    {...tooltip}
-                    color='clear'
-                    data-tooltip={ENUMS.TEXT.FOLDER_CREATOR.TITLE}
-                    style={btnStyle}
-                    onClick={() => navTo('add', { edit: null })}>
-                    <Icon name='Feather.Plus' size={22} />
-                </Button>,
-            );
-        }
-
-        if (active !== 'list') {
-            elements.push(
-                <Button
-                    {...tooltip}
-                    color='clear'
-                    data-tooltip={ENUMS.TEXT.BACK}
-                    onClick={() => sceneRef.current.back()}
-                    style={btnStyle}>
-                    <Icon name='Feather.ChevronLeft' size={22} />
-                </Button>,
-            );
-        }
-
-        if (active === 'add') {
-            elements.push(
-                <div className='flex flex-grow right middle'>
-                    <Button
-                        onClick={() => onSaveClick()}
-                        style={{ width: 175 }}>
-                        {ENUMS.TEXT.FOLDER_CREATOR.SAVE}
-                    </Button>
-                </div>,
-            );
-        }
-
-        if (active === 'delete') {
-            elements.push(
-                <div className='flex flex-grow right middle'>
-                    <Toggle
-                        defaultChecked={deleteFiles}
-                        label='Delete Files?'
-                        onChange={e => onDeleteFilesChange(e)}
-                        value={true}
-                    />
-                </div>,
-            );
-        }
-
-        return {
-            align: 'left',
-            elements,
-        };
+    const Table = ({ id = 'list' }) => {
+        const { directories = [], search } = state;
+        return (
+            <DataTable
+                columns={columns()}
+                data={directories}
+                header={<TableHeader />}
+                height={214}
+                id={id}
+                multiselect
+                onSelect={onItemSelect}
+                onUnSelect={onItemSelect}
+                ref={tableRef}
+                scrollable
+                search={search}
+                style={{ marginTop: -1 }}
+            />
+        );
     };
 
     const TableHeader = () => {
-        const { directories = [] } = stateRef.current;
+        const { directories = [] } = state;
         const { data = [], search } = tableRef.current || {};
         return (
             <Row className='bg-white-dark'>
@@ -361,29 +480,24 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
         );
     };
 
-    const Table = ({ id = 'list' }) => {
-        const { directories = [], search } = stateRef.current;
-        return (
-            <DataTable
-                columns={columns()}
-                data={directories}
-                header={<TableHeader />}
-                height={214}
-                id={id}
-                multiselect
-                onSelect={onItemSelect}
-                onUnSelect={onItemSelect}
-                ref={tableRef}
-                scrollable
-                search={search}
-                style={{ marginTop: -1 }}
-            />
-        );
-    };
+    // Extern Interface
+    const _handle = () => ({
+        directoryDelete,
+        directorySave,
+        navTo,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useRegisterHandle('MediaDirectories', () => handle, [
+        op.get(state, 'directories'),
+        op.get(state, 'status'),
+        tableRef.current,
+    ]);
 
     // Side Effects
     useEffect(() => {
-        const { directories, status } = stateRef.current;
+        const { directories, status } = state;
 
         if (status !== ENUMS.STATUS.INIT) return;
         if (directories) return;
@@ -395,112 +509,17 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
             updateDirectories,
         );
     }, [
-        op.get(stateRef.current, 'directories'),
-        op.get(stateRef.current, 'updated'),
-        op.get(stateRef.current, 'status'),
+        op.get(state, 'directories'),
+        op.get(state, 'updated'),
+        op.get(state, 'status'),
         tableRef.current,
     ]);
 
-    const saveDirectory = ({ directory, objectId, permissions }) => {
-        const updateRedux = () => {
-            let { directories = [] } = getState;
-
-            directories.push(directory);
-            directories.sort();
-            directories = _.uniq(directories);
-
-            dispatch({ directories });
-        };
-
-        const updateTable = () => {
-            Reactium.Cloud.run('directories', { verbose: true }).then(
-                updateDirectories,
-            );
-        };
-
-        // Optimistically update the store
-        updateRedux();
-
-        // Save to server
-        return Reactium.Cloud.run('directory-save', {
-            directory,
-            objectId,
-            permissions,
-        }).then(result => {
-            Toast.show({
-                icon: 'Feather.Check',
-                message: `Saved ${directory}`,
-                type: Toast.TYPE.INFO,
-            });
-
-            updateTable();
-            return result;
-        });
-    };
-
-    const deleteDirectory = ({ directory, content }) => {
-        const updateRedux = () => {
-            let { directories = [] } = getState;
-
-            directories = _.without(directories, directory);
-            directories.sort();
-
-            dispatch({ directories });
-        };
-
-        const updateTable = () => {
-            const { directories = [] } = stateRef.current;
-            const i = _.findIndex(directories, { directory });
-            if (i > -1) directories.splice(i, 1);
-
-            setState({ directories });
-        };
-
-        const updateFiles = () => {
-            if (content !== true) return;
-
-            const { library = {} } = getState;
-
-            Object.entries(library).forEach(([p, files]) => {
-                Object.entries(files).forEach(([id, file]) => {
-                    if (file.directory !== directory) return;
-                    delete files[id];
-                });
-            });
-
-            dispatch({ library });
-        };
-
-        updateTable();
-        updateRedux();
-        updateFiles();
-
-        return Reactium.Cloud.run('directory-delete', {
-            directory,
-            content,
-        }).then(result => {
-            Toast.show({
-                icon: 'Feather.Check',
-                message: `Deleted ${directory}`,
-                type: Toast.TYPE.INFO,
-            });
-
-            return result;
-        });
-    };
-
-    // Extern Interface
-    const handle = () => ({
-        deleteDirectory,
-        navTo,
-        saveDirectory,
+    useEffect(() => {
+        const newHandle = _handle();
+        if (_.isEqual(newHandle, handle)) return;
+        setHandle(newHandle);
     });
-
-    useRegisterHandle('MediaDirectories', handle, [
-        op.get(stateRef.current, 'directories'),
-        op.get(stateRef.current, 'status'),
-        tableRef.current,
-    ]);
 
     // Renderer
     const render = () => {
@@ -510,7 +529,7 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
             directories = [],
             edit = {},
             status,
-        } = stateRef.current;
+        } = state;
 
         return (
             <div className={cname()}>

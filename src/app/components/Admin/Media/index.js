@@ -6,11 +6,11 @@ import op from 'object-path';
 import domain from './domain';
 import Toolbar from './Toolbar';
 import List from './List';
-import Directory from './Directory';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
+    useEventHandle,
     useHandle,
     useHookComponent,
     useReduxState,
@@ -37,47 +37,75 @@ const useLayoutEffect =
  * Hook Component: Media
  * -----------------------------------------------------------------------------
  */
-let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
+let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
+    // Refs
+    const animationRef = useRef({});
+    const containerRef = useRef();
+    const dropzoneRef = useRef();
+
+    // External Components
     const Helmet = useHookComponent('Helmet');
 
     const Uploads = useHookComponent('MediaUploads');
 
+    // Search
+    const SearchBar = useHandle('SearchBar');
+    const search = useSelect(state => op.get(state, 'SearchBar.value'));
+
+    // States
+    const [directory, setNewDirectory] = useState(op.get(state, 'directory'));
+
+    const [page, setNewPage] = useState(op.get(props, 'params.page', 1));
+
     const [state, setState] = useReduxState(domain.name);
 
-    const [status, setStatus] = useState(ENUMS.STATUS.INIT);
+    const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
 
-    const SearchBar = useHandle('SearchBar');
+    const setDirectory = newDirectory => {
+        if (unMounted()) return;
+        setNewDirectory(newDirectory);
+    };
 
-    const page = Number(
-        useSelect(state => op.get(state, 'Router.params.page', 1)),
-    );
+    const setPage = newPage => {
+        if (unMounted()) return;
+        setNewPage(newPage);
+    };
 
-    // Refs
-    const animationRef = useRef({});
-    const directoryRef = useRef(op.get(state, 'directory'));
-    const dropzoneRef = useRef();
-    const stateRef = useRef(state);
+    const setStatus = newStatus => {
+        if (unMounted()) return;
+        setNewStatus(newStatus);
+    };
 
     // Functions
-    const cx = cls => _.compact([namespace, cls]).join('-');
+    const browseFiles = () => dropzoneRef.current.browseFiles();
+
+    const cx = Reactium.Utils.cxFactory(namespace);
+
+    const folderSelect = dir => {
+        setState({ directory: dir });
+        setDirectory(dir);
+    };
+
+    const getData = async params => {
+        setStatus(ENUMS.STATUS.PENDING);
+        await Reactium.Media.fetch(params);
+        _.defer(() => setStatus(ENUMS.STATUS.READY));
+    };
 
     const isEmpty = () => op.get(state, 'pagination.empty', true);
+
+    const isMounted = () => !unMounted();
 
     const isUploading = () =>
         Object.keys(op.get(state, 'files', {})).length > 0;
 
-    const onBrowseClick = () => dropzoneRef.current.browseFiles();
-
     const onError = evt => {
-        console.log({ error: evt.message });
-
         setState({
             error: { message: evt.message },
         });
     };
 
     const onFileAdded = e => {
-        const directory = directoryRef.current || 'uploads';
         return Reactium.Media.upload(e.added, directory);
     };
 
@@ -87,40 +115,52 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
         }
     };
 
-    const onFolderSelect = dir => {
-        directoryRef.current = dir;
-        setState({ directory: dir });
-    };
+    const unMounted = () => !containerRef.current;
 
     // Side effects
-    useEffect(() => SearchBar.setState({ visible: !isEmpty() }));
-
-    // fetch
     useEffect(() => {
-        if (status !== ENUMS.STATUS.INIT || status === ENUMS.STATUS.READY)
+        SearchBar.setState({ visible: !isEmpty() });
+    });
+
+    // Search
+    useEffect(() => {
+        getData({ directory, page, search });
+    }, [directory, page, search]);
+
+    // Fetch
+    useEffect(() => {
+        if (status !== ENUMS.STATUS.INIT || status === ENUMS.STATUS.READY) {
             return;
+        }
 
-        setStatus(ENUMS.STATUS.PENDING);
-
-        Reactium.Media.fetch({ page: 1 }).then(() => {
-            setStatus(ENUMS.STATUS.READY);
-        });
+        getData();
     }, [status]);
 
-    // External Interface
-    const handle = () => ({
+    // Handle
+    const _handle = () => ({
         ENUMS,
-        browseFiles: onBrowseClick,
+        browseFiles,
         cname: cx,
-        directory: directoryRef.current,
-        folderSelect: onFolderSelect,
+        directory,
+        folderSelect,
         isEmpty,
+        isMounted,
+        setDirectory,
         setState,
         state,
+        unMounted,
         zone,
     });
 
-    useRegisterHandle(domain.name, handle, [
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useEffect(() => {
+        const newHandle = _handle();
+        if (_.isEqual(newHandle, handle)) return;
+        setHandle(newHandle);
+    }, [Object.values(state)]);
+
+    useRegisterHandle(domain.name, () => handle, [
         op.get(state, 'updated'),
         isEmpty(),
     ]);
@@ -128,7 +168,7 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
     // Render
     const render = () => {
         return (
-            <>
+            <div ref={containerRef}>
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
@@ -140,22 +180,23 @@ let Media = ({ dropzoneProps, namespace, zone, title }, ref) => {
                         onError={onError}
                         onFileAdded={e => onFileAdded(e)}
                         ref={dropzoneRef}>
-                        <Toolbar />
+                        <Toolbar Media={_handle()} />
                         <Uploads
                             onRemoveFile={onFileRemoved}
                             uploads={op.get(state, 'uploads', {})}
                         />
-                        <List
-                            data={mapLibraryToList(state.library)}
-                            empty={isEmpty()}
-                        />
+                        {!isEmpty() ? (
+                            <List data={mapLibraryToList(state.library)} />
+                        ) : (
+                            <Empty />
+                        )}
                     </Dropzone>
                 ) : (
                     <div className={cx('spinner')}>
                         <Spinner />
                     </div>
                 )}
-            </>
+            </div>
         );
     };
 

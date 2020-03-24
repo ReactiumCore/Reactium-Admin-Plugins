@@ -1,4 +1,5 @@
 import React from 'react';
+import cn from 'classnames';
 import ENUMS from '../enums';
 import domain from '../domain';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
@@ -17,7 +18,7 @@ export default () => {
         const mobile = isMobile();
 
         return !Media.isEmpty() ? null : (
-            <>
+            <div className={cn(Media.cname('library'), 'empty')}>
                 <div className='label'>
                     <Icon name='Linear.CloudUpload' size={mobile ? 96 : 128} />
                     <div className='my-xs-32 my-md-40 hide-xs show-md'>
@@ -32,7 +33,7 @@ export default () => {
                     </Button>
                 </div>
                 <Zone zone='admin-media-empty' />
-            </>
+            </div>
         );
     };
 
