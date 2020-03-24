@@ -4,6 +4,7 @@ $padding-user-content-zone: 40px !default;
 .#{$admin-user-editor-ns}-content {
     display: block;
     position: relative;
+    flex-grow: 1;
 
     .ar-spinner {
         position: absolute;
