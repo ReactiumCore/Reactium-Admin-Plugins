@@ -27,6 +27,7 @@ const RevisionsScene = props => {
     const revId = op.get(state, 'revId');
     const vIndex = revisions.findIndex(({ revId: id }) => id === revId);
     const revision = op.get(revisions, vIndex);
+
     const revisionLabel = handle
         .labels('SELECT_REVISION')
         .select.replace('%rev', vIndex + 1)
@@ -37,16 +38,12 @@ const RevisionsScene = props => {
     const changes = Object.values(fromChanges).length;
 
     const from = { ...op.get(state, 'working.content', {}), ...fromChanges };
-
     const to = {
-        ...op.get(history, 'base', {}),
         ...revisions.slice(0, vIndex + 1).reduce((stack = {}, { changes }) => {
             const combined = { ...stack, ...changes };
             return combined;
         }, {}),
     };
-    op.del(to, 'revId');
-    op.del(to, 'publish');
 
     const fromBranch = op.get(from, 'history.branch', '');
     const fromBranchLabel = op.get(
@@ -101,7 +98,7 @@ const RevisionsScene = props => {
         const components = _.indexBy(Reactium.Content.Comparison.list, 'id');
 
         return rows.map(row => {
-            const { fieldType } = row;
+            const { fieldType, diff = false } = row;
             const fId = op.get(fieldType, 'fieldId', '');
             const ftId = op.get(fieldType, 'fieldType', '');
 
@@ -127,7 +124,9 @@ const RevisionsScene = props => {
                         return (
                             <div
                                 key={direction}
-                                className={`branch-compare-${direction}`}>
+                                className={cn(`branch-compare-${direction}`, {
+                                    'branch-compare-diff': diff,
+                                })}>
                                 <div className='branch-compare-copy'>
                                     {direction === 'to' &&
                                         renderCopyControl(
@@ -240,7 +239,9 @@ const RevisionsScene = props => {
                         'status',
                         'history',
                         'branches',
+                        'publish',
                         'meta',
+                        'revId',
                         'createdAt',
                         'updatedAt',
                         'canRead',

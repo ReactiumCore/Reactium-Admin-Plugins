@@ -178,6 +178,8 @@ $compare-shadow: $shadow-image !default;
 $compare-desktop-basis: 45% !default;
 $compare-desktop-border-offset: 55% !default;
 $compare-mobile-basis: calc(100% - 40px) !default;
+$compare-from-diff-border: $color-danger !default;
+$compare-to-diff-border: $color-green !default;
 .branch-compare {
     position: relative;
     list-style: none;
@@ -197,6 +199,40 @@ $compare-mobile-basis: calc(100% - 40px) !default;
         position: relative;
         flex: 0 0 $compare-desktop-basis;
         max-width: $compare-desktop-basis;
+        &.branch-compare-diff {
+            .ar-dialog-content {
+                position: relative;
+                &:before {
+                    display: block;
+                    content: ' ';
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                }
+            }
+        }
+    }
+
+    &-from {
+        &.branch-compare-diff {
+            .ar-dialog-content {
+                margin: 1px;
+                border: 1px solid $compare-from-diff-border;
+                background: rgba($compare-from-diff-border, .1);
+            }
+        }
+    }
+
+    &-to {
+        &.branch-compare-diff {
+            .ar-dialog-content {
+                margin: 1px;
+                border: 1px solid $compare-to-diff-border;
+                background: rgba($compare-to-diff-border, .1);
+            }
+        }
     }
 
     &-copy {
