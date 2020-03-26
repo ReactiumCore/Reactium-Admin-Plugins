@@ -3,10 +3,15 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import EventForm from '../../../EventForm';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
-import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import {
+    Button,
+    Dialog,
+    Dropdown,
+    EventForm,
+    Icon,
+} from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,

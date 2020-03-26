@@ -2,9 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { Alert, Icon, Spinner } from '@atomic-reactor/reactium-ui';
-
-import { EventForm } from 'components/EventForm';
+import { Alert, EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,

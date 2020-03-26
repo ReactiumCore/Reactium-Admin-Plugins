@@ -11,6 +11,7 @@ $admin-user-editor-ns: 'admin-user-editor' !default;
         display: flex;
         align-items: stretch;
         justify-content: center;
+        flex-wrap: wrap;
         background-color: $color-light;
         padding: 0;
 
@@ -36,12 +37,22 @@ $admin-user-editor-ns: 'admin-user-editor' !default;
         user-select: none;
         transition: box-shadow 0.25s ease-in-out;
         flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 20%;
         font-size: 12px;
 
         @include breakpoint(sm) {
             min-width: 120px;
             flex-grow: 0;
             font-size: 14px;
+
+            &:first-child {
+                border-left: 1px solid $color-border;
+            }
+        }
+
+        @include breakpoint(md) {
+            flex-basis: 0%;
         }
 
         &:after {
