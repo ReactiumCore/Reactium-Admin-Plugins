@@ -52,7 +52,7 @@ export default ({ className = 'media-empty', value = {} }) => {
         <div className={className}>
             <h2 className='text-center'>{msg}</h2>
             <div className='py-xs-32 text-center'>
-                {types && (
+                {types && isMe && (
                     <Dropdown
                         color={Button.ENUMS.COLOR.CLEAR}
                         data={types}

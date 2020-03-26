@@ -20,13 +20,15 @@ export default ({ className = 'media-empty', value = {} }) => {
         <div className={className}>
             <h2 className='text-center'>{msg}</h2>
             <div className='py-xs-32 text-center'>
-                <Button
-                    appearance={Button.ENUMS.APPEARANCE.PILL}
-                    size={Button.ENUMS.SIZE.MD}
-                    to='/admin/media/1'
-                    type={Button.ENUMS.TYPE.LINK}>
-                    {__('Get Started')}
-                </Button>
+                {isMe === true && (
+                    <Button
+                        appearance={Button.ENUMS.APPEARANCE.PILL}
+                        size={Button.ENUMS.SIZE.MD}
+                        to='/admin/media/1'
+                        type={Button.ENUMS.TYPE.LINK}>
+                        {__('Get Started')}
+                    </Button>
+                )}
             </div>
             <Svg />
         </div>
