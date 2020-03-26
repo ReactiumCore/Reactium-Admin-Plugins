@@ -206,7 +206,6 @@ const UserMedia = ({ editor }) => {
 
     // media hooks
     useEffect(() => {
-        if (!value) return;
         const hooks = [];
         hooks.push(Reactium.Hook.register('media-delete', _onMediaDelete));
         hooks.push(Reactium.Hook.register('media-change', _onMediaChange));
@@ -214,13 +213,13 @@ const UserMedia = ({ editor }) => {
         return () => {
             hooks.forEach(Reactium.Hook.unregister);
         };
-    }, [value]);
+    });
 
     // delay before we render the list so that the ui doesn't freeze
     useEffect(() => {
         if (!value) return;
         if (!isEmpty() && data && init !== true) {
-            _.delay(() => setInit(true), 125);
+            _.delay(() => setInit(true), 250);
         }
     }, [data, value]);
 
