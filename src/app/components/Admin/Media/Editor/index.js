@@ -4,6 +4,7 @@ import op from 'object-path';
 import slugify from 'slugify';
 import Sidebar from './Sidebar';
 import ENUMS from 'components/Admin/Media/enums';
+import useDirectories from 'components/Admin/Media/Directory/useDirectories';
 
 import React, {
     forwardRef,
@@ -45,32 +46,6 @@ const debug = (...args) => {
 const alertDefault = {
     color: Alert.ENUMS.COLOR.INFO,
     icon: 'Feather.Flag',
-};
-
-export const useDirectories = (params = {}) => {
-    const [state, setNewState] = useState({
-        data: undefined,
-        status: ENUMS.STATUS.INIT,
-    });
-
-    const setState = newState =>
-        setNewState({
-            ...state,
-            ...newState,
-        });
-
-    useEffect(() => {
-        const { status } = state;
-
-        if (status === ENUMS.STATUS.INIT && !op.get(state, 'data')) {
-            setState({ status: ENUMS.STATUS.FETCHING });
-            Reactium.Cloud.run('directories', params).then(results =>
-                setState({ status: ENUMS.STATUS.READY, data: results }),
-            );
-        }
-    });
-
-    return state.data;
 };
 
 export class MediaEvent extends CustomEvent {
@@ -149,6 +124,7 @@ let Editor = (
         ...defaultState,
         errors: {},
         value: {},
+        type: undefined,
     });
 
     // Set operations
@@ -252,11 +228,15 @@ let Editor = (
 
         persist.current = Object.assign(value);
 
-        // Reactium.Media.selected = null;
+        Reactium.Media.selected = null;
 
         if (unMounted()) return;
 
-        setState({ value, status: ENUMS.STATUS.LOADED });
+        setState({
+            value,
+            status: ENUMS.STATUS.LOADED,
+            type: String(op.get(value, 'type')).toLowerCase(),
+        });
 
         await dispatch('status', {
             event: ENUMS.STATUS.LOADED,
@@ -352,7 +332,7 @@ let Editor = (
             icon: 'Feather.UploadCloud',
         };
 
-        setAlert(alertObj);
+        setAlert(alertDefault);
         setErrors(undefined);
 
         await dispatch('status', { event: ENUMS.STATUS.VALIDATED, value });
@@ -591,24 +571,11 @@ let Editor = (
             type: Toast.TYPE.INFO,
         });
 
-        const alertObj = {
-            color: Alert.ENUMS.COLOR.INFO,
-            message: __('Save Complete!'),
-            icon: 'Feather.Check',
-        };
-
-        setAlert(alertObj);
-
-        setTimeout(() => {
-            if (isMounted() && alertRef.current) {
-                alertRef.current.hide();
-            }
-        }, 3000);
-
         await dispatch('status', {
             event: ENUMS.STATUS.SAVED,
             value,
         });
+
         await dispatch(ENUMS.STATUS.SAVED, { value }, onSuccess);
 
         setState({ value, upload: undefined });
@@ -774,8 +741,8 @@ let Editor = (
     // useImperativeHandle(ref, () => handle, [handle]);
     useRegisterHandle('MediaEditor', () => handle, [handle]);
 
-    const render = () => {
-        let type = op.get(state, 'value.type');
+    const render = useCallback(() => {
+        let { type } = state;
         type = type ? String(type).toLowerCase() : type;
 
         const title = op.get(state, 'title');
@@ -833,7 +800,7 @@ let Editor = (
                 </EventForm>
             </Dropzone>
         );
-    };
+    });
 
     return render();
 };

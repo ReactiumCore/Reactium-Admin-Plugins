@@ -113,6 +113,14 @@ class Media {
         switch (type) {
             case 'status':
                 this.__onStatus(params);
+
+                if (op.get(params, 'status' === 'complete')) {
+                    await Reactium.Hook.run('media-complete', {
+                        data,
+                        params,
+                        type,
+                    });
+                }
                 break;
         }
     }
@@ -244,10 +252,7 @@ class Media {
             search,
         });
 
-        let { directories = [ENUMS.DIRECTORY], files } = media;
-
-        files = Object.values(files);
-
+        const files = Object.values(op.get(media, 'files', {}));
         const index = limit * page - limit;
         const pages = Math.ceil(files.length / limit);
         const next = page < pages ? page + 1 : undefined;
@@ -263,12 +268,14 @@ class Media {
             prev,
         };
 
-        this.setState({
-            directories,
-            library: files,
-            pagination,
-            fetched: Date.now(),
-        });
+        this.setState(
+            {
+                library: files,
+                pagination,
+                fetched: Date.now(),
+            },
+            true,
+        );
 
         return media;
     }
@@ -282,9 +289,13 @@ class Media {
         return op.get(library, objectId);
     }
 
-    filter(params) {
-        const { directory, limit = 50, page = -1, search } = params;
-        const dataArray = op.get(this.state, 'library');
+    filter(params, dataArray) {
+        const directory = op.get(params, 'directory');
+        const search = op.get(params, 'search');
+        const limit = op.get(params, 'limit', 50);
+        const page = op.get(params, 'page', -1);
+
+        dataArray = dataArray || op.get(this.state, 'library');
         const filters = op.get(params, 'filters', this.__filters);
         const searchFields = op.get(
             params,
@@ -359,13 +370,15 @@ class Media {
         return Reactium.Cloud.run('media-retrieve', { objectId });
     }
 
-    setState(newState = {}) {
+    setState(newState = {}, silent = false) {
         const { dispatch } = Reactium.Plugin.redux.store;
         dispatch({
             type: ENUMS.ACTION_TYPE,
             domain: ENUMS.DOMAIN,
             update: newState,
         });
+
+        if (silent !== true) Reactium.Hook.run('media-change', newState);
     }
 
     update(params) {

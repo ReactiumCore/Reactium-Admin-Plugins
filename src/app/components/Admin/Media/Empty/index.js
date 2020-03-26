@@ -1,12 +1,15 @@
 import React from 'react';
 import cn from 'classnames';
+import op from 'object-path';
 import ENUMS from '../enums';
 import domain from '../domain';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import { useHandle, useWindowSize, Zone } from 'reactium-core/sdk';
 
-export default () => {
-    const Media = useHandle(domain.name);
+export default ({ Media }) => {
+    Media = Media || useHandle(domain.name);
+
+    const zone = op.get(Media, 'zone', 'admin-media-empty');
 
     const { breakpoint } = useWindowSize();
 
@@ -32,7 +35,7 @@ export default () => {
                         {ENUMS.TEXT.BROWSE}
                     </Button>
                 </div>
-                <Zone zone='admin-media-empty' />
+                <Zone zone={zone} />
             </div>
         );
     };

@@ -4,9 +4,8 @@ $admin-user-editor-height-min: 124px !default;
 .#{$admin-user-editor-ns} {
     &-profile {
         background-color: $color-light-dark;
-        border-bottom: $color-admin-header-border;
+        border-bottom: 1px solid $color-admin-header-border;
         padding: $padding-admin-content-zone;
-        box-shadow: $shadow-image;
         display: flex;
         align-items: center;
         justify-content: flex-start;

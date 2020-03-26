@@ -2,12 +2,14 @@ import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Editor from 'components/Admin/Media/Directory/Editor';
 import Creator from 'components/Admin/Media/Directory/Creator';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import useDirectories from 'components/Admin/Media/Directory/useDirectories';
 
 import Reactium, {
+    useAsyncEffect,
     useDocument,
     useHandle,
     useReduxState,
@@ -25,34 +27,45 @@ import Reactium, {
 const defaultDirectories = ['uploads', 'avatars'];
 
 const DirectoryWidget = ({ Media, ...props }) => {
+    const { dispatch, getState, subscribe } = useStore();
+
     const tools = useHandle('AdminTools');
 
     const Modal = op.get(tools, 'Modal');
 
     Media = Media || useHandle(domain.name);
 
-    const directories = op.get(Media.state, 'directories', defaultDirectories);
+    const getDirectories = useDirectories() || [];
+
+    const [directories, setDirectories] = useState(
+        op.get(getState(), 'Media.directory', []),
+    );
 
     const [directory, setDirectory] = useState(Media.directory);
 
     const data = () => {
-        const dirs = [
-            {
-                value: null,
-                label: ENUMS.TEXT.FOLDER_ALL,
-            },
-        ];
+        const dirs = Array.isArray(directories) ? directories : [];
 
-        return dirs.concat(
-            directories.map(item => ({
+        return _.chain([
+            [
+                {
+                    value: null,
+                    label: ENUMS.TEXT.FOLDER_ALL,
+                },
+            ],
+            dirs.map(item => ({
                 value: item,
                 label: item,
             })),
-        );
+        ])
+            .flatten()
+            .sortBy('label')
+            .value();
     };
 
     const onChange = e => {
         Media.folderSelect(e);
+        setDirectory(e);
     };
 
     const showCreator = () => {
@@ -67,6 +80,32 @@ const DirectoryWidget = ({ Media, ...props }) => {
         if (directory !== Media.directory) {
             setDirectory(Media.directory);
         }
+    });
+
+    useEffect(() => {
+        const unsub = subscribe(() => {
+            const dirs = op.get(getState(), 'Media.directories', []);
+            dirs.sort();
+
+            if (_.isEqual(dirs, directories)) return;
+            setDirectories(dirs);
+        });
+
+        return unsub;
+    });
+
+    useEffect(() => {
+        if (Array.isArray(getDirectories)) getDirectories.sort();
+
+        if (_.isEqual(getDirectories, directories)) return;
+
+        dispatch({
+            type: ENUMS.ACTION_TYPE,
+            domain: ENUMS.DOMAIN,
+            update: { directories: getDirectories },
+        });
+
+        setDirectories(getDirectories);
     });
 
     return (

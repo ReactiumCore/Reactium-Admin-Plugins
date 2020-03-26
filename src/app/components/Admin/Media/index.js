@@ -20,18 +20,9 @@ import Reactium, {
     useWindowSize,
 } from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useEffect,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-    useState,
-} from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
-// Server-Side Render safe useLayoutEffect (useEffect when node)
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
-
+const noop = () => {};
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Media
@@ -43,6 +34,9 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     const containerRef = useRef();
     const dropzoneRef = useRef();
 
+    // Redux state
+    const [state, setState] = useReduxState(domain.name);
+
     // External Components
     const Helmet = useHookComponent('Helmet');
 
@@ -50,16 +44,28 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
 
     // Search
     const SearchBar = useHandle('SearchBar');
-    const search = useSelect(state => op.get(state, 'SearchBar.value'));
+    const searchText = useSelect(state => op.get(state, 'SearchBar.value'));
+    const toggleSearch = () => {
+        SearchBar.setState({ visible: !isEmpty() });
+        return () => {
+            SearchBar.setState({ visible: false });
+        };
+    };
 
     // States
+    const [data, setNewData] = useState(mapLibraryToList(state.library));
+
     const [directory, setNewDirectory] = useState(op.get(state, 'directory'));
 
     const [page, setNewPage] = useState(op.get(props, 'params.page', 1));
 
-    const [state, setState] = useReduxState(domain.name);
-
     const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
+
+    const setData = newData => {
+        if (unMounted()) return;
+        if (_.isEqual(newData, data)) return;
+        setNewData(newData);
+    };
 
     const setDirectory = newDirectory => {
         if (unMounted()) return;
@@ -86,10 +92,12 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         setDirectory(dir);
     };
 
-    const getData = async params => {
+    const fetch = async params => {
+        if (status !== ENUMS.STATUS.INIT) return noop;
         setStatus(ENUMS.STATUS.PENDING);
-        await Reactium.Media.fetch(params);
-        _.defer(() => setStatus(ENUMS.STATUS.READY));
+        await Reactium.Media.fetch({ ...params, page: -1 });
+        setStatus(ENUMS.STATUS.READY);
+        return noop;
     };
 
     const isEmpty = () => op.get(state, 'pagination.empty', true);
@@ -115,25 +123,27 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         }
     };
 
+    const search = () => {
+        const newData = Reactium.Media.filter({
+            directory,
+            page,
+            search: searchText,
+        });
+        setData(newData);
+        return noop;
+    };
+
     const unMounted = () => !containerRef.current;
 
     // Side effects
-    useEffect(() => {
-        SearchBar.setState({ visible: !isEmpty() });
-    });
+    useEffect(toggleSearch);
 
     // Search
-    useEffect(() => {
-        getData({ directory, page, search });
-    }, [directory, page, search]);
+    useEffect(search, [directory, searchText, state.library]);
 
     // Fetch
     useEffect(() => {
-        if (status !== ENUMS.STATUS.INIT || status === ENUMS.STATUS.READY) {
-            return;
-        }
-
-        getData();
+        fetch();
     }, [status]);
 
     // Handle
@@ -145,6 +155,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         folderSelect,
         isEmpty,
         isMounted,
+        setData,
         setDirectory,
         setState,
         state,
@@ -185,11 +196,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
                             onRemoveFile={onFileRemoved}
                             uploads={op.get(state, 'uploads', {})}
                         />
-                        {!isEmpty() ? (
-                            <List data={mapLibraryToList(state.library)} />
-                        ) : (
-                            <Empty />
-                        )}
+                        {!isEmpty() ? <List data={data} /> : <Empty />}
                     </Dropzone>
                 ) : (
                     <div className={cx('spinner')}>

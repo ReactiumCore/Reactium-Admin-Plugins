@@ -1,23 +1,16 @@
 import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
 import ENUMS from 'components/Admin/Media/enums';
 import React, { useEffect, useState } from 'react';
+import Reactium, { useDerivedState } from 'reactium-core/sdk';
 
-export default (params = {}) => {
-    const [state, setNewState] = useState({
+const useDirectories = (params = {}) => {
+    const [state, setState] = useDerivedState({
         data: undefined,
         status: ENUMS.STATUS.INIT,
     });
 
-    const setState = newState =>
-        setNewState({
-            ...state,
-            ...newState,
-        });
-
     useEffect(() => {
         const { status } = state;
-
         if (status === ENUMS.STATUS.INIT && !op.get(state, 'data')) {
             setState({ status: ENUMS.STATUS.FETCHING });
             Reactium.Cloud.run('directories', params).then(results =>
@@ -28,3 +21,5 @@ export default (params = {}) => {
 
     return state.data;
 };
+
+export { useDirectories, useDirectories as default };

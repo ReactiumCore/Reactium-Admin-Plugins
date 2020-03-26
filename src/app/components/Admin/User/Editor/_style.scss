@@ -33,7 +33,6 @@ $admin-user-editor-ns: 'admin-user-editor' !default;
         min-height: 40px;
         position: relative;
         opacity: 0.5;
-        margin-bottom: -1px;
         user-select: none;
         transition: box-shadow 0.25s ease-in-out;
         flex-grow: 1;
@@ -109,5 +108,29 @@ $admin-user-editor-ns: 'admin-user-editor' !default;
 
     .ar-dropdown-menu {
         min-width: 200px;
+    }
+
+    .admin-media {
+        &-toolbar {
+            border-top: 1px solid $color-border;
+        }
+
+        &-library {
+            min-height: 400px;
+            height: 400px;
+
+            &.empty {
+                &:before {
+                    content: '';
+                    position: absolute;
+                    top: calc(50% + #{$padding-admin-content-zone/2});
+                    left: 50%;
+                    width: calc(100% - #{$padding-admin-content-zone * 2});
+                    height: calc(100% - #{$padding-admin-content-zone});
+                    border: 3px dashed lighten($color-grey, 5%);
+                    transform: translateX(-50%) translateY(-50%);
+                }
+            }
+        }
     }
 }

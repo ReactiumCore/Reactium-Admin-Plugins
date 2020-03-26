@@ -1,3 +1,4 @@
+import lunr from 'lunr';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
@@ -5,6 +6,8 @@ import { Link } from 'react-router-dom';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import DefaultEmpty from 'components/Admin/Media/List/Empty';
+import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
+
 import Reactium, {
     __,
     useDerivedState,
@@ -12,7 +15,7 @@ import Reactium, {
     useZoneComponents,
     Zone,
 } from 'reactium-core/sdk';
-import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
+
 import React, {
     forwardRef,
     useCallback,
@@ -20,6 +23,47 @@ import React, {
     useImperativeHandle,
     useRef,
 } from 'react';
+
+const Media = props => {
+    const containerRef = useRef();
+
+    const [state, setState] = useDerivedState(props, [
+        'data',
+        'empty',
+        'emptyComponent',
+    ]);
+
+    const Empty = useCallback(() =>
+        op.get(state, 'emptyComponent', DefaultEmpty),
+    );
+
+    const render = useCallback(() => {
+        const data = _.sortBy(
+            Object.entries(state.data).map(([key, item]) => {
+                item['key'] = key;
+                return item;
+            }),
+            'updatedAt',
+        );
+
+        data.reverse();
+
+        return (
+            <div className='media' ref={containerRef}>
+                {data.map(({ key, ...item }) => (
+                    <MediaCard {...item} key={key} objectId={key} />
+                ))}
+            </div>
+        );
+    });
+
+    return !op.get(state, 'empty') ? render() : <Empty />;
+};
+
+Media.defaultProps = {
+    data: {},
+    empty: false,
+};
 
 const useActions = () => {
     const [state, setState] = useDerivedState({
@@ -41,35 +85,6 @@ const useActions = () => {
     });
 
     return [state.actions || {}, setActions];
-};
-
-const Media = props => {
-    const containerRef = useRef();
-
-    const [state, setState] = useDerivedState(props, [
-        'data',
-        'empty',
-        'emptyComponent',
-    ]);
-
-    const Empty = useCallback(() =>
-        op.get(state, 'emptyComponent', DefaultEmpty),
-    );
-
-    const render = useCallback(() => (
-        <div className='media' ref={containerRef}>
-            {Object.entries(state.data).map(([key, item]) => (
-                <MediaCard {...item} key={key} objectId={key} />
-            ))}
-        </div>
-    ));
-
-    return !op.get(state, 'empty') ? render() : <Empty />;
-};
-
-Media.defaultProps = {
-    data: {},
-    empty: false,
 };
 
 const CardActions = props => {
