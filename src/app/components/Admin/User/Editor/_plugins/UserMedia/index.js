@@ -3,7 +3,7 @@ import Empty from './Empty';
 import op from 'object-path';
 import cn from 'classnames';
 import ENUMS from 'components/Admin/Media/enums';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -23,6 +23,7 @@ const UserMedia = ({ editor }) => {
     const [redux, setReduxState] = useReduxState('Media');
 
     const dropzoneRef = useRef();
+    const spinnerRef = useRef();
 
     const SearchBar = useHandle('SearchBar');
 
@@ -100,7 +101,7 @@ const UserMedia = ({ editor }) => {
     };
 
     const setInit = newInit => {
-        if (!dropzoneRef.current) return;
+        if (!spinnerRef.current) return;
         setNewInit(newInit);
     };
 
@@ -181,6 +182,7 @@ const UserMedia = ({ editor }) => {
 
     // handle update
     useEffect(() => {
+        if (!value) return;
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
@@ -188,7 +190,7 @@ const UserMedia = ({ editor }) => {
 
     // update data
     useEffect(() => {
-        if (_.isEmpty(value)) return;
+        if (!value) return;
         const newData = op.get(meta, 'media', {});
         setData(newData);
     }, [op.get(meta, 'media'), value]);
@@ -204,6 +206,7 @@ const UserMedia = ({ editor }) => {
 
     // media hooks
     useEffect(() => {
+        if (!value) return;
         const hooks = [];
         hooks.push(Reactium.Hook.register('media-delete', _onMediaDelete));
         hooks.push(Reactium.Hook.register('media-change', _onMediaChange));
@@ -215,8 +218,9 @@ const UserMedia = ({ editor }) => {
 
     // delay before we render the list so that the ui doesn't freeze
     useEffect(() => {
+        if (!value) return;
         if (!isEmpty() && data && init !== true) {
-            _.delay(() => setInit(true), 1000);
+            _.delay(() => setInit(true), 125);
         }
     }, [data, value]);
 
@@ -225,11 +229,7 @@ const UserMedia = ({ editor }) => {
             <Helmet>
                 <title>{title}</title>
             </Helmet>
-            {_.isEmpty(value) || init !== true ? (
-                <div className={cx('media')} ref={dropzoneRef}>
-                    <Spinner />
-                </div>
-            ) : (
+            {init ? (
                 <Dropzone
                     {...dropzoneProps}
                     className={cx('media')}
@@ -248,6 +248,10 @@ const UserMedia = ({ editor }) => {
                         emptyComponent={<Empty value={value} />}
                     />
                 </Dropzone>
+            ) : (
+                <div className={cx('media')} ref={spinnerRef}>
+                    <Spinner />
+                </div>
             )}
         </>
     );

@@ -372,7 +372,7 @@ let UserEditor = (
 
     const showTab = (e, tab) => {
         if (e.currentTarget) e.currentTarget.blur();
-        setState({ tab });
+        _.defer(() => setState({ tab }));
     };
 
     const submit = () => {
@@ -626,7 +626,7 @@ let UserEditor = (
 
     // Update if no tab
     useEffect(() => {
-        if (!op.get(state, 'tab') && state.id) showTab('content');
+        if (!op.get(state, 'tab')) showTab('content');
     }, [state.id, op.get(state, 'tab')]);
 
     // Update route if no tab
