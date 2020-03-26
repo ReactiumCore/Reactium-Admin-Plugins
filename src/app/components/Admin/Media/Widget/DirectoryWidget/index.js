@@ -27,6 +27,8 @@ import Reactium, {
 const defaultDirectories = ['uploads', 'avatars'];
 
 const DirectoryWidget = ({ Media, ...props }) => {
+    const containerRef = useRef();
+
     const { dispatch, getState, subscribe } = useStore();
 
     const tools = useHandle('AdminTools');
@@ -37,11 +39,21 @@ const DirectoryWidget = ({ Media, ...props }) => {
 
     const getDirectories = useDirectories() || [];
 
-    const [directories, setDirectories] = useState(
+    const [directories, setNewDirectories] = useState(
         op.get(getState(), 'Media.directory', []),
     );
 
-    const [directory, setDirectory] = useState(Media.directory);
+    const [directory, setNewDirectory] = useState(Media.directory);
+
+    const setDirectory = newDirectory => {
+        if (unMounted()) return;
+        setNewDirectory(newDirectory);
+    };
+
+    const setDirectories = newDirectories => {
+        if (unMounted()) return;
+        setNewDirectories(newDirectories);
+    };
 
     const data = () => {
         const dirs = Array.isArray(directories) ? directories : [];
@@ -62,6 +74,8 @@ const DirectoryWidget = ({ Media, ...props }) => {
             .sortBy('label')
             .value();
     };
+
+    const unMounted = () => !containerRef.current;
 
     const onChange = e => {
         Media.folderSelect(e);
@@ -109,7 +123,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
     });
 
     return (
-        <div className={Media.cname('dir-dropdown')}>
+        <div className={Media.cname('dir-dropdown')} ref={containerRef}>
             <Dropdown
                 checkbox={false}
                 color={Button.ENUMS.COLOR.TERTIARY}

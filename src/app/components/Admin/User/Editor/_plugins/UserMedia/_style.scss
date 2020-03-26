@@ -15,4 +15,8 @@ $padding-user-media: 12px !default;
     &-empty {
         @extend .#{$admin-user-editor-ns}-content-empty;
     }
+
+    .admin-media-uploads {
+        border-top: 1px solid $color-border;
+    }
 }

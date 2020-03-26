@@ -221,6 +221,9 @@ const UserMedia = ({ editor }) => {
         if (!isEmpty() && data && init !== true) {
             _.delay(() => setInit(true), 250);
         }
+        if (isEmpty()) {
+            _.delay(() => setInit(true), 250);
+        }
     }, [data, value]);
 
     return (
