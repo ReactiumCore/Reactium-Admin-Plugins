@@ -3,7 +3,7 @@ import Empty from './Empty';
 import op from 'object-path';
 import cn from 'classnames';
 import ENUMS from 'components/Admin/Media/enums';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -13,13 +13,12 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useReduxState,
-    useWindowSize,
     Zone,
 } from 'reactium-core/sdk';
 
-const UserMedia = ({ editor }) => {
-    const { breakpoint } = useWindowSize();
+const noop = () => {};
 
+const UserMedia = ({ editor }) => {
     // Redux state
     const [redux, setReduxState] = useReduxState('Media');
 
@@ -29,9 +28,6 @@ const UserMedia = ({ editor }) => {
 
     const toggleSearch = () => {
         SearchBar.setState({ visible: !isEmpty() });
-        return () => {
-            SearchBar.setState({ visible: false });
-        };
     };
 
     const Helmet = useHookComponent('Helmet');
@@ -41,11 +37,13 @@ const UserMedia = ({ editor }) => {
 
     const [directory, setNewDirectory] = useState(op.get(redux, 'directory'));
 
-    const { cx, isNew, isMounted, setState, state = {}, unMounted } = editor;
-    const { editing, tab, value = {} } = state;
-    const { meta = {} } = value;
+    const [init, setNewInit] = useState(false);
 
-    const [data, setNewData] = useState(op.get(meta, 'media', {}));
+    const { cx, isNew, isMounted, setState, state = {}, unMounted } = editor;
+    const { tab, value } = state;
+    const meta = op.get(value, 'meta', {});
+
+    const [data, setNewData] = useState();
 
     const browseFiles = () => dropzoneRef.current.browseFiles();
 
@@ -66,15 +64,13 @@ const UserMedia = ({ editor }) => {
         setDirectory(dir);
     };
 
-    const isEmpty = () => _.isEmpty(op.get(meta, 'media', {}));
-
-    const isMobile = () => ['xs', 'sm'].includes(breakpoint);
-
-    const isVisible = () => !isNew() && tab === 'media';
+    const isEmpty = () => Object.keys(op.get(meta, 'media', {})).length < 1;
 
     const title = __('User Media');
 
     const search = () => {
+        if (init !== true) return noop;
+
         const d = op.get(meta, 'media', {});
         const dataArray = Object.keys(d).map(key => {
             const item = { ...d[key] };
@@ -89,18 +85,23 @@ const UserMedia = ({ editor }) => {
 
         setData(newData);
 
-        return () => {};
+        return noop;
     };
 
     const setData = newData => {
         if (unMounted()) return;
         if (_.isEqual(data, newData)) return;
-        setNewData(newData);
+        _.defer(() => setNewData(newData));
     };
 
     const setDirectory = newDirectory => {
         if (unMounted()) return;
         setNewDirectory(newDirectory);
+    };
+
+    const setInit = newInit => {
+        if (!dropzoneRef.current) return;
+        setNewInit(newInit);
     };
 
     const _onDirectoryChange = () => search();
@@ -183,24 +184,23 @@ const UserMedia = ({ editor }) => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
-    });
+    }, [value]);
 
     // update data
     useEffect(() => {
         if (_.isEmpty(value)) return;
         const newData = op.get(meta, 'media', {});
-        if (_.isEqual(data, newData)) return;
         setData(newData);
-    }, [op.get(meta, 'media')]);
+    }, [op.get(meta, 'media'), value]);
 
     // directory change
-    useEffect(_onDirectoryChange, [directory]);
+    useEffect(_onDirectoryChange, [directory, value]);
 
     // search change
-    useEffect(_onSearch, [SearchBar.state.value]);
+    useEffect(_onSearch, [SearchBar.state.value, value]);
 
     // hide/show search
-    useEffect(toggleSearch);
+    useEffect(toggleSearch, [SearchBar, isEmpty(), value]);
 
     // media hooks
     useEffect(() => {
@@ -211,20 +211,25 @@ const UserMedia = ({ editor }) => {
         return () => {
             hooks.forEach(Reactium.Hook.unregister);
         };
-    });
+    }, [value]);
 
-    const render = () => {
-        const mobile = isMobile();
+    // delay before we render the list so that the ui doesn't freeze
+    useEffect(() => {
+        if (!isEmpty() && data && init !== true) {
+            _.delay(() => setInit(true), 1000);
+        }
+    }, [data, value]);
 
-        return _.isEmpty(value) ? (
-            <div className={cx('media')}>
-                <Spinner />
-            </div>
-        ) : (
-            <>
-                <Helmet>
-                    <title>{title}</title>
-                </Helmet>
+    return (
+        <>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+            {_.isEmpty(value) || init !== true ? (
+                <div className={cx('media')} ref={dropzoneRef}>
+                    <Spinner />
+                </div>
+            ) : (
                 <Dropzone
                     {...dropzoneProps}
                     className={cx('media')}
@@ -243,11 +248,9 @@ const UserMedia = ({ editor }) => {
                         emptyComponent={<Empty value={value} />}
                     />
                 </Dropzone>
-            </>
-        );
-    };
-
-    return isVisible() ? render() : null;
+            )}
+        </>
+    );
 };
 
 export { UserMedia, UserMedia as default };
