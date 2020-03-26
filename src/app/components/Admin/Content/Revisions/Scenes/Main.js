@@ -29,12 +29,10 @@ const MainScene = props => {
             const branch = op.get(value, 'history.branch');
 
             if (branch === 'master') {
-                Reactium.Routing.history.push(
-                    `/admin/content/${type}/${slug}?debug=true`,
-                );
+                Reactium.Routing.history.push(`/admin/content/${type}/${slug}`);
             } else {
                 Reactium.Routing.history.push(
-                    `/admin/content/${type}/${slug}/branch/${branch}?debug=true`,
+                    `/admin/content/${type}/${slug}/branch/${branch}`,
                 );
             }
         });

@@ -427,6 +427,28 @@ let ContentEditor = (
         }
     };
 
+    const setBranch = async branch => {
+        const request = { ...value };
+        op.set(request, 'history', { branch });
+        const newValue = await Reactium.Content.retrieve(request);
+
+        await handle.dispatch('load', {
+            value: newValue,
+            ignoreChangeEvent: true,
+        });
+
+        _.defer(() => {
+            const slug = op.get(value, 'slug');
+            if (branch === 'master') {
+                Reactium.Routing.history.push(`/admin/content/${type}/${slug}`);
+            } else {
+                Reactium.Routing.history.push(
+                    `/admin/content/${type}/${slug}/branch/${branch}`,
+                );
+            }
+        });
+    };
+
     const publish = async (action = 'publish') => {
         if (isNew()) return;
 
@@ -705,6 +727,7 @@ let ContentEditor = (
         state,
         setContentStatus,
         setStale,
+        setBranch,
         schedule,
         unschedule,
         publish,
