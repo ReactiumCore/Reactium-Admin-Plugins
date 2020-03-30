@@ -9,15 +9,15 @@ import Enums from '../../enums';
 const Header = props => {
     const inputRef = useRef();
     const { id, icon: FieldIcon, DragHandle } = props;
-    const handle = useHandle('ContentTypeEditor');
-    const errors = handle.getFormErrors(id);
+    const CTE = useHandle('ContentTypeEditor');
+    const errors = CTE.getFormErrors(id);
 
     const editClicked = () => {
         inputRef.current.select();
     };
 
     const value = op.get(props, 'formRef.current.getValue')();
-    const saved = handle.saved();
+    const saved = CTE.saved();
     const fieldSaved = op.has(saved, ['fields', id]);
 
     const savedProps = fieldSaved
@@ -81,12 +81,12 @@ const Header = props => {
  */
 const FieldTypeDialog = props => {
     const dialogRef = useRef();
-    const ContentTypeEditor = useHandle('ContentTypeEditor');
+    const CTE = useHandle('ContentTypeEditor');
     const tools = useHandle('AdminTools');
     const Modal = op.get(tools, 'Modal');
     const ConfirmBox = useHookComponent('ConfirmBox');
-    const removeField = op.get(ContentTypeEditor, 'removeField', () => {});
-    const isNew = op.get(ContentTypeEditor, 'isNew', () => true);
+    const removeField = op.get(CTE, 'removeField', () => {});
+    const isNew = op.get(CTE, 'isNew', () => true);
     const { id, type, dialogProps, children } = props;
     const header = { elements: [<Header key='header' {...props} />] };
 
@@ -118,7 +118,7 @@ const FieldTypeDialog = props => {
             />,
         );
 
-    const onDismiss = op.has(ContentTypeEditor.saved(), ['fields', id])
+    const onDismiss = op.has(CTE.ctValue, ['fields', id])
         ? showModal
         : doRemoveField;
 

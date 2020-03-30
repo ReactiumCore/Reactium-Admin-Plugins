@@ -27,7 +27,7 @@ const CTIconPicker = props => {
         setState(newState);
     };
 
-    const IconPicker = useHookComponent('IconPicker');
+    const IconPicker = useHookComponent('IconPicker', null);
 
     const onIconChange = e => {
         const { value } = e.target;

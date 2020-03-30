@@ -33,9 +33,12 @@ const PublisherFieldType = props => {
 
     useEffect(() => {
         const hookId = Reactium.Hook.register(
-            'field-type-form-update-publisher',
-            async ({ value }) => {
-                updatedStatuses(op.get(value, 'statuses', '').split(','));
+            'field-type-form-change-publisher',
+            async e => {
+                if (e.value) {
+                    const value = e.value;
+                    updatedStatuses(op.get(value, 'statuses', '').split(','));
+                }
             },
         );
 

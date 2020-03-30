@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { __, Zone, useHandle, useZoneComponents } from 'reactium-core/sdk';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../enums';
+import _ from 'underscore';
 
 /**
  * -----------------------------------------------------------------------------
@@ -14,17 +15,58 @@ import Enums from '../enums';
 const noop = () => {};
 const Fields = props => {
     const CTE = useHandle('ContentTypeEditor');
+    const ui = op.get(CTE, 'ui', {});
+    const FieldType = useHookComponent('FieldType');
+
     const region = op.get(props, 'region.id', 'default');
     const regionLabel = op.get(props, 'region.label');
     const regionSlug = op.get(props, 'region.slug', 'default');
-    const regions = op.get(props, 'regions', {});
-    const zone = op.get(props, 'zone', Enums.ZONE(region));
+
+    const regions = op.get(ui, 'regions', {});
+    const fields = _.compact(
+        op
+            .get(ui, ['regionFields', region], [])
+            .map(fieldId => op.get(ui, ['fields', fieldId])),
+    );
+
+    const isEmpty = fields.length < 1;
+
     const onRegionLabelChange = op.get(props, 'onRegionLabelChange', noop);
     const onRemoveRegion = op.get(props, 'onRemoveRegion', noop);
-    const fields = useZoneComponents(zone);
-    const isEmpty = fields.length < 1;
     const deleteLabel = __('Remove Field Region');
-    const immutable = op.has(Enums.REQUIRED_REGIONS, region);
+    const immutable = op.has(ui, ['requiredRegions', region]);
+
+    const fieldTypes = _.indexBy(
+        Object.values(Reactium.ContentType.FieldType.list),
+        'type',
+    );
+
+    const renderRegion = () => {
+        if (region === 'default' && isEmpty) {
+            return (
+                <div className='empty-message'>
+                    <span>
+                        {__(
+                            'Compose the new Content Type Schema by adding elements from the toolbar here.',
+                        )}
+                    </span>
+                </div>
+            );
+        }
+        return fields.map((field, index) => {
+            const type = op.get(fieldTypes, [field.fieldType], {});
+
+            return (
+                <FieldType
+                    {...type}
+                    id={field.fieldId}
+                    key={field.fieldId}
+                    index={index}
+                    fieldTypeComponent={type.component}
+                />
+            );
+        });
+    };
 
     return (
         <Droppable droppableId={region}>
@@ -79,17 +121,10 @@ const Fields = props => {
                                 </div>
                             </div>
                         )}
-                        <Zone region={region} zone={zone}>
-                            {isEmpty && region === 'default' && (
-                                <div className='empty-message'>
-                                    <span>
-                                        {__(
-                                            'Compose the new Content Type Schema by adding elements from the toolbar here.',
-                                        )}
-                                    </span>
-                                </div>
-                            )}
-                        </Zone>
+                        {
+                            // <div>region: {region}</div>
+                        }
+                        <div>{renderRegion()}</div>
                         {placeholder}
                     </div>
                 </div>

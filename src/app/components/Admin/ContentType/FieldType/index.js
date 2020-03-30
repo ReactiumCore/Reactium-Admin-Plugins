@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, memo } from 'react';
 import Reactium, { useHookComponent, useHandle } from 'reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
-import { WebForm } from '@atomic-reactor/reactium-ui';
+import { EventForm } from '@atomic-reactor/reactium-ui';
 // import WebForm from 'components/Reactium-UI/WebForm';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
@@ -20,17 +20,18 @@ const DragHandle = props => (
 
 const FieldType = props => {
     const id = op.get(props, 'id');
-    const index = op.get(props, 'order', 0);
+    const index = op.get(props, 'index', 0);
     const type = op.get(props, 'type', 'text');
-    const region = op.get(props, 'region', 'default');
+    const [value, setValue] = useState({});
     const fieldTypeComponent = op.get(
         props,
         'fieldTypeComponent',
         `FieldType${type}`,
     );
+
     const formRef = useRef();
-    const Type = useHookComponent(fieldTypeComponent, DragHandle);
-    const handle = useHandle('ContentTypeEditor');
+    const Type = useHookComponent(fieldTypeComponent, false);
+    const CTE = useHandle('ContentTypeEditor');
 
     const validator = (id, type) => async (value, valid, errors) => {
         const validated = {
@@ -75,21 +76,6 @@ const FieldType = props => {
         });
     };
 
-    const onBeforeSubmit = (id, type, ref) => async ({
-        value,
-        valid,
-        errors,
-    }) => {
-        await Reactium.Hook.run(`field-type-before-submit-${id}`, {
-            value,
-            valid,
-            errors,
-            id,
-            type,
-            ref,
-        });
-    };
-
     const onSubmit = (id, type, ref) => async ({ value }) => {
         await Reactium.Hook.run(`field-type-submit-${id}`, {
             value,
@@ -99,24 +85,19 @@ const FieldType = props => {
         });
     };
 
-    const onChange = (id, type, ref) => async (e, value) => {
-        await Reactium.Hook.run(`field-type-form-change-${id}`, {
-            value,
-            id,
-            type,
-            ref,
-            target: e.target,
-        });
-    };
+    const onChange = (id, type, ref) => async e => {
+        if (e.value) {
+            const value = e.value;
+            await Reactium.Hook.run(`field-type-form-change-${id}`, {
+                value,
+                id,
+                type,
+                ref,
+                target: e.target,
+            });
 
-    const onUpdate = (id, type, ref) => async ({ value, elements }) => {
-        await Reactium.Hook.run(`field-type-form-update-${id}`, {
-            value,
-            elements,
-            id,
-            type,
-            ref,
-        });
+            setValue(value);
+        }
     };
 
     useEffect(() => {
@@ -143,32 +124,43 @@ const FieldType = props => {
             ),
         ];
 
-        // allow control from parent
-        handle.addFormRef(id, () => formRef.current);
+        const ival = setInterval(() => {
+            if (formRef.current) {
+                clearInterval(ival);
+                // allow control from parent
+                CTE.addFormRef(id, () => formRef.current);
+                const value = {
+                    ...op.get(CTE.saved(), ['fields', id], {}),
+                    ...op.get(CTE.getValue(), ['fields', id], {}),
+                };
+
+                formRef.current.setValue(value);
+            }
+        }, 1);
 
         return () => {
             hooks.forEach(id => Reactium.Hook.unregister(id));
-            handle.removeFormRef(id);
+            CTE.removeFormRef(id);
         };
-    }, [id, formRef.current]);
+    }, [id]);
 
     const required = _.uniq(
         _.compact(op.get(props, 'required', []).concat('fieldName')),
     );
 
+    if (!id || !Type) return null;
+
     return (
         <Draggable draggableId={id} index={index}>
             {({ innerRef, draggableProps, dragHandleProps }) => (
-                <WebForm
+                <EventForm
+                    value={value}
                     ref={formRef}
                     validator={validator(id, type)}
                     required={required}
-                    showError={false}
                     onError={onError(id, type, formRef)}
-                    onBeforeSubmit={onBeforeSubmit(id, type, formRef)}
                     onSubmit={onSubmit(id, type, formRef)}
-                    onChange={onChange(id, type, formRef)}
-                    onUpdate={onUpdate(id, type, formRef)}>
+                    onChange={onChange(id, type, formRef)}>
                     <div
                         ref={innerRef}
                         {...draggableProps}
@@ -189,7 +181,7 @@ const FieldType = props => {
                             formRef={formRef}
                         />
                     </div>
-                </WebForm>
+                </EventForm>
             )}
         </Draggable>
     );
