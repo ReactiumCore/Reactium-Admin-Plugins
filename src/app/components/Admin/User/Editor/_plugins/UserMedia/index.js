@@ -19,9 +19,12 @@ import Reactium, {
 const noop = () => {};
 
 const UserMedia = ({ editor }) => {
+    const title = __('User Media');
+
     // Redux state
     const [redux, setReduxState] = useReduxState('Media');
 
+    // Refs
     const dropzoneRef = useRef();
     const spinnerRef = useRef();
 
@@ -32,16 +35,21 @@ const UserMedia = ({ editor }) => {
     const Toolbar = useHookComponent('MediaToolbar');
     const Uploads = useHookComponent('MediaUploads');
 
-    const [directory, setNewDirectory] = useState(op.get(redux, 'directory'));
+    // States
+    const [data, setNewData] = useState();
+
+    const [directory, setNewDirectory] = useState();
 
     const [init, setNewInit] = useState(false);
 
+    const [type, setNewType] = useState();
+
+    // Editor
     const { cx, isNew, isMounted, setState, state = {}, unMounted } = editor;
     const { tab, value } = state;
     const meta = op.get(value, 'meta', {});
 
-    const [data, setNewData] = useState();
-
+    // Functions
     const browseFiles = () => dropzoneRef.current.browseFiles();
 
     const dropzoneProps = {
@@ -56,14 +64,7 @@ const UserMedia = ({ editor }) => {
 
     const emptyClassName = cx('media-empty');
 
-    const folderSelect = dir => {
-        setReduxState({ directory: dir });
-        setDirectory(dir);
-    };
-
     const isEmpty = () => Object.keys(op.get(meta, 'media', {})).length < 1;
-
-    const title = __('User Media');
 
     const search = () => {
         if (init !== true) return noop;
@@ -76,7 +77,7 @@ const UserMedia = ({ editor }) => {
         });
 
         const newData = Reactium.Media.filter(
-            { directory, search: SearchBar.state.value },
+            { directory, search: SearchBar.state.value, type },
             dataArray,
         );
 
@@ -101,11 +102,14 @@ const UserMedia = ({ editor }) => {
         setNewInit(newInit);
     };
 
+    const setType = newType => {
+        if (unMounted()) return;
+        setNewType(newType);
+    };
+
     const toggleSearch = () => {
         SearchBar.setState({ visible: !isEmpty() });
     };
-
-    const _onDirectoryChange = () => search();
 
     const _onError = evt => {
         setState({
@@ -164,17 +168,19 @@ const UserMedia = ({ editor }) => {
 
     const _onSearch = () => search();
 
+    // Handle
     const _handle = () => ({
         ENUMS,
         browseFiles,
         cname: Reactium.Utils.cxFactory('admin-media'),
         directory,
-        folderSelect,
         isEmpty,
         isMounted,
         setDirectory,
         setState: setReduxState,
+        setType,
         state: redux,
+        type,
         unMounted,
     });
 
@@ -186,7 +192,7 @@ const UserMedia = ({ editor }) => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
-    }, [value]);
+    }, [value, directory, type]);
 
     // update data
     useEffect(() => {
@@ -195,11 +201,8 @@ const UserMedia = ({ editor }) => {
         setData(newData);
     }, [op.get(meta, 'media'), value]);
 
-    // directory change
-    useEffect(_onDirectoryChange, [directory, value]);
-
     // search change
-    useEffect(_onSearch, [SearchBar.state.value, value]);
+    useEffect(_onSearch, [directory, SearchBar.state.value, type, value]);
 
     // hide/show search
     useEffect(toggleSearch, [SearchBar, isEmpty(), value]);

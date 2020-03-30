@@ -24,7 +24,7 @@ const ENUMS = {
             SUCCESS: 'Save complete!',
         },
         EMPTY: __('Drop your files here'),
-        FILTER: __('Filter'),
+        FILTER: __('Filter by type'),
         FOLDER: __('Select folder'),
         FOLDER_ALL: __('All folders'),
         FOLDER_CREATOR: {

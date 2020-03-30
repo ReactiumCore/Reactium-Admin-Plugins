@@ -13,15 +13,6 @@ body {
     overflow-y: auto;
 }
 
-// html {
-//     overflow-x: hidden;
-//     overflow-y: visible;
-// }
-//
-// body {
-//     overflow-y: visible;
-// }
-
 .blueprint {
     max-width: 100vw;
     min-height: 100vh;
@@ -160,4 +151,12 @@ body {
             text-transform: none;
         }
     }
+}
+
+.btn-group > .ar-dropdown:first-child > button {
+    border-radius: 2px 0 0 2px;
+}
+
+.btn-group > .ar-dropdown:last-child > button {
+    border-radius: 0 2px 2px 0;
 }

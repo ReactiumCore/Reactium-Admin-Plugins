@@ -294,6 +294,7 @@ class Media {
         const search = op.get(params, 'search');
         const limit = op.get(params, 'limit', 50);
         const page = op.get(params, 'page', -1);
+        const type = op.get(params, 'type');
 
         dataArray = dataArray || op.get(this.state, 'library');
         const filters = op.get(params, 'filters', this.__filters);
@@ -308,7 +309,7 @@ class Media {
         );
 
         let filtered = dataArray.filter(item => {
-            let { directory: dir, type } = item;
+            let { directory: dir } = item;
 
             // search
             if (match && match.length > 2 && searchFields.length > 0) {
@@ -334,8 +335,8 @@ class Media {
             }
 
             // type filter
-            type = String(type).toUpperCase();
-            if (!currentFilters.includes(type)) return false;
+            if (!currentFilters.includes(item.type)) return false;
+            if (type && item.type !== type) return false;
 
             return true;
         });

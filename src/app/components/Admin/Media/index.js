@@ -46,11 +46,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     // States
     const [data, setNewData] = useState(mapLibraryToList(state.library));
 
-    const [directory, setNewDirectory] = useState(op.get(state, 'directory'));
+    const [directory, setNewDirectory] = useState();
 
     const [page, setNewPage] = useState(op.get(props, 'params.page', 1) || 1);
 
     const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
+
+    const [type, setNewType] = useState();
 
     const setData = newData => {
         if (unMounted()) return;
@@ -73,15 +75,15 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         setNewStatus(newStatus);
     };
 
+    const setType = newType => {
+        if (unMounted()) return;
+        setNewType(newType);
+    };
+
     // Functions
     const browseFiles = () => dropzoneRef.current.browseFiles();
 
     const cx = Reactium.Utils.cxFactory(namespace);
-
-    const folderSelect = dir => {
-        setState({ directory: dir });
-        setDirectory(dir);
-    };
 
     const fetch = params => {
         if (status !== ENUMS.STATUS.INIT) return;
@@ -129,6 +131,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
             directory,
             page,
             search: SearchBar.state.value,
+            type,
         });
         setData(newData);
         return noop;
@@ -144,7 +147,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     useEffect(toggleSearch, [SearchBar, isEmpty()]);
 
     // Search
-    useEffect(search, [directory, SearchBar.state.value, state.library]);
+    useEffect(search, [directory, SearchBar.state.value, state.library, type]);
 
     // Fetch
     useEffect(() => {
@@ -157,13 +160,14 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         browseFiles,
         cname: cx,
         directory,
-        folderSelect,
         isEmpty,
         isMounted,
         setData,
         setDirectory,
         setState,
+        setType,
         state,
+        type,
         unMounted,
         zone,
     });
@@ -174,7 +178,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
-    }, [Object.values(state)]);
+    }, [Object.values(state), directory, type]);
 
     useRegisterHandle(domain.name, () => handle, [
         op.get(state, 'updated'),
@@ -196,7 +200,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
                         onError={onError}
                         onFileAdded={e => onFileAdded(e)}
                         ref={dropzoneRef}>
-                        <Toolbar Media={_handle()} />
+                        <Toolbar Media={handle} />
                         <Uploads
                             onRemoveFile={onFileRemoved}
                             uploads={op.get(state, 'uploads', {})}

@@ -9,6 +9,7 @@ import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 import useDirectories from 'components/Admin/Media/Directory/useDirectories';
 
 import Reactium, {
+    __,
     useAsyncEffect,
     useDocument,
     useHandle,
@@ -41,13 +42,6 @@ const DirectoryWidget = ({ Media, ...props }) => {
 
     const [directories, setNewDirectories] = useState(getDirectories);
 
-    const [directory, setNewDirectory] = useState(Media.directory);
-
-    const setDirectory = newDirectory => {
-        if (unMounted()) return;
-        setNewDirectory(newDirectory);
-    };
-
     const setDirectories = newDirectories => {
         if (unMounted()) return;
         setNewDirectories(newDirectories);
@@ -73,12 +67,16 @@ const DirectoryWidget = ({ Media, ...props }) => {
             .value();
     };
 
-    const unMounted = () => !containerRef.current;
+    const dataTypes = () =>
+        _.flatten([
+            { label: __('All file types'), value: null },
+            Object.keys(ENUMS.TYPE).map(type => ({
+                label: String(type).toLowerCase(),
+                value: type,
+            })),
+        ]);
 
-    const onChange = e => {
-        Media.folderSelect(e);
-        setDirectory(e);
-    };
+    const unMounted = () => !containerRef.current;
 
     const showCreator = () => {
         Modal.show(<Creator />);
@@ -89,26 +87,18 @@ const DirectoryWidget = ({ Media, ...props }) => {
     };
 
     useEffect(() => {
-        if (directory !== Media.directory) {
-            setDirectory(Media.directory);
-        }
-    });
-
-    useEffect(() => {
         const unsub = subscribe(() => {
             const dirs = op.get(getState(), 'Media.directories', []);
             dirs.sort();
 
             if (_.isEqual(dirs, directories)) return;
-            setDirectories(dirs);
+            _.defer(() => setDirectories(dirs));
         });
 
         return unsub;
     });
 
     useEffect(() => {
-        //if (Array.isArray(getDirectories)) getDirectories.sort();
-
         if (_.isEqual(getDirectories, directories)) return;
 
         dispatch({
@@ -118,18 +108,18 @@ const DirectoryWidget = ({ Media, ...props }) => {
         });
 
         setDirectories(getDirectories);
-    });
+    }, [getDirectories]);
 
     return (
         <div className={Media.cname('dir-dropdown')} ref={containerRef}>
-            <Dropdown
-                checkbox={false}
-                color={Button.ENUMS.COLOR.TERTIARY}
-                size={Button.ENUMS.SIZE.SM}
-                selection={[directory]}
-                onItemClick={e => onChange(e.item.value)}
-                data={data()}>
-                <div className='btn-group'>
+            <div className='btn-group'>
+                <Dropdown
+                    checkbox={false}
+                    color={Button.ENUMS.COLOR.TERTIARY}
+                    size={Button.ENUMS.SIZE.SM}
+                    selection={[Media.directory]}
+                    onItemClick={e => Media.setDirectory(e.item.value)}
+                    data={data()}>
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
                         size={Button.ENUMS.SIZE.XS}
@@ -138,62 +128,59 @@ const DirectoryWidget = ({ Media, ...props }) => {
                         data-align='left'
                         data-vertical-align='middle'
                         style={{
-                            minWidth: 145,
+                            minWidth: 150,
+                            height: 38,
                             padding: '8px 5px 8px 8px',
                             justifyContent: 'flex-start',
                             overflowX: 'hidden',
                         }}>
                         <div className={Media.cname('dir-dropdown-label')}>
-                            {directory || ENUMS.TEXT.FOLDER_ALL}
+                            {Media.directory || ENUMS.TEXT.FOLDER_ALL}
                         </div>
                         <Icon name='Feather.ChevronDown' size={18} />
                     </Button>
-
-                    <Button
+                </Dropdown>
+                <Button
+                    color={Button.ENUMS.COLOR.TERTIARY}
+                    data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
+                    data-align='left'
+                    data-vertical-align='middle'
+                    onClick={showEditor}
+                    size={Button.ENUMS.SIZE.XS}
+                    style={{
+                        padding: '8px 8px 8px 9px',
+                        borderLeft: '1px solid #909090',
+                        width: 38,
+                    }}>
+                    <Icon name='Linear.Cog' size={18} />
+                </Button>
+                {!Media.isEmpty() && (
+                    <Dropdown
+                        align={Dropdown.ENUMS.ALIGN.RIGHT}
+                        checkbox={false}
                         color={Button.ENUMS.COLOR.TERTIARY}
-                        data-tooltip={ENUMS.TEXT.NEW_FOLDER}
-                        data-align='left'
-                        data-vertical-align='middle'
-                        onClick={showCreator}
-                        size={Button.ENUMS.SIZE.XS}
-                        style={{
-                            padding: '8px 8px 8px 9px',
-                            borderLeft: '1px solid #909090',
-                            width: 38,
-                        }}>
-                        <Icon name='Feather.Plus' size={18} />
-                    </Button>
-                    <Button
-                        color={Button.ENUMS.COLOR.TERTIARY}
-                        data-tooltip={ENUMS.TEXT.FOLDER_EDIT}
-                        data-align='left'
-                        data-vertical-align='middle'
-                        onClick={showEditor}
-                        size={Button.ENUMS.SIZE.XS}
-                        style={{
-                            padding: '8px 8px 8px 9px',
-                            borderLeft: '1px solid #909090',
-                            width: 38,
-                        }}>
-                        <Icon name='Feather.Settings' size={16} />
-                    </Button>
-                    {!Media.isEmpty() && props.filter === true && (
+                        size={Button.ENUMS.SIZE.SM}
+                        selection={_.compact([Media.type])}
+                        onItemClick={e => Media.setType(e.item.value)}
+                        data={dataTypes()}>
                         <Button
                             color={Button.ENUMS.COLOR.TERTIARY}
                             data-tooltip={ENUMS.TEXT.FILTER}
                             data-align='left'
+                            data-dropdown-element
                             data-vertical-align='middle'
                             size={Button.ENUMS.SIZE.XS}
                             style={{
                                 padding: '8px 8px 8px 9px',
                                 borderLeft: '1px solid #909090',
                                 width: 38,
+                                height: 38,
                             }}>
-                            <Icon name='Linear.Funnel' size={16} />
+                            <Icon name='Linear.Funnel' size={18} />
                         </Button>
-                    )}
-                </div>
-            </Dropdown>
+                    </Dropdown>
+                )}
+            </div>
         </div>
     );
 };
