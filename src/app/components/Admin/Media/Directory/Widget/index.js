@@ -39,9 +39,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
 
     const getDirectories = useDirectories() || [];
 
-    const [directories, setNewDirectories] = useState(
-        op.get(getState(), 'Media.directory', []),
-    );
+    const [directories, setNewDirectories] = useState(getDirectories);
 
     const [directory, setNewDirectory] = useState(Media.directory);
 
@@ -109,7 +107,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
     });
 
     useEffect(() => {
-        if (Array.isArray(getDirectories)) getDirectories.sort();
+        //if (Array.isArray(getDirectories)) getDirectories.sort();
 
         if (_.isEqual(getDirectories, directories)) return;
 

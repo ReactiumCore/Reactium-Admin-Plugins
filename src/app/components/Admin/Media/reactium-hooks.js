@@ -6,10 +6,10 @@ import Parse from 'appdir/api';
 import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
 import Breadcrumbs from './Breadcrumbs';
-import Reactium, { __ } from 'reactium-core/sdk';
+import SidebarWidget from './SidebarWidget';
+import DirectoryWidget from './Directory/Widget';
 import HeaderWidget from './Editor/HeaderWidget';
-import SidebarWidget from './Widget/SidebarWidget';
-import DirectoryWidget from './Widget/DirectoryWidget';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { MediaCopy, MediaDelete, MediaDownload } from './List/_plugins';
 import {
     Audio,

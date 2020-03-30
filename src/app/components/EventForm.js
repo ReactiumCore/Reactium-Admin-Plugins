@@ -478,8 +478,20 @@ let EventForm = (initialProps, ref) => {
                     return;
                 }
 
-                const ecount = Object.keys(getElements()).length;
-                if (ecount !== count) setCount(ecount);
+                const elms = getElements();
+                const ecount = Object.keys(elms).length;
+                if (ecount !== count) {
+                    setCount(ecount);
+
+                    const evt = new FormEvent('element-change', {
+                        target: formRef.current,
+                        element: op.get(event, 'target', formRef.current),
+                        value: newValue,
+                        elements: elms,
+                    });
+
+                    handle.dispatchEvent(evt);
+                }
             }, 1);
 
             return () => {};

@@ -25,12 +25,8 @@ const UserMedia = ({ editor }) => {
     const dropzoneRef = useRef();
     const spinnerRef = useRef();
 
+    // Components
     const SearchBar = useHandle('SearchBar');
-
-    const toggleSearch = () => {
-        SearchBar.setState({ visible: !isEmpty() });
-    };
-
     const Helmet = useHookComponent('Helmet');
     const List = useHookComponent('MediaList');
     const Toolbar = useHookComponent('MediaToolbar');
@@ -103,6 +99,10 @@ const UserMedia = ({ editor }) => {
     const setInit = newInit => {
         if (!spinnerRef.current) return;
         setNewInit(newInit);
+    };
+
+    const toggleSearch = () => {
+        SearchBar.setState({ visible: !isEmpty() });
     };
 
     const _onDirectoryChange = () => search();

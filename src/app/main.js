@@ -20,6 +20,10 @@ if (module.hot) {
         }
     };
 
+    // module.hot.decline(
+    //     ['../.././.core/dependencies/index.js', '../.././.core/app.js'],
+    // );
+
     module.hot.accept(
         ['../.././.core/dependencies/index.js', '../.././.core/app.js'],
         () => {

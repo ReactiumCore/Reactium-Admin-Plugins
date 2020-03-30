@@ -1,0 +1,30 @@
+.admin-media {
+    &-dir-dropdown {
+        position: absolute;
+        top: 80px;
+        right: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(50%);
+
+        @include breakpoint(md) {
+            top: 40px;
+            right: 40px;
+            transform: translateX(0%);
+        }
+
+        &-label {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-grow: 1;
+            overflow-x: hidden;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            margin-right: 8px;
+            text-overflow: ellipsis;
+        }
+    }
+}

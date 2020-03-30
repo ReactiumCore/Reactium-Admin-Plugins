@@ -4,12 +4,11 @@ import Empty from './Empty';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
-import Toolbar from './Toolbar';
-import List from './List';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
+    useAsyncEffect,
     useEventHandle,
     useHandle,
     useHookComponent,
@@ -23,6 +22,7 @@ import Reactium, {
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 const noop = () => {};
+
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Media
@@ -30,34 +30,25 @@ const noop = () => {};
  */
 let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     // Refs
-    const animationRef = useRef({});
     const containerRef = useRef();
     const dropzoneRef = useRef();
 
     // Redux state
     const [state, setState] = useReduxState(domain.name);
 
-    // External Components
-    const Helmet = useHookComponent('Helmet');
-
-    const Uploads = useHookComponent('MediaUploads');
-
-    // Search
+    // Components
     const SearchBar = useHandle('SearchBar');
-    const searchText = useSelect(state => op.get(state, 'SearchBar.value'));
-    const toggleSearch = () => {
-        SearchBar.setState({ visible: !isEmpty() });
-        return () => {
-            SearchBar.setState({ visible: false });
-        };
-    };
+    const Helmet = useHookComponent('Helmet');
+    const List = useHookComponent('MediaList');
+    const Toolbar = useHookComponent('MediaToolbar');
+    const Uploads = useHookComponent('MediaUploads');
 
     // States
     const [data, setNewData] = useState(mapLibraryToList(state.library));
 
     const [directory, setNewDirectory] = useState(op.get(state, 'directory'));
 
-    const [page, setNewPage] = useState(op.get(props, 'params.page', 1));
+    const [page, setNewPage] = useState(op.get(props, 'params.page', 1) || 1);
 
     const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
 
@@ -92,12 +83,22 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         setDirectory(dir);
     };
 
-    const fetch = async params => {
-        if (status !== ENUMS.STATUS.INIT) return noop;
+    const fetch = params => {
+        if (status !== ENUMS.STATUS.INIT) return;
         setStatus(ENUMS.STATUS.PENDING);
-        await Reactium.Media.fetch({ ...params, page: -1 });
-        setStatus(ENUMS.STATUS.READY);
-        return noop;
+
+        return new Promise((resolve, reject) => {
+            const delay = _.random(1, 4);
+
+            _.delay(async () => {
+                const media = await Reactium.Media.fetch({
+                    ...params,
+                    page: -1,
+                });
+                setStatus(ENUMS.STATUS.READY);
+                resolve(media);
+            }, delay * 250);
+        });
     };
 
     const isEmpty = () => op.get(state, 'pagination.empty', true);
@@ -127,19 +128,23 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         const newData = Reactium.Media.filter({
             directory,
             page,
-            search: searchText,
+            search: SearchBar.state.value,
         });
         setData(newData);
         return noop;
     };
 
+    const toggleSearch = () => {
+        SearchBar.setState({ visible: !isEmpty() });
+    };
+
     const unMounted = () => !containerRef.current;
 
     // Side effects
-    useEffect(toggleSearch);
+    useEffect(toggleSearch, [SearchBar, isEmpty()]);
 
     // Search
-    useEffect(search, [directory, searchText, state.library]);
+    useEffect(search, [directory, SearchBar.state.value, state.library]);
 
     // Fetch
     useEffect(() => {
@@ -227,6 +232,7 @@ Media.defaultProps = {
         debug: false,
     },
     namespace: 'admin-media',
+    page: 1,
     title: ENUMS.TEXT.TITLE,
 };
 
