@@ -4,6 +4,7 @@ import Empty from './Empty';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
+import Pagination from './Pagination';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
@@ -132,6 +133,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
             page,
             search: SearchBar.state.value,
             type,
+            limit: 24,
         });
         setData(newData);
         return noop;
@@ -147,13 +149,25 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     useEffect(toggleSearch, [SearchBar, isEmpty()]);
 
     // Search
-    useEffect(search, [directory, SearchBar.state.value, state.library, type]);
+    useEffect(search, [
+        directory,
+        SearchBar.state.value,
+        state.library,
+        type,
+        page,
+    ]);
 
     // Fetch
     useEffect(() => {
         fetch();
     }, [status]);
 
+    // Page change
+    useEffect(() => {
+        if (page && op.get(props, 'params.page') !== page) {
+            Reactium.Routing.history.push(`/admin/media/${page}`);
+        }
+    }, [page]);
     // Handle
     const _handle = () => ({
         ENUMS,
@@ -162,8 +176,10 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         directory,
         isEmpty,
         isMounted,
+        page,
         setData,
         setDirectory,
+        setPage,
         setState,
         setType,
         state,
@@ -206,6 +222,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
                             uploads={op.get(state, 'uploads', {})}
                         />
                         {!isEmpty() ? <List data={data} /> : <Empty />}
+                        {!isEmpty() && <Pagination Media={handle} />}
                     </Dropzone>
                 ) : (
                     <div className={cx('spinner')}>

@@ -241,7 +241,7 @@ class Media {
         const library = {};
 
         const limit = op.get(params, 'limit', 50);
-        const page = op.get(params, 'page', this.page);
+        const page = Number(op.get(params, 'page', this.page));
         const directory = op.get(params, 'directory');
         const search = op.get(params, 'search');
 
@@ -293,7 +293,7 @@ class Media {
         const directory = op.get(params, 'directory');
         const search = op.get(params, 'search');
         const limit = op.get(params, 'limit', 50);
-        const page = op.get(params, 'page', -1);
+        const page = Number(op.get(params, 'page', -1));
         const type = op.get(params, 'type');
 
         dataArray = dataArray || op.get(this.state, 'library');

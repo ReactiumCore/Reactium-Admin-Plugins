@@ -8,6 +8,10 @@
         color: $color-text-dark;
         overflow-x: hidden;
         overflow-y: auto;
+
+        .media {
+            flex-grow: 1;
+        }
     }
 
     &-spinner {
