@@ -2,7 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
-import { Dialog } from '@atomic-reactor/reactium-ui';
+import { Checkbox, Dialog } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -16,8 +16,8 @@ export const FieldType = props => {
     return (
         <FieldTypeDialog {...props}>
             <div className='field-type-text'>
-                <div className={'form-group'}>
-                    <label>
+                <div className='input-group'>
+                    <label className='default-value'>
                         <span className='sr-only'>{__('Default Value')}</span>
                         <input
                             type='text'
@@ -26,8 +26,8 @@ export const FieldType = props => {
                         />
                     </label>
                 </div>
-                <div className={'form-group'}>
-                    <label>
+                <div className='input-group'>
+                    <label className='placeholder'>
                         <span className='sr-only'>{__('Placeholder')}</span>
                         <input
                             type='text'
@@ -36,8 +36,8 @@ export const FieldType = props => {
                         />
                     </label>
                 </div>
-                <div className={'form-group'}>
-                    <label>
+                <div className='input-group'>
+                    <label className='pattern'>
                         <span className='sr-only'>{__('Pattern')}</span>
                         <input
                             type='text'
@@ -45,6 +45,32 @@ export const FieldType = props => {
                             placeholder={__('Pattern')}
                         />
                     </label>
+                </div>
+                <div className='input-group'>
+                    <label className='min-max'>
+                        <span className='sr-only'>{__('Min Characters')}</span>
+                        <input
+                            type='number'
+                            name='min'
+                            placeholder={__('Min Characters')}
+                        />
+                    </label>
+                    <label className='min-max'>
+                        <span className='sr-only'>{__('Max Characters')}</span>
+                        <input
+                            type='number'
+                            name='max'
+                            placeholder={__('Max Characters')}
+                        />
+                    </label>
+                    <div className='required'>
+                        <Checkbox
+                            name='required'
+                            label={__('Required')}
+                            labelAlign='right'
+                            value={1}
+                        />
+                    </div>
                 </div>
             </div>
         </FieldTypeDialog>

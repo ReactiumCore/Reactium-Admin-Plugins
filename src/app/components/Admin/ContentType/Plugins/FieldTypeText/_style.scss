@@ -1,1 +1,41 @@
-.field-type-rich-text {}
+.field-type-text {
+    .input-group {
+        width: 100%;
+
+        flex-direction: column;
+
+        @include breakpoint(md) {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        > * {
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        input {
+            width: 100%;
+        }
+
+        .min-max {
+            flex-shrink: 0;
+            flex-grow: 1;
+            width: 15%;
+
+            input {
+                width: 100%;
+            }
+        }
+
+        .required {
+            flex-grow: 0;
+            label > span:first-child {
+                text-align: left;
+            }
+            @include breakpoint(md) {
+                margin-left: 20px;
+            }
+        }
+    }
+}
