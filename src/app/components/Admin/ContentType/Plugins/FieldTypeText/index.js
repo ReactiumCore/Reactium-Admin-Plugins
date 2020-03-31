@@ -1,12 +1,12 @@
-import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
+import React, { useEffect, useRef, useState } from 'react';
 import { Checkbox, Dialog } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
- * Functional Component: FieldTypeRichText
+ * Functional Component: FieldTypeText
  * -----------------------------------------------------------------------------
  */
 export const FieldType = props => {
@@ -78,22 +78,68 @@ export const FieldType = props => {
 };
 
 export const Editor = props => {
-    const { defaultValue, editor, fieldName, pattern, placeholder } = props;
-    const ElementDialog = useHookComponent('ElementDialog');
+    const {
+        defaultValue,
+        editor,
+        fieldName,
+        max,
+        min,
+        pattern,
+        placeholder,
+        required,
+    } = props;
 
+    const inputRef = useRef();
     const editorValue = op.get(editor, 'value', {});
-
-    const value = editorValue[fieldName];
-
-    // Apply default value
-    //if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
+    const ElementDialog = useHookComponent('ElementDialog');
+    const [value, setValue] = useState(editorValue[fieldName]);
 
     const inputProps = {
         defaultValue,
+        maxLength: max,
+        minLength: min,
         name: fieldName,
         pattern,
         placeholder,
+        ref: inputRef,
         type: 'text',
+    };
+
+    const validate = ({ context, value }) => {
+        const v = value[fieldName];
+
+        const err = {
+            field: fieldName,
+            focus: inputRef.current,
+            message: null,
+            value: v,
+        };
+
+        if (v && min) {
+            if (String(v).length < Number(min)) {
+                err.message = __('%fieldName minimum character count is %min');
+            }
+        }
+
+        if (v && max) {
+            if (String(v).length > Number(max)) {
+                err.message = __('%fieldName maximum character count is %max');
+            }
+        }
+
+        if (required === true) {
+            if (!v) {
+                err.message = __('%fieldName is a required');
+            }
+        }
+
+        if (err.message !== null) {
+            err.message = editor.parseErrorMessage(err.message, replacers);
+            context.error[fieldName] = err;
+            context.valid = false;
+        }
+
+        return context;
     };
 
     const { errors } = editor;
@@ -101,9 +147,18 @@ export const Editor = props => {
     const className = cn('form-group', { error: !!errorText });
     const replacers = {
         '%fieldName': fieldName,
+        '%max': max,
+        '%min': min,
         '%type': editor.type,
-        '%value': editorValue[fieldName],
+        '%value': value,
     };
+
+    useEffect(() => {
+        editor.addEventListener('validate', validate);
+        return () => {
+            editor.removeEventListener('validate', validate);
+        };
+    }, [editor]);
 
     return (
         <ElementDialog {...props}>
@@ -115,11 +170,7 @@ export const Editor = props => {
                         </span>
                         <input {...inputProps} />
                     </label>
-                    {errorText && (
-                        <small>
-                            {editor.parseErrorMessage(errorText, replacers)}
-                        </small>
-                    )}
+                    {errorText && <small>{errorText}</small>}
                 </div>
             </div>
         </ElementDialog>

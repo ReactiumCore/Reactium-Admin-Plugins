@@ -104,10 +104,9 @@ export const Editor = props => {
         slider,
     } = props;
 
-    const editorValue = op.get(editor, 'value', {});
-
-    const ElementDialog = useHookComponent('ElementDialog');
     const inputRef = useRef();
+    const editorValue = op.get(editor, 'value', {});
+    const ElementDialog = useHookComponent('ElementDialog');
     const [value, setValue] = useState(editorValue[fieldName]);
 
     // Apply default value
@@ -153,12 +152,11 @@ export const Editor = props => {
     };
 
     useEffect(() => {
-        if (editor.unMounted()) return;
         editor.addEventListener('validate', validate);
         return () => {
             editor.removeEventListener('validate', validate);
         };
-    }, []);
+    }, [editor]);
 
     return (
         <ElementDialog {...props}>
