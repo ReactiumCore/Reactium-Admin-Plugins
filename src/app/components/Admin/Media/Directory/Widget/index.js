@@ -165,7 +165,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
                         size={Button.ENUMS.SIZE.SM}
                         selection={_.compact([Media.type])}
                         onItemClick={e => {
-                            Medie.setPage(1);
+                            Media.setPage(1);
                             Media.setType(e.item.value);
                         }}
                         data={dataTypes()}>
