@@ -214,7 +214,7 @@ const AudioCard = props => {
 };
 
 const FileCard = props => {
-    const { className, edgeURL, poster, refs, type, url } = props;
+    const { className, editURL, poster, refs, type, url } = props;
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -226,9 +226,9 @@ const FileCard = props => {
             onMouseLeave={() => refs.actions.current.collapse()}>
             <div>
                 <div className='media-preview'>
-                    <a href={edgeURL} target='_blank' style={style}>
+                    <Link to={editURL} style={style}>
                         {!poster && <MediaIcon type={type} />}
-                    </a>
+                    </Link>
                     <CardActions {...props} />
                 </div>
                 <CardInfo {...props} />
@@ -238,7 +238,7 @@ const FileCard = props => {
 };
 
 const ImageCard = props => {
-    const { className, edgeURL, poster, refs, url } = props;
+    const { className, editURL, poster, refs, url } = props;
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -250,7 +250,7 @@ const ImageCard = props => {
             onMouseLeave={() => refs.actions.current.collapse()}>
             <div>
                 <div className='media-preview'>
-                    <a href={edgeURL} target='_blank' style={style} />
+                    <Link to={editURL} style={style} />
                     <CardActions {...props} />
                 </div>
                 <CardInfo {...props} />

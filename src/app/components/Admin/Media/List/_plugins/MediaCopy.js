@@ -28,7 +28,7 @@ const MediaCopy = props => {
 
     return (
         <Button
-            color={Button.ENUMS.COLOR.DEFAULT}
+            color={Button.ENUMS.COLOR.CLEAR}
             data-align='left'
             data-tooltip={ENUMS.TEXT.COPY_TO_CLIPBOARD}
             data-vertical-align='middle'

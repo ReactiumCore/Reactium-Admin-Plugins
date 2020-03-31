@@ -795,6 +795,13 @@ let Editor = (
                             {type && (
                                 <Zone zone={metaZoneName} editor={handle} />
                             )}
+                            <div className={cx('meta-spacer')} />
+                            <div className={cx('sidebar-footer')}>
+                                <Zone
+                                    zone={cx('sidebar-footer')}
+                                    editor={handle}
+                                />
+                            </div>
                         </div>
                     </Sidebar>
                 </EventForm>

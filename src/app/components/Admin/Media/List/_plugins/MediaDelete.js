@@ -2,25 +2,23 @@ import op from 'object-path';
 import React, { useCallback } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
-import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
-const MediaDelete = props => {
+const MediaDelete = ({ className, objectId, url, zone: zones, ...props }) => {
+    const zone = zones[0];
+
     const tools = useHandle('AdminTools');
 
-    // const ConfirmBox = useHookComponent('ConfirmBox');
+    const ConfirmBox = useHookComponent('ConfirmBox');
 
     const Modal = op.get(tools, 'Modal');
 
     const deleteMedia = useCallback(() => {
-        const { objectId } = props;
         Reactium.Media.delete(objectId);
         Modal.dismiss();
     });
 
     const confirmDelete = useCallback(() => {
-        const { url } = props;
-
         Modal.show(
             <ConfirmBox
                 message={
@@ -39,15 +37,21 @@ const MediaDelete = props => {
         );
     });
 
+    const isEditor = String(zone).includes('admin-media-editor');
+
     return (
         <Button
+            block
+            className={className}
             color={Button.ENUMS.COLOR.DANGER}
             data-align='left'
-            data-tooltip={ENUMS.TEXT.DELETE}
+            data-tooltip={!isEditor ? ENUMS.TEXT.DELETE : null}
             data-vertical-align='middle'
             onClick={() => confirmDelete()}
+            size={Button.ENUMS.SIZE.SM}
             type={Button.ENUMS.TYPE.BUTTON}>
             <Icon name='Feather.X' />
+            {isEditor && <span className='label'>{ENUMS.TEXT.DELETE}</span>}
         </Button>
     );
 };

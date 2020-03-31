@@ -127,13 +127,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         }
     };
 
-    const search = () => {
+    const search = pg => {
         const newData = Reactium.Media.filter({
             directory,
-            page,
+            page: pg || page,
             search: SearchBar.state.value,
             type,
-            limit: 24,
+            limit: 25,
         });
         setData(newData);
         return noop;
@@ -150,8 +150,8 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
 
     // Search
     useEffect(search, [
-        directory,
         SearchBar.state.value,
+        directory,
         state.library,
         type,
         page,
@@ -194,12 +194,9 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
-    }, [Object.values(state), directory, type]);
+    }, [Object.values(state), directory, type, page, SearchBar.state.value]);
 
-    useRegisterHandle(domain.name, () => handle, [
-        op.get(state, 'updated'),
-        isEmpty(),
-    ]);
+    useRegisterHandle(domain.name, () => handle, [handle]);
 
     // Render
     const render = () => {

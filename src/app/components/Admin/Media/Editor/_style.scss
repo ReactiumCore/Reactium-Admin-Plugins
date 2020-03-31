@@ -117,4 +117,21 @@ $admin-media-editor-ns: 'admin-media-editor';
         width: 100%;
         font-size: 12px;
     }
+
+    &-delete {
+        margin: 24px;
+        width: calc(100% - 48px);
+
+        @include breakpoint(xs-only) {
+            .label {
+                display: none;
+            }
+        }
+
+        @include breakpoint(sm) {
+            .ar-icon {
+                display: none;
+            }
+        }
+    }
 }

@@ -10,7 +10,7 @@ const MediaDownload = props => {
 
     return (
         <Button
-            color={Button.ENUMS.COLOR.DEFAULT}
+            color={Button.ENUMS.COLOR.CLEAR}
             data-align='left'
             data-tooltip={ENUMS.TEXT.DOWNLOAD_FILE}
             data-vertical-align='middle'

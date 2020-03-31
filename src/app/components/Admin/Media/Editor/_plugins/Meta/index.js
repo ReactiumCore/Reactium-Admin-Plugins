@@ -9,7 +9,7 @@ import { Dialog, TagsInput } from '@atomic-reactor/reactium-ui';
 
 const noop = () => {};
 
-const Meta = ({ editor, props }) => {
+const Meta = ({ editor, ...props }) => {
     const tagsRef = useRef();
 
     const { directories, state = {} } = editor;

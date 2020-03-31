@@ -125,6 +125,15 @@ Reactium.Plugin.register(domain.name).then(() => {
     });
 
     Reactium.Zone.addComponent({
+        id: 'ADMIN-MEDIA-DELETE',
+        component: MediaDelete,
+        order: 10000,
+        block: true,
+        className: 'admin-media-editor-delete',
+        zone: ['admin-media-editor-sidebar-footer'],
+    });
+
+    Reactium.Zone.addComponent({
         id: 'ADMIN-MEDIA-ACTIONS-COPY',
         component: MediaCopy,
         order: 200,
