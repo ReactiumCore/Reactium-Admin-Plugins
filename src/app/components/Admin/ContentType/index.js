@@ -55,6 +55,8 @@ const UI = {
     ADD_REGION: 'ADD_REGION',
     LABEL_REGION: 'LABEL_REGION',
     REMOVE_REGION: 'REMOVE_REGION',
+    ERROR: 'ERROR',
+    CLEAR_ERROR: 'CLEAR_ERROR',
 };
 
 const uiReducer = (ui = {}, action) => {
@@ -71,6 +73,7 @@ const uiReducer = (ui = {}, action) => {
                 regions: { ...op.get(ui, 'requiredRegions', {}) },
                 active: 'default',
                 loading: true,
+                error: {},
             };
         }
         case UI.ADD_FIELD: {
@@ -196,16 +199,33 @@ const uiReducer = (ui = {}, action) => {
 
         case UI.MOVE_FIELD: {
             const { fieldId, source, destination } = action;
+
             regionFields[source.region].splice(source.index, 1);
-            regionFields[destination.region].splice(
-                destination.index,
-                0,
-                fieldId,
-            );
+            if (op.has(regionFields, [destination.region]))
+                regionFields[destination.region].splice(
+                    destination.index,
+                    0,
+                    fieldId,
+                );
+            else regionFields[destination.region] = [fieldId];
 
             return {
                 ...ui,
                 regionFields,
+            };
+        }
+
+        case UI.ERROR: {
+            return {
+                ...ui,
+                error: action.error,
+            };
+        }
+
+        case UI.CLEAR_ERROR: {
+            return {
+                ...ui,
+                error: {},
             };
         }
     }
@@ -230,6 +250,7 @@ const ContentType = props => {
         requiredRegions: REQUIRED_REGIONS,
         regionFields: {},
         active: 'default',
+        error: {},
     });
 
     console.log({ ui });
@@ -246,25 +267,17 @@ const ContentType = props => {
 
     const parentFormRef = useRef();
     const formsRef = useRef({});
-    const formsErrors = useRef({});
-    const nameError = useRef(false);
 
     const [types, setTypes] = useState([]);
 
     // Generic State Update to cause rerender
     const [updated, update] = useState(new Date());
 
-    // UI Config
-    const [regions, setRegions] = useState({ ids: [] });
-
     // Content Type Data
     const savedRef = useRef();
     const ctRef = useRef(_empty());
     const getValue = () => ctRef.current;
     const saved = () => savedRef.current;
-    const setCTValue = value => {
-        ctRef.current = value;
-    };
 
     const getTypes = refresh => Reactium.ContentType.types(refresh);
 
@@ -287,20 +300,6 @@ const ContentType = props => {
         }
     }, [id]);
 
-    const getFieldsByRegion = () => {
-        const regions = {
-            ...REQUIRED_REGIONS,
-            ...op.get(getValue(), 'regions', {}),
-        };
-
-        const fieldsByRegion = _.groupBy(
-            Object.values(op.get(getValue(), 'fields', {})),
-            'region',
-        );
-
-        return { regions, fieldsByRegion };
-    };
-
     useAsyncEffect(
         async mounted => {
             const results = await getTypes(true);
@@ -315,28 +314,29 @@ const ContentType = props => {
         [updated],
     );
 
-    const refreshForms = data => {
-        data = data ? data : getValue();
-
-        parentFormRef.current.setValue(data);
-        Object.entries(op.get(data, 'fields', {})).forEach(
-            ([fieldId, value]) => {
-                getFormRef(fieldId).setValue(value);
-            },
-        );
-    };
-
     const clear = () => {
-        nameError.current = false;
-        formsErrors.current = {};
-        savedRef.current = null;
+        savedRef.current = {};
 
         dispatch({
             type: UI.CLEAR,
         });
 
-        const clearValue = _empty();
-        setCTValue(clearValue);
+        ctRef.current = _empty();
+    };
+
+    const _cloneContentType = (contentType = {}) => {
+        return {
+            ...contentType,
+            regions: {
+                ...op.get(contentType, 'regions', {}),
+            },
+            fields: {
+                ...op.get(contentType, 'fields', {}),
+            },
+            meta: {
+                ...op.get(contentType, 'meta', {}),
+            },
+        };
     };
 
     const load = async () => {
@@ -350,8 +350,8 @@ const ContentType = props => {
                 regions: op.get(contentType, 'regions', {}),
             });
 
-            setCTValue(contentType);
-            savedRef.current = contentType;
+            savedRef.current = _cloneContentType(contentType);
+            ctRef.current = _cloneContentType(contentType);
             dispatch({
                 type: UI.LOADED,
             });
@@ -396,15 +396,15 @@ const ContentType = props => {
         );
     };
 
-    const validator = async (value, valid, errors) => {
-        console.log('validator', { value, valid, errors });
-        nameError.current = false;
-        formsErrors.current = {};
+    const validator = async context => {
+        let { valid, error, value } = context;
+        dispatch({
+            type: UI.CLEAR_ERROR,
+        });
 
         const responseContext = await Reactium.Hook.run(
             'content-type-validate-fields',
         );
-        console.log({ responseContext });
 
         // type labels that are currently used
         const taken = types
@@ -420,17 +420,18 @@ const ContentType = props => {
                 );
             }, []);
 
-        const typeSlug = slugify(op.get(value, 'type') || '');
+        const typeString = op.get(context, 'value.type', '') || '';
+        const typeSlug = slugify(typeString);
+
+        const nameTakenError = __('Type name taken.');
         if (taken.includes(typeSlug)) {
             valid = false;
-            op.set(
-                errors,
-                'fields',
-                op.get(errors, 'fields', []).concat(['type']),
-            );
+            op.set(error, 'type.field', 'type');
+            op.set(error, 'type.message', nameTakenError);
+
             Toast.show({
                 type: Toast.TYPE.ERROR,
-                message: __('Type name taken.'),
+                message: nameTakenError,
                 icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
                 autoClose: 1000,
             });
@@ -438,123 +439,143 @@ const ContentType = props => {
 
         const fieldNames = {};
         let savedFields = {};
-        if (op.has(getValue(), ['fields'])) {
-            savedFields = op.get(getValue(), ['fields']);
+        if (op.has(saved(), ['fields'])) {
+            savedFields = saved().fields;
             savedFields = _.indexBy(
                 Object.values(savedFields).map(field => ({
                     id: field.id,
-                    slug: slugify(field.fieldName),
+                    fieldSlug: slugify(field.fieldName),
                     fieldType: field.fieldType,
                 })),
-                'slug',
+                'fieldSlug',
             );
         }
 
-        for (let fieldId of Object.keys(op.get(getValue(), 'fields', {}))) {
+        for (const [fieldId, fieldType] of Object.entries(
+            op.get(ui, 'fields', {}),
+        )) {
             const ref = getFormRef(fieldId);
+            if (!ref) continue;
 
+            const ftContext = op.get(responseContext, fieldId, {
+                valid: true,
+                error: {},
+                value: ref.getValue(),
+            });
             // collect results of fields hook
-            if (op.get(responseContext, [fieldId, 'valid'], true) !== true) {
-                op.set(
-                    formsErrors.current,
-                    [fieldId],
-                    op.get(responseContext, [fieldId]),
-                );
-
-                ref.setState(op.get(responseContext, [fieldId]));
-                valid = false;
-            }
-
-            // make sure all fields are unique
-            const { fieldName, fieldType } = ref.getValue();
-
-            const slug = slugify(fieldName || '').toLowerCase();
-            const errors = op.get(ref, 'errors') || {
-                focus: null,
-                fields: [],
-                errors: [],
-            };
-
-            if (slug in fieldNames) {
-                const error = __('Duplicate field name %fieldName').replace(
-                    '%fieldName',
-                    fieldName,
-                );
-                Toast.show({
-                    type: Toast.TYPE.ERROR,
-                    message: error,
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
-                    autoClose: 1000,
-                });
-
-                valid = false;
-                const updatedErrors = {
-                    ...errors,
-                    focus: 'fieldName',
-                    fields: _.uniq([
-                        ...op.get(errors, 'fields', []),
-                        'fieldName',
-                    ]),
-                    errors: [...op.get(errors, 'errors', []), error],
+            if (!ftContext.valid) {
+                error = {
+                    ...error,
+                    [fieldId]: ftContext.error,
                 };
 
+                console.log({ error, ftContext });
+
                 ref.setState({
-                    errors: updatedErrors,
+                    error: ftContext.error,
+                    status: EventForm.ENUMS.ERROR,
                 });
-
-                op.set(formsErrors.current, [fieldId], {
-                    valid: false,
-                    errors: updatedErrors,
-                });
-            }
-
-            fieldNames[slug] = fieldId;
-
-            // check to make sure UI version of field type matches saved
-            if (
-                op.has(savedFields, slug) &&
-                fieldType !== op.get(savedFields, [slug, 'fieldType'])
-            ) {
-                const error = __('Field name %fieldName type exists.').replace(
-                    '%fieldName',
-                    fieldName,
-                );
-                Toast.show({
-                    type: Toast.TYPE.ERROR,
-                    message: error,
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
-                    autoClose: 2000,
-                });
-
                 valid = false;
-                const updatedErrors = {
-                    ...errors,
-                    focus: 'fieldName',
-                    fields: _.uniq([
-                        ...op.get(errors, 'fields', []),
-                        'fieldName',
-                    ]),
-                    errors: [...op.get(errors, 'errors', []), error],
-                };
-
-                ref.setState({
-                    errors: updatedErrors,
-                });
-
-                op.set(formsErrors.current, [fieldId], {
-                    valid: false,
-                    errors: updatedErrors,
-                });
             }
         }
+
+        // for (let fieldId of Object.keys(op.get(getValue(), 'fields', {}))) {
+        //     const ref = getFormRef(fieldId);
+        //
+        //
+        //     // make sure all fields are unique
+        //     const { fieldName, fieldType } = ref.getValue();
+        //
+        //     const slug = slugify(fieldName || '').toLowerCase();
+        //
+        //     const errors = op.get(ref, 'errors') || {
+        //         focus: null,
+        //         fields: [],
+        //         errors: [],
+        //     };
+        //
+        //     if (slug in fieldNames) {
+        //         const error = __('Duplicate field name %fieldName').replace(
+        //             '%fieldName',
+        //             fieldName,
+        //         );
+        //
+        //         op.set()
+        //         Toast.show({
+        //             type: Toast.TYPE.ERROR,
+        //             message: error,
+        //             icon: (
+        //                 <Icon.Feather.AlertOctagon
+        //                     style={{ marginRight: 12 }}
+        //                 />
+        //             ),
+        //             autoClose: 1000,
+        //         });
+        //
+        //         valid = false;
+        //         const updatedErrors = {
+        //             ...errors,
+        //             focus: 'fieldName',
+        //             fields: _.uniq([
+        //                 ...op.get(errors, 'fields', []),
+        //                 'fieldName',
+        //             ]),
+        //             errors: [...op.get(errors, 'errors', []), error],
+        //         };
+        //
+        //         ref.setState({
+        //             errors: updatedErrors,
+        //         });
+        //
+        //         op.set(formsErrors.current, [fieldId], {
+        //             valid: false,
+        //             errors: updatedErrors,
+        //         });
+        //     }
+        //     fieldNames[slug] = fieldId;
+        //
+        //
+        //     // check to make sure UI version of field type matches saved
+        //     if (
+        //         op.has(savedFields, slug) &&
+        //         fieldType !== op.get(savedFields, [slug, 'fieldType'])
+        //     ) {
+        //         const error = __('Field name %fieldName type exists.').replace(
+        //             '%fieldName',
+        //             fieldName,
+        //         );
+        //         Toast.show({
+        //             type: Toast.TYPE.ERROR,
+        //             message: error,
+        //             icon: (
+        //                 <Icon.Feather.AlertOctagon
+        //                     style={{ marginRight: 12 }}
+        //                 />
+        //             ),
+        //             autoClose: 2000,
+        //         });
+        //
+        //         valid = false;
+        //         const updatedErrors = {
+        //             ...errors,
+        //             focus: 'fieldName',
+        //             fields: _.uniq([
+        //                 ...op.get(errors, 'fields', []),
+        //                 'fieldName',
+        //             ]),
+        //             errors: [...op.get(errors, 'errors', []), error],
+        //         };
+        //
+        //         ref.setState({
+        //             errors: updatedErrors,
+        //         });
+        //
+        //         op.set(formsErrors.current, [fieldId], {
+        //             valid: false,
+        //             errors: updatedErrors,
+        //         });
+        //     }
+        // }
 
         const regionSlugs = Object.values(getRegions()).reduce(
             (slugs, { id, slug }) => ({ ...slugs, [slug]: id }),
@@ -567,18 +588,13 @@ const ContentType = props => {
         )
             valid = false;
 
-        return { valid, errors };
+        return { error, valid, value };
     };
 
-    const onError = async ({ errors }) => {
-        if (op.get(errors, 'fields', []).includes('type')) {
-            nameError.current = true;
-        } else {
-            nameError.current = false;
-        }
-
-        updateRestore(() => {
-            // render errors
+    const onError = async e => {
+        dispatch({
+            type: UI.ERROR,
+            error: e.error,
         });
     };
 
@@ -588,7 +604,6 @@ const ContentType = props => {
         const sourceRegion = op.get(result, 'source.droppableId');
         const destinationIndex = op.get(result, 'destination.index');
         const destinationRegion = op.get(result, 'destination.droppableId');
-        console.log({ result });
 
         if (
             sourceIndex === destinationIndex &&
@@ -613,7 +628,10 @@ const ContentType = props => {
     const onTypeChange = async e => {
         if (!ui.loading && e.value) {
             const value = e.value;
-            setCTValue(value);
+            ctRef.current = {
+                ...ctRef.current,
+                ...value,
+            };
 
             await Reactium.Hook.run('content-type-form-change', {
                 value,
@@ -627,36 +645,36 @@ const ContentType = props => {
     const onTypeSubmit = async e => {
         // debugging
         return;
-        try {
-            op.set(value, 'regions', getRegions());
-
-            const contentType = await Reactium.ContentType.save(id, value);
-            setCTValue(contentType);
-
-            Toast.show({
-                type: Toast.TYPE.SUCCESS,
-                message: __('Content type saved'),
-                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-                autoClose: 1000,
-            });
-
-            if (id === 'new' && contentType.uuid) {
-                Reactium.Routing.history.push(
-                    `/admin/type/${contentType.uuid}`,
-                );
-            }
-
-            nameError.current = false;
-            formsErrors.current = {};
-        } catch (error) {
-            Toast.show({
-                type: Toast.TYPE.ERROR,
-                message: __('Error saving content type.'),
-                icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
-                autoClose: 1000,
-            });
-            console.error(error);
-        }
+        // try {
+        //     op.set(value, 'regions', getRegions());
+        //
+        //     const contentType = await Reactium.ContentType.save(id, value);
+        //     savedRef.current = _cloneContentType(contentType);
+        //     ctRef.current = _cloneContentType(contentType);
+        //
+        //     Toast.show({
+        //         type: Toast.TYPE.SUCCESS,
+        //         message: __('Content type saved'),
+        //         icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+        //         autoClose: 1000,
+        //     });
+        //
+        //     if (id === 'new' && contentType.uuid) {
+        //         Reactium.Routing.history.push(
+        //             `/admin/type/${contentType.uuid}`,
+        //         );
+        //     }
+        //
+        //     nameError.current = false;
+        //     // ui.errors = {}h (error) {
+        //     Toast.show({
+        //         type: Toast.TYPE.ERROR,
+        //         message: __('Error saving content type.'),
+        //         icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
+        //         autoClose: 1000,
+        //     });
+        //     console.error(error);
+        // }
     };
 
     const renderCapabilityEditor = () => {
@@ -700,17 +718,18 @@ const ContentType = props => {
     };
 
     const setActiveRegion = region => {
-        dispatch({
-            type: UI.SET_ACTIVE,
-            region,
-        });
+        if (region !== ui.active) {
+            dispatch({
+                type: UI.SET_ACTIVE,
+                region,
+            });
+        }
     };
 
     const addField = ft => {
         const fields = op.get(ui, 'fields', {});
         const fieldsByType = _.groupBy(Object.values(fields), 'fieldType');
         const activeRegion = op.get(ui, 'active', 'default');
-        const regionFields = op.get(ui, ['regionFields', activeRegion], []);
         const fieldType = fieldTypes[ft];
         const region = op.get(fieldType, 'defaultRegion', activeRegion);
 
@@ -721,6 +740,9 @@ const ContentType = props => {
         const fieldId = op.get(fieldType, 'id', uuid());
 
         const field = { fieldId, fieldType: ft, region };
+
+        if (op.has(fieldType, 'defaultValues'))
+            op.set(ctRef.current, ['fields', fieldId], fieldType.defaultValues);
 
         dispatch({
             type: UI.ADD_FIELD,
@@ -746,7 +768,6 @@ const ContentType = props => {
             const value = { ...getValue() };
             const field = { ...op.get(value, ['fields', id], {}), ...e.value };
             op.set(value, ['fields', id], field);
-            setCTValue(value);
         }
     };
 
@@ -767,7 +788,6 @@ const ContentType = props => {
     };
 
     const addFormRef = (id, cb) => {
-        console.log('addFormRef');
         const form = cb();
         const existing = op.get(formsRef.current, id);
 
@@ -777,14 +797,9 @@ const ContentType = props => {
             ref: cb,
             unsub: _subFormHandlers(id, cb),
         };
-
-        // const fieldValue = op.get(getValue(), ['fields', id]);
-        // if (fieldValue) form.setValue(fieldValue);
     };
 
     const removeFormRef = id => {
-        console.log('removeFormRef');
-
         if (op.has(formsRef.current, [id])) {
             const subForm = formsRef.current[id];
             subForm.unsub();
@@ -795,7 +810,7 @@ const ContentType = props => {
     const getFormRef = id =>
         op.get(formsRef.current, [id, 'ref'], getStubRef)();
 
-    const getFormErrors = id => op.get(formsErrors.current, [id, 'errors']);
+    const getFormErrors = id => op.get(ui.error, [id]);
 
     const clearDelete = async () => {
         clear();
@@ -871,7 +886,7 @@ const ContentType = props => {
                 className={'webform webform-content-type'}
                 required={['type']}
                 validator={validator}>
-                <TypeName id={id} error={nameError.current} />
+                <TypeName id={id} error={ui.error['type']} />
             </EventForm>
 
             <DragDropContext onDragEnd={onDragEnd}>

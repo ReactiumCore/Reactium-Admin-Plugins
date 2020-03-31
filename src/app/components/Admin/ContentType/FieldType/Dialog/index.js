@@ -5,36 +5,26 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../../enums';
+// import Dialog from 'components/Reactium-UI/Dialog';
 
 const Header = props => {
     const inputRef = useRef();
     const { id, icon: FieldIcon, DragHandle } = props;
     const CTE = useHandle('ContentTypeEditor');
-    const errors = CTE.getFormErrors(id);
+    const error = CTE.getFormErrors(id);
 
-    const editClicked = () => {
-        inputRef.current.select();
-    };
-
-    const value = op.get(props, 'formRef.current.getValue')();
+    // const value = op.get(props, 'formRef.current.getValue')();
     const saved = CTE.saved();
-    const fieldSaved = op.has(saved, ['fields', id]);
+    const fieldSaved = op.has(saved, ['fields', id]) || id === 'publisher';
 
     const savedProps = fieldSaved
         ? {
               readOnly: true,
-              value: op.get(saved, ['fields', id, 'fieldName']),
           }
-        : {};
-    const unsavedProps = !fieldSaved
-        ? {
-              defaultValue: op.get(
-                  value,
-                  'fieldName',
-                  op.get(props, 'defaultValues.fieldName'),
-              ),
-          }
-        : {};
+        : {
+              onTouchStart: e => inputRef.current.select(),
+              onClick: e => inputRef.current.select(),
+          };
 
     const render = () => (
         <div className='fieldtype-header'>
@@ -43,25 +33,22 @@ const Header = props => {
             </div>
             <div
                 className={cn('fieldtype-header-name', {
-                    error: op.get(errors, 'fields', []).includes('fieldName'),
+                    error: op.get(error, 'fieldName'),
                 })}>
                 <input
                     ref={inputRef}
                     type={'text'}
                     name='fieldName'
                     placeholder={__('Field Name')}
-                    onTouchStart={e => e.target.select()}
-                    onClick={e => e.target.select()}
+                    {...savedProps}
                     className={cn('fieldtype-header-name-input', {
                         disabled: fieldSaved,
                     })}
-                    {...unsavedProps}
-                    {...savedProps}
                 />
                 {!fieldSaved && (
                     <Button
                         className='fieldtype-header-name-icon'
-                        onClick={editClicked}>
+                        {...savedProps}>
                         <span className='sr-only'>{__('Edit')}</span>
                         <Icon.Linear.Pencil />
                     </Button>
@@ -88,7 +75,7 @@ const FieldTypeDialog = props => {
     const removeField = op.get(CTE, 'removeField', () => {});
     const isNew = op.get(CTE, 'isNew', () => true);
     const { id, type, dialogProps, children } = props;
-    const header = { elements: [<Header key='header' {...props} />] };
+    const header = { elements: [<Header key={`${id}-header`} {...props} />] };
 
     const pref = isNew()
         ? {}
@@ -131,6 +118,9 @@ const FieldTypeDialog = props => {
             header={header}
             className={cn('fieldtype', `fieldtype-${type}`)}
             onDismiss={onDismiss}>
+            {
+                // <div>id: {id}</div>
+            }
             {children}
             <div className='form-group'>
                 {op.get(props, 'showHelpText', true) && (

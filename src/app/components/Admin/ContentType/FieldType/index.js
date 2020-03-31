@@ -1,11 +1,11 @@
-import React, { useRef, useEffect, useState, memo } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Reactium, { useHookComponent, useHandle } from 'reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
 import { EventForm } from '@atomic-reactor/reactium-ui';
-// import WebForm from 'components/Reactium-UI/WebForm';
+// import EventForm from 'components/Reactium-UI/EventForm';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 
@@ -33,61 +33,20 @@ const FieldType = props => {
     const Type = useHookComponent(fieldTypeComponent, false);
     const CTE = useHandle('ContentTypeEditor');
 
-    const validator = (id, type) => async (value, valid, errors) => {
-        const validated = {
-            errors: { focus: null, fields: [], errors: [] },
-        };
-
-        const context = await Reactium.Hook.run(`field-type-validator-${id}`, {
+    const validator = (id, type) => async validated => {
+        await Reactium.Hook.run('field-type-validator', {
             id,
             type,
-            value,
-            valid,
-            errors,
+            validated,
         });
-
-        const newErrors = op.get(context, 'errors', {});
-        validated.valid = op.get(context, 'valid', true) && valid;
-        validated.errors.errors = validated.errors.errors.concat(
-            _.unique([
-                ...op.get(errors, 'errors', []),
-                ...op.get(newErrors, 'errors', []),
-            ]),
-        );
-        validated.errors.fields = validated.errors.fields.concat(
-            _.unique([
-                ...op.get(errors, 'fields', []),
-                ...op.get(newErrors, 'fields', []),
-            ]),
-        );
-
-        await Reactium.Hook.run(`field-type-validated-${id}`, validated);
 
         return validated;
-    };
-
-    const onError = (id, type, ref) => async ({ errors, value }) => {
-        await Reactium.Hook.run(`field-type-errors-${id}`, {
-            errors,
-            value,
-            id,
-            type,
-            ref,
-        });
-    };
-
-    const onSubmit = (id, type, ref) => async ({ value }) => {
-        await Reactium.Hook.run(`field-type-submit-${id}`, {
-            value,
-            id,
-            type,
-            ref,
-        });
     };
 
     const onChange = (id, type, ref) => async e => {
         if (e.value) {
             const value = e.value;
+
             await Reactium.Hook.run(`field-type-form-change-${id}`, {
                 value,
                 id,
@@ -106,20 +65,6 @@ const FieldType = props => {
                 'content-type-validate-fields',
                 async context => {
                     context[id] = await formRef.current.validate();
-                    const { valid, errors } = context[id] || {
-                        valid: true,
-                        errors: { focus: null, errors: [], fields: [] },
-                    };
-
-                    if (valid !== true) {
-                        formRef.current.setState({ errors });
-                        onError(
-                            id,
-                            type,
-                            formRef,
-                        )({ errors, value: formRef.current.getValue() });
-                        return;
-                    }
                 },
             ),
         ];
@@ -154,12 +99,11 @@ const FieldType = props => {
         <Draggable draggableId={id} index={index}>
             {({ innerRef, draggableProps, dragHandleProps }) => (
                 <EventForm
+                    key={id}
                     value={value}
                     ref={formRef}
-                    validator={validator(id, type)}
                     required={required}
-                    onError={onError(id, type, formRef)}
-                    onSubmit={onSubmit(id, type, formRef)}
+                    validator={validator(id, type)}
                     onChange={onChange(id, type, formRef)}>
                     <div
                         ref={innerRef}
@@ -170,8 +114,6 @@ const FieldType = props => {
                                 .toLowerCase()
                                 .replace(/\s+/g, '-')}`,
                         )}>
-                        <input type='hidden' name='fieldId' value={id} />
-                        <input type='hidden' name='fieldType' value={type} />
                         <Type
                             {...props}
                             dragHandleProps={dragHandleProps}
@@ -192,7 +134,7 @@ FieldType.propTypes = {
 };
 
 FieldType.defaultProps = {
-    required: [],
+    required: ['fieldName'],
 };
 
 export default FieldType;
