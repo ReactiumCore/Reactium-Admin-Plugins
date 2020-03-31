@@ -49,11 +49,15 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
 
     const [directory, setNewDirectory] = useState();
 
-    const [page, setNewPage] = useState(op.get(props, 'params.page', 1) || 1);
+    const [page, setNewPage] = useState(
+        Number(op.get(props, 'params.page', 1) || 1),
+    );
 
     const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
 
     const [type, setNewType] = useState();
+
+    const [updated, update] = useState();
 
     const setData = newData => {
         if (unMounted()) return;
@@ -104,6 +108,11 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         });
     };
 
+    const forceUpdate = () => {
+        if (unMounted()) return;
+        update(Date.now());
+    };
+
     const isEmpty = () => op.get(state, 'pagination.empty', true);
 
     const isMounted = () => !unMounted();
@@ -128,13 +137,20 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     };
 
     const search = pg => {
+        const { pages = 1 } = op.get(state, 'pagination', {});
+
+        pg = pg || page;
+        pg = pg > pages ? pages : pg;
+        pg = pg < 1 ? 1 : pg;
+
         const newData = Reactium.Media.filter({
             directory,
-            page: pg || page,
+            page: pg,
             search: SearchBar.state.value,
             type,
-            limit: 25,
+            limit: 24,
         });
+
         setData(newData);
         return noop;
     };
@@ -155,6 +171,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         state.library,
         type,
         page,
+        op.get(state, 'pagination.pages'),
     ]);
 
     // Fetch
@@ -168,6 +185,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
             Reactium.Routing.history.push(`/admin/media/${page}`);
         }
     }, [page]);
+
     // Handle
     const _handle = () => ({
         ENUMS,
@@ -195,6 +213,11 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         if (_.isEqual(newHandle, handle)) return;
         setHandle(newHandle);
     }, [Object.values(state), directory, type, page, SearchBar.state.value]);
+
+    // update on pagination change
+    useEffect(() => {
+        forceUpdate();
+    }, [op.get(state, 'pagination.pages')]);
 
     useRegisterHandle(domain.name, () => handle, [handle]);
 

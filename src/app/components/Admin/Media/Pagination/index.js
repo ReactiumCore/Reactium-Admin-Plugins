@@ -5,10 +5,9 @@ import op from 'object-path';
 import { Pagination as PaginationUI } from '@atomic-reactor/reactium-ui';
 
 const Pagination = ({ Media }) => {
-    const { cname, state } = Media;
+    const { cname, page, state } = Media;
     const { pagination } = state;
 
-    const page = op.get(state, 'pagination.page', 1);
     const pages = op.get(state, 'pagination.pages', 1);
 
     const _onSelect = e => {

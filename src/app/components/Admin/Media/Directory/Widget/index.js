@@ -118,7 +118,10 @@ const DirectoryWidget = ({ Media, ...props }) => {
                     color={Button.ENUMS.COLOR.TERTIARY}
                     size={Button.ENUMS.SIZE.SM}
                     selection={[Media.directory]}
-                    onItemClick={e => Media.setDirectory(e.item.value)}
+                    onItemClick={e => {
+                        Media.setPage(1);
+                        Media.setDirectory(e.item.value);
+                    }}
                     data={data()}>
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
@@ -161,7 +164,10 @@ const DirectoryWidget = ({ Media, ...props }) => {
                         color={Button.ENUMS.COLOR.TERTIARY}
                         size={Button.ENUMS.SIZE.SM}
                         selection={_.compact([Media.type])}
-                        onItemClick={e => Media.setType(e.item.value)}
+                        onItemClick={e => {
+                            Medie.setPage(1);
+                            Media.setType(e.item.value);
+                        }}
                         data={dataTypes()}>
                         <Button
                             color={Button.ENUMS.COLOR.TERTIARY}

@@ -4,7 +4,12 @@ $padding-media-content-zone: 40px !default;
 
 .#{$admin-media-ns} {
     @extend .row;
+    align-content: flex-start;
+    flex-wrap: wrap;
     padding: $padding-admin-media;
+    align-items: flex-start;
+    justify-content: flex-start;
+    row-gap: 0;
 
     &-card {
         @extend .col-xs-12;

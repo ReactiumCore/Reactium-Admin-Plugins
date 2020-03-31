@@ -26,7 +26,7 @@ export default (state = {}, action) => {
                 delete state.search;
             }
 
-            const page = Number(op.get(action.params, 'page', 1) || 1);
+            const page = Number(op.get(action.params, 'page', 1));
 
             return { ...state, page };
 
