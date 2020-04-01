@@ -6,7 +6,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 const CTCapabilityEditor = props => {
-    const { type, collection, machineName, ctValue } = props;
+    const { type, collection, machineName, ctRef } = props;
     const CapabilityEditor = useHookComponent('CapabilityEditor');
     const [capabilities, update] = useState([]);
 
@@ -127,12 +127,12 @@ const CTCapabilityEditor = props => {
                 type,
                 collection,
                 machineName,
-                ctValue,
+                ctRef.current,
             );
 
             if (isMounted()) update(context.capabilities);
         },
-        [ctValue],
+        [ctRef.current],
     );
 
     return (

@@ -666,20 +666,18 @@ const ContentType = props => {
     };
 
     const renderCapabilityEditor = () => {
-        if (isNew() || getValue() === null || ui.loading) return null;
+        if (isNew() || ui.loading) return null;
 
         const { collection, machineName } = getValue();
         const label = op.get(getValue(), 'meta.label');
         return (
-            false && (
-                <CTCapabilityEditor
-                    key={`ct-caps-${id}`}
-                    type={label}
-                    collection={collection}
-                    machineName={machineName}
-                    ctValue={getValue()}
-                />
-            )
+            <CTCapabilityEditor
+                key={`ct-caps-${id}`}
+                type={label}
+                collection={collection}
+                machineName={machineName}
+                ctRef={ctRef}
+            />
         );
     };
 
@@ -844,6 +842,7 @@ const ContentType = props => {
         removeField,
         addFormRef,
         removeFormRef,
+        parentFormRef,
         getFormRef,
         getFormErrors,
         clearDelete,
