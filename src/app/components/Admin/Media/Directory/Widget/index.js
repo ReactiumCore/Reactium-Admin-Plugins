@@ -86,6 +86,16 @@ const DirectoryWidget = ({ Media, ...props }) => {
         Modal.show(<Editor />);
     };
 
+    const _onDirectorySelect = e => {
+        if (Media.setPage) Media.setPage(1);
+        Media.setDirectory(e.item.value);
+    };
+
+    const _onTypeSelect = e => {
+        if (Media.setPage) Media.setPage(1);
+        Media.setType(e.item.value);
+    };
+
     useEffect(() => {
         const unsub = subscribe(() => {
             const dirs = op.get(getState(), 'Media.directories', []);
@@ -118,10 +128,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
                     color={Button.ENUMS.COLOR.TERTIARY}
                     size={Button.ENUMS.SIZE.SM}
                     selection={[Media.directory]}
-                    onItemClick={e => {
-                        Media.setPage(1);
-                        Media.setDirectory(e.item.value);
-                    }}
+                    onItemClick={e => _onDirectorySelect(e)}
                     data={data()}>
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
@@ -164,10 +171,7 @@ const DirectoryWidget = ({ Media, ...props }) => {
                         color={Button.ENUMS.COLOR.TERTIARY}
                         size={Button.ENUMS.SIZE.SM}
                         selection={_.compact([Media.type])}
-                        onItemClick={e => {
-                            Media.setPage(1);
-                            Media.setType(e.item.value);
-                        }}
+                        onItemClick={e => _onTypeSelect(e)}
                         data={dataTypes()}>
                         <Button
                             color={Button.ENUMS.COLOR.TERTIARY}
