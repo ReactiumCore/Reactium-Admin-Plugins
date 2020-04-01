@@ -10,7 +10,7 @@ import _ from 'underscore';
  * Functional Component: Tools
  * -----------------------------------------------------------------------------
  */
-const Tools = ({ enums = {} }) => {
+const Tools = () => {
     const position = Reactium.Prefs.get('types-tools-drag-handle.position', {
         x: 0,
         y: 0,
@@ -80,8 +80,6 @@ const Tools = ({ enums = {} }) => {
     );
 };
 
-Tools.defaultProps = {
-    enums: { TYPES: {} },
-};
+Tools.defaultProps = {};
 
 export default Tools;

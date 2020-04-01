@@ -46,13 +46,13 @@ const registerPublisher = async () => {
             type,
             collection,
             machineName,
-            savedRef,
+            ctValue,
             context,
         ) => {
             const statuses = _.compact(
                 op
                     .get(
-                        savedRef.current,
+                        ctValue,
                         'fields.publisher.statuses',
                         'TRASH,DRAFT,PUBLISHED',
                     )
