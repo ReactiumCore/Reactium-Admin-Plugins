@@ -68,7 +68,7 @@ export const FieldType = props => {
                             name='required'
                             label={__('Required')}
                             labelAlign='right'
-                            value={1}
+                            value={true}
                         />
                     </div>
                 </div>
@@ -113,6 +113,8 @@ export const Editor = props => {
     };
 
     const validate = ({ context, value }) => {
+        console.log(props);
+
         const v = value[fieldName];
 
         const err = {
