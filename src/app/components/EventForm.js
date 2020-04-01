@@ -163,7 +163,7 @@ let EventForm = (initialProps, ref) => {
 
             const name = element.name;
             const type = element.type;
-            const defaultValue = element.defaultValue;
+            const defaultValue = op.get(element, 'defaultValue');
             const val = op.get(newValue, name) || defaultValue;
 
             if (Array.isArray(val)) {
