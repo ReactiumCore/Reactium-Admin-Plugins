@@ -8,7 +8,8 @@ import Reactium, {
     useRegisterHandle,
     useHandle,
 } from 'reactium-core/sdk';
-import { EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { EventForm } from 'components/EventForm';
 import cn from 'classnames';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';

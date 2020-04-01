@@ -291,7 +291,7 @@ let EventForm = (initialProps, ref) => {
             keys.push(key);
         }
 
-        const formValue = keys.reduce((obj, key) => {
+        const currentValue = keys.reduce((obj, key) => {
             let v = _.compact(_.uniq(formData.getAll(key))) || [];
 
             v = v.length === 1 && v.length !== 0 ? v[0] : v;
@@ -304,8 +304,6 @@ let EventForm = (initialProps, ref) => {
 
             return obj;
         }, {});
-
-        const currentValue = { ...value, ...formValue };
 
         if (k) {
             return op.get(currentValue, k);
