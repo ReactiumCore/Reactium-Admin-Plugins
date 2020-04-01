@@ -60,7 +60,7 @@ const UI = {
 };
 
 const uiReducer = (ui = {}, action) => {
-    console.log('uiReducer', { action, ui });
+    // console.log('uiReducer', { action, ui });
     const fields = { ...op.get(ui, 'fields', {}) };
     const regions = { ...op.get(ui, 'regions', {}) };
     const regionFields = { ...op.get(ui, 'regionFields', {}) };
@@ -97,19 +97,18 @@ const uiReducer = (ui = {}, action) => {
             const { fieldId } = action;
             const field = op.get(fields, [fieldId], {});
             const region = op.get(field, 'region');
-            const rfs = op
-                .get(regionFields, [region], [])
-                .filter(id => id !== fieldId);
+
+            op.set(
+                regionFields,
+                region,
+                op.get(regionFields, [region], []).filter(id => id !== fieldId),
+            );
             op.del(fields, [fieldId]);
 
             return {
                 ...ui,
-                fields: {
-                    ...fields,
-                },
-                regionFields: {
-                    ...rfs,
-                },
+                fields,
+                regionFields,
             };
         }
 
@@ -253,8 +252,6 @@ const ContentType = props => {
         error: {},
     });
 
-    console.log({ ui });
-
     const _empty = () => ({
         type: undefined,
         regions: REQUIRED_REGIONS,
@@ -344,6 +341,7 @@ const ContentType = props => {
             const contentType = await Reactium.ContentType.retrieve(id);
             const label = op.get(contentType, 'meta.label', contentType.type);
             op.set(contentType, 'type', label);
+
             dispatch({
                 type: UI.LOAD,
                 fields: op.get(contentType, 'fields', {}),
@@ -437,7 +435,7 @@ const ContentType = props => {
             });
         }
 
-        const fieldNames = {};
+        const fieldSlugs = {};
         let savedFields = {};
         if (op.has(saved(), ['fields'])) {
             savedFields = saved().fields;
@@ -451,7 +449,7 @@ const ContentType = props => {
             );
         }
 
-        for (const [fieldId, fieldType] of Object.entries(
+        for (const [fieldId, uiFT] of Object.entries(
             op.get(ui, 'fields', {}),
         )) {
             const ref = getFormRef(fieldId);
@@ -462,6 +460,7 @@ const ContentType = props => {
                 error: {},
                 value: ref.getValue(),
             });
+
             // collect results of fields hook
             if (!ftContext.valid) {
                 error = {
@@ -469,113 +468,73 @@ const ContentType = props => {
                     [fieldId]: ftContext.error,
                 };
 
-                console.log({ error, ftContext });
-
                 ref.setState({
                     error: ftContext.error,
                     status: EventForm.ENUMS.ERROR,
                 });
                 valid = false;
             }
-        }
 
-        // for (let fieldId of Object.keys(op.get(getValue(), 'fields', {}))) {
-        //     const ref = getFormRef(fieldId);
-        //
-        //
-        //     // make sure all fields are unique
-        //     const { fieldName, fieldType } = ref.getValue();
-        //
-        //     const slug = slugify(fieldName || '').toLowerCase();
-        //
-        //     const errors = op.get(ref, 'errors') || {
-        //         focus: null,
-        //         fields: [],
-        //         errors: [],
-        //     };
-        //
-        //     if (slug in fieldNames) {
-        //         const error = __('Duplicate field name %fieldName').replace(
-        //             '%fieldName',
-        //             fieldName,
-        //         );
-        //
-        //         op.set()
-        //         Toast.show({
-        //             type: Toast.TYPE.ERROR,
-        //             message: error,
-        //             icon: (
-        //                 <Icon.Feather.AlertOctagon
-        //                     style={{ marginRight: 12 }}
-        //                 />
-        //             ),
-        //             autoClose: 1000,
-        //         });
-        //
-        //         valid = false;
-        //         const updatedErrors = {
-        //             ...errors,
-        //             focus: 'fieldName',
-        //             fields: _.uniq([
-        //                 ...op.get(errors, 'fields', []),
-        //                 'fieldName',
-        //             ]),
-        //             errors: [...op.get(errors, 'errors', []), error],
-        //         };
-        //
-        //         ref.setState({
-        //             errors: updatedErrors,
-        //         });
-        //
-        //         op.set(formsErrors.current, [fieldId], {
-        //             valid: false,
-        //             errors: updatedErrors,
-        //         });
-        //     }
-        //     fieldNames[slug] = fieldId;
-        //
-        //
-        //     // check to make sure UI version of field type matches saved
-        //     if (
-        //         op.has(savedFields, slug) &&
-        //         fieldType !== op.get(savedFields, [slug, 'fieldType'])
-        //     ) {
-        //         const error = __('Field name %fieldName type exists.').replace(
-        //             '%fieldName',
-        //             fieldName,
-        //         );
-        //         Toast.show({
-        //             type: Toast.TYPE.ERROR,
-        //             message: error,
-        //             icon: (
-        //                 <Icon.Feather.AlertOctagon
-        //                     style={{ marginRight: 12 }}
-        //                 />
-        //             ),
-        //             autoClose: 2000,
-        //         });
-        //
-        //         valid = false;
-        //         const updatedErrors = {
-        //             ...errors,
-        //             focus: 'fieldName',
-        //             fields: _.uniq([
-        //                 ...op.get(errors, 'fields', []),
-        //                 'fieldName',
-        //             ]),
-        //             errors: [...op.get(errors, 'errors', []), error],
-        //         };
-        //
-        //         ref.setState({
-        //             errors: updatedErrors,
-        //         });
-        //
-        //         op.set(formsErrors.current, [fieldId], {
-        //             valid: false,
-        //             errors: updatedErrors,
-        //         });
-        //     }
-        // }
+            // Check for duplicate fieldName
+            const fieldName = op.get(ftContext, 'value.fieldName');
+            const fieldType = op.get(uiFT, 'fieldType');
+            const slug = slugify(fieldName).toLowerCase();
+            if (fieldName && slug in fieldSlugs) {
+                const errorMessage = __(
+                    'Duplicate field name %fieldName',
+                ).replace('%fieldName', fieldName);
+
+                Toast.show({
+                    type: Toast.TYPE.ERROR,
+                    message: errorMessage,
+                    icon: (
+                        <Icon.Feather.AlertOctagon
+                            style={{ marginRight: 12 }}
+                        />
+                    ),
+                    autoClose: 1000,
+                });
+
+                op.set(error, [fieldId, 'fieldName', 'field'], 'fieldName');
+                op.set(error, [fieldId, 'fieldName', 'message'], errorMessage);
+                valid = false;
+
+                ref.setState({
+                    error: op.get(error, [fieldId, 'fieldName']),
+                    status: EventForm.ENUMS.ERROR,
+                });
+            }
+            fieldSlugs[slug] = fieldId;
+
+            // check to make sure UI version of field type matches saved
+            if (
+                op.has(savedFields, slug) &&
+                fieldType !== op.get(savedFields, [slug, 'fieldType'])
+            ) {
+                const errorMessage = __(
+                    'Field name %fieldName type exists.',
+                ).replace('%fieldName', fieldName);
+                Toast.show({
+                    type: Toast.TYPE.ERROR,
+                    message: errorMessage,
+                    icon: (
+                        <Icon.Feather.AlertOctagon
+                            style={{ marginRight: 12 }}
+                        />
+                    ),
+                    autoClose: 2000,
+                });
+
+                op.set(error, [fieldId, 'fieldName', 'field'], 'fieldName');
+                op.set(error, [fieldId, 'fieldName', 'message'], errorMessage);
+                valid = false;
+
+                ref.setState({
+                    error: op.get(error, [fieldId, 'fieldName']),
+                    status: EventForm.ENUMS.ERROR,
+                });
+            }
+        }
 
         const regionSlugs = Object.values(getRegions()).reduce(
             (slugs, { id, slug }) => ({ ...slugs, [slug]: id }),
@@ -643,38 +602,67 @@ const ContentType = props => {
     };
 
     const onTypeSubmit = async e => {
-        // debugging
-        return;
-        // try {
-        //     op.set(value, 'regions', getRegions());
-        //
-        //     const contentType = await Reactium.ContentType.save(id, value);
-        //     savedRef.current = _cloneContentType(contentType);
-        //     ctRef.current = _cloneContentType(contentType);
-        //
-        //     Toast.show({
-        //         type: Toast.TYPE.SUCCESS,
-        //         message: __('Content type saved'),
-        //         icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-        //         autoClose: 1000,
-        //     });
-        //
-        //     if (id === 'new' && contentType.uuid) {
-        //         Reactium.Routing.history.push(
-        //             `/admin/type/${contentType.uuid}`,
-        //         );
-        //     }
-        //
-        //     nameError.current = false;
-        //     // ui.errors = {}h (error) {
-        //     Toast.show({
-        //         type: Toast.TYPE.ERROR,
-        //         message: __('Error saving content type.'),
-        //         icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
-        //         autoClose: 1000,
-        //     });
-        //     console.error(error);
-        // }
+        const value = parentFormRef.current.getValue();
+        op.set(value, 'regions', getRegions());
+
+        Object.entries(ui.fields).forEach(([fieldId, def]) => {
+            const ref = getFormRef(fieldId);
+            if (ref) {
+                const fieldValue = ref.getValue();
+                const fieldName = op.get(fieldValue, 'fieldName');
+                const fieldType = op.get(def, 'fieldType');
+                const [region] = Object.entries(
+                    op.get(ui, 'regionFields', {}),
+                ).find(([region, ids]) => ids.includes(fieldId));
+
+                op.set(value, ['fields', fieldId], {
+                    ...fieldValue,
+                    fieldId,
+                    fieldName,
+                    fieldType,
+                    region,
+                });
+            }
+        });
+
+        try {
+            const contentType = await Reactium.ContentType.save(id, value);
+            const label = op.get(contentType, 'meta.label', contentType.type);
+            op.set(contentType, 'type', label);
+
+            dispatch({
+                type: UI.LOAD,
+                fields: op.get(contentType, 'fields', {}),
+                regions: op.get(contentType, 'regions', {}),
+            });
+
+            savedRef.current = _cloneContentType(contentType);
+            ctRef.current = _cloneContentType(contentType);
+            dispatch({
+                type: UI.LOADED,
+            });
+
+            Toast.show({
+                type: Toast.TYPE.SUCCESS,
+                message: __('Content type saved'),
+                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+
+            if (id === 'new' && contentType.uuid) {
+                Reactium.Routing.history.push(
+                    `/admin/type/${contentType.uuid}`,
+                );
+            }
+        } catch (error) {
+            Toast.show({
+                type: Toast.TYPE.ERROR,
+                message: __('Error saving content type.'),
+                icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
+                autoClose: 1000,
+            });
+            console.error(error);
+        }
     };
 
     const renderCapabilityEditor = () => {

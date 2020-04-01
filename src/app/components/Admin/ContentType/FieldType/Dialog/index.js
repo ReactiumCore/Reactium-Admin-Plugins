@@ -105,7 +105,7 @@ const FieldTypeDialog = props => {
             />,
         );
 
-    const onDismiss = op.has(CTE.ctValue, ['fields', id])
+    const onDismiss = op.has(CTE.saved(), ['fields', id])
         ? showModal
         : doRemoveField;
 
