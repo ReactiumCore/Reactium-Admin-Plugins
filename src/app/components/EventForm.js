@@ -164,7 +164,7 @@ let EventForm = (initialProps, ref) => {
             const name = element.name;
             const type = element.type;
             const defaultValue = element.defaultValue;
-            const val = op.get(newValue, name, defaultValue);
+            const val = op.get(newValue, name) || defaultValue;
 
             if (Array.isArray(val)) {
                 // Checkbox & Radio
