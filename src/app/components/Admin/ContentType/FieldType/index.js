@@ -5,7 +5,7 @@ import cn from 'classnames';
 import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
 import { EventForm } from '@atomic-reactor/reactium-ui';
-// import EventForm from 'components/Reactium-UI/EventForm';
+// import { EventForm } from 'components/EventForm';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 

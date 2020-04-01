@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
@@ -113,8 +114,6 @@ export const Editor = props => {
     };
 
     const validate = ({ context, value }) => {
-        console.log(props);
-
         const v = value[fieldName];
 
         const err = {
