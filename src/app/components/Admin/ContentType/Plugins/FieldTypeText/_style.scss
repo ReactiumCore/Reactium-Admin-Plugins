@@ -21,10 +21,14 @@
         .min-max {
             flex-shrink: 0;
             flex-grow: 1;
-            width: 15%;
+            width: 100%;
 
             input {
                 width: 100%;
+            }
+
+            @include breakpoint(md) {
+                width: 15%;
             }
         }
 

@@ -173,7 +173,7 @@ let UserEditor = (
 
     const setAvatar = avatar => {
         if (unMounted()) return;
-        const value = { ...state.value, avatar };
+        let value = { ...state.value, avatar };
         setState({ value });
     };
 
@@ -213,7 +213,7 @@ let UserEditor = (
         handle.dispatchEvent(evt);
         debug(eventType, evt);
 
-        await Reactium.Hook.run(`form-user-${eventType}`, evt, handle);
+        await Reactium.Hook.run(`USER-${eventType}`, evt, handle);
         if (unMounted()) return;
 
         if (eventType === 'STATUS') callback = onStatus;
@@ -459,6 +459,11 @@ let UserEditor = (
 
     const _onSuccess = async e => {
         const { user } = e;
+
+        // If current user is being updated -> update cache
+        if (Reactium.User.isCurrent(user)) {
+            await Reactium.User.current(true).fetch();
+        }
 
         const alertObj = {
             color: Alert.ENUMS.COLOR.INFO,

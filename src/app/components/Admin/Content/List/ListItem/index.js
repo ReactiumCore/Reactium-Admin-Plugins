@@ -218,11 +218,6 @@ export const ListItemActions = ({ url, column, row }) => {
                     <Icon name='Feather.Trash2' />
                 </span>
             </Button>
-            <Button {...buttonProps} to={url} type='link'>
-                <span>
-                    <Icon name='Feather.Edit2' />
-                </span>
-            </Button>
             <Button {...buttonProps} onClick={() => row.toggle()}>
                 <span>
                     <Icon name='Feather.MoreVertical' />
@@ -252,7 +247,7 @@ export const ListItemStatus = ({ column, list, status, ...props }) => (
 
 export const ListItemTitle = ({ column, slug, title, url, row }) => (
     <div
-        onClick={e => row.toggle()}
+        onClick={e => Reactium.Routing.history.push(url)}
         className='flex middle'
         style={{
             flexGrow: 1,

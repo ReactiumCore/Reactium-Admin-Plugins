@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import op from 'object-path';
+import React, { useEffect, useRef } from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
-import React, { useEffect, useRef, useState } from 'react';
 import { Checkbox, Dialog } from '@atomic-reactor/reactium-ui';
 
 /**
@@ -90,9 +90,7 @@ export const Editor = props => {
     } = props;
 
     const inputRef = useRef();
-    const editorValue = op.get(editor, 'value', {});
     const ElementDialog = useHookComponent('ElementDialog');
-    const [value, setValue] = useState(editorValue[fieldName]);
 
     const inputProps = {
         defaultValue,
@@ -103,6 +101,15 @@ export const Editor = props => {
         placeholder,
         ref: inputRef,
         type: 'text',
+    };
+
+    const { errors } = editor;
+    const errorText = op.get(errors, [fieldName, 'message']);
+    const className = cn('form-group', { error: !!errorText });
+    const replacers = {
+        '%fieldName': fieldName,
+        '%max': max,
+        '%min': min,
     };
 
     const validate = ({ context, value }) => {
@@ -140,17 +147,6 @@ export const Editor = props => {
         }
 
         return context;
-    };
-
-    const { errors } = editor;
-    const errorText = op.get(errors, [fieldName, 'message']);
-    const className = cn('form-group', { error: !!errorText });
-    const replacers = {
-        '%fieldName': fieldName,
-        '%max': max,
-        '%min': min,
-        '%type': editor.type,
-        '%value': value,
     };
 
     useEffect(() => {

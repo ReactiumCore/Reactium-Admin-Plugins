@@ -2,22 +2,10 @@ import cn from 'classnames';
 import op from 'object-path';
 import { Link } from 'react-router-dom';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle, useWindowSize } from 'reactium-core/sdk';
-import { useProfileAvatar, useProfileGreeting, useProfileRole } from './hooks';
-
-import React, {
-    useEffect,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-    useState,
-} from 'react';
-
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
-
-const noop = () => {
-    return true;
-};
+import useAvatar from 'components/Admin/User/useAvatar';
+import React, { useEffect, useRef, useState } from 'react';
+import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import { useProfileGreeting, useProfileRole } from './hooks';
 
 /**
  * -----------------------------------------------------------------------------
@@ -29,62 +17,64 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         return null;
     }
 
-    const Profile = useHandle('ProfileEditor');
-
-    const role = useProfileRole(Reactium.User.current());
-
-    const getAvatar = useProfileAvatar(Reactium.User.current());
-
-    const greeting = useProfileGreeting();
-
-    const { breakpoint } = useWindowSize();
-
+    // Refs
     const avatarRef = useRef();
-
     const containerRef = useRef();
 
-    const intervalRef = useRef();
-
-    const stateRef = useRef({
-        avatar: getAvatar,
-    });
-
-    const toggle = () => Profile.toggle();
-
-    const nav = () => {
-        Reactium.User.selected = null;
-        Reactium.Routing.history.push(
-            `/admin/user/${Reactium.User.current().objectId}/content`,
-        );
-    };
+    // Hooks
+    const [getAvatar] = useAvatar(Reactium.User.current());
+    const greeting = useProfileGreeting();
+    const role = useProfileRole(Reactium.User.current());
 
     // State
-    const [, setNewState] = useState(stateRef.current);
-
-    // Internal Interface
+    const [state, setNewState] = useDerivedState({ avatar: getAvatar });
     const setState = newState => {
-        // Update the stateRef
-        stateRef.current = {
-            ...stateRef.current,
-            ...newState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
+        if (unMounted()) return;
+        setNewState(newState);
     };
 
+    // Functions
     const cname = () =>
         cn({ [className]: !!className, [namespace]: !!namespace });
 
+    const isMounted = () => !unMounted();
+
+    const nav = () =>
+        Reactium.Routing.history.push(
+            `/admin/user/${Reactium.User.current().objectId}/content`,
+        );
+
+    const unMounted = () => !containerRef.current;
+
+    const _onStatus = e => {
+        if (unMounted()) return;
+
+        const { event, value = {} } = e;
+
+        if (event !== 'SAVED') return;
+        if (!Reactium.User.isCurrent(value)) return;
+
+        const { avatar } = value;
+        const { avatar: currentAvatar } = state;
+        if (avatar && avatar !== state.avatar) setState({ avatar });
+    };
+
     useEffect(() => {
-        const { avatar } = stateRef.current;
+        const { avatar } = state;
         if (avatar !== getAvatar) {
             setState({ avatar: getAvatar });
         }
     }, [getAvatar]);
 
+    useEffect(() => {
+        const hook = Reactium.Hook.register('USER-STATUS', e => _onStatus(e));
+        return () => {
+            Reactium.Hook.unregister(hook);
+        };
+    });
+
     const render = () => {
-        const { avatar } = stateRef.current;
+        const { avatar } = state;
 
         return (
             <div className={cname()} ref={containerRef}>
