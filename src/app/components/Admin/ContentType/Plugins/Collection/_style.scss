@@ -1,0 +1,103 @@
+.field-type-collection {
+    .ar-dropdown {
+        width: 100%;
+        border: 1px solid $color-border;
+        button {
+            text-transform: none;
+            font-size: 16px;
+        }
+    }
+
+    .input-group {
+        .ar-dropdown {
+            min-width: 200px;
+            width: auto;
+        }
+
+        .key {
+            flex-shrink: 1;
+        }
+
+        .value {
+            flex-grow: 1;
+        }
+    }
+
+    .query {
+        padding: 24px;
+        align-items: center;
+        flex-wrap: wrap;
+
+        > kbd:first-child {
+            width: 100%;
+        }
+
+        .func {
+            //font-style: italic;
+            font-size: 14px;
+            display: flex;
+            min-height: 20px;
+            align-items: center;
+            padding-left: 18px;
+            width: 100%;
+            line-height: 1.5;
+
+            span.comma {
+                margin-right: 6px;
+            }
+
+            kbd {
+                font-style: normal;
+                font-size: 16px;
+            }
+
+            kbd.name {
+                color: $color-primary;
+                font-weight: bold;
+                padding-right: 0;
+                margin-right: -4px;
+            }
+
+            kbd.paren {
+                color: $color-gray;
+            }
+
+            kbd.bracket {
+                color: $color-primary;
+                padding: 0;
+                margin-right: -2px;
+            }
+
+            kbd.brace {
+                color: $color-grey;
+            }
+
+            button {
+                display: none;
+                width: 20px;
+                height: 20px;
+                padding: 0;
+                margin-left: 4px;
+            }
+
+            &:hover {
+                .label {
+                    position: relative;
+                    opacity: .7;
+                    &:after {
+                        content: '';
+                        width: calc(100% - 2px);
+                        height: 1px;
+                        background-color: $color-dark;
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                    }
+                }
+                button {
+                    display: block;
+                }
+            }
+        }
+    }
+}
