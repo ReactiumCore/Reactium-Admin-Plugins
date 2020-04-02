@@ -84,7 +84,10 @@ const RoleControl = ({
  * Functional Component: CapabilityEditor
  * -----------------------------------------------------------------------------
  */
-const CapabilityEditor = ({ capabilities = [] }) => {
+const CapabilityEditor = ({
+    capabilities = [],
+    pref = 'capability-editor',
+}) => {
     const canSet = useCapabilityCheck(
         ['Capability.create', 'Capability.update'],
         false,
@@ -272,6 +275,7 @@ const CapabilityEditor = ({ capabilities = [] }) => {
 
     return (
         <Dialog
+            pref={pref}
             className='capability-editor'
             header={{ title: __('Capabilities'), dismissable: false }}>
             {loadedCaps.loading ? (
