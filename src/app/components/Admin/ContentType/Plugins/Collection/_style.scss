@@ -2,6 +2,7 @@
     .ar-dropdown {
         width: 100%;
         border: 1px solid $color-border;
+
         button {
             text-transform: none;
             font-size: 16px;
@@ -18,8 +19,13 @@
             flex-shrink: 1;
         }
 
+        .options,
         .value {
             flex-grow: 1;
+        }
+
+        .value {
+            flex-basis: 10%;
         }
     }
 
@@ -33,69 +39,146 @@
         }
 
         .func {
-            //font-style: italic;
             font-size: 14px;
+            font-weight: 500;
+            font-family: monospace;
+            color: $color-dark;
             display: flex;
             min-height: 20px;
             align-items: center;
-            padding-left: 18px;
+            padding-left: 20px;
             width: 100%;
             line-height: 1.5;
 
+            span.break {
+                padding: 0 0 0 15px;
+            }
+
             span.comma {
-                margin-right: 6px;
+                margin-right: 4px;
+                font-weight: bold;
+                color: $color-primary;
+            }
+
+            span.colon {
+                margin-right: 8px;
+                color: $color-dark-light;
+                font-weight: bold;
+                font-size: 14px;
+                line-height: 0;
+            }
+
+            span.period {
+                position: relative;
+
+                &:before {
+                    content: '';
+                    line-height: 0px;
+                    position: absolute;
+                    bottom: 3px;
+                    left: -3px;
+                    z-index: 100;
+                    width: 3px;
+                    height: 3px;
+                    background-color: $color-dark;
+                    border-radius: 100%;
+                }
+            }
+
+            span.key {
+                color: $color-primary;
             }
 
             kbd {
                 font-style: normal;
-                font-size: 16px;
+                font-size: 14px;
+                padding: 0;
+            }
+
+            kbd.boolean {
+                font-style: italic;
+                padding: 0;
+                margin: 0;
+                margin-right: 2px;
+                font-weight: bold;
+                color: lighten($color-primary, 10%);
             }
 
             kbd.name {
                 color: $color-primary;
                 font-weight: bold;
                 padding-right: 0;
-                margin-right: -4px;
-            }
-
-            kbd.paren {
-                color: $color-gray;
-            }
-
-            kbd.bracket {
-                color: $color-primary;
-                padding: 0;
                 margin-right: -2px;
             }
 
+            kbd.paren {
+                color: $color-primary;
+                font-weight: bold;
+                font-size: 16px;
+                line-height: 1;
+
+                &:last-child {
+                    padding-left: 0;
+                    margin-left: -1px;
+                }
+            }
+
+            kbd.bracket,
             kbd.brace {
-                color: $color-grey;
+                color: $color-dark-light;
+                padding: 0;
+                font-weight: bold;
+            }
+
+            kbd.brace {
+                padding: 0;
+                margin-left: -2px;
             }
 
             button {
                 display: none;
-                width: 20px;
-                height: 20px;
+                width: 14px;
+                height: 14px;
                 padding: 0;
                 margin-left: 4px;
+
+                svg {
+                    width: 10px;
+                    height: 10px;
+                }
             }
 
-            &:hover {
-                .label {
-                    position: relative;
-                    opacity: .7;
-                    &:after {
-                        content: '';
-                        width: calc(100% - 2px);
-                        height: 1px;
-                        background-color: $color-dark;
-                        position: absolute;
-                        top: 50%;
-                        left: 0;
-                    }
-                }
+            &:hover,
+            &:focus {
+                background-color: $color-light-dark;
+
                 button {
                     display: block;
+                    order: 10;
+                }
+            }
+
+            div.label {
+                cursor: default;
+                
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            button:hover + div.label,
+            button:focus + div.label {
+                position: relative;
+                opacity: 0.7;
+                text-decoration: line-through;
+            }
+
+            &:last-child {
+                div.label {
+                    &:after {
+                        content: ';';
+                        margin-left: -2px;
+                    }
                 }
             }
         }

@@ -26,6 +26,7 @@ export const FieldType = props => {
     const formRef = op.get(props, 'formRef');
     const funcRef = useRef();
     const keyRef = useRef();
+    const optRef = useRef();
     const typeRef = useRef();
     const valueRef = useRef();
 
@@ -43,38 +44,72 @@ export const FieldType = props => {
     });
 
     const funcAdd = () => {
+        let options = optRef.current ? optRef.current.value : '';
         let value = valueRef.current ? valueRef.current.value : '';
-        let { func, key, query = [] } = state;
+        let { func, key = [], query = [] } = state;
         let { label } = func;
 
+        const isArray = op.get(func, 'value.type') === 'array';
+
+        options = _.compact([options]);
+        options = _.isEmpty(options) ? undefined : objectify(options);
+
+        value = _.isEmpty(_.compact([value])) ? undefined : value;
         value =
-            op.get(func, 'value.type') === 'array' &&
-            JSON.stringify(
-                String(value)
-                    .replace(/ +/g, ' ')
-                    .replace(/\, /g, ',')
-                    .split(','),
-            );
+            value && isArray
+                ? arrayize(value)
+                : JSON.stringify(transformValue(stringize(value)));
+
+        key = _.flatten([key]);
+
+        const keymap =
+            key.length > 0
+                ? key.map(item => `'${item}'`).join(', ')
+                : undefined;
 
         label = String(label)
-            .replace(/\%value/gi, value)
-            .replace(/\%key/gi, key.map(item => `'${item}'`).join(', '))
-            .replace(/\,/g, "<span className='comma'>,</span>")
+            .replace(/\%value/gi, value || '')
+            .replace(/\%options/gi, options || '')
+            .replace(/\%key/gi, keymap || '')
             .replace(/\"/g, "'")
-            .replace(/\%func/gi, `<kbd className='name'>${func.id}</kbd>`)
-            .replace(/\(/g, "<kbd className='paren'>(</kbd>")
-            .replace(/\)/g, "<kbd className='paren'>)</kbd>")
-            .replace(/\[/g, "<kbd className='bracket'>[</kbd>")
-            .replace(/\]/g, "<kbd className='bracket'>]</kbd>")
-            .replace(/\{/g, "<kbd className='brace'>{</kbd>")
-            .replace(/\}/g, "<kbd className='brace'>}</kbd>")
+            .replace(/'([^']+)':/g, '<span className="key">$1:</span>')
+            .replace(/'([^']+)'/g, '<span className="string">\'$1\'</span>')
+            .replace(
+                /\,/g,
+                options && key.length < 1
+                    ? '<span className="comma">,</span><br /><span className="break" />'
+                    : '<span className="comma">,</span>',
+            )
+            .replace(/\:/g, '<span className="colon">:</span>')
+            .replace(/\'true\'|true/gi, '<kbd className="boolean">true</kbd>')
+            .replace(
+                /\'false\'|false/gi,
+                '<kbd className="boolean">false</kbd>',
+            )
+            .replace(
+                /\%func/gi,
+                `<span className='period' /><kbd className='name'>${func.id}</kbd>`,
+            )
+            .replace(/\(/g, '<kbd className="paren">(</kbd>')
+            .replace(/\)/g, '<kbd className="paren">)</kbd>')
+            .replace(/\[/g, '<kbd className="bracket">[</kbd>')
+            .replace(/\]/g, '<kbd className="bracket">]</kbd>')
+            .replace(
+                /\{/g,
+                '<kbd className="brace">&#123;<br /><span className=\'break\' /></kbd>',
+            )
+            .replace(/\}/g, '<kbd className="brace"><br />&#125;</kbd>')
             .trim();
 
         const q = {
             func: func.id,
             key,
             label,
+            value: value && isArray ? JSON.parse(value) : value,
+            options: options && JSON.parse(options),
         };
+
+        console.log(q);
 
         query.push(q);
 
@@ -84,8 +119,8 @@ export const FieldType = props => {
             query: JSON.stringify(query),
         });
 
-        keyRef.current.setState({ selection: [] });
-
+        if (keyRef.current) keyRef.current.setState({ selection: [] });
+        if (optRef.current) optRef.current.value = '';
         if (valueRef.current) valueRef.current.value = '';
 
         setState({ key: [] });
@@ -104,9 +139,16 @@ export const FieldType = props => {
 
     const schema = () => {
         if (!op.get(state, 'type')) return [];
+        const defaultKeys = ['ACL', 'objectId', 'createdAt', 'updatedAt'];
         const schema = op.get(state, 'type.schema', {});
-        const keys = Object.keys(schema);
-        keys.sort();
+        const schemaKeys = Object.keys(schema);
+        schemaKeys.sort();
+
+        const keys = _.chain([defaultKeys, schemaKeys])
+            .flatten()
+            .uniq()
+            .value();
+
         return keys.map(key => ({ label: key, value: key }));
     };
 
@@ -278,6 +320,15 @@ export const FieldType = props => {
                                     placeholder={func.value.placeholder}
                                 />
                             )}
+                            {func && op.get(func, 'options') && (
+                                <input
+                                    className='options'
+                                    ref={optRef}
+                                    type='text'
+                                    style={{ flexGrow: 1 }}
+                                    placeholder={func.options.placeholder}
+                                />
+                            )}
                             {func && (
                                 <Button
                                     type='button'
@@ -305,7 +356,7 @@ export const FieldType = props => {
 const Label = ({ label = '' }) => {
     label = typeof label === 'string' ? label : JSON.stringify(label);
     return (
-        <div className='label'>
+        <div className='label' tabIndex={1}>
             <JsxParser jsx={String(label)} renderInWrapper={false} />
         </div>
     );
@@ -327,10 +378,10 @@ const Query = ({ className = 'query', query = [], onDelete }) => {
 
                 return (
                     <div key={`func-${i}`} className='func'>
-                        <Label {...item} />
                         <Button {...buttonProps} onClick={() => onDelete(i)}>
                             <Icon name='Feather.X' size={14} />
                         </Button>
+                        <Label label={label} />
                     </div>
                 );
             })}
@@ -390,4 +441,57 @@ export const useTypes = () => {
     }, [status]);
 
     return [types, setTypes];
+};
+
+const stringize = v => {
+    v = String(v)
+        .trim()
+        .replace(/\s\s+/g, ' ')
+        .replace(/\, /g, ',');
+    return v;
+};
+
+const arrayize = v => {
+    v = JSON.stringify(
+        stringize(v)
+            .split(',')
+            .map(item => transformValue(item)),
+    );
+
+    return v;
+};
+
+const objectify = v => {
+    v = _.isEmpty([v])
+        ? undefined
+        : String(v)
+              .trim()
+              .replace(/\s\s+/g, ' ')
+              .replace(/\, /g, ',')
+              .replace(/\ ,/g, ',')
+              .replace(/ :/g, ':')
+              .replace(/: /g, ':');
+
+    v = _.isEmpty([v])
+        ? undefined
+        : JSON.stringify(
+              v.split(',').reduce((obj, item) => {
+                  const key = item.split(':').shift();
+                  const val = transformValue(item.split(':').pop());
+                  op.set(obj, key, val);
+                  return obj;
+              }, {}),
+          );
+
+    return v;
+};
+
+const transformValue = v => {
+    if (v === 'true' || v === true) return true;
+    if (v === 'false' || v === false) return false;
+    if (!isNaN(v)) return Number(v);
+
+    return `${String(v)
+        .replace(/\'/g, '')
+        .replace(/\"/g, '')}`;
 };
