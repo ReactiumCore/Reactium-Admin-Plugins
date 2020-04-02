@@ -11,13 +11,17 @@ const ContentType = { FieldType: {} };
  * @apiDescription Get list of content types with the type name, uuid, and label from Actinium
  * @apiName ContentType.types
  * @apiGroup Reactium.ContentType
+ * @apiParam {Boolean} refresh Retrieve a fresh list of ContentType objects.
+ * @apiParam {Boolean} schema Include the Collection schema object.
  */
-ContentType.types = async (refresh = false) => {
-    let request = Reactium.Cache.get('content-types');
+ContentType.types = async (params = {}) => {
+    const refresh = op.get(params, 'refresh');
+
+    let request = refresh !== true && Reactium.Cache.get('content-types');
 
     if (request) return request;
 
-    request = Reactium.Cloud.run('types', { refresh }).then(response => {
+    request = Reactium.Cloud.run('types', params).then(response => {
         return op.get(response, 'types', []);
     });
 

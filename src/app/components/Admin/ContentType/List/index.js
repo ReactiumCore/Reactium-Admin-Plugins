@@ -62,7 +62,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
         );
     };
 
-    const getTypes = refresh => Reactium.ContentType.types(refresh);
+    const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     const properCase = useProperCase();
 

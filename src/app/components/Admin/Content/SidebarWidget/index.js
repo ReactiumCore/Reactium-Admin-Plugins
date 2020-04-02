@@ -15,7 +15,7 @@ export default () => {
     const [types, setTypes] = useState([]);
     const [updated, update] = useState();
 
-    const getTypes = refresh => Reactium.ContentType.types(refresh);
+    const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     useAsyncEffect(
         async mounted => {

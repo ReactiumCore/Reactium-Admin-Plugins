@@ -8,8 +8,7 @@ import Reactium, {
     useRegisterHandle,
     useHandle,
 } from 'reactium-core/sdk';
-import { Icon, Spinner } from '@atomic-reactor/reactium-ui';
-import { EventForm } from 'components/EventForm';
+import { EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 import cn from 'classnames';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -277,7 +276,7 @@ const ContentType = props => {
     const getValue = () => ctRef.current;
     const saved = () => savedRef.current;
 
-    const getTypes = refresh => Reactium.ContentType.types(refresh);
+    const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     useEffect(() => {
         clear();

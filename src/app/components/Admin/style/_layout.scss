@@ -160,3 +160,7 @@ body {
 .btn-group > .ar-dropdown:last-child > button {
     border-radius: 0 2px 2px 0;
 }
+
+.form-group:empty {
+    display: none;
+}

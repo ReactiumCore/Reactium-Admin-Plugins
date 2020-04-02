@@ -67,7 +67,7 @@
 //         slug: 'test-article-2',
 //     });
 //
-//     const types = await Reactium.ContentType.types(true);
+//     const types = await Reactium.ContentType.types({ refresh: true });
 //
 //     Reactium.Zone.addComponent({
 //         zone: ['revisions-test'],

@@ -287,7 +287,7 @@ let ContentEditor = (
 
     const getContentType = () => _.findWhere(types, { type });
 
-    const getTypes = refresh => Reactium.ContentType.types(refresh);
+    const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     const unMounted = (checkReady = false) => {
         if (checkReady === true && !ready) return true;

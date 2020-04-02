@@ -123,7 +123,7 @@ const FieldTypeDialog = props => {
             }
             {children}
             <div className='form-group'>
-                {op.get(props, 'showHelpText', true) && (
+                {op.get(props, 'showHelpText') && (
                     <label>
                         <input
                             type='text'
@@ -143,6 +143,11 @@ FieldTypeDialog.propTypes = {
     type: PropTypes.string.isRequired,
     icon: PropTypes.elementType.isRequired,
     dialogProps: PropTypes.shape(Dialog.propTypes),
+    showHelpText: PropTypes.bool,
+};
+
+FieldTypeDialog.defaultProps = {
+    showHelpText: true,
 };
 
 export default FieldTypeDialog;

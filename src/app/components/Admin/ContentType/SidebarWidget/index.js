@@ -22,7 +22,7 @@ export default () => {
             .toLowerCase()
             .startsWith('/admin/type');
 
-    const getTypes = refresh => Reactium.ContentType.types(refresh);
+    const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     useAsyncEffect(
         async mounted => {
