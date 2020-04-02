@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
-import { Icon, Dialog, Checkbox } from '@atomic-reactor/reactium-ui';
+import {
+    Button,
+    Icon,
+    Dialog,
+    Checkbox,
+    Spinner,
+} from '@atomic-reactor/reactium-ui';
 import DataTable from '@atomic-reactor/reactium-ui/DataTable';
 
 import Reactium, {
@@ -10,6 +16,7 @@ import Reactium, {
     useWindowSize,
 } from 'reactium-core/sdk';
 import op from 'object-path';
+import _ from 'underscore';
 
 const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     return (
@@ -24,69 +31,51 @@ const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     );
 };
 
-const RoleControl = ({
-    canSet = false,
-    capName,
-    capability,
-    role,
-    forceRefresh,
-}) => {
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
-
-    const onChange = e => {
-        const target = e.target;
-        const perms = {
-            ...capability,
-        };
-
-        if (target.checked) {
-            perms.allowed.push(role.name);
-        } else {
-            perms.allowed = perms.allowed.filter(name => name !== role.name);
-        }
-
-        Reactium.Cloud.run('capability-edit', {
-            capability: capName,
-            perms,
-        })
-            .then(() => {
-                Toast.show({
-                    type: Toast.TYPE.SUCCESS,
-                    message: target.checked
-                        ? __('Role added')
-                        : __('Role removed'),
-                    icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-                    autoClose: 1000,
-                });
-            })
-            .catch(error => {
-                Toast.show({
-                    type: Toast.TYPE.ERROR,
-                    message: target.checked
-                        ? __('Error added role')
-                        : __('Error removing role'),
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
-                    autoClose: 1000,
-                });
-
-                console.log(error);
-                forceRefresh();
-            });
+const Loading = () => {
+    const style = {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '200px',
     };
 
     return (
-        capability.allowed && (
-            <Checkbox
-                defaultChecked={capability.allowed.includes(role.name)}
-                onChange={onChange}
-                disabled={!canSet}
-            />
-        )
+        <div style={{ position: 'relative' }}>
+            <div style={style} className='flex center middle'>
+                <Spinner />
+            </div>
+        </div>
+    );
+};
+
+const noop = () => {};
+const RoleControl = ({
+    canSet = false,
+    capability,
+    role,
+    onAdd = noop,
+    onRemove = noop,
+}) => {
+    const name = role.name;
+
+    const onChange = e => {
+        const target = e.target;
+
+        if (target.checked) {
+            onAdd(name);
+        } else {
+            onRemove(name);
+        }
+    };
+
+    const allowed = op.get(capability, 'allowed', []) || [];
+    const anonymous = allowed.includes('anonymous');
+    const checked = allowed.includes(name);
+    const disabled = !canSet || (anonymous && name !== 'anonymous');
+
+    return (
+        <Checkbox checked={checked} onChange={onChange} disabled={disabled} />
     );
 };
 
@@ -104,6 +93,23 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     const roles = Object.values(currentRoles).filter(
         role => !['banned', 'super-admin', 'administrator'].includes(role.name),
     );
+
+    const [loadedCaps, setLoadedCaps] = useState({
+        loading: true,
+        caps: {},
+    });
+
+    const updateLoadedCaps = update => {
+        const newValue = {
+            ...loadedCaps,
+            ...update,
+        };
+
+        setLoadedCaps(newValue);
+    };
+
+    const tools = useHandle('AdminTools');
+    const Toast = op.get(tools, 'Toast');
 
     const { breakpoint } = useWindowSize();
 
@@ -124,7 +130,6 @@ const CapabilityEditor = ({ capabilities = [] }) => {
             maxPermWidth = 85;
     }
 
-    const loadedCaps = useRef({});
     const [updated, setUpdated] = useState(1);
     const forceRefresh = () => setUpdated(updated + 1);
     const capNames = capabilities.map(({ capability }) => capability);
@@ -132,27 +137,88 @@ const CapabilityEditor = ({ capabilities = [] }) => {
         async isMounted => {
             if (capNames.length > 0) {
                 const caps = await Reactium.Capability.get(capNames);
-                loadedCaps.current = caps;
-                if (isMounted()) forceRefresh();
+                if (isMounted())
+                    updateLoadedCaps({
+                        loading: false,
+                        caps,
+                    });
             }
         },
         [capNames.sort().join('')],
     );
 
+    const clearCap = capName => {
+        save(capName, { allowed: [], excluded: [] });
+    };
+
+    const addRole = capName => role => {
+        const excluded = op.get(loadedCaps, ['caps', capName, 'excluded'], []);
+        const allowed = op.get(loadedCaps, ['caps', capName, 'allowed'], []);
+        save(capName, {
+            allowed: _.uniq(allowed.concat(role)),
+            excluded: excluded.filter(r => r !== role),
+        });
+    };
+
+    const removeRole = capName => role => {
+        const excluded = op.get(loadedCaps, ['caps', capName, 'excluded'], []);
+        const allowed = op.get(loadedCaps, ['caps', capName, 'allowed'], []);
+        save(capName, {
+            allowed: allowed.filter(r => r !== role),
+            excluded: _.uniq(excluded.concat(role)),
+        });
+    };
+
+    const save = (capName, perms) => {
+        // updateLoadedCaps({ loading: true });
+        Reactium.Cloud.run('capability-edit', {
+            capability: capName,
+            perms,
+        })
+            .then(updated => {
+                const caps = { ...op.get(loadedCaps, 'caps') };
+                op.set(caps, [capName], updated);
+                updateLoadedCaps({ caps, loading: false });
+
+                Toast.show({
+                    type: Toast.TYPE.SUCCESS,
+                    message: __('Capability Saved'),
+                    icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                    autoClose: 1000,
+                });
+            })
+            .catch(error => {
+                Toast.show({
+                    type: Toast.TYPE.ERROR,
+                    message: __('Error saving capability'),
+                    icon: (
+                        <Icon.Feather.AlertOctagon
+                            style={{ marginRight: 12 }}
+                        />
+                    ),
+                    autoClose: 1000,
+                });
+
+                console.log(error);
+            });
+    };
+
     const getColumns = () => {
         const columns = {
+            clear: {
+                width: '20px',
+            },
             capability: {
                 label: __('Capability'),
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
                 sortType: DataTable.ENUMS.SORT_TYPE.STRING,
-                // width: '20vw',
             },
         };
 
         roles.reduce((columns, role) => {
             columns[role.name] = {
                 label: role.label,
-                width: `${Math.floor(maxPermWidth / (roles.length + 1))}vw`,
+                width: `${Math.floor(maxPermWidth / (roles.length + 1))}%`,
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
                 textAlign: DataTable.ENUMS.TEXT_ALIGN.CENTER,
             };
@@ -163,7 +229,7 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     };
 
     const roleControls = ({ capability: cap }) => {
-        const capability = op.get(loadedCaps, ['current', cap], {
+        const capability = op.get(loadedCaps, ['caps', cap], {
             allowed: null,
         });
 
@@ -175,8 +241,9 @@ const CapabilityEditor = ({ capabilities = [] }) => {
                             capName={cap}
                             capability={capability}
                             role={role}
-                            forceRefresh={forceRefresh}
                             canSet={canSet}
+                            onAdd={addRole(cap)}
+                            onRemove={removeRole(cap)}
                         />
                     )}
                 </>
@@ -185,19 +252,38 @@ const CapabilityEditor = ({ capabilities = [] }) => {
         }, {});
     };
 
+    const clearLabel = __('Clear roles');
     const data = capabilities.map(cap => ({
+        clear: (
+            <Button
+                className='clear-cap'
+                data-tooltip={clearLabel}
+                data-vertical-align='top'
+                data-align='left'
+                color={Button.ENUMS.COLOR.DANGER}
+                onClick={() => clearCap(cap.capability)}>
+                <Icon name={'Feather.X'} />
+                <span className='sr-only'>{clearLabel}</span>
+            </Button>
+        ),
         capability: <CapabilityDescription {...cap} />,
         ...roleControls(cap),
     }));
 
     return (
-        <Dialog header={{ title: __('Capabilities'), dismissable: false }}>
-            <DataTable
-                scrollable={true}
-                height={`${Math.min(data.length * 43 + 21, 450)}px`}
-                columns={getColumns()}
-                data={data}
-            />
+        <Dialog
+            className='capability-editor'
+            header={{ title: __('Capabilities'), dismissable: false }}>
+            {loadedCaps.loading ? (
+                <Loading />
+            ) : (
+                <DataTable
+                    scrollable={true}
+                    height={`${Math.min(data.length * 43 + 21, 450)}px`}
+                    columns={getColumns()}
+                    data={data}
+                />
+            )}
         </Dialog>
     );
 };

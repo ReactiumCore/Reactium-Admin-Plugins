@@ -1,3 +1,30 @@
-.style {
+.capability-editor {
+    .ar-data-table-col, .ar-data-table-heading {
+        &:first-child {
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+        }
 
+        &:nth-child(2) {
+            padding-left: 4px;
+        }
+    }
+    .ar-data-table-heading {
+        @include breakpoint(sm-down) {
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+    }
+
+    .clear-cap {
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
+
+        svg {
+            width: 10px;
+            height: 10px;
+        }
+    }
 }
