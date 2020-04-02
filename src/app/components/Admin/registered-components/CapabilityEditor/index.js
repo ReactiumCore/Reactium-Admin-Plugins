@@ -206,7 +206,7 @@ const CapabilityEditor = ({ capabilities = [] }) => {
     const getColumns = () => {
         const columns = {
             clear: {
-                width: '20px',
+                width: '32px',
             },
             capability: {
                 label: __('Capability'),
