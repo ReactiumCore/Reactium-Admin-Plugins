@@ -14,6 +14,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 import {
+    Alert,
     Button,
     Checkbox,
     Dialog,
@@ -22,354 +23,73 @@ import {
     Spinner,
 } from '@atomic-reactor/reactium-ui';
 
-export const FieldType = props => {
-    const formRef = op.get(props, 'formRef');
-    const funcRef = useRef();
-    const keyRef = useRef();
-    const optRef = useRef();
-    const typeRef = useRef();
-    const valueRef = useRef();
+const Error = ({ state, setState }) =>
+    state.error ? (
+        <div className='pt-xs-20 pb-xs-12'>
+            <Alert
+                color={state.error.color}
+                dismissable
+                icon={<Icon name={state.error.icon} />}
+                onDismiss={() => setState({ error: null })}>
+                {state.error.message}
+            </Alert>
+        </div>
+    ) : null;
 
-    const { DragHandle } = props;
-    const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
-
-    const [types] = useTypes();
-
-    const [state, setNewState] = useDerivedState({
-        error: null,
-        func: null,
-        key: [],
-        query: [],
-        type: { type: 'Collection', objectId: null },
-        wait: null,
-    });
-
-    const funcAdd = () => {
-        let options = optRef.current ? optRef.current.value : '';
-        let value = valueRef.current ? valueRef.current.value : '';
-        let { func, key = [], query = [] } = state;
-
-        const isArray = op.get(func, 'value.type') === 'array';
-
-        options = _.compact([options]);
-        options = _.isEmpty(options) ? undefined : objectify(options);
-
-        value = _.isEmpty(_.compact([value])) ? undefined : value;
-        value =
-            value && isArray
-                ? arrayize(value)
-                : value && JSON.stringify(transformValue(stringize(value)));
-
-        key = _.flatten([key]);
-
-        const isValueRequired = op.get(func, 'value.required', false);
-        const isKeyRequired = op.get(func, 'key.required', false);
-
-        if (isKeyRequired && key.length < 1) {
-            const message = op.get(func, 'key.multiple')
-                ? 'select keys'
-                : 'select a key';
-            setState({ error: { message, focus: keyRef.current } });
-            return;
-        }
-
-        if (isValueRequired && !value) {
-            const message = 'enter value';
-            setState({ error: { message, focus: valueRef.current } });
-            return;
-        }
-
-        const q = {
-            id: uuid(),
-            config: func,
-            func: func.id,
-            keys: key,
-            options,
-            order: op.get(func, 'order', 100),
-            value,
-        };
-
-        query.push(q);
-
-        const added = [];
-
-        const filterQuery = _.sortBy(query, 'order').filter(item => {
-            const isExcluded = _shouldExclude(item, query);
-            const isIncluded = !_shouldInclude(item, added);
-
-            if (isExcluded || isIncluded) return false;
-
-            added.push(item.func);
-            return true;
-        });
-
-        const formValue = formRef.current.getValue();
-        formRef.current.setValue({
-            ...formValue,
-            query: JSON.stringify(filterQuery),
-        });
-
-        if (keyRef.current) keyRef.current.setState({ selection: [] });
-        if (optRef.current) optRef.current.value = '';
-        if (valueRef.current) valueRef.current.value = '';
-
-        setState({ error: null, key: [] });
+const Help = ({ state, setState }) => {
+    const hideAlert = () => {
+        Reactium.Prefs.set('admin.alert.cte.collection', false);
     };
 
-    const funcDel = id => {
-        let { query = [] } = state;
-        const index = _.findIndex(query, { id });
-
-        if (index < 0) return;
-
-        query.splice(index, 1);
-
-        const formValue = formRef.current.getValue();
-        formRef.current.setValue({
-            ...formValue,
-            query: JSON.stringify(query),
-        });
+    const hideHelp = () => {
+        Reactium.Prefs.set('admin.help.cte.collection', false);
+        setState({ help: false });
     };
 
-    const schema = () => {
-        if (!op.get(state, 'type')) return [];
-        const defaultKeys = ['ACL', 'objectId', 'createdAt', 'updatedAt'];
-        const schema = op.get(state, 'type.schema', {});
-        const schemaKeys = Object.keys(schema);
-        schemaKeys.sort();
+    const showAlert = Reactium.Prefs.get('admin.alert.cte.collection', true);
 
-        const keys = _.chain([defaultKeys, schemaKeys])
-            .flatten()
-            .uniq()
-            .value();
-
-        return keys.map(key => ({ label: key, value: key }));
-    };
-
-    const setState = newState => {
-        if (unMounted()) return;
-        setNewState(newState);
-    };
-
-    const unMounted = () => !formRef.current;
-
-    const _onFormChange = e => {
-        if (unMounted()) return;
-
-        let { collection, query } = e.value;
-
-        if (collection) {
-            if (!types) {
-                setState({ wait: e });
-                return;
-            }
-
-            const type = _.findWhere(types, { objectId: collection });
-            setState({ type, wait: null });
-        }
-
-        if (query) {
-            query = typeof query === 'string' ? JSON.parse(query) : query;
-            if (!_.isEqual(query, state.query)) setState({ query });
-        }
-    };
-
-    const _onFuncSelect = ({ item }) => {
-        if (keyRef.current) {
-            keyRef.current.setState({
-                selection: [],
-                multiSelect: op.get(item, 'key.multiple', false),
-            });
-        }
-        setState({ func: item, key: undefined });
-    };
-
-    const _onKeySelect = e => {
-        setState({ key: e.selection });
-    };
-
-    const _onTypeSelect = ({ item }) => {
-        const formValue = formRef.current.getValue();
-        formRef.current.setValue({ ...formValue, collection: item.objectId });
-    };
-
-    const _shouldExclude = (item, query) => {
-        const { config } = item;
-
-        const excludeWhen = op.get(config, 'excludeWhen', []) || [];
-
-        if (excludeWhen.length > 0) {
-            const funcs = _.pluck(query, 'func');
-            return _.intersection(excludeWhen, funcs).length > 0;
-        }
-
-        return false;
-    };
-
-    const _shouldInclude = (item, index) => {
-        const { config, func } = item;
-
-        const max = op.get(config, 'max');
-        if (!max) return true;
-
-        const count = index.filter(i => Boolean(i === func)).length;
-        return count < max;
-    };
-
-    useEffect(() => {
-        if (unMounted()) return;
-        formRef.current.addEventListener('change', e => _onFormChange(e));
-
-        return () => {
-            if (unMounted()) return;
-            formRef.current.removeEventListener('change', e =>
-                _onFormChange(e),
-            );
-        };
-    });
-
-    useEffect(() => {
-        if (!types) return;
-        const { wait } = state;
-        if (wait) _onFormChange(wait);
-    }, [types]);
-
-    const render = () => {
-        const { func, key = [], query = [], type } = state;
-
-        return (
-            <FieldTypeDialog {...props} showHelpText={false}>
-                <input
-                    type='hidden'
-                    name='query'
-                    defaultValue={JSON.stringify(query)}
-                />
-                <input type='hidden' name='collection' />
-                <div className='field-type-collection'>
-                    <Dropdown
-                        data={types}
-                        labelField='type'
-                        maxHeight='calc(40vh)'
-                        onItemClick={e => _onTypeSelect(e)}
-                        ref={typeRef}
-                        selection={[type.objectId]}
-                        size='md'
-                        valueField='objectId'>
-                        <Button
-                            color='default'
-                            data-dropdown-element
-                            style={{ paddingLeft: 12, paddingRight: 8 }}
-                            type='button'>
-                            {op.get(type, 'meta.icon') && (
-                                <span
-                                    style={{ width: 28 }}
-                                    className='text-left'>
-                                    <Icon name={type.meta.icon} size={18} />
-                                </span>
-                            )}
-                            <span className='flex-grow text-left'>
-                                {type.type}
-                            </span>
-                            <span style={{ paddingLeft: 8 }}>
-                                <Icon name='Feather.ChevronDown' />
-                            </span>
-                        </Button>
-                    </Dropdown>
-                    {type.objectId !== null && (
-                        <div
-                            className={cn(
-                                { 'input-group': !!func },
-                                'mt-xs-8',
-                            )}>
-                            <Dropdown
-                                data={queryActions}
-                                labelField='id'
-                                maxHeight='calc(40vh)'
-                                onItemClick={e => _onFuncSelect(e)}
-                                ref={funcRef}
-                                valueField='id'>
-                                <Button
-                                    color='default'
-                                    data-dropdown-element
-                                    style={{ paddingLeft: 12, paddingRight: 8 }}
-                                    type='button'>
-                                    <span className='flex-grow text-left'>
-                                        {func ? op.get(func, 'id') : 'Function'}
-                                    </span>
-                                    <span style={{ paddingLeft: 8 }}>
-                                        <Icon name='Feather.ChevronDown' />
-                                    </span>
-                                </Button>
-                            </Dropdown>
-                            {func && op.get(func, 'key.placeholder') && (
-                                <Dropdown
-                                    data={schema()}
-                                    maxHeight='calc(40vh)'
-                                    multiSelect={func.key.multiple}
-                                    onChange={e => _onKeySelect(e)}
-                                    ref={keyRef}
-                                    selection={key}>
-                                    <Button
-                                        color='default'
-                                        data-dropdown-element
-                                        style={{
-                                            paddingLeft: 12,
-                                            paddingRight: 8,
-                                        }}
-                                        type='button'>
-                                        <span className='flex-grow text-left'>
-                                            {key.length > 0
-                                                ? key.join(', ')
-                                                : func.key.placeholder}
-                                        </span>
-                                        <span style={{ paddingLeft: 8 }}>
-                                            <Icon name='Feather.ChevronDown' />
-                                        </span>
-                                    </Button>
-                                </Dropdown>
-                            )}
-                            {func && op.get(func, 'value') && (
-                                <input
-                                    className='value'
-                                    ref={valueRef}
-                                    type='text'
-                                    style={{ flexGrow: 1 }}
-                                    placeholder={func.value.placeholder}
-                                />
-                            )}
-                            {func && op.get(func, 'options') && (
-                                <input
-                                    className='options'
-                                    ref={optRef}
-                                    type='text'
-                                    style={{ flexGrow: 1 }}
-                                    placeholder={func.options.placeholder}
-                                />
-                            )}
-                            {func && (
-                                <Button
-                                    type='button'
-                                    className='submit'
-                                    color='tertiary'
-                                    onClick={() => funcAdd()}>
-                                    <Icon
-                                        name='Feather.Plus'
-                                        className='hide-xs show-lg'
-                                    />
-                                    <span className='show-xs- hide-lg'>
-                                        Add Function
-                                    </span>
-                                </Button>
-                            )}
-                        </div>
+    return state.help === true ? (
+        <div className='help'>
+            {showAlert === true && (
+                <Alert
+                    className='mb-xs-20'
+                    color={Alert.ENUMS.COLOR.WARNING}
+                    dismissable
+                    icon={<Icon name='Feather.Info' />}
+                    onDismiss={() => hideAlert()}>
+                    {__(
+                        'Using the Collection field type is risky business and should be done so with extreme care and caution.',
                     )}
-                    <Query query={query} onDelete={funcDel} />
-                </div>
-            </FieldTypeDialog>
-        );
-    };
-
-    return render();
+                </Alert>
+            )}
+            <p>
+                {__(
+                    'Use Collections to aggregate data from other content types into this content type by constructing a query that will create references to the resulting content objects.',
+                )}
+            </p>
+            <p>
+                {__(
+                    'Permissions and capabilities should be considered when constructing a query.',
+                )}
+            </p>
+            <p>
+                {__('For more information on query syntax see the ')}
+                <a
+                    className='link'
+                    href='http://parseplatform.org/Parse-SDK-JS/api/2.12.0/Parse.Query.html'
+                    target='_blank'>
+                    {__('Parse API Documentation')}
+                </a>
+            </p>
+            <Button
+                className='btn-close'
+                color='clear'
+                size='xs'
+                onClick={() => hideHelp()}>
+                <Icon name='Feather.X' />
+            </Button>
+        </div>
+    ) : null;
 };
 
 const Label = props => {
@@ -523,4 +243,387 @@ const transformValue = v => {
     return `${String(v)
         .replace(/\'/g, '')
         .replace(/\"/g, '')}`;
+};
+
+// -----------------------------------------------------------------------------
+// <FieldType />
+// -----------------------------------------------------------------------------
+export const FieldType = props => {
+    const formRef = op.get(props, 'formRef');
+    const funcRef = useRef();
+    const keyRef = useRef();
+    const optRef = useRef();
+    const typeRef = useRef();
+    const valueRef = useRef();
+
+    const { DragHandle } = props;
+    const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
+
+    const [types] = useTypes();
+
+    const [state, setNewState] = useDerivedState({
+        error: null,
+        func: null,
+        help: Reactium.Prefs.get('admin.help.cte.collection', true),
+        key: [],
+        query: [],
+        type: { type: 'Collection', objectId: null },
+        wait: null,
+    });
+
+    const funcAdd = () => {
+        let options = optRef.current ? optRef.current.value : '';
+        let value = valueRef.current ? valueRef.current.value : '';
+        let { func, key = [], query = [] } = state;
+
+        const isArray = op.get(func, 'value.type') === 'array';
+
+        options = _.compact([options]);
+        options = _.isEmpty(options) ? undefined : objectify(options);
+
+        value = _.isEmpty(_.compact([value])) ? undefined : value;
+        value =
+            value && isArray
+                ? arrayize(value)
+                : value && JSON.stringify(transformValue(stringize(value)));
+
+        key = _.flatten([key]);
+
+        const isValueRequired = op.get(func, 'value.required', false);
+        const isKeyRequired = op.get(func, 'key.required', false);
+
+        if (isKeyRequired && key.length < 1) {
+            const message = op.get(func, 'key.multiple')
+                ? 'select keys'
+                : 'select a key';
+            setState({
+                error: {
+                    color: Alert.ENUMS.COLOR.DANGER,
+                    focus: keyRef.current,
+                    icon: 'Feather.AlertOctagon',
+                    message,
+                },
+            });
+            return;
+        }
+
+        if (isValueRequired && !value) {
+            const message = 'enter value';
+            setState({
+                error: {
+                    color: Alert.ENUMS.COLOR.DANGER,
+                    focus: keyRef.current,
+                    icon: 'Feather.AlertOctagon',
+                    message,
+                },
+            });
+            return;
+        }
+
+        const q = {
+            id: uuid(),
+            config: func,
+            func: func.id,
+            keys: key,
+            options,
+            order: op.get(func, 'order', 100),
+            value,
+        };
+
+        query.push(q);
+
+        const added = [];
+
+        const filterQuery = _.sortBy(query, 'order').filter(item => {
+            const isExcluded = _shouldExclude(item, query);
+            const isIncluded = !_shouldInclude(item, added);
+
+            if (isExcluded || isIncluded) return false;
+
+            added.push(item.func);
+            return true;
+        });
+
+        const formValue = formRef.current.getValue();
+        formRef.current.setValue({
+            ...formValue,
+            query: JSON.stringify(filterQuery),
+        });
+
+        if (keyRef.current) keyRef.current.setState({ selection: [] });
+        if (optRef.current) optRef.current.value = '';
+        if (valueRef.current) valueRef.current.value = '';
+
+        setState({ error: null, key: [] });
+    };
+
+    const funcDel = id => {
+        let { query = [] } = state;
+        const index = _.findIndex(query, { id });
+
+        if (index < 0) return;
+
+        query.splice(index, 1);
+
+        const formValue = formRef.current.getValue();
+        formRef.current.setValue({
+            ...formValue,
+            query: JSON.stringify(query),
+        });
+    };
+
+    const schema = () => {
+        if (!op.get(state, 'type')) return [];
+        const defaultKeys = ['ACL', 'objectId', 'createdAt', 'updatedAt'];
+        const schema = op.get(state, 'type.schema', {});
+        const schemaKeys = Object.keys(schema);
+        schemaKeys.sort();
+
+        const keys = _.chain([defaultKeys, schemaKeys])
+            .flatten()
+            .uniq()
+            .value();
+
+        return keys.map(key => ({ label: key, value: key }));
+    };
+
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
+    };
+
+    const toggleHelp = e => {
+        Reactium.Prefs.set('admin.help.cte.collection', !state.help);
+        setState({ help: !state.help });
+    };
+
+    const unMounted = () => !formRef.current;
+
+    const _onFormChange = e => {
+        if (unMounted()) return;
+
+        let { collection, query } = e.value;
+
+        if (collection) {
+            if (!types) {
+                setState({ wait: e });
+                return;
+            }
+
+            const type = _.findWhere(types, { objectId: collection });
+            setState({ type, wait: null });
+        }
+
+        if (query) {
+            query = typeof query === 'string' ? JSON.parse(query) : query;
+            if (!_.isEqual(query, state.query)) setState({ query });
+        }
+    };
+
+    const _onFuncSelect = ({ item }) => {
+        if (keyRef.current) {
+            keyRef.current.setState({
+                selection: [],
+                multiSelect: op.get(item, 'key.multiple', false),
+            });
+        }
+        setState({ func: item, key: undefined });
+    };
+
+    const _onKeySelect = e => {
+        setState({ key: e.selection });
+    };
+
+    const _onTypeSelect = ({ item }) => {
+        const formValue = formRef.current.getValue();
+        formRef.current.setValue({ ...formValue, collection: item.objectId });
+    };
+
+    const _shouldExclude = (item, query) => {
+        const { config } = item;
+
+        const excludeWhen = op.get(config, 'excludeWhen', []) || [];
+
+        if (excludeWhen.length > 0) {
+            const funcs = _.pluck(query, 'func');
+            return _.intersection(excludeWhen, funcs).length > 0;
+        }
+
+        return false;
+    };
+
+    const _shouldInclude = (item, index) => {
+        const { config, func } = item;
+
+        const max = op.get(config, 'max');
+        if (!max) return true;
+
+        const count = index.filter(i => Boolean(i === func)).length;
+        return count < max;
+    };
+
+    useEffect(() => {
+        if (unMounted()) return;
+        formRef.current.addEventListener('change', e => _onFormChange(e));
+
+        return () => {
+            if (unMounted()) return;
+            formRef.current.removeEventListener('change', e =>
+                _onFormChange(e),
+            );
+        };
+    });
+
+    useEffect(() => {
+        if (!types) return;
+        const { wait } = state;
+        if (wait) _onFormChange(wait);
+    }, [types]);
+
+    const render = () => {
+        const { error, func, key = [], query = [], type } = state;
+
+        return (
+            <FieldTypeDialog {...props} showHelpText={false}>
+                <input
+                    type='hidden'
+                    name='query'
+                    defaultValue={JSON.stringify(query)}
+                />
+                <input type='hidden' name='collection' />
+                <div className='field-type-collection'>
+                    <Help state={state} setState={setState} />
+                    <Dropdown
+                        data={types}
+                        labelField='type'
+                        maxHeight='calc(40vh)'
+                        onItemClick={e => _onTypeSelect(e)}
+                        ref={typeRef}
+                        selection={[type.objectId]}
+                        size='md'
+                        valueField='objectId'>
+                        <Button
+                            color='default'
+                            data-dropdown-element
+                            style={{ paddingLeft: 12, paddingRight: 8 }}
+                            type='button'>
+                            {op.get(type, 'meta.icon') && (
+                                <span
+                                    style={{ width: 28 }}
+                                    className='text-left'>
+                                    <Icon name={type.meta.icon} size={18} />
+                                </span>
+                            )}
+                            <span className='flex-grow text-left'>
+                                {type.type}
+                            </span>
+                            <span style={{ paddingLeft: 8 }}>
+                                <Icon name='Feather.ChevronDown' />
+                            </span>
+                        </Button>
+                        <Button
+                            className='btn-help'
+                            color='clear'
+                            onClick={e => toggleHelp(e)}>
+                            <Icon name='Feather.Info' />
+                        </Button>
+                    </Dropdown>
+
+                    <Error state={state} setState={setState} />
+
+                    {type.objectId !== null && (
+                        <div
+                            className={cn(
+                                { 'input-group': !!func },
+                                'mt-xs-8',
+                            )}>
+                            <Dropdown
+                                data={queryActions}
+                                labelField='id'
+                                maxHeight='calc(40vh)'
+                                onItemClick={e => _onFuncSelect(e)}
+                                ref={funcRef}
+                                valueField='id'>
+                                <Button
+                                    color='default'
+                                    data-dropdown-element
+                                    style={{ paddingLeft: 12, paddingRight: 8 }}
+                                    type='button'>
+                                    <span className='flex-grow text-left'>
+                                        {func ? op.get(func, 'id') : 'Function'}
+                                    </span>
+                                    <span style={{ paddingLeft: 8 }}>
+                                        <Icon name='Feather.ChevronDown' />
+                                    </span>
+                                </Button>
+                            </Dropdown>
+                            {func && op.get(func, 'key.placeholder') && (
+                                <Dropdown
+                                    data={schema()}
+                                    maxHeight='calc(40vh)'
+                                    multiSelect={func.key.multiple}
+                                    onChange={e => _onKeySelect(e)}
+                                    ref={keyRef}
+                                    selection={key}>
+                                    <Button
+                                        color='default'
+                                        data-dropdown-element
+                                        style={{
+                                            paddingLeft: 12,
+                                            paddingRight: 8,
+                                        }}
+                                        type='button'>
+                                        <span className='flex-grow text-left'>
+                                            {key.length > 0
+                                                ? key.join(', ')
+                                                : func.key.placeholder}
+                                        </span>
+                                        <span style={{ paddingLeft: 8 }}>
+                                            <Icon name='Feather.ChevronDown' />
+                                        </span>
+                                    </Button>
+                                </Dropdown>
+                            )}
+                            {func && op.get(func, 'value') && (
+                                <input
+                                    className='value'
+                                    ref={valueRef}
+                                    type='text'
+                                    style={{ flexGrow: 1 }}
+                                    placeholder={func.value.placeholder}
+                                />
+                            )}
+                            {func && op.get(func, 'options') && (
+                                <input
+                                    className='options'
+                                    ref={optRef}
+                                    type='text'
+                                    style={{ flexGrow: 1 }}
+                                    placeholder={func.options.placeholder}
+                                />
+                            )}
+                            {func && (
+                                <Button
+                                    type='button'
+                                    className='submit'
+                                    color='tertiary'
+                                    onClick={() => funcAdd()}>
+                                    <Icon
+                                        name='Feather.Plus'
+                                        className='hide-xs show-lg'
+                                    />
+                                    <span className='show-xs- hide-lg'>
+                                        Add Function
+                                    </span>
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                    <Query query={query} onDelete={funcDel} />
+                </div>
+            </FieldTypeDialog>
+        );
+    };
+
+    return render();
 };

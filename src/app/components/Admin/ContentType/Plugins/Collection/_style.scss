@@ -1,4 +1,54 @@
 .field-type-collection {
+    position: relative;
+    cursor: default;
+
+    .help {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 24px;
+        background-color: $color-light-dark;
+
+        p:last-of-type {
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        button.btn-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+
+            svg {
+                flex-shrink: 0;
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        a.link {
+            text-decoration: underline;
+            &:hover {
+                color: $color-primary;
+            }
+        }
+    }
+
+    .btn-help {
+        position: absolute;
+        right: 40px;
+        height: 44px;
+        padding: 0;
+        width: 40px;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
     .ar-dropdown {
         width: 100%;
 
@@ -12,6 +62,10 @@
         }
     }
 
+    .ar-alert {
+        padding-right: 16px;
+    }
+
     .input-group {
         flex-direction: column;
 
@@ -22,7 +76,7 @@
 
             @include breakpoint(lg) {
                 padding: 0;
-                width: 45px;
+                width: 48px;
                 border-radius: 0 2px 2px 0;
             }
         }
