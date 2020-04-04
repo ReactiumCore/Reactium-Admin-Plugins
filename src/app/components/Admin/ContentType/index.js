@@ -601,28 +601,29 @@ const ContentType = props => {
         }
     };
 
-    const onTypeSubmit = async e => {
+    const onTypeSubmit = async () => {
         const value = parentFormRef.current.getValue();
         op.set(value, 'regions', getRegions());
 
-        Object.entries(ui.fields).forEach(([fieldId, def]) => {
-            const ref = getFormRef(fieldId);
-            if (ref) {
-                const fieldValue = ref.getValue();
-                const fieldName = op.get(fieldValue, 'fieldName');
-                const fieldType = op.get(def, 'fieldType');
-                const [region] = Object.entries(
-                    op.get(ui, 'regionFields', {}),
-                ).find(([region, ids]) => ids.includes(fieldId));
+        op.set(value, 'fields', {});
+        getOrderedRegions().forEach(({ id: region }) => {
+            op.get(ui.regionFields, [region], []).forEach(fieldId => {
+                const def = op.get(ui.fields, [fieldId], {});
+                const ref = getFormRef(fieldId);
+                if (ref) {
+                    const fieldValue = ref.getValue();
+                    const fieldName = op.get(fieldValue, 'fieldName');
+                    const fieldType = op.get(def, 'fieldType');
 
-                op.set(value, ['fields', fieldId], {
-                    ...fieldValue,
-                    fieldId,
-                    fieldName,
-                    fieldType,
-                    region,
-                });
-            }
+                    op.set(value, ['fields', fieldId], {
+                        ...fieldValue,
+                        fieldId,
+                        fieldName,
+                        fieldType,
+                        region,
+                    });
+                }
+            });
         });
 
         try {
