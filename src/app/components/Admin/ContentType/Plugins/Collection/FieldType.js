@@ -25,15 +25,14 @@ import {
 
 const Error = ({ state, setState }) =>
     state.error ? (
-        <div className='pt-xs-20 pb-xs-12'>
-            <Alert
-                color={state.error.color}
-                dismissable
-                icon={<Icon name={state.error.icon} />}
-                onDismiss={() => setState({ error: null })}>
-                {state.error.message}
-            </Alert>
-        </div>
+        <Alert
+            className='mt-xs-20 mb-xs-12'
+            color={state.error.color}
+            dismissable
+            icon={<Icon name={state.error.icon} />}
+            onDismiss={() => setState({ error: null })}>
+            {state.error.message}
+        </Alert>
     ) : null;
 
 const Help = ({ state, setState }) => {
@@ -137,8 +136,6 @@ const Label = props => {
 };
 
 const Query = ({ className = 'query', query = [], onDelete }) => {
-    if (query.length > 0) console.log(query);
-
     const buttonProps = {
         appearance: 'circle',
         className: 'func-del',
@@ -320,9 +317,15 @@ export const FieldType = props => {
             return;
         }
 
+        // Label: get it from queryActions here because JSON.stringify will get rid of any label as a function
+        const label =
+            typeof func.label === 'function'
+                ? func.label({ options, value, key })
+                : func.label;
+
         const q = {
             id: uuid(),
-            config: func,
+            config: { ...func, label },
             func: func.id,
             keys: key,
             options,
@@ -483,6 +486,14 @@ export const FieldType = props => {
     const render = () => {
         const { error, func, key = [], query = [], type } = state;
 
+        const valueDefault = op.get(func, 'value.default');
+        let valueInputType = 'text';
+
+        switch (op.get(func, 'value.type')) {
+            case 'number':
+                valueInputType = 'number';
+        }
+
         return (
             <FieldTypeDialog {...props} showHelpText={false}>
                 <input
@@ -549,8 +560,21 @@ export const FieldType = props => {
                                     data-dropdown-element
                                     style={{ paddingLeft: 12, paddingRight: 8 }}
                                     type='button'>
+                                    {op.get(type, 'meta.icon') &&
+                                        !op.get(func, 'id') && (
+                                            <span
+                                                style={{ width: 28 }}
+                                                className='text-left'>
+                                                <Icon
+                                                    name='Linear.Leaf'
+                                                    size={16}
+                                                />
+                                            </span>
+                                        )}
                                     <span className='flex-grow text-left'>
-                                        {func ? op.get(func, 'id') : 'Function'}
+                                        {func
+                                            ? op.get(func, 'id')
+                                            : __('function')}
                                     </span>
                                     <span style={{ paddingLeft: 8 }}>
                                         <Icon name='Feather.ChevronDown' />
@@ -587,8 +611,9 @@ export const FieldType = props => {
                             {func && op.get(func, 'value') && (
                                 <input
                                     className='value'
+                                    defaultValue={valueDefault}
                                     ref={valueRef}
-                                    type='text'
+                                    type={valueInputType}
                                     style={{ flexGrow: 1 }}
                                     placeholder={func.value.placeholder}
                                 />

@@ -1,4 +1,4 @@
-//import React from 'react';
+import _ from 'underscore';
 
 const queryActions = [
     {
@@ -122,7 +122,9 @@ const queryActions = [
     },
     {
         id: 'distict',
-        label: '%func(%key, %options)',
+        label: ({ options }) => {
+            return _.isEmpty(options) ? '%func(%key)' : '%func(%key, %options)';
+        },
         key: {
             placeholder: 'key',
             required: true,
@@ -212,6 +214,11 @@ const queryActions = [
     {
         id: 'fullText',
         label: '%func(%key, %value, %options)',
+        label: ({ options }) => {
+            return _.isEmpty(options)
+                ? '%func(%key, %value)'
+                : '%func(%key, %value, %options)';
+        },
         key: {
             placeholder: 'key',
             required: true,
@@ -228,8 +235,12 @@ const queryActions = [
     },
     {
         id: 'get',
-        label: '%func(%key, %options)',
-        key: {
+        label: ({ options }) => {
+            return _.isEmpty(options)
+                ? '%func(%value)'
+                : '%func(%value, %options)';
+        },
+        value: {
             placeholder: 'objectId',
             required: true,
         },
@@ -314,6 +325,7 @@ const queryActions = [
             placeholder: 'number',
             required: true,
             default: 1000,
+            type: 'number',
         },
         order: 500,
         max: 1,
@@ -390,6 +402,7 @@ const queryActions = [
             placeholder: 'number',
             required: true,
             default: 0,
+            type: 'number',
         },
         order: 500,
         max: 1,
@@ -401,7 +414,11 @@ const queryActions = [
     },
     {
         id: 'startsWith',
-        label: '%func(%key, %value, %options)',
+        label: ({ options }) => {
+            return _.isEmpty(options)
+                ? '%func(%key, %value)'
+                : '%func(%key, %value, %options)';
+        },
         key: {
             placeholder: 'key',
             required: true,
@@ -414,7 +431,11 @@ const queryActions = [
     },
     {
         id: 'equalTo',
-        label: '%func(%key, %value, %options)',
+        label: ({ options }) => {
+            return _.isEmpty(options)
+                ? '%func(%key, %value)'
+                : '%func(%key, %value, %options)';
+        },
         key: {
             placeholder: 'key',
             required: true,
@@ -431,7 +452,11 @@ const queryActions = [
     },
     {
         id: 'withinGeoBox',
-        label: '%func(%key, %value, %options)',
+        label: ({ options }) => {
+            return _.isEmpty(options)
+                ? '%func(%key, %value)'
+                : '%func(%key, %value, %options)';
+        },
         key: {
             placeholder: 'key',
             required: true,
@@ -489,21 +514,3 @@ const queryActions = [
 ];
 
 export { queryActions, queryActions as default };
-
-/*
-{
-    id: 'equalTo',
-    label: '%func(%key, %value, %options)',
-    key: {
-        placeholder: 'key'
-    },
-    value: {
-        placeholder: 'value1, value2...',
-    },
-    options: {
-        placeholder: 'useMasterKey: true, sessionToken: %token',
-        type: 'object',
-    },
-    order: 100,
-},
-*/

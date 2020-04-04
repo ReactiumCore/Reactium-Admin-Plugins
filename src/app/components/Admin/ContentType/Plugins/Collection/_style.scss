@@ -126,9 +126,11 @@
     }
 
     .query {
+        margin-top: 10px;
         padding: 24px;
         align-items: center;
         flex-wrap: wrap;
+        background-color: $color-light-dark;
 
         > kbd:first-child {
             width: 100%;
@@ -246,8 +248,6 @@
 
             &:hover,
             &:focus {
-                background-color: $color-light-dark;
-
                 button {
                     display: block;
                     order: 10;
