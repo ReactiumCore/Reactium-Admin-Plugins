@@ -97,7 +97,7 @@ const Label = props => {
     const keymap =
         key.length > 0 ? key.map(item => `'${item}'`).join(', ') : undefined;
 
-    const label = String(config.label)
+    const markup = String(config.label)
         .replace(/\%value/gi, value || '')
         .replace(/\%options/gi, options || '')
         .replace(/\%key/gi, keymap || '')
@@ -115,7 +115,7 @@ const Label = props => {
         .replace(/\'false\'|false/gi, '<kbd className="boolean">false</kbd>')
         .replace(
             /\%func/gi,
-            `<span className='period' /><kbd className='name'>${config.id}</kbd>`,
+            `<span className="period" /><kbd className="name">${config.id}</kbd>`,
         )
         .replace(/\(/g, '<kbd className="paren">(</kbd>')
         .replace(/\)/g, '<kbd className="paren">)</kbd>')
@@ -123,14 +123,14 @@ const Label = props => {
         .replace(/\]/g, '<kbd className="bracket">]</kbd>')
         .replace(
             /\{/g,
-            '<kbd className="brace">&#123;<br /><span className=\'break\' /></kbd>',
+            '<kbd className="brace">&#123;<br /><span className="break" /></kbd>',
         )
         .replace(/\}/g, '<kbd className="brace"><br />&#125;</kbd>')
         .trim();
 
     return (
         <div className='label' tabIndex={1}>
-            <JsxParser jsx={label} renderInWrapper={false} />
+            <JsxParser jsx={markup} renderInWrapper={false} />
         </div>
     );
 };

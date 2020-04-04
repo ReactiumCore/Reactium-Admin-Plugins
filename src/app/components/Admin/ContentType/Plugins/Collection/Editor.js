@@ -27,6 +27,10 @@ export const Editor = props => {
     const inputRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
 
+    const { errors } = editor;
+    const errorText = op.get(errors, [fieldName, 'message']);
+    const className = cn('form-group', { error: !!errorText });
+
     const inputProps = {
         name: fieldName,
         ref: inputRef,
