@@ -334,7 +334,9 @@ let EventForm = (initialProps, ref) => {
             value: currentValue,
         };
 
-        const missing = required.filter(k => _.isEmpty(currentValue[k]));
+        const missing = required.filter(k =>
+            _.isEmpty(op.get(currentValue, k)),
+        );
         const elements = getElements();
 
         if (missing.length > 0) {

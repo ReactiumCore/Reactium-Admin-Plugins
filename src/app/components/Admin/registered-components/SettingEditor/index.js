@@ -11,13 +11,12 @@ import {
     Checkbox,
     Button,
     Icon,
-    WebForm,
+    EventForm,
 } from '@atomic-reactor/reactium-ui';
-// import WebForm from 'components/Reactium-UI/WebForm';
+// import EventForm from 'components/EventForm';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import uuid from 'uuid/v4';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
@@ -32,15 +31,19 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
     const formRef = useRef();
-    const errorsRef = useRef(null);
-    const [, setVersion] = useState(uuid());
+    const errorsRef = useRef({});
+    const [, setVersion] = useState(new Date());
     const groupName = op.get(settings, 'group');
+    const [value, setValue] = useState({});
 
     useLayoutEffect(() => {
         if (errorsRef.current && formRef.current) {
-            const [field] = errorsRef.current.fields;
+            const field = Object.values(errorsRef.current || {}).find(
+                f => f.focus,
+            );
+
             if (field) {
-                formRef.current.focus(field);
+                field.focus.focus();
             }
         }
     }, [errorsRef.current]);
@@ -64,54 +67,47 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const inputs = op.get(settings, 'inputs', {});
 
-    const value = Object.keys(inputs).reduce((value, key) => {
-        op.set(value, key, op.get(group, key, null));
-        return value;
-    }, {});
-
     useEffect(() => {
-        const update = op.get(formRef.current, 'update', () => {});
-        update(value);
+        const newValue = {};
+        Object.keys(inputs).forEach(key => {
+            op.set(newValue, key, op.get(group, key, null));
+        });
+
+        setValue(newValue);
     }, [settingGroup]);
 
     if (!canGet) return null;
 
-    const sanitizeInput = (value, key) => {
-        const config = op.get(inputs, key, {});
+    const sanitizeInput = (value, config) => {
         const type = op.get(config, 'type');
         const sanitize = op.get(config, 'sanitize', val => val);
 
         if (type === 'checkbox' || type === 'toggle') {
             return value === true || value === 'true';
         } else {
-            return sanitize(value, key);
+            return sanitize(value, config);
         }
     };
 
-    const onError = ({ value: formValues, errors }) => {
-        const preserved = Object.entries(formValues).reduce(
-            (preservedValue, [key, value]) => {
-                op.set(preservedValue, key, value);
-                return preservedValue;
-            },
-            {},
-        );
+    const onError = e => {
+        const { error } = e;
 
-        errorsRef.current = errors;
-        setVersion(uuid());
-        setTimeout(() => {
-            formRef.current.update(preserved);
-        }, 1);
+        errorsRef.current = error;
+        setVersion(new Date());
     };
 
-    const onSubmit = async () => {
-        errorsRef.current = null;
+    const onSubmit = async e => {
+        const { value } = e;
+        errorsRef.current = {};
         if (!canSet) return;
 
-        const values = formRef.current.getValue();
         const newSettingsGroup = {};
-        Object.entries(values).forEach(([key, value]) => {
-            op.set(newSettingsGroup, key, sanitizeInput(value, key));
+        Object.entries(inputs).forEach(([key, config]) => {
+            op.set(
+                newSettingsGroup,
+                key,
+                sanitizeInput(op.get(value, key), config),
+            );
         });
 
         try {
@@ -135,16 +131,15 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const renderInput = (key, config) => {
         const type = op.get(config, 'type', 'text');
-        const errorIndex = op
-            .get(errorsRef.current, ['fields'], [])
-            .findIndex(fieldName => fieldName === key);
-        const hasError = errorIndex > -1;
+        const hasError = op.has(errorsRef.current, [key]);
         const formGroupClasses = cn('form-group', {
             error: hasError,
         });
-        const helpText = hasError
-            ? errorsRef.current.errors[errorIndex]
-            : config.tooltip;
+        const helpText = op.get(
+            errorsRef.current,
+            [key, 'message'],
+            op.get(config, 'tooltip', ''),
+        );
 
         if (typeof type === 'string') {
             switch (type) {
@@ -215,7 +210,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             header={{
                 title,
             }}>
-            <WebForm
+            <EventForm
+                value={value}
                 onError={onError}
                 onSubmit={onSubmit}
                 noValidate={true}
@@ -245,7 +241,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     type='submit'>
                     {__('Save Settings')}
                 </Button>
-            </WebForm>
+            </EventForm>
         </Dialog>
     );
 };
