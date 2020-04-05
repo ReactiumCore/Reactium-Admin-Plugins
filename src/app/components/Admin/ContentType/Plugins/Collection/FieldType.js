@@ -439,7 +439,11 @@ export const FieldType = props => {
 
     const _onTypeSelect = ({ item }) => {
         const formValue = formRef.current.getValue();
-        formRef.current.setValue({ ...formValue, collection: item.objectId });
+        formRef.current.setValue({
+            ...formValue,
+            collection: item.objectId,
+            targetClass: item.collection,
+        });
     };
 
     const _shouldExclude = (item, query) => {
@@ -502,6 +506,7 @@ export const FieldType = props => {
                     defaultValue={JSON.stringify(query)}
                 />
                 <input type='hidden' name='collection' />
+                <input type='hidden' name='targetClass' />
                 <div className='field-type-collection'>
                     <Help state={state} setState={setState} />
                     <Dropdown

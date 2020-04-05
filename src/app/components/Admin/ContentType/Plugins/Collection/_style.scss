@@ -280,3 +280,16 @@
         }
     }
 }
+
+.#{$admin-content-ns} {
+    .collection {
+        min-height: 64px;
+
+        .spinner {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
