@@ -204,8 +204,13 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     };
 
+    const pref = op.has(settings, 'group')
+        ? `setting-editor-${settings.group.toLowerCase()}`
+        : 'setting-editor';
+
     return (
         <Dialog
+            pref={pref}
             dismissable={false}
             header={{
                 title,
