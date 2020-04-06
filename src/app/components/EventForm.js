@@ -3,7 +3,8 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import {
+
+import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
@@ -13,7 +14,6 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
@@ -28,9 +28,6 @@ const ENUMS = {
         VALIDATING: 'VALIDATING',
     },
 };
-
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 export class FormEvent extends CustomEvent {
     constructor(type, data) {
@@ -88,10 +85,15 @@ export class FormEvent extends CustomEvent {
 }
 
 let EventForm = (initialProps, ref) => {
-    /* Refs */
+    // -------------------------------------------------------------------------
+    // Refs
+    // -------------------------------------------------------------------------
     const formRef = useRef();
+    const temp = useRef({ changes: [], id: uuid(), focus: null });
 
-    /* State */
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
     const {
         children,
         className,
@@ -107,20 +109,24 @@ let EventForm = (initialProps, ref) => {
         ...props
     } = initialProps;
 
-    const [state, update] = useDerivedState({
+    const [state, setNewState] = useDerivedState({
+        count: 0,
         error: null,
         status: ENUMS.STATUS.READY,
     });
 
     const [value, setNewValue] = useState(initialValue || defaultValue || {});
-    const [count, setNewCount] = useState(0);
 
-    /* Functions */
+    // -------------------------------------------------------------------------
+    // Functions
+    // -------------------------------------------------------------------------
     const applyValue = async (newValue, clear = false) => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
         if (controlled === true || typeof newValue === 'undefined') return;
 
         newValue = clear === true ? newValue : { ...value, ...newValue };
+
+        const { focus } = temp.current;
 
         const elements = _.flatten(
             Object.values(getElements()).map(element => {
@@ -160,6 +166,7 @@ let EventForm = (initialProps, ref) => {
         Object.entries(elements).forEach(([, element]) => {
             if (!element.name) return;
             if (!element.type) return;
+            if (focus === element) return;
 
             const name = element.name;
             const type = element.type;
@@ -194,6 +201,7 @@ let EventForm = (initialProps, ref) => {
                     });
                 }
             } else {
+                if (element.value === val) return;
                 if (val) element.value = val;
 
                 if (isBoolean(val)) {
@@ -211,21 +219,30 @@ let EventForm = (initialProps, ref) => {
         handle.dispatchEvent(evt);
     };
 
-    const setState = newState => {
-        if (!formRef.current) return;
-        update(newState);
+    const cx = Reactium.Utils.cxFactory(namespace);
+
+    const childWatch = () => {
+        if (unMounted()) return;
+
+        const elms = getElements();
+        const count = Object.keys(elms).length;
+
+        if (count !== state.count) {
+            setCount(count);
+
+            const evt = new FormEvent('element-change', {
+                target: formRef.current,
+                element: op.get(event, 'target', formRef.current),
+                value,
+                elements: elms,
+            });
+
+            handle.dispatchEvent(evt);
+        }
     };
 
-    // className prefixer
-    const cx = cls =>
-        _.chain([className || namespace, cls])
-            .compact()
-            .uniq()
-            .value()
-            .join('-');
-
     const dispatchChange = ({ value: newValue, event = {} }) => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
 
         newValue = newValue || getValue();
 
@@ -243,8 +260,31 @@ let EventForm = (initialProps, ref) => {
         onChange(evt);
     };
 
+    const flush = () => {
+        if (unMounted()) return;
+        if (temp.current.changes.length < 1) return;
+
+        // squash changes
+        let event = {};
+        let newValue = {};
+
+        temp.current.changes.forEach(item => {
+            const { target, value } = item;
+
+            op.set(event, 'target', target);
+
+            Object.entries(value).forEach(([key, val]) => {
+                op.set(newValue, key, val);
+            });
+        });
+
+        dispatchChange({ value: newValue, event });
+        temp.current.changes = [];
+        temp.current.focus = null;
+    };
+
     const focus = name => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
 
         const elements = getElements();
         const element = op.get(elements, name);
@@ -252,7 +292,7 @@ let EventForm = (initialProps, ref) => {
     };
 
     const getElements = () => {
-        if (!formRef.current) return {};
+        if (unMounted()) return {};
 
         const form = formRef.current;
         const elements = form.elements;
@@ -280,7 +320,7 @@ let EventForm = (initialProps, ref) => {
     };
 
     const getValue = k => {
-        if (!formRef.current) return {};
+        if (unMounted()) return {};
 
         const form = formRef.current;
         const elements = getElements(form);
@@ -312,19 +352,34 @@ let EventForm = (initialProps, ref) => {
         }
     };
 
-    const setCount = newCount => {
-        if (formRef.current) return;
-        setNewCount(newCount);
+    const queue = (value, target) => {
+        if (!op.get(temp, 'current.changes')) temp.current.changes = [];
+        temp.current.changes.push({ target, value });
+        temp.current.focus = target;
+    };
+
+    const setCount = count => setState({ count });
+
+    const setHandle = newHandle => {
+        if (unMounted()) return;
+        setNewHandle(newHandle);
+    };
+
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
     };
 
     const setValue = newValue => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
         if (newValue === null) applyValue(newValue, true);
         dispatchChange({ value: newValue, event: formRef.current });
     };
 
+    const unMounted = () => !formRef.current;
+
     const validate = async currentValue => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
 
         currentValue = currentValue || getValue();
 
@@ -362,17 +417,19 @@ let EventForm = (initialProps, ref) => {
         return context;
     };
 
-    /* Event handlers */
+    // -------------------------------------------------------------------------
+    // Event Handlers
+    // -------------------------------------------------------------------------
     const _onChange = e => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
         if (e.target && !e.target.name) return;
 
         e.stopPropagation();
-        dispatchChange({ event: e });
+        queue(getValue(), e.target);
     };
 
     const _onSubmit = async e => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
 
         if (e) {
             e.preventDefault();
@@ -424,11 +481,13 @@ let EventForm = (initialProps, ref) => {
         }
     };
 
-    /* Handle */
+    // -------------------------------------------------------------------------
+    // Handle
+    // -------------------------------------------------------------------------
     const _handle = () => ({
+        ENUMS,
         defaultValue,
         elements: getElements(),
-        ENUMS,
         error: op.get(state, 'error'),
         focus,
         form: formRef.current,
@@ -439,26 +498,28 @@ let EventForm = (initialProps, ref) => {
         setState,
         setValue,
         submit: _onSubmit,
+        unMounted,
         validate,
         value: getValue(),
     });
 
-    const [handle, setHandle] = useEventHandle(_handle());
+    const [handle, setNewHandle] = useEventHandle(_handle());
 
-    useImperativeHandle(ref, () => handle);
+    useImperativeHandle(ref, () => handle, [handle]);
 
-    /* Side effects */
+    // -------------------------------------------------------------------------
+    // Side effects
+    // -------------------------------------------------------------------------
 
     // Apply value
     useEffect(() => {
         applyValue(value, true);
-    }, [Object.values(value)]);
+    }, [state.count]);
 
     // Update handle on change
     useEffect(() => {
-        if (!formRef.current) return;
         setHandle(_handle());
-    }, [value, op.get(state, 'errors'), formRef.current]);
+    }, [formRef.current, state.count, state.errors, value]);
 
     // update value from props
     useEffect(() => {
@@ -468,7 +529,8 @@ let EventForm = (initialProps, ref) => {
 
     // status
     useEffect(() => {
-        if (!formRef.current) return;
+        if (unMounted()) return;
+
         handle.dispatchEvent(
             new FormEvent('status', {
                 detail: op.get(state, 'status'),
@@ -477,55 +539,36 @@ let EventForm = (initialProps, ref) => {
                 value,
             }),
         );
-    }, [op.get(state, 'status')]);
+    }, [state.status]);
 
-    // Children change -> applyValue
-    useAsyncEffect(
-        async mounted => {
-            const ival = setInterval(() => {
-                if (!mounted()) {
-                    clearInterval(ival);
-                    return;
-                }
+    // change flush
+    useEffect(() => {
+        const { id } = temp.current;
+        Reactium.Pulse.register(`eventform-flush-${id}`, () => flush());
+        Reactium.Pulse.register(
+            `eventform-children-${id}`,
+            () => childWatch(),
+            { delay: 1, repeat: -1 },
+        );
+        return () => {
+            Reactium.Pulse.unregister(`eventform-flush-${id}`);
+            Reactium.Pulse.unregister(`eventform-children-${id}`);
+        };
+    }, []);
 
-                const elms = getElements();
-                const ecount = Object.keys(elms).length;
-                if (ecount !== count) {
-                    setCount(ecount);
-
-                    const evt = new FormEvent('element-change', {
-                        target: formRef.current,
-                        element: op.get(event, 'target', formRef.current),
-                        value,
-                        elements: elms,
-                    });
-
-                    handle.dispatchEvent(evt);
-                }
-            }, 1);
-
-            return () => {};
-        },
-        [children],
-    );
-
-    useLayoutEffect(() => {
-        if (count > 0) applyValue(value);
-    }, [count, value]);
-
-    /* Renderers */
-    const render = () => (
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
+    return (
         <form
             {...props}
-            className={cx()}
+            className={cn(className, cx())}
             onChange={_onChange}
             onSubmit={_onSubmit}
             ref={formRef}>
             {children}
         </form>
     );
-
-    return render();
 };
 
 EventForm = forwardRef(EventForm);

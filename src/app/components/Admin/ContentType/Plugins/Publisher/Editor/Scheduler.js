@@ -232,33 +232,35 @@ const Scheduler = props => {
                 </h4>
 
                 <div className='content-scheduler-controls'>
-                    <Dropdown
-                        className='branch-dropdown'
-                        data={Object.entries(branches).map(
-                            ([branchId, value]) => ({
-                                label: op.get(value, 'label', branchId),
-                                value: branchId,
-                            }),
-                        )}
-                        maxHeight={160}
-                        selection={[publish.branch]}
-                        onChange={({ selection }) => setBranch(selection)}>
-                        <Button
-                            size={Button.ENUMS.SIZE.XS}
-                            color={Button.ENUMS.COLOR.TERTIARY}
-                            data-dropdown-element>
-                            <div className={'branch-dropdown-label'}>
-                                <span>
-                                    {op.get(
-                                        branches,
-                                        [publish.branch, 'label'],
-                                        publish.branch,
-                                    )}
-                                </span>
-                                <Icon name='Feather.ChevronDown' />
-                            </div>
-                        </Button>
-                    </Dropdown>
+                    {branches && (
+                        <Dropdown
+                            className='branch-dropdown'
+                            data={Object.entries(branches).map(
+                                ([branchId, value]) => ({
+                                    label: op.get(value, 'label', branchId),
+                                    value: branchId,
+                                }),
+                            )}
+                            maxHeight={160}
+                            selection={[publish.branch]}
+                            onChange={({ selection }) => setBranch(selection)}>
+                            <Button
+                                size={Button.ENUMS.SIZE.XS}
+                                color={Button.ENUMS.COLOR.TERTIARY}
+                                data-dropdown-element>
+                                <div className={'branch-dropdown-label'}>
+                                    <span>
+                                        {op.get(
+                                            branches,
+                                            [publish.branch, 'label'],
+                                            publish.branch,
+                                        )}
+                                    </span>
+                                    <Icon name='Feather.ChevronDown' />
+                                </div>
+                            </Button>
+                        </Dropdown>
+                    )}
 
                     <div className='content-scheduler-button'>
                         <Button
