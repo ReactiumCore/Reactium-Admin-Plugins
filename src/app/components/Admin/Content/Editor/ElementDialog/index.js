@@ -11,7 +11,15 @@ import {
 } from '@atomic-reactor/reactium-ui';
 
 export default props => {
-    const { children, editor, elements = [], helpText, pref, title } = props;
+    const {
+        children,
+        editor,
+        elements = [],
+        footer,
+        helpText,
+        pref,
+        title,
+    } = props;
 
     const header = {
         title,
@@ -61,7 +69,7 @@ export default props => {
     }
 
     return (
-        <Dialog ref={dialogRef} pref={pref} header={header}>
+        <Dialog ref={dialogRef} pref={pref} footer={footer} header={header}>
             {helpText && (
                 <Collapsible
                     ref={collapsibleRef}
