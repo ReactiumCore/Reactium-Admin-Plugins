@@ -141,4 +141,12 @@ body.fullscreen {
     }
 }
 
+.content-save-btn {
+    min-width: 0;
+
+    @include breakpoint(md) {
+        min-width: 145px;
+    }
+}
+
 @import './Sidebar/style';
