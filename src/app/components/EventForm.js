@@ -462,7 +462,10 @@ let EventForm = (initialProps, ref) => {
 
         // validate
         setState({ error: null, status: ENUMS.STATUS.VALIDATING });
-        const { valid, error } = await validate(value);
+
+        const _value = getValue();
+
+        const { valid, error } = await validate(_value);
 
         if (valid !== true || Object.keys(error).length > 0) {
             setState({ error, status: ENUMS.STATUS.ERROR });
@@ -471,7 +474,7 @@ let EventForm = (initialProps, ref) => {
                 element: formRef.current,
                 error,
                 target: handle,
-                value,
+                value: _value,
             });
 
             handle.dispatchEvent(evt);
@@ -488,7 +491,7 @@ let EventForm = (initialProps, ref) => {
         evt = new FormEvent('submit', {
             element: formRef.current,
             target: handle,
-            value,
+            value: _value,
         });
 
         handle.dispatchEvent(evt);

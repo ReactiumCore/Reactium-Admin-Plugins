@@ -44,10 +44,12 @@ Plugin.callback = editor => {
 
             const onButtonClick = e => {
                 const btn = e.currentTarget;
-                let {
-                    x,
-                    y,
-                } = editor.toolbar.container.current.getBoundingClientRect();
+                const rect = editor.toolbar.container.current.getBoundingClientRect();
+
+                let { width, height, x, y } = rect;
+
+                x += width / 2 - 150;
+                y += height;
 
                 editor.panel
                     .setID('link')

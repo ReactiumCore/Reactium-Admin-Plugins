@@ -148,7 +148,7 @@ Plugin.callback = editor => {
 
     Reactium.RTE.Hotkey.register('grid-enter', {
         keys: ['enter'],
-        order: 100,
+        order: 1,
         callback: ({ editor, event }) => {
             const [parent, parentAt] = Editor.parent(editor, editor.selection);
             let [node, nodeAt] = Editor.node(editor, editor.selection);

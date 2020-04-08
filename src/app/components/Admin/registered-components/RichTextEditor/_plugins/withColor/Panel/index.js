@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { ColorSelect } from '../../withFormatter/Panel/ColorSelect';
-import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
     useDerivedState,
@@ -117,7 +117,7 @@ let Panel = (
 
     const _onSelect = e => setState({ color: e.item.value });
 
-    const _onSubmit = e => {
+    const _onSubmit = () => {
         if (unMounted()) return;
         if (!state.color) return;
         wrapColor();
@@ -127,22 +127,6 @@ let Panel = (
     const hide = () => {
         editor.panel.hide(false).setID('rte-panel');
     };
-
-    // Handle
-    // const _handle = () => ({});
-    //
-    // const [handle, setHandle] = useEventHandle(_handle());
-    //
-    // useImperativeHandle(ref, () => handle, [handle]);
-
-    // On submit handler
-    useEffect(() => {
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [editor, state.selection]);
 
     // Set selection
     useEffect(() => {
@@ -163,7 +147,7 @@ let Panel = (
         const { color, colors, selection } = state;
 
         return (
-            <EventForm ref={formRef} className={cx()} controlled>
+            <div ref={formRef} className={cx()}>
                 <Dialog
                     collapsible={false}
                     dismissable={false}
@@ -208,14 +192,15 @@ let Panel = (
                             <Button
                                 block
                                 color='primary'
+                                onClick={_onSubmit}
                                 size='sm'
-                                type='submit'>
+                                type='button'>
                                 {submitButtonLabel}
                             </Button>
                         )}
                     </div>
                 </Dialog>
-            </EventForm>
+            </div>
         );
     };
 
