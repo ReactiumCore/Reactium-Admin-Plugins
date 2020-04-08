@@ -21,14 +21,7 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 const TYPE = 'video';
 
@@ -130,7 +123,7 @@ let Panel = (
             const parentProps = { ...parentNode };
             delete parentProps.children;
 
-            const currentType = op.get(currentNode, 'type', 'div');
+            const currentType = op.get(currentNode, 'type', 'p');
             const currentText = op.get(currentNode, 'text', '');
 
             const children = [];
@@ -194,13 +187,6 @@ let Panel = (
         modalRef.current = element;
         setNewModal(element);
     };
-
-    // Handle
-    const _handle = () => ({});
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useImperativeHandle(ref, () => handle);
 
     // On submit handler
     useEffect(() => {
