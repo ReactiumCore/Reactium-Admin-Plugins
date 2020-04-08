@@ -27,12 +27,9 @@ let Panel = (
     },
     ref,
 ) => {
-    const formRef = useRef();
+    const inputRef = useRef();
 
     const editor = useSlate();
-
-    // Initial value
-    const [value, setValue] = useState({ url });
 
     // className prefixer
     const cx = cls =>
@@ -51,9 +48,7 @@ let Panel = (
         Transforms.unwrapNodes(editor, { match: n => n.type === 'link' });
     };
 
-    const wrapLink = () => {
-        const { url } = value;
-
+    const wrapLink = url => {
         if (isLinkActive()) {
             unwrapLink();
         }
@@ -76,17 +71,13 @@ let Panel = (
         ReactEditor.focus(editor);
     };
 
-    const _onChange = e => setValue(e.value);
-
     const _onClearLink = e => {
         hide();
         setTimeout(() => unwrapLink(), 1);
     };
 
     const _onSubmit = e => {
-        if (!op.get(value, 'url')) return;
-        wrapLink();
-        setValue({});
+        wrapLink(inputRef.current.value);
         hide();
     };
 
@@ -101,12 +92,7 @@ let Panel = (
     const render = () => {
         const isActive = isLinkActive();
         return (
-            <EventForm
-                ref={formRef}
-                className={cx()}
-                value={value}
-                onChange={_onChange}
-                onSubmit={_onSubmit}>
+            <div className={cx()}>
                 <Dialog
                     header={{
                         title,
@@ -132,7 +118,7 @@ let Panel = (
                                 <input
                                     data-focus
                                     type='text'
-                                    name='url'
+                                    ref={inputRef}
                                     placeholder='http://site.com/page'
                                 />
                                 <Icon name='Feather.Link' />
@@ -156,14 +142,15 @@ let Panel = (
                             <Button
                                 block
                                 color='primary'
+                                onClick={_onSubmit}
                                 size='sm'
-                                type='submit'>
+                                type='button'>
                                 {submitButtonLabel}
                             </Button>
                         )}
                     </div>
                 </Dialog>
-            </EventForm>
+            </div>
         );
     };
 

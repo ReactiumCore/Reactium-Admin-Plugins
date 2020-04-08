@@ -630,12 +630,14 @@ EventForm.propTypes = {
 
 EventForm.defaultProps = {
     controlled: false,
+    defaultValue: {},
     id: uuid(),
     name: 'form',
     namespace: 'ar-event-form',
     onChange: noop,
     onError: noop,
     required: [],
+    value: {},
 };
 
 export { EventForm, EventForm as default };
