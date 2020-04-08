@@ -14,6 +14,7 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
+    useLayoutEffect as useWinEffect,
     useRef,
     useState,
 } from 'react';
@@ -28,6 +29,9 @@ const ENUMS = {
         VALIDATING: 'VALIDATING',
     },
 };
+
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWinEffect : useEffect;
 
 export class FormEvent extends CustomEvent {
     constructor(type, data) {
@@ -113,6 +117,7 @@ let EventForm = (initialProps, ref) => {
         count: 0,
         error: null,
         status: ENUMS.STATUS.READY,
+        ready: false,
     });
 
     const [value, setNewValue] = useState(initialValue || defaultValue || {});
@@ -352,13 +357,26 @@ let EventForm = (initialProps, ref) => {
         }
     };
 
+    const isEmpty = () => {
+        let empty = true;
+
+        Object.values(value).forEach(val => {
+            if (_.isObject(val)) return;
+            if (!_.isEmpty(val)) empty = false;
+        });
+
+        return empty;
+    };
+
     const queue = (value, target) => {
         if (!op.get(temp, 'current.changes')) temp.current.changes = [];
         temp.current.changes.push({ target, value });
         temp.current.focus = target;
     };
 
-    const setCount = count => setState({ count });
+    const setCount = count => {
+        setState({ count });
+    };
 
     const setHandle = newHandle => {
         if (unMounted()) return;
@@ -514,8 +532,14 @@ let EventForm = (initialProps, ref) => {
     // -------------------------------------------------------------------------
 
     // Apply value
+    useLayoutEffect(() => {
+        if (!isEmpty() && state.ready !== true) {
+            setState({ ready: true });
+        }
+    });
+
     useEffect(() => {
-        applyValue(value, true);
+        if (state.ready === true) applyValue(value, true);
     }, [state.count]);
 
     // Update handle on change
@@ -545,8 +569,13 @@ let EventForm = (initialProps, ref) => {
 
     // change flush
     useEffect(() => {
+        if (isEmpty()) return;
+
         const { id } = temp.current;
-        Reactium.Pulse.register(`eventform-flush-${id}`, () => flush());
+        Reactium.Pulse.register(`eventform-flush-${id}`, () => flush(), {
+            delay: 1000,
+            repeate: -1,
+        });
         Reactium.Pulse.register(
             `eventform-children-${id}`,
             () => childWatch(),
@@ -556,7 +585,12 @@ let EventForm = (initialProps, ref) => {
             Reactium.Pulse.unregister(`eventform-flush-${id}`);
             Reactium.Pulse.unregister(`eventform-children-${id}`);
         };
-    }, []);
+    });
+
+    // initial value change
+    useEffect(() => {
+        if (!_.isEqual(value, initialValue)) applyValue(initialValue);
+    }, [Object.values(initialValue)]);
 
     // -------------------------------------------------------------------------
     // Render

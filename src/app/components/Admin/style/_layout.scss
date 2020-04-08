@@ -169,8 +169,27 @@ body {
 .ar-dialog-content {
     .ar-data-table {
         box-shadow: none;
+
         .ar-data-table-heading {
             border-top: none;
         }
+    }
+}
+
+.ar-data-table-search {
+    * {
+        z-index: auto !important;
+    }
+
+    input.dialog-search:focus {
+        z-index: 20 !important;
+    }
+
+    input.dialog-search:focus ~ span.bg {
+        z-index: 1 !important;
+    }
+
+    input.dialog-search:focus ~ span.ico {
+        z-index: 21 !important;
     }
 }
