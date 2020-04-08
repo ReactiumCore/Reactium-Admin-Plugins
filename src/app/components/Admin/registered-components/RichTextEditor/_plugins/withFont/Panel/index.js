@@ -10,19 +10,20 @@ import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
     useDerivedState,
-    useEventHandle,
     useFocusEffect,
-    useHandle,
+    useFulfilledObject,
 } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useEffect,
-    useImperativeHandle,
-    useMemo,
+    useLayoutEffect as useWindowEffect,
     useRef,
     useState,
 } from 'react';
+
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
 /**
  * -----------------------------------------------------------------------------
@@ -31,17 +32,7 @@ import React, {
  */
 
 let Panel = (
-    {
-        removeButtonLabel,
-        submitButtonLabel,
-        children,
-        fontFamily: initialFontFamily,
-        fontSize: initialFontSize,
-        fontWeight: initialFontWeight,
-        selection: initialSelection,
-        title,
-        ...props
-    },
+    { removeButtonLabel, submitButtonLabel, children, title, ...props },
     ref,
 ) => {
     const formRef = useRef();
@@ -49,15 +40,24 @@ let Panel = (
     const editor = useSlate();
 
     // Initial state
-    const [fonts, setFonts] = useState();
+    const [state, setNewState] = useDerivedState({
+        ...props,
+        fonts: _.sortBy(editor.fonts, 'label'),
+        selection: editor.selection,
+    });
 
-    const [fontFamily, setFontFamily] = useState();
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
+    };
 
-    const [fontSize, setFontSize] = useState();
-
-    const [fontWeight, setFontWeight] = useState();
-
-    const [selection, setSelection] = useState(initialSelection);
+    const [ready, readyObj] = useFulfilledObject(state, [
+        'fonts',
+        'fontFamily',
+        'fontSize',
+        'fontWeight',
+        'selection',
+    ]);
 
     // className prefixer
     const cx = cls =>
@@ -67,12 +67,29 @@ let Panel = (
             .value()
             .join('-');
 
+    const initialize = () => {
+        if (!state.fonts) return;
+
+        const { fonts, fontFamily, fontSize, fontWeight } = state;
+
+        const newState = {};
+        const font = fonts[0];
+
+        if (!fontFamily) op.set(newState, 'fontFamily', font);
+        if (!fontSize) op.set(newState, 'fontSize', { label: 16, value: 16 });
+        if (!fontWeight) op.set(newState, 'fontWeight', font.weight[0]);
+
+        if (Object.keys(newState).length > 0) setState(newState);
+    };
+
     const isNodeActive = () => {
         const [_font] = Editor.nodes(editor, {
             match: n => n.type === 'font',
         });
         return !!_font;
     };
+
+    const unMounted = () => !formRef.current;
 
     const unwrapNode = () => {
         Transforms.unwrapNodes(editor, { match: n => n.type === 'font' });
@@ -82,6 +99,8 @@ let Panel = (
         if (isNodeActive()) {
             unwrapNode();
         }
+
+        const { fontFamily, fontSize, fontWeight, selection } = state;
 
         const isCollapsed = selection && Range.isCollapsed(selection);
 
@@ -121,131 +140,107 @@ let Panel = (
         setTimeout(() => unwrapNode(), 1);
     };
 
-    const _onChange = e => setColor(e.target.value);
+    const _onFontSelect = e => setState({ fontFamily: e.item });
 
-    const _onFontSelect = e => setFontFamily(e.item);
+    const _onSizeSelect = e => setState({ fontSize: e.item });
 
-    const _onSizeSelect = e => setFontSize(e.item);
+    const _onWeightSelect = e => setState({ fontWeight: e.item });
 
-    const _onWeightSelect = e => setFontWeight(e.item);
-
-    const _onSubmit = e => {
+    const _onSubmit = () => {
+        if (unMounted()) return;
         wrapNode();
         hide();
     };
 
     const hide = () => editor.panel.setID('rte-panel').hide(false, true);
 
-    // Handle
-    const _handle = () => ({});
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useImperativeHandle(ref, () => handle);
-
-    // On submit handler
-    useEffect(() => {
-        if (!formRef.current) return;
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [formRef.current]);
-
     useEffect(() => {
         if (!editor.selection) return;
-        setSelection(editor.selection);
+        setState({ selection: editor.selection });
     }, [editor.selection]);
 
     // Set fonts
     useEffect(() => {
         if (!editor.fonts) return;
-        setFonts(_.sortBy(editor.fonts, 'label'));
+        setState({ fonts: _.sortBy(editor.fonts, 'label') });
     }, [editor.fonts]);
 
     useEffect(() => {
-        if (!fonts) return;
+        initialize();
+    }, [state.fonts]);
 
-        if (!fontFamily || !fontSize || !fontWeight) {
-            const font = fonts[0];
-
-            if (!fontFamily) setFontFamily(font);
-            if (!fontSize) setFontSize({ label: 16, value: 16 });
-            if (!fontWeight) setFontWeight(font.weight[0]);
-        }
-    }, [fonts]);
-
-    const [focused] = useFocusEffect(op.get(formRef, 'current.form'), [
-        op.get(formRef, 'current.form'),
-    ]);
+    const [focused] = useFocusEffect(formRef.current, [formRef.current]);
     const [focusRetry, setFocusRetry] = useState(0);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+        if (!ready) return;
         if (!focused && focusRetry < 10) setFocusRetry(focusRetry + 1);
-    }, [focusRetry]);
+    }, [ready, focusRetry]);
 
     // Renderers
     const render = () => {
-        if (!fontFamily || !fontSize || !fontWeight) return null;
+        const { fonts, fontFamily, fontSize, fontWeight } = state;
 
         const isActive = isNodeActive();
 
         return (
-            <EventForm ref={formRef} className={cx()} controlled>
-                <Dialog
-                    collapsible={false}
-                    dismissable={false}
-                    header={{
-                        title,
-                        elements: [
-                            <Button
-                                onClick={e => {
-                                    e.preventDefault();
-                                    hide();
-                                }}
-                                size={Button.ENUMS.SIZE.XS}
-                                color={Button.ENUMS.COLOR.CLEAR}
-                                className='ar-dialog-header-btn dismiss'>
-                                <Icon name='Feather.X' />
-                            </Button>,
-                        ],
-                    }}>
-                    {!isActive && (
-                        <FontSelect
-                            data-focus
-                            font={fontFamily}
-                            fonts={fonts}
-                            onFontSelect={_onFontSelect}
-                            onSizeSelect={_onSizeSelect}
-                            onWeightSelect={_onWeightSelect}
-                            size={fontSize}
-                            weight={fontWeight}
-                        />
-                    )}
-                    <div className='p-xs-8'>
-                        {isActive ? (
-                            <Button
-                                block
-                                color='danger'
+            <div ref={formRef} className={cx()}>
+                {ready && (
+                    <Dialog
+                        collapsible={false}
+                        dismissable={false}
+                        header={{
+                            title,
+                            elements: [
+                                <Button
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        hide();
+                                    }}
+                                    size={Button.ENUMS.SIZE.XS}
+                                    color={Button.ENUMS.COLOR.CLEAR}
+                                    className='ar-dialog-header-btn dismiss'>
+                                    <Icon name='Feather.X' />
+                                </Button>,
+                            ],
+                        }}>
+                        {!isActive && (
+                            <FontSelect
                                 data-focus
-                                size='sm'
-                                type='button'
-                                onClick={_onClear}>
-                                {removeButtonLabel}
-                            </Button>
-                        ) : (
-                            <Button
-                                block
-                                color='primary'
-                                size='sm'
-                                type='submit'>
-                                {submitButtonLabel}
-                            </Button>
+                                font={fontFamily}
+                                fonts={fonts}
+                                onFontSelect={_onFontSelect}
+                                onSizeSelect={_onSizeSelect}
+                                onWeightSelect={_onWeightSelect}
+                                size={fontSize}
+                                weight={fontWeight}
+                            />
                         )}
-                    </div>
-                </Dialog>
-            </EventForm>
+                        <div className='p-xs-8'>
+                            {isActive ? (
+                                <Button
+                                    block
+                                    color='danger'
+                                    data-focus
+                                    size='sm'
+                                    type='button'
+                                    onClick={_onClear}>
+                                    {removeButtonLabel}
+                                </Button>
+                            ) : (
+                                <Button
+                                    block
+                                    color='primary'
+                                    onClick={_onSubmit}
+                                    size='sm'
+                                    type='button'>
+                                    {submitButtonLabel}
+                                </Button>
+                            )}
+                        </div>
+                    </Dialog>
+                )}
+            </div>
         );
     };
 
@@ -256,9 +251,6 @@ Panel = forwardRef(Panel);
 
 Panel.propTypes = {
     className: PropTypes.string,
-    fontFamily: PropTypes.string,
-    fontSize: PropTypes.number,
-    fontWeight: PropTypes.number,
     namespace: PropTypes.string,
     removeButtonLabel: PropTypes.node,
     submitButtonLabel: PropTypes.node,
@@ -266,13 +258,11 @@ Panel.propTypes = {
 };
 
 Panel.defaultProps = {
-    fontFamily: 'Arial',
-    fontSize: 16,
-    fontWeight: 400,
     namespace: 'rte-color-insert',
     removeButtonLabel: __('Remove Font'),
     submitButtonLabel: __('Apply Font'),
     title: __('Font'),
+    value: {},
 };
 
 export { Panel as default };
