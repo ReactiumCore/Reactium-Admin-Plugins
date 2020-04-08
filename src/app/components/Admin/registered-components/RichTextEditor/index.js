@@ -315,8 +315,8 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     //     };
     // }, [containerRef.current]);
 
-    // 11.0 - Render function
-    const render = () => (
+    // 11.0 - Render
+    return (
         <div className={cname()} ref={containerRef} id={id}>
             <Slate
                 editor={editor}
@@ -357,8 +357,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
             </Slate>
         </div>
     );
-
-    return render();
 });
 
 RichTextEditor.propTypes = {

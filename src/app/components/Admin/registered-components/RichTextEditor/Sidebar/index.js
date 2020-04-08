@@ -35,7 +35,10 @@ const Buttons = ({ container, editor, nodes }) => (
     </div>
 );
 
-let Sidebar = ({ className, container: parent, id, style }, ref) => {
+let Sidebar = (
+    { className, container: parent, id, minX, minY, style },
+    ref,
+) => {
     const editor = useSlate();
 
     const { buttons } = editor;
@@ -78,15 +81,15 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
             top -= 7;
         }
 
+        top = Math.floor(top);
         top = Math.max(-7, top);
 
         let left = -50;
 
-        const position = { left, top, display: 'block', opacity: 1 };
+        top = Math.max(minY, top);
+        left = Math.max(minX, left);
 
-        if (!_.isEqual(position, state.position)) {
-            setState({ position });
-        }
+        const position = { left, top, display: 'block', opacity: 1 };
 
         return position;
     };
@@ -108,6 +111,11 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
     const [handle, setHandle] = useEventHandle(_handle());
 
     useImperativeHandle(ref, () => handle);
+
+    useEffect(() => {
+        const position = getPosition();
+        if (!_.isEqual(position, state.position)) setState({ position });
+    }, [state.position]);
 
     const render = useMemo(() => {
         const { collapsed } = state;
@@ -147,6 +155,8 @@ let Sidebar = ({ className, container: parent, id, style }, ref) => {
 Sidebar = forwardRef(Sidebar);
 
 Sidebar.defaultProps = {
+    minX: -50,
+    minY: 35,
     style: {},
 };
 
