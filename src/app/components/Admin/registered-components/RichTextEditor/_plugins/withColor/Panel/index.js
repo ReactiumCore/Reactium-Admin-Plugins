@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { ColorSelect } from '../../withFormatter/Panel/ColorSelect';
-import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
     useDerivedState,
@@ -46,14 +46,17 @@ let Panel = (
 
     const editor = useSlate();
 
-    // Initial state
-    const [color, setColor] = useState(initialColor);
+    const [state, setNewState] = useDerivedState({
+        color: initialColor,
+        colors: editor.colors,
+        selection: initialSelection,
+        value: {},
+    });
 
-    const [colors, setColors] = useState(editor.colors);
-
-    const [selection, setSelection] = useState(initialSelection);
-
-    const [value, setValue] = useState({});
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
+    };
 
     // className prefixer
     const cx = cls =>
@@ -71,6 +74,8 @@ let Panel = (
         return !!color;
     };
 
+    const unMounted = () => !formRef.current;
+
     const unwrapColor = () => {
         Transforms.unwrapNodes(editor, { match: n => n.type === 'color' });
     };
@@ -79,6 +84,8 @@ let Panel = (
         if (isColorActive()) {
             unwrapColor();
         }
+
+        const { color, selection } = state;
 
         const isCollapsed = selection && Range.isCollapsed(selection);
 
@@ -103,15 +110,16 @@ let Panel = (
 
     const _onClearColor = e => {
         hide();
-        setTimeout(() => unwrapColor(), 1);
+        _.defer(() => unwrapColor(), 1);
     };
 
-    const _onChange = e => setColor(e.target.value);
+    const _onChange = e => setState({ color: e.target.value });
 
-    const _onSelect = e => setColor(e.item.value);
+    const _onSelect = e => setState({ color: e.item.value });
 
-    const _onSubmit = e => {
-        if (!color) return;
+    const _onSubmit = () => {
+        if (unMounted()) return;
+        if (!state.color) return;
         wrapColor();
         hide();
     };
@@ -120,32 +128,15 @@ let Panel = (
         editor.panel.hide(false).setID('rte-panel');
     };
 
-    // Handle
-    const _handle = () => ({});
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useImperativeHandle(ref, () => handle);
-
-    // On submit handler
-    useEffect(() => {
-        if (!formRef.current) return;
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [editor, selection]);
-
     // Set selection
     useEffect(() => {
         if (!editor.selection) return;
-        setSelection(editor.selection);
+        setState({ selection: editor.selection });
     }, [editor.selection]);
 
     // Set colors
     useEffect(() => {
-        setColors(editor.colors);
+        setState({ colors: editor.colors });
     }, [editor.colors]);
 
     useFocusEffect(editor.panel.container);
@@ -153,9 +144,10 @@ let Panel = (
     // Renderers
     const render = () => {
         const isActive = isColorActive();
+        const { color, colors, selection } = state;
 
         return (
-            <EventForm ref={formRef} className={cx()} controlled>
+            <div ref={formRef} className={cx()}>
                 <Dialog
                     collapsible={false}
                     dismissable={false}
@@ -200,14 +192,15 @@ let Panel = (
                             <Button
                                 block
                                 color='primary'
+                                onClick={_onSubmit}
                                 size='sm'
-                                type='submit'>
+                                type='button'>
                                 {submitButtonLabel}
                             </Button>
                         )}
                     </div>
                 </Dialog>
-            </EventForm>
+            </div>
         );
     };
 

@@ -647,6 +647,7 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
+            debug(e.value);
             await dispatch('submit', e.value, onSubmit);
             save(e.value)
                 .then(async result => {

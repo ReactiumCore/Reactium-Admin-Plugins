@@ -5,26 +5,18 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
-import {
-    Button,
-    Dialog,
-    Dropdown,
-    EventForm,
-    Icon,
-} from '@atomic-reactor/reactium-ui';
+import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
-    useHandle,
 } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -50,49 +42,49 @@ const CloseButton = props => (
     </Button>
 );
 
-let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
+let Panel = ({ children, ...props }, ref) => {
     const formRef = useRef();
 
     const editor = useSlate();
 
     // Initial state
-    const [blocks, setBlocks] = useState(editor.blocks);
-
-    const [buttons, setButtons] = useState(editor.buttons);
-
-    const [colors, setColors] = useState(editor.colors);
-
-    const [fonts, setFonts] = useState(editor.fonts);
-
-    const [node, setNode] = useState();
-
-    const [selection, setSelection] = useState(initialSelection);
-
-    const [state, setState] = useDerivedState({
+    const [state, setNewState] = useDerivedState({
         ...props,
         align: 'align-left',
-        color: 'inherit',
         bgColor: 'transparent',
+        blocks: _.where(editor.blocks, { formatter: true }),
+        buttons: _.where(editor.buttons, item => op.has(item, 'formatter')),
+        color: 'inherit',
+        colors: editor.colors,
+        fonts: _.sortBy(editor.fonts, 'label'),
         opacity: 100,
         bgOpacity: 100,
+        selection: editor.selection,
         size: { label: 16, value: 16 },
+        style: {},
+        value: {},
     });
 
-    const [value, setValue] = useState({});
-
-    const [style, setStyle] = useState({});
+    const setState = newState => {
+        if (unMounted()) return;
+        setNewState(newState);
+    };
 
     // apply state to style
-    const applyStyle = ({
-        align,
-        bgColor: backgroundColor,
-        bgOpacity,
-        color,
-        font,
-        opacity,
-        size,
-        weight,
-    }) => {
+    const applyStyle = params => {
+        const { style } = state;
+
+        let {
+            align,
+            bgColor: backgroundColor,
+            bgOpacity,
+            color,
+            font,
+            opacity,
+            size,
+            weight,
+        } = params;
+
         let newStyle = { ...style, padding: 0 };
 
         if (align) {
@@ -145,7 +137,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
 
         if (_.isEqual(newStyle, style)) return;
 
-        setStyle(newStyle);
+        setState({ style: newStyle });
     };
 
     // classname and namespace
@@ -254,6 +246,8 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         }
     };
 
+    const unMounted = () => !formRef.current;
+
     const _onBgColorChange = e => {
         const bgColor = e.target.value;
         setState({ bgColor });
@@ -315,8 +309,9 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         setState({ weight });
     };
 
-    const _onSubmit = e => {
-        const { id: type, label } = op.get(state, 'textStyle');
+    const _onSubmit = () => {
+        const { selection, style, textStyle } = state;
+        const { id: type, label } = textStyle;
 
         if (!type) {
             return;
@@ -346,21 +341,11 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
-    useImperativeHandle(ref, () => handle);
-
-    // On submit handler
-    useEffect(() => {
-        if (!formRef.current) return;
-
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [editor.selection, state, style]);
+    useImperativeHandle(ref, () => handle, [handle]);
 
     // Editor load
     useEffect(() => {
+        const { blocks, selection } = state;
         if (blocks && selection) {
             const [parent] = Editor.parent(editor, selection);
 
@@ -376,46 +361,52 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
 
             setState({ textStyle });
         }
-    }, [blocks, selection]);
+    }, [state.blocks, state.selection]);
 
     // Set blocks
     useEffect(() => {
-        setBlocks(_.where(editor.blocks, { formatter: true }));
+        setState({ blocks: _.where(editor.blocks, { formatter: true }) });
     }, [editor.blocks]);
 
     // Set buttons
     useEffect(() => {
-        setButtons(_.where(editor.buttons, item => op.has(item, 'formatter')));
+        setState({
+            buttons: _.where(editor.buttons, item => op.has(item, 'formatter')),
+        });
     }, [editor.buttons]);
 
     // Set colors
     useEffect(() => {
-        setColors(editor.colors);
+        setState({ colors: editor.colors });
     }, [editor.colors]);
 
     // Set fonts
     useEffect(() => {
-        setFonts(editor.fonts);
+        setState({ fonts: _.sortBy(editor.fonts, 'label') });
+    }, [editor.fonts]);
+
+    useEffect(() => {
+        if (!state.fonts) return;
         if (!op.get(state, 'font')) {
-            const _fonts = _.sortBy(editor.fonts, 'label');
-            const _font = _fonts[0];
+            const font = state.fonts[0];
             const size = 16;
 
             setState({
-                font: _font,
+                font,
                 size: { label: size, value: size },
-                weight: _font.weight[0],
+                weight: font.weight[0],
             });
         }
-    }, [editor.fonts]);
+    }, [state.fonts]);
 
     // Set style on state changes
     useEffect(() => {
         applyStyle(state);
-    }, [state]);
+    }, [Object.values(state)]);
 
     // Get styles from current node
     useEffect(() => {
+        const { selection } = state;
         if (!selection) return;
 
         let parent;
@@ -436,13 +427,15 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
             styleToState(currentStyle);
         }
 
-        setNode(currentNode);
-    }, [node, selection]);
+        setState({ node: currentNode });
+    }, [state.node, state.selection]);
 
     // Update selection
     useEffect(() => {
-        if (!editor.selection || _.isEqual(selection, editor.selection)) return;
-        setSelection(selection);
+        if (!editor.selection) return;
+        if (_.isEqual(state.selection, editor.selection)) return;
+
+        setState({ selection: editor.selection });
     }, [editor.selection]);
 
     // Renderers
@@ -451,10 +444,16 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
             align,
             bgColor,
             bgOpacity,
+            blocks,
+            buttons,
             color,
+            colors,
             font,
+            fonts,
             opacity,
+            selection,
             size,
+            style,
             title,
             textStyle,
             weight,
@@ -466,7 +465,7 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
         };
 
         return (
-            <EventForm ref={formRef} className={cx()} controlled>
+            <div ref={formRef} className={cx()}>
                 <Dialog collapsible={false} dismissable={false} header={header}>
                     <TextStyleSelect
                         blocks={blocks}
@@ -510,12 +509,17 @@ let Panel = ({ children, selection: initialSelection, ...props }, ref) => {
                         onClick={_onTextAlignClick}
                     />
                     <div className='p-xs-8'>
-                        <Button block color='primary' size='sm' type='submit'>
+                        <Button
+                            block
+                            color='primary'
+                            onClick={_onSubmit}
+                            size='sm'
+                            type='button'>
                             {__('Apply Formatting')}
                         </Button>
                     </div>
                 </Dialog>
-            </EventForm>
+            </div>
         );
     };
 

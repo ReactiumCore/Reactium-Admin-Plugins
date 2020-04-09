@@ -22,13 +22,7 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 const TYPE = 'image';
 
@@ -104,11 +98,11 @@ let Panel = (
 
     const insertNode = (url, objectId) => {
         const node = {
-            type: TYPE,
-            src: url,
-            objectId,
             ID: uuid(),
             children: [{ text: '' }],
+            src: url,
+            objectId,
+            type: TYPE,
         };
 
         const p = {
@@ -188,13 +182,6 @@ let Panel = (
         modalRef.current = element;
         setNewModal(element);
     };
-
-    // Handle
-    const _handle = () => ({});
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useImperativeHandle(ref, () => handle);
 
     // On submit handler
     useEffect(() => {

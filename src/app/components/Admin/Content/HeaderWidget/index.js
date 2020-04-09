@@ -2,10 +2,11 @@ import op from 'object-path';
 import ENUMS from 'components/Admin/Content/enums';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 import { Button, Icon, Dropdown } from '@atomic-reactor/reactium-ui';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     useAsyncEffect,
+    useDerivedState,
     useFulfilledObject,
     useHandle,
     __,
@@ -30,23 +31,27 @@ const AddButton = ({ type }) => {
 };
 
 const SaveButton = ({ type }) => {
-    const [status, setStatus] = useState();
+    const [state, setState] = useDerivedState({
+        init: false,
+        status: null,
+    });
+
     const Editor = useHandle('AdminContentEditor');
     const [ready] = useFulfilledObject(Editor, ['EventForm']);
 
     const isBusy = stat =>
-        [
-            Editor.EventForm.ENUMS.STATUS.SUBMITTING,
-            Editor.EventForm.ENUMS.STATUS.VALIDATING,
-        ].includes(stat);
+        ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(stat);
+
+    const isLoading = stat => Boolean(String(stat).search(/^load/gi) > -1);
 
     const onStatus = e => {
-        const newStatus = e.event;
-        if (newStatus !== status) setStatus(newStatus);
+        const status = e.event;
+        setState({ status });
     };
 
     useEffect(() => {
-        if (ready !== true) return;
+        if (state.init === true || !ready) return;
+        setState({ init: true });
         Editor.addEventListener('status', onStatus);
         return () => {
             Editor.removeEventListener('status', onStatus);
@@ -54,15 +59,18 @@ const SaveButton = ({ type }) => {
     }, [ready]);
 
     const render = () => {
-        const busy = isBusy(status);
+        const loading = isLoading(state.status);
+        const busy = isBusy(state.status);
         const label = busy ? ENUMS.TEXT.SAVING : ENUMS.TEXT.SAVE;
-        const icon = busy ? 'Feather.UploadCloud' : 'Feather.Check';
+        let icon = busy ? 'Feather.UploadCloud' : 'Feather.Check';
+        icon = loading ? 'Feather.DownloadCloud' : icon;
+
         return (
             <Button
                 appearance='pill'
-                className='mr-xs-24'
+                className='mr-xs-24 content-save-btn'
                 color='primary'
-                disabled={busy}
+                disabled={busy || loading}
                 onClick={e => Editor.submit(e)}
                 size='xs'
                 type='button'>
@@ -78,23 +86,25 @@ const SaveButton = ({ type }) => {
 };
 
 const BranchSelector = ({ type }) => {
-    const [status, setStatus] = useState();
+    const [state, setState] = useDerivedState({
+        init: false,
+        status: null,
+    });
+
     const Editor = useHandle('AdminContentEditor');
     const [ready] = useFulfilledObject(Editor, ['EventForm']);
 
     const isBusy = stat =>
-        [
-            Editor.EventForm.ENUMS.STATUS.SUBMITTING,
-            Editor.EventForm.ENUMS.STATUS.VALIDATING,
-        ].includes(stat);
+        ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(stat);
 
     const onStatus = e => {
-        const newStatus = e.event;
-        if (newStatus !== status) setStatus(newStatus);
+        const status = e.event;
+        if (status !== state.status) setState({ status });
     };
 
     useEffect(() => {
-        if (ready !== true) return;
+        if (state.init === true || !ready) return;
+        setState({ init: true });
         Editor.addEventListener('status', onStatus);
         return () => {
             Editor.removeEventListener('status', onStatus);

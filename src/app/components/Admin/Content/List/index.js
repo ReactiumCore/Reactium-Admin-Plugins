@@ -58,7 +58,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         'type',
     ]);
 
-    const search = useSelect(state => op.get(state, 'SearchBar.value'));
+    const [search, setSearch] = useState();
 
     const SearchBar = useHandle('SearchBar');
 
@@ -81,6 +81,8 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             content.splice(index, 1);
             setState({ content });
 
+            Modal.hide();
+
             // trash the item.
             if (status !== 'TRASH') {
                 await Reactium.Content.trash({ type: contentType, objectId });
@@ -90,8 +92,6 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
             // fetch the current page again.
             await getContent();
-
-            Modal.hide();
         };
 
         const Message = () => (
@@ -317,6 +317,11 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
 
         if (Object.keys(newState).length > 0) setState(newState);
     }, [group, page, type]);
+
+    // search
+    useEffect(() => {
+        setSearch(SearchBar.state.value);
+    }, [op.get(SearchBar, 'state.value')]);
 
     const render = () => {
         const { content, group, page, status, type } = state;

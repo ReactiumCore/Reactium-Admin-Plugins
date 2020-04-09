@@ -50,6 +50,7 @@ const MediaDelete = ({ className, objectId, url, zone: zones, ...props }) => {
             data-vertical-align='middle'
             onClick={() => confirmDelete()}
             size={Button.ENUMS.SIZE.SM}
+            style={{ height: 40, maxHeight: 40 }}
             type={Button.ENUMS.TYPE.BUTTON}>
             <Icon name='Feather.X' />
             {isEditor && <span className='label'>{ENUMS.TEXT.DELETE}</span>}

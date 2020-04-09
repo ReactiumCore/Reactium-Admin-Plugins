@@ -285,6 +285,12 @@
     .collection {
         min-height: 64px;
 
+        .ar-data-table {
+            .ar-data-table-heading {
+                border-top: none;
+            }
+        }
+
         .spinner {
             width: 100%;
             display: flex;

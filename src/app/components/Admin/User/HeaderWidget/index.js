@@ -12,7 +12,7 @@ const AddButton = () => {
             color='primary'
             outline
             size='xs'
-            to={'/admin/user/new'}
+            to='/admin/user/new/edit'
             type='link'>
             <Icon name='Feather.Plus' size={18} />
             <span className='hide-xs show-md ml-xs-12'>{__('New User')}</span>

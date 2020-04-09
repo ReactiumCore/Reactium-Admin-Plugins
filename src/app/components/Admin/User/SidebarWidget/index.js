@@ -13,7 +13,7 @@ export default () => {
 
     return (
         <MenuItem
-            add='/admin/user/new'
+            add='/admin/user/new/edit'
             exact={false}
             label={__('Users')}
             icon='Linear.Users2'

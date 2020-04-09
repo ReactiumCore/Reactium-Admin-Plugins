@@ -59,6 +59,7 @@ body {
 .ar-tooltip {
     // position: fixed;
     z-index: map-get($z-indexes, 'overlay') + 100;
+
     .container {
         max-width: 100vw;
     }
@@ -163,4 +164,32 @@ body {
 
 .form-group:empty {
     display: none;
+}
+
+.ar-dialog-content {
+    .ar-data-table {
+        box-shadow: none;
+
+        .ar-data-table-heading {
+            border-top: none;
+        }
+    }
+}
+
+.ar-data-table-search {
+    * {
+        z-index: auto !important;
+    }
+
+    input.dialog-search:focus {
+        z-index: 20 !important;
+    }
+
+    input.dialog-search:focus ~ span.bg {
+        z-index: 1 !important;
+    }
+
+    input.dialog-search:focus ~ span.ico {
+        z-index: 21 !important;
+    }
 }
