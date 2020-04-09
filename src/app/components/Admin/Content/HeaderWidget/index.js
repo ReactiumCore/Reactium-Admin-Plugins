@@ -42,8 +42,7 @@ const SaveButton = ({ type }) => {
     const isBusy = stat =>
         ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(stat);
 
-    const isLoading = stat =>
-        !stat || Boolean(String(stat).search(/load/gi) > -1);
+    const isLoading = stat => Boolean(String(stat).search(/load/gi) > -1);
 
     const onStatus = e => {
         const status = e.event;
