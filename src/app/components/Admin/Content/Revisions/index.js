@@ -175,6 +175,18 @@ const RevisionManager = props => {
         }
     };
 
+    const updateEditor = async value => {
+        if (
+            op.get(editor, 'value.history.branch') ===
+            op.get(value, 'history.branch')
+        ) {
+            await editor.dispatch('load', {
+                value,
+                ignoreChangeEvent: true,
+            });
+        }
+    };
+
     const saveChanges = async () => {
         const workingChanges = op.get(state, 'working.changes', {});
         const compareChanges = op.get(state, 'compare.changes', {});
@@ -187,6 +199,7 @@ const RevisionManager = props => {
                 ...workingChanges,
             });
             updateBranchInfo(content, 'working');
+            updateEditor(content);
         }
 
         if (Object.keys(compareChanges).length) {
@@ -195,6 +208,7 @@ const RevisionManager = props => {
                 ...compareChanges,
             });
             updateBranchInfo(content, 'compare');
+            updateEditor(content);
         }
 
         Toast.show({
