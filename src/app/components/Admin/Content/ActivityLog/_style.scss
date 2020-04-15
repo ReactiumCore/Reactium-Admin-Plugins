@@ -29,7 +29,6 @@ $restored-color: $color-green !default;
     overflow: hidden;
 
     &-chart {
-        // remove when chart implemented
         background: $color-activity-chart;
     }
 
@@ -182,4 +181,10 @@ $restored-color: $color-green !default;
             }
         }
     }
+}
+
+.activity-chart {
+    background: $color-activity-chart;
+    width: 100%;
+    height: 100vh;
 }
