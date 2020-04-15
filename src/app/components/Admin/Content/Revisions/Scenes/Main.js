@@ -45,22 +45,30 @@ const MainScene = props => {
                 header={{ title: __('Manage Versions') }}
                 className={cx('dialog')}>
                 <div className={cx('option')}>
-                    <h3
-                        className={'h5 pb-xs-8'}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('SELECT_BRANCH').tooltip}>
+                    <h3 className={'h5 pb-xs-8'}>
                         {handle.labels('SELECT_BRANCH').label}
                     </h3>
                     <SelectBranch handle={handle} />
                 </div>
 
                 <div className={cx('option')}>
-                    <h3
-                        className={'h5 pb-xs-8'}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('COMPARE_BRANCH').tooltip}>
+                    <h3 className={'h5 pb-xs-8'}>
+                        {handle.labels('REVISIONS').tooltip}
+                    </h3>
+                    <Button
+                        size={Button.ENUMS.SIZE.MD}
+                        color={Button.ENUMS.COLOR.PRIMARY}
+                        outline
+                        title={handle.labels('REVISIONS').tooltip}
+                        onClick={() => {
+                            handle.navTo('revisions');
+                        }}>
+                        {handle.labels('REVISIONS').label}
+                    </Button>
+                </div>
+
+                <div className={cx('option')}>
+                    <h3 className={'h5 pb-xs-8'}>
                         {handle.labels('COMPARE_BRANCH').label}
                     </h3>
                     <SelectCompare handle={handle} />
@@ -92,34 +100,7 @@ const MainScene = props => {
                 </div>
 
                 <div className={cx('option')}>
-                    <h3
-                        className={'h5 pb-xs-8'}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('REVISIONS').tooltip}>
-                        {handle.labels('REVISIONS').tooltip}
-                    </h3>
-                    <Button
-                        size={Button.ENUMS.SIZE.MD}
-                        color={Button.ENUMS.COLOR.PRIMARY}
-                        outline
-                        title={handle.labels('REVISIONS').tooltip}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('REVISIONS').tooltip}
-                        onClick={() => {
-                            handle.navTo('revisions');
-                        }}>
-                        {handle.labels('REVISIONS').label}
-                    </Button>
-                </div>
-
-                <div className={cx('option')}>
-                    <h3
-                        className={'h5 pb-xs-8'}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('CLONE').tooltip}>
+                    <h3 className={'h5 pb-xs-8'}>
                         {handle.labels('CLONE').tooltip}
                     </h3>
                     <Button
@@ -127,9 +108,6 @@ const MainScene = props => {
                         outline
                         color={Button.ENUMS.COLOR.PRIMARY}
                         title={handle.labels('CLONE').tooltip}
-                        data-vertical-align='top'
-                        data-align='left'
-                        data-tooltip={handle.labels('CLONE').tooltip}
                         onClick={() => {
                             handle.cloneBranch();
                             handle.navTo('settings');
