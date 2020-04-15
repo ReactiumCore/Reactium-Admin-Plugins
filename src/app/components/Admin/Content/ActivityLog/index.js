@@ -1,9 +1,10 @@
 import React from 'react';
-import Reactium, { useReduxState, __ } from 'reactium-core/sdk';
 import _ from 'underscore';
 import op from 'object-path';
 import domain from './domain';
+import ActivityChart from './ActivityChart';
 import ActivityUpdates from './ActivityUpdates';
+import Reactium, { __, useReduxState } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -14,9 +15,11 @@ const Activity = props => {
     const [activity] = useReduxState(domain.name);
     const log = Object.values(op.get(activity, 'log', {}));
 
+    // console.log(log);
+
     return (
         <div className='activity-log'>
-            <div className='activity-log-chart col-xs-12 col-md-8 col-lg-10'></div>
+            <ActivityChart log={log} />
             <ActivityUpdates log={log} />
         </div>
     );
