@@ -16,11 +16,11 @@ export default {
     component: () => (
         <div className='p-xs-20'>
             <DraggableList>
-                <DLItem number={1} text={'Lorem'} height={200} />
+                <DLItem number={1} text={'Lorem'} height={100} />
                 <DLItem number={2} text={'ipsum'} height={100} />
-                <DLItem number={3} text={'dolor'} height={300} />
-                <DLItem number={4} text={'sit'} height={200} />
-                <DLItem number={1} text={'amet'} height={450} />
+                <DLItem number={3} text={'dolor'} height={100} />
+                <DLItem number={4} text={'sit'} height={100} />
+                <DLItem number={1} text={'amet'} height={100} />
             </DraggableList>
         </div>
     ),
