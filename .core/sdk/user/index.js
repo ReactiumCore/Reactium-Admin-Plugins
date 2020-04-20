@@ -146,7 +146,7 @@ User.getSessionToken = () => {
  */
 User.hasValidSession = async () => {
     if (!User.current()) return false;
-    
+
     let request = Cache.get('session-validate');
     if (request) {
         return request;
