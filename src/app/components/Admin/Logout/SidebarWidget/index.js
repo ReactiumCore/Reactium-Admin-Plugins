@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import React, { useEffect, useState } from 'react';
 import op from 'object-path';
 import Reactium, {
@@ -15,17 +16,16 @@ const Widget = () => {
     const ConfirmBox = useHookComponent('ConfirmBox');
     const MenuItem = useHookComponent('MenuItem');
 
-    const toolsHandle = useHandle('AdminTools');
-
-    const [tools, update] = useDerivedState(toolsHandle);
+    const tools = useHandle('AdminTools');
+    const Modal = op.get(tools, 'Modal');
 
     const confirm = () => {
         Reactium.Routing.history.replace('/logout');
-        tools.Modal.dismiss();
+        Modal.dismiss();
     };
 
     const showModal = () => {
-        tools.Modal.show(
+        Modal.show(
             <ConfirmBox
                 message='Are you sure?'
                 onCancel={() => Modal.hide()}
@@ -35,22 +35,18 @@ const Widget = () => {
         );
     };
 
-    useEffect(() => {
-        update(toolsHandle);
-    }, [toolsHandle]);
-
     const render = () => (
         <>
             <MenuItem
                 label='Sign Out'
-                onClick={() => showModal()}
+                onClick={showModal}
                 icon='Linear.PowerSwitch'
                 isActive={() => false}
             />
         </>
     );
 
-    return render();
+    return !Modal ? null : render();
 };
 
 export default Widget;
