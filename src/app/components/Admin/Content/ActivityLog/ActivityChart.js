@@ -26,7 +26,7 @@ const ActivityChart = props => {
 
     const containerRef = useRef();
 
-    //const { AreaChart } = useHookComponent('ReactiumUI');
+    const { AreaChart } = useHookComponent('ReactiumUI');
 
     const [state, setNewState] = useDerivedState({
         data: undefined,

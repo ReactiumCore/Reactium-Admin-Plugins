@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import op from 'object-path';
-import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    useDerivedState,
+    useHandle,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 const noop = {
     dismiss: () => {},
@@ -11,17 +15,17 @@ const Widget = () => {
     const ConfirmBox = useHookComponent('ConfirmBox');
     const MenuItem = useHookComponent('MenuItem');
 
-    const tools = useHandle('AdminTools');
+    const toolsHandle = useHandle('AdminTools');
 
-    const Modal = op.get(tools, 'Modal');
+    const [tools, update] = useDerivedState(toolsHandle);
 
     const confirm = () => {
         Reactium.Routing.history.replace('/logout');
-        Modal.dismiss();
+        tools.Modal.dismiss();
     };
 
     const showModal = () => {
-        Modal.show(
+        tools.Modal.show(
             <ConfirmBox
                 message='Are you sure?'
                 onCancel={() => Modal.hide()}
@@ -30,6 +34,10 @@ const Widget = () => {
             />,
         );
     };
+
+    useEffect(() => {
+        update(toolsHandle);
+    }, [toolsHandle]);
 
     const render = () => (
         <>
