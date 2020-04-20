@@ -2,7 +2,7 @@ import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { Zone } from 'reactium-core/sdk';
+import Reactium, { Zone, useDerivedState } from 'reactium-core/sdk';
 import { useCapabilityCheck } from 'reactium-core/sdk';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -40,6 +40,37 @@ Reactium.Hook.register(
  * Hook Component: Blueprint
  * -----------------------------------------------------------------------------
  */
+const useIsUser = () => {
+    const [state, setState] = useDerivedState({
+        status: 'pending',
+        loggedIn: undefined,
+    });
+
+    const init = async () => {
+        if (state.status === 'init') return;
+
+        setState({ status: 'init' });
+        const loggedIn = await Reactium.User.hasValidSession();
+        setState({
+            loggedIn,
+            status: 'ready',
+        });
+
+        return state.loggedIn;
+    };
+
+    useEffect(() => {
+        if (state.status === 'pending') init();
+    });
+
+    return state.loggedIn;
+};
+
+const useIsAdmin = () => {
+    const { pathname } = Reactium.Routing.history.location;
+    return String(pathname).startsWith('/admin');
+};
+
 const Blueprint = () => {
     const [version, setVersion] = useState(uuid());
     const bpParams = op.get(blueprintConfig, 'context.params.0', {});
@@ -54,7 +85,16 @@ const Blueprint = () => {
     const { component, load, ...route } = routeObj;
     const data = op.get(blueprintConfig, 'context.data', {});
 
-    const allowed = useCapabilityCheck(capabilities);
+    const { pathname } = Reactium.Routing.history.location;
+    let allowed = useCapabilityCheck(capabilities);
+    const isAdmin = useIsAdmin();
+    const isUser = useIsUser();
+
+    // stop the admin from rendering if no current user
+    if (isAdmin === true && isUser === false) {
+        allowed = false;
+        window.location.href = '/login';
+    }
 
     // Blueprint is a top-level component, so we'll treat module as singleton
     useEffect(() => {
