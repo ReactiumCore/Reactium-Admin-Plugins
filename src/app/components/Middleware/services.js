@@ -9,20 +9,18 @@ const getRoutes = async () => {
 export default {
     getDynamicRoutes: async () => {
         const routes = await getRoutes();
+        const routesConfig = {};
+        routes.forEach(
+            ({ route, blueprint, meta, capabilities = [] }) =>
+                (routesConfig[route] = {
+                    meta,
+                    capabilities,
+                    blueprint,
+                }),
+        );
 
         return {
-            routesConfig: routes.reduce(
-                (routesConfig, { route, blueprint, meta, capabilities }) => {
-                    routesConfig[route] = {
-                        meta,
-                        capabilities,
-                        blueprint,
-                    };
-
-                    return routesConfig;
-                },
-                {},
-            ),
+            routesConfig,
             routes: routes.map(({ route, meta }) => ({
                 path: route,
                 exact: op.get(meta, 'exact', true),
@@ -34,9 +32,11 @@ export default {
 
     getBlueprints: async () => {
         const blueprints = await Parse.Cloud.run('blueprints');
-        return blueprints.reduce((allById, blueprint) => {
-            allById[blueprint.ID] = blueprint;
-            return allById;
-        }, {});
+        const bluePrintsById = {};
+        blueprints.forEach(blueprint => {
+            bluePrintsById[blueprint.ID] = blueprint;
+        });
+
+        return bluePrintsById;
     },
 };

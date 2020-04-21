@@ -81,6 +81,9 @@ Reactium.Routing.subscribe(async () => {
                 defaultBlueprint,
             );
 
+            op.set(route, 'blueprint', blueprint);
+            op.set(route, 'routeConfig', config);
+
             route.load = actions.loadFactory(route, config, blueprint);
         }
     });

@@ -14,7 +14,7 @@ Reactium.Hook.register(
 const redirectLogin = async history => {
     const context = await Reactium.Hook.run('route-unauthorized');
     const path = op.get(context, 'loginRoute', defaultLoginRoute);
-    history.push(path);
+    window.location.href = path;
 };
 
 const enforceBlueprintCaps = (store, history, loginPath) => async location => {
@@ -34,14 +34,11 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
     if (match) {
         const pathname = op.get(route, 'path', '/');
-        const blueprint = op.get(store.getState(), [
-            'Blueprint',
-            'routesConfig',
-            pathname,
-        ]);
+        const blueprint = op.get(route, 'blueprint', {});
+        const routeConfig = op.get(route, 'routeConfig', {});
 
-        if (blueprint) {
-            const capabilities = op.get(blueprint, 'capabilities', []);
+        if (blueprint && routeConfig) {
+            const capabilities = op.get(routeConfig, 'capabilities', []);
 
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
@@ -50,7 +47,7 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
                 // permitted, proceed
                 if (permitted) return;
-
+                console.log('redirect');
                 if (pathname === '/') await redirectLogin(history, loginPath);
                 else history.push('/');
             }
