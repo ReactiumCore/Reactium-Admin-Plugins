@@ -5,9 +5,7 @@ import op from 'object-path';
 const defaultLoginRoute = '/login';
 Reactium.Hook.register(
     'route-unauthorized',
-    async context => {
-        context.loginRoute = defaultLoginRoute;
-    },
+    async context => (context.loginRoute = defaultLoginRoute),
     Reactium.Enums.priority.highest,
 );
 
@@ -16,6 +14,13 @@ const redirectLogin = async history => {
     const path = op.get(context, 'loginRoute', defaultLoginRoute);
     window.location.href = path;
 };
+
+const defaultAdminRoots = ['/', '/admin'];
+Reactium.Hook.register(
+    'routes-admin-root',
+    async context => (context.adminRoots = defaultAdminRoots),
+    Reactium.Enums.priority.highest,
+);
 
 const enforceBlueprintCaps = (store, history, loginPath) => async location => {
     const routes = Reactium.Routing.get();
@@ -47,9 +52,18 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
                 // permitted, proceed
                 if (permitted) return;
-                console.log('redirect');
-                if (pathname === '/') await redirectLogin(history, loginPath);
-                else history.push('/');
+
+                const adminRootContext = await Reactium.Hook.run(
+                    'routes-admin-root',
+                );
+                const adminRoots =
+                    op.get(adminRootContext, 'adminRoots', defaultAdminRoots) ||
+                    defaultAdminRoots;
+                const [adminRoot] = adminRoots;
+
+                if (adminRoots.includes(pathname))
+                    await redirectLogin(history, loginPath);
+                else history.push(adminRoot);
             }
         }
     }
