@@ -5,17 +5,22 @@ import op from 'object-path';
 const defaultLoginRoute = '/login';
 Reactium.Hook.register(
     'route-unauthorized',
-    async context => {
-        context.loginRoute = defaultLoginRoute;
-    },
+    async context => (context.loginRoute = defaultLoginRoute),
     Reactium.Enums.priority.highest,
 );
 
 const redirectLogin = async history => {
     const context = await Reactium.Hook.run('route-unauthorized');
     const path = op.get(context, 'loginRoute', defaultLoginRoute);
-    history.push(path);
+    window.location.href = path;
 };
+
+const defaultAdminRoots = ['/', '/admin'];
+Reactium.Hook.register(
+    'routes-admin-root',
+    async context => (context.adminRoots = defaultAdminRoots),
+    Reactium.Enums.priority.highest,
+);
 
 const enforceBlueprintCaps = (store, history, loginPath) => async location => {
     const routes = Reactium.Routing.get();
@@ -34,14 +39,11 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
     if (match) {
         const pathname = op.get(route, 'path', '/');
-        const blueprint = op.get(store.getState(), [
-            'Blueprint',
-            'routesConfig',
-            pathname,
-        ]);
+        const blueprint = op.get(route, 'blueprint', {});
+        const routeConfig = op.get(route, 'routeConfig', {});
 
-        if (blueprint) {
-            const capabilities = op.get(blueprint, 'capabilities', []);
+        if (blueprint && routeConfig) {
+            const capabilities = op.get(routeConfig, 'capabilities', []);
 
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
@@ -51,8 +53,17 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
                 // permitted, proceed
                 if (permitted) return;
 
-                if (pathname === '/') await redirectLogin(history, loginPath);
-                else history.push('/');
+                const adminRootContext = await Reactium.Hook.run(
+                    'routes-admin-root',
+                );
+                const adminRoots =
+                    op.get(adminRootContext, 'adminRoots', defaultAdminRoots) ||
+                    defaultAdminRoots;
+                const [adminRoot] = adminRoots;
+
+                if (adminRoots.includes(pathname))
+                    await redirectLogin(history, loginPath);
+                else history.push(adminRoot);
             }
         }
     }

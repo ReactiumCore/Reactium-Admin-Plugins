@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import op from 'object-path';
 import Reactium, {
     __,
@@ -21,7 +21,7 @@ const getPlugins = async () => {
  * Functional Component: PluginManager
  * -----------------------------------------------------------------------------
  */
-const PluginManager = props => {
+const PluginManager = memo(props => {
     const canView = useCapabilityCheck(['plugins-ui.view']);
     const canActivate = useCapabilityCheck(['plugins.activate']);
 
@@ -100,6 +100,6 @@ const PluginManager = props => {
     };
 
     return render();
-};
+});
 
 export default PluginManager;

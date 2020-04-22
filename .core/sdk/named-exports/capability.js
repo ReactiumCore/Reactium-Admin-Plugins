@@ -1,9 +1,8 @@
 import Capability from '../capability';
-import Parse from 'appdir/api';
 import { useAsyncEffect } from '@atomic-reactor/reactium-sdk-core';
 import { useRef, useState, useEffect } from 'react';
-import uuid from 'uuid/v4';
 import op from 'object-path';
+import _ from 'underscore';
 
 /**
  * @api {ReactHook} useCapabilityCheck(capabilities,strict) useCapabilityCheck()
@@ -13,20 +12,23 @@ import op from 'object-path';
  * @apiName useCapabilityCheck
  * @apiGroup ReactHook
  */
-export const useCapabilityCheck = (capabilities = [], strict = true) => {
+export const useCapabilityCheck = (capabilities, strict = true) => {
     const allowedRef = useRef(false);
-    const [, update] = useState(uuid());
-    const setAllowed = allowed => {
-        allowedRef.current = allowed;
-        update(uuid());
-    };
+    const [, update] = useState(new Date());
+    const caps = _.uniq(_.compact(_.flatten([capabilities])));
 
     useAsyncEffect(
         async isMounted => {
-            const allowed = await Capability.check(capabilities);
-            if (isMounted()) setAllowed(allowed);
+            allowedRef.current = false;
+            if (caps.length < 1) {
+                allowedRef.current = true;
+            } else {
+                allowedRef.current = await Capability.check(caps);
+            }
+
+            if (isMounted()) update(new Date());
         },
-        [capabilities.length, strict],
+        [caps.sort().join(''), strict],
     );
 
     return allowedRef.current;
@@ -41,16 +43,15 @@ export const useCapabilityCheck = (capabilities = [], strict = true) => {
  */
 export const useCapability = capability => {
     const ref = useRef({});
-    const [, update] = useState(uuid());
+    const [, update] = useState(new Date());
     const updateCapRef = cap => {
         ref.current = cap;
-        update(uuid);
+        update(new Date());
     };
 
     useAsyncEffect(
         async isMounted => {
             const cap = await Capability.get(capability);
-            console.log({ cap });
             if (isMounted()) updateCapRef(cap);
         },
         [capability],

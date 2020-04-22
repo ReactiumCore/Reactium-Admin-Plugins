@@ -1,8 +1,7 @@
-import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { Zone, useDerivedState } from 'reactium-core/sdk';
+import Reactium, { Zone } from 'reactium-core/sdk';
 import { useCapabilityCheck } from 'reactium-core/sdk';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -40,65 +39,27 @@ Reactium.Hook.register(
  * Hook Component: Blueprint
  * -----------------------------------------------------------------------------
  */
-const useIsUser = () => {
-    const [state, setState] = useDerivedState({
-        status: 'pending',
-        loggedIn: undefined,
-    });
-
-    const init = async () => {
-        if (state.status === 'init') return;
-
-        setState({ status: 'init' });
-        const loggedIn = await Reactium.User.hasValidSession();
-        setState({
-            loggedIn,
-            status: 'ready',
-        });
-
-        return state.loggedIn;
-    };
-
-    useEffect(() => {
-        if (state.status === 'pending') init();
-    });
-
-    return state.loggedIn;
-};
-
-const useIsAdmin = () => {
-    const { pathname } = Reactium.Routing.history.location;
-    return String(pathname).startsWith('/admin');
-};
-
 const Blueprint = () => {
-    const [version, setVersion] = useState(uuid());
+    const [version, setVersion] = useState(new Date());
     const bpParams = op.get(blueprintConfig, 'context.params.0', {});
     const {
         params,
         search,
         blueprint,
         route: routeObj = {},
-        config,
-        capabilities = [],
+        config: routeConfig,
     } = bpParams;
+
+    const capabilities = op.get(routeConfig, 'capabilities');
+
     const { component, load, ...route } = routeObj;
     const data = op.get(blueprintConfig, 'context.data', {});
 
-    const { pathname } = Reactium.Routing.history.location;
-    let allowed = useCapabilityCheck(capabilities);
-    const isAdmin = useIsAdmin();
-    const isUser = useIsUser();
-
-    // stop the admin from rendering if no current user
-    if (isAdmin === true && isUser === false) {
-        allowed = false;
-        window.location.href = '/login';
-    }
+    const allowed = useCapabilityCheck(capabilities);
 
     // Blueprint is a top-level component, so we'll treat module as singleton
     useEffect(() => {
-        op.set(blueprintConfig, 'update', () => setVersion(uuid()));
+        op.set(blueprintConfig, 'update', () => setVersion(new Date()));
         return () => op.del(blueprintConfig, 'update');
     }, []);
 
@@ -168,7 +129,7 @@ const Blueprint = () => {
         </main>
     );
 
-    if (!blueprint || !allowed) return null;
+    if (!routeConfig || !blueprint || !allowed) return null;
 
     // Render
     return render();
