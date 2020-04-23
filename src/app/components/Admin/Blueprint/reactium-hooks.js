@@ -34,6 +34,8 @@ const defaultBlueprint = {
     className: 'Blueprint',
 };
 
+Reactium.Component.register('Blueprint', Blueprint);
+
 // Implement `helmet-props` hook with priority order than highest
 // in your plugin to override these values
 Reactium.Hook.register(

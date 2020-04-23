@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DraggableList from './index';
+import { Controller } from './MenuBuilder';
+
+import _ from 'underscore';
 
 const DLItem = ({ number = 1, text = '', height = 100 }) => {
     return (
@@ -11,17 +14,23 @@ const DLItem = ({ number = 1, text = '', height = 100 }) => {
     );
 };
 
-export default {
-    path: ['/use-drag', '/use-gesture', '/draggable-list'],
-    component: () => (
-        <div className='p-xs-20'>
-            <DraggableList>
-                <DLItem number={1} text={'Lorem'} height={100} />
-                <DLItem number={2} text={'ipsum'} height={100} />
-                <DLItem number={3} text={'dolor'} height={100} />
-                <DLItem number={4} text={'sit'} height={100} />
-                <DLItem number={1} text={'amet'} height={100} />
-            </DraggableList>
-        </div>
-    ),
-};
+export default [
+    {
+        path: ['/use-drag', '/use-gesture', '/draggable-list'],
+        component: () => (
+            <div className='p-xs-20'>
+                <DraggableList>
+                    <DLItem number={1} text={'Lorem'} height={100} />
+                    <DLItem number={2} text={'ipsum'} height={100} />
+                    <DLItem number={3} text={'dolor'} height={100} />
+                    <DLItem number={4} text={'sit'} height={100} />
+                    <DLItem number={1} text={'amet'} height={100} />
+                </DraggableList>
+            </div>
+        ),
+    },
+    {
+        path: '/menu-builder',
+        component: Controller,
+    },
+];

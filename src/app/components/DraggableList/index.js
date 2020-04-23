@@ -1,8 +1,8 @@
 import React, {
     useState,
     useRef,
-    useEffect,
-    useLayoutEffect as useWindowEffect,
+    useImperativeHandle,
+    forwardRef,
 } from 'react';
 import { useGesture } from 'react-use-gesture';
 import { useSprings, animated } from 'react-spring';
@@ -11,11 +11,7 @@ import op from 'object-path';
 import _ from 'underscore';
 import cn from 'classnames';
 import isHotkey from 'is-hotkey';
-import Reactium, { __ } from 'reactium-core/sdk';
-
-// Server-Side Render safe useLayoutEffect (useEffect when node)
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useEffect;
+import { __, useAsyncEffect } from 'reactium-core/sdk';
 
 const clamp = (number, lower, upper) => {
     if (number !== undefined) {
@@ -42,89 +38,150 @@ const mapIdx = (items = []) =>
         idx,
     }));
 
-const fn = (orderedItems, down, originalIndex, y, yOffset) => {
+const txFactory = props => dragContext => {
+    const {
+        items,
+        selected,
+        originalIndex,
+        yOffset,
+        init = true,
+    } = dragContext;
+    const dragScale = op.get(props, 'dragScale', 1.01);
+    const dragShadow = op.get(props, 'dragShadow', 15);
+
     return index => {
-        const newIndex = orderedItems.findIndex(({ idx }) => index === idx);
-        if (index === 1)
-            console.log({ originalIndex, index, newIndex, y, yOffset });
+        const newIndex = items.findIndex(({ idx }) => index === idx);
+
         let newStyle = {
-            y: op.get(orderedItems, [newIndex, 'y'], 0),
+            x: 0,
+            y: op.get(items, [newIndex, 'y'], 0),
             scale: 1,
             zIndex: '0',
             shadow: 1,
-            immediate: false,
+            immediate: init,
         };
 
-        if (down && index === originalIndex) {
+        if (selected && index === originalIndex) {
             newStyle = {
+                x: 0,
                 y: yOffset,
-                scale: 1.04,
+                scale: dragScale,
                 zIndex: '1',
-                shadow: 15,
+                shadow: dragShadow,
                 immediate: n => n === 'y' || n === 'zIndex',
             };
         }
+
+        if (typeof props.dragTx === 'function')
+            newStyle = props.dragTx(index, dragContext, newStyle);
 
         return newStyle;
     };
 };
 
 const noop = () => {};
-const DraggableList = props => {
+const DraggableList = forwardRef((props, ref) => {
     const { onReorder = noop, children } = props;
+    const defaultItemHeight = op.get(props, 'defaultItemHeight', 100);
+    const dragSensitivity = op.get(props, 'dragSensitivity', 0.125);
+    const tx = txFactory(props);
+
     const itemsRef = useRef({});
     const getOrdered = items => {
         let h = 0;
-        return items.map(({ id, height = 100, component, ...item }, idx) => {
-            h += height;
-            const componentProps = { ...component };
-            if (!id)
-                id =
-                    op.get(
-                        componentProps,
-                        'key',
-                        op.get(componentProps, 'id', id),
-                    ) || uuid();
+        return items.map(
+            (
+                {
+                    id,
+                    height = defaultItemHeight,
+                    depth = 0,
+                    component,
+                    ...item
+                },
+                idx,
+            ) => {
+                h += height;
+                const componentProps = { ...component };
+                if (!id)
+                    id =
+                        op.get(
+                            componentProps,
+                            'key',
+                            op.get(componentProps, 'id', id),
+                        ) || uuid();
 
-            const newItem = {
-                ...component,
-                ...item,
-                component,
-                id,
-                height,
-                y: h - height,
-            };
+                const newItem = {
+                    ...component,
+                    ...item,
+                    component,
+                    id,
+                    height,
+                    y: h - height,
+                    depth,
+                };
 
-            return newItem;
-        });
+                return newItem;
+            },
+        );
     };
 
-    const [orderedItems, setOrderedItems] = useState(
+    const initItems = () =>
         getOrdered(
             mapIdx(
-                React.Children.map(children, component => ({
-                    component,
-                })),
+                React.Children.map(children, component => {
+                    const props = op.get(component, 'props', {});
+                    return {
+                        ...props,
+                        component,
+                    };
+                }),
             ),
-        ),
-    );
+        );
 
-    const updateOrderedItems = items => {
-        setOrderedItems(items);
-        if (typeof onReorder === 'function') onReorder(items);
+    const [orderedItems, setOrderedItems] = useState(initItems());
+
+    const updateOrderedItems = reorderedItems => {
+        // console.log({reorderedItems});
+        setOrderedItems(reorderedItems);
+        if (typeof onReorder === 'function') {
+            setTimeout(() => {
+                onReorder(reorderedItems);
+            }, 300);
+        }
     };
 
     const [springs, setSprings] = useSprings(
         orderedItems.length,
-        fn(orderedItems),
+        tx({ items: orderedItems }),
     );
+
+    const changeHash = items =>
+        items.map(({ id, depth }) => `${id}:${depth}`).join('');
+    useAsyncEffect(
+        async isMounted => {
+            _.defer(() => {
+                if (isMounted()) setOrderedItems(initItems());
+            });
+        },
+        [changeHash(initItems())],
+    );
+
+    const _handle = () => ({
+        tx,
+        springs,
+        setSprings,
+        orderedItems,
+        updateOrderedItems,
+    });
+
+    useImperativeHandle(ref, _handle, [changeHash(orderedItems)]);
 
     const bind = useGesture({
         onDrag: state => {
             const {
                 args: [originalIndex],
                 down,
-                movement: [, y],
+                movement: [x, y],
             } = state;
             const curIndex = orderedItems.findIndex(
                 item => originalIndex === item.idx,
@@ -136,9 +193,11 @@ const DraggableList = props => {
                 ([idx, total], item, i) => {
                     let offset = yOffset;
                     // moving up - portion of top before switch
-                    if (y < 0) offset += current.height / 8;
+                    if (y < 0) offset += current.height * dragSensitivity;
                     // moving down - portion of bottom before switch
-                    else offset += current.height - current.height / 8;
+                    else
+                        offset +=
+                            current.height - current.height * dragSensitivity;
 
                     if (offset > total) return [i, total + item.height];
                     return [idx, total];
@@ -149,11 +208,22 @@ const DraggableList = props => {
             const curRow = clamp(newIndex, 0, orderedItems.length - 1);
             const newOrder = getOrdered(swap(orderedItems, curIndex, curRow));
 
-            setSprings(fn(newOrder, down, originalIndex, y, yOffset));
+            const dragContext = {
+                items: newOrder,
+                selected: down,
+                originalIndex,
+                x,
+                yOffset,
+                init: false,
+            };
+
+            if (typeof props.onDrag === 'function') {
+                props.onDrag(state, tx(dragContext), dragContext);
+            }
+
+            setSprings(tx(dragContext));
 
             if (!down) updateOrderedItems(newOrder);
-
-            if (typeof props.onDrag === 'function') props.onDrag(state);
         },
     });
 
@@ -163,51 +233,64 @@ const DraggableList = props => {
         return { height: minHeight, minHeight };
     };
 
-    useLayoutEffect(() => {
-        let changed = false;
-        let cpy = [...orderedItems];
-        orderedItems.forEach((item, idx) => {
-            if (op.has(itemsRef.current, [item.id])) {
-                const el = itemsRef.current[item.id];
-                const nodes = el.childNodes;
+    useAsyncEffect(
+        async isMounted => {
+            let changed = false;
+            let cpy = [...orderedItems];
+            orderedItems.forEach((item, idx) => {
+                if (op.has(itemsRef.current, [item.id])) {
+                    const el = itemsRef.current[item.id];
+                    const nodes = el.childNodes;
 
-                let height = 0;
-                for (let node of nodes) {
-                    const nodeHeight =
-                        node.offsetHeight || node.clientHeight || 0;
-                    height += nodeHeight;
+                    let height = 0;
+                    for (let node of nodes) {
+                        const nodeHeight =
+                            node.offsetHeight || node.clientHeight || 0;
+                        height += nodeHeight;
+                    }
+
+                    if (height !== cpy[idx].height) {
+                        changed = true;
+                        cpy[idx].height = height;
+                    }
                 }
-
-                if (height !== cpy[idx].height) {
-                    changed = true;
-                    cpy[idx].height = height;
-                }
-            }
-        });
-
-        if (changed) {
-            cpy = getOrdered(cpy);
-            _.defer(() => {
-                setSprings(fn(cpy));
-                updateOrderedItems(cpy);
             });
-        }
-    }, [children]);
+
+            if (changed) {
+                cpy = getOrdered(cpy);
+                _.defer(() => {
+                    if (isMounted()) {
+                        setSprings(tx({ items: cpy }));
+                        updateOrderedItems(cpy);
+                    }
+                });
+            }
+        },
+        [children],
+    );
 
     const onSpace = item => {
         const newItems = orderedItems.map(iObj => {
             if (item.id === iObj.id) {
-                iObj.down = !Boolean(iObj.down);
+                iObj.selected = !Boolean(iObj.selected);
                 return iObj;
             }
 
-            op.del(iObj, 'down');
+            op.del(iObj, 'selected');
             return iObj;
         });
 
-        setSprings(fn(orderedItems, item.down, item.idx, 0, item.y));
+        setSprings(
+            tx({
+                items: orderedItems,
+                selected: item.selected,
+                originalIndex: item.idx,
+                yOffset: item.y,
+                init: false,
+            }),
+        );
 
-        if (!item.down) updateOrderedItems(newItems);
+        if (!item.selected) updateOrderedItems(newItems);
     };
 
     const onUpArrow = item => {
@@ -216,7 +299,15 @@ const DraggableList = props => {
         const newOrder = getOrdered(swap(orderedItems, currentIndex, newIndex));
         const newItem = newOrder.find(iObj => iObj.id === item.id);
 
-        setSprings(fn(newOrder, item.down, item.idx, 0, newItem.y));
+        setSprings(
+            tx({
+                items: newOrder,
+                selected: item.selected,
+                originalIndex: item.idx,
+                yOffset: newItem.y,
+                init: false,
+            }),
+        );
         setOrderedItems(newOrder);
     };
 
@@ -226,7 +317,15 @@ const DraggableList = props => {
         const newOrder = getOrdered(swap(orderedItems, currentIndex, newIndex));
         const newItem = newOrder.find(iObj => iObj.id === item.id);
 
-        setSprings(fn(newOrder, item.down, item.idx, 0, newItem.y));
+        setSprings(
+            tx({
+                items: newOrder,
+                selected: item.selected,
+                originalIndex: item.idx,
+                yOffset: newItem.y,
+                init: false,
+            }),
+        );
         setOrderedItems(newOrder);
     };
 
@@ -240,14 +339,14 @@ const DraggableList = props => {
 
         if (isHotkey('up', e)) {
             e.preventDefault();
-            if (item.down) {
+            if (item.selected) {
                 onUpArrow(item, currentIndex);
             }
         }
 
         if (isHotkey('down', e)) {
             e.preventDefault();
-            if (item.down) {
+            if (item.selected) {
                 onDownArrow(item, currentIndex);
             }
         }
@@ -260,18 +359,20 @@ const DraggableList = props => {
     return (
         <div className='drag-list-container' style={containerStyle()}>
             <div className='drag-list' role='listbox'>
-                {springs.map(({ zIndex, shadow, y, scale }, i) => {
+                {springs.map(({ zIndex, shadow, x, y, scale }, i) => {
                     const itemIndex = orderedItems.findIndex(
                         item => item.idx === i,
                     );
                     const item = op.get(orderedItems, itemIndex, {});
                     const ariaActionLabel = `${item.id}-action-label`;
+
                     return (
                         <animated.div
                             key={item.id}
                             style={{
                                 position: 'relative',
                                 zIndex,
+                                x,
                                 y,
                                 scale,
                             }}
@@ -322,12 +423,16 @@ const DraggableList = props => {
             </div>
         </div>
     );
-};
+});
 
 DraggableList.defaultProps = {
     onReorder: noop,
     onDrag: noop,
     onKeyDown: noop,
+    defaultItemHeight: 100,
+    dragScale: 1.005,
+    // fraction of item height needed to reorder
+    dragSensitivity: 0.125,
 };
 
 export default DraggableList;
