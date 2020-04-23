@@ -45,7 +45,7 @@ const MenuController = () => {
             <div className='col-xs-6'>
                 <MenuList items={items} onReorder={onReorder} />
             </div>
-            <div className='col-xs-6'>
+            <div className='col-xs-6 p-xs-20'>
                 <button onClick={addItem}>Add Item</button>
             </div>
         </div>
