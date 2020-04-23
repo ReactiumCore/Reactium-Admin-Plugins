@@ -40,6 +40,8 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
     const isContainer = useIsContainer();
 
     const deleteCancel = e => {
+        if (!deleteBtn.current) return;
+
         if (e.type === 'mouseleave') {
             if (isContainer(e.currentTarget, containerRef.current)) {
                 setConfirm(false);
