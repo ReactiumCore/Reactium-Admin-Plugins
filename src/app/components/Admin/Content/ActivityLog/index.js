@@ -20,7 +20,7 @@ const Activity = props => {
     return (
         <div className='activity-log'>
             <ActivityChart log={log} />
-            <ActivityUpdates log={log} />
+            <ActivityUpdates log={log} className={null} />
         </div>
     );
 };

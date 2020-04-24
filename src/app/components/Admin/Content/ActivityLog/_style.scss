@@ -1,4 +1,4 @@
-$color-activity-chart: $color-dark !default;
+$color-activity-chart: darken($color-gray-dark, 5%) !default;
 $color-activity-log-bg: $color-light !default;
 $activity-log-max-height: calc(100vh - 40px) !default;
 $activity-log-default-border: $color-gray !default;
@@ -18,9 +18,9 @@ $deleted-color: $color-danger !default;
 $restored-color: $color-green !default;
 
 .activity-log {
-    @extend .row;
+    display: flex;
+    flex-direction: column;
     background: $color-activity-log-bg;
-    align-items: stretch;
     position: fixed;
     top: 0;
     left: 0;
@@ -28,14 +28,74 @@ $restored-color: $color-green !default;
     height: 100vh;
     overflow: hidden;
 
+    @include breakpoint(lg) {
+        flex-direction: row !important;
+        align-items: stretch;
+    }
+
     &-chart {
+        height: 70vw;
+        min-height: 380px;
+        width: 100vw;
+        flex-grow: 0;
+        flex-shrink: 0;
         background: $color-activity-chart;
+        position: relative;
+
+        .chart {
+            padding: 0;
+        }
+
+        .toolbar {
+            position: absolute;
+            left: 50%;
+            top: 2.5vw;
+            transform: translateX(-50%);
+        }
+
+        .date-select {
+            width: 100%;
+            margin: 0 auto;
+
+            .ar-datepicker-calendar {
+                position: relative;
+                transform: none;
+                left: 0;
+                right: auto;
+                margin: 0 auto;
+            }
+        }
+
+        @include breakpoint(md) {
+            height: 50vw;
+
+            .chart {
+                padding: 0 5vw;
+            }
+        }
+
+        @include breakpoint(lg) {
+            width: auto;
+            flex-grow: 1;
+            height: 100vh;
+
+            .chart {
+                padding: 0;
+            }
+        }
     }
 
     &-updates {
-        height: 100vh;
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
+
+        @include breakpoint(lg) {
+            flex-grow: 1;
+            min-width: 320px;
+            max-width: 520px;
+            height: 100vh;
+        }
     }
 }
 
@@ -94,97 +154,119 @@ $restored-color: $color-green !default;
         }
 
         &-created {
-            border-color:$created-color;
+            border-color: $created-color;
+
             &:before {
                 border-color: $created-color;
             }
         }
+
         &-revised {
-            border-color:$revised-color;
+            border-color: $revised-color;
+
             &:before {
                 border-color: $revised-color;
             }
         }
+
         &-slug-changed {
-            border-color:$slug-changed-color;
+            border-color: $slug-changed-color;
+
             &:before {
                 border-color: $slug-changed-color;
             }
         }
+
         &-set-revision {
-            border-color:$set-revision-color;
+            border-color: $set-revision-color;
+
             &:before {
                 border-color: $set-revision-color;
             }
         }
+
         &-set-acl {
-            border-color:$set-acl-color;
+            border-color: $set-acl-color;
+
             &:before {
                 border-color: $set-acl-color;
             }
         }
+
         &-set-status {
-            border-color:$set-status-color;
+            border-color: $set-status-color;
+
             &:before {
                 border-color: $set-status-color;
             }
         }
+
         &-published {
-            border-color:$published-color;
+            border-color: $published-color;
+
             &:before {
                 border-color: $published-color;
             }
         }
+
         &-unpublished {
-            border-color:$unpublished-color;
+            border-color: $unpublished-color;
+
             &:before {
                 border-color: $unpublished-color;
             }
         }
+
         &-schedule {
-            border-color:$schedule-color;
+            border-color: $schedule-color;
+
             &:before {
                 border-color: $schedule-color;
             }
         }
+
         &-unschedule {
-            border-color:$unschedule-color;
+            border-color: $unschedule-color;
+
             &:before {
                 border-color: $unschedule-color;
             }
         }
+
         &-trashed {
-            border-color:$trashed-color;
+            border-color: $trashed-color;
+
             &:before {
                 border-color: $trashed-color;
             }
         }
+
         &-deleted {
-            border-color:$deleted-color;
+            border-color: $deleted-color;
+
             &:before {
                 border-color: $deleted-color;
             }
         }
+
         &-restored {
-            border-color:$restored-color;
+            border-color: $restored-color;
+
             &:before {
                 border-color: $restored-color;
             }
         }
 
         &-part {
-            &.status, &.version, &.deleted {
+            &.status,
+            &.version,
+            &.deleted {
                 font-weight: 600;
             }
+
             &.who {
                 color: $activity-log-who-color;
             }
         }
     }
-}
-
-.activity-chart {
-    background: $color-activity-chart;
-    width: 100%;
-    height: 100vh;
 }
