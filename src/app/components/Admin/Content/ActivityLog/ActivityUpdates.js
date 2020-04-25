@@ -130,7 +130,7 @@ let ActivityUpdates = (props, ref) => {
     let { className, header, log = [], scope = 'specific' } = props;
 
     log = Array.isArray(log)
-        ? log
+        ? _.sortBy(log, 'updatedAt').reverse()
         : _.sortBy(Object.values(log), 'updatedAt').reverse();
 
     const _handle = () => ({
