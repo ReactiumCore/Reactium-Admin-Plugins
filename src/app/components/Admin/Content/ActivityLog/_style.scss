@@ -1,6 +1,7 @@
 $color-activity-chart: darken($color-gray-dark, 5%) !default;
 $color-activity-log-bg: $color-light !default;
 $activity-log-max-height: calc(100vh - 40px) !default;
+$activity-log-min-width: 420px !default;
 $activity-log-default-border: $color-gray !default;
 $activity-log-who-color: $color-primary !default;
 $created-color: $color-green !default;
@@ -16,6 +17,7 @@ $unschedule-color: $color-orange !default;
 $trashed-color: $color-danger !default;
 $deleted-color: $color-danger !default;
 $restored-color: $color-green !default;
+$activity-log-break: md !default;
 
 .activity-log {
     display: flex;
@@ -28,19 +30,29 @@ $restored-color: $color-green !default;
     height: 100vh;
     overflow: hidden;
 
-    @include breakpoint(lg) {
+    @include breakpoint($activity-log-break) {
         flex-direction: row !important;
         align-items: stretch;
     }
 
     &-chart {
-        height: 70vw;
-        min-height: 380px;
         width: 100vw;
-        flex-grow: 0;
-        flex-shrink: 0;
+        height: 71vw;
         background: $color-activity-chart;
         position: relative;
+        overflow: hidden;
+        transition: height .25s ease-in-out;
+
+        &.hidden {
+            height: 0%;
+        }
+
+        .ar-spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
 
         .chart {
             padding: 0;
@@ -66,21 +78,55 @@ $restored-color: $color-green !default;
             }
         }
 
-        @include breakpoint(md) {
-            height: 50vw;
+        &-close-btn,
+        &-collapse-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            z-index: 100;
+        }
 
-            .chart {
-                padding: 0 5vw;
+        &-close-btn {
+            top: 0;
+            left: 0;
+        }
+
+        &-collapse-btn {
+            right: 0;
+            bottom: 0;
+        }
+
+        &-dismiss-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+
+            &:hover {
+                cursor: default;
             }
         }
 
-        @include breakpoint(lg) {
-            width: auto;
-            flex-grow: 1;
+        @include breakpoint($activity-log-break) {
+            max-width: calc(100vw - #{$activity-log-min-width});
+            transition: width .25s ease-in-out;
             height: 100vh;
 
             .chart {
                 padding: 0;
+            }
+
+            &-collapse-btn {
+                bottom: auto;
+                top: 0;
+            }
+
+            &.hidden {
+                height: 100vh;
+                width: 0%;
             }
         }
     }
@@ -90,10 +136,9 @@ $restored-color: $color-green !default;
         display: flex;
         flex-direction: column;
 
-        @include breakpoint(lg) {
+        @include breakpoint($activity-log-break) {
             flex-grow: 1;
-            min-width: 320px;
-            max-width: 520px;
+            width: $activity-log-min-width;
             height: 100vh;
         }
     }
@@ -109,6 +154,8 @@ $restored-color: $color-green !default;
     }
 
     &-header {
+        display: flex;
+        align-items: center;
         padding: 20px 16px;
         font-weight: 600;
         text-transform: uppercase;

@@ -2,128 +2,39 @@ import _ from 'underscore';
 import moment from 'moment';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect, useRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+
+import React, {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 
 import Reactium, {
     __,
     useBreakpoint,
     useDerivedState,
+    useEventHandle,
     useFulfilledObject,
     useHandle,
     useHookComponent,
+    useIsContainer,
     useWindowSize,
 } from 'reactium-core/sdk';
 
-const getData = ({ log, filter, today = new Date() }) => {
-    log = _.sortBy(log, 'createdAt');
+let ActivityChart = (props, ref) => {
+    let { ActivityLog, className, log = [], namespace } = props;
 
-    today = moment(today);
-
-    const agg = (lbl, obj) => {
-        if (!op.has(obj, lbl)) op.set(obj, lbl, { x: lbl, y: 0 });
-        let y = Number(op.get(obj, [lbl, 'y'], 0)) + 1;
-        op.set(obj, [lbl, 'y'], y);
-        return obj;
-    };
-
-    let match, frmt;
-
-    switch (filter) {
-        case 'years':
-            match = today.format('YYYY');
-            frmt = 'MM/YYYY';
-            const defaultMonths = _.times(12, m => {
-                let t = moment(today);
-                return t.subtract(m, 'month').format(frmt);
-            })
-                .reverse()
-                .reduce((obj, date) => {
-                    obj[date] = { y: 0, x: date };
-                    return obj;
-                }, {});
-
-            return Object.values(
-                log.reduce((obj, item) => {
-                    const { createdAt } = item;
-                    const date = moment(createdAt);
-                    const m = date.format('YYYY');
-                    if (m !== match) return obj;
-                    const lbl = date.format(frmt);
-                    return agg(lbl, obj);
-                }, defaultMonths),
-            );
-
-        case 'months':
-            match = today.format('MM');
-            frmt = 'MM';
-            const defaultDays = _.times(today.endOf('month').format('D'), m => {
-                let t = moment(today);
-                return t.subtract(m, 'day').format(frmt);
-            })
-                .reverse()
-                .reduce((obj, date) => {
-                    obj[date] = { y: 0, x: date };
-                    return obj;
-                }, {});
-
-            return Object.values(
-                log.reduce((obj, item) => {
-                    const { createdAt } = item;
-                    const date = moment(createdAt);
-                    const m = date.format(frmt);
-                    if (m !== match) return obj;
-                    const lbl = date.format('MM/DD');
-                    return agg(lbl, obj);
-                }, {}),
-            );
-
-        case 'weeks':
-            match = today.format('w');
-            return Object.values(
-                log.reduce(
-                    (obj, item) => {
-                        const { createdAt } = item;
-                        const date = moment(createdAt);
-                        const m = date.format('w');
-                        if (m !== match) return obj;
-                        const lbl = String(date.format('ddd')).toUpperCase();
-                        return agg(lbl, obj);
-                    },
-                    {
-                        SUN: { y: 0, x: 'SUN' },
-                        MON: { y: 0, x: 'MON' },
-                        TUE: { y: 0, x: 'TUE' },
-                        WED: { y: 0, x: 'WED' },
-                        THU: { y: 0, x: 'THU' },
-                        FRI: { y: 0, x: 'FRI' },
-                        SAT: { y: 0, x: 'SAT' },
-                    },
-                ),
-            );
-
-        default:
-            return Object.values(
-                log.reduce((obj, item) => {
-                    const { createdAt } = item;
-                    const date = moment(createdAt);
-                    const lbl = date.format('L');
-                    return agg(lbl, obj);
-                }, {}),
-            );
-    }
-};
-
-const ActivityChart = props => {
-    let { className, log = [], namespace } = props;
-
+    const calendarRef = useRef();
     const containerRef = useRef();
     const collapsibleRef = useRef();
+    const toolbarRef = useRef();
 
-    const { breakpoint } = useWindowSize();
+    const { breakpoint, width } = useWindowSize();
 
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
+    const isContainer = useIsContainer();
 
     const {
         AreaChart,
@@ -137,11 +48,12 @@ const ActivityChart = props => {
 
     const [state, setNewState] = useDerivedState({
         buttonProps: {
+            style: { width: 80, paddingLeft: 0, paddingRight: 0 },
             color: Button.ENUMS.COLOR.SECONDARY,
         },
         data: undefined,
         expanded: false,
-        filter: 'days',
+        filter: props.filter,
         selectDate: new Date(),
         style: {
             dots: {
@@ -196,18 +108,27 @@ const ActivityChart = props => {
                 },
             },
         },
-        toolbarCollapse: false,
+        visible: true,
     });
 
     const [ready] = useFulfilledObject(state, ['data']);
+
+    const dismiss = ({ target }) => {
+        if (unMounted()) return;
+        if (!state.expanded) return;
+        if (isContainer(target, toolbarRef.current)) return;
+
+        handle.Calendar.collapse();
+    };
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
     const onDateChange = ({ selected }) => {
         if (!Array.isArray(selected)) return;
+        if (selected.length < 1) return;
+
         const selectDate = new Date(selected[0]);
         setState({ selectDate });
-        collapsibleRef.current.collapse();
     };
 
     const setState = newState => {
@@ -223,23 +144,29 @@ const ActivityChart = props => {
         return _.range(-chunk, max, chunk);
     };
 
-    const toggleToolbar = () =>
-        setState({ toolbarCollapse: !state.toolbarCollapse });
-
     const unMounted = () => !containerRef.current;
 
-    useEffect(() => {
-        if (!state.data) {
-            setState({ data: getData({ log, today: state.selectDate }) });
-        }
-    }, [state.data]);
+    const _handle = () => ({
+        Calendar: {
+            collapse: () => collapsibleRef.current.collapse(),
+            expand: () => collapsibleRef.current.expand(),
+            toggle: () => collapsibleRef.current.toggle(),
+        },
+        setState,
+        state,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle, [handle]);
 
     useEffect(() => {
+        const { selectDate: date, filter } = state;
         setState({
             data: getData({
-                log,
-                filter: state.filter,
-                today: state.selectDate,
+                date,
+                filter,
+                log: ActivityLog.filter({ date, filter }),
             }),
         });
     }, [state.filter, state.selectDate]);
@@ -250,14 +177,44 @@ const ActivityChart = props => {
             'buttonProps.size',
             breakpoint !== 'xs' ? Button.ENUMS.SIZE.SM : Button.ENUMS.SIZE.XS,
         );
-        setState(state);
+
+        const direction = !['xs', 'sm'].includes(breakpoint)
+            ? Collapsible.ENUMS.DIRECTION.HORIZONTAL
+            : Collapsible.ENUMS.DIRECTION.VERTICAL;
+
+        setState({ ...state, visible: true, direction });
     }, [breakpoint]);
 
+    useEffect(() => {
+        window.addEventListener('mousedown', dismiss);
+        window.addEventListener('touchstart', dismiss);
+
+        return () => {
+            window.removeEventListener('mousedown', dismiss);
+            window.removeEventListener('touchstart', dismiss);
+        };
+    }, [collapsibleRef.current]);
+
+    useEffect(() => {
+        const type = state.visible ? 'show' : 'hide';
+        const evt = new Event(type);
+        handle.dispatchEvent(evt);
+    }, [state.visible]);
+
     const render = () => {
-        const tick = ticks('y');
+        const tickY = ticks('y');
+
+        const collapseIcon =
+            state.direction === Collapsible.ENUMS.DIRECTION.HORIZONTAL
+                ? 'Feather.ArrowLeft'
+                : 'Feather.ArrowUp';
+
+        const filters = ['recent', 'week', 'month', 'year'];
+
         return (
-            <div className={cn(cx(), className)} ref={containerRef}>
-                {!ready && <Spinner />}
+            <div
+                className={cn(cx(), className, { hidden: !state.visible })}
+                ref={containerRef}>
                 {ready && (
                     <>
                         <Scrollbars>
@@ -268,12 +225,12 @@ const ActivityChart = props => {
                                         dotStyle={state.style.dots}
                                         height={320}
                                         onClick={console.log}
-                                        xAxis={{ offsetY: 50, tickCount: 12 }}
+                                        xAxis={{ offsetY: 50, tickCount: 14 }}
                                         xAxisStyle={state.style.x}
                                         yAxis={{
                                             tickCount: 8,
                                             tickFormat: t => (t < 0 ? '' : t),
-                                            tickValues: tick,
+                                            tickValues: tickY,
                                             padding: { bottom: 20 },
                                         }}
                                         yAxisStyle={state.style.y}
@@ -282,48 +239,17 @@ const ActivityChart = props => {
                                 )}
                             </div>
                         </Scrollbars>
-                        <div className='toolbar'>
+                        <div className='toolbar' ref={toolbarRef}>
                             <div className='btn-group'>
-                                <Button
-                                    {...state.buttonProps}
-                                    style={{ width: 40, padding: 0 }}
-                                    onClick={() => {
-                                        Modal.hide();
-                                    }}>
-                                    <Icon name='Feather.X' size={16} />
-                                </Button>
-                                <Button
-                                    {...state.buttonProps}
-                                    active={state.filter === 'days'}
-                                    onClick={() =>
-                                        setState({ filter: 'days' })
-                                    }>
-                                    Recent
-                                </Button>
-                                <Button
-                                    {...state.buttonProps}
-                                    active={state.filter === 'weeks'}
-                                    onClick={() =>
-                                        setState({ filter: 'weeks' })
-                                    }>
-                                    Week
-                                </Button>
-                                <Button
-                                    {...state.buttonProps}
-                                    active={state.filter === 'months'}
-                                    onClick={() =>
-                                        setState({ filter: 'months' })
-                                    }>
-                                    Month
-                                </Button>
-                                <Button
-                                    {...state.buttonProps}
-                                    active={state.filter === 'years'}
-                                    onClick={() =>
-                                        setState({ filter: 'years' })
-                                    }>
-                                    Year
-                                </Button>
+                                {filters.map(filter => (
+                                    <Button
+                                        {...state.buttonProps}
+                                        active={state.filter === filter}
+                                        key={filter}
+                                        onClick={() => setState({ filter })}>
+                                        {filter}
+                                    </Button>
+                                ))}
                                 <Button
                                     {...state.buttonProps}
                                     style={{ width: 40, padding: 0 }}
@@ -334,10 +260,10 @@ const ActivityChart = props => {
                                         name={
                                             state.expanded
                                                 ? 'Feather.ChevronUp'
-                                                : 'Linear.Calendar31'
+                                                : 'Feather.Calendar'
                                         }
                                         className='ico'
-                                        size={16}
+                                        size={state.expanded ? 18 : 14}
                                     />
                                 </Button>
                             </div>
@@ -355,30 +281,116 @@ const ActivityChart = props => {
                                             expanded: true,
                                         })
                                     }>
+                                    <Button
+                                        className={cx('dismiss-btn')}
+                                        color={Button.ENUMS.COLOR.CLEAR}
+                                        onClick={() =>
+                                            handle.Calendar.collapse()
+                                        }
+                                    />
                                     <Calendar
-                                        value={state.selectDate}
                                         maxDate={new Date()}
                                         onChange={e => onDateChange(e)}
+                                        ref={calendarRef}
                                         selected={[
                                             moment(state.selectDate).format(
                                                 'L',
                                             ),
                                         ]}
+                                        value={state.selectDate}
                                     />
                                 </Collapsible>
                             </div>
                         </div>
+                        <Button
+                            className={cx('close-btn')}
+                            color={Button.ENUMS.COLOR.CLEAR}
+                            onClick={() => ActivityLog.close()}>
+                            <Icon name='Feather.X' />
+                        </Button>
+                        <Button
+                            className={cx('collapse-btn')}
+                            color={Button.ENUMS.COLOR.CLEAR}
+                            onClick={() => setState({ visible: false })}>
+                            <Icon name={collapseIcon} />
+                        </Button>
                     </>
                 )}
+                {!ready && <Spinner />}
             </div>
         );
     };
+
     return render();
 };
+
+ActivityChart = forwardRef(ActivityChart);
 
 ActivityChart.defaultProps = {
     log: [],
     namespace: 'activity-log-chart',
+};
+
+const getData = ({ log, filter, date: today = new Date() }) => {
+    const agg = (lbl, obj) => {
+        if (!op.has(obj, lbl)) op.set(obj, lbl, { x: lbl, y: 0 });
+        let y = Number(op.get(obj, [lbl, 'y'], 0)) + 1;
+        op.set(obj, [lbl, 'y'], y);
+        return obj;
+    };
+
+    let defaults, frmt;
+
+    switch (filter) {
+        case 'year':
+            frmt = 'MM/YYYY';
+            defaults = _.times(12, m => {
+                let t = moment(today);
+                return t.subtract(m, 'month').format(frmt);
+            })
+                .reverse()
+                .reduce((obj, date) => {
+                    obj[date] = { y: 0, x: date };
+                    return obj;
+                }, {});
+            break;
+
+        case 'month':
+            frmt = 'MM/DD';
+            defaults = _.range(1, moment(today).format('D')).reduce(
+                (obj, day) => {
+                    let t = moment(today).date(day);
+                    const date = t.format(frmt);
+                    obj[date] = { y: 0, x: date };
+                    return obj;
+                },
+                {},
+            );
+            break;
+
+        case 'week':
+            frmt = 'ddd';
+            defaults = {
+                SUN: { y: 0, x: 'SUN' },
+                MON: { y: 0, x: 'MON' },
+                TUE: { y: 0, x: 'TUE' },
+                WED: { y: 0, x: 'WED' },
+                THU: { y: 0, x: 'THU' },
+                FRI: { y: 0, x: 'FRI' },
+                SAT: { y: 0, x: 'SAT' },
+            };
+            break;
+
+        default:
+            frmt = 'L';
+            defaults = {};
+    }
+
+    return Object.values(
+        log.reduce((obj, { updatedAt }) => {
+            return agg(moment(updatedAt).format(frmt), obj);
+        }, defaults),
+    );
 };
 
 export default ActivityChart;

@@ -1,11 +1,15 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Proptypes from 'prop-types';
+import { useHookComponent } from 'reactium-core/sdk';
 import { Spinner } from '@atomic-reactor/reactium-ui';
 
 const Blocker = props => {
-    if (typeof window === 'undefined') return null;
-    return ReactDOM.createPortal(<Spinner {...props} />, document.body);
+    const Portal = useHookComponent('Portal');
+    return (
+        <Portal>
+            <Spinner {...props} />
+        </Portal>
+    );
 };
 
 Blocker.propTypes = {

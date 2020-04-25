@@ -1,10 +1,14 @@
 import _ from 'underscore';
 import op from 'object-path';
 import { useSlate } from 'slate-react';
-import Portal from 'components/common-ui/Portal';
 import { Scrollbars } from 'react-custom-scrollbars';
-import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
 import { isMarkActive, toggleMark, useSelected } from '../_utils';
+
+import Reactium, {
+    useDerivedState,
+    useEventHandle,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -40,6 +44,8 @@ let Toolbar = ({ className, id, style }, ref) => {
     const { buttons } = editor;
 
     const containerRef = useRef();
+
+    const Portal = useHookComponent('Portal');
 
     if (typeof window === 'undefined') return null;
 

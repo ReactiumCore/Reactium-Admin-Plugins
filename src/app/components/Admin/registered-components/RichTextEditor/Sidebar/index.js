@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import { useSlate } from 'slate-react';
-import Portal from 'components/common-ui/Portal';
 import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
 import { isMarkActive, toggleMark, useSelected } from '../_utils';
 import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';

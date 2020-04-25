@@ -4,11 +4,12 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import Portal from 'components/common-ui/Portal';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
+
 import Reactium, {
     useDerivedState,
     useEventHandle,
+    useHookComponent,
     useIsContainer,
 } from 'reactium-core/sdk';
 
@@ -41,6 +42,8 @@ let Panel = (initialProps, ref) => {
     } = initialProps;
 
     const initialState = { ...props, reset: false };
+
+    const Portal = useHookComponent('Portal');
 
     // Refs
     const containerRef = useRef();

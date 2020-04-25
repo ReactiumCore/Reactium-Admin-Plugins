@@ -1,11 +1,17 @@
-import React from 'react';
-import Reactium, { useReduxState, __ } from 'reactium-core/sdk';
-import { Icon } from '@atomic-reactor/reactium-ui';
 import _ from 'underscore';
-import op from 'object-path';
 import cn from 'classnames';
 import ENUMS from './enums';
+import op from 'object-path';
 import { Scrollbars } from 'react-custom-scrollbars';
+
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+
+import Reactium, {
+    __,
+    useEventHandle,
+    useHookComponent,
+    useReduxState,
+} from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -13,6 +19,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
  * -----------------------------------------------------------------------------
  */
 const ChangeItem = props => {
+    const { Icon } = useHookComponent('ReactiumUI');
+
     const item = op.get(props, 'item');
     const scope = op.get(props, 'scope', 'specific');
     const users = _.indexBy(
@@ -116,12 +124,27 @@ const ChangeItem = props => {
     return renderItem(item);
 };
 
-const ActivityUpdates = props => {
-    let { log = [], scope = 'specific', className, header } = props;
-    log = _.sortBy(log, 'updatedAt').reverse();
+let ActivityUpdates = (props, ref) => {
+    const containerRef = useRef();
+
+    let { className, header, log = [], scope = 'specific' } = props;
+
+    log = Array.isArray(log)
+        ? log
+        : _.sortBy(Object.values(log), 'updatedAt').reverse();
+
+    const _handle = () => ({
+        Container: containerRef,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle, [handle]);
 
     return (
-        <div className={cn('activity-log-updates', className)}>
+        <div
+            className={cn('activity-log-updates', className)}
+            ref={containerRef}>
             <h2 className='activity-list-header h6'>{header}</h2>
             <div className='activity-list-container'>
                 <Scrollbars>
@@ -139,11 +162,14 @@ const ActivityUpdates = props => {
         </div>
     );
 };
+
+ActivityUpdates = forwardRef(ActivityUpdates);
+
 ActivityUpdates.defaultProps = {
-    log: [],
-    header: ENUMS.HEADER,
-    scope: 'specific',
     className: 'col-xs-12 col-md-4 col-lg-2',
+    header: ENUMS.HEADER,
+    log: [],
+    scope: 'specific',
 };
 
 export default ActivityUpdates;
