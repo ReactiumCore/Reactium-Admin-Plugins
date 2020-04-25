@@ -43,10 +43,6 @@ $activity-log-break: md !default;
         overflow: hidden;
         transition: height .25s ease-in-out;
 
-        &.hidden {
-            height: 0%;
-        }
-
         .ar-spinner {
             position: absolute;
             left: 50%;
@@ -110,13 +106,19 @@ $activity-log-break: md !default;
             }
         }
 
+        &.hidden {
+            height: 0%;
+        }
+
         @include breakpoint($activity-log-break) {
-            max-width: calc(100vw - #{$activity-log-min-width});
+            width: calc(100vw - #{$activity-log-min-width});
             transition: width .25s ease-in-out;
             height: 100vh;
 
             .chart {
+                min-width: calc(100vw - #{$activity-log-min-width});
                 padding: 0;
+                transition: width 1s ease-in-out;
             }
 
             &-collapse-btn {
@@ -127,6 +129,10 @@ $activity-log-break: md !default;
             &.hidden {
                 height: 100vh;
                 width: 0%;
+
+                .chart {
+                    min-width: calc(100vw - #{$activity-log-min-width});
+                }
             }
         }
     }
