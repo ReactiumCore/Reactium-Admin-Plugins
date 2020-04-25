@@ -30,6 +30,7 @@
 @import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
 @import '../../app/components/Admin/registered-components/IconPicker/style';
 @import '../../app/components/Admin/registered-components/ProfileWidget/style';
+@import '../../app/components/Admin/registered-components/DraggableList/style';
 
 // Admin Styles
 @import '../../app/components/Admin/style/base';
@@ -81,5 +82,3 @@
 @import '../../app/components/Admin/User/Editor/_plugins/Notice/style';
 @import '../../app/components/Admin/User/List/style';
 @import '../../app/components/Admin/Content/Revisions/style';
-
-@import '../../app/components/DraggableList/style';
