@@ -4,6 +4,13 @@ $menu-editor-ns: menu-editor !default;
     position: relative;
     padding: 20px;
 
+    &-controls {
+        padding-right: 10px;
+    }
+    &-items {
+        padding-left: 10px;
+    }
+
     .content-options {
         list-style: none;
         margin: 0;
