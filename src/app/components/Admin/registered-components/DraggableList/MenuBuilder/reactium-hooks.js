@@ -1,6 +1,8 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import FieldType from './FieldType';
+import Editor from './Editor';
 import { Icon } from '@atomic-reactor/reactium-ui';
+import { ContentTypeControl } from './MenuItem/ContentType';
 import op from 'object-path';
 import SDK from './sdk';
 
@@ -24,24 +26,13 @@ const pluginInit = async () => {
     // Register FieldType with Content Type Editor
     Reactium.ContentType.FieldType.register(ID, fieldType);
 
-    const contentTypes = await Reactium.ContentType.types();
-    contentTypes.forEach(contentType => {
-        const id = op.get(contentType, 'uuid');
-        const collection = op.get(contentType, 'collection');
-        const label = op.get(
-            contentType,
-            'meta.label',
-            op.get(contentType, 'type'),
-        );
-        const type = 'ContentType';
-
-        Reactium.MenuBuilder.ItemType.register(id, {
-            id,
-            collection,
-            label,
-            type,
-        });
+    const types = await Reactium.ContentType.types();
+    Reactium.MenuBuilder.ItemType.register('ContentType', {
+        types,
+        control: ContentTypeControl,
     });
+
+    Reactium.Content.Editor.register(ID, { component: Editor });
 };
 
 pluginInit();
