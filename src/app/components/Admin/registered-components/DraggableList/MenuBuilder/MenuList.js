@@ -3,6 +3,17 @@ import DraggableList from '../index';
 import op from 'object-path';
 
 const noop = () => {};
+const DefaultMenuItemComponent = ({ item }) => (
+    <div depth={item.depth} style={{ height: 50 }}>
+        {item.id}
+    </div>
+);
+
+const ItemWrapper = props => {
+    const className = op.get(props, 'className', 'menu-item');
+    return <div className={className}>{props.children}</div>;
+};
+
 const MenuList = props => {
     const { items, defaultItemHeight, menuIndent, onReorder } = props;
     const listRef = useRef();
@@ -68,14 +79,22 @@ const MenuList = props => {
                 onReorder={onReorder}
                 onDrag={onDrag}
                 dragTx={tx}>
-                {items.map(item => (
-                    <div
-                        key={item.id}
-                        depth={item.depth}
-                        style={{ height: 50 }}>
-                        {item.id}
-                    </div>
-                ))}
+                {items.map(item => {
+                    const MenuItem = op.get(
+                        item,
+                        'MenuItem',
+                        DefaultMenuItemComponent,
+                    );
+                    return (
+                        <ItemWrapper
+                            className={props.itemClassName}
+                            key={item.id}
+                            depth={item.depth}
+                            MenuItem={MenuItem}>
+                            <MenuItem item={item} listRef={listRef} />
+                        </ItemWrapper>
+                    );
+                })}
             </DraggableList>
         </div>
     );
@@ -86,6 +105,7 @@ MenuList.defaultProps = {
     defaultItemHeight: 50,
     onReorder: noop,
     menuIndent: 20,
+    itemClassName: 'menu-item',
 };
 
 export default MenuList;

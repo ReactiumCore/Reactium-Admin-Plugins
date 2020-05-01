@@ -2,7 +2,10 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import FieldType from './FieldType';
 import Editor from './Editor';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { ContentTypeControl } from './MenuItem/ContentType';
+import {
+    ContentTypeControl,
+    ContentTypeMenuItem,
+} from './MenuItem/ContentType';
 import op from 'object-path';
 import SDK from './sdk';
 
@@ -29,7 +32,8 @@ const pluginInit = async () => {
     const types = await Reactium.ContentType.types();
     Reactium.MenuBuilder.ItemType.register('ContentType', {
         types,
-        control: ContentTypeControl,
+        Control: ContentTypeControl,
+        MenuItem: ContentTypeMenuItem,
     });
 
     Reactium.Content.Editor.register(ID, { component: Editor });

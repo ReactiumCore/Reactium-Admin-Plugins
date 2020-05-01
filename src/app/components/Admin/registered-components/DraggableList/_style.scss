@@ -20,6 +20,17 @@ $menu-editor-ns: menu-editor !default;
     .content-option {
         display: flex;
     }
+
+    .menu-dialog {
+        .ar-dialog-content {
+            min-height: 100px;
+        }
+    }
+
+    [role=option] {
+        width: calc(50%);
+        min-width: 30vw;
+    }
 }
 
 .drag-list-container {}

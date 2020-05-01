@@ -8,7 +8,7 @@ import {
     Pagination,
 } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
-// import cn from 'classnames';
+import uuid from 'uuid/v4';
 import _ from 'underscore';
 import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
 
@@ -30,14 +30,16 @@ const Search = ({ onSearch = noop }) => {
     );
 };
 
-const ContentTypeOptions = ({ items, onChange }) => {
+const ContentTypeOptions = ({ items, type, onChange, selected = [] }) => {
     return items.map(item => {
-        const display = op.get(item, 'display_title', op.get(item, 'slug'));
+        item.type = type;
+        const display = op.get(item, 'title', op.get(item, 'slug'));
 
         return (
             <li key={item.uuid} className={'content-option'}>
                 <Checkbox
                     onChange={onChange(item)}
+                    checked={Boolean(selected.find(i => i.uuid === item.uuid))}
                     label={display}
                     labelAlign={'right'}
                 />
@@ -46,7 +48,7 @@ const ContentTypeOptions = ({ items, onChange }) => {
     });
 };
 
-const SearchTab = ({ type, onAdd = noop }) => {
+const SearchTab = ({ type, onAddItems = noop }) => {
     const [term, setTerm] = useState('');
     const updateTerm = useRef(_.throttle(search => setTerm(search), 500))
         .current;
@@ -96,19 +98,26 @@ const SearchTab = ({ type, onAdd = noop }) => {
         <div className='p-xs-8'>
             <Search onSearch={searchListener} />
             <ul className='content-options'>
-                <ContentTypeOptions items={results} onChange={checkListener} />
+                <ContentTypeOptions
+                    items={results}
+                    onChange={checkListener}
+                    selected={selected}
+                />
             </ul>
 
             <Button
                 disabled={selected.length < 1}
-                onClick={() => onAdd(selected)}>
+                onClick={() => {
+                    onAddItems(selected);
+                    setSelected([]);
+                }}>
                 {__('Add')}
             </Button>
         </div>
     );
 };
 
-const PaginatedTab = ({ type, onAdd = noop }) => {
+const PaginatedTab = ({ type, onAddItems = noop }) => {
     const [result, setResult] = useState({
         count: 0,
         next: null,
@@ -169,7 +178,11 @@ const PaginatedTab = ({ type, onAdd = noop }) => {
     return (
         <div className='p-xs-8'>
             <ul className='content-options'>
-                <ContentTypeOptions items={results} onChange={checkListener} />
+                <ContentTypeOptions
+                    items={results}
+                    onChange={checkListener}
+                    selected={selected}
+                />
             </ul>
             {pages > 1 && (
                 <div className='col-xs-12 col-sm-6 col-lg-4 pb-xs-20'>
@@ -184,7 +197,10 @@ const PaginatedTab = ({ type, onAdd = noop }) => {
 
             <Button
                 disabled={selected.length < 1}
-                onClick={() => onAdd(selected)}>
+                onClick={() => {
+                    onAddItems(selected);
+                    setSelected([]);
+                }}>
                 {__('Add')}
             </Button>
         </div>
@@ -195,6 +211,18 @@ const ContentTypeControl = props => {
     const cx = op.get(props, 'cx');
     const itemType = op.get(props, 'itemType');
     const types = op.get(itemType, 'types', []);
+    const onAddItems = op.get(props, 'onAddItems', noop);
+    const addItems = items => {
+        onAddItems(
+            items.map(item => ({
+                id: uuid(),
+                type: 'ContentType',
+                item,
+                depth: 0,
+            })),
+        );
+    };
+
     const tabs = type => {
         const title = op.get(type, 'meta.label', op.get(type, 'type', ''));
 
@@ -202,12 +230,12 @@ const ContentTypeControl = props => {
             {
                 id: 'all',
                 tab: __('View All'),
-                content: <PaginatedTab type={type} />,
+                content: <PaginatedTab type={type} onAddItems={addItems} />,
             },
             {
                 id: 'search',
                 tab: __('Search'),
-                content: <SearchTab type={type} />,
+                content: <SearchTab type={type} onAddItems={addItems} />,
             },
         ];
     };
@@ -231,6 +259,7 @@ const ContentTypeControl = props => {
                             activeTab={0}
                             collapsible={false}
                             data={tabs(type)}
+                            onAddItems={onAddItems}
                         />
                     </Dialog>
                 );
