@@ -16,7 +16,7 @@ import withMediaVideo from './withMediaVideo';
 import withStrike from './withStrike';
 import withUnderline from './withUnderline';
 
-export default plugins = {
+const plugins = {
     withReact: new RTEPlugin({ callback: withReact, order: 0 }),
     withHistory: new RTEPlugin({ callback: withHistory, order: 1 }),
     withData,
@@ -34,3 +34,5 @@ export default plugins = {
     withStrike,
     withUnderline,
 };
+
+export { plugins, plugins as default };
