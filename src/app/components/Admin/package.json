@@ -1,0 +1,51 @@
+{
+  "name": "@atomic-reactor/admin",
+  "version": "0.0.3",
+  "description": "Reactium based Admin UI for the Actinium Application Management System.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atomic-Reactor/Actinium-Admin.git"
+  },
+  "keywords": [
+    "reactium",
+    "actinium",
+    "atomic",
+    "reactor"
+  ],
+  "author": "Reactium LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Atomic-Reactor/Actinium-Admin/issues"
+  },
+  "homepage": "https://github.com/Atomic-Reactor/Actinium-Admin#readme",
+  "dependencies": {
+    "@atomic-reactor/actinium-auth": "^1.0.2",
+    "@atomic-reactor/reactium-sdk-core": "^0.0.63",
+    "@atomic-reactor/reactium-ui": "^0.1.124",
+    "classnames": "^2.2.6",
+    "copy-to-clipboard": "^3.3.1",
+    "is-hotkey": "^0.1.6",
+    "lunr": "^2.3.8",
+    "memory-cache": "^0.2.0",
+    "moment": "^2.24.0",
+    "object-path": "^0.11.4",
+    "parse": "^2.11.0",
+    "pluralize": "^8.0.0",
+    "react-custom-scrollbars": "^4.2.1",
+    "react-draggable": "^4.2.0",
+    "react-spring": "next",
+    "react-use-gesture": "^7.0.11",
+    "slate": "^0.57.1",
+    "slate-history": "^0.57.1",
+    "slate-react": "^0.57.1",
+    "underscore": "*",
+    "uuid": "^3.4.0"
+  },
+  "reactium": {
+    "version": "3.2.6"
+  }
+}
