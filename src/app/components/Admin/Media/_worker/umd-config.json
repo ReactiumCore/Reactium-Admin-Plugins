@@ -1,5 +1,6 @@
 {
-    "libraryName": "media-uploader",
+    "babelLoader": false,
     "globalObject": "this",
-    "externals": {}
+    "externals": {},
+    "libraryName": "media-uploader"
 }
