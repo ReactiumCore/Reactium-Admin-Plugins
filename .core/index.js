@@ -18,6 +18,7 @@ import _ from 'underscore';
 import staticGzip from 'express-static-gzip';
 import moment from 'moment';
 import SDK from 'reactium-core/sdk';
+import { sync as globby } from 'globby';
 
 const { Enums } = SDK;
 
@@ -72,74 +73,80 @@ const adminURL = process.env.ACTINIUM_ADMIN_URL || false;
 // set app variables
 app.set('x-powered-by', false);
 
-// express middlewares
-let middlewares = [
-    process.env.DEBUG === 'on'
-        ? {
-              name: 'logging',
-              use: morgan('combined'),
-              order: Enums.priority.highest,
-          }
-        : false,
-    {
-        name: 'cors',
-        use: cors(),
-        order: Enums.priority.highest,
-    },
-    {
-        name: 'placeholder',
-        use: require('./server/middleware/placeholder'),
-        order: Enums.priority.highest,
-    },
-    {
-        name: 'api',
-        use: proxy('/api', {
-            target: restAPI,
-            changeOrigin: true,
-            pathRewrite: {
-                '^/api': '',
-            },
-            logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
-            ws: true,
-        }),
-        order: Enums.priority.highest,
-    },
-    // parsers
-    {
-        name: 'jsonParser',
-        use: bodyParser.json(),
-        order: Enums.priority.high,
-    },
-    {
-        name: 'urlEncoded',
-        use: bodyParser.urlencoded({ extended: true }),
-        order: Enums.priority.high,
-    },
+// include boot DDD artifacts
+globby([
+    `${rootPath}/.core/**/reactium-boot.js`,
+    `${rootPath}/src/**/reactium-boot.js`,
+    `${rootPath}/reactium_modules/**/reactium-boot.js`,
+    `${rootPath}/node_modules/**/reactium-plugin/**/reactium-boot.js`,
+]).map(item => {
+    const p = path.normalize(item);
+    require(p);
+});
 
-    // cookies
-    {
-        name: 'cookieParser',
-        use: cookieParser(),
-        order: Enums.priority.high,
-    },
-    {
-        name: 'cookieSession',
-        use: cookieSession({
-            name: op.get(process.env, 'COOKIE_SESSION_NAME', 'aljtka4'),
-            keys: JSON.parse(
-                op.get(
-                    process.env,
-                    'COOKIE_SESSION_KEYS',
-                    JSON.stringify([
-                        'Q2FtZXJvbiBSdWxlcw',
-                        'vT3GtyZKbnoNSdWxlcw',
-                    ]),
-                ),
+// express middlewares
+if (process.env.DEBUG === 'on') {
+    SDK.Server.Middleware.register('logging', {
+        name: 'logging',
+        use: morgan('combined'),
+        order: Enums.priority.highest,
+    });
+}
+
+SDK.Server.Middleware.register('cors', {
+    name: 'cors',
+    use: cors(),
+    order: Enums.priority.highest,
+});
+
+SDK.Server.Middleware.register('api', {
+    name: 'api',
+    use: proxy('/api', {
+        target: restAPI,
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api': '',
+        },
+        logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
+        ws: true,
+    }),
+    order: Enums.priority.highest,
+});
+
+// parsers
+SDK.Server.Middleware.register('jsonParser', {
+    name: 'jsonParser',
+    use: bodyParser.json(),
+    order: Enums.priority.high,
+});
+
+SDK.Server.Middleware.register('urlEncoded', {
+    name: 'urlEncoded',
+    use: bodyParser.urlencoded({ extended: true }),
+    order: Enums.priority.high,
+});
+
+// cookies
+SDK.Server.Middleware.register('cookieParser', {
+    name: 'cookieParser',
+    use: cookieParser(),
+    order: Enums.priority.high,
+});
+
+SDK.Server.Middleware.register('cookieSession', {
+    name: 'cookieSession',
+    use: cookieSession({
+        name: op.get(process.env, 'COOKIE_SESSION_NAME', 'aljtka4'),
+        keys: JSON.parse(
+            op.get(
+                process.env,
+                'COOKIE_SESSION_KEYS',
+                JSON.stringify(['Q2FtZXJvbiBSdWxlcw', 'vT3GtyZKbnoNSdWxlcw']),
             ),
-            order: Enums.priority.high,
-        }),
-    },
-];
+        ),
+        order: Enums.priority.high,
+    }),
+});
 
 // development mode
 if (process.env.NODE_ENV === 'development') {
@@ -152,7 +159,7 @@ if (process.env.NODE_ENV === 'development') {
 
     // local development overrides for webpack config
     webpackConfig.entry.main = [
-        `webpack-hot-middleware/client?path=/__webpack_hmr&quiet=true`,
+        'webpack-hot-middleware/client?path=/__webpack_hmr&quiet=true',
         webpackConfig.entry.main,
     ];
     webpackConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
@@ -160,7 +167,7 @@ if (process.env.NODE_ENV === 'development') {
 
     const compiler = webpack(webpackConfig);
 
-    middlewares.push({
+    SDK.Server.Middleware.register('webpack', {
         name: 'webpack',
         use: wpMiddlware(compiler, {
             serverSideRender: true,
@@ -169,7 +176,8 @@ if (process.env.NODE_ENV === 'development') {
         }),
         order: Enums.priority.high,
     });
-    middlewares.push({
+
+    SDK.Server.Middleware.register('hmr', {
         name: 'hmr',
         use: wpHotMiddlware(compiler, {
             reload: true,
@@ -182,21 +190,31 @@ if (process.env.NODE_ENV === 'development') {
 const staticAssets =
     process.env.PUBLIC_DIRECTORY || path.resolve(process.cwd(), 'public');
 
-middlewares.push({
+SDK.Server.Middleware.register('static', {
     name: 'static',
     use: staticGzip(staticAssets),
     order: Enums.priority.neutral,
 });
 
 // default route handler
-middlewares.push({
+SDK.Server.Middleware.register('router', {
     name: 'router',
     use: router,
     order: Enums.priority.neutral,
 });
 
-// Give app an opportunity to change middlewares
+SDK.Hook.runSync('Server.Middleware', SDK.Server.Middleware);
+
+let middlewares = Object.values(SDK.Server.Middleware.list);
+
+// Deprecated: Give app an opportunity to change middlewares
 if (fs.existsSync(`${rootPath}/src/app/server/middleware.js`)) {
+    console.log(
+        `[${moment().format(
+            'HH:mm:ss',
+        )}] Warning: src/app/server/middleware.js is deprecated. Use express-mw.js DDD artifact instead.`,
+    );
+
     middlewares = require(`${rootPath}/src/app/server/middleware.js`)(
         middlewares,
     );

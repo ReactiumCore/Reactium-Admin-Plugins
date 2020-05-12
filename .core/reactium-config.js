@@ -3,7 +3,7 @@ const path = require('path');
 const rootPath = path.resolve(__dirname, '..');
 const gulpConfig = require('./gulp.config');
 
-const version = '3.2.6';
+const version = '3.3.0';
 
 const contextMode = () => {
     if (
@@ -143,6 +143,10 @@ const defaultManifestConfig = {
             to: 'reactium-core/',
         },
         {
+            from: 'reactium_modules/',
+            to: '../reactium_modules/',
+        },
+        {
             node_modules: true,
             ignore: /^((?!reactium-plugin).)*$/,
         },
@@ -192,6 +196,10 @@ const defaultManifestConfig = {
                 from: 'src/',
                 to: path.resolve(rootPath, 'src') + '/',
             },
+            {
+                from: 'reactium_modules/',
+                to: path.resolve(rootPath, 'reactium_modules') + '/',
+            },
         ],
         searchParams: {
             extensions: /\.(js|json)$/,
@@ -235,6 +243,7 @@ module.exports = {
             },
             devDependencies: {
                 remove: [
+                    '@atomic-reactor/cli',
                     'atomic-reactor-cli',
                     'babel-cli',
                     'babel-core',

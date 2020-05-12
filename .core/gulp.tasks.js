@@ -213,6 +213,7 @@ const reactium = (gulp, config, webpackConfig) => {
 
     const build = gulp.series(
         task('preBuild'),
+        task('ensureReactiumModules'),
         task('clean'),
         task('manifest'),
         gulp.parallel(task('markup'), task('json')),
@@ -229,7 +230,7 @@ const reactium = (gulp, config, webpackConfig) => {
         if (!isDev) done();
 
         const arcliBin = path.resolve(
-            path.dirname(require.resolve('atomic-reactor-cli')),
+            path.dirname(require.resolve('@atomic-reactor/cli')),
             'arcli.js',
         );
         const args = [
@@ -249,6 +250,11 @@ const reactium = (gulp, config, webpackConfig) => {
     const clean = done => {
         // Remove build files
         del.sync([config.dest.dist]);
+        done();
+    };
+
+    const ensureReactiumModules = done => {
+        fs.ensureDirSync(config.src.reactiumModules);
         done();
     };
 
@@ -585,6 +591,7 @@ $assets: (
         postBuild: noop,
         postServe: noop,
         clean,
+        ensureReactiumModules,
         default: defaultTask,
         json,
         manifest,

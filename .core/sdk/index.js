@@ -12,8 +12,7 @@ import Capability from './capability';
 export * from '@atomic-reactor/reactium-sdk-core';
 export * from './named-exports';
 
-export default {
-    ...SDK,
+const Reactium = Object.assign(SDK, {
     ...Actinium,
     i18n,
     Middleware,
@@ -23,4 +22,6 @@ export default {
     Setting,
     User,
     Capability,
-};
+});
+
+export default Reactium;
