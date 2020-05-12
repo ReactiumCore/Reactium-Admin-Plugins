@@ -1,12 +1,7 @@
 import serialize from 'serialize-javascript';
 
 module.exports = {
-    version: '3.0.20',
-    includeSheets: [
-        'admin.css',
-        // uncomment to test locally
-        // 'reset-plugin.css',
-    ],
+    version: '3.2.0',
     template: req => {
         return `<!DOCTYPE html>
         <html>
@@ -15,25 +10,20 @@ module.exports = {
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
                 <meta charSet='utf-8' />
                 ${req.styles}
-                ${req.pluginAssets.styles}
             </head>
             <body>
-                <Component type="DevTools"></Component>
-                <div id="router"></div>
+                ${req.headerScripts}
+                ${req.appBindings}
 
                 <script>
                     window.ssr = false;
                     window.defines = ${serialize(defines)};
                     window.restAPI = '/api';
-                    window.parseAppId = '${parseAppId}';
-                    window.settings = ${serialize(req.settings)};
-                    window.blueprints = ${serialize(req.blueprints)};
-                    window.routesConfig = ${serialize(req.routesConfig)};
-                    window.routes = ${serialize(req.routes)};
-                    window.plugins = ${serialize(req.plugins)};
+                    window.actiniumAppId = '${actiniumAppId}';
+                    ${req.appGlobals}
                 </script>
                 ${req.scripts}
-                ${req.pluginAssets.scripts}
+                ${req.appAfterScripts}
             </body>
         </html>`;
     },
