@@ -84,6 +84,7 @@ const DraggableList = forwardRef((props, ref) => {
     const { onReorder = noop, children } = props;
     const defaultItemHeight = op.get(props, 'defaultItemHeight', 100);
     const dragSensitivity = op.get(props, 'dragSensitivity', 0.125);
+    const delegateBind = op.get(props, 'delegateBind', false);
     const tx = txFactory(props);
 
     const itemsRef = useRef({});
@@ -140,11 +141,34 @@ const DraggableList = forwardRef((props, ref) => {
 
     const [orderedItems, setOrderedItems] = useState(initItems());
 
+    const resize = items => {
+        let y = 0;
+        items.forEach((item, idx) => {
+            if (op.has(itemsRef.current, [item.id])) {
+                const el = itemsRef.current[item.id];
+                const nodes = el.childNodes;
+
+                let height = 0;
+                for (let node of nodes) {
+                    const nodeHeight =
+                        node.offsetHeight || node.clientHeight || 0;
+                    height += nodeHeight;
+                }
+
+                if (height !== item.height) {
+                    item.height = height;
+                    item.y = y;
+                    y += item.height;
+                }
+            }
+        });
+    };
+
     const updateOrderedItems = reorderedItems => {
-        // console.log({reorderedItems});
         setOrderedItems(reorderedItems);
         if (typeof onReorder === 'function') {
             setTimeout(() => {
+                resize(reorderedItems);
                 onReorder(reorderedItems);
             }, 300);
         }
@@ -154,6 +178,17 @@ const DraggableList = forwardRef((props, ref) => {
         orderedItems.length,
         tx({ items: orderedItems }),
     );
+
+    const animateResize = () => {
+        let cpy = springs.map((_, i) => {
+            const itemIndex = orderedItems.findIndex(item => item.idx === i);
+            return op.get(orderedItems, itemIndex, {});
+        });
+
+        resize(cpy);
+        cpy = getOrdered(cpy);
+        setSprings(tx({ items: cpy, init: false }));
+    };
 
     const changeHash = items =>
         items.map(({ id, depth }) => `${id}:${depth}`).join('');
@@ -172,6 +207,7 @@ const DraggableList = forwardRef((props, ref) => {
         setSprings,
         orderedItems,
         updateOrderedItems,
+        animateResize,
     });
 
     useImperativeHandle(ref, _handle, [changeHash(orderedItems)]);
@@ -390,7 +426,7 @@ const DraggableList = forwardRef((props, ref) => {
                                         })}>
                                         <animated.div
                                             role='option'
-                                            {...bind(i)}
+                                            {...(!delegateBind ? bind(i) : {})}
                                             onKeyDown={onKeyDown(item)}
                                             tabIndex={0}
                                             aria-describedby={ariaActionLabel}
@@ -433,6 +469,7 @@ DraggableList.defaultProps = {
     dragScale: 1.005,
     // fraction of item height needed to reorder
     dragSensitivity: 0.125,
+    delegateBind: false,
 };
 
 export default DraggableList;

@@ -15,7 +15,13 @@ const ItemWrapper = props => {
 };
 
 const MenuList = props => {
-    const { items, defaultItemHeight, menuIndent, onReorder } = props;
+    const {
+        items,
+        defaultItemHeight,
+        menuIndent,
+        onReorder,
+        onRemoveItem,
+    } = props;
     const listRef = useRef();
     const indent = Math.max(10, menuIndent);
     const [loading, setLoading] = useState(false);
@@ -91,7 +97,11 @@ const MenuList = props => {
                             key={item.id}
                             depth={item.depth}
                             MenuItem={MenuItem}>
-                            <MenuItem item={item} listRef={listRef} />
+                            <MenuItem
+                                onRemoveItem={onRemoveItem}
+                                item={item}
+                                listRef={listRef}
+                            />
                         </ItemWrapper>
                     );
                 })}
@@ -103,7 +113,9 @@ const MenuList = props => {
 MenuList.defaultProps = {
     items: [],
     defaultItemHeight: 50,
+    dragSensitivity: 0.25,
     onReorder: noop,
+    onRemoveItem: noop,
     menuIndent: 20,
     itemClassName: 'menu-item',
 };

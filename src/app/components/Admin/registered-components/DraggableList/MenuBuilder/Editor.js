@@ -10,7 +10,12 @@ import uuid from 'uuid/v4';
 
 const noop = () => {};
 const Menu = props => {
-    const { items = [], setItems = noop, itemTypes = {} } = props;
+    const {
+        items = [],
+        setItems = noop,
+        onRemoveItem = noop,
+        itemTypes = {},
+    } = props;
 
     const onReorder = reordered => {
         const currentItemsById = _.indexBy(items, 'id');
@@ -43,6 +48,7 @@ const Menu = props => {
                 ...item,
                 MenuItem: op.get(itemTypes, [item.type, 'MenuItem']),
             }))}
+            onRemoveItem={onRemoveItem}
         />
     );
 };
@@ -54,6 +60,10 @@ const MenuEditor = props => {
     const addItems = item => {
         const added = _.flatten([item]);
         setItems(items.concat(added));
+    };
+
+    const removeItem = ({ id }) => () => {
+        setItems(items.filter(item => item.id !== id));
     };
 
     const ElementDialog = useHookComponent('ElementDialog');
@@ -81,6 +91,7 @@ const MenuEditor = props => {
                     items={items}
                     setItems={setItems}
                     itemTypes={_.indexBy(itemTypes, 'id')}
+                    onRemoveItem={removeItem}
                 />
             </div>
         </Dialog>

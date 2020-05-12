@@ -30,6 +30,9 @@ $menu-editor-ns: menu-editor !default;
     [role=option] {
         width: calc(50%);
         min-width: 30vw;
+        @include breakpoint(sm-down) {
+            min-width: 50vw;
+        }
     }
 }
 
