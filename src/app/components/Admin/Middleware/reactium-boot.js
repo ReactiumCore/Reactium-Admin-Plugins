@@ -1,15 +1,45 @@
 const SDK = require('@atomic-reactor/reactium-sdk-core').default;
 const Enums = SDK.Enums;
+
 const {
     settings,
     routes,
     blueprints,
     plugins,
 } = require('./middlewares/config');
+
 const { forceSSL } = require('./middlewares/forceSSL');
 const proxy = require('http-proxy-middleware');
 const op = require('object-path');
 const _ = require('underscore');
+
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+
+SDK.Server.Middleware.register('adminStatic', {
+    name: 'adminStatic',
+    use: (req, res, next) => {
+        const cwd = process.cwd();
+        const dev = path.normalize(
+            path.join(cwd, 'src', 'app', 'components', 'Admin', 'static'),
+        );
+        const prod = path.normalize(
+            path.join(
+                cwd,
+                'reactium_modules',
+                '@atomic-reactor',
+                'admin',
+                'static',
+            ),
+        );
+        const dir = fs.existsSync(path.resolve(prod)) ? prod : dev;
+        const isDir = fs.existsSync(path.resolve(dir));
+        if (isDir) return express.static(dir);
+        next();
+    },
+    order: Enums.priority.lowest,
+});
 
 SDK.Server.Middleware.register('media-proxy', {
     name: 'media-proxy',
