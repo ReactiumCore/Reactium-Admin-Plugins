@@ -6,10 +6,6 @@
   "scripts": {
     "start": "node build/.core/index.js",
     "test": "jest",
-    "build": "npm-run-all build:*",
-    "build:gulp": "cross-env NODE_ENV=production gulp",
-    "build:babel-core": "cross-env NODE_ENV=production babel .core --out-dir build/.core",
-    "build:babel-src": "cross-env NODE_ENV=production babel src --out-dir build/src",
     "static": "npm-run-all build:* && gulp static",
     "local": "gulp local",
     "local:ssr": "gulp local:ssr",
@@ -18,7 +14,12 @@
     "docker:build": "cross-env docker image build -t $npm_package_name:$npm_package_version -t $npm_package_name:latest .",
     "docker:push": "cross-env docker push $npm_package_name:$npm_package_version && cross-env docker push $npm_package_name:$npm_package_version:latest",
     "precommit": "lint-staged",
-    "docs": "gulp apidocs"
+    "docs": "gulp apidocs",
+    "build": "npm-run-all build:*",
+    "build:gulp": "cross-env NODE_ENV=production gulp",
+    "build:babel-core": "cross-env NODE_ENV=production babel .core --out-dir build/.core",
+    "build:babel-reactium_modules": "cross-env NODE_ENV=production babel reactium_modules --out-dir build/reactium_modules",
+    "build:babel-src": "cross-env NODE_ENV=production babel src --out-dir build/src"
   },
   "keywords": [
     "react",

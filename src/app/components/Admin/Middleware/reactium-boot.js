@@ -39,20 +39,6 @@ const isSrc = () => {
     if (fs.existsSync(d)) return d;
 };
 
-SDK.Server.Middleware.register('adminStatic', {
-    name: 'adminStatic',
-    use: (req, res, next) => {
-        const dev = isSrc();
-        const prod = isMod();
-        const dir = prod || dev;
-        const isDir = fs.existsSync(path.resolve(dir));
-
-        if (isDir) return express.static(dir);
-        next();
-    },
-    order: Enums.priority.lowest,
-});
-
 SDK.Server.Middleware.register('media-proxy', {
     name: 'media-proxy',
     use: proxy('/media', {
