@@ -152,8 +152,7 @@ module.exports = spinner => {
             });
         },
         inject: ({ params, props }) => {
-            if (!insert) process.exit();
-            return;
+            if (!insert) return;
 
             const getPath = (filepath, scss) =>
                 String(path.relative(filepath, scss))
