@@ -142,11 +142,16 @@ module.exports = spinner => {
             stylePaths.forEach(filepath => {
                 const importPath = `@import '${getPath(filepath, scss)}';`;
 
-                let fileContent = fs.readFileSync(filepath, 'utf-8');
+                let fileContent = String(fs.readFileSync(filepath, 'utf-8'));
+                fileContent = fileContent
+                    .split(importPath)
+                    .join('')
+                    .replace(/\s\s+/g, '\n');
                 fileContent =
                     append === true
                         ? `${fileContent}\n${importPath}`
                         : `${importPath}\n${fileContent}`;
+
                 fs.writeFileSync(filepath, fileContent);
             });
         },

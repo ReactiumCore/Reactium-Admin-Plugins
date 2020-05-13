@@ -17,24 +17,36 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 
+const isProd = () => {
+    const d = path.normalize(
+        path.join(
+            process.cwd(),
+            'reactium_modules',
+            '@atomic-reactor',
+            'admin',
+            'static',
+        ),
+    );
+
+    if (fs.existsSync(d)) return d;
+};
+
+const isDev = () => {
+    const d = path.normalize(
+        path.join(process.cwd(), 'src', 'app', 'components', 'Admin', 'static'),
+    );
+
+    if (fs.existsSync(d)) return d;
+};
+
 SDK.Server.Middleware.register('adminStatic', {
     name: 'adminStatic',
     use: (req, res, next) => {
-        const cwd = process.cwd();
-        const dev = path.normalize(
-            path.join(cwd, 'src', 'app', 'components', 'Admin', 'static'),
-        );
-        const prod = path.normalize(
-            path.join(
-                cwd,
-                'reactium_modules',
-                '@atomic-reactor',
-                'admin',
-                'static',
-            ),
-        );
-        const dir = fs.existsSync(path.resolve(prod)) ? prod : dev;
+        const dev = isDev();
+        const prod = isProd();
+        const dir = prod || dev;
         const isDir = fs.existsSync(path.resolve(dir));
+
         if (isDir) return express.static(dir);
         next();
     },
@@ -142,7 +154,9 @@ SDK.Hook.registerSync(
 SDK.Hook.registerSync(
     'Server.AppStyleSheets.includes',
     includes => {
-        if (!includes.includes('admin.css')) includes.push('admin.css');
+        if (!includes.includes('admin.css') && isDev()) {
+            includes.push('admin.css');
+        }
     },
     Enums.priority.highest,
 );
@@ -150,7 +164,9 @@ SDK.Hook.registerSync(
 SDK.Hook.registerSync(
     'Server.AppStyleSheets.excludes',
     excludes => {
-        if (!excludes.includes('style.css')) excludes.push('style.css');
+        if (!excludes.includes('style.css') && isDev()) {
+            excludes.push('style.css');
+        }
     },
     Enums.priority.highest,
 );
