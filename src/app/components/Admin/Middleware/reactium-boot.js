@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 
-const isProd = () => {
+const isMod = () => {
     const d = path.normalize(
         path.join(
             process.cwd(),
@@ -31,7 +31,7 @@ const isProd = () => {
     if (fs.existsSync(d)) return d;
 };
 
-const isDev = () => {
+const isSrc = () => {
     const d = path.normalize(
         path.join(process.cwd(), 'src', 'app', 'components', 'Admin', 'static'),
     );
@@ -42,8 +42,8 @@ const isDev = () => {
 SDK.Server.Middleware.register('adminStatic', {
     name: 'adminStatic',
     use: (req, res, next) => {
-        const dev = isDev();
-        const prod = isProd();
+        const dev = isSrc();
+        const prod = isMod();
         const dir = prod || dev;
         const isDir = fs.existsSync(path.resolve(dir));
 
@@ -154,7 +154,7 @@ SDK.Hook.registerSync(
 SDK.Hook.registerSync(
     'Server.AppStyleSheets.includes',
     includes => {
-        if (!includes.includes('admin.css') && isDev()) {
+        if (!includes.includes('admin.css') && isSrc()) {
             includes.push('admin.css');
         }
     },
@@ -164,7 +164,7 @@ SDK.Hook.registerSync(
 SDK.Hook.registerSync(
     'Server.AppStyleSheets.excludes',
     excludes => {
-        if (!excludes.includes('style.css') && isDev()) {
+        if (!excludes.includes('style.css') && isSrc()) {
             excludes.push('style.css');
         }
     },

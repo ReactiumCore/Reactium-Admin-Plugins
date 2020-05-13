@@ -14,7 +14,7 @@ module.exports = spinner => {
 
     const normalize = (...args) => path.normalize(path.join(...args));
 
-    let cwd, append, pluginDirectory, prompt, scss, stylePaths, styles;
+    let cwd, append, insert, pluginDirectory, prompt, scss, stylePaths, styles;
     return {
         init: async ({ params, props }) => {
             cwd = op.get(props, 'cwd');
@@ -27,12 +27,9 @@ module.exports = spinner => {
             prompt = op.get(props, 'prompt');
             scss = normalize(pluginDirectory, 'style', '_admin.scss');
             styles = await globby([`${cwd}/src/**/*.scss`]);
-
-            if (op.get(params, 'filter') === true) {
-                styles = styles.filter(
-                    file => String(path.basename(file)).substr(0, 1) !== '_',
-                );
-            }
+            styles = styles.filter(
+                file => String(path.basename(file)).substr(0, 1) !== '_',
+            );
 
             append = op.get(params, 'append');
 
@@ -61,6 +58,9 @@ module.exports = spinner => {
             fs.writeFileSync(scss, content);
         },
         prompt: ({ params }) => {
+            const unattended = op.get(params, 'unattended');
+            if (unattended === true) return;
+
             if (styles.length < 1) return;
             if (styles.length === 1) {
                 stylePaths = styles;
@@ -81,14 +81,30 @@ module.exports = spinner => {
                 prompt.get(
                     [
                         {
+                            name: 'insert',
+                            before: val =>
+                                String(val)
+                                    .substr(0, 1)
+                                    .toUpperCase() === 'Y',
+                            default: 'Y',
+                            description: `${chalk.white(
+                                'Import Admin styles?',
+                            )} ${chalk.cyan('(Y/N):')}`,
+                            message: ' ',
+                            pattern: /^y|n|Y|N/,
+                            required: true,
+                            type: 'string',
+                        },
+                        {
                             name: 'inject',
                             pattern: /[0-9\s]/,
                             description: `${chalk.white(
-                                'Import style to:',
+                                'Import Admin styles into:',
                             )} ${styleList}\n    ${chalk.cyan('Select:')}`,
                             required: true,
                             message:
                                 'Select a number or list of numbers. Example: 1 2 3',
+                            ask: () => prompt.history('insert').value === true,
                             before: val =>
                                 String(val)
                                     .replace(/[^0-9\s]/g, '')
@@ -108,13 +124,14 @@ module.exports = spinner => {
                         },
                         {
                             name: 'append',
+                            ask: () => prompt.history('insert').value === true,
                             before: val =>
                                 String(val)
                                     .substr(0, 1)
                                     .toUpperCase() === 'Y',
                             default: 'N',
                             description: `${chalk.white(
-                                'Import at the end of the file?',
+                                'Import Admin styles at the end of the file?',
                             )} ${chalk.cyan('(Y/N):')}`,
                             message: ' ',
                             pattern: /^y|n|Y|N/,
@@ -127,6 +144,7 @@ module.exports = spinner => {
 
                         stylePaths = op.get(input, 'inject');
                         append = op.get(input, 'append');
+                        insert = op.get(input, 'insert');
 
                         resolve();
                     },
@@ -134,6 +152,9 @@ module.exports = spinner => {
             });
         },
         inject: ({ params, props }) => {
+            if (!insert) process.exit();
+            return;
+
             const getPath = (filepath, scss) =>
                 String(path.relative(filepath, scss))
                     .replace(/^\..\//, '')
