@@ -1,84 +1,8 @@
+@import '../../app/components/Admin/style/admin';
+@import '../../app/components/Admin/style/admin';
 // Theming Default Variable Overrides
 @import './theming/variables-reactium-ui';
 @import './theming/variables-admin';
 
-// Reactium-ui
-@import '../../../node_modules/@atomic-reactor/reactium-ui/assets/style/reactium-ui.scss';
-
-// Admin variables
-@import '../../app/components/Admin/style/variables';
-
-// Admin mixins
-@import '../../app/components/Admin/style/mixins';
-
-// Admin Registered Components
-@import '../../app/components/Admin/registered-components/Fullscreen/style';
-@import '../../app/components/Admin/registered-components/ConfirmBox/style';
-@import '../../app/components/Admin/registered-components/CapabilityEditor/style';
-@import '../../app/components/Admin/registered-components/SettingEditor/style';
-@import '../../app/components/Admin/registered-components/MenuItem/style';
-@import '../../app/components/Admin/registered-components/PermissionSelector/style';
-@import '../../app/components/Admin/registered-components/Blocker/style';
-@import '../../app/components/Admin/registered-components/DragPanel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withFormatter/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withLink/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withColor/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withIcon/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withMediaImage/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withMediaVideo/Panel/style';
-@import '../../app/components/Admin/registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
-@import '../../app/components/Admin/registered-components/IconPicker/style';
-@import '../../app/components/Admin/registered-components/ProfileWidget/style';
-@import '../../app/components/Admin/registered-components/DraggableList/style';
-
-// Admin Styles
-@import '../../app/components/Admin/style/base';
-@import '../../app/components/Admin/style/layout';
-@import '../../app/components/Admin/style/header';
-@import '../../app/components/Admin/AdminLogo/style';
-@import '../../app/components/Admin/Login/style';
-@import '../../app/components/Admin/Sidebar/style';
-@import '../../app/components/Admin/Dashboard/style';
-@import '../../app/components/Admin/Settings/style';
-@import '../../app/components/Admin/Password/style';
-@import '../../app/components/Admin/SearchBar/style';
-@import '../../app/components/Admin/PluginManager/style';
-@import '../../app/components/Admin/Content/Editor/style';
-@import '../../app/components/Admin/Content/List/style';
-@import '../../app/components/Admin/Content/ActivityLog/style';
-@import '../../app/components/Admin/ContentType/style';
-@import '../../app/components/Admin/ContentType/List/style';
-@import '../../app/components/Admin/ContentType/FieldType/Dialog/style';
-@import '../../app/components/Admin/ContentType/FieldType/style';
-@import '../../app/components/Admin/ContentType/Plugins/Collection/style';
-@import '../../app/components/Admin/ContentType/Plugins/FieldTypeLink/style';
-@import '../../app/components/Admin/ContentType/Plugins/FieldTypeList/style';
-@import '../../app/components/Admin/ContentType/Plugins/FieldTypeNumber/style';
-@import '../../app/components/Admin/ContentType/Plugins/FieldTypeText/style';
-@import '../../app/components/Admin/ContentType/Plugins/Publisher/style';
-@import '../../app/components/Admin/ContentType/TypeName/style';
-@import '../../app/components/Admin/ContentType/IconPicker/style';
-@import '../../app/components/Admin/ContentType/Tools/style';
-@import '../../app/components/Admin/ContentType/Fields/style';
-@import '../../app/components/Admin/Media/style';
-@import '../../app/components/Admin/Media/List/style';
-@import '../../app/components/Admin/Media/Directory/Creator/style';
-@import '../../app/components/Admin/Media/Directory/Editor/style';
-@import '../../app/components/Admin/Media/Directory/Widget/style';
-@import '../../app/components/Admin/Media/Editor/style';
-@import '../../app/components/Admin/Media/Editor/Sidebar/style';
-@import '../../app/components/Admin/Media/Editor/_plugins/ImageCrop/style';
-@import '../../app/components/Admin/Media/Editor/_plugins/ThumbnailSelect/style';
-@import '../../app/components/Admin/Media/MediaPicker/style';
-@import '../../app/components/Admin/Media/Pagination/style';
-@import '../../app/components/Admin/Media/Toolbar/style';
-@import '../../app/components/Admin/Media/Uploads/style';
-@import '../../app/components/Admin/User/Editor/style';
-@import '../../app/components/Admin/User/Editor/_plugins/UserContent/style';
-@import '../../app/components/Admin/User/Editor/_plugins/UserMedia/style';
-@import '../../app/components/Admin/User/Editor/_plugins/UserProfile/style';
-@import '../../app/components/Admin/User/Editor/_plugins/UserInputs/style';
-@import '../../app/components/Admin/User/Editor/_plugins/Notice/style';
-@import '../../app/components/Admin/User/List/style';
-@import '../../app/components/Admin/Content/Revisions/style';
+// Admin styles
+@import '../../app/components/Admin/style/admin';
