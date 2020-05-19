@@ -1,6 +1,13 @@
-export default ({ width = 100, height = 100, color = '#4f82ba', title }) => {
+export default ({
+    width = 100,
+    height = 100,
+    className,
+    color = '#4f82ba',
+    title,
+}) => {
     return (
         <svg
+            className={className}
             id='e5ba4dba-d7c6-4394-adcb-ad50fd27ea2d'
             data-name='Layer 1'
             xmlns='http://www.w3.org/2000/svg'

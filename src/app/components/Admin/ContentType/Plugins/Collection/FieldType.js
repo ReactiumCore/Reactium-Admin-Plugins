@@ -165,7 +165,7 @@ export const useTypes = () => {
     const [types, setTypes] = useState();
 
     const fetch = () => {
-        if (status !== 'init') return;
+        if (status !== 'init') return () => {};
 
         setStatus('fetching');
 
@@ -179,12 +179,13 @@ export const useTypes = () => {
                     return item;
                 }),
             );
+            setStatus('ready');
         });
+
+        return () => {};
     };
 
-    useEffect(() => {
-        fetch();
-    }, [status]);
+    useEffect(() => fetch(), [status]);
 
     return [types, setTypes];
 };
@@ -257,6 +258,7 @@ export const FieldType = props => {
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
     const [types] = useTypes();
+    //const types = undefined;
 
     const [state, setNewState] = useDerivedState({
         error: null,
@@ -500,160 +502,196 @@ export const FieldType = props => {
 
         return (
             <FieldTypeDialog {...props} showHelpText={false}>
-                <input
-                    type='hidden'
-                    name='query'
-                    defaultValue={JSON.stringify(query)}
-                />
-                <input type='hidden' name='collection' />
-                <input type='hidden' name='targetClass' />
-                <div className='field-type-collection'>
-                    <Help state={state} setState={setState} />
-                    <Dropdown
-                        data={types}
-                        labelField='type'
-                        maxHeight='calc(40vh)'
-                        onItemClick={e => _onTypeSelect(e)}
-                        ref={typeRef}
-                        selection={[type.objectId]}
-                        size='md'
-                        valueField='objectId'>
-                        <Button
-                            color='default'
-                            data-dropdown-element
-                            style={{ paddingLeft: 12, paddingRight: 8 }}
-                            type='button'>
-                            {op.get(type, 'meta.icon') && (
-                                <span
-                                    style={{ width: 28 }}
-                                    className='text-left'>
-                                    <Icon name={type.meta.icon} size={18} />
-                                </span>
-                            )}
-                            <span className='flex-grow text-left'>
-                                {type.type}
-                            </span>
-                            <span style={{ paddingLeft: 8 }}>
-                                <Icon name='Feather.ChevronDown' />
-                            </span>
-                        </Button>
-                        <Button
-                            className='btn-help'
-                            color='clear'
-                            onClick={e => toggleHelp(e)}>
-                            <Icon name='Feather.Info' />
-                        </Button>
-                    </Dropdown>
-
-                    <Error state={state} setState={setState} />
-
-                    {type.objectId !== null && (
-                        <div
-                            className={cn(
-                                { 'input-group': !!func },
-                                'mt-xs-8',
-                            )}>
+                {!types && (
+                    <div className='flex-center py-xs-40'>
+                        <Spinner />
+                    </div>
+                )}
+                {types && types.length < 1 && <Empty />}
+                {types && types.length > 0 && (
+                    <>
+                        <input
+                            type='hidden'
+                            name='query'
+                            defaultValue={JSON.stringify(query)}
+                        />
+                        <input type='hidden' name='collection' />
+                        <input type='hidden' name='targetClass' />
+                        <div className='field-type-collection'>
+                            <Help state={state} setState={setState} />
                             <Dropdown
-                                data={queryActions}
-                                labelField='id'
+                                data={types}
+                                labelField='type'
                                 maxHeight='calc(40vh)'
-                                onItemClick={e => _onFuncSelect(e)}
-                                ref={funcRef}
-                                valueField='id'>
+                                onItemClick={e => _onTypeSelect(e)}
+                                ref={typeRef}
+                                selection={[type.objectId]}
+                                size='md'
+                                valueField='objectId'>
                                 <Button
                                     color='default'
                                     data-dropdown-element
                                     style={{ paddingLeft: 12, paddingRight: 8 }}
                                     type='button'>
-                                    {op.get(type, 'meta.icon') &&
-                                        !op.get(func, 'id') && (
-                                            <span
-                                                style={{ width: 28 }}
-                                                className='text-left'>
-                                                <Icon
-                                                    name='Linear.Leaf'
-                                                    size={16}
-                                                />
-                                            </span>
-                                        )}
+                                    {op.get(type, 'meta.icon') && (
+                                        <span
+                                            style={{ width: 28 }}
+                                            className='text-left'>
+                                            <Icon
+                                                name={type.meta.icon}
+                                                size={18}
+                                            />
+                                        </span>
+                                    )}
                                     <span className='flex-grow text-left'>
-                                        {func
-                                            ? op.get(func, 'id')
-                                            : __('function')}
+                                        {type.type}
                                     </span>
                                     <span style={{ paddingLeft: 8 }}>
                                         <Icon name='Feather.ChevronDown' />
                                     </span>
                                 </Button>
-                            </Dropdown>
-                            {func && op.get(func, 'key.placeholder') && (
-                                <Dropdown
-                                    data={schema()}
-                                    maxHeight='calc(40vh)'
-                                    multiSelect={func.key.multiple}
-                                    onChange={e => _onKeySelect(e)}
-                                    ref={keyRef}
-                                    selection={key}>
-                                    <Button
-                                        color='default'
-                                        data-dropdown-element
-                                        style={{
-                                            paddingLeft: 12,
-                                            paddingRight: 8,
-                                        }}
-                                        type='button'>
-                                        <span className='flex-grow text-left'>
-                                            {key.length > 0
-                                                ? key.join(', ')
-                                                : func.key.placeholder}
-                                        </span>
-                                        <span style={{ paddingLeft: 8 }}>
-                                            <Icon name='Feather.ChevronDown' />
-                                        </span>
-                                    </Button>
-                                </Dropdown>
-                            )}
-                            {func && op.get(func, 'value') && (
-                                <input
-                                    className='value'
-                                    defaultValue={valueDefault}
-                                    ref={valueRef}
-                                    type={valueInputType}
-                                    style={{ flexGrow: 1 }}
-                                    placeholder={func.value.placeholder}
-                                />
-                            )}
-                            {func && op.get(func, 'options') && (
-                                <input
-                                    className='options'
-                                    ref={optRef}
-                                    type='text'
-                                    style={{ flexGrow: 1 }}
-                                    placeholder={func.options.placeholder}
-                                />
-                            )}
-                            {func && (
                                 <Button
-                                    type='button'
-                                    className='submit'
-                                    color='tertiary'
-                                    onClick={() => funcAdd()}>
-                                    <Icon
-                                        name='Feather.Plus'
-                                        className='hide-xs show-lg'
-                                    />
-                                    <span className='show-xs- hide-lg'>
-                                        Add Function
-                                    </span>
+                                    className='btn-help'
+                                    color='clear'
+                                    onClick={e => toggleHelp(e)}>
+                                    <Icon name='Feather.Info' />
                                 </Button>
+                            </Dropdown>
+
+                            <Error state={state} setState={setState} />
+
+                            {type.objectId !== null && (
+                                <div
+                                    className={cn(
+                                        { 'input-group': !!func },
+                                        'mt-xs-8',
+                                    )}>
+                                    <Dropdown
+                                        data={queryActions}
+                                        labelField='id'
+                                        maxHeight='calc(40vh)'
+                                        onItemClick={e => _onFuncSelect(e)}
+                                        ref={funcRef}
+                                        valueField='id'>
+                                        <Button
+                                            color='default'
+                                            data-dropdown-element
+                                            style={{
+                                                paddingLeft: 12,
+                                                paddingRight: 8,
+                                            }}
+                                            type='button'>
+                                            {op.get(type, 'meta.icon') &&
+                                                !op.get(func, 'id') && (
+                                                    <span
+                                                        style={{ width: 28 }}
+                                                        className='text-left'>
+                                                        <Icon
+                                                            name='Linear.Leaf'
+                                                            size={16}
+                                                        />
+                                                    </span>
+                                                )}
+                                            <span className='flex-grow text-left'>
+                                                {func
+                                                    ? op.get(func, 'id')
+                                                    : __('function')}
+                                            </span>
+                                            <span style={{ paddingLeft: 8 }}>
+                                                <Icon name='Feather.ChevronDown' />
+                                            </span>
+                                        </Button>
+                                    </Dropdown>
+                                    {func && op.get(func, 'key.placeholder') && (
+                                        <Dropdown
+                                            data={schema()}
+                                            maxHeight='calc(40vh)'
+                                            multiSelect={func.key.multiple}
+                                            onChange={e => _onKeySelect(e)}
+                                            ref={keyRef}
+                                            selection={key}>
+                                            <Button
+                                                color='default'
+                                                data-dropdown-element
+                                                style={{
+                                                    paddingLeft: 12,
+                                                    paddingRight: 8,
+                                                }}
+                                                type='button'>
+                                                <span className='flex-grow text-left'>
+                                                    {key.length > 0
+                                                        ? key.join(', ')
+                                                        : func.key.placeholder}
+                                                </span>
+                                                <span
+                                                    style={{ paddingLeft: 8 }}>
+                                                    <Icon name='Feather.ChevronDown' />
+                                                </span>
+                                            </Button>
+                                        </Dropdown>
+                                    )}
+                                    {func && op.get(func, 'value') && (
+                                        <input
+                                            className='value'
+                                            defaultValue={valueDefault}
+                                            ref={valueRef}
+                                            type={valueInputType}
+                                            style={{ flexGrow: 1 }}
+                                            placeholder={func.value.placeholder}
+                                        />
+                                    )}
+                                    {func && op.get(func, 'options') && (
+                                        <input
+                                            className='options'
+                                            ref={optRef}
+                                            type='text'
+                                            style={{ flexGrow: 1 }}
+                                            placeholder={
+                                                func.options.placeholder
+                                            }
+                                        />
+                                    )}
+                                    {func && (
+                                        <Button
+                                            type='button'
+                                            className='submit'
+                                            color='tertiary'
+                                            onClick={() => funcAdd()}>
+                                            <Icon
+                                                name='Feather.Plus'
+                                                className='hide-xs show-lg'
+                                            />
+                                            <span className='show-xs- hide-lg'>
+                                                Add Function
+                                            </span>
+                                        </Button>
+                                    )}
+                                </div>
                             )}
+                            <Query query={query} onDelete={funcDel} />
                         </div>
-                    )}
-                    <Query query={query} onDelete={funcDel} />
-                </div>
+                    </>
+                )}
             </FieldTypeDialog>
         );
     };
 
     return render();
 };
+
+const Empty = () => (
+    <div
+        className='help flex-middle flex-center flex-column gray'
+        style={{ minHeight: 147 }}>
+        <Icon
+            name='Feather.AlertOctagon'
+            size={48}
+            style={{ color: 'currentColor' }}
+        />
+        <p className='text-center mt-xs-20'>
+            {__(
+                'Once you have created content types come back and configure this collection',
+            )}
+        </p>
+    </div>
+);

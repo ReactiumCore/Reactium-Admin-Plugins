@@ -179,15 +179,22 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
 const Empty = () => (
     <div className='admin-content-type-list-empty'>
-        <div>
-            <IconImg width='25vw' height='25vw' />
-        </div>
+        <IconImg />
         <Button
             appearance={Button.ENUMS.APPEARANCE.PILL}
+            className='hide-xs show-md'
             size={Button.ENUMS.SIZE.LG}
             type={Button.ENUMS.TYPE.LINK}
             to='/admin/type/new'>
-            Create Content Type
+            {__('Create A Content Type')}
+        </Button>
+        <Button
+            appearance={Button.ENUMS.APPEARANCE.PILL}
+            className='hide-md'
+            size={Button.ENUMS.SIZE.MD}
+            type={Button.ENUMS.TYPE.LINK}
+            to='/admin/type/new'>
+            {__('Create A Content Type')}
         </Button>
     </div>
 );

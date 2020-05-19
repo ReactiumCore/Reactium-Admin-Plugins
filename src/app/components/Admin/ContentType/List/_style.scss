@@ -12,6 +12,25 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        svg {
+            width: 80vw;
+            height: 80vw;
+            min-width: 280px;
+            min-height: 280px;
+
+            @include breakpoint(sm) {
+                width: 25vw;
+                height: 25vw;
+                min-width: 350px;
+                min-height: 350px;
+            }
+
+            @include breakpoint(md) {
+                width: 30vw;
+                height: 30vw;
+            }
+        }
     }
 
     &-content {
