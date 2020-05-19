@@ -20,6 +20,7 @@ import React, {
 import Reactium, {
     __,
     useAsyncEffect,
+    useDerivedState,
     useEventHandle,
     useHandle,
     useRegisterHandle,
@@ -39,19 +40,40 @@ const Card = ({ handle, Ico, label, id }) => (
 );
 
 let ContentTypeList = ({ className, namespace, ...props }, ref) => {
+    // Refs
+    const containerRef = useRef();
+
+    // Components
     const Helmet = useHookComponent('Helmet');
-    const search = useSelect(state => op.get(state, 'SearchBar.value'));
     const SearchBar = useHandle('SearchBar');
 
-    const [title, setTitle] = useState(ENUMS.TEXT.TITLE);
-    const [types, setTypes] = useState([]);
-    const [updated, update] = useState();
+    // Search
+    const search = useSelect(state => op.get(state, 'SearchBar.value'));
+
+    // State
+    const [state, updateState] = useDerivedState({
+        status: 'init',
+        title: ENUMS.TEXT.TITLE,
+        types: [],
+        updated: null,
+    });
+
+    const setState = newState => {
+        if (unMounted()) return;
+        updateState(newState);
+    };
+
+    const setStatus = status => setState({ status });
+    const setTitle = title => setState({ title });
+    const setTypes = types => setState({ types });
+    const update = updated => setState({ updated });
 
     const cx = cls => _.compact([namespace, cls]).join('-');
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 
     const filter = () => {
+        const { types } = state;
         if (!search || types.length < 1) return types;
 
         const s = String(search).toLowerCase();
@@ -62,12 +84,16 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
         );
     };
 
+    const isEmpty = () => Boolean(state.types.length < 1);
+
     const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
     const properCase = useProperCase();
 
+    const unMounted = () => !containerRef.current;
+
     const _handle = () => ({
-        types,
+        types: state.types,
         cx,
     });
 
@@ -80,60 +106,67 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     // Get content types
     useAsyncEffect(
         async mounted => {
-            if (types.length > 0) return;
-            const results = await getTypes(true);
-            if (mounted()) setTypes(results);
+            const { status } = state;
+            if (status !== 'init') return;
+            setStatus('fetching');
+            const types = await getTypes(true);
+            if (mounted()) setState({ status: 'ready', types });
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
                 if (['set', 'del'].includes(op) && mounted() === true) {
                     update(Date.now());
                 }
             });
         },
-        [types],
+        [state.status],
     );
 
     // Show SearchBar
     useEffect(() => {
         if (!SearchBar) return;
+        const { types } = state;
         const { visible } = SearchBar.state;
         if (visible !== true && types.length > 0) {
             SearchBar.setState({ visible: true });
         }
-    }, [SearchBar, types]);
+    }, [SearchBar, state.types]);
 
     const render = () => {
+        const { status } = state;
+        const empty = isEmpty();
         return (
             <>
                 <Helmet>
-                    <title>{properCase(title)}</title>
+                    <title>{properCase(state.title)}</title>
                 </Helmet>
-                <div className={cname}>
+                <div className={cname} ref={containerRef}>
                     <div className={cx('content')}>
-                        <Zone zone={cx('top')} />
-                        {filter().map(({ meta, uuid }) => {
-                            const { label, icon } = meta;
-                            if (!label) return;
-                            const Ico = icon
-                                ? () => (
-                                      <div className={cx('icon')}>
-                                          <Icon name={icon} />
-                                      </div>
-                                  )
-                                : () => (
-                                      <div className={cx('graphic')}>
-                                          <IconImg />
-                                      </div>
-                                  );
-                            return (
-                                <Card
-                                    key={uuid}
-                                    id={uuid}
-                                    handle={handle}
-                                    label={label}
-                                    Ico={Ico}
-                                />
-                            );
-                        })}
+                        {empty && <Empty />}
+                        {!empty && <Zone zone={cx('top')} />}
+                        {!empty &&
+                            filter().map(({ meta, uuid }) => {
+                                const { label, icon } = meta;
+                                if (!label) return;
+                                const Ico = icon
+                                    ? () => (
+                                          <div className={cx('icon')}>
+                                              <Icon name={icon} />
+                                          </div>
+                                      )
+                                    : () => (
+                                          <div className={cx('graphic')}>
+                                              <IconImg />
+                                          </div>
+                                      );
+                                return (
+                                    <Card
+                                        key={uuid}
+                                        id={uuid}
+                                        handle={handle}
+                                        label={label}
+                                        Ico={Ico}
+                                    />
+                                );
+                            })}
                         <Zone zone={cx('bottom')} />
                     </div>
                 </div>
@@ -143,6 +176,21 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
     return render();
 };
+
+const Empty = () => (
+    <div className='admin-content-type-list-empty'>
+        <div>
+            <IconImg width='25vw' height='25vw' />
+        </div>
+        <Button
+            appearance={Button.ENUMS.APPEARANCE.PILL}
+            size={Button.ENUMS.SIZE.LG}
+            type={Button.ENUMS.TYPE.LINK}
+            to='/admin/type/new'>
+            Create Content Type
+        </Button>
+    </div>
+);
 
 ContentTypeList = forwardRef(ContentTypeList);
 
