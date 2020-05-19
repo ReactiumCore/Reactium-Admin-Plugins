@@ -6,10 +6,8 @@ import domain from '../domain';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import { useHandle, useWindowSize, Zone } from 'reactium-core/sdk';
 
-export default ({ Media }) => {
+const Empty = ({ Media }) => {
     Media = Media || useHandle(domain.name);
-
-    const zone = op.get(Media, 'zone', 'admin-media-empty');
 
     const { breakpoint } = useWindowSize();
 
@@ -17,28 +15,26 @@ export default ({ Media }) => {
 
     const isMobile = () => ['xs', 'sm'].includes(breakpoint);
 
-    const render = () => {
-        const mobile = isMobile();
+    const mobile = isMobile();
 
-        return !Media.isEmpty() ? null : (
-            <div className={cn(Media.cname('library'), 'empty')}>
-                <div className='label'>
-                    <Icon name='Linear.CloudUpload' size={mobile ? 96 : 128} />
-                    <div className='my-xs-32 my-md-40 hide-xs show-md'>
-                        {ENUMS.TEXT.EMPTY}
-                    </div>
-                    <Button
-                        color='primary'
-                        appearance='pill'
-                        onClick={onBrowseClick}
-                        size={mobile ? 'md' : 'lg'}>
-                        {ENUMS.TEXT.BROWSE}
-                    </Button>
+    return (
+        <div className={cn(Media.cname('library'), 'empty')}>
+            <div className='label'>
+                <Icon name='Linear.CloudUpload' size={mobile ? 96 : 128} />
+                <div className='my-xs-32 my-md-40 hide-xs show-md'>
+                    {ENUMS.TEXT.EMPTY}
                 </div>
-                <Zone zone={zone} />
+                <Button
+                    color='primary'
+                    appearance='pill'
+                    onClick={onBrowseClick}
+                    size={mobile ? 'md' : 'lg'}>
+                    {ENUMS.TEXT.BROWSE}
+                </Button>
             </div>
-        );
-    };
-
-    return render();
+            <Zone zone='admin-media-empty' />
+        </div>
+    );
 };
+
+export default Empty;

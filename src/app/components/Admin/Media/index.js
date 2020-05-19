@@ -5,22 +5,20 @@ import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 import Pagination from './Pagination';
-import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
-import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
+import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     useAsyncEffect,
+    useDerivedState,
     useEventHandle,
     useHandle,
     useHookComponent,
     useReduxState,
     useRegisterHandle,
-    useSelect,
-    useStore,
-    useWindowSize,
+    Zone,
 } from 'reactium-core/sdk';
 
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 
 const noop = () => {};
 
@@ -34,9 +32,6 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     const containerRef = useRef();
     const dropzoneRef = useRef();
 
-    // Redux state
-    const [state, setState] = useReduxState(domain.name);
-
     // Components
     const SearchBar = useHandle('SearchBar');
     const Helmet = useHookComponent('Helmet');
@@ -44,100 +39,62 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     const Toolbar = useHookComponent('MediaToolbar');
     const Uploads = useHookComponent('MediaUploads');
 
-    // States
-    const [data, setNewData] = useState(mapLibraryToList(state.library));
+    // Redux state
+    const [reduxState, setReduxState] = useReduxState(domain.name);
 
-    const [directory, setNewDirectory] = useState();
+    // Internal state
+    const [state, updateState] = useDerivedState({
+        data: mapLibraryToList(reduxState.library),
+        directory: null,
+        page: props.page,
+        status: ENUMS.STATUS.INIT,
+        type: null,
+        updated: null,
+    });
 
-    const [page, setNewPage] = useState(
-        Number(op.get(props, 'params.page', 1) || 1),
-    );
-
-    const [status, setNewStatus] = useState(ENUMS.STATUS.INIT);
-
-    const [type, setNewType] = useState();
-
-    const [updated, update] = useState();
-
-    const setData = newData => {
+    const setState = newState => {
         if (unMounted()) return;
-        if (_.isEqual(newData, data)) return;
-        setNewData(newData);
+        updateState(newState);
     };
 
-    const setDirectory = newDirectory => {
-        if (unMounted()) return;
-        setNewDirectory(newDirectory);
-    };
+    const setData = (data = []) =>
+        setState({ data: mapLibraryToList(data), status: ENUMS.STATUS.READY });
 
-    const setPage = newPage => {
-        if (unMounted()) return;
-        setNewPage(newPage);
-    };
-
-    const setStatus = newStatus => {
-        if (unMounted()) return;
-        setNewStatus(newStatus);
-    };
-
-    const setType = newType => {
-        if (unMounted()) return;
-        setNewType(newType);
-    };
+    const setDirectory = directory => setState({ directory });
+    const setPage = page => setState({ page });
+    const setStatus = status => setState({ status });
+    const setType = type => setState({ type });
 
     // Functions
     const browseFiles = () => dropzoneRef.current.browseFiles();
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const fetch = params => {
-        if (status !== ENUMS.STATUS.INIT) return;
-        setStatus(ENUMS.STATUS.PENDING);
+    const fetch = params => Reactium.Media.fetch({ ...params, page: -1 });
 
-        return new Promise((resolve, reject) => {
-            const delay = _.random(1, 4);
-
-            _.delay(async () => {
-                const media = await Reactium.Media.fetch({
-                    ...params,
-                    page: -1,
-                });
-                setStatus(ENUMS.STATUS.READY);
-                resolve(media);
-            }, delay * 250);
-        });
-    };
-
-    const forceUpdate = () => {
-        if (unMounted()) return;
-        update(Date.now());
-    };
-
-    const isEmpty = () => op.get(state, 'pagination.empty', true);
+    const isEmpty = () => op.get(reduxState, 'pagination.empty', true);
 
     const isMounted = () => !unMounted();
 
     const isUploading = () =>
-        Object.keys(op.get(state, 'files', {})).length > 0;
+        Object.keys(op.get(reduxState, 'files', {})).length > 0;
 
-    const onError = evt => {
-        setState({
-            error: { message: evt.message },
-        });
-    };
+    const onError = ({ message }) => setReduxState({ error: { message } });
 
-    const onFileAdded = e => {
-        return Reactium.Media.upload(e.added, directory);
-    };
+    const onFileAdded = e => Reactium.Media.upload(e.added, state.directory);
 
     const onFileRemoved = file => {
-        if (dropzoneRef.current) {
-            dropzoneRef.current.removeFiles(file);
-        }
+        if (unMounted()) return;
+        dropzoneRef.current.removeFiles(file);
+        setData(reduxState.library);
+        fetch();
     };
 
     const search = pg => {
-        const { pages = 1 } = op.get(state, 'pagination', {});
+        if (state.status !== ENUMS.STATUS.READY) return noop;
+
+        const { directory, page, type } = state;
+        const pages = op.get(reduxState, 'pagination.pages', 1);
 
         pg = pg || page;
         pg = pg > pages ? pages : pg;
@@ -161,74 +118,73 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
 
     const unMounted = () => !containerRef.current;
 
-    // Side effects
-    useEffect(toggleSearch, [SearchBar, isEmpty()]);
-
-    // Search
-    useEffect(search, [
-        SearchBar.state.value,
-        directory,
-        state.library,
-        type,
-        page,
-        op.get(state, 'pagination.pages'),
-    ]);
-
-    // Fetch
-    useEffect(() => {
-        fetch();
-    }, [status]);
-
-    // Page change
-    useEffect(() => {
-        if (page && op.get(props, 'params.page') !== page) {
-            Reactium.Routing.history.push(`/admin/media/${page}`);
-        }
-    }, [page]);
-
     // Handle
     const _handle = () => ({
         ENUMS,
         browseFiles,
         cname: cx,
-        directory,
+        directory: state.directory,
         isEmpty,
         isMounted,
-        page,
+        page: state.page,
         setData,
         setDirectory,
         setPage,
         setState,
         setType,
         state,
-        type,
+        type: state.type,
         unMounted,
-        zone,
+        zone: Array.isArray(zone) ? zone[0] : zone,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
 
-    useEffect(() => {
-        const newHandle = _handle();
-        if (_.isEqual(newHandle, handle)) return;
-        setHandle(newHandle);
-    }, [Object.values(state), directory, type, page, SearchBar.state.value]);
+    // Side effects
 
-    // update on pagination change
+    useEffect(toggleSearch, [SearchBar, isEmpty()]);
+
+    // Search
+    useEffect(search, [
+        SearchBar.state.value,
+        state.directory,
+        state.library,
+        state.type,
+        state.page,
+        op.get(reduxState, 'pagination.pages'),
+    ]);
+
+    // Fetch
+    useAsyncEffect(async () => {
+        if (state.status === ENUMS.STATUS.INIT) {
+            setStatus(ENUMS.STATUS.PENDING);
+            const data = await fetch();
+            setData(data);
+            setStatus(ENUMS.STATUS.READY);
+        }
+    }, [state.status]);
+
+    // Page change
     useEffect(() => {
-        forceUpdate();
-    }, [op.get(state, 'pagination.pages')]);
+        const { page } = state;
+        const pg = op.get(reduxState, 'page');
+
+        if (op.get(reduxState, 'page') !== page) {
+            Reactium.Routing.history.push(`/admin/media/${page}`);
+        }
+    }, [state.page]);
 
     useRegisterHandle(domain.name, () => handle, [handle]);
 
     // Render
     const render = () => {
+        const mobile = false;
         return (
             <div ref={containerRef}>
                 <Helmet>
                     <title>{title}</title>
                 </Helmet>
-                {op.get(state, 'fetched') ? (
+                {op.get(state, 'status') === ENUMS.STATUS.READY ? (
                     <Dropzone
                         {...dropzoneProps}
                         className={cx('dropzone')}
@@ -239,9 +195,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
                         <Toolbar Media={handle} />
                         <Uploads
                             onRemoveFile={onFileRemoved}
-                            uploads={op.get(state, 'uploads', {})}
+                            uploads={op.get(reduxState, 'uploads', {})}
                         />
-                        {!isEmpty() ? <List data={data} /> : <Empty />}
+                        {!isEmpty() ? (
+                            <List data={state.data} />
+                        ) : (
+                            <Empty Media={handle} />
+                        )}
                         {!isEmpty() && <Pagination Media={handle} />}
                     </Dropzone>
                 ) : (
