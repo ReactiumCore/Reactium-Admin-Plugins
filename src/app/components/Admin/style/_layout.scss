@@ -150,6 +150,13 @@ body {
 
         button {
             text-transform: none;
+            font-weight: normal;
+        }
+
+        label {
+            width: 100%;
+            text-align: left;
+            justify-content: flex-start;
         }
     }
 }

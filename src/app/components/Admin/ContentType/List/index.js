@@ -186,7 +186,7 @@ const Empty = () => (
             size={Button.ENUMS.SIZE.LG}
             type={Button.ENUMS.TYPE.LINK}
             to='/admin/type/new'>
-            {__('Create A Content Type')}
+            {__('New Content Type')}
         </Button>
         <Button
             appearance={Button.ENUMS.APPEARANCE.PILL}
@@ -194,7 +194,7 @@ const Empty = () => (
             size={Button.ENUMS.SIZE.MD}
             type={Button.ENUMS.TYPE.LINK}
             to='/admin/type/new'>
-            {__('Create A Content Type')}
+            {__('New Content Type')}
         </Button>
     </div>
 );
