@@ -2,5 +2,6 @@
     "babelLoader": false,
     "globalObject": "this",
     "externals": {},
-    "libraryName": "media-uploader"
+    "libraryName": "media-uploader",
+    "sourcemaps": false
 }
