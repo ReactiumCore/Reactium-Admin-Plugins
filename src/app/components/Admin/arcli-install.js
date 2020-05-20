@@ -154,11 +154,17 @@ module.exports = spinner => {
         inject: ({ params, props }) => {
             if (!insert) return;
 
-            const getPath = (filepath, scss) =>
-                String(path.relative(filepath, scss)).replace(
-                    '_admin.scss',
-                    'admin',
-                );
+            const getPath = (filepath, scss) => {
+                let output = String(
+                    path.relative(path.resolve(filepath), path.resolve(scss)),
+                ).replace('_admin.scss', 'admin');
+
+                let arr = output.split('/');
+                arr.shift();
+                output = arr.join('/');
+
+                return output;
+            };
 
             stylePaths.forEach(filepath => {
                 const importPath = `@import '${getPath(filepath, scss)}';`;
