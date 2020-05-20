@@ -155,9 +155,10 @@ module.exports = spinner => {
             if (!insert) return;
 
             const getPath = (filepath, scss) =>
-                String(path.relative(filepath, scss))
-                    .replace(/^\..\//, '')
-                    .replace('_admin.scss', 'admin');
+                String(path.relative(filepath, scss)).replace(
+                    '_admin.scss',
+                    'admin',
+                );
 
             stylePaths.forEach(filepath => {
                 const importPath = `@import '${getPath(filepath, scss)}';`;
