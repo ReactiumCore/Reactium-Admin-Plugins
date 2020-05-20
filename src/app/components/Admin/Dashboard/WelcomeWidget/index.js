@@ -25,10 +25,10 @@ const noop = () => {};
 
 /**
  * -----------------------------------------------------------------------------
- * Hook Component: {{name}}
+ * Hook Component: WelcomeWidget
  * -----------------------------------------------------------------------------
  */
-let {{name}} = (
+let WelcomeWidget = (
     { children, className, namespace, onStatus, ...props },
     ref,
 ) => {
@@ -71,7 +71,7 @@ let {{name}} = (
         handle.dispatchEvent(evt);
 
         if (unMounted()) return;
-        await Reactium.Hook.run(`{{name}}-${eventType}`, evt, handle);
+        await Reactium.Hook.run(`WelcomeWidget-${eventType}`, evt, handle);
 
         if (unMounted()) return;
         if (typeof callback === 'function') await callback(evt);
@@ -137,26 +137,26 @@ let {{name}} = (
     return (
         <div ref={containerRef} className={cx('container')}>
             <div className={cx()}>
-                {{name}}
+                WelcomeWidget
                 {children}
             </div>
         </div>
     );
 };
 
-{{name}} = forwardRef({{name}});
+WelcomeWidget = forwardRef(WelcomeWidget);
 
-{{name}}.ENUMS = ENUMS;
+WelcomeWidget.ENUMS = ENUMS;
 
-{{name}}.propTypes = {
+WelcomeWidget.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,
     onStatus: PropTypes.func,
 };
 
-{{name}}.defaultProps = {
+WelcomeWidget.defaultProps = {
     namespace: 'namespace',
     onStatus: noop,
 };
 
-export { {{name}}, {{name}} as default };
+export { WelcomeWidget, WelcomeWidget as default };
