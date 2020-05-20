@@ -8,7 +8,7 @@ const DashboardWidget = props => {
     const log = op.get(props, ['data', id], []);
     const cx = op.get(props, 'cx');
 
-    return log.length > 0 ? (
+    return (
         <div className='col-xs-12 col-md-4 col-xl-3 p-xs-24'>
             <ActivityUpdates
                 className='col-xs-12'
@@ -17,7 +17,7 @@ const DashboardWidget = props => {
                 scope='general'
             />
         </div>
-    ) : null;
+    );
 };
 
 export default DashboardWidget;
