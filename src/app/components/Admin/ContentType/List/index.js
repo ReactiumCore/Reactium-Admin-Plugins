@@ -6,8 +6,8 @@ import IconImg from './IconImg';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import useProperCase from 'components/Admin/Tools/useProperCase';
-import useRouteParams from 'components/Admin/Tools/useRouteParams';
+import useProperCase from 'reactium_modules/@atomic-reactor/admin/Tools/useProperCase';
+import useRouteParams from 'reactium_modules/@atomic-reactor/admin/Tools/useRouteParams';
 
 import React, {
     forwardRef,
@@ -42,6 +42,7 @@ const Card = ({ handle, Ico, label, id }) => (
 let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     // Refs
     const containerRef = useRef();
+    const status = useRef('init');
 
     // Components
     const Helmet = useHookComponent('Helmet');
@@ -52,7 +53,6 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
     // State
     const [state, updateState] = useDerivedState({
-        status: 'init',
         title: ENUMS.TEXT.TITLE,
         types: [],
         updated: null,
@@ -63,7 +63,9 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
         updateState(newState);
     };
 
-    const setStatus = status => setState({ status });
+    const setStatus = newStatus => {
+        status.current = newStatus;
+    };
     const setTitle = title => setState({ title });
     const setTypes = types => setState({ types });
     const update = updated => setState({ updated });
@@ -106,11 +108,13 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     // Get content types
     useAsyncEffect(
         async mounted => {
-            const { status } = state;
-            if (status !== 'init') return;
+            if (status.current !== 'init') return;
             setStatus('fetching');
             const types = await getTypes(true);
-            if (mounted()) setState({ status: 'ready', types });
+            if (mounted()) {
+                setStatus('ready');
+                setState({ types });
+            }
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
                 if (['set', 'del'].includes(op) && mounted() === true) {
                     update(Date.now());
@@ -131,7 +135,6 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
     }, [SearchBar, state.types]);
 
     const render = () => {
-        const { status } = state;
         const empty = isEmpty();
         return (
             <>
@@ -140,9 +143,12 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
                 </Helmet>
                 <div className={cname} ref={containerRef}>
                     <div className={cx('content')}>
-                        {empty && <Empty />}
-                        {!empty && <Zone zone={cx('top')} />}
+                        {empty && status.current === 'ready' && <Empty />}
+                        {!empty && status.current === 'ready' && (
+                            <Zone zone={cx('top')} />
+                        )}
                         {!empty &&
+                            status.current === 'ready' &&
                             filter().map(({ meta, uuid }) => {
                                 const { label, icon } = meta;
                                 if (!label) return;
