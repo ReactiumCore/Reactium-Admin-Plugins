@@ -6,8 +6,8 @@ import IconImg from './IconImg';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import useProperCase from 'reactium_modules/@atomic-reactor/admin/Tools/useProperCase';
-import useRouteParams from 'reactium_modules/@atomic-reactor/admin/Tools/useRouteParams';
+import useProperCase from 'components/Admin/Tools/useProperCase';
+import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 import React, {
     forwardRef,

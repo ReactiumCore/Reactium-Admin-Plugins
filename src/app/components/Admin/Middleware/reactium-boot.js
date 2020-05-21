@@ -108,6 +108,7 @@ SDK.Hook.registerSync(
     req => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
             const script = op.get(plugin, 'meta.scriptURL');
+            SDK.Server.AppScripts.unregister(plugin.ID);
             if (script && plugin.active) {
                 const url = !/^http/.test(script) ? '/api' + script : script;
                 SDK.Server.AppScripts.register(plugin.ID, {
@@ -125,6 +126,7 @@ SDK.Hook.registerSync(
     req => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
             const style = op.get(plugin, 'meta.styleURL');
+            SDK.Server.AppStyleSheets.unregister(plugin.ID);
             if (style && plugin.active) {
                 const url = !/^http/.test(style) ? '/api' + style : style;
                 SDK.Server.AppStyleSheets.register(plugin.ID, {
