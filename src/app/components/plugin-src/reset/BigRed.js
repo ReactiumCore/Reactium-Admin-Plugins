@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icon, Dialog, Button } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
 
@@ -8,6 +7,7 @@ const BigRed = props => {
     const Modal = op.get(tools, 'Modal');
     const Toast = op.get(tools, 'Toast');
     const ConfirmBox = useHookComponent('ConfirmBox');
+    const { Icon, Dialog, Button } = useHookComponent('ReactiumUI');
     const title = __('Actinium Reset');
     const dialogSettings = {
         header: {
