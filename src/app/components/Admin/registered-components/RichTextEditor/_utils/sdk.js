@@ -5,6 +5,7 @@ import ENUMS from '../enums';
 import { Editor } from 'slate';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
+import RTEPlugin from '../RTEPlugin';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
 // TODO: Convert to Reactium.Utils.registryFactory
@@ -47,6 +48,7 @@ export class Registry {
 class RTE {
     constructor() {
         this.ENUMS = ENUMS;
+        this.pluginFactory = options => new RTEPlugin(options);
 
         this.isBlockActive = isBlockActive;
         this.isHotkey = isHotkey;
