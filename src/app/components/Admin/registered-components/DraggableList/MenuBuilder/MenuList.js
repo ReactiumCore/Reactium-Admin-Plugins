@@ -11,7 +11,12 @@ const DefaultMenuItemComponent = ({ item }) => (
 
 const ItemWrapper = props => {
     const className = op.get(props, 'className', 'menu-item');
-    return <div className={className}>{props.children}</div>;
+    const bind = op.get(props, 'bind');
+    return (
+        <div className={className}>
+            {React.cloneElement(props.children, { bind })}
+        </div>
+    );
 };
 
 const MenuList = props => {
@@ -21,6 +26,7 @@ const MenuList = props => {
         menuIndent,
         onReorder,
         onRemoveItem,
+        afterResize,
     } = props;
     const listRef = useRef();
     const indent = Math.max(10, menuIndent);
@@ -73,7 +79,10 @@ const MenuList = props => {
             const depthOffset = Math.floor(x / indent);
             depth = op.get(current, 'depth', parentDepth);
             depth = Math.max(0, Math.min(parentDepth + 1, depthOffset));
+        } else {
+            depth = 0;
         }
+
         current.depth = depth;
     };
 
@@ -83,6 +92,7 @@ const MenuList = props => {
                 ref={listRef}
                 defaultItemHeight={defaultItemHeight}
                 onReorder={onReorder}
+                afterResize={afterResize}
                 onDrag={onDrag}
                 dragTx={tx}>
                 {items.map(item => {
@@ -116,6 +126,7 @@ MenuList.defaultProps = {
     dragSensitivity: 0.25,
     onReorder: noop,
     onRemoveItem: noop,
+    afterResize: noop,
     menuIndent: 20,
     itemClassName: 'menu-item',
 };

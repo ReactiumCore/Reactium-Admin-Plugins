@@ -24,13 +24,22 @@ const Menu = props => {
                 ...currentItemsById[key],
                 depth,
             })),
-        ).map((item, idx, items) => ({
-            ...item,
-            depth: Math.min(
-                op.get(items, [idx - 1, 'depth'], 0) + 1,
-                item.depth,
-            ),
-        }));
+        ).map((item, idx, items) => {
+            const depth =
+                idx > 0
+                    ? // children are at most 1 deeper than parent
+                      Math.min(
+                          op.get(items, [idx - 1, 'depth'], 0) + 1,
+                          item.depth,
+                      )
+                    : // top-most parent must be depth 0
+                      0;
+
+            return {
+                ...item,
+                depth,
+            };
+        });
 
         if (
             items.length !== newItems.length ||
@@ -42,14 +51,16 @@ const Menu = props => {
     };
 
     return (
-        <MenuList
-            onReorder={onReorder}
-            items={items.map(item => ({
-                ...item,
-                MenuItem: op.get(itemTypes, [item.type, 'MenuItem']),
-            }))}
-            onRemoveItem={onRemoveItem}
-        />
+        <div className='menu-list-wrapper'>
+            <MenuList
+                onReorder={onReorder}
+                items={items.map(item => ({
+                    ...item,
+                    MenuItem: op.get(itemTypes, [item.type, 'MenuItem']),
+                }))}
+                onRemoveItem={onRemoveItem}
+            />
+        </div>
     );
 };
 

@@ -5,7 +5,7 @@ import React, {
     forwardRef,
 } from 'react';
 import { useGesture } from 'react-use-gesture';
-import { useSprings, animated } from 'react-spring';
+import { useSpring, useSprings, animated } from 'react-spring';
 import uuid from 'uuid/v4';
 import op from 'object-path';
 import _ from 'underscore';
@@ -84,7 +84,7 @@ const DraggableList = forwardRef((props, ref) => {
     const { onReorder = noop, children } = props;
     const defaultItemHeight = op.get(props, 'defaultItemHeight', 100);
     const dragSensitivity = op.get(props, 'dragSensitivity', 0.125);
-    const delegateBind = op.get(props, 'delegateBind', false);
+    const delegateBind = op.get(props, 'delegateBind', true);
     const tx = txFactory(props);
 
     const itemsRef = useRef({});
@@ -143,6 +143,7 @@ const DraggableList = forwardRef((props, ref) => {
 
     const resize = items => {
         let y = 0;
+        let total = 0;
         items.forEach((item, idx) => {
             if (op.has(itemsRef.current, [item.id])) {
                 const el = itemsRef.current[item.id];
@@ -160,8 +161,12 @@ const DraggableList = forwardRef((props, ref) => {
                     item.y = y;
                     y += item.height;
                 }
+
+                total += height;
             }
         });
+
+        return total;
     };
 
     const updateOrderedItems = reorderedItems => {
@@ -185,9 +190,11 @@ const DraggableList = forwardRef((props, ref) => {
             return op.get(orderedItems, itemIndex, {});
         });
 
-        resize(cpy);
+        const height = resize(cpy);
         cpy = getOrdered(cpy);
         setSprings(tx({ items: cpy, init: false }));
+
+        _.defer(() => setContainerSpring({ height, minHeight: height }));
     };
 
     const changeHash = items =>
@@ -200,17 +207,6 @@ const DraggableList = forwardRef((props, ref) => {
         },
         [changeHash(initItems())],
     );
-
-    const _handle = () => ({
-        tx,
-        springs,
-        setSprings,
-        orderedItems,
-        updateOrderedItems,
-        animateResize,
-    });
-
-    useImperativeHandle(ref, _handle, [changeHash(orderedItems)]);
 
     const bind = useGesture({
         onDrag: state => {
@@ -263,11 +259,25 @@ const DraggableList = forwardRef((props, ref) => {
         },
     });
 
-    const containerStyle = () => {
-        const minHeight = orderedItems.reduce((h, i) => h + i.height, 0);
+    const _handle = () => ({
+        tx,
+        springs,
+        setSprings,
+        orderedItems,
+        updateOrderedItems,
+        animateResize,
+    });
 
+    useImperativeHandle(ref, _handle, [changeHash(orderedItems)]);
+
+    const containerStyle = items => {
+        const minHeight = items.reduce((h, i) => h + i.height + 20, 0);
         return { height: minHeight, minHeight };
     };
+
+    const [containerSpring, setContainerSpring] = useSpring(() =>
+        containerStyle(orderedItems),
+    );
 
     useAsyncEffect(
         async isMounted => {
@@ -393,7 +403,7 @@ const DraggableList = forwardRef((props, ref) => {
     };
 
     return (
-        <div className='drag-list-container' style={containerStyle()}>
+        <animated.div className='drag-list-container' style={containerSpring}>
             <div className='drag-list' role='listbox'>
                 {springs.map(({ zIndex, shadow, x, y, scale }, i) => {
                     const itemIndex = orderedItems.findIndex(
@@ -448,7 +458,12 @@ const DraggableList = forwardRef((props, ref) => {
                                                     itemIndex + 1,
                                                 )}
                                             </span>
-                                            {item.component}
+                                            {delegateBind
+                                                ? React.cloneElement(
+                                                      item.component,
+                                                      { bind: bind(i) },
+                                                  )
+                                                : item.component}
                                         </animated.div>
                                     </div>
                                 </div>
@@ -457,7 +472,7 @@ const DraggableList = forwardRef((props, ref) => {
                     );
                 })}
             </div>
-        </div>
+        </animated.div>
     );
 });
 
@@ -469,7 +484,7 @@ DraggableList.defaultProps = {
     dragScale: 1.005,
     // fraction of item height needed to reorder
     dragSensitivity: 0.125,
-    delegateBind: false,
+    delegateBind: true,
 };
 
 export default DraggableList;
