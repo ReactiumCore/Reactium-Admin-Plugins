@@ -31,19 +31,16 @@ module.exports = umd => {
         });
 
     const externals = [];
-    Object.entries(umd.externals).forEach(
-        ([key, value]) => {
-            // regex key
-            if (/^\/.*\/i?$/.test(key)) {
-                const args = [key.replace(/^\//, '').replace(/\/i?$/, '')];
-                if (/i$/.test(key)) args.push('i');
-                externals.push(new RegExp(...args));
-                return externals;
-            }
-            externals.push(value);
-        },
-    );
-
+    Object.entries(umd.externals).forEach(([key, value]) => {
+        // regex key
+        if (/^\/.*\/i?$/.test(key)) {
+            const args = [key.replace(/^\//, '').replace(/\/i?$/, '')];
+            if (/i$/.test(key)) args.push('i');
+            externals.push(new RegExp(...args));
+            return externals;
+        }
+        externals.push(value);
+    });
 
     const config = {
         mode: env,
