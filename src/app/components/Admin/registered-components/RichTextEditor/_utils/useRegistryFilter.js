@@ -8,11 +8,11 @@ export default (editor, type, initialItems) => {
         items = _.isObject(items) ? Object.values(items) : items;
         items = Array.from(items);
 
-        let filter = op.get(editor.filter, type, undefined);
+        let filter = op.get(editor, ['filter', type], undefined);
 
         if (typeof filter !== 'function') {
-            const excludes = op.get(editor.exclude, type, []);
-            const includes = op.get(editor.include, type, []);
+            const excludes = op.get(editor, ['exclude', type], []);
+            const includes = op.get(editor, ['include', type], []);
 
             filter = ({ id }) => {
                 if (!Array.isArray(excludes) && !Array.isArray(includes))

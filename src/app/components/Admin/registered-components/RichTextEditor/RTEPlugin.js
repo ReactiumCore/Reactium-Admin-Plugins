@@ -2,7 +2,14 @@ export default class Plugin {
     constructor({ type, callback, order = 100 }) {
         this.__order = order;
         this.__type = type;
-        this.plugin = callback;
+        this.plugin = editor => {
+            try {
+                callback(editor);
+            } catch (err) {
+                console.error(err);
+            }
+            return editor;
+        };
     }
 
     get order() {
@@ -17,8 +24,15 @@ export default class Plugin {
         return this.plugin;
     }
 
-    set callback(value) {
-        this.plugin = value;
+    set callback(newCallback) {
+        this.plugin = editor => {
+            try {
+                newCallback(editor);
+            } catch (err) {
+                console.error(err);
+            }
+            return editor;
+        };
     }
 
     get type() {

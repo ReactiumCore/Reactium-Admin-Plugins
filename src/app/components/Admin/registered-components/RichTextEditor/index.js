@@ -249,7 +249,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         state.exclude,
         state.include,
         Panel,
-        editor.selection,
+        op.get(editor, 'selection'),
     ]);
 
     // 10.2 - Value update.
