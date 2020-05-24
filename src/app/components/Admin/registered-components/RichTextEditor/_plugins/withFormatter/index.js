@@ -305,7 +305,7 @@ Plugin.callback = editor => {
 
     // register hotkeys
     Reactium.RTE.Hotkey.register('clearformats', {
-        keys: ['backspace', 'enter'],
+        keys: ['enter'],
         order: 1000,
         callback: ({ editor, event }) => {
             try {

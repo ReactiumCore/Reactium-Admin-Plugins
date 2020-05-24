@@ -2,11 +2,13 @@ import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
-import { Editor } from 'slate';
+import { Editor, Transforms } from 'slate';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
+
+const { LIST_TYPES } = ENUMS;
 
 // TODO: Convert to Reactium.Utils.registryFactory
 export class Registry {
@@ -189,7 +191,11 @@ class RTE {
 
             if (!isKey) return;
 
-            next = callback({ editor, event, keys }) || next;
+            try {
+                next = callback({ editor, event, keys }) || next;
+            } catch (err) {
+                next = false;
+            }
         });
     }
 }
@@ -214,7 +220,7 @@ export default new RTE();
 
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
 const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -269,7 +275,7 @@ export default Plugin;
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
 import { Button } from '@atomic-reactor/reactium-ui';
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
 const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -328,7 +334,7 @@ export default Plugin;
  // reactium-hooks.js
 
  import Reactium from 'reactium-core/sdk';
- import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+ import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
  const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -382,7 +388,7 @@ export default Plugin;
 
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
 const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -438,7 +444,7 @@ export default Plugin;
 
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
 const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -489,7 +495,7 @@ Plugin.callback = editor => {
 
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 
 const Plugin = new RTEPlugin({ type: 'MyPlugin' });
 
@@ -563,7 +569,7 @@ export default Plugin;
 
 ## Import
 ```
-import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';
+import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';
 ```
 
 > **See:** [Slate Plugins](https://docs.slatejs.org/concepts/07-plugins) for more information on how to augment the editor instance.
@@ -577,7 +583,7 @@ import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
 import { Button } from '@atomic-reactor/reactium-ui';
-import RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';
+import RTEPlugin from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor/RTEPlugin';
 
 const withBold = new RTEPlugin({ type: 'bold', order: 100 });
 

@@ -94,39 +94,25 @@ Plugin.callback = editor => {
         keys: ['backspace'],
         order: 100,
         callback: ({ editor, event }) => {
-            const children = op.get(editor, 'children', []);
-
-            if (children.length === 1) {
-                if (children[0].children.length !== 1) {
-                    return;
-                }
-            } else {
-                return;
-            }
+            if (!_.first(editor.selection.focus.path) === 0) return;
 
             const [node] = Editor.node(editor, editor.selection);
-            const [parent] = Editor.parent(editor, editor.selection);
+            const [line] = Editor.parent(editor, editor.selection);
 
             const isEmpty = _.chain([op.get(node, 'text')])
                 .compact()
                 .isEmpty()
                 .value();
 
-            if (!isEmpty || String(parent.type).toLowerCase() !== 'li') return;
+            const type = op.get(line, 'type');
+            const types = ['li', 'ul', 'ol'];
 
-            event.preventDefault();
-
-            const list = ['ol', 'ul', 'li'];
-
-            Transforms.unwrapNodes(editor, {
-                match: n => list.includes(n.type),
-            });
-
-            Transforms.setNodes(
-                editor,
-                { type: 'div', style: {} },
-                { at: [0] },
-            );
+            if (isEmpty) {
+                Transforms.unwrapNodes(editor, {
+                    match: n => types.includes(n.type),
+                });
+                Transforms.setNodes(editor, { type: 'div' }, editor.selection);
+            }
         },
     });
 
@@ -155,6 +141,16 @@ Plugin.callback = editor => {
                 if (['ul', 'ol'].includes(type)) return;
                 event.preventDefault();
                 Reactium.RTE.toggleBlock(editor, newType);
+            }
+
+            if (_.first(editor.selection.focus.path) === 0) {
+                event.preventDefault();
+                if (!event.shiftKey) {
+                    Reactium.RTE.toggleBlock(editor, 'ul');
+                } else {
+                    Reactium.RTE.toggleBlock(editor, 'ol');
+                }
+                return;
             }
         },
     });
