@@ -4885,7 +4885,7 @@
     "examples": [
       {
         "title": "Usage:",
-        "content": "\n // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register h6 block\n    Reactium.RTE.Block.register('h6', {\n        inline: false,\n        element: props => <h6 {...props} />,\n        order: 6\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
+        "content": "\n // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register h6 block\n    Reactium.RTE.Block.register('h6', {\n        inline: false,\n        element: props => <h6 {...props} />,\n        order: 6\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
         "type": "json"
       }
     ],
@@ -4991,7 +4991,7 @@
     "examples": [
       {
         "title": "Usage:",
-        "content": "// reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { Button } from '@atomic-reactor/reactium-ui';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register toolbar button\n    Reactium.RTE.Button.register('bold', {\n        order: 110,\n        toolbar: true,\n        button: ({ editor, ...props }) => (\n            <Button\n                {...Reactium.RTE.ENUMS.PROPS.BUTTON}\n                {...props}\n                active={Reactium.RTE.isMarkActive(editor, 'bold')}\n                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}>\n                <span className='ico'>B</span>\n            </Button>\n        ),\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
+        "content": "// reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { Button } from '@atomic-reactor/reactium-ui';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register toolbar button\n    Reactium.RTE.Button.register('bold', {\n        order: 110,\n        toolbar: true,\n        button: ({ editor, ...props }) => (\n            <Button\n                {...Reactium.RTE.ENUMS.PROPS.BUTTON}\n                {...props}\n                active={Reactium.RTE.isMarkActive(editor, 'bold')}\n                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}>\n                <span className='ico'>B</span>\n            </Button>\n        ),\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
         "type": "json"
       }
     ],
@@ -5080,7 +5080,7 @@
     "examples": [
       {
         "title": "Example",
-        "content": "// reactium-hooks.js\n\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register Red color\n    Reactium.RTE.Color.register('red', {\n        label: 'Red',\n        value: '#FF0000',\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
+        "content": "// reactium-hooks.js\n\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register Red color\n    Reactium.RTE.Color.register('red', {\n        label: 'Red',\n        value: '#FF0000',\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
         "type": "json"
       }
     ],
@@ -5197,7 +5197,7 @@
     "examples": [
       {
         "title": "Usage:",
-        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register Arial font\n    Reactium.RTE.Font.register('arial', {\n        label: 'Arial',\n        size: [10, 12, 14, 16, 18, 24, 32, 44, 56, 64, 72, 96],\n        weight: [\n            { label: 'Regular', family: 'Arial, sans-serif', weight: 400 },\n            { label: 'Semi-Bold', family: 'Arial, sans-serif', weight: 600 },\n            { label: 'Bold', family: 'Arial, sans-serif', weight: 800 },\n        ],\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
+        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // Register Arial font\n    Reactium.RTE.Font.register('arial', {\n        label: 'Arial',\n        size: [10, 12, 14, 16, 18, 24, 32, 44, 56, 64, 72, 96],\n        weight: [\n            { label: 'Regular', family: 'Arial, sans-serif', weight: 400 },\n            { label: 'Semi-Bold', family: 'Arial, sans-serif', weight: 600 },\n            { label: 'Bold', family: 'Arial, sans-serif', weight: 800 },\n        ],\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
         "type": "json"
       }
     ],
@@ -5295,7 +5295,7 @@
     "examples": [
       {
         "title": "Usage:",
-        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register bold formatter\n    Reactium.RTE.Format.register('bold', {\n        element: props => <strong {...props} />,\n        inline: true,\n    });\n\n    return editor;\n };\n\n export default Plugin;",
+        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register bold formatter\n    Reactium.RTE.Format.register('bold', {\n        element: props => <strong {...props} />,\n        inline: true,\n    });\n\n    return editor;\n };\n\n export default Plugin;",
         "type": "json"
       }
     ],
@@ -5392,7 +5392,7 @@
     "examples": [
       {
         "title": "Usage:",
-        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register bold hotkey\n    Reactium.RTE.Hotkey.register('toggle-bold', {\n        keys: ['mod+b'],\n        callback: ({ editor, event }) => {\n            event.preventDefault();\n            Reactium.RTE.toggleMark(editor, Plugin.type);\n        },\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
+        "content": " // reactium-hooks.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor';\n\nconst Plugin = new RTEPlugin({ type: 'MyPlugin' });\n\nPlugin.callback = editor => {\n    // register bold hotkey\n    Reactium.RTE.Hotkey.register('toggle-bold', {\n        keys: ['mod+b'],\n        callback: ({ editor, event }) => {\n            event.preventDefault();\n            Reactium.RTE.toggleMark(editor, Plugin.type);\n        },\n    });\n\n    return editor;\n};\n\nexport default Plugin;",
         "type": "json"
       }
     ],
@@ -5496,7 +5496,7 @@
     "title": "RTEPlugin",
     "group": "Reactium.RTE",
     "name": "RTEPlugin",
-    "description": "<p>RichTextEditor plugin instance used as the base when creating or extending RichTextEditor functionality.</p> <h2>Import</h2> <pre class=\"prettyprint\">import { RTEPlugin } from 'components/Admin/registered-components/RichTextEditor'; </code></pre> <blockquote> <p><strong>See:</strong> <a href=\"https://docs.slatejs.org/concepts/07-plugins\">Slate Plugins</a> for more information on how to augment the editor instance.</p> </blockquote>",
+    "description": "<p>RichTextEditor plugin instance used as the base when creating or extending RichTextEditor functionality.</p> <h2>Import</h2> <pre class=\"prettyprint\">import { RTEPlugin } from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor'; </code></pre> <blockquote> <p><strong>See:</strong> <a href=\"https://docs.slatejs.org/concepts/07-plugins\">Slate Plugins</a> for more information on how to augment the editor instance.</p> </blockquote>",
     "parameter": {
       "fields": {
         "Constructor": [
@@ -5528,7 +5528,7 @@
     "examples": [
       {
         "title": "Example Plugin",
-        "content": "// withBold.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { Button } from '@atomic-reactor/reactium-ui';\nimport RTEPlugin from 'components/Admin/registered-components/RichTextEditor/RTEPlugin';\n\nconst withBold = new RTEPlugin({ type: 'bold', order: 100 });\n\nwithBold.callback = editor => {\n    // Register inline formatter\n    Reactium.RTE.Format.register('bold', {\n        element: props => <strong {...props} />,\n    });\n\n    // Register toolbar button\n    Reactium.RTE.Button.register('bold', {\n        order: 110,\n        toolbar: true,\n        button: ({ editor, ...props }) => (\n            <Button\n                {...Reactium.RTE.ENUMS.PROPS.BUTTON}\n                active={Reactium.RTE.isMarkActive(editor, 'bold')}\n                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}\n                {...props}>\n                <span className='ico'>B</span>\n            </Button>\n        ),\n    });\n\n    // Register hotkeys\n    Reactium.RTE.Hotkey.register('bold', {\n        keys: ['mod+b'],\n        callback: ({ editor, event }) => {\n            event.preventDefault();\n            Reactium.RTE.toggleMark(editor, 'bold');\n        },\n    });\n\n    // Editor overrides\n    const { isInline } = editor;\n\n    // override the editor.isInline function to check for the 'bold' element type.\n    editor.isInline = element =>\n        element.type === 'bold' ? true : isInline(element);\n\n    // Return the updated editor object\n    return editor;\n};\n\nexport {\n    withBold\n};\n\n ...\n\n// reactium-hooks.js\n\nimport Reactium from 'reactium-core/sdk';\nimport { withBold } from './withBold';\nimport { withReact } from 'slate-react';\nimport { withHistory } from 'slate-history';\n\nReactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(\n    () => {\n        // Register my custom plugin - withBold\n        Reactium.RTE.Plugin.register('withBold', withBold);\n\n        // Register 3rd party Slate plugins\n        Reactium.RTE.Plugin.register('withReact', new RTEPlugin({ callback: withReact, order: 0 }));\n        Reactium.RTE.Plugin.register('withHistory', new RTEPlugin({ callback: withHistory, order: 1 }));\n    },\n);",
+        "content": "// withBold.js\n\nimport React from 'react';\nimport Reactium from 'reactium-core/sdk';\nimport { Button } from '@atomic-reactor/reactium-ui';\nimport RTEPlugin from 'reactium_modules/@atomic-reactor/admin/registered-components/RichTextEditor/RTEPlugin';\n\nconst withBold = new RTEPlugin({ type: 'bold', order: 100 });\n\nwithBold.callback = editor => {\n    // Register inline formatter\n    Reactium.RTE.Format.register('bold', {\n        element: props => <strong {...props} />,\n    });\n\n    // Register toolbar button\n    Reactium.RTE.Button.register('bold', {\n        order: 110,\n        toolbar: true,\n        button: ({ editor, ...props }) => (\n            <Button\n                {...Reactium.RTE.ENUMS.PROPS.BUTTON}\n                active={Reactium.RTE.isMarkActive(editor, 'bold')}\n                onClick={e => Reactium.RTE.toggleMark(editor, 'bold', e)}\n                {...props}>\n                <span className='ico'>B</span>\n            </Button>\n        ),\n    });\n\n    // Register hotkeys\n    Reactium.RTE.Hotkey.register('bold', {\n        keys: ['mod+b'],\n        callback: ({ editor, event }) => {\n            event.preventDefault();\n            Reactium.RTE.toggleMark(editor, 'bold');\n        },\n    });\n\n    // Editor overrides\n    const { isInline } = editor;\n\n    // override the editor.isInline function to check for the 'bold' element type.\n    editor.isInline = element =>\n        element.type === 'bold' ? true : isInline(element);\n\n    // Return the updated editor object\n    return editor;\n};\n\nexport {\n    withBold\n};\n\n ...\n\n// reactium-hooks.js\n\nimport Reactium from 'reactium-core/sdk';\nimport { withBold } from './withBold';\nimport { withReact } from 'slate-react';\nimport { withHistory } from 'slate-history';\n\nReactium.Plugin.register('rte-plugins', Reactium.Enums.priority.lowest).then(\n    () => {\n        // Register my custom plugin - withBold\n        Reactium.RTE.Plugin.register('withBold', withBold);\n\n        // Register 3rd party Slate plugins\n        Reactium.RTE.Plugin.register('withReact', new RTEPlugin({ callback: withReact, order: 0 }));\n        Reactium.RTE.Plugin.register('withHistory', new RTEPlugin({ callback: withHistory, order: 1 }));\n    },\n);",
         "type": "json"
       }
     ],

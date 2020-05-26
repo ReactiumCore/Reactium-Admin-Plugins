@@ -95,6 +95,7 @@ const PublisherFieldType = props => {
                             title={addStatusButtonLabel}
                             size={Button.ENUMS.SIZE.SM}
                             color={Button.ENUMS.COLOR.TERTIARY}
+                            style={{ height: 41 }}
                             onClick={onAddStatus}>
                             <Icon.Feather.Plus />
                             <span className='sr-only'>
