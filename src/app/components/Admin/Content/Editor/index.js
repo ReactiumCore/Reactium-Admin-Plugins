@@ -858,8 +858,7 @@ let ContentEditor = (
                 if (unMounted()) return;
                 if (!result) return;
                 ignoreChangeEvent.current = true;
-                setValue(result);
-                _.defer(() => (ignoreChangeEvent.current = false));
+                setClean({ value: result });
             })
             .catch(error => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);

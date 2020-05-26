@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect, memo } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Alert, Icon, Dialog } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import SDK from '@atomic-reactor/reactium-sdk-core';
 import MenuList from './MenuList';
 import _ from 'underscore';
 import op from 'object-path';
@@ -15,6 +16,8 @@ const Menu = props => {
         setItems = noop,
         onRemoveItem = noop,
         itemTypes = {},
+        fieldName,
+        editor,
     } = props;
 
     const onReorder = reordered => {
@@ -53,6 +56,8 @@ const Menu = props => {
     return (
         <div className='menu-list-wrapper'>
             <MenuList
+                fieldName={fieldName}
+                editor={editor}
                 onReorder={onReorder}
                 items={items.map(item => ({
                     ...item,
@@ -64,9 +69,63 @@ const Menu = props => {
     );
 };
 
-const MenuEditor = props => {
+const areEqual = (pv, nx) => {
+    return pv.editor === nx.editor && pv.fieldName === nx.fieldName;
+};
+
+const MenuEditor = memo(props => {
+    const fieldName = op.get(props, 'fieldName');
     const namespace = op.get(props, 'namespace', 'menu-editor');
-    const [items, setItems] = useState([]);
+    const [value, _setValue] = useState(
+        op.get(props.editor, ['value', fieldName], { items: [] }),
+    );
+    const valueRef = useRef(value);
+
+    const setValue = value => {
+        valueRef.current = value;
+        _setValue(value);
+    };
+
+    const getValue = () => valueRef.current;
+
+    const items = value.items;
+
+    const mapFieldsToItems = items => {
+        const fieldVal = op.get(
+            props.editor.EventForm.getValue(),
+            [fieldName],
+            {},
+        );
+
+        return items.map(item => {
+            const id = item.id;
+            if (op.has(fieldVal, [id])) {
+                return {
+                    ...item,
+                    ...op.get(fieldVal, [id]),
+                };
+            }
+
+            return item;
+        });
+    };
+
+    const setItems = items => {
+        const fieldVal = op.get(
+            props.editor.EventForm.getValue(),
+            [fieldName],
+            {},
+        );
+
+        const newValue = {
+            ...value,
+            ...fieldVal,
+            items: mapFieldsToItems(items),
+        };
+
+        setValue(newValue);
+        _.defer(() => props.editor.setValue({ [fieldName]: newValue }));
+    };
 
     const addItems = item => {
         const added = _.flatten([item]);
@@ -81,11 +140,35 @@ const MenuEditor = props => {
     const itemTypes = Reactium.MenuBuilder.ItemType.list || [];
     const cx = Reactium.Utils.cxFactory(namespace);
 
+    const clean = e => {
+        const formValue = op.get(e.value, [fieldName], {});
+        setValue(formValue);
+    };
+
+    const save = e => {
+        const currentValue = getValue();
+        const formValue = op.get(e.value, [fieldName], {});
+
+        op.set(e.value, [fieldName], {
+            ...formValue,
+            items: mapFieldsToItems(op.get(currentValue, 'items', [])),
+        });
+    };
+
+    useEffect(() => {
+        props.editor.addEventListener('save', save);
+        props.editor.addEventListener('clean', clean);
+        return () => {
+            props.editor.addEventListener('save', save);
+            props.editor.addEventListener('clean', clean);
+        };
+    }, [props.editor]);
+
     const renderEditor = () => (
         <Dialog
             className={'menu-dialog'}
             header={{ title: __('Menu') }}
-            pref={`menu-dialog-${props.fieldId}`}>
+            pref={`menu-dialog-${props.fieldName}`}>
             {items.length < 1 && (
                 <div className={'p-xs-20'}>
                     <Alert
@@ -139,6 +222,6 @@ const MenuEditor = props => {
     };
 
     return render();
-};
+}, areEqual);
 
 export default MenuEditor;

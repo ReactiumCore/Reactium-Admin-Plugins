@@ -27,6 +27,8 @@ const MenuList = props => {
         onReorder,
         onRemoveItem,
         afterResize,
+        fieldName,
+        editor,
     } = props;
     const listRef = useRef();
     const indent = Math.max(10, menuIndent);
@@ -109,6 +111,8 @@ const MenuList = props => {
                             MenuItem={MenuItem}>
                             <MenuItem
                                 onRemoveItem={onRemoveItem}
+                                fieldName={fieldName}
+                                editor={editor}
                                 item={item}
                                 listRef={listRef}
                             />
