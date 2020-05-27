@@ -19,6 +19,17 @@ const ItemWrapper = props => {
     );
 };
 
+function immediateXDecorator(immediate) {
+    return typeof immediate === 'function'
+        ? n => n === 'x' || immediate(n)
+        : n => n === 'x' || immediate;
+}
+
+const getImmediate = immediate => {
+    if (immediate === immediateXDecorator) return immediate;
+    return immediateXDecorator(immediate);
+};
+
 const MenuList = props => {
     const {
         items,
@@ -26,7 +37,6 @@ const MenuList = props => {
         menuIndent,
         onReorder,
         onRemoveItem,
-        afterResize,
         fieldName,
         editor,
     } = props;
@@ -45,21 +55,22 @@ const MenuList = props => {
     if (loading) return null;
 
     const tx = (index, dragContext, next) => {
-        const { x, selected, originalIndex, items: newOrder } = dragContext;
+        const {
+            x,
+            selected,
+            originalIndex,
+            items: newOrder,
+            state,
+        } = dragContext;
 
         const newIndex = newOrder.findIndex(({ idx }) => index === idx);
         const depth = op.get(newOrder, [newIndex, 'depth'], 0);
         const newX = depth * indent;
         next.x = newX;
-        const immediate =
-            typeof next.immediate === 'function'
-                ? next.immediate
-                : () => next.immediate;
-
-        next.immediate = n => n === 'x' || immediate(n);
 
         if (selected && index === originalIndex && newIndex > 0) {
-            next.x = x;
+            next.x = newX + x;
+            next.immediate = getImmediate(next.immediate);
         }
 
         return next;
@@ -77,6 +88,7 @@ const MenuList = props => {
 
         let depth = op.get(current, 'depth', 0);
         const parentDepth = op.get(newOrder, [curIndex - 1, 'depth'], 0);
+
         if (curIndex > 0) {
             const depthOffset = Math.floor(x / indent);
             depth = op.get(current, 'depth', parentDepth);
@@ -85,7 +97,7 @@ const MenuList = props => {
             depth = 0;
         }
 
-        current.depth = depth;
+        if (!down) current.depth = depth;
     };
 
     return (
@@ -94,7 +106,6 @@ const MenuList = props => {
                 ref={listRef}
                 defaultItemHeight={defaultItemHeight}
                 onReorder={onReorder}
-                afterResize={afterResize}
                 onDrag={onDrag}
                 dragTx={tx}>
                 {items.map(item => {
@@ -130,7 +141,6 @@ MenuList.defaultProps = {
     dragSensitivity: 0.25,
     onReorder: noop,
     onRemoveItem: noop,
-    afterResize: noop,
     menuIndent: 20,
     itemClassName: 'menu-item',
 };

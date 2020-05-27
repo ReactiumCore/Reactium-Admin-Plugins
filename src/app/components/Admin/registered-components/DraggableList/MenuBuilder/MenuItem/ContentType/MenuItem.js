@@ -32,7 +32,7 @@ const ContentTypeMenuItem = memo(props => {
 
     useEffect(() => {
         if (dialogRef.current) {
-            dialogRef.current.collapse();
+            _.defer(dialogRef.current.collapse);
         }
     }, []);
 

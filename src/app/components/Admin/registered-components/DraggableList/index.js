@@ -51,7 +51,6 @@ const txFactory = props => dragContext => {
 
     return index => {
         const newIndex = items.findIndex(({ idx }) => index === idx);
-
         let newStyle = {
             x: 0,
             y: op.get(items, [newIndex, 'y'], 0),
@@ -60,6 +59,7 @@ const txFactory = props => dragContext => {
             shadow: 1,
             immediate: init,
         };
+        // console.log({newStyle, newIndex});
 
         if (selected && index === originalIndex) {
             newStyle = {
@@ -192,9 +192,11 @@ const DraggableList = forwardRef((props, ref) => {
 
         const height = resize(cpy);
         cpy = getOrdered(cpy);
-        setSprings(tx({ items: cpy, init: false }));
 
-        _.defer(() => setContainerSpring({ height, minHeight: height }));
+        _.defer(() => {
+            setSprings(tx({ items: cpy, init: false }));
+            setContainerSpring({ height, minHeight: height });
+        });
     };
 
     const changeHash = items =>
@@ -220,6 +222,8 @@ const DraggableList = forwardRef((props, ref) => {
             );
             const current = orderedItems[curIndex];
             const yOffset = current.y + y;
+
+            // console.log({yOffset, curIndex, curY: current.y, y});
 
             const [newIndex] = orderedItems.reduce(
                 ([idx, total], item, i) => {
@@ -247,6 +251,7 @@ const DraggableList = forwardRef((props, ref) => {
                 x,
                 yOffset,
                 init: false,
+                state,
             };
 
             if (typeof props.onDrag === 'function') {
