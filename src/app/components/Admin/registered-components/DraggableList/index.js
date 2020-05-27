@@ -59,9 +59,8 @@ const txFactory = props => dragContext => {
             shadow: 1,
             immediate: init,
         };
-        // console.log({newStyle, newIndex});
 
-        if (selected && index === originalIndex) {
+        if (selected !== false && index === selected) {
             newStyle = {
                 x: 0,
                 y: yOffset,
@@ -139,7 +138,12 @@ const DraggableList = forwardRef((props, ref) => {
             ),
         );
 
-    const [orderedItems, setOrderedItems] = useState(initItems());
+    const [orderedItems, _setOrderedItems] = useState(initItems());
+    const orderedItemsRef = useRef(orderedItems);
+    const setOrderedItems = items => {
+        orderedItemsRef.current = items;
+        _setOrderedItems(items);
+    };
 
     const resize = items => {
         let y = 0;
@@ -186,12 +190,16 @@ const DraggableList = forwardRef((props, ref) => {
         tx({ items: orderedItems }),
     );
 
-    const animateResize = () => {
-        let cpy = springs.map((_, i) => {
-            const itemIndex = orderedItems.findIndex(item => item.idx === i);
-            return op.get(orderedItems, itemIndex, {});
+    const springOrder = () =>
+        springs.map((_, i) => {
+            const itemIndex = orderedItemsRef.current.findIndex(
+                item => item.idx === i,
+            );
+            return op.get(orderedItemsRef.current, itemIndex, {});
         });
 
+    const animateResize = () => {
+        let cpy = springOrder();
         const height = resize(cpy);
         cpy = getOrdered(cpy);
         setSprings(tx({ items: cpy, init: false }));
@@ -216,6 +224,7 @@ const DraggableList = forwardRef((props, ref) => {
                 down,
                 movement: [x, y],
             } = state;
+            console.log('onDrag', { originalIndex, down });
 
             const cpy = [...orderedItems];
             const curIndex = cpy.findIndex(item => originalIndex === item.idx);
@@ -251,7 +260,7 @@ const DraggableList = forwardRef((props, ref) => {
 
             const dragContext = {
                 items: newOrder,
-                selected: down,
+                selected: down ? originalIndex : false,
                 originalIndex,
                 x,
                 yOffset,
@@ -274,8 +283,10 @@ const DraggableList = forwardRef((props, ref) => {
         springs,
         setSprings,
         orderedItems,
+        setOrderedItems,
         updateOrderedItems,
         animateResize,
+        orderedItemsRef,
     });
 
     useImperativeHandle(ref, _handle, [changeHash(orderedItems)]);
@@ -310,9 +321,11 @@ const DraggableList = forwardRef((props, ref) => {
     );
 
     const onSpace = item => {
-        const newItems = orderedItems.map(iObj => {
+        const items = orderedItemsRef.current;
+        const newItems = items.map(iObj => {
             if (item.id === iObj.id) {
                 iObj.selected = !Boolean(iObj.selected);
+                item.selected = iObj.selected;
                 return iObj;
             }
 
@@ -320,57 +333,70 @@ const DraggableList = forwardRef((props, ref) => {
             return iObj;
         });
 
-        setSprings(
-            tx({
-                items: orderedItems,
-                selected: item.selected,
-                originalIndex: item.idx,
-                yOffset: item.y,
-                init: false,
-            }),
-        );
+        if (!item.selected) {
+            setSprings(
+                tx({
+                    items,
+                    init: false,
+                }),
+            );
 
-        if (!item.selected) updateOrderedItems(newItems);
+            updateOrderedItems(items);
+        } else {
+            setSprings(
+                tx({
+                    items: newItems,
+                    selected: item.selected ? item.idx : false,
+                    originalIndex: item.idx,
+                    yOffset: item.y,
+                    init: false,
+                }),
+            );
+
+            setOrderedItems(items);
+        }
     };
 
-    const onUpArrow = item => {
-        const currentIndex = orderedItems.findIndex(({ id }) => id === item.id);
-        const newIndex = clamp(currentIndex - 1, 0, orderedItems.length - 1);
-        const newOrder = getOrdered(swap(orderedItems, currentIndex, newIndex));
+    const onUpArrow = (item, items) => {
+        const currentIndex = items.findIndex(({ id }) => id === item.id);
+        const newIndex = clamp(currentIndex - 1, 0, items.length - 1);
+        const newOrder = getOrdered(swap(items, currentIndex, newIndex));
         const newItem = newOrder.find(iObj => iObj.id === item.id);
 
-        setSprings(
-            tx({
-                items: newOrder,
-                selected: item.selected,
-                originalIndex: item.idx,
-                yOffset: newItem.y,
-                init: false,
-            }),
-        );
+        const dragContext = {
+            items: newOrder,
+            selected: item.selected ? item.idx : false,
+            originalIndex: item.idx,
+            yOffset: newItem.y,
+            init: false,
+        };
+
+        setSprings(tx(dragContext));
+
         setOrderedItems(newOrder);
     };
 
-    const onDownArrow = item => {
-        const currentIndex = orderedItems.findIndex(({ id }) => id === item.id);
-        const newIndex = clamp(currentIndex + 1, 0, orderedItems.length - 1);
-        const newOrder = getOrdered(swap(orderedItems, currentIndex, newIndex));
+    const onDownArrow = (item, items) => {
+        const currentIndex = items.findIndex(({ id }) => id === item.id);
+        const newIndex = clamp(currentIndex + 1, 0, items.length - 1);
+        const newOrder = getOrdered(swap(items, currentIndex, newIndex));
         const newItem = newOrder.find(iObj => iObj.id === item.id);
 
-        setSprings(
-            tx({
-                items: newOrder,
-                selected: item.selected,
-                originalIndex: item.idx,
-                yOffset: newItem.y,
-                init: false,
-            }),
-        );
+        const dragContext = {
+            items: newOrder,
+            selected: item.selected ? item.idx : false,
+            originalIndex: item.idx,
+            yOffset: newItem.y,
+            init: false,
+        };
+
+        setSprings(tx(dragContext));
+
         setOrderedItems(newOrder);
     };
 
     const onKeyDown = item => e => {
-        const currentIndex = orderedItems.findIndex(({ id }) => id === item.id);
+        const items = springOrder();
 
         if (isHotkey('space', e)) {
             e.preventDefault();
@@ -380,19 +406,19 @@ const DraggableList = forwardRef((props, ref) => {
         if (isHotkey('up', e)) {
             e.preventDefault();
             if (item.selected) {
-                onUpArrow(item, currentIndex);
+                onUpArrow(item, items);
             }
         }
 
         if (isHotkey('down', e)) {
             e.preventDefault();
             if (item.selected) {
-                onDownArrow(item, currentIndex);
+                onDownArrow(item, items);
             }
         }
 
         if (typeof props.onKeyDown === 'function') {
-            props.onKeyDown(e);
+            props.onKeyDown(e, item, items, _handle());
         }
     };
 
@@ -411,6 +437,14 @@ const DraggableList = forwardRef((props, ref) => {
                     );
                     const item = op.get(orderedItems, itemIndex, {});
                     const ariaActionLabel = `${item.id}-action-label`;
+                    const delegatedBindables = i => ({
+                        bind: {
+                            ...bind(i),
+                            onKeyDown: onKeyDown(item),
+                            tabIndex: 0,
+                            'aria-describedby': ariaActionLabel,
+                        },
+                    });
 
                     return (
                         <animated.div
@@ -434,10 +468,9 @@ const DraggableList = forwardRef((props, ref) => {
                                         })}>
                                         <animated.div
                                             role='option'
-                                            {...(!delegateBind ? bind(i) : {})}
-                                            onKeyDown={onKeyDown(item)}
-                                            tabIndex={0}
-                                            aria-describedby={ariaActionLabel}
+                                            {...(!delegateBind
+                                                ? delegatedBindables(i).bind
+                                                : {})}
                                             style={{
                                                 boxShadow: shadow.to(
                                                     s =>
@@ -459,7 +492,7 @@ const DraggableList = forwardRef((props, ref) => {
                                             {delegateBind
                                                 ? React.cloneElement(
                                                       item.component,
-                                                      { bind: bind(i) },
+                                                      delegatedBindables(i),
                                                   )
                                                 : item.component}
                                         </animated.div>
