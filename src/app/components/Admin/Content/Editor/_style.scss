@@ -44,10 +44,6 @@
     }
 
     &-element {
-        &:not(:first-child) {
-            margin-top: 24px;
-        }
-
         &:empty {
             display: none;
         }
