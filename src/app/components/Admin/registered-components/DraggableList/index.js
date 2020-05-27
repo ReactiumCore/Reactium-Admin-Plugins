@@ -87,7 +87,7 @@ const DraggableList = forwardRef((props, ref) => {
     const delegateBind = op.get(props, 'delegateBind', true);
     const tx = txFactory(props);
 
-    const itemsRef = useRef({});
+    const itemsRef = useRef({ height: 0, items: {} });
     const getOrdered = items => {
         let h = 0;
         return items.map(
@@ -145,8 +145,8 @@ const DraggableList = forwardRef((props, ref) => {
         let y = 0;
         let total = 0;
         items.forEach((item, idx) => {
-            if (op.has(itemsRef.current, [item.id])) {
-                const el = itemsRef.current[item.id];
+            if (op.has(itemsRef.current, ['items', item.id, 'el'])) {
+                const el = itemsRef.current.items[item.id].el;
                 const nodes = el.childNodes;
 
                 let height = 0;
@@ -156,16 +156,18 @@ const DraggableList = forwardRef((props, ref) => {
                     height += nodeHeight;
                 }
 
-                if (height !== item.height) {
-                    item.height = height;
-                    item.y = y;
-                    y += item.height;
-                }
+                item.height = height;
+                item.y = y;
+
+                itemsRef.current.items[item.id].height = height;
+                itemsRef.current.items[item.id].y = y;
+                y += item.height;
 
                 total += height;
             }
         });
 
+        itemsRef.current.height = total;
         return total;
     };
 
@@ -192,11 +194,8 @@ const DraggableList = forwardRef((props, ref) => {
 
         const height = resize(cpy);
         cpy = getOrdered(cpy);
-
-        _.defer(() => {
-            setSprings(tx({ items: cpy, init: false }));
-            setContainerSpring({ height, minHeight: height });
-        });
+        setSprings(tx({ items: cpy, init: false }));
+        setContainerSpring({ height, minHeight: height });
     };
 
     const changeHash = items =>
@@ -217,15 +216,21 @@ const DraggableList = forwardRef((props, ref) => {
                 down,
                 movement: [x, y],
             } = state;
-            const curIndex = orderedItems.findIndex(
-                item => originalIndex === item.idx,
+
+            const cpy = [...orderedItems];
+            const curIndex = cpy.findIndex(item => originalIndex === item.idx);
+
+            const current = cpy[curIndex];
+
+            const currentY = op.get(
+                itemsRef.current,
+                ['items', current.id, 'y'],
+                current.y,
             );
-            const current = orderedItems[curIndex];
-            const yOffset = current.y + y;
 
-            // console.log({yOffset, curIndex, curY: current.y, y});
+            const yOffset = currentY + y;
 
-            const [newIndex] = orderedItems.reduce(
+            const [newIndex] = cpy.reduce(
                 ([idx, total], item, i) => {
                     let offset = yOffset;
                     // moving up - portion of top before switch
@@ -241,8 +246,8 @@ const DraggableList = forwardRef((props, ref) => {
                 [0, 0],
             );
 
-            const curRow = clamp(newIndex, 0, orderedItems.length - 1);
-            const newOrder = getOrdered(swap(orderedItems, curIndex, curRow));
+            const curRow = clamp(newIndex, 0, cpy.length - 1);
+            const newOrder = getOrdered(swap(cpy, curIndex, curRow));
 
             const dragContext = {
                 items: newOrder,
@@ -288,24 +293,8 @@ const DraggableList = forwardRef((props, ref) => {
         async isMounted => {
             let changed = false;
             let cpy = [...orderedItems];
-            orderedItems.forEach((item, idx) => {
-                if (op.has(itemsRef.current, [item.id])) {
-                    const el = itemsRef.current[item.id];
-                    const nodes = el.childNodes;
 
-                    let height = 0;
-                    for (let node of nodes) {
-                        const nodeHeight =
-                            node.offsetHeight || node.clientHeight || 0;
-                        height += nodeHeight;
-                    }
-
-                    if (height !== cpy[idx].height) {
-                        changed = true;
-                        cpy[idx].height = height;
-                    }
-                }
-            });
+            resize(cpy);
 
             if (changed) {
                 cpy = getOrdered(cpy);
@@ -407,6 +396,12 @@ const DraggableList = forwardRef((props, ref) => {
         }
     };
 
+    const addChildRef = item => el => {
+        if (el) {
+            op.set(itemsRef.current, ['items', item.id, 'el'], el);
+        }
+    };
+
     return (
         <animated.div className='drag-list-container' style={containerSpring}>
             <div className='drag-list' role='listbox'>
@@ -431,9 +426,7 @@ const DraggableList = forwardRef((props, ref) => {
                                 <div
                                     className={'drag-list-item'}
                                     style={{ height: item.height }}
-                                    ref={el =>
-                                        op.set(itemsRef.current, [item.id], el)
-                                    }>
+                                    ref={addChildRef(item)}>
                                     <div
                                         className={cn('drag-list-item-inner', {
                                             first: i === 0,
