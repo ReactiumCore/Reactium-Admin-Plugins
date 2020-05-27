@@ -1,5 +1,16 @@
 .template {
     &-cte {
+        &-carousel {
+            border: 1px solid darken($color-grey-light, 3%);
+
+            .input-group {
+                * {
+                    border-radius: 0;
+                    border: none !important;
+                }
+            }
+        }
+
         &-list {
             border-top: 1px solid $color-grey-light;
             margin: 0;
@@ -18,10 +29,24 @@
     }
 
     &-editor {
+        @extend .row;
         color: $color-text-dark;
         padding: 16px;
+        position: relative;
+
+        * {
+            position: relative;
+        }
+
         select {
             color: inherit;
+        }
+
+        .ar-spinner {
+            transform: translateX(-50%) translateY(-50%) scale(0.4);
+            position: absolute;
+            top: 50%;
+            left: 50%;
         }
     }
 }

@@ -20,11 +20,12 @@ export const FieldType = props => {
     const refs = useRef({});
 
     const [state, setState] = useDerivedState({
+        previewURL: '/preview/:type/:revision',
         templates: [],
     });
 
     const { DragHandle } = props;
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Carousel, Icon, Slide } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
     const cx = Reactium.Utils.cxFactory('template-cte');
@@ -72,8 +73,11 @@ export const FieldType = props => {
                     const templates = op
                         .get(e.value, 'templates', '')
                         .split(',');
+
+                    const previewURL = op.get(e.value, 'previewURL');
+
                     if (_.isEqual(templates, state.templates)) return;
-                    setState({ templates });
+                    setState({ previewURL, templates });
                 }
             },
         );
@@ -83,33 +87,81 @@ export const FieldType = props => {
         };
     };
 
+    const templates = () => {
+        let templates = op.get(state, 'templates');
+        templates = _.compact(templates);
+
+        Reactium.Hook.runSync('template-list', templates, props);
+        return templates;
+    };
+
     useEffect(onLoad);
+
+    console.log(props);
+
+    const previewChange = e => {
+        setState({ previewURL: e.target.value });
+    };
 
     return (
         <FieldTypeDialog {...props} showHelpText={false}>
-            <div className='input-group'>
-                <input
-                    type='text'
-                    ref={elm => op.set(refs.current, 'name', elm)}
-                    placeholder='Template Name'
-                    onKeyDown={onEnterPress}
-                />
-                <input
-                    type='hidden'
-                    value={state.templates.join(',')}
-                    name='templates'
-                />
-                <Button
-                    color={Button.ENUMS.COLOR.TERTIARY}
-                    onClick={onAddClick}
-                    style={{ padding: 0, width: 41, height: 41 }}>
-                    <Icon name='Feather.Plus' size={22} />
-                </Button>
-            </div>
+            <input
+                type='hidden'
+                value={templates().join(',')}
+                name='templates'
+            />
+            <input
+                type='hidden'
+                value={state.previewURL || ''}
+                name='previewURL'
+            />
+            <Carousel
+                ref={elm => op.set(refs.current, 'carousel', elm)}
+                className={cx('carousel')}>
+                <Slide>
+                    <div className={cn('input-group', cx('slide'))}>
+                        <input
+                            type='text'
+                            ref={elm => op.set(refs.current, 'name', elm)}
+                            placeholder='Template Name'
+                            onKeyDown={onEnterPress}
+                        />
+
+                        <Button
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            onClick={onAddClick}
+                            style={{ padding: 0, width: 41, height: 41 }}>
+                            <Icon name='Feather.Plus' size={22} />
+                        </Button>
+                        <Button
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            onClick={() => refs.current.carousel.next()}
+                            style={{ padding: 0, width: 41, height: 41 }}>
+                            <Icon name='Feather.Settings' size={18} />
+                        </Button>
+                    </div>
+                </Slide>
+                <Slide>
+                    <div className='input-group'>
+                        <Button
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            onClick={() => refs.current.carousel.prev()}
+                            style={{ padding: 0, width: 41, height: 41 }}>
+                            <Icon name='Feather.Check' size={22} />
+                        </Button>
+                        <input
+                            type='text'
+                            placeholder={__('Preview URL')}
+                            value={state.previewURL || ''}
+                            onChange={previewChange}
+                        />
+                    </div>
+                </Slide>
+            </Carousel>
             <ul
                 className={cx('list')}
                 ref={elm => op.set(refs.current, 'list', elm)}>
-                {state.templates.map((item, i) => (
+                {templates().map((item, i) => (
                     <ListItem
                         key={`page-template-${i}`}
                         onDelete={onDelete}
