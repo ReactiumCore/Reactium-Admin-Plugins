@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Reactium, {
     __,
     useHandle,
@@ -91,6 +91,20 @@ const PublisherEditor = props => {
     const tools = useHandle('AdminTools');
     const Modal = op.get(tools, 'Modal');
     const ConfirmBox = useHookComponent('ConfirmBox');
+
+    const autoPublish = e => {
+        editor.publish();
+    };
+
+    useEffect(() => {
+        if (config.simple && config.can.publish) {
+            editor.addEventListener('save-success', autoPublish);
+        }
+
+        return () => {
+            editor.removeEventListener('save-success', autoPublish);
+        };
+    }, [config]);
 
     const dirtyCheck = action => () => {
         if (editor.isDirty()) {
