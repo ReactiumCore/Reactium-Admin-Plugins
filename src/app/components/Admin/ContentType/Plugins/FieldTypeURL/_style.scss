@@ -1,0 +1,14 @@
+.field-type-url {
+    @extend .flex-middle;
+
+    .required {
+        flex-shrink: 0;
+        label > span:first-child {
+            text-align: left;
+        }
+
+        @include breakpoint(md) {
+            padding-left: 20px;
+        }
+    }
+}
