@@ -2,19 +2,20 @@ import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import { Comparison, Editor, FieldType } from './index';
 
-const ID = 'URL';
+const ID = 'URLS';
 
 Reactium.Plugin.register(ID).then(() => {
     const fieldType = {
-        id: 'url',
+        id: 'urls',
         label: __('URL Field'),
         icon: Icon.Feather.Link,
-        tooltip: __('Adds urls to a content type.'),
+        tooltip: __('Adds URLs to a content type.'),
         component: 'FieldTypeURL',
         order: Reactium.Enums.priority.highest,
         showHelpText: false,
+        singular: true,
         defaultValues: {
-            fieldName: __('URL'),
+            fieldName: __('URLS'),
             required: true,
         },
     };

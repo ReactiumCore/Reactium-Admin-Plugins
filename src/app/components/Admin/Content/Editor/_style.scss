@@ -47,6 +47,16 @@
         &:empty {
             display: none;
         }
+
+        &:not(:last-child) {
+            margin-bottom: 24px;
+        }
+
+        &:first-child {
+            .admin-content-rte {
+                margin-top: -25px;
+            }
+        }
     }
 
     &-help {
@@ -81,9 +91,10 @@
         header {
             display: flex;
             border-bottom: 1px solid darken($color-admin-header-border, 5%);
+            border-top: 1px solid darken($color-admin-header-border, 5%);
             margin-left: -24px;
             margin-right: -24px;
-            padding: 0 0 24px 24px;
+            padding: 24px 0 24px 24px;
 
             h2 {
                 color: $color-gray;

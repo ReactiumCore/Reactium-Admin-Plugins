@@ -26,7 +26,7 @@ export default props => {
                         name='required'
                         label={__('Required')}
                         labelAlign='right'
-                        value={1}
+                        value={true}
                     />
                 </div>
             </div>
