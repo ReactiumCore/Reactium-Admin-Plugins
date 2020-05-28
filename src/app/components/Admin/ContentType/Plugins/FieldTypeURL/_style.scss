@@ -1,6 +1,12 @@
 .field-type-url {
     @extend .flex-middle;
 
+    .form-group {
+        input {
+            margin: 0;
+        }
+    }
+
     .required {
         flex-shrink: 0;
         label > span:first-child {
