@@ -165,12 +165,9 @@ const MenuEditor = memo(props => {
     }, [props.editor]);
 
     const renderEditor = () => (
-        <Dialog
-            className={'menu-dialog'}
-            header={{ title: __('Menu') }}
-            pref={`menu-dialog-${props.fieldName}`}>
+        <div className={'menu-container'}>
             {items.length < 1 && (
-                <div className={'p-xs-20'}>
+                <div className={'px-xs-20'}>
                     <Alert
                         dismissable={false}
                         color={Alert.ENUMS.COLOR.INFO}
@@ -179,7 +176,7 @@ const MenuEditor = memo(props => {
                     </Alert>
                 </div>
             )}
-            <div className={'m-xs-20'}>
+            <div className={'menu'}>
                 <Menu
                     {...props}
                     items={items}
@@ -188,7 +185,7 @@ const MenuEditor = memo(props => {
                     onRemoveItem={removeItem}
                 />
             </div>
-        </Dialog>
+        </div>
     );
 
     const renderControls = () => {
