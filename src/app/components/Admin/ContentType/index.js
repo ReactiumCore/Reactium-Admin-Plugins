@@ -835,6 +835,11 @@ const ContentType = props => {
 
     const isActiveRegion = region => ui.active === region;
 
+    const saveHotkey = e => {
+        if (e) e.preventDefault();
+        onTypeSubmit();
+    };
+
     const _handle = () => ({
         ui,
         addRegion,
@@ -856,6 +861,21 @@ const ContentType = props => {
     });
 
     useRegisterHandle('ContentTypeEditor', _handle, [id, ui]);
+
+    // save hotkey
+    useEffect(() => {
+        if (ui.loading) return;
+        Reactium.Hotkeys.register('content-type-save', {
+            callback: saveHotkey,
+            key: 'mod+s',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('content-type-save');
+        };
+    }, [ui.loading]);
 
     if (ui.loading) return <Loading />;
 

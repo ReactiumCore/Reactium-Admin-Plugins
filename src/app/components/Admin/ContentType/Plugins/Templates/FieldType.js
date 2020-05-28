@@ -87,6 +87,8 @@ export const FieldType = props => {
         };
     };
 
+    const previewChange = e => setState({ previewURL: e.target.value });
+
     const templates = () => {
         let templates = op.get(state, 'templates');
         templates = _.compact(templates);
@@ -96,10 +98,6 @@ export const FieldType = props => {
     };
 
     useEffect(onLoad);
-
-    const previewChange = e => {
-        setState({ previewURL: e.target.value });
-    };
 
     return (
         <FieldTypeDialog {...props} showHelpText={false}>
