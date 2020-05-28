@@ -9,13 +9,15 @@ import Enums from '../../enums';
 
 const Header = props => {
     const inputRef = useRef();
-    const { id, icon: FieldIcon, DragHandle } = props;
+    const { id, singular, icon: FieldIcon, DragHandle } = props;
+    if (id === 'publisher') console.log({ id, props });
     const CTE = useHandle('ContentTypeEditor');
     const error = CTE.getFormErrors(id);
 
-    // const value = op.get(props, 'formRef.current.getValue')();
     const saved = CTE.saved();
-    const fieldSaved = op.has(saved, ['fields', id]) || id === 'publisher';
+    const fieldSaved =
+        op.has(saved, ['fields', id]) ||
+        (singular && op.get(props, 'defaultValues.fieldName'));
 
     const savedProps = fieldSaved
         ? {
