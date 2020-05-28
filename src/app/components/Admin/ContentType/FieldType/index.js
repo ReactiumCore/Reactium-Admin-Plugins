@@ -102,6 +102,7 @@ const FieldType = props => {
                     value={value}
                     ref={formRef}
                     required={required}
+                    throttleChanges={false}
                     validator={validator(id, type)}
                     onChange={onChange(id, type, formRef)}>
                     <div
