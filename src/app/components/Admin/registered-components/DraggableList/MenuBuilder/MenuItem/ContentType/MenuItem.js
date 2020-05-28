@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, memo } from 'react';
-import { Dialog } from '@atomic-reactor/reactium-ui';
 import { __, useHookComponent } from 'reactium-core/sdk';
+import { Link } from 'react-router-dom';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -21,6 +21,7 @@ const areEqual = (pv, nx) => {
 
 const ContentTypeMenuItem = memo(props => {
     const dialogRef = useRef();
+    const { Dialog, Icon } = useHookComponent('ReactiumUI');
     const fieldName = op.get(props, 'fieldName');
     const menuItem = op.get(props, 'item', {});
     const item = op.get(props, 'item.item', {});
@@ -29,6 +30,10 @@ const ContentTypeMenuItem = memo(props => {
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
     const itemId = menuItem.id;
+
+    const icon = op.get(item, 'type.meta.icon');
+    const typeSlug = op.get(item, 'type.machineName');
+    const slug = op.get(item, 'slug');
 
     useEffect(() => {
         if (dialogRef.current) {
@@ -40,7 +45,18 @@ const ContentTypeMenuItem = memo(props => {
         <Dialog
             className={'menu-item menu-item-content-type'}
             header={{
-                title,
+                title: typeSlug ? (
+                    <div className='menu-item-editor-link'>
+                        {icon && <Icon name={icon} />}
+                        <Link
+                            to={`/admin/content/${typeSlug}/${slug}`}
+                            target={'__blank'}>
+                            {title}
+                        </Link>
+                    </div>
+                ) : (
+                    title
+                ),
                 elements: [
                     <DragHandle key='dh' bind={op.get(props, 'bind')} />,
                 ],

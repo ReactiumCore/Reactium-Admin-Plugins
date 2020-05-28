@@ -93,12 +93,12 @@ const SearchTab = ({ type, onAddItems = noop }) => {
         },
         [term],
     );
-
     return (
-        <div className='p-xs-8'>
+        <div className='p-xs-16'>
             <Search onSearch={searchListener} />
             <ul className='content-options'>
                 <ContentTypeOptions
+                    type={type}
                     items={results}
                     onChange={checkListener}
                     selected={selected}
@@ -176,9 +176,10 @@ const PaginatedTab = ({ type, onAddItems = noop }) => {
     };
 
     return (
-        <div className='p-xs-8'>
+        <div className='p-xs-16'>
             <ul className='content-options'>
                 <ContentTypeOptions
+                    type={type}
                     items={results}
                     onChange={checkListener}
                     selected={selected}
@@ -244,6 +245,7 @@ const ContentTypeControl = props => {
         <div className={cx('control', 'control-types')}>
             {types.map(type => {
                 const uuid = op.get(type, 'uuid');
+                const icon = op.get(type, 'meta.icon');
                 const title = op.get(
                     type,
                     'meta.label',
@@ -253,7 +255,14 @@ const ContentTypeControl = props => {
                 return (
                     <Dialog
                         key={uuid}
-                        header={{ title }}
+                        header={{
+                            title: (
+                                <div className='control-types-title'>
+                                    <Icon name={icon} />
+                                    <span>{title}</span>
+                                </div>
+                            ),
+                        }}
                         pref={cx(`control-${title}`)}>
                         <Tabs
                             activeTab={0}
