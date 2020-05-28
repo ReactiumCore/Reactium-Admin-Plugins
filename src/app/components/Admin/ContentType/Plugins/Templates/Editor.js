@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import React, { useRef, useState } from 'react';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 /**
@@ -42,9 +43,28 @@ export const Editor = ({ namespace, ...props }) => {
         return templates;
     };
 
-    const preview = () => {
+    const preview = async () => {
         setStatus(ENUMS.STATUS.LOADING);
-        setTimeout(() => setStatus(ENUMS.STATUS.READY), 5000);
+
+        await editor.save();
+
+        const previewURL = op.get(props, 'previewURL');
+
+        const type = op.get(editor, 'type');
+        const branch = op.get(editor.value, 'history.branch', 'master');
+        const revision = _.last(
+            op.get(editor.value, ['branches', branch, 'history'], []),
+        );
+
+        const url = String(previewURL)
+            .replace(/\:type/gi, type)
+            .replace(/\:branch/gi, branch)
+            .replace(/\:revision/gi, revision);
+
+        setTimeout(() => {
+            setStatus(ENUMS.STATUS.READY);
+            window.open(url, '_blank');
+        }, 1000);
     };
 
     const template = editor ? op.get(editor.value, 'template') : null;

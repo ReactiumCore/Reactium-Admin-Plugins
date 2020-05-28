@@ -20,7 +20,7 @@ export const FieldType = props => {
     const refs = useRef({});
 
     const [state, setState] = useDerivedState({
-        previewURL: '/preview/:type/:revision',
+        previewURL: null,
         templates: [],
     });
 
@@ -97,8 +97,6 @@ export const FieldType = props => {
 
     useEffect(onLoad);
 
-    console.log(props);
-
     const previewChange = e => {
         setState({ previewURL: e.target.value });
     };
@@ -116,8 +114,9 @@ export const FieldType = props => {
                 name='previewURL'
             />
             <Carousel
-                ref={elm => op.set(refs.current, 'carousel', elm)}
-                className={cx('carousel')}>
+                animationSpeed={0.25}
+                className={cx('carousel')}
+                ref={elm => op.set(refs.current, 'carousel', elm)}>
                 <Slide>
                     <div className={cn('input-group', cx('slide'))}>
                         <input
@@ -151,8 +150,11 @@ export const FieldType = props => {
                         </Button>
                         <input
                             type='text'
-                            placeholder={__('Preview URL')}
+                            placeholder={`${__(
+                                'Preview URL:',
+                            )} https://yoursite.com/api/preview/:type/:branch/:revision`}
                             value={state.previewURL || ''}
+                            onFocus={e => e.target.select()}
                             onChange={previewChange}
                         />
                     </div>
