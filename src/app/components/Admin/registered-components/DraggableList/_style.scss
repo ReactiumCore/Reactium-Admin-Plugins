@@ -56,6 +56,29 @@ $menu-editor-item-outline: $color-gray !default;
                 flex-grow: 1;
             }
         }
+
+        &-editor-link {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            .ar-icon {
+                margin-right: 8px;
+            }
+        }
+    }
+}
+
+.control-types {
+    &-title {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-basis: 100%;
+
+        .ar-icon {
+            width: 42px;
+            margin-right: 8px;
+        }
     }
 }
 

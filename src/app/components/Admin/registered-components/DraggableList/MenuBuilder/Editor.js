@@ -20,7 +20,7 @@ const Menu = props => {
         editor,
     } = props;
 
-    const onReorder = reordered => {
+    const onReorder = (reordered = []) => {
         const currentItemsById = _.indexBy(items, 'id');
         const newItems = _.compact(
             reordered.map(({ key, depth = 0 }) => ({
@@ -88,7 +88,7 @@ const MenuEditor = memo(props => {
 
     const getValue = () => valueRef.current;
 
-    const items = value.items;
+    const items = op.get(value, 'items', []);
 
     const mapFieldsToItems = items => {
         const fieldVal = op.get(
