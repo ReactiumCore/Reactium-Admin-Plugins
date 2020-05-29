@@ -50,7 +50,14 @@ export default props => {
 
     const getStatus = () => refs.status;
 
-    const isRoute = route => !!_.findWhere(Object.values(URLS), { route });
+    const isRoute = route => {
+        const routes = Reactium.Routing.get();
+
+        return (
+            !!_.findWhere(routes, { path: route }) ||
+            !!_.findWhere(Object.values(URLS), { route })
+        );
+    };
 
     const isSaved = () => op.has(editor, 'value.objectId');
 
@@ -222,9 +229,10 @@ export default props => {
 const ListItem = props => {
     const refs = useRef({}).current;
     const { onChange, onDelete, onUnDelete, placeholder, route } = props;
-    const { Button, Carousel, Icon, Slide } = useHookComponent('ReactiumUI');
-
-    const deleted = () => op.get(props, 'delete') === true;
+    const [deleted, setDeleted] = useState(op.get(props, 'delete', false));
+    const { Button, Carousel, Icon, Slide, Toast } = useHookComponent(
+        'ReactiumUI',
+    );
 
     const buttonStyle = {
         width: 41,
@@ -241,18 +249,31 @@ const ListItem = props => {
     const disable = ({ target }) => {
         if (isContainer(target, refs.container)) return;
 
-        refs.carousel.jumpTo(deleted() ? 2 : 0);
+        refs.carousel.jumpTo(deleted ? 2 : 0);
         refs.input.setAttribute('readOnly', true);
     };
 
     const unDelete = () => {
         enable();
+        setDeleted(false);
         onUnDelete(props);
     };
 
     const remove = () => {
         refs.input.setAttribute('readOnly', true);
         refs.carousel.jumpTo(2);
+
+        Toast.show({
+            type: Toast.TYPE.INFO,
+            message: __('%route marked for deletion').replace(
+                /\%route/gi,
+                route,
+            ),
+            icon: 'Feather.Check',
+            autoClose: 3000,
+        });
+
+        setDeleted(true);
         onDelete(props);
     };
 
@@ -276,7 +297,7 @@ const ListItem = props => {
 
     return (
         <li
-            className={cn('input-group', { deleted: deleted() })}
+            className={cn('input-group', { deleted })}
             ref={elm => op.set(refs, 'container', elm)}>
             <input
                 type='text'
@@ -290,7 +311,7 @@ const ListItem = props => {
                 className='edit-toggle'
                 ref={elm => op.set(refs, 'carousel-container', elm)}>
                 <Carousel
-                    active={deleted() ? 2 : 0}
+                    active={deleted ? 2 : 0}
                     ref={elm => op.set(refs, 'carousel', elm)}
                     animationSpeed={0.25}>
                     <Slide>
