@@ -9,12 +9,87 @@
 
     .required {
         flex-shrink: 0;
+
         label > span:first-child {
             text-align: left;
         }
 
         @include breakpoint(md) {
             padding-left: 20px;
+        }
+    }
+}
+
+.editor-urls {
+    @extend .form-group;
+
+    input {
+        margin: 0;
+    }
+
+    .error {
+        input {
+            z-index: 100;
+        }
+    }
+
+    padding: 20px;
+
+    .ar-alert {
+        margin-bottom: 16px;
+    }
+
+    &-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid $color-grey-light;
+        min-height: 41px;
+        position: relative;
+
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            width: 100%;
+
+            input {
+                transition: opacity 0.25s ease-in-out;
+            }
+
+            &:not(:first-child) {
+                margin-top: 18px;
+            }
+
+            &.deleted input {
+                opacity: 0.25;
+            }
+        }
+
+        &:empty {
+            display: none;
+        }
+
+        .edit-toggle {
+            border-radius: 0 2px 2px 0;
+            overflow: hidden;
+            width: 41px;
+            height: 41px;
+            opacity: 0.5;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        .ar-spinner {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0.5);
         }
     }
 }
