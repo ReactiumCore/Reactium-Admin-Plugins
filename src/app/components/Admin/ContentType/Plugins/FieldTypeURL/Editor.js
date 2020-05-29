@@ -39,7 +39,7 @@ export default props => {
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
-    const [URLS, setNewURLS] = useState(op.get(editor.value, 'URLS', []));
+    const [URLS, setNewURLS] = useState(op.get(editor.value, 'urls', {}));
 
     const setStatus = newStatus => {
         if (editor.unMounted()) return;
@@ -89,13 +89,18 @@ export default props => {
         const type = op.get(editor.contentType, 'collection');
         const meta = {
             contentId: isSaved() ? editor.value.objectId : undefined,
-            blueprint: type,
             type,
         };
 
         let newURLS = { ...URLS };
         const objectId = Date.now();
-        op.set(newURLS, objectId, { meta, objectId, pending: true, route });
+        op.set(newURLS, objectId, {
+            meta,
+            objectId,
+            pending: true,
+            route,
+            blueprint: type,
+        });
         setURLS(newURLS);
         setError(null);
 
@@ -148,8 +153,11 @@ export default props => {
     };
 
     const fetch = async () => {
+        const collection = op.get(editor.contentType, 'collection');
         const contentId = op.get(editor.value, 'objectId');
+
         const { results = {} } = await Actinium.Cloud.run('urls', {
+            collection,
             contentId,
         });
         return results;
@@ -163,16 +171,22 @@ export default props => {
 
     const applyURLS = ({ contentType, value }) => {
         op.set(value, String(fieldName).toLowerCase(), URLS);
-        op.set(value, String('forceUpdate'), true);
+    };
+
+    const afterSave = async e => {
+        const u = await fetch();
+        setURLS(u);
     };
 
     const onSave = () => {
         if (!editor) return;
 
         editor.addEventListener('before-save', applyURLS);
+        editor.addEventListener('save-success', afterSave);
 
         return () => {
             editor.removeEventListener('before-save', applyURLS);
+            editor.removeEventListener('save-succes', afterSave);
         };
     };
 
