@@ -26,16 +26,19 @@ export default props => {
     const ElementDialog = useHookComponent('ElementDialog');
 
     const { editor, fieldName, placeholder, required } = props;
+    const errorText = op.get(errors, [fieldName, 'message']);
 
     const refs = useRef({ status: ENUMS.STATUS.PENDING }).current;
 
     const { errors } = editor;
     const replacers = { '%fieldName': fieldName };
-    const errorText = op.get(errors, [fieldName, 'message']);
+
     const className = cn('form-group', { error: !!errorText });
 
     const cx = Reactium.Utils.cxFactory('editor-urls');
 
+    // prettier-ignore
+    const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
     const [URLS, setNewURLS] = useState(op.get(editor.value, 'URLS', []));
 
     const setStatus = newStatus => {
@@ -80,6 +83,7 @@ export default props => {
                 icon: 'Feather.AlertOctagon',
                 autoClose: 3000,
             });
+            setError(true);
             return;
         }
         const type = op.get(editor.contentType, 'collection');
@@ -93,6 +97,7 @@ export default props => {
         const objectId = Date.now();
         op.set(newURLS, objectId, { meta, objectId, pending: true, route });
         setURLS(newURLS);
+        setError(null);
 
         // Clear the form
         refs.add.value = '';
@@ -157,9 +162,8 @@ export default props => {
     };
 
     const applyURLS = ({ contentType, value }) => {
-        console.log(editor, URLS);
-        //op.set(value, fieldName, URLS);
-        op.del(value, fieldName);
+        op.set(value, String(fieldName).toLowerCase(), URLS);
+        op.set(value, String('forceUpdate'), true);
     };
 
     const onSave = () => {
@@ -187,7 +191,7 @@ export default props => {
                         {errorText}
                     </Alert>
                 )}
-                <div className={cn('input-group', { error: !!errorText })}>
+                <div className={cn('input-group', { error: isError })}>
                     <input
                         onKeyDown={onEnter}
                         placeholder={placeholder}
