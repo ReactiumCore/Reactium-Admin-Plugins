@@ -1,5 +1,10 @@
 import React, { useRef, useEffect, memo } from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+    useDerivedState,
+    useAsyncEffect,
+} from 'reactium-core/sdk';
 import { Link } from 'react-router-dom';
 import op from 'object-path';
 import _ from 'underscore';
@@ -15,23 +20,55 @@ const ContentTypeMenuItem = memo(props => {
     const { Dialog, Icon } = useHookComponent('ReactiumUI');
     const DragHandle = useHookComponent('MenuItemDragHandle');
     const fieldName = op.get(props, 'fieldName');
-    const menuItem = op.get(props, 'item', {});
-    const item = op.get(props, 'item.item', {});
-    const title = op.get(item, 'title', op.get(item, 'slug'));
+    const [menuItem, setMenuItem] = useDerivedState(op.get(props, 'item', {}), [
+        'id',
+        'item',
+    ]);
+    const item = op.get(menuItem, 'item', {});
+    const title = op.get(
+        menuItem,
+        'label',
+        op.get(item, 'title', op.get(item, 'slug')),
+    );
     const onRemoveItem = op.get(props, 'onRemoveItem', noop);
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
-    const itemId = menuItem.id;
 
     const icon = op.get(item, 'type.meta.icon');
     const typeSlug = op.get(item, 'type.machineName');
     const slug = op.get(item, 'slug');
 
+    const onChange = type => e => {
+        setMenuItem({ [type]: e.target.value });
+    };
+
     useEffect(() => {
         if (dialogRef.current) {
             _.defer(dialogRef.current.collapse);
         }
-    }, []);
+    }, [menuItem.id]);
+
+    useAsyncEffect(async isMounted => {
+        const menuItemSave = Reactium.Hook.register(
+            'menu-build-item-save',
+            async (fn, saving) => {
+                if (fn === fieldName && saving.id === menuItem.id) {
+                    const freshItem = await Reactium.Content.retrieve(
+                        saving.item,
+                    );
+                    op.set(freshItem, 'type', op.get(saving, 'item.type'));
+                    if (!isMounted()) return;
+
+                    Object.entries(menuItem).forEach(([key, value]) => {
+                        if (key === 'item') value = freshItem;
+                        op.set(saving, key, value);
+                    });
+                }
+            },
+        );
+
+        return () => Reactium.Hook.unregister(menuItemSave);
+    });
 
     return (
         <Dialog
@@ -69,7 +106,8 @@ const ContentTypeMenuItem = memo(props => {
                         <span>{__('Label')}</span>
                         <input
                             type='text'
-                            name={`${fieldName}.${itemId}.label`}
+                            value={op.get(menuItem, 'label', '')}
+                            onChange={onChange('label')}
                         />
                     </label>
                 </div>
