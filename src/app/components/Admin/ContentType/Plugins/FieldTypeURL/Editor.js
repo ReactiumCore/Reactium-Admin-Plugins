@@ -43,7 +43,7 @@ export default props => {
 
     const setErrorText = (...newErrorText) => {
         if (editor.unMounted()) return;
-        setNewErrorText(newErrorText.join(' '));
+        setNewErrorText(_.compact(Array.from(newErrorText)).join(' '));
     };
 
     const setStatus = newStatus => {
@@ -181,6 +181,8 @@ export default props => {
     const afterSave = async e => {
         const u = await fetch();
         setURLS(u);
+        setError(false);
+        setErrorText(null);
     };
 
     const validate = ({ context, value }) => {
