@@ -90,6 +90,7 @@ $menu-editor-item-outline: $color-gray !default;
     justify-content: flex-end;
     align-items: center;
     width: 42px;
+    padding-right: 8px;
 
     &:hover {
         cursor: grab;
@@ -103,7 +104,7 @@ $menu-editor-item-outline: $color-gray !default;
             top: 0;
             bottom: 0;
             right: 0;
-            width: 24px;
+            width: 42px;
             outline: 2px solid $menu-editor-item-outline;
         }
 
