@@ -1,13 +1,14 @@
 import React, { useRef, useState, useEffect, memo } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { Alert, Icon, Dialog } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
-import SDK from '@atomic-reactor/reactium-sdk-core';
+import { Alert, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, {
+    __,
+    useHookComponent,
+    useAsyncEffect,
+} from 'reactium-core/sdk';
 import MenuList from './MenuList';
 import _ from 'underscore';
 import op from 'object-path';
 import cn from 'classnames';
-import uuid from 'uuid/v4';
 
 const noop = () => {};
 const Menu = props => {
@@ -15,6 +16,7 @@ const Menu = props => {
         items = [],
         setItems = noop,
         onRemoveItem = noop,
+        onUpdateItem = noop,
         itemTypes = {},
         fieldName,
         editor,
@@ -64,6 +66,7 @@ const Menu = props => {
                     MenuItem: op.get(itemTypes, [item.type, 'MenuItem']),
                 }))}
                 onRemoveItem={onRemoveItem}
+                onUpdateItem={onUpdateItem}
             />
         </div>
     );
@@ -136,6 +139,18 @@ const MenuEditor = memo(props => {
         setItems(items.filter(item => item.id !== id));
     };
 
+    const updateItem = item => {
+        setItems(
+            items.map(current => {
+                if (current.id !== item.id) return current;
+                return {
+                    ...current,
+                    item,
+                };
+            }),
+        );
+    };
+
     const ElementDialog = useHookComponent('ElementDialog');
     const itemTypes = Reactium.MenuBuilder.ItemType.list || [];
     const cx = Reactium.Utils.cxFactory(namespace);
@@ -145,24 +160,45 @@ const MenuEditor = memo(props => {
         setValue(formValue);
     };
 
-    const save = e => {
+    const save = async (statusEvt, type, handle) => {
         const currentValue = getValue();
-        const formValue = op.get(e.value, [fieldName], {});
+        const formValue = op.get(statusEvt, ['value', fieldName], {});
 
-        op.set(e.value, [fieldName], {
+        const saveItems = mapFieldsToItems(op.get(currentValue, 'items', []));
+
+        await Promise.all(
+            saveItems.map(item =>
+                Reactium.Hook.run('menu-build-item-save', fieldName, item),
+            ),
+        );
+
+        op.set(statusEvt, ['value', fieldName], {
             ...formValue,
-            items: mapFieldsToItems(op.get(currentValue, 'items', [])),
+            items: saveItems,
         });
     };
 
     useEffect(() => {
-        props.editor.addEventListener('save', save);
         props.editor.addEventListener('clean', clean);
+        props.editor.addEventListener('save-success', clean);
         return () => {
-            props.editor.addEventListener('save', save);
             props.editor.addEventListener('clean', clean);
+            props.editor.addEventListener('save-success', clean);
         };
     }, [props.editor]);
+
+    useAsyncEffect(async isMounted => {
+        const saveId = Reactium.Hook.register(
+            'form-editor-status',
+            async (statusEvt, type, handle) => {
+                if (statusEvt.event === 'SAVE' && isMounted()) {
+                    await save(statusEvt, type, handle);
+                }
+            },
+        );
+
+        return () => Reactium.Hook.unregister(saveId);
+    });
 
     const renderEditor = () => (
         <div className={'menu-container'}>
@@ -183,6 +219,7 @@ const MenuEditor = memo(props => {
                     setItems={setItems}
                     itemTypes={_.indexBy(itemTypes, 'id')}
                     onRemoveItem={removeItem}
+                    onUpdateItem={updateItem}
                 />
             </div>
         </div>
@@ -191,6 +228,7 @@ const MenuEditor = memo(props => {
     const renderControls = () => {
         return itemTypes.map(itemType => {
             const Control = op.get(itemType, 'Control', () => null);
+
             return (
                 <Control
                     key={itemType.id}

@@ -225,8 +225,6 @@ const ContentTypeControl = props => {
     };
 
     const tabs = type => {
-        const title = op.get(type, 'meta.label', op.get(type, 'type', ''));
-
         return [
             {
                 id: 'all',
@@ -257,7 +255,7 @@ const ContentTypeControl = props => {
                         key={uuid}
                         header={{
                             title: (
-                                <div className='control-types-title'>
+                                <div className='control-title'>
                                     <Icon name={icon} />
                                     <span>{title}</span>
                                 </div>

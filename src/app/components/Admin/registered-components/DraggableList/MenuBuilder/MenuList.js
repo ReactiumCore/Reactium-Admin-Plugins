@@ -37,6 +37,7 @@ const MenuList = props => {
         menuIndent,
         onReorder,
         onRemoveItem,
+        onUpdateItem,
         fieldName,
         editor,
     } = props;
@@ -114,6 +115,7 @@ const MenuList = props => {
                         'MenuItem',
                         DefaultMenuItemComponent,
                     );
+
                     return (
                         <ItemWrapper
                             className={props.itemClassName}
@@ -122,6 +124,7 @@ const MenuList = props => {
                             MenuItem={MenuItem}>
                             <MenuItem
                                 onRemoveItem={onRemoveItem}
+                                onUpdateItem={onUpdateItem}
                                 fieldName={fieldName}
                                 editor={editor}
                                 item={item}
@@ -141,6 +144,7 @@ MenuList.defaultProps = {
     dragSensitivity: 0.25,
     onReorder: noop,
     onRemoveItem: noop,
+    onUpdateItem: noop,
     menuIndent: 20,
     itemClassName: 'menu-item',
 };

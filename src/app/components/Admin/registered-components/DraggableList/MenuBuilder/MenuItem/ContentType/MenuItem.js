@@ -1,19 +1,10 @@
-import React, { useRef, useEffect, useState, memo } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
 import { Link } from 'react-router-dom';
 import op from 'object-path';
 import _ from 'underscore';
 
 const noop = () => {};
-const DragHandle = ({ bind = {} }) => {
-    const { Icon } = useHookComponent('ReactiumUI');
-    return (
-        <div className='list-drag-handle' {...bind}>
-            <Icon name={'Linear.Move'} />
-            <span className='sr-only'>{__('Click to Drag')}</span>
-        </div>
-    );
-};
 
 const areEqual = (pv, nx) => {
     return op.get(pv, 'item.id') === op.get(nx, 'item.id');
@@ -22,6 +13,7 @@ const areEqual = (pv, nx) => {
 const ContentTypeMenuItem = memo(props => {
     const dialogRef = useRef();
     const { Dialog, Icon } = useHookComponent('ReactiumUI');
+    const DragHandle = useHookComponent('MenuItemDragHandle');
     const fieldName = op.get(props, 'fieldName');
     const menuItem = op.get(props, 'item', {});
     const item = op.get(props, 'item.item', {});
@@ -46,7 +38,7 @@ const ContentTypeMenuItem = memo(props => {
             className={'menu-item menu-item-content-type'}
             header={{
                 title: typeSlug ? (
-                    <div className='menu-item-editor-link'>
+                    <div className='menu-item-editor-title'>
                         {icon && <Icon name={icon} />}
                         <Link
                             to={`/admin/content/${typeSlug}/${slug}`}
