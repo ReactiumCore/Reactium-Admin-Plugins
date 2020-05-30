@@ -226,18 +226,16 @@ export default props => {
                         </li>
                     )}
 
-                    {_.sortBy(Object.values(URLS), 'route')
-                        .reverse()
-                        .map(url => (
-                            <ListItem
-                                key={`list-item-${url.objectId}`}
-                                {...url}
-                                onChange={updateURL}
-                                onDelete={deleteURL}
-                                onUnDelete={unDeleteURL}
-                                placeholder={placeholder}
-                            />
-                        ))}
+                    {Object.values(URLS).map(url => (
+                        <ListItem
+                            key={`list-item-${url.objectId}`}
+                            {...url}
+                            onChange={updateURL}
+                            onDelete={deleteURL}
+                            onUnDelete={unDeleteURL}
+                            placeholder={placeholder}
+                        />
+                    ))}
                 </ul>
             </div>
         </ElementDialog>
