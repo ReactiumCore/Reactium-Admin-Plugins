@@ -57,7 +57,7 @@ $menu-editor-item-outline: $color-gray !default;
             }
         }
 
-        &-editor-link {
+        &-editor-title {
             padding: 8px;
             display: flex;
             align-items: center;
@@ -68,7 +68,7 @@ $menu-editor-item-outline: $color-gray !default;
     }
 }
 
-.control-types {
+.control {
     &-title {
         display: flex;
         justify-content: flex-start;

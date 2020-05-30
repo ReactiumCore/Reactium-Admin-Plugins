@@ -6,7 +6,7 @@ import {
     ContentTypeControl,
     ContentTypeMenuItem,
 } from './MenuItem/ContentType';
-import op from 'object-path';
+import { LinkControl, LinkMenuItem } from './MenuItem/Link';
 import SDK from './sdk';
 
 const ID = 'MenuBuilder';
@@ -25,9 +25,16 @@ const pluginInit = async () => {
 
     // Register FieldType component
     Reactium.Component.register(fieldType.component, FieldType);
-
     // Register FieldType with Content Type Editor
     Reactium.ContentType.FieldType.register(ID, fieldType);
+    // Register FieldType with Editor
+    Reactium.Content.Editor.register(ID, { component: Editor });
+
+    // Menu Builder Item Types
+    Reactium.MenuBuilder.ItemType.register('Link', {
+        Control: LinkControl,
+        MenuItem: LinkMenuItem,
+    });
 
     const types = await Reactium.ContentType.types();
     Reactium.MenuBuilder.ItemType.register('ContentType', {
@@ -35,8 +42,6 @@ const pluginInit = async () => {
         Control: ContentTypeControl,
         MenuItem: ContentTypeMenuItem,
     });
-
-    Reactium.Content.Editor.register(ID, { component: Editor });
 };
 
 pluginInit();
