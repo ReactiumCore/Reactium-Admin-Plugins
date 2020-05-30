@@ -26,20 +26,25 @@ export default props => {
     const ElementDialog = useHookComponent('ElementDialog');
 
     const { editor, fieldName, placeholder, required } = props;
-    const errorText = op.get(errors, [fieldName, 'message']);
 
     const refs = useRef({ status: ENUMS.STATUS.PENDING }).current;
 
     const { errors } = editor;
     const replacers = { '%fieldName': fieldName };
 
-    const className = cn('form-group', { error: !!errorText });
-
     const cx = Reactium.Utils.cxFactory('editor-urls');
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
     const [URLS, setNewURLS] = useState(op.get(editor.value, 'urls', {}));
+    const [errorText, setNewErrorText] = useState(
+        op.get(errors, [fieldName, 'message']),
+    );
+
+    const setErrorText = (...newErrorText) => {
+        if (editor.unMounted()) return;
+        setNewErrorText(newErrorText.join(' '));
+    };
 
     const setStatus = newStatus => {
         if (editor.unMounted()) return;
@@ -178,21 +183,47 @@ export default props => {
         setURLS(u);
     };
 
+    const validate = ({ context, value }) => {
+        let urls = Object.values(URLS).filter(
+            url => op.get(url, 'delete') !== true,
+        );
+
+        if (urls.length > 0 || !required) return context;
+
+        const err = {
+            field: fieldName,
+            focus: refs.add,
+            message: __('URL is a required parameter'),
+            value: urls,
+        };
+
+        context.error[fieldName] = err;
+        context.valid = false;
+        setError(true);
+        setErrorText('Enter a url to this', editor.type);
+
+        return context;
+    };
+
     const onSave = () => {
         if (!editor) return;
 
         editor.addEventListener('before-save', applyURLS);
         editor.addEventListener('save-success', afterSave);
+        editor.addEventListener('validate', validate);
 
         return () => {
             editor.removeEventListener('before-save', applyURLS);
             editor.removeEventListener('save-succes', afterSave);
+            editor.removeEventListener('validate', validate);
         };
     };
 
     useAsyncEffect(load, [editor.value]);
 
     useEffect(onSave);
+
+    const className = cn('form-group', { error: isError });
 
     return (
         <ElementDialog {...props}>
@@ -359,39 +390,3 @@ const ListItem = props => {
         </li>
     );
 };
-
-/*
-RotateCcw
-const validate = ({ context, value }) => {
-    const v = value[fieldName];
-
-    const err = {
-        field: fieldName,
-        focus: inputRef.current,
-        message: null,
-        value: v,
-    };
-
-    if (required === true) {
-        if (!v) {
-            err.message = __('%fieldName is a required');
-        }
-    }
-
-    if (err.message !== null) {
-        err.message = editor.parseErrorMessage(err.message, replacers);
-        context.error[fieldName] = err;
-        context.valid = false;
-    }
-
-    return context;
-};
-
-useEffect(() => {
-    editor.addEventListener('validate', validate);
-    return () => {
-        editor.removeEventListener('validate', validate);
-    };
-}, [editor]);
-//                     {errorText && <small>{errorText}</small>}
-*/
