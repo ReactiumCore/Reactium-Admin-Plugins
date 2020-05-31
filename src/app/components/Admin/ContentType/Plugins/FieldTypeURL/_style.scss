@@ -23,14 +23,10 @@
 .editor-urls {
     @extend .form-group;
 
+    .input-group * { z-index: 0; }
+
     input {
         margin: 0;
-    }
-
-    .error {
-        input {
-            z-index: 100;
-        }
     }
 
     padding: 20px;
