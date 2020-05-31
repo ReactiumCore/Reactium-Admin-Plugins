@@ -123,6 +123,7 @@ const MenuList = props => {
                             depth={item.depth}
                             MenuItem={MenuItem}>
                             <MenuItem
+                                key={item.id}
                                 onRemoveItem={onRemoveItem}
                                 onUpdateItem={onUpdateItem}
                                 fieldName={fieldName}

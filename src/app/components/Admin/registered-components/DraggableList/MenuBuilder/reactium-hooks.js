@@ -1,12 +1,14 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import FieldType from './FieldType';
 import Editor from './Editor';
+import Comparison from './Comparison';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import {
     ContentTypeControl,
     ContentTypeMenuItem,
+    ContentTypeCompare,
 } from './MenuItem/ContentType';
-import { LinkControl, LinkMenuItem } from './MenuItem/Link';
+import { LinkControl, LinkMenuItem, LinkCompare } from './MenuItem/Link';
 import SDK from './sdk';
 
 const ID = 'MenuBuilder';
@@ -30,10 +32,13 @@ const pluginInit = async () => {
     // Register FieldType with Editor
     Reactium.Content.Editor.register(ID, { component: Editor });
 
+    Reactium.Content.Comparison.register(ID, { component: Comparison });
+
     // Menu Builder Item Types
     Reactium.MenuBuilder.ItemType.register('Link', {
         Control: LinkControl,
         MenuItem: LinkMenuItem,
+        Compare: LinkCompare,
     });
 
     const types = await Reactium.ContentType.types();
@@ -41,6 +46,7 @@ const pluginInit = async () => {
         types,
         Control: ContentTypeControl,
         MenuItem: ContentTypeMenuItem,
+        Compare: ContentTypeCompare,
     });
 };
 

@@ -82,6 +82,30 @@ $menu-editor-item-outline: $color-gray !default;
     }
 }
 
+.menu-compare {
+    &-row {
+        display: flex;
+
+        &:before {
+            display: block;
+            content: ' ';
+            flex: 0 1 100%;
+            border-left: 1px solid $color-gray;
+            border-bottom: 1px solid $color-gray;
+        }
+
+        &:first-child {
+            &:before {
+                display: none;
+            }
+        }
+    }
+
+    &-details {
+        transform: translateX(8px) translateY(50%);
+    }
+}
+
 .list-drag-handle {
     position: relative;
     display: flex;

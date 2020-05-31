@@ -22,14 +22,12 @@ const ContentTypeMenuItem = memo(props => {
     const fieldName = op.get(props, 'fieldName');
     const [menuItem, setMenuItem] = useDerivedState(op.get(props, 'item', {}), [
         'id',
-        'item',
+        'item.objectId',
     ]);
     const item = op.get(menuItem, 'item', {});
-    const title = op.get(
-        menuItem,
-        'label',
-        op.get(item, 'title', op.get(item, 'slug')),
-    );
+    let title = op.get(menuItem, 'label', '');
+    if (title.length < 1) title = op.get(item, 'title', op.get(item, 'slug'));
+
     const onRemoveItem = op.get(props, 'onRemoveItem', noop);
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();

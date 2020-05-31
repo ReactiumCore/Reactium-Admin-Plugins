@@ -224,8 +224,6 @@ const DraggableList = forwardRef((props, ref) => {
                 down,
                 movement: [x, y],
             } = state;
-            console.log('onDrag', { originalIndex, down });
-
             const cpy = [...orderedItems];
             const curIndex = cpy.findIndex(item => originalIndex === item.idx);
 
