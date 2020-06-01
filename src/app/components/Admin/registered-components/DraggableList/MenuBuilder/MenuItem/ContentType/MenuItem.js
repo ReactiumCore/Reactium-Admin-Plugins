@@ -105,7 +105,7 @@ const ContentTypeMenuItem = memo(props => {
                         <span>{__('Label')}</span>
                         <input
                             type='text'
-                            value={op.get(menuItem, 'label', '')}
+                            value={title}
                             onChange={onChange('label')}
                         />
                     </label>

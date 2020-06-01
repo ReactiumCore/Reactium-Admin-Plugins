@@ -42,12 +42,16 @@ $menu-editor-item-outline: $color-gray !default;
         min-height: 100px;
     }
 
-    [role=option] {
+    .drag-list-placeholder, [role=option] {
         width: calc(50%);
         min-width: 30vw;
         @include breakpoint(sm-down) {
             min-width: 50vw;
         }
+    }
+
+    .drag-list-placeholder {
+        border: 1px dashed $color-gray;
     }
 
     .menu-item {

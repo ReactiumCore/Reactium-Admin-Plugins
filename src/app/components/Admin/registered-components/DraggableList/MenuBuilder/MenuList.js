@@ -56,22 +56,33 @@ const MenuList = props => {
     if (loading) return null;
 
     const tx = (index, dragContext, next) => {
-        const {
-            x,
-            selected,
-            originalIndex,
-            items: newOrder,
-            state,
-        } = dragContext;
+        const { x, selected, originalIndex, items, state } = dragContext;
 
-        const newIndex = newOrder.findIndex(({ idx }) => index === idx);
-        const depth = op.get(newOrder, [newIndex, 'depth'], 0);
+        const newIndex = items.findIndex(({ idx }) => index === idx);
+        const depth = op.get(items, [newIndex, 'depth'], 0);
         const newX = depth * indent;
         next.x = newX;
 
         if (selected && index === originalIndex && newIndex > 0) {
             next.x = newX + x;
             next.immediate = getImmediate(next.immediate);
+        }
+
+        return next;
+    };
+
+    const txPH = (dragContext, next) => {
+        const { down, newIndex, items, state } = dragContext;
+        if (down) {
+            const {
+                movement: [x],
+            } = state;
+            const depthOffset = Math.floor(x / indent);
+            const parentDepth = op.get(items, [newIndex - 1, 'depth'], 0);
+            const nextX =
+                Math.max(0, Math.min(parentDepth + 1, depthOffset)) * indent;
+
+            next.x = nextX;
         }
 
         return next;
@@ -108,7 +119,8 @@ const MenuList = props => {
                 defaultItemHeight={defaultItemHeight}
                 onReorder={onReorder}
                 onDrag={onDrag}
-                dragTx={tx}>
+                dragTx={tx}
+                dragTxPH={txPH}>
                 {items.map(item => {
                     const MenuItem = op.get(
                         item,

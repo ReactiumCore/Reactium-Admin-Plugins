@@ -51,6 +51,7 @@ const txFactory = props => dragContext => {
 
     return index => {
         const newIndex = items.findIndex(({ idx }) => index === idx);
+
         let newStyle = {
             x: 0,
             y: op.get(items, [newIndex, 'y'], 0),
@@ -85,6 +86,29 @@ const DraggableList = forwardRef((props, ref) => {
     const dragSensitivity = op.get(props, 'dragSensitivity', 0.125);
     const delegateBind = op.get(props, 'delegateBind', true);
     const tx = txFactory(props);
+    const txPH = dragContext => {
+        const { items, newIndex, down } = dragContext;
+
+        let newStyle = {
+            x: 0,
+            y: 0,
+            depth: 0,
+            height: 0,
+            opacity: 0,
+            immediate: true,
+        };
+
+        if (down) {
+            newStyle.y = op.get(items, [newIndex, 'y'], 0);
+            newStyle.height = op.get(items, [newIndex, 'height'], 0);
+            newStyle.opacity = 1;
+        }
+
+        if (typeof props.dragTxPH === 'function')
+            newStyle = props.dragTxPH(dragContext, newStyle);
+
+        return newStyle;
+    };
 
     const itemsRef = useRef({ height: 0, items: {} });
     const getOrdered = items => {
@@ -259,6 +283,7 @@ const DraggableList = forwardRef((props, ref) => {
             const dragContext = {
                 items: newOrder,
                 selected: down ? originalIndex : false,
+                newIndex,
                 originalIndex,
                 x,
                 yOffset,
@@ -271,8 +296,11 @@ const DraggableList = forwardRef((props, ref) => {
             }
 
             setSprings(tx(dragContext));
+            setPHSpring(txPH({ items: newOrder, newIndex, down, state }));
 
-            if (!down) updateOrderedItems(newOrder);
+            if (!down) {
+                updateOrderedItems(newOrder);
+            }
         },
     });
 
@@ -297,6 +325,15 @@ const DraggableList = forwardRef((props, ref) => {
     const [containerSpring, setContainerSpring] = useSpring(() =>
         containerStyle(orderedItems),
     );
+
+    const [phSpring, setPHSpring] = useSpring(() => ({
+        x: 0,
+        y: 0,
+        height: 0,
+        opacity: 0,
+        zIndex: 0,
+        depth: 0,
+    }));
 
     useAsyncEffect(
         async isMounted => {
@@ -429,7 +466,21 @@ const DraggableList = forwardRef((props, ref) => {
     return (
         <animated.div className='drag-list-container' style={containerSpring}>
             <div className='drag-list' role='listbox'>
-                {springs.map(({ zIndex, shadow, x, y, scale }, i) => {
+                <animated.div
+                    key={'drag-list-placeholder'}
+                    className='drag-list-placeholder'
+                    style={{
+                        position: 'absolute',
+                        x: phSpring.x,
+                        y: phSpring.y,
+                        height: phSpring.height,
+                        opacity: phSpring.opacity,
+                        zIndex: phSpring.zIndex,
+                    }}
+                />
+
+                {springs.map((spring, i) => {
+                    const { zIndex, shadow, x, y, scale } = spring;
                     const itemIndex = orderedItems.findIndex(
                         item => item.idx === i,
                     );
