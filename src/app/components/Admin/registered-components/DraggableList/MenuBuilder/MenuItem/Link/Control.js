@@ -50,7 +50,7 @@ const AddLinkControl = ({ onAddItems = noop }) => {
 
             <Button
                 className='mt-xs-16'
-                disabled={!title.length || !url.length}
+                disabled={!title || !title.length || !url.length}
                 onClick={() => {
                     onAddItems(link);
                     clearLink();

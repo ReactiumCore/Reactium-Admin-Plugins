@@ -26,7 +26,8 @@ const ContentTypeMenuItem = memo(props => {
     ]);
     const item = op.get(menuItem, 'item', {});
     let title = op.get(menuItem, 'label', '');
-    if (title.length < 1) title = op.get(item, 'title', op.get(item, 'slug'));
+    if (!title || title.length < 1)
+        title = op.get(item, 'title', op.get(item, 'slug'));
 
     const onRemoveItem = op.get(props, 'onRemoveItem', noop);
     const animateResize = () =>
