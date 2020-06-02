@@ -1,0 +1,20 @@
+.field-type-taxonomy {
+
+    .form-group {
+        margin-bottom: 0;
+        input {
+            margin: 0;
+        }
+    }
+
+    .check-field {
+        flex-grow: 0;
+        flex-shrink: 0;
+        margin-top: 20px;
+        padding-right: 20px;
+
+        label > span:first-child {
+            text-align: left;
+        }
+    }
+}

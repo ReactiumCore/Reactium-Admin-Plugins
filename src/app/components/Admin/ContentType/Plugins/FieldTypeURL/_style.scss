@@ -1,5 +1,8 @@
 .field-type-url {
-    @extend .flex-middle;
+    @include breakpoint(md) {
+        display: flex;
+        align-items: center;
+    }
 
     .form-group {
         input {
@@ -14,8 +17,11 @@
             text-align: left;
         }
 
+        padding-top: 20px;
+
         @include breakpoint(md) {
             padding-left: 20px;
+            padding-top: 0;
         }
     }
 }

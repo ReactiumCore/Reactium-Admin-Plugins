@@ -5,12 +5,10 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../../enums';
-// import Dialog from 'components/Reactium-UI/Dialog';
 
 const Header = props => {
     const inputRef = useRef();
     const { id, singular, icon: FieldIcon, DragHandle } = props;
-    if (id === 'publisher') console.log({ id, props });
     const CTE = useHandle('ContentTypeEditor');
     const error = CTE.getFormErrors(id);
 
