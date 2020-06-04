@@ -13,6 +13,7 @@ import {
 export default props => {
     const {
         children,
+        className,
         editor,
         elements = [],
         footer,
@@ -69,7 +70,12 @@ export default props => {
     }
 
     return (
-        <Dialog ref={dialogRef} pref={pref} footer={footer} header={header}>
+        <Dialog
+            ref={dialogRef}
+            pref={pref}
+            footer={footer}
+            header={header}
+            className={className}>
             {helpText && (
                 <Collapsible
                     ref={collapsibleRef}

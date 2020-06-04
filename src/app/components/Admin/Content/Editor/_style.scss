@@ -48,8 +48,8 @@
             display: none;
         }
 
-        &:not(:last-child) {
-            margin-bottom: 24px;
+        &:not(:first-child) {
+            margin-top: 25px;
         }
 
         &:first-child {

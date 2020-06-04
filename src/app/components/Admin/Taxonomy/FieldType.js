@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     __,
@@ -20,10 +20,14 @@ export default props => {
     const refs = useRef({
         container: undefined,
         inputs: {},
+        select: undefined,
         status: STATUS.PENDING,
     }).current;
 
-    const [inputs, setNewInputs] = useState(['Checkbox', 'TagsInput']);
+    const [inputs, setNewInputs] = useState([
+        { value: 'AdminChecklist', label: __('Checklist') },
+        { value: 'AdminTagbox', label: __('Tag Input') },
+    ]);
     const [taxonomy, setNewTaxonomy] = useState([]);
 
     const { Checkbox, Radio } = useHookComponent('ReactiumUI');
@@ -66,34 +70,49 @@ export default props => {
         setInputs(inputs);
     });
 
-    //console.log(props);
-
     return (
         <FieldTypeDialog {...props}>
             <div
                 className='field-type-taxonomy'
                 ref={elm => op.set(refs, 'container', elm)}>
+                {refs.status === STATUS.READY && (
+                    <div className='form-group'>
+                        <select
+                            name='taxonomy'
+                            defaultValue=''
+                            ref={elm => op.set(refs, 'select', elm)}>
+                            <option value=''>Taxonomy</option>
+                            {taxonomy.map(({ slug, name }) => (
+                                <option value={slug} key={`option-${slug}`}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
                 <div className='form-group'>
-                    <select name='taxonomy'>
-                        <option value=''>Taxonomy</option>
-                        {taxonomy.map(({ slug, name }) => (
-                            <option value={slug} key={`option-${slug}`}>
-                                {name}
-                            </option>
-                        ))}
-                    </select>
+                    <input
+                        type='text'
+                        name='placeholder'
+                        placeholder={__('Placeholder')}
+                    />
                 </div>
-                <div className='flex-middle' style={{ width: '100%' }}>
-                    {inputs.map((item, i) => (
-                        <div className='check-field' key={`input-type-${i}`}>
-                            <Radio
-                                label={item}
-                                labelAlign='right'
-                                name='inputType'
-                                value={item}
-                            />
-                        </div>
-                    ))}
+                <div
+                    className='flex-middle'
+                    style={{ width: '100%', flexWrap: 'wrap' }}>
+                    {refs.status === STATUS.READY &&
+                        inputs.map(({ label, value }, i) => (
+                            <div
+                                className='check-field'
+                                key={`input-type-${i}`}>
+                                <Radio
+                                    label={label}
+                                    labelAlign='right'
+                                    name='inputType'
+                                    value={value}
+                                />
+                            </div>
+                        ))}
                     <div className='check-field'>
                         <Checkbox
                             label={__('Required')}
