@@ -350,7 +350,7 @@ export const HeaderWidget = props => {
     const Modal = useModal();
     const handle = useHandle('Taxonomy');
     const { Button, Icon } = useHookComponent('ReactiumUI');
-    const path = op.get(handle.route, 'path');
+    const path = useSelect(state => op.get(state, 'Router.match.path'));
     const visible = String(path).startsWith('/admin/taxonomy');
     const showTypeEditor = () => Modal.show(<TypeEditor handle={handle} />);
 
