@@ -38,7 +38,7 @@ const ErrorMsg = ({ error = {}, field }) => {
     return isError(field) ? <small>{message}</small> : null;
 };
 
-let TaxonomyEditor = (props, ref) => {
+let TaxonomyEditor = ({ value, ...props }, ref) => {
     const refs = useRef({
         description: null,
         name: null,
@@ -49,7 +49,7 @@ let TaxonomyEditor = (props, ref) => {
 
     const [state, update] = useDerivedState({
         error: null,
-        type: op.get(props, 'type'),
+        type: op.get(props, 'type', op.get(value, 'type')),
         objectId: op.get(props, 'objectId', null),
     });
 
@@ -113,39 +113,43 @@ let TaxonomyEditor = (props, ref) => {
 
         await dispatch('taxonomy-save', { value });
 
-        let saved = op.has(value, 'objectId')
-            ? await Reactium.Taxonomy.update(value)
-            : await Reactium.Taxonomy.create(value);
+        try {
+            let saved = op.has(value, 'objectId')
+                ? await Reactium.Taxonomy.update(value)
+                : await Reactium.Taxonomy.create(value);
 
-        saved = op.has(saved, 'toJSON') ? saved.toJSON() : saved;
+            saved = op.has(saved, 'toJSON') ? saved.toJSON() : saved;
 
-        if (!saved) {
-            const error = {
-                error: { message: __('unable to save taxonomy') },
-                value,
-            };
-            await dispatch('taxonomy-save-error', error);
-            return error;
+            if (!saved) {
+                const error = {
+                    error: { message: __('unable to save taxonomy') },
+                    value,
+                };
+                await dispatch('taxonomy-save-error', error);
+                return error;
+            }
+
+            await dispatch('taxonomy-saved', { result: saved, value });
+
+            return saved;
+        } catch (err) {
+            return { error: { message: err.message } };
         }
-
-        await dispatch('taxonomy-saved', { result: saved, value });
-
-        return saved;
     };
 
     const unMounted = () => !refs.name;
 
     const validate = async value => {
         const rqd = {
-            slug: {
-                field: 'slug',
-                focus: refs.slug,
-                message: __('slug is a required field'),
-            },
             name: {
                 field: 'name',
                 focus: refs.name,
                 message: __('name is a required field'),
+            },
+            slug: {
+                field: 'slug',
+                focus: refs.slug,
+                message: __('slug is a required field'),
             },
         };
 
@@ -158,7 +162,7 @@ let TaxonomyEditor = (props, ref) => {
             }
         }
 
-        if (valid === true) {
+        if (valid === true && !op.get(value, 'objectId')) {
             const { slug } = value;
             const exists = await Reactium.Taxonomy.exists({ slug });
 
@@ -179,17 +183,14 @@ let TaxonomyEditor = (props, ref) => {
     };
 
     const getValue = () => {
-        const value = Object.keys(refs).reduce((obj, key) => {
+        const v = Object.keys(refs).reduce((obj, key) => {
             const elm = op.get(refs, key);
-
-            if (!elm.value) return obj;
-            op.set(obj, key, elm.value);
-
+            op.set(obj, key, elm.value || null);
             return obj;
         }, {});
 
-        op.set(value, 'type', state.type);
-        return value;
+        op.set(v, 'type', state.type);
+        return v;
     };
 
     const clear = () => {
@@ -205,6 +206,7 @@ let TaxonomyEditor = (props, ref) => {
         clear,
         dispatch,
         getValue,
+        refs,
         setState,
         state,
         submit: onSubmit,
@@ -218,7 +220,11 @@ let TaxonomyEditor = (props, ref) => {
 
     return (
         <div className={op.get(props, 'className')}>
-            <input type='hidden' ref={elm => setRef('objectId', elm)} />
+            <input
+                type='hidden'
+                ref={elm => setRef('objectId', elm)}
+                defaultValue={op.get(value, 'objectId')}
+            />
             <div className={className('name')}>
                 <label>
                     <span className='sr-only'>Name:</span>
@@ -226,6 +232,7 @@ let TaxonomyEditor = (props, ref) => {
                         type='text'
                         placeholder={__('Name')}
                         ref={elm => setRef('name', elm)}
+                        defaultValue={op.get(value, 'name')}
                     />
                 </label>
                 <ErrorMsg error={state.error} field='name' />
@@ -237,6 +244,7 @@ let TaxonomyEditor = (props, ref) => {
                         type='text'
                         placeholder={__('Slug')}
                         ref={elm => setRef('slug', elm)}
+                        defaultValue={op.get(value, 'slug')}
                     />
                 </label>
                 <ErrorMsg error={state.error} field='slug' />
@@ -247,6 +255,7 @@ let TaxonomyEditor = (props, ref) => {
                     <textarea
                         ref={elm => setRef('description', elm)}
                         placeholder={__('Description')}
+                        defaultValue={op.get(value, 'description')}
                     />
                 </label>
                 <ErrorMsg error={state.error} field='description' />

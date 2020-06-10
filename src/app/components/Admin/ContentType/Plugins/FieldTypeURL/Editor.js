@@ -174,7 +174,7 @@ export default props => {
         addURL();
     };
 
-    const applyURLS = ({ contentType, value }) => {
+    const applyURLS = ({ value }) => {
         op.set(value, String(fieldName).toLowerCase(), URLS);
     };
 

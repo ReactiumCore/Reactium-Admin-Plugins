@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import Reactium, {
@@ -18,11 +19,389 @@ const STATUS = {
     READY: 'READY',
 };
 
+export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
+    const { Alert, Button, Carousel, Icon, Slide, Toast } = useHookComponent(
+        'ReactiumUI',
+    );
+    const ElementDialog = useHookComponent('ElementDialog');
+    const TaxonomyEditor = useHookComponent('TaxonomyEditor');
+
+    const {
+        editor,
+        fieldName,
+        inputType,
+        placeholder,
+        required,
+        taxonomy: type,
+    } = props;
+
+    const refs = useRef({ status: STATUS.PENDING }).current;
+
+    const [state, update] = useDerivedState({
+        taxonomy: [],
+        selected: [],
+    });
+
+    const setState = newState => {
+        if (editor.unMounted()) return;
+        update(newState);
+    };
+
+    const setStatus = newStatus => {
+        if (editor.unMounted()) return;
+        refs.status = newStatus;
+    };
+
+    const cx = Reactium.Utils.cxFactory(namespace);
+
+    const fetch = async () => {
+        const { taxonomies = {} } = await Reactium.Taxonomy.Type.retrieve({
+            slug: type,
+            verbos: true,
+        });
+
+        return _.sortBy(
+            Object.values(op.get(taxonomies, 'results', {}))
+                .map(item => (op.has(item, 'id') ? item.toJSON() : item))
+                .map(({ name, objectId, slug }) => ({
+                    type: fieldName,
+                    isTaxonomy: true,
+                    name,
+                    objectId,
+                    slug,
+                })),
+            'name',
+        );
+    };
+
+    const load = async () => {
+        if (refs.status !== STATUS.PENDING || !editor) return;
+        setStatus(STATUS.FETCHING);
+        const [taxonomy] = await Promise.all([fetch()]);
+
+        const slugs = _.pluck(op.get(editor.value, fieldName, []), 'slug');
+        const selected = taxonomy.filter(({ slug }) => slugs.includes(slug));
+
+        setStatus(STATUS.READY);
+        setState({ selected, taxonomy });
+    };
+
+    const isStatus = (...args) => Array.from(args).includes(refs.status);
+
+    const add = async (item, create = false) => {
+        op.del(item, 'deleted');
+        op.set(item, 'pending', true);
+        op.set(item, 'isTaxonomy', true);
+        op.set(item, 'type', fieldName);
+        updateSelected(item);
+
+        if (create === true) {
+            const { name, slug } = item;
+            await Reactium.Taxonomy.create({ slug, name, type });
+        }
+
+        return item;
+    };
+
+    const remove = item => {
+        op.set(item, 'deleted', true);
+        op.set(item, 'pending', true);
+        op.set(item, 'isTaxonomy', true);
+        op.set(item, 'type', fieldName);
+        updateSelected(item);
+        return item;
+    };
+
+    const updateSelected = item => {
+        let selected = state.selected || [];
+
+        const idx = _.findIndex(selected, { slug: item.slug });
+        if (idx >= 0) selected.splice(idx, 1, item);
+        else selected.push(item);
+
+        setState({ selected });
+    };
+
+    const hideEditor = () => {
+        refs.carousel.prev();
+        refs.taxEditor.clear();
+    };
+
+    const showEditor = () => {
+        refs.carousel.next();
+    };
+
+    const submitTaxonomy = () => refs.taxEditor.submit();
+
+    const onContentBeforeSave = ({ value }) => {
+        let { selected = [] } = state;
+        if (selected.length < 1) return;
+
+        op.set(value, fieldName, selected);
+        op.set(value, 'forceUpdate', true);
+    };
+
+    const onContentAfterSave = () => {
+        let { selected = [] } = state;
+
+        // clear pending
+        selected.forEach(item => op.del(item, 'pending'));
+
+        // clear deleted
+        selected = selected.filter(({ deleted }) => deleted !== true);
+
+        setState({ selected });
+    };
+
+    const onContentValidate = ({ context, value }) => {
+        let { selected } = state;
+        selected = selected.filter(({ deleted }) => deleted !== true);
+
+        if (selected.length > 0 || !required) return context;
+
+        const err = {
+            field: fieldName,
+            message: __('%name is a required parameter').replace(
+                /\%name/gi,
+                fieldName,
+            ),
+            value: selected,
+        };
+
+        context.error[fieldName] = err;
+        context.valid = false;
+
+        return context;
+    };
+
+    const onContentSave = () => {
+        if (!editor) return;
+
+        editor.addEventListener('validate', onContentValidate);
+        editor.addEventListener('save-success', onContentAfterSave);
+        editor.addEventListener('before-save', onContentBeforeSave);
+
+        return () => {
+            editor.removeEventListener('validate', onContentValidate);
+            editor.removeEventListener('save-success', onContentAfterSave);
+            editor.removeEventListener('before-save', onContentBeforeSave);
+        };
+    };
+
+    const onTaxonomySave = e => {
+        const { taxonomy } = state;
+        const { name, slug } = e.value;
+        const item = { name, slug };
+
+        add(item);
+
+        taxonomy.push(item);
+        setState({ taxonomy });
+
+        _.defer(() => refs.carousel.next());
+    };
+
+    const onTaxonomySaveSuccess = e => {
+        const { name, objectId, slug } = e.result;
+        const item = { name, objectId, slug };
+        add(item);
+    };
+
+    const _handle = () => ({
+        add,
+        cx,
+        editor,
+        fieldName,
+        hideEditor,
+        isStatus,
+        namespace,
+        placeholder,
+        refs,
+        remove,
+        required,
+        showEditor,
+        setState,
+        state,
+        type,
+    });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+
+    useEffect(() => {
+        if (!editor) return;
+        handle['editor'] = editor;
+        setHandle(handle);
+    }, [editor]);
+
+    useEffect(() => {
+        if (!refs.taxEditor) return;
+        refs.taxEditor.addEventListener('taxonomy-save', onTaxonomySave);
+        refs.taxEditor.addEventListener(
+            'taxonomy-saved',
+            onTaxonomySaveSuccess,
+        );
+
+        return () => {
+            refs.taxEditor.removeEventListener('taxonomy-save', onTaxonomySave);
+            refs.taxEditor.removeEventListener(
+                'taxonomy-saved',
+                onTaxonomySaveSuccess,
+            );
+        };
+    });
+
+    useAsyncEffect(load, [editor]);
+
+    useEffect(onContentSave);
+
+    return (
+        <ElementDialog {...props} className={cx()}>
+            <Carousel
+                animationSpeed={0.25}
+                loop
+                ref={elm => op.set(refs, 'carousel', elm)}>
+                <Slide>
+                    {isStatus(STATUS.READY) && (
+                        <Input {...handle} inputType={inputType} />
+                    )}
+                </Slide>
+                <Slide className='editor'>
+                    <TaxonomyEditor
+                        ref={elm => op.set(refs, 'taxEditor', elm)}
+                        type={type}
+                        className='flex-grow p-xs-20'
+                    />
+                    <div className='footer'>
+                        <Button
+                            appearance={Button.ENUMS.APPEARANCE.PILL}
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            onClick={() => submitTaxonomy()}
+                            outline
+                            size={Button.ENUMS.SIZE.SM}>
+                            <Icon
+                                name='Feather.Check'
+                                size={16}
+                                className='mr-xs-8'
+                            />
+                            {__('Save %name').replace(/\%name/gi, fieldName)}
+                        </Button>
+                        <Button
+                            className='back-btn'
+                            appearance={Button.ENUMS.APPEARANCE.CIRCLE}
+                            color={Button.ENUMS.COLOR.CLEAR}
+                            onClick={() => hideEditor()}>
+                            <Icon name='Feather.ChevronLeft' />
+                        </Button>
+                    </div>
+                </Slide>
+            </Carousel>
+        </ElementDialog>
+    );
+};
+
+export const Tagbox = props => {
+    const {
+        add,
+        cx,
+        editor,
+        fieldName,
+        namespace,
+        placeholder,
+        remove,
+        setState,
+        state,
+    } = props;
+
+    const formatter = val => {
+        if (!val) return val;
+
+        const item = _.findWhere(taxonomy, { slug: slugify(val) });
+
+        if (item) {
+            const { name } = item;
+            return String(name).toLowerCase();
+        }
+
+        return String(val).toLowerCase();
+    };
+
+    const { selected = [], taxonomy = [] } = state;
+
+    const { TagsInput } = useHookComponent('ReactiumUI');
+
+    const [data, setNewData] = useState(
+        taxonomy.map(({ slug, name }) => ({
+            value: slug,
+            label: formatter(name),
+        })),
+    );
+
+    const [value, setNewValue] = useState(
+        _.chain(selected)
+            .pluck('slug')
+            .uniq()
+            .compact()
+            .value(),
+    );
+
+    const setData = newData => {
+        if (editor.unMounted()) return;
+        setNewData(newData);
+    };
+
+    const setValue = newValue => {
+        if (editor.unMounted()) return;
+        setNewValue(newValue);
+    };
+
+    const onAdd = ({ item }, create = true) => {
+        // create a new taxonomy item if it doesn't exist
+        const slug = slugify(item);
+        if (create == true && _.findWhere(taxonomy, { slug })) return;
+
+        item = { slug, name: item };
+
+        add(item, create);
+    };
+
+    const onChange = e => {
+        const val = _.uniq(e.value.map(formatter));
+
+        val.forEach(item => onAdd({ item }, false));
+
+        setValue(val);
+    };
+
+    const onRemove = ({ item, value }) => {
+        const tax =
+            _.findWhere(taxonomy, { name: item }) ||
+            _.findWhere(taxonomy, { slug: item });
+
+        remove(tax);
+    };
+
+    const validator = val =>
+        !_.uniq(value.map(formatter)).includes(formatter(val));
+
+    return (
+        <div className={cx('tagbox')}>
+            <TagsInput
+                onAdd={onAdd}
+                onChange={onChange}
+                onRemove={onRemove}
+                data={data}
+                formatter={formatter}
+                placeholder={placeholder}
+                validator={validator}
+                value={value || []}
+            />
+        </div>
+    );
+};
+
 export const Checklist = props => {
-    const inputRef = useRef();
     const { add, cx, fieldName, namespace, remove, showEditor, state } = props;
     const { Button, Checkbox, Icon } = useHookComponent('ReactiumUI');
-
     const [taxonomy, setTaxonomy] = useState(state.taxonomy);
 
     const search = txt => {
@@ -48,7 +427,6 @@ export const Checklist = props => {
 
         const item = _.findWhere(taxonomy, { slug });
 
-        console.log('onChange', checked, slug, item);
         if (!item) return;
 
         if (checked) add(item);
@@ -109,213 +487,7 @@ export const Checklist = props => {
     );
 };
 
-export const Tagbox = props => {
-    const { cx, namespace, placeholder, state } = props;
-    const { TagsInput } = useHookComponent('ReactiumUI');
-
-    return (
-        <div className={cx('tagbox')}>
-            <TagsInput placeholder={placeholder} />
-        </div>
-    );
-};
-
 const Input = ({ inputType: type, ...props }) => {
     const Component = useHookComponent(type, () => null);
     return <Component {...props} />;
-};
-
-export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
-    const { Alert, Button, Carousel, Icon, Slide, Toast } = useHookComponent(
-        'ReactiumUI',
-    );
-    const ElementDialog = useHookComponent('ElementDialog');
-    const TaxonomyEditor = useHookComponent('TaxonomyEditor');
-
-    const {
-        editor,
-        fieldName,
-        inputType,
-        placeholder,
-        required,
-        taxonomy: type,
-    } = props;
-
-    const refs = useRef({ status: STATUS.PENDING }).current;
-
-    const [state, update] = useDerivedState({
-        taxonomy: [],
-        selected: [],
-    });
-
-    const setState = newState => {
-        if (editor.unMounted()) return;
-        update(newState);
-    };
-
-    const setStatus = newStatus => {
-        if (editor.unMounted()) return;
-        refs.status = newStatus;
-    };
-
-    const cx = Reactium.Utils.cxFactory(namespace);
-
-    const fetch = async () => {
-        const { taxonomies = {} } = await Reactium.Taxonomy.Type.retrieve({
-            slug: type,
-        });
-
-        return _.sortBy(
-            Object.values(
-                op.get(taxonomies, 'results', {}),
-            ).map(({ name, objectId, slug }) => ({ name, objectId, slug })),
-            'name',
-        );
-    };
-
-    const load = async () => {
-        if (refs.status !== STATUS.PENDING || !editor) return;
-        setStatus(STATUS.FETCHING);
-        const [taxonomy] = await Promise.all([fetch()]);
-
-        const slugs = _.pluck(op.get(editor.value, fieldName, []), 'slug');
-        const selected = taxonomy.filter(({ slug }) => slugs.includes(slug));
-
-        setStatus(STATUS.READY);
-        setState({ selected, taxonomy });
-    };
-
-    const isStatus = (...args) => {
-        args = Array.from(args);
-        return args.includes(refs.status);
-    };
-
-    const add = item => {
-        op.del(item, 'deleted');
-        op.set(item, 'pending', true);
-        updateSelected(item);
-    };
-
-    const remove = item => {
-        op.set(item, 'deleted', true);
-        op.set(item, 'pending', true);
-        updateSelected(item);
-    };
-
-    const updateSelected = item => {
-        let selected = state.selected || [];
-
-        const idx = _.findIndex(selected, { slug: item.slug });
-        if (idx >= 0) selected.splice(idx, 1, item);
-        else selected.push(item);
-
-        setState({ selected });
-    };
-
-    const showEditor = () => {
-        refs.carousel.next();
-    };
-
-    const submitTaxonomy = async () => refs.taxEditor.submit();
-
-    const onSave = e => {
-        const { taxonomy } = state;
-        const { name, slug } = e.value;
-        const item = { name, slug };
-
-        add(item);
-
-        taxonomy.push(item);
-        setState({ taxonomy });
-
-        _.defer(() => refs.carousel.next());
-    };
-
-    const onSaveSuccess = e => {
-        const { name, objectId, slug } = e.result;
-        const item = { name, objectId, slug };
-        add(item);
-    };
-
-    const _handle = () => ({
-        add,
-        cx,
-        editor,
-        fieldName,
-        isStatus,
-        namespace,
-        placeholder,
-        refs,
-        remove,
-        required,
-        showEditor,
-        setState,
-        state,
-        type,
-    });
-
-    const [handle, setHandle] = useEventHandle(_handle());
-
-    useEffect(() => {
-        if (!editor) return;
-        handle['editor'] = editor;
-        setHandle(handle);
-    }, [editor]);
-
-    useEffect(() => {
-        if (!refs.taxEditor) return;
-        refs.taxEditor.addEventListener('taxonomy-save', onSave);
-        refs.taxEditor.addEventListener('taxonomy-saved', onSaveSuccess);
-
-        return () => {
-            refs.taxEditor.removeEventListener('taxonomy-save', onSave);
-            refs.taxEditor.removeEventListener('taxonomy-saved', onSaveSuccess);
-        };
-    });
-
-    useAsyncEffect(load, [editor]);
-
-    return (
-        <ElementDialog {...props} className={cx()}>
-            <Carousel
-                animationSpeed={0.25}
-                loop
-                ref={elm => op.set(refs, 'carousel', elm)}>
-                <Slide>
-                    {isStatus(STATUS.READY) && (
-                        <Input {...handle} inputType={inputType} />
-                    )}
-                </Slide>
-                <Slide className='editor'>
-                    <TaxonomyEditor
-                        ref={elm => op.set(refs, 'taxEditor', elm)}
-                        type={type}
-                        className='flex-grow p-xs-20'
-                    />
-                    <div className='footer'>
-                        <Button
-                            appearance={Button.ENUMS.APPEARANCE.PILL}
-                            color={Button.ENUMS.COLOR.TERTIARY}
-                            onClick={() => submitTaxonomy()}
-                            outline
-                            size={Button.ENUMS.SIZE.SM}>
-                            <Icon
-                                name='Feather.Check'
-                                size={16}
-                                className='mr-xs-8'
-                            />
-                            {__('Save %name').replace(/\%name/gi, fieldName)}
-                        </Button>
-                        <Button
-                            className='back-btn'
-                            appearance={Button.ENUMS.APPEARANCE.CIRCLE}
-                            color={Button.ENUMS.COLOR.CLEAR}
-                            onClick={() => refs.carousel.prev()}>
-                            <Icon name='Feather.ChevronLeft' />
-                        </Button>
-                    </div>
-                </Slide>
-            </Carousel>
-        </ElementDialog>
-    );
 };

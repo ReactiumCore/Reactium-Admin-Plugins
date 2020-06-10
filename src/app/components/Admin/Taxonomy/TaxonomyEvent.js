@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import op from 'object-path';
 
 export class TaxonomyEvent extends CustomEvent {

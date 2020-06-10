@@ -138,3 +138,104 @@ $tax-slide-height: 320px !default;
         padding: 20px;
     }
 }
+
+.admin-taxonomy {
+    padding-top: $height-admin-header;
+    &-form {
+        width: 100%;
+        padding: 20px;
+    }
+    &-editor {
+        width: 80vw;
+        max-width: 480px;
+        min-height: 242px;
+        position: relative;
+
+        .ar-carousel {
+            min-height: 242px;
+            position: relative;
+            align-items: stretch;
+        }
+
+        .ar-carousel-slide {
+            min-height: 242px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    &-confirm {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &-list {
+        padding: $padding-admin-content-zone;
+        padding-left: 14px;
+
+        &,
+        li {
+            list-style: none;
+            margin: 0;
+        }
+    }
+
+    &-list-item {
+        width: 100%;
+
+        h2 {
+            display: flex;
+            align-items: center;
+            width: 100%;
+
+            button {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                margin-right: 8px;
+            }
+        }
+
+        ul {
+            margin: 0;
+            padding: 0 0 0 48px;
+
+            li {
+                padding: 12px 8px 12px 18px;
+                margin: 8px 0;
+                background-color: $color-light;
+                border-radius: 2px;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100%;
+
+                > *:first-child {
+                    flex-grow: 1;
+                }
+
+                small {
+                    color: $color-gray;
+                    font-family: monospace;
+                }
+
+                button {
+                    width: 40px;
+                    height: 40px;
+                    padding: 0;
+                    margin-left: 8px;
+                }
+
+                .trash {
+                    fill: $color-red;
+                }
+            }
+        }
+    }
+}

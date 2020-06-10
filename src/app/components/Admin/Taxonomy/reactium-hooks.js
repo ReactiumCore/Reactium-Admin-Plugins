@@ -7,11 +7,13 @@
 import SDK from './sdk';
 import _ from 'underscore';
 import op from 'object-path';
-import Component from './index';
 import FieldType from './FieldType';
+import Breadcrumbs from './Breadcrumbs';
+import SidebarWidget from './SidebarWidget';
+import TaxonomyEditor from './TaxonomyEditor';
+import Taxonomy, { HeaderWidget } from './index';
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import TaxonomyEditor from './TaxonomyEditor';
 import TaxonomyTypeEditor from './TaxonomyTypeEditor';
 import { ContentEditor, Checklist, Tagbox } from './ContentEditor';
 
@@ -25,6 +27,35 @@ Reactium.Plugin.register('Taxonomy-plugin').then(() => {
         component: 'FieldTypeTaxonomy',
         showHelpText: false,
     };
+
+    Reactium.Zone.addComponent({
+        id: 'TAXONOMY',
+        zone: ['admin-taxonomy-content'],
+        component: Taxonomy,
+        order: 0,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'TAXONOMY-BREADCRUMBS',
+        zone: ['admin-header'],
+        component: Breadcrumbs,
+        order: 0,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'TAXONOMY-SIDEBAR-WIDGET',
+        zone: ['admin-sidebar-menu'],
+        component: SidebarWidget,
+        order: 401,
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'TAXONOMY-NEW',
+        zone: ['admin-logo'],
+        component: HeaderWidget,
+        order: 100,
+    });
+
     Reactium.Component.register('AdminChecklist', Checklist);
     Reactium.Component.register('AdminTagbox', Tagbox);
     Reactium.Component.register('TaxonomyEditor', TaxonomyEditor);

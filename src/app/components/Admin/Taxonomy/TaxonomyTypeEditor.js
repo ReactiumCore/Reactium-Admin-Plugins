@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import { TaxonomyEvent } from './TaxonomyEvent';
 
 import React, {
@@ -21,8 +22,9 @@ import Reactium, {
     useRegisterHandle,
 } from 'reactium-core/sdk';
 
-const Error = ({ error, field }) => {
-    const { focus, message } = error;
+const ErrorMsg = ({ error = {}, field }) => {
+    const focus = op.get(error, 'focus');
+    const message = op.get(error, 'message');
 
     const isError = field => op.get(error, 'field') === field;
 
@@ -33,13 +35,12 @@ const Error = ({ error, field }) => {
         } catch (err) {}
     }, [focus]);
 
-    return isError(field) ? <span>{message}</span> : null;
+    return isError(field) ? <small>{message}</small> : null;
 };
 
-let TaxonomyTypeEditor = (props, ref) => {
+let TaxonomyTypeEditor = ({ value, ...props }, ref) => {
     const refs = useRef({
         description: null,
-        form: null,
         name: null,
         slug: null,
     }).current;
@@ -48,7 +49,8 @@ let TaxonomyTypeEditor = (props, ref) => {
 
     const [state, update] = useDerivedState({
         error: null,
-        value: op.get(props, 'value', null),
+        type: op.get(props, 'type'),
+        objectId: op.get(props, 'objectId', null),
     });
 
     const setRef = (key, elm) => op.set(refs, key, elm);
@@ -58,12 +60,12 @@ let TaxonomyTypeEditor = (props, ref) => {
         update(newState);
     };
 
-    const className = field => cn('form-group', { error: isError('name') });
+    const className = field => cn('form-group', { error: isError(field) });
 
     const dispatch = async (eventType, eventObj, callback) => {
         if (unMounted()) return;
         await Reactium.Hook.run(eventType, eventObj);
-        const evt = TaxonomyEvent(eventType, eventObj);
+        const evt = new TaxonomyEvent(eventType, eventObj);
         handle.dispatchEvent(evt);
     };
 
@@ -75,49 +77,79 @@ let TaxonomyTypeEditor = (props, ref) => {
         }
     };
 
-    const save = async value => {
-        console.log(value);
+    const onSubmit = async () => {
+        // get form value
+        const value = getValue();
 
-        await dispatch('taxonomy-type-before-save', value);
+        // execute save operation
+        const result = await save(value);
+
+        if (op.has(result, 'error')) {
+            // set the error message
+            setState({ error: result.error });
+        } else {
+            // clear the form
+            clear();
+        }
+
+        // return result
+        return result;
+    };
+
+    const save = async value => {
+        await dispatch('taxonomy-before-save', { value });
 
         const valid = await validate(value);
 
         if (valid !== true) {
-            const error = { error: new Error(valid) };
-            await dispatch('taxonomy-type-save-error', error);
+            const error = { error: valid, value };
+            await dispatch('taxonomy-save-error', error);
             return error;
         }
 
-        let saved = op.has(value, 'objectId')
-            ? await Reactium.Taxonomy.Type.update(value)
-            : await Reactium.Taxonomy.Type.create(value);
+        let { slug } = value;
+        slug = String(slugify(slug)).toLowerCase();
+        op.set(value, 'slug', slug);
 
-        saved = op.has(saved, 'toJSON') ? saved.toJSON() : saved;
+        await dispatch('taxonomy-save', { value });
 
-        if (!saved) {
-            const error = { error: new Error('unable to save taxonomy type') };
-            await dispatch('taxonomy-type-save-error', error);
-            return error;
+        try {
+            let saved = op.has(value, 'objectId')
+                ? await Reactium.Taxonomy.Type.update(value)
+                : await Reactium.Taxonomy.Type.create(value);
+
+            saved = op.has(saved, 'toJSON') ? saved.toJSON() : saved;
+
+            if (!saved) {
+                const error = {
+                    error: { message: __('unable to save taxonomy') },
+                    value,
+                };
+                await dispatch('taxonomy-save-error', error);
+                return error;
+            }
+
+            await dispatch('taxonomy-saved', { result: saved, value });
+
+            return saved;
+        } catch (err) {
+            return { error: { message: err.message } };
         }
-
-        await dispatch('taxonomy-type-saved', saved);
-
-        return saved;
     };
 
-    const unMounted = () => !refs.form;
+    const unMounted = () => !refs.name;
 
     const validate = async value => {
         const rqd = {
-            slug: {
-                field: 'slug',
-                focus: refs.slug,
-                message: __('slug is a required field'),
-            },
             name: {
                 field: 'name',
                 focus: refs.name,
                 message: __('name is a required field'),
+            },
+            slug: {
+                field: 'slug',
+                focus: refs.slug,
+                message: __('slug is a required field'),
             },
         };
 
@@ -130,7 +162,7 @@ let TaxonomyTypeEditor = (props, ref) => {
             }
         }
 
-        if (valid === true) {
+        if (valid === true && !op.get(value, 'objectId')) {
             const { slug } = value;
             const exists = await Reactium.Taxonomy.Type.exists({ slug });
 
@@ -138,43 +170,46 @@ let TaxonomyTypeEditor = (props, ref) => {
                 ? {
                       field: 'slug',
                       focus: refs.slug,
-                      message: __('%slug already exists').replace(
-                          /\%slug/gi,
-                          slug,
-                      ),
+                      message: __('%slug %type already exists')
+                          .replace(/\%slug/gi, slug)
+                          .replace(/\%type/gi, state.type),
                   }
                 : valid;
         }
 
-        await dispatch('taxonomy-type-validate', { valid, value });
+        await dispatch('taxonomy-validate', { valid, value });
 
         return valid;
     };
 
-    const onSubmit = async () => {
-        // get form value
-        const value = refs.form.getValue();
+    const getValue = () => {
+        const v = Object.keys(refs).reduce((obj, key) => {
+            const elm = op.get(refs, key);
+            op.set(obj, key, elm.value || null);
+            return obj;
+        }, {});
 
-        // execute save operation
-        const result = await save(value);
+        op.set(v, 'type', state.type);
+        return v;
+    };
 
-        if (op.has(result, 'error')) {
-            // set the error message
-            setState({ error: result.error });
-        } else {
-            // clear the form
-            refs.form.setValue(null);
-        }
+    const clear = () => {
+        setState({ error: null });
 
-        // return result
-        return result;
+        Object.values(refs).forEach(elm => {
+            elm.value = '';
+        });
     };
 
     const _handle = () => ({
         Error,
-        form: refs.form,
+        clear,
+        dispatch,
+        getValue,
+        refs,
         setState,
         state,
+        submit: onSubmit,
         unMounted,
     });
 
@@ -183,52 +218,49 @@ let TaxonomyTypeEditor = (props, ref) => {
     useImperativeHandle(ref, () => handle, [handle]);
     useRegisterHandle('TaxonomyTypeEditor', () => handle, [handle]);
 
-    useEffect(() => {
-        if (!refs.form) return;
-        handle['form'] = refs.form;
-        setHandle(handle);
-    }, [refs.form]);
-
     return (
-        <EventForm onSubmit={onSubmit} ref={elm => setRef('form', elm)}>
+        <div className={op.get(props, 'className')}>
             <input
                 type='hidden'
-                name='objectId'
-                value={op.get(state, 'value.objectId')}
+                ref={elm => setRef('objectId', elm)}
+                defaultValue={op.get(value, 'objectId')}
             />
             <div className={className('name')}>
                 <label>
-                    Name:
+                    <span className='sr-only'>Name:</span>
                     <input
                         type='text'
-                        name='name'
+                        placeholder={__('Name')}
                         ref={elm => setRef('name', elm)}
+                        defaultValue={op.get(value, 'name')}
                     />
                 </label>
-                <Error error={state.error} field='name' />
+                <ErrorMsg error={state.error} field='name' />
             </div>
             <div className={className('slug')}>
                 <label>
-                    Slug:
+                    <span className='sr-only'>Slug:</span>
                     <input
                         type='text'
-                        name='slug'
+                        placeholder={__('Slug')}
                         ref={elm => setRef('slug', elm)}
+                        defaultValue={op.get(value, 'slug')}
                     />
                 </label>
-                <Error error={state.error} field='slug' />
+                <ErrorMsg error={state.error} field='slug' />
             </div>
             <div className={className('description')}>
                 <label>
-                    Description:
+                    <span className='sr-only'>Description:</span>
                     <textarea
-                        name='description'
                         ref={elm => setRef('description', elm)}
+                        placeholder={__('Description')}
+                        defaultValue={op.get(value, 'description')}
                     />
                 </label>
-                <Error error={state.error} field='description' />
+                <ErrorMsg error={state.error} field='description' />
             </div>
-        </EventForm>
+        </div>
     );
 };
 

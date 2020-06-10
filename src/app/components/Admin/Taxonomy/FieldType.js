@@ -54,7 +54,9 @@ export default props => {
         setStatus(STATUS.FETCHING);
         const { results = {} } = await Reactium.Taxonomy.Type.list();
         setStatus(STATUS.READY);
-        return Object.values(results);
+        return Object.values(results).map(item =>
+            op.has(item, 'id') ? item.toJSON() : item,
+        );
     };
 
     const getInputs = async () => {
