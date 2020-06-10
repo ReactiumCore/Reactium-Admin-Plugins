@@ -893,7 +893,6 @@ const ContentType = props => {
                 value={getValue()}
                 className={'webform webform-content-type'}
                 required={['type']}
-                throttleChanges={false}
                 validator={validator}>
                 <TypeName id={id} error={ui.error['type']} />
             </EventForm>
