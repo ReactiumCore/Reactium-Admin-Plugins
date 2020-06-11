@@ -152,7 +152,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                                     data-align='left'>
                                     {config.label}
                                 </span>
-                                <Checkbox name={key} />
+                                <Checkbox name={key} value={true} />
                                 <small>{helpText}</small>
                             </label>
                         </div>
@@ -167,7 +167,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                                     data-align='left'>
                                     {config.label}
                                 </span>
-                                <Toggle name={key} />
+                                <Toggle name={key} value={true} />
                                 <small>{helpText}</small>
                             </label>
                         </div>
