@@ -18,13 +18,7 @@ const Types = () => {
 
     if (!types.length)
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100px',
-                }}>
+            <div className='syndicate-loading'>
                 <Spinner />
             </div>
         );
@@ -48,7 +42,6 @@ const Types = () => {
         return inputs;
     }, {});
 
-    console.log({ types, inputs });
     return (
         <SettingEditor
             settings={{

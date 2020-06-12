@@ -1,7 +1,30 @@
 .syndicate-clients {
-    &-list {}
+    padding: 16px;
+
+    &-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &-list {
+        list-style: none;
+        margin: 0;
+    }
+
+    .token-column {
+        &:hover {
+            cursor: pointer;
+        }
+    }
 }
 
-.syndicate-client {
-
+.syndicate-new {
+    padding: 16px;
+    width: 300px;
+    &-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 }
