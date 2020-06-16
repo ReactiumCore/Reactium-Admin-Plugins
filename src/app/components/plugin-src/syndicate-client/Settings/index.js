@@ -29,7 +29,7 @@ const settings = {
             type: 'toggle',
             label: __('Client Sync Enabled'),
             tooltip: __('Enable or disable sychronizing to this satellite.'),
-            required: true,
+            required: false,
         },
         'SyndicateClient.cron': {
             type: 'text',
