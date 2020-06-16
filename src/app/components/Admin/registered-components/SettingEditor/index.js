@@ -4,7 +4,7 @@ import React, {
     useLayoutEffect as useWindowEffect,
     useEffect,
 } from 'react';
-import { __, useSettingGroup, useHandle } from 'reactium-core/sdk';
+import { __, useSettingGroup, useHandle, Zone } from 'reactium-core/sdk';
 import {
     Dialog,
     Toggle,
@@ -215,6 +215,16 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             header={{
                 title,
             }}>
+            <Zone
+                zone={'settings-editor-all'}
+                groupName={groupName}
+                settingGroup={settingGroup}
+            />
+            <Zone
+                zone={`settings-editor-${groupName}`}
+                groupName={groupName}
+                settingGroup={settingGroup}
+            />
             <EventForm
                 value={value}
                 onError={onError}

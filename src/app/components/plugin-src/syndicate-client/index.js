@@ -1,5 +1,6 @@
 import Reactium from 'reactium-core/sdk';
 import Settings from './Settings';
+import SettingsCheck from './Settings/Check';
 import SidebarWidget from './SidebarWidget';
 
 const registerPlugin = async () => {
@@ -9,8 +10,8 @@ const registerPlugin = async () => {
         [
             'Setting.create',
             'Setting.update',
-            'setting.SyndicationClient-get',
-            'setting.SyndicationClient-set',
+            'setting.SyndicateClient-get',
+            'setting.SyndicateClient-set',
         ],
         false,
     );
@@ -27,6 +28,13 @@ const registerPlugin = async () => {
             id: 'SYNDICATE-CLIENT-SIDEBAR-WIDGET',
             zone: 'admin-sidebar-settings',
             component: SidebarWidget,
+            order: 0,
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'SYNDICATE-CLIENT-SETTINGS-CHECK',
+            zone: 'settings-editor-SyndicateClient',
+            component: SettingsCheck,
             order: 0,
         });
     }
