@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import op from 'object-path';
-import Actinium from 'appdir/api';
 
 import React, {
     forwardRef,
@@ -86,6 +85,7 @@ let UrlSelect = (props, ref) => {
                 width: 90,
             },
         },
+        filter: op.get(props, 'filter'),
         header: op.get(props, 'header', ENUMS.DEFAULT.HEADER),
         height: op.get(props, 'height'),
         search: null,
@@ -123,7 +123,7 @@ let UrlSelect = (props, ref) => {
         let urls = Reactium.Cache.get('UrlSelect.urls');
 
         if (!urls || refresh === true) {
-            const { results = {} } = await Actinium.Cloud.run('urls');
+            const { results = {} } = await Reactium.Cloud.run('urls');
             urls = Object.values(results);
         }
 
@@ -150,6 +150,7 @@ let UrlSelect = (props, ref) => {
                 op.set(item, 'route', route);
 
                 return {
+                    ...item,
                     route,
                     actions: (
                         <Button
@@ -171,9 +172,13 @@ let UrlSelect = (props, ref) => {
         return unsub;
     };
 
-    const filter = () => {
-        const { search, urls = [] } = state;
+    const _filter = () => {
+        let { filter, search, urls = [] } = state;
+
+        urls = typeof filter === 'function' ? urls.filter(filter) : urls;
+
         if (!search) return urls;
+
         const s = String(search).toLowerCase();
         return urls.filter(({ route }) =>
             String(route)
@@ -221,7 +226,7 @@ let UrlSelect = (props, ref) => {
     useAsyncEffect(initialize);
 
     const render = useCallback(() => {
-        const data = filter();
+        const data = _filter();
         const { columns, header, height } = state;
 
         return (
@@ -262,6 +267,7 @@ let UrlSelect = (props, ref) => {
 UrlSelect = forwardRef(UrlSelect);
 
 UrlSelect.defaultProps = {
+    filter: () => true,
     height: 'calc(100vh - 200px)',
     width: '75vw',
 };
