@@ -17,7 +17,7 @@ const DefaultItemCompare = ({ item }) => {
 
 const MenuCompare = props => {
     const field = op.get(props, 'field', {});
-    const { items = [] } = op.get(props, 'value');
+    const { items = [] } = op.get(props, 'value', {});
     const { fieldName: title } = field;
     const { Dialog } = useHookComponent('ReactiumUI');
     const itemTypes = _.indexBy(Reactium.MenuBuilder.ItemType.list, 'id');
