@@ -33,7 +33,7 @@ export default props => {
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
-    const [URLS, setNewURLS] = useState(op.get(editor.value, 'urls', {}));
+    const [URLS, setNewURLS] = useState({});
     const [errorText, setNewErrorText] = useState(
         op.get(errors, [fieldName, 'message']),
     );

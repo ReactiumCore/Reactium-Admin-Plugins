@@ -1,6 +1,6 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { Comparison, Editor, FieldType } from './index';
+import { Comparison, Editor, FieldType, UrlSelect } from './index';
 
 const ID = 'URLS';
 
@@ -19,6 +19,8 @@ Reactium.Plugin.register(ID).then(() => {
             required: true,
         },
     };
+
+    Reactium.Component.register('UrlSelect', UrlSelect);
 
     Reactium.Component.register(fieldType.component, FieldType);
 
