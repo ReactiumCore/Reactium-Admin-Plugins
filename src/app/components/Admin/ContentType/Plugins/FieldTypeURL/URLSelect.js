@@ -88,7 +88,7 @@ let UrlSelect = (props, ref) => {
         filter: op.get(props, 'filter'),
         header: op.get(props, 'header', ENUMS.DEFAULT.HEADER),
         height: op.get(props, 'height'),
-        search: null,
+        search: op.get(props, 'search'),
         width: op.get(props, 'width'),
     });
     const setState = newState => {
@@ -227,7 +227,7 @@ let UrlSelect = (props, ref) => {
 
     const render = useCallback(() => {
         const data = _filter();
-        const { columns, header, height } = state;
+        const { columns, header, height, search } = state;
 
         return (
             <Dialog
@@ -239,7 +239,10 @@ let UrlSelect = (props, ref) => {
                 <div style={{ width: '75vw' }}>
                     {isStatus(ENUMS.STATUS.READY) && (
                         <>
-                            <SearchBar onChange={e => _onSearch(e)} />
+                            <SearchBar
+                                onChange={e => _onSearch(e)}
+                                value={search}
+                            />
                             <DataTable
                                 columns={columns}
                                 data={data}
@@ -269,12 +272,13 @@ UrlSelect = forwardRef(UrlSelect);
 UrlSelect.defaultProps = {
     filter: () => true,
     height: 'calc(100vh - 200px)',
+    search: null,
     width: '75vw',
 };
 
 export { UrlSelect, UrlSelect as default };
 
-const SearchBar = ({ onChange = () => {} }) => {
+const SearchBar = ({ onChange = () => {}, value }) => {
     const { Icon } = useHookComponent('ReactiumUI');
 
     return (
@@ -289,6 +293,7 @@ const SearchBar = ({ onChange = () => {} }) => {
                             margin: 0,
                             paddingLeft: 36,
                         }}
+                        value={value || ''}
                     />
                     <Icon
                         name='Feather.Search'
