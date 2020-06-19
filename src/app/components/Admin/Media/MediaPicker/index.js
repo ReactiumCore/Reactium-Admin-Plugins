@@ -11,7 +11,6 @@ import useData from 'components/Admin/Media/_utils/useData';
 import Reactium, {
     __,
     useDerivedState,
-    useHandle,
     useHookComponent,
     useRegisterHandle,
     useStore,
@@ -71,15 +70,12 @@ const MediaPickerComponent = forwardRef(
             onItemSelect,
             onItemUnselect,
             onShow,
-            pref,
             style,
             ...props
         },
         ref,
     ) => {
         const Uploads = useHookComponent('MediaUploads');
-
-        const target = new EventTarget();
 
         const store = useStore();
 
@@ -181,7 +177,7 @@ const MediaPickerComponent = forwardRef(
         };
 
         const _onChange = () => {
-            const { confirm, minSelect } = state;
+            const { minSelect } = state;
 
             if (minSelect && minSelect > 0 && selection.length < minSelect) {
                 return _onError({
@@ -255,8 +251,6 @@ const MediaPickerComponent = forwardRef(
             dropzoneRef.current.dropzone.removeAllFiles();
             return Reactium.Media.upload([e.added[0]], directory);
         };
-
-        const _onFileRemoved = file => {};
 
         const _onItemSelect = objectId => {
             const { maxSelect } = state;
@@ -461,10 +455,16 @@ const MediaPickerComponent = forwardRef(
         };
 
         const render = () => {
-            const { collapsible, data, dismissable, pref, uploads } = state;
+            const {
+                collapsible,
+                data,
+                dismissable,
+                fetched,
+                pref,
+                confirm,
+            } = state;
             const items = _filter(data);
             const selected = getSelection();
-            const hasItems = Object.keys(data).length > 0;
 
             return (
                 <Dropzone
@@ -508,9 +508,7 @@ const MediaPickerComponent = forwardRef(
                             <div className={cx('container')}>
                                 <div className={cx('container-library')}>
                                     <Scrollbars height='100%'>
-                                        <Uploads
-                                            onRemoveFile={_onFileRemoved}
-                                        />
+                                        <Uploads />
                                         <div className='content'>
                                             {Object.values(items).map(
                                                 renderItem,
@@ -518,7 +516,7 @@ const MediaPickerComponent = forwardRef(
                                         </div>
                                     </Scrollbars>
                                 </div>
-                                {selection.length > 0 && (
+                                {selection.length > 0 && confirm === true && (
                                     <div className={cx('container-selection')}>
                                         <Scrollbars height='100%'>
                                             <div className='content'>
@@ -531,6 +529,11 @@ const MediaPickerComponent = forwardRef(
                                 )}
                             </div>
                         </div>
+                        {fetched !== true && (
+                            <div className='flex center py-80'>
+                                <Spinner />
+                            </div>
+                        )}
                     </Dialog>
                 </Dropzone>
             );
@@ -541,109 +544,109 @@ const MediaPickerComponent = forwardRef(
 );
 
 /**
- * @api {RegisteredComponent} <MediaPicker/> MediaPicker
- * @apiDescription <img src='https://cdn.reactium.io/ss-media-picker.png' style='width: 100%;' />
+     * @api {RegisteredComponent} <MediaPicker/> MediaPicker
+     * @apiDescription <img src='https://cdn.reactium.io/ss-media-picker.png' style='width: 100%;' />
 
- Dialog that displays the Media Objects and allows for one or
- many to be selected. The `MediaPicker` can be used as a `Modal Dialog` or as an
- inline `Dialog`. When used as a `Modal`, be sure to set `dismissable={true}`. When used inline, be sure to set `collapsible={true}` and the `pref` property if you want to remember the collapsed state.
- * @apiName MediaPicker
- * @apiGroup Registered Component
- * @apiParam {String} ID The unique ID used when registering the component's handle function.
- * @apiParam {String} className HTML class to apply to the wrapper container.
- * @apiParam {Boolean} [collapsible=false] Whether the dialog can be collapsed and expanded.
- * @apiParam {Boolean} [confirm=false] Whether selection requires a confirmation before the `onChange` event is triggered.
- * @apiParam {Boolean} [dismissable=false] Whether the dialog displays a close button to exit.
- * @apiParam {Mixed} [filter] Filter to apply to the media fetch used to display the Media Objects. Valid values: `Array`, `Function`, `String`.
- * @apiParam {Object} [header] Header configuration object. See [http://ui.reactium.io/toolkit/components/dialog-molecule](Reactium UI - Dialog) for more details.
- * @apiParam {Number} [maxSelect=1] Number greater than or equal to 1 representing the number of Media Objects that can be selected. When the value is less than 1, any number of items can be selected.
- * @apiParam {Number} [minSelect=1] Number greater than or equal to 1 representing the number of Media Objects that must be selected before the `onChange` event is triggered. When the value is less than 1, no mininum is required.
- * @apiParam {Function} [onCancel] Callback executed when the `onCancel` event is triggered.
- * @apiParam {Function} [onChange] Callback executed when the `onChange` event is triggered.
- * @apiParam {Function} [onDismiss] Callback executed when the `onDismiss` event is triggered.
- * @apiParam {Function} [onError] Callback executed when the `onError` event is triggered.
- * @apiParam {Function} [onItemSelect] Callback executed when the `onItemSelect` event is triggered.
- * @apiParam {Function} [onItemUnselect] Callback executed when the `onItemUnselect` event is triggered.
- * @apiParam {Function} [onShow] Callback executed when the `onShow` event is triggered.
- * @apiParam {String} [pref] Preferrance id used when the Dialog is collapsible. See [http://ui.reactium.io/toolkit/components/dialog-molecule](Reactium UI - Dialog) for more details.
- * @apiParam {String} [search] Filter Media Objects based on the search term entered.
- * @apiParam {Array} [searchFields] Array of fields to search relative to the Media Object.
- * @apiParam {Array} [selection] Array of Media Object IDs. Use this if you wish to have Media Objects selected by default.
- * @apiParam {Object} [style] Style object to apply to the wrapper container.
- * @apiParam {Mixed} [title] `String` or `Node` that displays the Dialog title. This value is used if you do not specify a `header` object.
- * @apiParam Event cancel Triggered when the selection is canceled. This event only fires if `confirm` is set to true.
- * @apiParam Event change Triggered when selection has changed. If `confirm` is true, it is triggred when the `done` button is pressed.
- * @apiParam Event dismiss Triggered when the Dialog has been closed.
- * @apiParam Event error Triggered when an error occurs.
- * @apiParam Event onItemSelect Triggered when an item is selected.
- * @apiParam Event onItemUnselect Triggered when an item has been un-selected.
- * @apiParam Event onShow Triggered when the Dialog is shown.
- * @apiExample Modal Usage:
-import React, { useSelect } from 'react';
-import { useHandle, useHookComponent } from 'reactium-core/sdk';
+     Dialog that displays the Media Objects and allows for one or
+     many to be selected. The `MediaPicker` can be used as a `Modal Dialog` or as an
+     inline `Dialog`. When used as a `Modal`, be sure to set `dismissable={true}`. When used inline, be sure to set `collapsible={true}` and the `pref` property if you want to remember the collapsed state.
+     * @apiName MediaPicker
+     * @apiGroup Registered Component
+     * @apiParam {String} ID The unique ID used when registering the component's handle function.
+     * @apiParam {String} className HTML class to apply to the wrapper container.
+     * @apiParam {Boolean} [collapsible=false] Whether the dialog can be collapsed and expanded.
+     * @apiParam {Boolean} [confirm=false] Whether selection requires a confirmation before the `onChange` event is triggered.
+     * @apiParam {Boolean} [dismissable=false] Whether the dialog displays a close button to exit.
+     * @apiParam {Mixed} [filter] Filter to apply to the media fetch used to display the Media Objects. Valid values: `Array`, `Function`, `String`.
+     * @apiParam {Object} [header] Header configuration object. See [http://ui.reactium.io/toolkit/components/dialog-molecule](Reactium UI - Dialog) for more details.
+     * @apiParam {Number} [maxSelect=1] Number greater than or equal to 1 representing the number of Media Objects that can be selected. When the value is less than 1, any number of items can be selected.
+     * @apiParam {Number} [minSelect=1] Number greater than or equal to 1 representing the number of Media Objects that must be selected before the `onChange` event is triggered. When the value is less than 1, no mininum is required.
+     * @apiParam {Function} [onCancel] Callback executed when the `onCancel` event is triggered.
+     * @apiParam {Function} [onChange] Callback executed when the `onChange` event is triggered.
+     * @apiParam {Function} [onDismiss] Callback executed when the `onDismiss` event is triggered.
+     * @apiParam {Function} [onError] Callback executed when the `onError` event is triggered.
+     * @apiParam {Function} [onItemSelect] Callback executed when the `onItemSelect` event is triggered.
+     * @apiParam {Function} [onItemUnselect] Callback executed when the `onItemUnselect` event is triggered.
+     * @apiParam {Function} [onShow] Callback executed when the `onShow` event is triggered.
+     * @apiParam {String} [pref] Preferrance id used when the Dialog is collapsible. See [http://ui.reactium.io/toolkit/components/dialog-molecule](Reactium UI - Dialog) for more details.
+     * @apiParam {String} [search] Filter Media Objects based on the search term entered.
+     * @apiParam {Array} [searchFields] Array of fields to search relative to the Media Object.
+     * @apiParam {Array} [selection] Array of Media Object IDs. Use this if you wish to have Media Objects selected by default.
+     * @apiParam {Object} [style] Style object to apply to the wrapper container.
+     * @apiParam {Mixed} [title] `String` or `Node` that displays the Dialog title. This value is used if you do not specify a `header` object.
+     * @apiParam Event cancel Triggered when the selection is canceled. This event only fires if `confirm` is set to true.
+     * @apiParam Event change Triggered when selection has changed. If `confirm` is true, it is triggred when the `done` button is pressed.
+     * @apiParam Event dismiss Triggered when the Dialog has been closed.
+     * @apiParam Event error Triggered when an error occurs.
+     * @apiParam Event onItemSelect Triggered when an item is selected.
+     * @apiParam Event onItemUnselect Triggered when an item has been un-selected.
+     * @apiParam Event onShow Triggered when the Dialog is shown.
+     * @apiExample Modal Usage:
+    import React, { useSelect } from 'react';
+    import { useHandle, useHookComponent } from 'reactium-core/sdk';
 
-export default MyComponent = () => {
-    // Selected state
-    const [selection, setSelection] = useState([]);
+    export default MyComponent = () => {
+        // Selected state
+        const [selection, setSelection] = useState([]);
 
-    // Get the MediaPicker component
-    const MediaPicker = useHookComponent('MediaPicker');
+        // Get the MediaPicker component
+        const MediaPicker = useHookComponent('MediaPicker');
 
-    // Get the modal from the AdminTools handle
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
+        // Get the modal from the AdminTools handle
+        const tools = useHandle('AdminTools');
+        const Modal = op.get(tools, 'Modal');
 
-    // On MediaPicker change handler
-    const _onMediaPickerChange = e => {
-        console.log(e.target.value);
-        setSelection(e.target.selection);
-    };
+        // On MediaPicker change handler
+        const _onMediaPickerChange = e => {
+            console.log(e.target.value);
+            setSelection(e.target.selection);
+        };
 
-    // Show picker function
-    const _showPicker = () => {
-        Modal.show(
-            <MediaPicker
-                confirm
-                dismissable
-                filter='image'
-                onChange={_onMediaPickerChange}
-                onDismiss={() => Modal.dismiss()}
-                title='Select Image'
-            />,
+        // Show picker function
+        const _showPicker = () => {
+            Modal.show(
+                <MediaPicker
+                    confirm
+                    dismissable
+                    filter='image'
+                    onChange={_onMediaPickerChange}
+                    onDismiss={() => Modal.dismiss()}
+                    title='Select Image'
+                />,
+            );
+        };
+
+        return (
+            <div>
+                {selection.length > 0 && <div>{selection.join(', ')}}</div>
+                <button type='button' onClick={_showPicker}>Show Picker</button>
+            </div>
         );
     };
+     * @apiExample Inline Usage:
+    export default MyComponent = () => {
+        // Get the MediaPicker component
+        const MediaPicker = useHookComponent('MediaPicker');
 
-    return (
-        <div>
-            {selection.length > 0 && <div>{selection.join(', ')}}</div>
-            <button type='button' onClick={_showPicker}>Show Picker</button>
-        </div>
-    );
-};
- * @apiExample Inline Usage:
-export default MyComponent = () => {
-    // Get the MediaPicker component
-    const MediaPicker = useHookComponent('MediaPicker');
+        // On MediaPicker select handler
+        const _onVideoSelected = e => {
+            console.log(e.target.value);
+            setSelection(e.target.selection);
+        };
 
-    // On MediaPicker select handler
-    const _onVideoSelected = e => {
-        console.log(e.target.value);
-        setSelection(e.target.selection);
+        return (
+            <div>
+                <MediaPicker
+                    collapsible
+                    filter='video'
+                    onItemSelect={_onVideoSelected}
+                    pref='admin.dialog.media.video'
+                    title='Select Video'
+                />
+            </div>
+        );
     };
-
-    return (
-        <div>
-            <MediaPicker
-                collapsible
-                filter='video'
-                onItemSelect={_onVideoSelected}
-                pref='admin.dialog.media.video'
-                title='Select Video'
-            />
-        </div>
-    );
-};
- */
+     */
 MediaPickerComponent.propTypes = {
     ID: PropTypes.string,
     className: PropTypes.string,
