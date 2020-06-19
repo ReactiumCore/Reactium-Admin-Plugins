@@ -6,8 +6,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Reactium, {
     __,
     useAsyncEffect,
-    useDerivedState,
-    useHandle,
     useHookComponent,
     useIsContainer,
 } from 'reactium-core/sdk';
@@ -22,7 +20,7 @@ const ENUMS = {
 
 export default props => {
     // prettier-ignore
-    const { Alert, Button, Checkbox, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
+    const { Alert, Button, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
 
     const { editor, fieldName, placeholder, required } = props;
@@ -30,7 +28,6 @@ export default props => {
     const refs = useRef({ status: ENUMS.STATUS.PENDING }).current;
 
     const { errors } = editor;
-    const replacers = { '%fieldName': fieldName };
 
     const cx = Reactium.Utils.cxFactory('editor-urls');
 
@@ -55,8 +52,6 @@ export default props => {
         if (editor.unMounted()) return;
         setNewURLS(newURLS);
     };
-
-    const getStatus = () => refs.status;
 
     const isRoute = route => {
         const routes = Reactium.Routing.get();
@@ -91,9 +86,11 @@ export default props => {
             setError(true);
             return;
         }
-        const type = op.get(editor.contentType, 'collection');
+        const collection = op.get(editor.contentType, 'collection');
+        const type = op.get(editor.contentType, 'machineName');
         const meta = {
             contentId: isSaved() ? editor.value.objectId : undefined,
+            collection,
             type,
         };
 
@@ -104,7 +101,7 @@ export default props => {
             objectId,
             pending: true,
             route,
-            blueprint: type,
+            blueprint: collection,
         });
         setURLS(newURLS);
         setError(null);
@@ -178,14 +175,14 @@ export default props => {
         op.set(value, String(fieldName).toLowerCase(), URLS);
     };
 
-    const afterSave = async e => {
+    const afterSave = async () => {
         const u = await fetch();
         setURLS(u);
         setError(false);
         setErrorText(null);
     };
 
-    const validate = ({ context, value }) => {
+    const validate = ({ context }) => {
         let urls = Object.values(URLS).filter(
             url => op.get(url, 'delete') !== true,
         );
@@ -224,8 +221,6 @@ export default props => {
     useAsyncEffect(load, [editor.value]);
 
     useEffect(onSave);
-
-    const className = cn('form-group', { error: isError });
 
     return (
         <ElementDialog {...props}>
