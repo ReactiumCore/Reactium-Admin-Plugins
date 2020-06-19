@@ -221,6 +221,7 @@ const BranchesScene = props => {
                         'updatedAt',
                         'canRead',
                         'canWrite',
+                        'schema',
                     ].includes(fieldSlug),
             );
         return missingKeys;
