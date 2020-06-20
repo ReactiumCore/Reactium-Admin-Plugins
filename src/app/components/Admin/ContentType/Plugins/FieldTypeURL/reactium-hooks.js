@@ -26,7 +26,8 @@ Reactium.Plugin.register(ID).then(() => {
 
     Reactium.Content.Editor.register(ID, { component: Editor });
 
-    Reactium.Content.Comparison.register(ID, { component: Comparison });
+    // TODO: Can't compare because this field type in the editor doesn't use the
+    // Reactium.Content.Comparison.register(ID, { component: Comparison });
 
     Reactium.ContentType.FieldType.register(ID, fieldType);
 });
