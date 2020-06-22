@@ -190,6 +190,19 @@ const Tags = ({ editor }) => {
         setState(newValue);
     };
 
+    const getTags = () => {
+        let tags = op.get(value, 'meta.tags') || [];
+        if (typeof tags === 'string') {
+            if (String(tags).startsWith('[')) {
+                tags = JSON.parse(tags);
+            } else {
+                tags = tags.split(',');
+            }
+        }
+
+        return tags;
+    };
+
     return (
         <>
             <div className='form-group mb-xs-0'>
@@ -200,7 +213,7 @@ const Tags = ({ editor }) => {
                 placeholder={__('Add tag')}
                 name='meta.tags'
                 onChange={e => onChange(e)}
-                value={op.get(value, 'meta.tags')}
+                value={getTags()}
             />
         </>
     );

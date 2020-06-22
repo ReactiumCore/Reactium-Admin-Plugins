@@ -1,4 +1,3 @@
-import lunr from 'lunr';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
@@ -6,32 +5,21 @@ import { Link } from 'react-router-dom';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
 import DefaultEmpty from 'components/Admin/Media/List/Empty';
-import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
+import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
-    __,
     useDerivedState,
     useEventHandle,
     useZoneComponents,
     Zone,
 } from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-} from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 const Media = props => {
     const containerRef = useRef();
 
-    const [state, setState] = useDerivedState(props, [
-        'data',
-        'empty',
-        'emptyComponent',
-    ]);
+    const [state] = useDerivedState(props, ['data', 'empty', 'emptyComponent']);
 
     const Empty = useCallback(() =>
         op.get(state, 'emptyComponent', DefaultEmpty),
@@ -65,28 +53,6 @@ Media.defaultProps = {
     empty: false,
 };
 
-const useActions = () => {
-    const [state, setState] = useDerivedState({
-        status: ENUMS.STATUS.INIT,
-    });
-
-    const setActions = actions => setState({ actions });
-
-    useEffect(() => {
-        if (state.status === ENUMS.STATUS.INIT && !state.actions) {
-            setState({ status: ENUMS.STATUS.PENDING });
-
-            let actions = {};
-
-            Reactium.Hook.run('media-file-actions', actions).then(() => {
-                setState({ status: ENUMS.STATUS.READY, actions });
-            });
-        }
-    });
-
-    return [state.actions || {}, setActions];
-};
-
 const CardActions = props => {
     const { refs } = props;
 
@@ -113,8 +79,6 @@ const CardActions = props => {
     const collapse = () => setState({ expanded: false });
 
     const expand = () => setState({ expanded: true });
-
-    const isMounted = () => !unMounted();
 
     const toggle = () => setState({ expanded: !state.expanded });
 
@@ -165,7 +129,7 @@ const CardInfo = ({ editURL, refs, url }) => {
         },
     };
 
-    const toggleActions = e => {
+    const toggleActions = () => {
         if (!refs.actions.current) return;
         refs.actions.current.toggle();
     };
@@ -188,7 +152,7 @@ const CardInfo = ({ editURL, refs, url }) => {
 };
 
 const AudioCard = props => {
-    const { className, edgeURL, ext, poster, refs, type, url } = props;
+    const { className, edgeURL, ext, poster, refs, type } = props;
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -214,7 +178,7 @@ const AudioCard = props => {
 };
 
 const FileCard = props => {
-    const { className, editURL, poster, refs, type, url } = props;
+    const { className, editURL, poster, refs, type } = props;
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -238,7 +202,7 @@ const FileCard = props => {
 };
 
 const ImageCard = props => {
-    const { className, editURL, poster, refs, url } = props;
+    const { className, editURL, poster, refs } = props;
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -260,11 +224,7 @@ const ImageCard = props => {
 };
 
 const VideoCard = props => {
-    const { className, edgeURL, ext, poster, refs, type, url } = props;
-
-    const style = poster && {
-        backgroundImage: `url('${poster}')`,
-    };
+    const { className, edgeURL, ext, poster, refs } = props;
 
     return (
         <div
@@ -286,11 +246,10 @@ const VideoCard = props => {
 
 const MediaCard = props => {
     const refs = { actions: useRef() };
-    let { file, objectId, thumbnail, type } = props;
+    let { objectId, thumbnail, type, url: edgeURL = '' } = props;
     type = String(type).toLowerCase();
 
     const className = cn('media-card', `media-card-${type}`);
-    const edgeURL = file && Reactium.Media.url(file);
     const editURL = `/admin/media/edit/${objectId}`;
     const ext = edgeURL.split('.').pop();
     const poster = thumbnail && Reactium.Media.url(thumbnail);

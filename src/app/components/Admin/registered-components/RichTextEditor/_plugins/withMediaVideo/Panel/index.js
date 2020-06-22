@@ -247,8 +247,6 @@ let Panel = ({
     return render();
 };
 
-Panel = forwardRef(Panel);
-
 Panel.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,

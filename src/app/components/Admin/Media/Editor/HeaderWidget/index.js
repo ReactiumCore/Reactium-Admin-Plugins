@@ -1,24 +1,26 @@
-import op from 'object-path';
+import { __, useHandle } from 'reactium-core/sdk';
+import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
-import React, { useCallback, useEffect, useState } from 'react';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
-const SaveButton = ({ type }) => {
-    const editor = useHandle('MediaEditor');
+const SaveButton = () => {
+    const editor = useHandle('MediaEditor', {});
 
     const [busy, setBusy] = useState(false);
 
-    const onStatus = e => {
+    const onStatus = () => {
         setBusy(editor.isBusy());
     };
 
     useEffect(() => {
+        if (!editor) return;
+        if (Object.keys(editor).length < 1) return;
+
         editor.addEventListener('STATUS', onStatus);
         return () => {
             editor.removeEventListener('STATUS', onStatus);
         };
-    }, [editor]);
+    }, [Object.keys(editor)]);
 
     const render = () => {
         const label = busy ? __('Saving...') : __('Save File');
@@ -45,7 +47,7 @@ const SaveButton = ({ type }) => {
     return render();
 };
 
-export default props => {
+export default () => {
     const { path } = useRouteParams(['path']);
     const visible = String(path).startsWith('/admin/media/edit');
     return visible ? <SaveButton /> : null;
