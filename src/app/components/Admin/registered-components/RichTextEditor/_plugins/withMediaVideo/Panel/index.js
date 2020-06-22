@@ -18,7 +18,7 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const TYPE = 'video';
 

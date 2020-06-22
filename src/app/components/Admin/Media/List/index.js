@@ -118,7 +118,9 @@ const CardActions = props => {
     );
 };
 
-const CardInfo = ({ editURL, refs, url }) => {
+const CardInfo = ({ editURL, redirect = {}, refs, url }) => {
+    const redirectURL = op.get(redirect, 'url');
+
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
         style: {
@@ -141,9 +143,14 @@ const CardInfo = ({ editURL, refs, url }) => {
                     {url}
                 </a>
             </div>
-            <Button {...buttonProps} to={editURL} type={Button.ENUMS.TYPE.LINK}>
-                <Icon name='Feather.Edit2' size={20} />
-            </Button>
+            {!redirectURL && (
+                <Button
+                    {...buttonProps}
+                    to={editURL}
+                    type={Button.ENUMS.TYPE.LINK}>
+                    <Icon name='Feather.Edit2' size={20} />
+                </Button>
+            )}
             <Button {...buttonProps} onClick={toggleActions}>
                 <Icon name='Feather.MoreVertical' />
             </Button>
@@ -178,7 +185,8 @@ const AudioCard = props => {
 };
 
 const FileCard = props => {
-    const { className, editURL, poster, refs, type } = props;
+    const { className, editURL, poster, redirect = {}, refs, type } = props;
+    const redirectURL = op.get(redirect, 'url');
 
     const style = poster && {
         backgroundImage: `url('${poster}')`,
@@ -190,9 +198,15 @@ const FileCard = props => {
             onMouseLeave={() => refs.actions.current.collapse()}>
             <div>
                 <div className='media-preview'>
-                    <Link to={editURL} style={style}>
-                        {!poster && <MediaIcon type={type} />}
-                    </Link>
+                    {redirectURL ? (
+                        <a href={redirectURL} target='_blank' style={style}>
+                            {!poster && <MediaIcon type={type} />}
+                        </a>
+                    ) : (
+                        <Link to={redirectURL || editURL} style={style}>
+                            {!poster && <MediaIcon type={type} />}
+                        </Link>
+                    )}
                     <CardActions {...props} />
                 </div>
                 <CardInfo {...props} />
@@ -202,8 +216,8 @@ const FileCard = props => {
 };
 
 const ImageCard = props => {
-    const { className, editURL, poster, refs } = props;
-
+    const { className, editURL, poster, redirect = {}, refs } = props;
+    const redirectURL = op.get(redirect, 'url');
     const style = poster && {
         backgroundImage: `url('${poster}')`,
     };
@@ -214,7 +228,11 @@ const ImageCard = props => {
             onMouseLeave={() => refs.actions.current.collapse()}>
             <div>
                 <div className='media-preview'>
-                    <Link to={editURL} style={style} />
+                    {redirectURL ? (
+                        <a href={redirectURL} target='_blank' style={style} />
+                    ) : (
+                        <Link to={editURL} style={style} />
+                    )}
                     <CardActions {...props} />
                 </div>
                 <CardInfo {...props} />

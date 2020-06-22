@@ -1,9 +1,7 @@
-import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import copy from 'copy-to-clipboard';
+import React, { useRef } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
-import React, { useEffect, useRef } from 'react';
 import Reactium, { __, useHandle } from 'reactium-core/sdk';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 
@@ -16,11 +14,16 @@ const ImageCrop = props => {
 
     const Toast = op.get(tools, 'Toast');
 
-    const { data, setState, state = {} } = editor;
+    const { setState, state = {} } = editor;
 
     const onCopyClick = () => {
         const image = op.get(state.value, field);
-        const url = Reactium.Media.url(image);
+        const url = op.get(
+            state.value,
+            'redirect.url',
+            Reactium.Media.url(image),
+        );
+
         if (url) {
             copy(url);
             Toast.show({
@@ -34,7 +37,12 @@ const ImageCrop = props => {
     const onRefreshClick = () => {
         const file = op.get(state.value, 'file');
         const objectId = op.get(state.value, 'objectId');
-        const url = Reactium.Media.url(file);
+        const url = op.get(
+            state.value,
+            'redirect.url',
+            Reactium.Media.url(file),
+        );
+
         if (url && objectId) {
             return Reactium.Media.crop({ field, objectId, options, url }).then(
                 results => {
@@ -53,16 +61,18 @@ const ImageCrop = props => {
     };
 
     const render = () => {
-        const image = op.get(state, ['value', field]);
-        const url = Reactium.Media.url(image);
+        const image = op.get(state.value, field);
+        const url = image
+            ? Reactium.Media.url(image)
+            : op.get(state.value, 'redirect.url');
 
-        return (
+        return !url ? null : (
             <Dialog
                 header={{ title: label }}
-                pref='admin.dialog.media.editor.thumbnail'>
+                pref={`admin.dialog.media.editor.${field}`}>
                 <div className='admin-image-crop'>
-                    {image && url && <img src={url} ref={imageRef} />}
-                    {!image && (
+                    {url && <img src={url} ref={imageRef} />}
+                    {!url && (
                         <Icon
                             name='Feather.Image'
                             size={56}
@@ -73,7 +83,7 @@ const ImageCrop = props => {
                         appearance='pill'
                         className='refresh'
                         color='default'
-                        onClick={e => onRefreshClick()}
+                        onClick={() => onRefreshClick()}
                         data-tooltip={tooltip.generate}
                         size='sm'
                         type='button'>
@@ -84,7 +94,7 @@ const ImageCrop = props => {
                             color='default'
                             type='button'
                             appearance='circle'
-                            onClick={e => onCopyClick()}
+                            onClick={() => onCopyClick()}
                             data-vertical-align='middle'
                             data-align='left'
                             data-tooltip={tooltip.copy}>

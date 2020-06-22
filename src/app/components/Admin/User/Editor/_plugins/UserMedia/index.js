@@ -1,11 +1,10 @@
 import _ from 'underscore';
 import Empty from './Empty';
 import op from 'object-path';
-import cn from 'classnames';
 import ENUMS from 'components/Admin/Media/enums';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,
@@ -13,7 +12,6 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useReduxState,
-    Zone,
 } from 'reactium-core/sdk';
 
 const noop = () => {};
@@ -45,8 +43,8 @@ const UserMedia = ({ editor }) => {
     const [type, setNewType] = useState();
 
     // Editor
-    const { cx, isNew, isMounted, setState, state = {}, unMounted } = editor;
-    const { tab, value } = state;
+    const { cx, isMounted, setState, state = {}, unMounted } = editor;
+    const { value } = state;
     const meta = op.get(value, 'meta', {});
 
     // Functions
@@ -61,8 +59,6 @@ const UserMedia = ({ editor }) => {
         },
         debug: false,
     };
-
-    const emptyClassName = cx('media-empty');
 
     const isEmpty = () => Object.keys(op.get(meta, 'media', {})).length < 1;
 
@@ -127,10 +123,9 @@ const UserMedia = ({ editor }) => {
         }
     };
 
-    const _onMediaChange = e => {
+    const _onMediaChange = () => {
         const library = op.get(redux, 'library');
         const ids = Object.keys(data);
-        const lib = _.pluck(library, 'objectId');
         const add = library.filter(item => {
             const { objectId, user } = item;
 

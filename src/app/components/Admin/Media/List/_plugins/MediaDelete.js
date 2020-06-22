@@ -1,16 +1,25 @@
 import op from 'object-path';
 import React, { useCallback } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
-import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
+// import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
+//import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
 
-const MediaDelete = ({ className, objectId, url, zone: zones, ...props }) => {
+const MediaDelete = ({
+    className,
+    objectId,
+    redirect = {},
+    url,
+    zone: zones,
+}) => {
+    const redirectURL = op.get(redirect, 'url');
+
     const zone = zones[0];
 
     const tools = useHandle('AdminTools');
 
-    // const ConfirmBox = useHookComponent('ConfirmBox');
+    const ConfirmBox = useHookComponent('ConfirmBox');
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const Modal = op.get(tools, 'Modal');
 
@@ -40,7 +49,7 @@ const MediaDelete = ({ className, objectId, url, zone: zones, ...props }) => {
 
     const isEditor = String(zone).includes('admin-media-editor');
 
-    return (
+    return redirectURL ? null : (
         <Button
             block
             className={className}

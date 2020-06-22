@@ -2,7 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { Alert, EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { Alert, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -108,11 +108,9 @@ let UserEditor = (
         className,
         id: ComponentID,
         namespace,
-        onChange,
         onError,
         onFail,
         onLoad,
-        onReady,
         onStatus,
         onSubmit,
         onSuccess,
@@ -147,7 +145,7 @@ let UserEditor = (
 
     const [errors, setErrors] = useState();
 
-    const [updated, setUpdated] = useState();
+    const [, setUpdated] = useState();
 
     const [prevState, setPrevState] = useDerivedState({
         ...defaultState,
@@ -712,7 +710,7 @@ const ContentTabs = ({ editor }) => {
     return (
         <>
             <div className={editor.cx('tabs')}>
-                {Reactium.User.Content.list.map((item, i) => {
+                {Reactium.User.Content.list.map(item => {
                     if (!item.tab) return null;
 
                     const { id, label } = op.get(item, 'tab');

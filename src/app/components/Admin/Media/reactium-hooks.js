@@ -1,5 +1,4 @@
 import op from 'object-path';
-import ENUMS from './enums';
 import domain from './domain';
 import Editor from './Editor';
 import Actinium from 'appdir/api';
