@@ -1,6 +1,5 @@
 import axios from 'axios';
 import _ from 'underscore';
-import uuid from 'uuid/v4';
 import ENUMS from './enums';
 import moment from 'moment';
 import op from 'object-path';
@@ -9,9 +8,6 @@ import api from 'appdir/api/config';
 import Reactium from 'reactium-core/sdk';
 
 const SCRIPT = '/assets/js/umd/media-uploader/media-uploader.js';
-
-const debug = (caller, ...args) =>
-    ENUMS.DEBUG === true ? console.log(caller, ...args) : () => {};
 
 const paramToArray = value => _.compact(Array.isArray(value) ? value : [value]);
 
@@ -84,7 +80,7 @@ class Media {
 
     __onStatus(params) {
         const { uploads = {} } = this.state;
-        const { ID, progress, status, url } = params;
+        const { ID, progress, status } = params;
 
         if (!ID) return;
 
@@ -179,7 +175,6 @@ class Media {
 
         // 1.0 - get state
         const { uploads = {} } = this.state;
-        const len = Object.keys(uploads).length;
         let changed = false;
 
         // 2.0 - Get completed uploads
@@ -238,8 +233,6 @@ class Media {
     }
 
     async fetch(params = {}) {
-        const library = {};
-
         const limit = op.get(params, 'limit', 50);
         const page = Number(op.get(params, 'page', this.page));
         const directory = op.get(params, 'directory');

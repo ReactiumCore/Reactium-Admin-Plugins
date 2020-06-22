@@ -1,10 +1,9 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { ReactEditor, useSlate } from 'slate-react';
-import { Editor, Range, Transforms } from 'slate';
+import { Editor, Transforms } from 'slate';
 import {
     Button,
     Dialog,
@@ -14,8 +13,6 @@ import {
 } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     __,
-    useDerivedState,
-    useEventHandle,
     useFocusEffect,
     useHandle,
     useHookComponent,
@@ -40,19 +37,13 @@ const CloseButton = props => (
     </Button>
 );
 
-let Panel = (
-    {
-        removeButtonLabel,
-        submitButtonLabel,
-        children,
-        placeholder,
-        selection: initialSelection,
-        title,
-        url: initialUrl,
-        ...props
-    },
-    ref,
-) => {
+let Panel = ({
+    submitButtonLabel,
+    placeholder,
+    selection: initialSelection,
+    title,
+    ...props
+}) => {
     const modalRef = useRef();
 
     const tools = useHandle('AdminTools');
@@ -66,11 +57,11 @@ let Panel = (
     const editor = useSlate();
 
     // Initial state
-    const [picker, setPicker] = useState();
+    const [, setPicker] = useState();
 
     const [selection, setSelection] = useState(initialSelection);
 
-    const [value, setValue] = useState({});
+    const [value] = useState({});
 
     // className prefixer
     const cx = cls =>
@@ -113,7 +104,7 @@ let Panel = (
             children: [{ text: '' }],
         };
 
-        const [currentNode, currentNodeAt] = Editor.node(editor, selection);
+        const [currentNode] = Editor.node(editor, selection);
         const [parentNode, parentPath] = Editor.parent(editor, selection);
 
         let type = op.get(parentNode, 'type');
@@ -123,7 +114,6 @@ let Panel = (
             const parentProps = { ...parentNode };
             delete parentProps.children;
 
-            const currentType = op.get(currentNode, 'type', 'p');
             const currentText = op.get(currentNode, 'text', '');
 
             const children = [];
@@ -153,13 +143,7 @@ let Panel = (
     const _onMediaSelect = e => {
         const value = Object.values(op.get(e, 'value', {}));
         const item = value.length > 0 ? value[0] : {};
-        const file = op.get(item, 'file');
-        if (!file) return;
-
-        let url = Reactium.Media.url(file);
-        url = String(url).includes('/localhost:') ? item.url : url;
-
-        const { objectId } = item;
+        const { objectId, url } = item;
 
         let poster = op.get(item, 'thumbnail');
         poster = poster ? Reactium.Media.url(poster) : poster;
@@ -219,7 +203,7 @@ let Panel = (
     // Renderers
     const render = () => {
         const header = {
-            elements: [<CloseButton onClick={hide} />],
+            elements: [<CloseButton key='close-button' onClick={hide} />],
             title,
         };
 

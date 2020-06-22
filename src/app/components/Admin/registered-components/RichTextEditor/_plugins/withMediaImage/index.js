@@ -1,22 +1,21 @@
+import React from 'react';
 import _ from 'underscore';
 import Panel from './Panel';
 import cn from 'classnames';
 import op from 'object-path';
-import { Editor, Transforms } from 'slate';
-import { ReactEditor, useEditor, useSelected, useFocused } from 'slate-react';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
-import React, { useEffect, useState } from 'react';
+import { Editor, Transforms } from 'slate';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import { ReactEditor, useEditor, useSelected } from 'slate-react';
 
 const Plugin = new RTEPlugin({ type: 'image', order: 50 });
 
 Plugin.callback = editor => {
     // register format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ ID, children, src, objectId, type, ...props }) => {
+        element: ({ ID, children, src }) => {
             const editor = useEditor();
-            const focused = useFocused();
             const selected = useSelected();
 
             const getSelection = () => {
