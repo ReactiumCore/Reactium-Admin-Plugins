@@ -4,14 +4,13 @@ import Leaf from './Leaf';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
-import ENUMS from './enums';
 import op from 'object-path';
 import Element from './Element';
 import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
 import RTEPlugin from './RTEPlugin';
 import PropTypes from 'prop-types';
-import { createEditor, Transforms } from 'slate';
+import { createEditor } from 'slate';
 import { Editable, ReactEditor, Slate } from 'slate-react';
 import { useRegistryFilter, useEditorPlugins, useSelectProps } from './_utils';
 
@@ -41,7 +40,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         name,
         namespace,
         onChange,
-        onFocus,
         panel: showPanel,
         sidebar: showSidebar,
         toolbar: showToolbar,
@@ -69,7 +67,6 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
 
     // 0.3 - References
     const containerRef = useRef();
-    const inputRef = useRef();
     const panelRef = useRef();
     const sidebarRef = useRef();
     const toolbarRef = useRef();

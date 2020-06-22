@@ -1,48 +1,49 @@
 import _ from 'underscore';
 import op from 'object-path';
+import { Icon } from '@atomic-reactor/reactium-ui';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, {
-    __,
-    useFulfilledObject,
-    useHookComponent,
-} from 'reactium-core/sdk';
+import { __, useFulfilledObject, useHookComponent } from 'reactium-core/sdk';
+
+const defaultValue = {
+    children: [{ type: 'p', children: [{ text: '' }] }],
+};
 
 export default props => {
-    let editor = props.editor;
-    let { fieldName: name, label, placeholder } = props;
+    let { editor, fieldName: name, label, placeholder } = props;
 
     label = label || __('Content');
     placeholder = placeholder || __('Enter content...');
 
     const { slug } = editor;
 
-    const defaultValue = {
-        children: [{ type: 'p', children: [{ text: '' }] }],
-    };
-
-    const currentValue = op.get(editor, ['value', name], defaultValue);
+    const valueRef = useRef(op.get(editor.value, [name], defaultValue));
 
     const editorRef = useRef();
 
     const RichTextEditor = useHookComponent('RichTextEditor');
 
     const [previousSlug, setPreviousSlug] = useState();
-    const [value, setNewValue] = useState(currentValue);
+    const [value, setNewValue] = useState(valueRef.current);
     const [ready] = useFulfilledObject(editor.value, [name]);
 
     const setValue = newValue => {
-        if (_.isEqual(value, newValue)) return;
-        setNewValue(newValue);
+        if (newValue === null) {
+            valueRef.current = null;
+        } else {
+            newValue = { ...valueRef.current, ...newValue };
+            valueRef.current = newValue;
+        }
+        updateValue();
     };
 
-    const _onEditorChange = e => {
-        const newValue = op.get(e.target, 'value', defaultValue);
-        setValue(newValue);
-        editor.setValue({ [name]: newValue });
+    const onEditorChange = e => setValue(e.target.value);
+
+    const _updateValue = () => {
+        setNewValue(valueRef.current);
+        editor.setDirty();
     };
 
-    const onEditorChange = _.throttle(_onEditorChange, 500, { leading: false });
+    const updateValue = _.throttle(_updateValue, 1500, { leading: false });
 
     const reload = e => {
         const newValue = e
@@ -54,6 +55,8 @@ export default props => {
         setValue(newValue);
     };
 
+    const onSave = e => op.set(e.value, name, valueRef.current);
+
     useEffect(() => {
         if (!ready) return;
         if (!editorRef.current) return;
@@ -62,12 +65,15 @@ export default props => {
     }, [editorRef.current, ready, slug]);
 
     useEffect(() => {
+        if (!editor) return;
         editor.addEventListener('load', reload);
+        editor.addEventListener('before-save', onSave);
 
         return () => {
             editor.removeEventListener('load', reload);
+            editor.removeEventListener('before-save', onSave);
         };
-    });
+    }, [editor]);
 
     const render = () => {
         return (

@@ -5,11 +5,10 @@ import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
-import { slugify } from 'components/Admin/ContentType';
 import DEFAULT_ENUMS from 'components/Admin/Content/enums';
 import useProperCase from 'components/Admin/Tools/useProperCase';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
-import { Alert, EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { Alert, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -28,7 +27,6 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useRegisterHandle,
-    Zone,
 } from 'reactium-core/sdk';
 
 /**
@@ -106,7 +104,7 @@ let ContentEditor = (
 
     const Toast = op.get(tools, 'Toast');
 
-    let { path, type, slug, branch = 'master' } = useRouteParams([
+    let { type, slug, branch = 'master' } = useRouteParams([
         'type',
         'slug',
         'branch',
@@ -124,10 +122,9 @@ let ContentEditor = (
     const [dirty, setNewDirty] = useState(true);
     const [errors, setErrors] = useState({});
     const [stale, setNewStale] = useState(false);
-    const [status, setStatus] = useState('pending');
+    const [status] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
-    const [updated, update] = useState();
     const [value, setNewValue] = useState();
     const [previous, setPrevious] = useState({});
 
@@ -284,8 +281,6 @@ let ContentEditor = (
             return Promise.reject(message);
         }
     };
-
-    const getContentType = () => _.findWhere(types, { type });
 
     const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
@@ -640,10 +635,8 @@ let ContentEditor = (
         next();
     };
 
-    const _onStatus = e => {
-        const { type, detail } = e;
+    const _onStatus = ({ detail }) =>
         dispatch('status', { event: detail }, onStatus);
-    };
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
@@ -875,7 +868,7 @@ let ContentEditor = (
 
     const render = () => {
         if (ready !== true) return <Loading />;
-        const { sidebar, title } = state;
+        const { title } = state;
         const currentValue = value || {};
         const [contentRegions, sidebarRegions] = regions();
 

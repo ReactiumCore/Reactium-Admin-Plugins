@@ -1,9 +1,6 @@
 import uuid from 'uuid/v4';
 import op from 'object-path';
 import React, { forwardRef, useImperativeHandle } from 'react';
-import ENUMS from '../enums';
-const { LIST_TYPES } = ENUMS;
-import { useEditor } from 'slate-react';
 
 const Wrap = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => props);
@@ -16,11 +13,8 @@ export default ({
     element,
     blocks = [],
     formats = [],
-    ...handle
 }) => {
     let output;
-
-    const editor = useEditor();
 
     const { type } = element;
     if (!type) return <Wrap {...attributes}>{children}</Wrap>;
