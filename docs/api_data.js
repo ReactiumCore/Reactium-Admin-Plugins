@@ -8427,7 +8427,7 @@ define({ "api": [
     "type": "RegisteredComponent",
     "url": "<MediaPicker/>",
     "title": "MediaPicker",
-    "description": "<img src='https://cdn.reactium.io/ss-media-picker.png' style='width: 100%;' /> <p>Dialog that displays the Media Objects and allows for one or many to be selected. The <code>MediaPicker</code> can be used as a <code>Modal Dialog</code> or as an inline <code>Dialog</code>. When used as a <code>Modal</code>, be sure to set <code>dismissable={true}</code>. When used inline, be sure to set <code>collapsible={true}</code> and the <code>pref</code> property if you want to remember the collapsed state.</p>",
+    "description": "<img src='https://cdn.reactium.io/ss-media-picker.png' style='width: 100%;' /> <pre><code> Dialog that displays the Media Objects and allows for one or  many to be selected. The `MediaPicker` can be used as a `Modal Dialog` or as an  inline `Dialog`. When used as a `Modal`, be sure to set `dismissable={true}`. When used inline, be sure to set `collapsible={true}` and the `pref` property if you want to remember the collapsed state.</code></pre>",
     "name": "MediaPicker",
     "group": "Registered_Component",
     "parameter": {
