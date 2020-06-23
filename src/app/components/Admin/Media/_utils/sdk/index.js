@@ -261,14 +261,13 @@ class Media {
             prev,
         };
 
-        this.setState(
-            {
-                library: files,
-                pagination,
-                fetched: Date.now(),
-            },
-            true,
-        );
+        const newState = {
+            library: files,
+            pagination,
+            fetched: Date.now(),
+        };
+
+        this.setState(newState, true);
 
         return media;
     }

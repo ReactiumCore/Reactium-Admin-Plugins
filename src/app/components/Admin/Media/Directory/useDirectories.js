@@ -5,7 +5,7 @@ import Reactium, { useDerivedState } from 'reactium-core/sdk';
 
 const useDirectories = (params = {}) => {
     const [state, setState] = useDerivedState({
-        data: undefined,
+        data: null,
         status: ENUMS.STATUS.INIT,
     });
 

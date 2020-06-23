@@ -1,7 +1,7 @@
 import React from 'react';
 import ENUMS from '../enums';
-import domain from '../domain';
-import { useHandle, Zone } from 'reactium-core/sdk';
+import op from 'object-path';
+import { useSelect, Zone } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 /**
@@ -10,7 +10,9 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
  * -----------------------------------------------------------------------------
  */
 const Toolbar = ({ Media, zone = 'admin-media-toolbar' }) => {
-    return Media.isEmpty() ? null : (
+    const { empty } = useSelect(state => op.get(state, 'Media.pagination', {}));
+
+    return empty === true ? null : (
         <div className={Media.cname('toolbar')}>
             <div className='flex middle flex-grow'>
                 <div className='mr-xs-20'>

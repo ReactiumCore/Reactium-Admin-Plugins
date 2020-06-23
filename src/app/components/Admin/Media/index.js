@@ -1,11 +1,11 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import Empty from './Empty';
 import ENUMS from './enums';
 import op from 'object-path';
 import domain from './domain';
 import Pagination from './Pagination';
-import { Button, Dropzone, Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import React, { useEffect, useRef } from 'react';
+import { Dropzone, Spinner } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     useAsyncEffect,
@@ -15,10 +15,7 @@ import Reactium, {
     useHookComponent,
     useReduxState,
     useRegisterHandle,
-    Zone,
 } from 'reactium-core/sdk';
-
-import React, { forwardRef, useEffect, useRef } from 'react';
 
 const noop = () => {};
 
@@ -27,7 +24,7 @@ const noop = () => {};
  * Hook Component: Media
  * -----------------------------------------------------------------------------
  */
-let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
+let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     // Refs
     const containerRef = useRef();
     const dropzoneRef = useRef();
@@ -46,7 +43,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     const [state, updateState] = useDerivedState({
         data: mapLibraryToList(reduxState.library),
         directory: null,
-        page: props.page,
+        page: props.page || 1,
         status: ENUMS.STATUS.INIT,
         type: null,
         updated: null,
@@ -75,9 +72,6 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
     const isEmpty = () => op.get(reduxState, 'pagination.empty', true);
 
     const isMounted = () => !unMounted();
-
-    const isUploading = () =>
-        Object.keys(op.get(reduxState, 'files', {})).length > 0;
 
     const onError = ({ message }) => setReduxState({ error: { message } });
 
@@ -138,7 +132,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
         zone: Array.isArray(zone) ? zone[0] : zone,
     });
 
-    const [handle, setHandle] = useEventHandle(_handle());
+    const [handle] = useEventHandle(_handle());
 
     // Side effects
 
@@ -166,59 +160,54 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }, ref) => {
 
     // Page change
     useEffect(() => {
-        const { page } = state;
+        const { page = 1 } = state;
         const pg = op.get(reduxState, 'page');
 
-        if (op.get(reduxState, 'page') !== page) {
+        if (pg !== page) {
             Reactium.Routing.history.push(`/admin/media/${page}`);
         }
     }, [state.page]);
 
     useRegisterHandle(domain.name, () => handle, [handle]);
 
-    // Render
-    const render = () => {
-        const mobile = false;
-        return (
-            <div ref={containerRef}>
-                <Helmet>
-                    <title>{title}</title>
-                </Helmet>
-                {op.get(state, 'status') === ENUMS.STATUS.READY ? (
-                    <Dropzone
-                        {...dropzoneProps}
-                        className={cx('dropzone')}
-                        files={{}}
-                        onError={onError}
-                        onFileAdded={e => onFileAdded(e)}
-                        ref={dropzoneRef}>
-                        <Toolbar Media={handle} />
-                        <Uploads
-                            onRemoveFile={onFileRemoved}
-                            uploads={op.get(reduxState, 'uploads', {})}
-                        />
-                        {!isEmpty() ? (
-                            <List data={state.data} />
-                        ) : (
-                            <Empty Media={handle} />
-                        )}
-                        {!isEmpty() && <Pagination Media={handle} />}
-                    </Dropzone>
-                ) : (
-                    <div className={cx('spinner')}>
-                        <Spinner />
-                    </div>
-                )}
-            </div>
-        );
-    };
+    console.log(state);
 
-    return render();
+    // Render
+    return (
+        <div ref={containerRef}>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+            {op.get(state, 'status') === ENUMS.STATUS.READY ? (
+                <Dropzone
+                    {...dropzoneProps}
+                    className={cx('dropzone')}
+                    files={{}}
+                    onError={onError}
+                    onFileAdded={e => onFileAdded(e)}
+                    ref={dropzoneRef}>
+                    <Toolbar Media={handle} />
+                    <Uploads
+                        onRemoveFile={onFileRemoved}
+                        uploads={op.get(reduxState, 'uploads', {})}
+                    />
+                    {!isEmpty() ? (
+                        <List data={state.data} />
+                    ) : (
+                        <Empty Media={handle} />
+                    )}
+                    {!isEmpty() && <Pagination Media={handle} />}
+                </Dropzone>
+            ) : (
+                <div className={cx('spinner')}>
+                    <Spinner />
+                </div>
+            )}
+        </div>
+    );
 };
 
 const mapLibraryToList = library => _.indexBy(library, 'objectId');
-
-Media = forwardRef(Media);
 
 Media.ENUMS = ENUMS;
 

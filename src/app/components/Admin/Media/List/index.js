@@ -216,11 +216,13 @@ const FileCard = props => {
 };
 
 const ImageCard = props => {
-    const { className, editURL, poster, redirect = {}, refs } = props;
+    const { className, editURL, poster, redirect = {}, refs, url } = props;
     const redirectURL = op.get(redirect, 'url');
-    const style = poster && {
-        backgroundImage: `url('${poster}')`,
+    const style = {
+        backgroundImage: `url('${redirectURL || poster || url}')`,
     };
+
+    console.log(style);
 
     return (
         <div
