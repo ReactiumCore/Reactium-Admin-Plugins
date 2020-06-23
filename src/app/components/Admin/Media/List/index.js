@@ -222,8 +222,6 @@ const ImageCard = props => {
         backgroundImage: `url('${redirectURL || poster || url}')`,
     };
 
-    console.log(style);
-
     return (
         <div
             className={className}
