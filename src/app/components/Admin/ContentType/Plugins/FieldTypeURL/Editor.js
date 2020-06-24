@@ -176,8 +176,12 @@ export default props => {
     };
 
     const afterSave = async () => {
-        const u = await fetch();
-        setURLS(u);
+        if (!isStatus(ENUMS.STATUS.FETCHING)) {
+            setStatus(ENUMS.STATUS.FETCHING);
+            const u = await fetch();
+            setStatus(ENUMS.STATUS.COMPLETE);
+            setURLS(u);
+        }
         setError(false);
         setErrorText(null);
     };
