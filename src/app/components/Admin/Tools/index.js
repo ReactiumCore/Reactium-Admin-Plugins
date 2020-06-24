@@ -1,10 +1,5 @@
-import Reactium, {
-    useRegisterHandle,
-    useDocument,
-    useWindowSize,
-} from 'reactium-core/sdk';
-
 import { Modal, Toast, Tooltip } from '@atomic-reactor/reactium-ui';
+import Reactium, { useRegisterHandle, useDocument } from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -12,7 +7,6 @@ import React, {
     useImperativeHandle,
     useLayoutEffect as useWindowEffect,
     useRef,
-    useState,
 } from 'react';
 
 const useLayoutEffect =

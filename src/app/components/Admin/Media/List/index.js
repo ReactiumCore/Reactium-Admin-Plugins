@@ -282,6 +282,8 @@ const MediaCard = props => {
         refs,
     };
 
+    if (!objectId) return null;
+
     switch (type) {
         case 'audio':
             return <AudioCard {...cardProps} />;

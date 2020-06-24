@@ -1,6 +1,6 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { Comparison, Editor, FieldType, UrlSelect } from './index';
+import { Editor, FieldType, UrlSelect } from './index';
 
 const ID = 'URLS';
 

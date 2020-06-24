@@ -1,6 +1,6 @@
 import op from 'object-path';
 import ENUMS from 'components/Admin/Media/enums';
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Reactium, { useDerivedState } from 'reactium-core/sdk';
 
 const useDirectories = (params = {}) => {

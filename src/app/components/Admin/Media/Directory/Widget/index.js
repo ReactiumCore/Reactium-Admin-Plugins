@@ -3,31 +3,17 @@ import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
 import React, { useEffect, useRef, useState } from 'react';
+import { __, useHandle, useStore } from 'reactium-core/sdk';
 import Editor from 'components/Admin/Media/Directory/Editor';
-import Creator from 'components/Admin/Media/Directory/Creator';
 import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 import useDirectories from 'components/Admin/Media/Directory/useDirectories';
-
-import Reactium, {
-    __,
-    useAsyncEffect,
-    useDocument,
-    useHandle,
-    useReduxState,
-    useRegisterHandle,
-    useSelect,
-    useStore,
-    useWindowSize,
-} from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: DirectoryWidget
  * -----------------------------------------------------------------------------
  */
-const defaultDirectories = ['uploads', 'avatars'];
-
-const DirectoryWidget = ({ Media, ...props }) => {
+const DirectoryWidget = ({ Media }) => {
     const containerRef = useRef();
 
     const { dispatch, getState, subscribe } = useStore();
@@ -77,10 +63,6 @@ const DirectoryWidget = ({ Media, ...props }) => {
         ]);
 
     const unMounted = () => !containerRef.current;
-
-    const showCreator = () => {
-        Modal.show(<Creator />);
-    };
 
     const showEditor = () => {
         Modal.show(<Editor />);

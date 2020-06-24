@@ -3,14 +3,15 @@ import op from 'object-path';
 import ENUMS from 'components/Admin/Media/enums';
 import Reactium, {
     __,
-    useDocument,
     useHandle,
     useSelect,
     useWindow,
+    useHookComponent,
 } from 'reactium-core/sdk';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 export default () => {
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
     const path = useSelect(state => op.get(state, 'Router.match.path'));
 
     const isEditor = String(path).startsWith('/admin/media/edit');
@@ -22,8 +23,6 @@ export default () => {
     const type = isEditor ? op.get(Editor, 'state.value.type') : null;
 
     const visible = String(path).startsWith('/admin/media');
-
-    const doc = useDocument();
 
     const win = useWindow();
 

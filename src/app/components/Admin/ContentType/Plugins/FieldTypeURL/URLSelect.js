@@ -6,7 +6,6 @@ import React, {
     useCallback,
     useImperativeHandle,
     useRef,
-    useState,
 } from 'react';
 
 import Reactium, {
@@ -15,6 +14,7 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHookComponent,
+    useStatus,
 } from 'reactium-core/sdk';
 
 const ENUMS = {
@@ -33,21 +33,6 @@ const ENUMS = {
         PENDING: 'pending',
         READY: 'ready',
     },
-};
-
-const useStatus = initialStatus => {
-    const statusRef = useRef(initialStatus);
-    const [, rerender] = useState({});
-
-    const setStatus = (newStatus, forceRender = false) => {
-        statusRef.current = newStatus;
-        if (forceRender) rerender({ updated: Date.now() });
-    };
-
-    const isStatus = statuses =>
-        _.flatten([statuses]).includes(statusRef.current);
-
-    return [statusRef.current, setStatus, isStatus];
 };
 
 let UrlSelect = (props, ref) => {
