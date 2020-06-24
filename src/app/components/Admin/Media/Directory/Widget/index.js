@@ -146,7 +146,7 @@ const DirectoryWidget = ({ Media }) => {
                     }}>
                     <Icon name='Linear.Cog' size={18} />
                 </Button>
-                {!Media.isEmpty() && (
+                {Media.isStatus(ENUMS.STATUS.READY) && (
                     <Dropdown
                         align={Dropdown.ENUMS.ALIGN.RIGHT}
                         checkbox={false}

@@ -15,6 +15,7 @@ import Reactium, {
     useHookComponent,
     useReduxState,
     useRegisterHandle,
+    useStatus,
 } from 'reactium-core/sdk';
 
 const noop = () => {};
@@ -44,7 +45,6 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
         data: mapLibraryToList(reduxState.library),
         directory: null,
         page: props.page || 1,
-        status: ENUMS.STATUS.INIT,
         type: null,
         updated: null,
     });
@@ -54,13 +54,21 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
         updateState(newState);
     };
 
-    const setData = (data = []) =>
-        setState({ data: mapLibraryToList(data), status: ENUMS.STATUS.READY });
+    const setData = (data = []) => {
+        // if (_.isObject(data) && op.get(data, 'files')) {
+        //     data = op.get(data, 'files');
+        // }
+
+        setStatus(ENUMS.STATUS.READY);
+        setState({ data: mapLibraryToList(data) });
+    };
 
     const setDirectory = directory => setState({ directory });
     const setPage = page => setState({ page });
-    const setStatus = status => setState({ status });
     const setType = type => setState({ type });
+
+    // Status
+    const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.INIT);
 
     // Functions
     const browseFiles = () => dropzoneRef.current.browseFiles();
@@ -85,7 +93,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     };
 
     const search = pg => {
-        if (state.status !== ENUMS.STATUS.READY) return noop;
+        if (!isStatus(ENUMS.STATUS.READY)) return noop;
 
         const { directory, page, type } = state;
         const pages = op.get(reduxState, 'pagination.pages', 1);
@@ -120,23 +128,51 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
         directory: state.directory,
         isEmpty,
         isMounted,
+        isStatus,
         page: state.page,
         setData,
         setDirectory,
         setPage,
         setState,
+        setStatus,
         setType,
         state,
+        status,
         type: state.type,
         unMounted,
         zone: Array.isArray(zone) ? zone[0] : zone,
     });
 
-    const [handle] = useEventHandle(_handle());
+    const [handle, updateHandle] = useEventHandle(_handle());
+    const setHandle = newHandle => {
+        if (unMounted()) return;
+
+        if (_.isObject(newHandle)) {
+            Object.entries(newHandle).forEach(([key, value]) =>
+                op.set(handle, key, value),
+            );
+        }
+
+        updateHandle(handle);
+    };
 
     // Side effects
 
     useEffect(toggleSearch, [SearchBar, isEmpty()]);
+
+    // Update handle
+    useEffect(() => {
+        const watchKeys = ['directory', 'page', 'type'];
+
+        const changes = watchKeys.reduce((obj, key) => {
+            const hnd = op.get(handle, key);
+            const val = op.get(state, key);
+            if (hnd !== val) obj[key] = val;
+            return obj;
+        }, {});
+
+        if (Object.keys(changes).length > 0) setHandle(changes);
+    });
 
     // Search
     useEffect(search, [
@@ -150,13 +186,12 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
 
     // Fetch
     useAsyncEffect(async () => {
-        if (state.status === ENUMS.STATUS.INIT) {
+        if (isStatus(ENUMS.STATUS.INIT)) {
             setStatus(ENUMS.STATUS.PENDING);
             const data = await fetch();
-            setData(data);
-            setStatus(ENUMS.STATUS.READY);
+            setData(data.files);
         }
-    }, [state.status]);
+    });
 
     // Page change
     useEffect(() => {
@@ -176,7 +211,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
             <Helmet>
                 <title>{title}</title>
             </Helmet>
-            {op.get(state, 'status') === ENUMS.STATUS.READY ? (
+            {isStatus(ENUMS.STATUS.READY) ? (
                 <Dropzone
                     {...dropzoneProps}
                     className={cx('dropzone')}
@@ -205,7 +240,10 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     );
 };
 
-const mapLibraryToList = library => _.indexBy(library, 'objectId');
+const mapLibraryToList = library => {
+    if (Array.isArray(library)) return _.indexBy(library, 'objectId');
+    return library;
+};
 
 Media.ENUMS = ENUMS;
 
