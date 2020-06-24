@@ -28,6 +28,7 @@
 
 .editor-urls {
     @extend .form-group;
+    position: relative;
 
     .input-group * { z-index: 0; }
 
@@ -39,6 +40,13 @@
 
     .ar-alert {
         margin-bottom: 16px;
+    }
+
+    .ar-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%) scale(0.3);
     }
 
     &-list {
@@ -91,13 +99,6 @@
 
         &:empty {
             display: none;
-        }
-
-        .ar-spinner {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px) scale(0.3);
         }
     }
 }

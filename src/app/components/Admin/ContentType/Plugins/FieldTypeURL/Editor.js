@@ -8,13 +8,14 @@ import Reactium, {
     useAsyncEffect,
     useHookComponent,
     useIsContainer,
+    useStatus,
 } from 'reactium-core/sdk';
 
 const ENUMS = {
     STATUS: {
-        PENDING: 'PENDING',
-        FETCHING: 'FETCHING',
-        READY: 'READY',
+        PENDING: 'pending',
+        FETCHING: 'fetching',
+        READY: 'ready',
     },
 };
 
@@ -25,11 +26,14 @@ export default props => {
 
     const { editor, fieldName, placeholder, required } = props;
 
-    const refs = useRef({ status: ENUMS.STATUS.PENDING }).current;
+    const refs = useRef({}).current;
 
     const { errors } = editor;
 
     const cx = Reactium.Utils.cxFactory('editor-urls');
+
+    // status
+    const [status, setStatus, isStatus] = useStatus();
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
@@ -41,11 +45,6 @@ export default props => {
     const setErrorText = (...newErrorText) => {
         if (editor.unMounted()) return;
         setNewErrorText(_.compact(Array.from(newErrorText)).join(' '));
-    };
-
-    const setStatus = newStatus => {
-        if (editor.unMounted()) return;
-        refs.status = newStatus;
     };
 
     const setURLS = newURLS => {
@@ -62,12 +61,7 @@ export default props => {
         );
     };
 
-    const isSaved = () => op.has(editor, 'value.objectId');
-
-    const isStatus = (...args) => {
-        args = Array.from(args);
-        return args.includes(refs.status);
-    };
+    const isSaved = () => op.has(editor.value, 'objectId');
 
     const addURL = route => {
         route = route || refs.add.value;
@@ -135,10 +129,15 @@ export default props => {
     };
 
     const load = async () => {
+        if (editor.slug === 'new') {
+            setStatus(ENUMS.STATUS.READY, true);
+            return;
+        }
+
         if (!editor.value) return;
 
         if (!isSaved()) {
-            setStatus(ENUMS.STATUS.READY);
+            setStatus(ENUMS.STATUS.READY, true);
             return;
         }
 
@@ -147,6 +146,7 @@ export default props => {
         setStatus(ENUMS.STATUS.FETCHING);
 
         const results = await fetch();
+        setStatus(ENUMS.STATUS.COMPLETE);
 
         if (editor.unMounted()) return;
 
@@ -222,10 +222,9 @@ export default props => {
         };
     };
 
-    useAsyncEffect(load, [editor.value]);
+    useAsyncEffect(load);
 
     useEffect(onSave);
-
     return (
         <ElementDialog {...props}>
             <div className={cx()}>
@@ -252,16 +251,11 @@ export default props => {
                     </Button>
                 </div>
                 <ul className={cx('list')}>
-                    {!isStatus(ENUMS.STATUS.READY) && (
-                        <li>
-                            <Spinner />
-                        </li>
-                    )}
-
                     {Object.values(URLS).map(url => (
                         <ListItem
                             key={`list-item-${url.objectId}`}
                             {...url}
+                            status={status}
                             onChange={updateURL}
                             onDelete={deleteURL}
                             onUnDelete={unDeleteURL}
@@ -269,6 +263,9 @@ export default props => {
                         />
                     ))}
                 </ul>
+                {!isStatus([ENUMS.STATUS.READY, ENUMS.STATUS.COMPLETE]) && (
+                    <Spinner />
+                )}
             </div>
         </ElementDialog>
     );

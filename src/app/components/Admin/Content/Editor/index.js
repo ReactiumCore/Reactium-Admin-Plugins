@@ -187,11 +187,11 @@ let ContentEditor = (
     // Functions
 
     const debug = (...args) => {
-        const qstring = Reactium.Routing.history.location.search;
-        if (!qstring) return;
-        const params = new URLSearchParams(qstring);
-        if (!params.get('debug')) return;
-        console.log(...args);
+        // const qstring = Reactium.Routing.history.location.search;
+        // if (!qstring) return;
+        // const params = new URLSearchParams(qstring);
+        // if (!params.get('debug')) return;
+        // console.log(...args);
     };
 
     const cx = Reactium.Utils.cxFactory(namespace);
@@ -244,8 +244,8 @@ let ContentEditor = (
         const dirtyEvents = _.pluck(Reactium.Content.DirtyEvent.list, 'id');
         const scrubEvents = _.pluck(Reactium.Content.ScrubEvent.list, 'id');
 
-        if (dirtyEvents.includes(eventType)) setDirty(event);
-        if (scrubEvents.includes(eventType)) setClean(event);
+        if (dirtyEvents.includes(eventType)) _.defer(() => setDirty(event));
+        if (scrubEvents.includes(eventType)) _.defer(() => setClean(event));
     };
 
     const getContent = async () => {
@@ -654,6 +654,7 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
+        debug('onSuccess');
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
         Toast.show({
@@ -664,7 +665,6 @@ let ContentEditor = (
 
         if (unMounted()) return;
 
-        setValue(result);
         await dispatch(
             'save-success',
             { value: result, ignoreChangeEvent: true },
@@ -677,6 +677,8 @@ let ContentEditor = (
                 `/admin/content/${type}/${result.slug}`,
             );
         }
+
+        setValue(result);
 
         next();
     };
