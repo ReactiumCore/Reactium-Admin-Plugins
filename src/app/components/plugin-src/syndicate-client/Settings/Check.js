@@ -46,11 +46,13 @@ const Check = memo(({ settingGroup }) => {
         async isMounted => {
             if ((appId, host, token)) {
                 updateState({ loading: true });
+                // console.log('state change, call syndicate-satellite-test');
                 const valid = await Reactium.Cloud.run(
                     'syndicate-satellite-test',
                 );
 
-                if (isMounted) {
+                // console.log('syndicate-satellite-test back, mounted', { mounted: isMounted() });
+                if (isMounted()) {
                     updateState({
                         loading: false,
                         valid,
