@@ -176,7 +176,6 @@ export default props => {
     };
 
     const afterSave = async () => {
-        console.log('afterSave');
         if (!isStatus(ENUMS.STATUS.FETCHING)) {
             setStatus(ENUMS.STATUS.FETCHING);
             const u = await fetch();
