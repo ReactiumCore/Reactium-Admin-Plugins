@@ -187,11 +187,11 @@ let ContentEditor = (
     // Functions
 
     const debug = (...args) => {
-        // const qstring = Reactium.Routing.history.location.search;
-        // if (!qstring) return;
-        // const params = new URLSearchParams(qstring);
-        // if (!params.get('debug')) return;
-        // console.log(...args);
+        const qstring = Reactium.Routing.history.location.search;
+        if (!qstring) return;
+        const params = new URLSearchParams(qstring);
+        if (!params.get('debug')) return;
+        console.log(...args);
     };
 
     const cx = Reactium.Utils.cxFactory(namespace);
@@ -654,7 +654,6 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
-        debug('onSuccess');
         const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
 
         Toast.show({
@@ -665,6 +664,7 @@ let ContentEditor = (
 
         if (unMounted()) return;
 
+        setValue(result);
         await dispatch(
             'save-success',
             { value: result, ignoreChangeEvent: true },
@@ -677,8 +677,6 @@ let ContentEditor = (
                 `/admin/content/${type}/${result.slug}`,
             );
         }
-
-        setValue(result);
 
         next();
     };

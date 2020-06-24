@@ -176,6 +176,7 @@ export default props => {
     };
 
     const afterSave = async () => {
+        console.log('afterSave');
         if (!isStatus(ENUMS.STATUS.FETCHING)) {
             setStatus(ENUMS.STATUS.FETCHING);
             const u = await fetch();
@@ -217,7 +218,7 @@ export default props => {
 
         return () => {
             editor.removeEventListener('before-save', applyURLS);
-            editor.removeEventListener('save-succes', afterSave);
+            editor.removeEventListener('save-success', afterSave);
             editor.removeEventListener('validate', validate);
         };
     };
