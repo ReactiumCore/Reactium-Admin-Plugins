@@ -615,6 +615,14 @@ const ContentType = props => {
                     const fieldName = op.get(fieldValue, 'fieldName');
                     const fieldType = op.get(def, 'fieldType');
 
+                    Reactium.Hook.runSync('content-type-form-save', {
+                        fieldValue,
+                        fieldId,
+                        fieldName,
+                        fieldType,
+                        region,
+                    });
+
                     op.set(value, ['fields', fieldId], {
                         ...fieldValue,
                         fieldId,
