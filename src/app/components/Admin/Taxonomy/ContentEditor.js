@@ -1,15 +1,13 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
 import { Scrollbars } from 'react-custom-scrollbars';
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Reactium, {
     __,
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useHandle,
     useHookComponent,
 } from 'reactium-core/sdk';
 
@@ -20,9 +18,7 @@ const STATUS = {
 };
 
 export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
-    const { Alert, Button, Carousel, Icon, Slide, Toast } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { Button, Carousel, Icon, Slide } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
     const TaxonomyEditor = useHookComponent('TaxonomyEditor');
 
@@ -92,7 +88,8 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         op.del(item, 'deleted');
         op.set(item, 'pending', true);
         op.set(item, 'isTaxonomy', true);
-        op.set(item, 'type', fieldName);
+        op.set(item, 'field', fieldName);
+        op.set(item, 'type', type);
         updateSelected(item);
 
         if (create === true) {
@@ -107,7 +104,8 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         op.set(item, 'deleted', true);
         op.set(item, 'pending', true);
         op.set(item, 'isTaxonomy', true);
-        op.set(item, 'type', fieldName);
+        op.set(item, 'field', fieldName);
+        op.set(item, 'type', type);
         updateSelected(item);
         return item;
     };
@@ -153,7 +151,7 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         setState({ selected });
     };
 
-    const onContentValidate = ({ context, value }) => {
+    const onContentValidate = ({ context }) => {
         let { selected } = state;
         selected = selected.filter(({ deleted }) => deleted !== true);
 
@@ -300,17 +298,7 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
 };
 
 export const Tagbox = props => {
-    const {
-        add,
-        cx,
-        editor,
-        fieldName,
-        namespace,
-        placeholder,
-        remove,
-        setState,
-        state,
-    } = props;
+    const { add, cx, editor, placeholder, remove, state } = props;
 
     const formatter = val => {
         if (!val) return val;
@@ -329,7 +317,7 @@ export const Tagbox = props => {
 
     const { TagsInput } = useHookComponent('ReactiumUI');
 
-    const [data, setNewData] = useState(
+    const [data] = useState(
         taxonomy.map(({ slug, name }) => ({
             value: slug,
             label: formatter(name),
@@ -343,11 +331,6 @@ export const Tagbox = props => {
             .compact()
             .value(),
     );
-
-    const setData = newData => {
-        if (editor.unMounted()) return;
-        setNewData(newData);
-    };
 
     const setValue = newValue => {
         if (editor.unMounted()) return;
@@ -372,7 +355,7 @@ export const Tagbox = props => {
         setValue(val);
     };
 
-    const onRemove = ({ item, value }) => {
+    const onRemove = ({ item }) => {
         const tax =
             _.findWhere(taxonomy, { name: item }) ||
             _.findWhere(taxonomy, { slug: item });
@@ -400,7 +383,7 @@ export const Tagbox = props => {
 };
 
 export const Checklist = props => {
-    const { add, cx, fieldName, namespace, remove, showEditor, state } = props;
+    const { add, cx, fieldName, remove, showEditor, state } = props;
     const { Button, Checkbox, Icon } = useHookComponent('ReactiumUI');
     const [taxonomy, setTaxonomy] = useState(state.taxonomy);
 
