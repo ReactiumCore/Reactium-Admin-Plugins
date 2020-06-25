@@ -82,7 +82,13 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
             Modal.hide();
 
             // trash the item.
-            if (status !== 'TRASH') {
+            if (status === 'PUBLISHED') {
+                await Reactium.Content.unpublish({
+                    type: contentType,
+                    objectId,
+                });
+                await Reactium.Content.trash({ type: contentType, objectId });
+            } else if (status !== 'TRASH') {
                 await Reactium.Content.trash({ type: contentType, objectId });
             } else {
                 await Reactium.Content.delete({ type: contentType, objectId });
