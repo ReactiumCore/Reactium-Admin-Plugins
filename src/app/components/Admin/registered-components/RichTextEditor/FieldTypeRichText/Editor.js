@@ -16,7 +16,7 @@ export default props => {
 
     const { slug } = editor;
 
-    const valueRef = useRef(op.get(editor.value, [name], defaultValue));
+    const valueRef = useRef(op.get(editor.value, [name]) || defaultValue);
 
     const editorRef = useRef();
 
@@ -36,7 +36,10 @@ export default props => {
         updateValue();
     };
 
-    const onEditorChange = e => setValue(e.target.value);
+    const onEditorChange = e => {
+        let value = e.target.value || defaultValue;
+        setValue(value);
+    };
 
     const _updateValue = () => {
         setNewValue(valueRef.current);
@@ -48,7 +51,7 @@ export default props => {
     const reload = e => {
         const newValue = e
             ? op.get(e, ['value', name])
-            : op.get(editor, ['value', name], defaultValue);
+            : op.get(editor, ['value', name]) || defaultValue;
 
         editorRef.current.setValue(newValue);
         setPreviousSlug(slug);
@@ -87,7 +90,7 @@ export default props => {
                 <div className='editor'>
                     <RichTextEditor
                         ref={editorRef}
-                        value={value}
+                        value={value || defaultValue}
                         name={name}
                         onChange={onEditorChange}
                         placeholder={placeholder}

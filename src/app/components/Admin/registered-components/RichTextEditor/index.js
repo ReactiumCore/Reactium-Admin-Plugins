@@ -32,6 +32,8 @@ import React, {
 
 const noop = () => {};
 
+const defaultValue = [{ type: 'p', children: [{ text: '' }] }];
+
 const RichTextEditor = forwardRef((initialProps, ref) => {
     // 0.0 - Get props
     const {
@@ -318,7 +320,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
             <Slate
                 editor={editor}
                 onChange={_onChange}
-                value={op.get(value, 'children', [])}>
+                value={op.get(value, 'children') || defaultValue}>
                 <Editable
                     {...props}
                     onKeyDown={_onKeyDown}

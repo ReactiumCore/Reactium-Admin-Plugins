@@ -1,88 +1,59 @@
+import React from 'react';
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect, useRef } from 'react';
-import { __, useDerivedState, useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from 'reactium-core/sdk';
 
 export const Editor = props => {
     const { editor, fieldName } = props;
-
+    const value = op.get(editor.value, fieldName);
     const ElementDialog = useHookComponent('ElementDialog');
+    const options = () => _.sortBy(Object.values(props.options), 'index');
 
-    const [state, setState] = useDerivedState({
-        options: props.options || {},
-    });
+    return (
+        <ElementDialog {...props}>
+            <div className='p-xs-20'>
+                {options().map(item => {
+                    const {
+                        key,
+                        placeholder,
+                        type = 'text',
+                        value: val = '',
+                    } = item;
 
-    const options = () => _.sortBy(Object.values(state.options), 'index');
+                    const defaultValue = op.get(value, key) || val;
 
-    const replacers = {
-        '%fieldName': fieldName,
-    };
-
-    const onChange = e => {
-        const { options } = state;
-        const { value = '' } = e.currentTarget;
-        const { key } = e.currentTarget.dataset;
-        op.set(options, [key, 'value'], value);
-        setState({ options });
-    };
-
-    useEffect(() => {
-        //editor.addEventListener('validate', validate);
-        return () => {
-            //editor.removeEventListener('validate', validate);
-        };
-    }, [editor]);
-
-    const render = () => {
-        const value = op.get(editor.value, fieldName);
-
-        return (
-            <ElementDialog {...props}>
-                <div className='p-xs-20'>
-                    {options().map(item => {
-                        const {
-                            key,
-                            placeholder,
-                            type = 'text',
-                            value: val = '',
-                        } = item;
-
-                        const defaultValue = op.get(value, key) || val;
-
-                        switch (type) {
-                            case 'textarea':
-                                return (
-                                    <div
-                                        className='form-group'
-                                        key={`${fieldName}-${key}`}>
-                                        <textarea
-                                            data-key={key}
-                                            name={`${fieldName}.${key}`}
-                                            placeholder={placeholder}
-                                            defaultValue={defaultValue}
-                                        />
-                                    </div>
-                                );
-                            default:
-                                return (
-                                    <div
-                                        className='form-group'
-                                        key={`${fieldName}-${key}`}>
-                                        <input
-                                            data-key={key}
-                                            name={`${fieldName}.${key}`}
-                                            placeholder={placeholder}
-                                            type={type}
-                                            defaultValue={defaultValue}
-                                        />
-                                    </div>
-                                );
-                        }
-                    })}
-                </div>
-            </ElementDialog>
-        );
-    };
-    return render();
+                    switch (type) {
+                        case 'textarea':
+                            return (
+                                <div
+                                    className='form-group'
+                                    key={`${fieldName}-${key}`}>
+                                    <textarea
+                                        data-key={key}
+                                        defaultValue={defaultValue}
+                                        name={`${fieldName}.${key}`}
+                                        placeholder={placeholder}
+                                        rows={6}
+                                    />
+                                </div>
+                            );
+                        default:
+                            return (
+                                <div
+                                    className='form-group'
+                                    key={`${fieldName}-${key}`}>
+                                    <input
+                                        data-key={key}
+                                        name={`${fieldName}.${key}`}
+                                        placeholder={placeholder}
+                                        type={type}
+                                        defaultValue={defaultValue}
+                                    />
+                                </div>
+                            );
+                    }
+                })}
+            </div>
+        </ElementDialog>
+    );
 };

@@ -69,9 +69,9 @@ export default () => {
             {isSlug() && <li className='uppercase'>{slug}</li>}
             {!isNew() && !page && (
                 <li className='hide-xs-only'>
-                    <Link to={`/admin/content/${type}/new`}>
+                    <a href={`/admin/content/${type}/new`}>
                         <Icon name='Feather.Plus' size={14} />
-                    </Link>
+                    </a>
                 </li>
             )}
         </ul>
