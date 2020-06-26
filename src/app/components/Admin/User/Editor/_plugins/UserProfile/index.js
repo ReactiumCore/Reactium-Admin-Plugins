@@ -3,16 +3,17 @@ import cn from 'classnames';
 import op from 'object-path';
 import useAvatar from 'components/Admin/User/useAvatar';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 import Reactium, {
     __,
     useAsyncEffect,
     useRoles,
+    useHookComponent,
     Zone,
 } from 'reactium-core/sdk';
 
 const Actions = ({ editor }) => {
+    const { Button, Icon } = useHookComponent('ReactiumUI');
     const { cx, isNew, setState, state = {} } = editor;
     const { editing = false } = state;
 
@@ -50,12 +51,11 @@ const Actions = ({ editor }) => {
 };
 
 const Avatar = ({ editor }) => {
-    const { cx, isNew, refs, state = {} } = editor;
+    const { cx, isNew, state = {} } = editor;
     const { editing = false, value = {} } = state;
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
-    const [avatar, updateAvatar] = useAvatar(value);
-    const [updated, forceUpdate] = useState(Date.now());
-    const avatarRef = useRef();
+    const [avatar] = useAvatar(value);
     const uploadRef = useRef();
 
     const fileReader = file =>
@@ -127,7 +127,7 @@ const Email = ({ className, ...user }) => {
 };
 
 const Fullname = ({ className, ...user }) => {
-    const { fname, lname, username } = user;
+    const { fname, lname } = user;
     const [name, setName] = useState(_.compact([fname, lname]).join(' '));
 
     useAsyncEffect(

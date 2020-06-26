@@ -12,6 +12,7 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useReduxState,
+    useStatus,
 } from 'reactium-core/sdk';
 
 const noop = () => {};
@@ -41,6 +42,8 @@ const UserMedia = ({ editor }) => {
     const [init, setNewInit] = useState(false);
 
     const [type, setNewType] = useState();
+
+    const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.READY);
 
     // Editor
     const { cx, isMounted, setState, state = {}, unMounted } = editor;
@@ -171,10 +174,13 @@ const UserMedia = ({ editor }) => {
         directory,
         isEmpty,
         isMounted,
+        isStatus,
         setDirectory,
         setState: setReduxState,
+        setStatus,
         setType,
         state: redux,
+        status,
         type,
         unMounted,
     });

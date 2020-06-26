@@ -2,18 +2,24 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
-import Reactium, { __, useRoles, Zone } from 'reactium-core/sdk';
-import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
 import Password from 'components/Admin/User/Editor/_plugins/Password';
+import Reactium, {
+    __,
+    useRoles,
+    useHookComponent,
+    Zone,
+} from 'reactium-core/sdk';
 
 const UserInputs = ({ editor }) => {
-    const { cx, errors, state = {} } = editor;
+    const { errors, state = {} } = editor;
     const { value = {} } = state;
 
     const isError = field => {
         const errs = _.indexBy(errors, 'field');
         return op.get(errs, field, false);
     };
+
+    const { Icon } = useHookComponent('ReactiumUI');
 
     return (
         <div>
@@ -138,6 +144,7 @@ const RoleSelect = ({ editor }) => {
     const ref = useRef();
     const roles = useRoles() || {};
     const user = op.get(editor, 'state.value', {});
+    const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
 
     const isHidden = () => {
         if (editor.isNew()) return true;

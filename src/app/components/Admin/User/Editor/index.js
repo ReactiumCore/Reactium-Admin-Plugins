@@ -1,8 +1,9 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import ContentTabs from './Tabs';
 import PropTypes from 'prop-types';
-import { Alert, EventForm, Icon } from '@atomic-reactor/reactium-ui';
+import { Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -17,7 +18,6 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useHandle,
     useHookComponent,
     useRegisterHandle,
     Zone,
@@ -74,7 +74,7 @@ const ErrorMessages = ({ editor, errors }) => {
 
     const jumpTo = (e, element) => {
         e.preventDefault();
-        element.focus();
+        if (element.focus) element.focus();
     };
 
     return (
@@ -120,11 +120,9 @@ let UserEditor = (
     },
     ref,
 ) => {
+    const { Alert, EventForm, Toast } = useHookComponent('ReactiumUI');
+
     const Helmet = useHookComponent('Helmet');
-
-    const tools = useHandle('AdminTools');
-
-    const Toast = op.get(tools, 'Toast');
 
     const alertRef = useRef();
     const containerRef = useRef();
@@ -171,7 +169,7 @@ let UserEditor = (
 
     const setAvatar = avatar => {
         if (unMounted()) return;
-        let value = { ...state.value, avatar };
+        const value = { ...state.value, avatar };
         setState({ value });
     };
 
@@ -331,6 +329,8 @@ let UserEditor = (
     };
 
     const save = async value => {
+        value = { ...value, ...state.value };
+
         if (!state.editing) return;
         const saveMessage = __('Saving...');
         const alertObj = {
@@ -451,7 +451,7 @@ let UserEditor = (
     };
 
     const _onFormSubmit = e => {
-        const value = JSON.parse(JSON.stringify(e.value));
+        let value = { ...state.value, ...JSON.parse(JSON.stringify(e.value)) };
         return save(value);
     };
 
@@ -686,6 +686,7 @@ let UserEditor = (
                     <EventForm
                         required={reqs}
                         id={ComponentID}
+                        throttleChanges={false}
                         onChange={_onFormChange}
                         onSubmit={_onFormSubmit}
                         ref={formRef}
@@ -704,44 +705,6 @@ let UserEditor = (
     };
 
     return render();
-};
-
-const ContentTabs = ({ editor }) => {
-    return (
-        <>
-            <div className={editor.cx('tabs')}>
-                {Reactium.User.Content.list.map(item => {
-                    if (!item.tab) return null;
-
-                    const { id, label } = op.get(item, 'tab');
-                    if (!id || !label) return null;
-                    const className = cn({
-                        [editor.cx('tab')]: true,
-                        active: editor.state.tab === id,
-                    });
-
-                    return (
-                        <button
-                            key={`user-tab-button-${id}`}
-                            className={className}
-                            onClick={e => editor.showTab(e, id)}>
-                            {label}
-                        </button>
-                    );
-                })}
-            </div>
-            {Reactium.User.Content.list.map(item =>
-                op.has(item, 'tab.id') &&
-                op.get(item, 'tab.id') === op.get(editor.state, 'tab') ? (
-                    <Zone
-                        key={`user-tab-${item.id}`}
-                        editor={editor}
-                        zone={item.id}
-                    />
-                ) : null,
-            )}
-        </>
-    );
 };
 
 UserEditor = forwardRef(UserEditor);

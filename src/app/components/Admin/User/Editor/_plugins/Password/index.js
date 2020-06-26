@@ -1,9 +1,8 @@
+import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useCallback } from 'react';
 import ENUMS from 'components/Admin/User/enums';
-import { Button, Icon, Spinner } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const Message = () => (
     <>
@@ -12,14 +11,14 @@ const Message = () => (
     </>
 );
 
-const Password = ({ className, disabled = false, state, user, ...props }) => {
+const Password = ({ className, disabled = false, user }) => {
     const ConfirmBox = useHookComponent('ConfirmBox');
+
+    const { Button, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
 
     const tools = useHandle('AdminTools');
 
     const Modal = op.get(tools, 'Modal');
-
-    const Toast = op.get(tools, 'Toast');
 
     // Kick off reset password routine.
     const resetPassword = async () => {

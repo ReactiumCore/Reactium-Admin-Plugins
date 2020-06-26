@@ -1,6 +1,6 @@
 {
   "name": "@atomic-reactor/admin",
-  "version": "0.0.114",
+  "version": "0.0.116",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
