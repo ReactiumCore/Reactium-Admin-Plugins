@@ -8,10 +8,10 @@ const fieldType = {
     icon: () => <small style={{ whiteSpace: 'nowrap' }}>1 2 3</small>,
     tooltip: __('Adds a number field to your content type.'),
     component: 'FieldTypeNumber',
-    order: Reactium.Enums.priority.highest + 2,
+    order: Reactium.Enums.priority.neutral - 1,
 };
 
-Reactium.Plugin.register(ID).then(() => {
+Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     Reactium.Component.register(fieldType.component, FieldType);
 
     Reactium.Content.Editor.register(ID, { component: Editor });

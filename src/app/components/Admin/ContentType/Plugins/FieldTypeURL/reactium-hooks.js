@@ -4,7 +4,7 @@ import { Editor, FieldType, UrlSelect } from './index';
 
 const ID = 'URLS';
 
-Reactium.Plugin.register(ID).then(() => {
+Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     const fieldType = {
         id: 'urls',
         label: __('URL Field'),

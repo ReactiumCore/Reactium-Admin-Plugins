@@ -1,4 +1,3 @@
-import React from 'react';
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import { FieldType, Editor } from './index';
@@ -7,9 +6,9 @@ import op from 'object-path';
 import _ from 'underscore';
 
 const registerPublisher = async () => {
-    await Reactium.Plugin.register('Publisher');
-
     const ID = 'Publisher';
+
+    await Reactium.Plugin.register(`CTE-${ID}`);
 
     const fieldType = {
         id: 'publisher',

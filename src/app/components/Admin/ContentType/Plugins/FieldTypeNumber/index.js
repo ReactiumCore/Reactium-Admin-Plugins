@@ -2,7 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Dialog, Checkbox, Slider } from '@atomic-reactor/reactium-ui';
 
 /**
@@ -13,44 +13,47 @@ import { Dialog, Checkbox, Slider } from '@atomic-reactor/reactium-ui';
 export const FieldType = props => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
-    const defaultValueLabel = __('Default Value');
-    const minLabel = __('Min');
-    const maxLabel = __('Max');
 
     return (
         <FieldTypeDialog {...props}>
             <div className='field-type-number'>
                 <div className={'input-group'}>
                     <label className={'default-value'}>
-                        <span className='sr-only'>{defaultValueLabel}</span>
+                        <span className='sr-only'>{__('Default Value')}</span>
                         <input
                             type='number'
                             name='defaultValue'
-                            placeholder={defaultValueLabel}
+                            placeholder={__('Default Value')}
                         />
                     </label>
                     <label className={'min-max'}>
-                        <span className='sr-only'>{minLabel}</span>
+                        <span className='sr-only'>{__('Min')}</span>
                         <input
                             type='number'
                             name='min'
-                            placeholder={minLabel}
+                            placeholder={__('Min')}
                         />
                     </label>
                     <label className={'min-max'}>
-                        <span className='sr-only'>{maxLabel}</span>
+                        <span className='sr-only'>{__('Max')}</span>
                         <input
                             type='number'
                             name='max'
-                            placeholder={maxLabel}
+                            placeholder={__('Max')}
                         />
                     </label>
-                    <div className='slider-check'>
+                    <div className='checks'>
                         <Checkbox
                             name='slider'
                             label={__('Slider')}
-                            labelAlign={'right'}
-                            value={1}
+                            labelAlign='right'
+                            value={true}
+                        />
+                        <Checkbox
+                            name='required'
+                            label={__('Required')}
+                            labelAlign='right'
+                            value={true}
                         />
                     </div>
                 </div>
@@ -101,19 +104,15 @@ export const Editor = props => {
         max,
         min,
         placeholder,
-        slider,
+        required,
+        slider = false,
     } = props;
 
     const inputRef = useRef();
-    const editorValue = op.get(editor, 'value', {});
     const ElementDialog = useHookComponent('ElementDialog');
-    const [value, setValue] = useState(editorValue[fieldName]);
-
-    // Apply default value
-    if (!value && defaultValue) editor.setValue({ [fieldName]: defaultValue });
 
     const inputProps = {
-        defaultValue: defaultValue ? Number(defaultValue) : defaultValue,
+        defaultValue,
         max: max ? Number(max) : max,
         min: min ? Number(min) : min,
         name: fieldName,
@@ -122,33 +121,45 @@ export const Editor = props => {
         type: 'number',
     };
 
-    const validate = ({ context, value }) => {
-        const v = value[fieldName];
-
-        if (!v) return context;
-
-        if (inputRef.current) setValue(v);
-
-        if (isNaN(v)) {
-            context.error[fieldName] = {
-                field: fieldName,
-                focus: inputRef.current,
-                message: __('Invalid %fieldName: %value'),
-                value: v,
-            };
-            context.valid = false;
-        }
-
-        return context;
-    };
-
     const { errors } = editor;
     const errorText = op.get(errors, [fieldName, 'message']);
     const className = cn('form-group', { error: !!errorText });
     const replacers = {
         '%fieldName': fieldName,
         '%type': editor.type,
-        '%value': value,
+        '%max': max,
+        '%min': min,
+    };
+
+    const validate = ({ context, value }) => {
+        const v = value[fieldName];
+
+        const err = {
+            field: fieldName,
+            focus: inputRef.current,
+            message: null,
+            value: v,
+        };
+
+        if (required === true && !v) {
+            err.message = __('%fieldName is required');
+        }
+
+        if (min && Number(v) < Number(min)) {
+            err.message = __('%fieldName minimum value %min');
+        }
+
+        if (max && Number(v) > Number(max)) {
+            err.message = __('%fieldName maximum value %max');
+        }
+
+        if (err.message !== null) {
+            err.message = editor.parseErrorMessage(err.message, replacers);
+            context.error[fieldName] = err;
+            context.valid = false;
+        }
+
+        return context;
     };
 
     useEffect(() => {
@@ -172,11 +183,7 @@ export const Editor = props => {
                     ) : (
                         <NumberSlider {...props} />
                     )}
-                    {errorText && (
-                        <small>
-                            {editor.parseErrorMessage(errorText, replacers)}
-                        </small>
-                    )}
+                    {errorText && <small>{errorText}</small>}
                 </div>
             </div>
         </ElementDialog>

@@ -32,13 +32,24 @@
             }
         }
 
-        .required {
-            flex-grow: 0;
+        .checks {
+            @include breakpoint(md) {
+                flex-grow: 0;
+                flex-shrink: 0;
+                display: flex;
+            }
+
+            > * {
+                margin-bottom: 12px;
+                
+                @include breakpoint(md) {
+                    margin-left: 20px;
+                    margin-bottom: 0;
+                }
+            }
+
             label > span:first-child {
                 text-align: left;
-            }
-            @include breakpoint(md) {
-                margin-left: 20px;
             }
         }
     }

@@ -6,7 +6,6 @@ import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
 import { EventForm } from '@atomic-reactor/reactium-ui';
 import PropTypes from 'prop-types';
-import uuid from 'uuid/v4';
 
 const DragHandle = props => (
     <div

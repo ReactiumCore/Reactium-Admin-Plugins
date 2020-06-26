@@ -18,7 +18,7 @@ const fieldType = {
     order: Reactium.Enums.priority.highest,
 };
 
-Reactium.Plugin.register(ID).then(() => {
+Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     Reactium.Content.Editor.register(ID, { component: Editor });
     Reactium.Component.register(fieldType.component, FieldType);
     Reactium.ContentType.FieldType.register(ID, fieldType);

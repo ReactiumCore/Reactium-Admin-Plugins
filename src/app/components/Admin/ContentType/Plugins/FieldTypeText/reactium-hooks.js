@@ -1,6 +1,6 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import { Icon } from '@atomic-reactor/reactium-ui';
-import { Comparison, Editor, FieldType, QuickEditor } from '.';
+import { Comparison, Editor, FieldType } from '.';
 
 const ID = 'Text';
 
@@ -9,15 +9,15 @@ const fieldType = {
     icon: Icon.Feather.Type,
     tooltip: __('Adds a text field to your content type.'),
     component: 'FieldTypeText',
-    order: Reactium.Enums.priority.highest + 1,
+    order: Reactium.Enums.priority.neutral - 1,
 };
 
-Reactium.Plugin.register(ID).then(() => {
+Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     Reactium.Component.register(fieldType.component, FieldType);
 
     Reactium.Content.Editor.register(ID, { component: Editor });
 
-    Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
+    // Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
 
     Reactium.Content.Comparison.register(ID, { component: Comparison });
 

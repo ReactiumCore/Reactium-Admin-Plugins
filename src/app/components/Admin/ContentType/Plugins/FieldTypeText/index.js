@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
@@ -64,7 +63,14 @@ export const FieldType = props => {
                             placeholder={__('Max Characters')}
                         />
                     </label>
-                    <div className='required'>
+                    <div className='checks'>
+                        <Checkbox
+                            name='multiline'
+                            label={__('Multiline')}
+                            labelAlign='right'
+                            value={true}
+                        />
+
                         <Checkbox
                             name='required'
                             label={__('Required')}
@@ -85,6 +91,7 @@ export const Editor = props => {
         fieldName,
         max,
         min,
+        multiline,
         pattern,
         placeholder,
         required,
@@ -101,8 +108,9 @@ export const Editor = props => {
         pattern,
         placeholder,
         ref: inputRef,
-        type: 'text',
     };
+
+    if (multiline === true) op.set(inputProps, 'rows', 5);
 
     const { errors } = editor;
     const errorText = op.get(errors, [fieldName, 'message']);
@@ -123,6 +131,10 @@ export const Editor = props => {
             value: v,
         };
 
+        if (required === true && !v) {
+            err.message = __('%fieldName is required');
+        }
+
         if (v && min) {
             if (String(v).length < Number(min)) {
                 err.message = __('%fieldName minimum character count is %min');
@@ -132,12 +144,6 @@ export const Editor = props => {
         if (v && max) {
             if (String(v).length > Number(max)) {
                 err.message = __('%fieldName maximum character count is %max');
-            }
-        }
-
-        if (required === true) {
-            if (!v) {
-                err.message = __('%fieldName is a required');
             }
         }
 
@@ -165,7 +171,11 @@ export const Editor = props => {
                         <span className='sr-only'>
                             {placeholder || fieldName}
                         </span>
-                        <input {...inputProps} />
+                        {multiline === true ? (
+                            <textarea {...inputProps} />
+                        ) : (
+                            <input {...inputProps} type='text' />
+                        )}
                     </label>
                     {errorText && <small>{errorText}</small>}
                 </div>
@@ -174,7 +184,7 @@ export const Editor = props => {
     );
 };
 
-export const QuickEditor = props => {
+export const QuickEditor = () => {
     return 'Text QuickEditor';
 };
 

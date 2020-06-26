@@ -1,21 +1,23 @@
 import React from 'react';
 import { Editor } from './Editor';
 import { FieldType } from './FieldType';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 
-const ID = 'Select';
+const ID = 'Object';
 
-const Ico = () => {
-    const { Icon } = useHookComponent('ReactiumUI');
-    return <Icon name='Linear.Menu3' />;
-};
+const Ico = () => (
+    <span
+        style={{ color: '#999999', fontSize: 18, whiteSpace: 'nowrap' }}
+        children='{ }'
+    />
+);
 
 const fieldType = {
     icon: Ico,
-    label: __('Select Field'),
-    component: 'FieldTypeSelect',
-    tooltip: __('Adds a select element'),
-    order: Reactium.Enums.priority.highest + 1,
+    label: __('Object Field'),
+    component: 'FieldTypeObject',
+    tooltip: __('Adds an Object field type'),
+    order: Reactium.Enums.priority.neutral,
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {

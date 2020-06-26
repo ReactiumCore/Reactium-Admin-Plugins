@@ -845,7 +845,7 @@ const ContentType = props => {
 
     const saveHotkey = e => {
         if (e) e.preventDefault();
-        onTypeSubmit();
+        parentFormRef.current.submit();
     };
 
     const _handle = () => ({
