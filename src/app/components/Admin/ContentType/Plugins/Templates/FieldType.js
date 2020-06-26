@@ -70,9 +70,9 @@ export const FieldType = props => {
             `field-type-form-change-${id}`,
             async e => {
                 if (e.value) {
-                    const templates = op
-                        .get(e.value, 'templates', '')
-                        .split(',');
+                    const templates = String(
+                        op.get(e.value, 'templates') || '',
+                    ).split(',');
 
                     const previewURL = op.get(e.value, 'previewURL');
 

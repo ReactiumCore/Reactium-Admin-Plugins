@@ -8,7 +8,6 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     __,
-    useAsyncEffect,
     useDerivedState,
     useHookComponent,
 } from 'reactium-core/sdk';
@@ -16,8 +15,6 @@ import Reactium, {
 import {
     Alert,
     Button,
-    Checkbox,
-    Dialog,
     Dropdown,
     Icon,
     Spinner,
@@ -159,8 +156,6 @@ const Query = ({ className = 'query', query = [], onDelete }) => {
 };
 
 export const useTypes = () => {
-    const noop = () => {};
-
     const [status, setStatus] = useState('init');
     const [types, setTypes] = useState();
 
@@ -199,11 +194,13 @@ const stringize = v => {
 };
 
 const arrayize = v => {
-    v = JSON.stringify(
-        stringize(v)
-            .split(',')
-            .map(item => transformValue(item)),
-    );
+    v = v
+        ? JSON.stringify(
+              stringize(v)
+                  .split(',')
+                  .map(item => transformValue(item)),
+          )
+        : undefined;
 
     return v;
 };
@@ -397,7 +394,7 @@ export const FieldType = props => {
         setNewState(newState);
     };
 
-    const toggleHelp = e => {
+    const toggleHelp = () => {
         Reactium.Prefs.set('admin.help.cte.collection', !state.help);
         setState({ help: !state.help });
     };

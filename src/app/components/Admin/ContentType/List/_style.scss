@@ -36,7 +36,6 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
     &-content {
         display: flex;
         flex-wrap: wrap;
-        min-height: $height-admin-content-type-list;
         padding-top: $padding-admin-content-zone;
         padding-left: $padding-admin-content-zone;
     }
