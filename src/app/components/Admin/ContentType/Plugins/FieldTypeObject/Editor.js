@@ -48,7 +48,22 @@ export const Editor = props => {
                             value: val = '',
                         } = item;
 
+                        const defaultValue = op.get(value, key) || val;
+
                         switch (type) {
+                            case 'textarea':
+                                return (
+                                    <div
+                                        className='form-group'
+                                        key={`${fieldName}-${key}`}>
+                                        <textarea
+                                            data-key={key}
+                                            name={`${fieldName}.${key}`}
+                                            placeholder={placeholder}
+                                            defaultValue={defaultValue}
+                                        />
+                                    </div>
+                                );
                             default:
                                 return (
                                     <div
@@ -59,9 +74,7 @@ export const Editor = props => {
                                             name={`${fieldName}.${key}`}
                                             placeholder={placeholder}
                                             type={type}
-                                            defaultValue={
-                                                op.get(value, key) || val
-                                            }
+                                            defaultValue={defaultValue}
                                         />
                                     </div>
                                 );
