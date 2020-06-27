@@ -10,8 +10,6 @@ import useProperCase from 'components/Admin/Tools/useProperCase';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 import { Alert, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 
-// import EventForm from 'components/EventForm';
-
 import React, {
     forwardRef,
     useEffect,
@@ -127,42 +125,8 @@ let ContentEditor = (
     const [status] = useState('pending');
     const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
     const [types, setTypes] = useState();
-
-    // value
-    const valueRef = useRef({});
-    const value = valueRef.current;
-    const setValue = (newValue, silent = false) => {
-        if (unMounted()) return;
-
-        if (!newValue) {
-            valueRef.current = {};
-            Object.keys(value).forEach(key => op.del(value, key));
-        } else {
-            valueRef.current = { ...value, ...newValue };
-            Object.entries(valueRef.current).forEach(([key, val]) =>
-                op.set(value, key, val),
-            );
-        }
-
-        if (silent !== true) {
-            dispatch('change', { previous, value }, onChange);
-            setState({ updated: Date.now });
-        }
-
-        setPrevious(value);
-        op.set(handle, 'value', value);
-    };
-
-    // previous
-    const previousRef = useRef({});
-    let previous = previousRef.current;
-    const setPrevious = (newValue = {}) => {
-        if (unMounted()) return;
-        previousRef.current = { ...previous, ...newValue };
-        Object.entries(previousRef.current).forEach(([key, val]) =>
-            op.set(value, key, val),
-        );
-    };
+    const [value, setNewValue] = useState();
+    const [previous, setPrevious] = useState({});
 
     // Aliases prevent memory leaks
     const setAlert = newAlert => {
@@ -182,11 +146,13 @@ let ContentEditor = (
 
     const setClean = (params = {}) => {
         if (unMounted()) return;
+
+        setNewDirty(false);
+
         const newValue = op.get(params, 'value', op.get(params, 'content'));
 
-        if (newValue) setValue(newValue, true);
+        if (newValue) setValue(newValue);
         dispatch('clean', { value: newValue });
-        setNewDirty(false);
     };
 
     const setDirty = (params = {}) => {
@@ -197,7 +163,7 @@ let ContentEditor = (
         setNewDirty(true);
 
         if (unMounted()) return;
-        if (newValue) setValue(newValue, true);
+        if (newValue) setValue(newValue);
         dispatch('dirty', { value: newValue });
     };
 
@@ -210,6 +176,12 @@ let ContentEditor = (
             if (unMounted()) return;
             dispatch('stale', { stale: val });
         });
+    };
+
+    const setValue = (newValue = {}, checkReady = false) => {
+        if (unMounted(checkReady)) return;
+        newValue = { ...value, ...newValue };
+        setNewValue(newValue);
     };
 
     // Functions
@@ -365,7 +337,7 @@ let ContentEditor = (
         ready = false;
         loadingStatus.current = undefined;
         ignoreChangeEvent.current = true;
-        setValue();
+        setNewValue(undefined);
     };
 
     const save = async (mergeValue = {}) => {
@@ -625,7 +597,9 @@ let ContentEditor = (
 
     const submit = () => formRef.current.submit();
 
-    const _onChange = async e => setValue(e.value);
+    const _onChange = async e => {
+        if (e.value) setValue(e.value, true);
+    };
 
     const _onError = async context => {
         const { error } = context;
@@ -836,6 +810,23 @@ let ContentEditor = (
         };
     }, [ready]);
 
+    // dispatch change
+    useEffect(() => {
+        if (!ready || !value) {
+            return;
+        }
+
+        if (_.isEqual(previous, value)) {
+            return;
+        }
+
+        setPrevious(value);
+
+        if (_.isEmpty(previous)) return;
+
+        dispatch('change', { previous, value }, onChange);
+    }, [value]);
+
     // save hotkey
     useEffect(() => {
         if (ready !== true) return;
@@ -854,14 +845,13 @@ let ContentEditor = (
     // get content
     useEffect(() => {
         if (loadingStatus.current) return;
-        if (unMounted() || !slug || !type || Object.keys(value).length > 0)
-            return;
+        if (!formRef.current || !slug || !type || value) return;
         getContent()
             .then(result => {
                 if (unMounted()) return;
+                if (!result) return;
                 ignoreChangeEvent.current = true;
                 setClean({ value: result });
-                setState({ loaded: Date.now() });
             })
             .catch(error => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);
