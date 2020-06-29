@@ -42,11 +42,12 @@ export default props => {
     };
 
     const _updateValue = () => {
+        const val = { ...editor.value, [name]: valueRef.current };
         setNewValue(valueRef.current);
-        editor.setDirty();
+        editor.setValue(val);
     };
 
-    const updateValue = _.throttle(_updateValue, 1500, { leading: false });
+    const updateValue = _.throttle(_updateValue, 500, { leading: false });
 
     const reload = e => {
         const newValue = e

@@ -8,7 +8,6 @@ import ContentEvent from '../_utils/ContentEvent';
 import DEFAULT_ENUMS from 'components/Admin/Content/enums';
 import useProperCase from 'components/Admin/Tools/useProperCase';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
-import { Alert, EventForm, Icon } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -24,7 +23,6 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useFulfilledObject,
-    useHandle,
     useHookComponent,
     useRegisterHandle,
 } from 'reactium-core/sdk';
@@ -37,6 +35,7 @@ import Reactium, {
 const noop = () => {};
 
 const ErrorMessages = ({ editor, errors }) => {
+    const { Icon } = useHookComponent('ReactiumUI');
     const canFocus = element => typeof element.focus === 'function';
 
     const jumpTo = (e, element) => {
@@ -93,16 +92,14 @@ let ContentEditor = (
     const alertRef = useRef();
     const formRef = useRef();
     const sidebarRef = useRef();
+    const valueRef = useRef({});
     const ignoreChangeEvent = useRef(true);
     const loadingStatus = useRef(false);
     const Helmet = useHookComponent('Helmet');
     const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');
-
-    const tools = useHandle('AdminTools');
-
-    const Toast = op.get(tools, 'Toast');
+    const { Alert, EventForm, Icon, Toast } = useHookComponent('ReactiumUI');
 
     let { type, slug, branch = 'master' } = useRouteParams([
         'type',
@@ -123,10 +120,12 @@ let ContentEditor = (
     const [errors, setErrors] = useState({});
     const [stale, setNewStale] = useState(false);
     const [status] = useState('pending');
-    const [state, setState] = useDerivedState(props, ['title', 'sidebar']);
+    const [state, setState] = useDerivedState(props, [
+        'title',
+        'sidebar',
+        'value',
+    ]);
     const [types, setTypes] = useState();
-    const [value, setNewValue] = useState();
-    const [previous, setPrevious] = useState({});
 
     // Aliases prevent memory leaks
     const setAlert = newAlert => {
@@ -178,10 +177,27 @@ let ContentEditor = (
         });
     };
 
-    const setValue = (newValue = {}, checkReady = false) => {
-        if (unMounted(checkReady)) return;
-        newValue = { ...value, ...newValue };
-        setNewValue(newValue);
+    const setValue = (newValue, forceUpdate = false) => {
+        if (unMounted()) return;
+        if (_.isObject(newValue)) {
+            const { value = {} } = state;
+            newValue = { ...value, ...newValue };
+        } else {
+            newValue = null;
+        }
+
+        valueRef.current = newValue;
+
+        if (forceUpdate === true) {
+            update(valueRef.current);
+        } else {
+            op.set(handle, 'value', newValue);
+        }
+    };
+
+    const update = newValue => {
+        if (unMounted()) return;
+        setState({ value: newValue });
     };
 
     // Functions
@@ -337,12 +353,13 @@ let ContentEditor = (
         ready = false;
         loadingStatus.current = undefined;
         ignoreChangeEvent.current = true;
-        setNewValue(undefined);
+        update(null);
     };
 
     const save = async (mergeValue = {}) => {
         setAlert();
 
+        const { value = {} } = state;
         const newValue = { ...value, ...mergeValue };
 
         // only track branch for saves
@@ -381,7 +398,7 @@ let ContentEditor = (
         if (isNew()) return;
 
         setAlert();
-
+        const { value = {} } = state;
         const newValue = { ...value, status };
         // only latest revision
         op.del(newValue, 'history.revision');
@@ -423,7 +440,9 @@ let ContentEditor = (
     };
 
     const setBranch = async branch => {
+        const { value = {} } = state;
         const request = { ...value };
+
         op.set(request, 'history', { branch });
         const newValue = await Reactium.Content.retrieve(request);
 
@@ -448,7 +467,7 @@ let ContentEditor = (
         if (isNew()) return;
 
         setAlert();
-
+        const { value = {} } = state;
         const newValue = { ...value, status };
         // only latest revision
         op.del(newValue, 'history.revision');
@@ -495,6 +514,8 @@ let ContentEditor = (
         if (isNew()) return;
 
         setAlert();
+
+        const { value = {} } = state;
 
         const payload = {
             type,
@@ -548,6 +569,8 @@ let ContentEditor = (
 
         setAlert();
 
+        const { value = {} } = state;
+
         const payload = {
             type,
             objectId: value.objectId,
@@ -597,9 +620,7 @@ let ContentEditor = (
 
     const submit = () => formRef.current.submit();
 
-    const _onChange = async e => {
-        if (e.value) setValue(e.value, true);
-    };
+    const _onChange = async ({ value }) => setValue(value);
 
     const _onError = async context => {
         const { error } = context;
@@ -623,11 +644,17 @@ let ContentEditor = (
     const _onFail = async (e, error, next) => {
         await dispatch('save-fail', { error }, onFail);
 
-        const message = String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type);
+        const Msg = () => (
+            <span>
+                <Icon name='Feather.AlertOctagon' style={{ marginRight: 8 }} />
+                {String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type)}
+            </span>
+        );
 
-        Toast.show({
-            icon: 'Feather.AlertOctagon',
-            message,
+        Toast.update('content-save', {
+            render: <Msg />,
+            autoClose: 1000,
+            closeOnClick: true,
             type: Toast.TYPE.ERROR,
         });
 
@@ -640,6 +667,15 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
+            Toast.show({
+                icon: 'Feather.UploadCloud',
+                message: String(ENUMS.TEXT.SAVING).replace('%type', type),
+                type: Toast.TYPE.INFO,
+                toastId: 'content-save',
+                autoClose: false,
+                closeButton: false,
+            });
+
             debug(e.value);
             await dispatch('submit', e.value, onSubmit);
             save(e.value)
@@ -654,22 +690,28 @@ let ContentEditor = (
         });
 
     const _onSuccess = async (e, result, next) => {
-        const message = String(ENUMS.TEXT.SAVED).replace('%type', type);
+        const Msg = () => (
+            <span>
+                <Icon name='Feather.Check' style={{ marginRight: 8 }} />
+                {String(ENUMS.TEXT.SAVED).replace('%type', type)}
+            </span>
+        );
 
-        Toast.show({
-            icon: 'Feather.Check',
-            message,
-            type: Toast.TYPE.INFO,
+        Toast.update('content-save', {
+            render: <Msg />,
+            autoClose: 1000,
+            closeOnClick: true,
         });
 
         if (unMounted()) return;
 
-        setValue(result);
         await dispatch(
             'save-success',
             { value: result, ignoreChangeEvent: true },
             onSuccess,
         );
+
+        setValue(result, true);
 
         if (isNew() || result.slug !== slug) {
             _.defer(
@@ -684,6 +726,7 @@ let ContentEditor = (
     const _onValidate = async e => {
         setErrors({});
 
+        const { value = {} } = state;
         const { value: val, ...context } = e;
         await dispatch('validate', { context, value: val }, onValidate);
 
@@ -694,6 +737,19 @@ let ContentEditor = (
     const saveHotkey = e => {
         if (e) e.preventDefault();
         submit();
+    };
+
+    const pulse = () => {
+        const { value = {} } = state;
+
+        if (!_.isEqual(value, valueRef.current)) {
+            update(valueRef.current);
+            dispatch(
+                'change',
+                { previous: value, value: valueRef.current },
+                onChange,
+            );
+        }
     };
 
     // Handle
@@ -715,6 +771,7 @@ let ContentEditor = (
         isStale,
         parseErrorMessage,
         properCase,
+        ready,
         regions,
         save,
         slug,
@@ -734,7 +791,7 @@ let ContentEditor = (
         type,
         types,
         unMounted,
-        value,
+        value: valueRef.current,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
@@ -782,10 +839,10 @@ let ContentEditor = (
 
     // update handle
     useEffect(() => {
-        const newHandle = _handle();
-        let equal = _.isEqual(newHandle, handle);
-        if (equal === true) return;
-        setHandle(newHandle);
+        const hnd = _handle();
+        if (_.isEqual(hnd, handle) === true) return;
+        Object.keys(hnd).forEach(key => op.set(handle, key, hnd[key]));
+        setHandle(handle);
     });
 
     // update handle refs
@@ -810,23 +867,6 @@ let ContentEditor = (
         };
     }, [ready]);
 
-    // dispatch change
-    useEffect(() => {
-        if (!ready || !value) {
-            return;
-        }
-
-        if (_.isEqual(previous, value)) {
-            return;
-        }
-
-        setPrevious(value);
-
-        if (_.isEmpty(previous)) return;
-
-        dispatch('change', { previous, value }, onChange);
-    }, [value]);
-
     // save hotkey
     useEffect(() => {
         if (ready !== true) return;
@@ -843,15 +883,20 @@ let ContentEditor = (
     }, [ready]);
 
     // get content
-    useEffect(() => {
+    useAsyncEffect(() => {
+        if (!ready) return;
         if (loadingStatus.current) return;
-        if (!formRef.current || !slug || !type || value) return;
+
+        const { value } = state;
+
+        if (unMounted() || !slug || !type || value) return;
         getContent()
             .then(result => {
                 if (unMounted()) return;
                 if (!result) return;
                 ignoreChangeEvent.current = true;
                 setClean({ value: result });
+                update(result);
             })
             .catch(error => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);
@@ -864,11 +909,18 @@ let ContentEditor = (
                     console.error({ error });
                 });
             });
-    });
+    }, [ready]);
+
+    // create pulse
+    useEffect(() => {
+        if (!ready) return;
+        Reactium.Pulse.register('content-editor', pulse, { delay: 250 });
+        return () => Reactium.Pulse.unregister('content-editor');
+    }, [ready]);
 
     const render = () => {
         if (ready !== true) return <Loading />;
-        const { title } = state;
+        const { title, value = {} } = state;
         const currentValue = value || {};
         const [contentRegions, sidebarRegions] = regions();
 
@@ -939,6 +991,7 @@ let ContentEditor = (
                         </Sidebar>
                     )}
                 </EventForm>
+                {!state.value && <Loading />}
             </>
         );
     };
@@ -964,6 +1017,7 @@ ContentEditor.propTypes = {
     onValidate: PropTypes.func,
     sidebar: PropTypes.bool,
     title: PropTypes.string,
+    value: PropTypes.object,
 };
 
 ContentEditor.defaultProps = {
@@ -980,6 +1034,7 @@ ContentEditor.defaultProps = {
     onValidate: noop,
     sidebar: true,
     title: DEFAULT_ENUMS.TEXT.EDITOR,
+    value: null,
 };
 
 export default ContentEditor;

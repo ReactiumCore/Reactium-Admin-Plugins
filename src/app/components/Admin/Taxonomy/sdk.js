@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import op from 'object-path';
 import Actinium from 'appdir/api';
 import Reactium from 'reactium-core/sdk';

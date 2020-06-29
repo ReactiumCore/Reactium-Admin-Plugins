@@ -9,15 +9,12 @@ import React, {
     useEffect,
     useImperativeHandle,
     useRef,
-    useState,
 } from 'react';
 
 import Reactium, {
     __,
-    useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useHandle,
     useHookComponent,
     useRegisterHandle,
 } from 'reactium-core/sdk';
@@ -45,8 +42,6 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         slug: null,
     }).current;
 
-    const { Alert, Button, EventForm, Icon } = useHookComponent('ReactiumUI');
-
     const [state, update] = useDerivedState({
         error: null,
         type: op.get(props, 'type', op.get(value, 'type')),
@@ -62,7 +57,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
 
     const className = field => cn('form-group', { error: isError(field) });
 
-    const dispatch = async (eventType, eventObj, callback) => {
+    const dispatch = async (eventType, eventObj) => {
         if (unMounted()) return;
         await Reactium.Hook.run(eventType, eventObj);
         const evt = new TaxonomyEvent(eventType, eventObj);
@@ -213,7 +208,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         unMounted,
     });
 
-    const [handle, setHandle] = useEventHandle(_handle());
+    const [handle] = useEventHandle(_handle());
 
     useImperativeHandle(ref, () => handle, [handle]);
     useRegisterHandle('TaxonomyEditor', () => handle, [handle]);
