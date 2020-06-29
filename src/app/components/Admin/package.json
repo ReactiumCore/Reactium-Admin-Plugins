@@ -1,6 +1,6 @@
 {
   "name": "@atomic-reactor/admin",
-  "version": "0.0.118",
+  "version": "0.0.120",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
   "homepage": "https://github.com/Atomic-Reactor/Actinium-Admin#readme",
   "dependencies": {
     "@atomic-reactor/actinium-auth": "^1.0.2",
-    "@atomic-reactor/reactium-sdk-core": "^0.0.63",
     "@atomic-reactor/reactium-ui": "^0.2.0",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.3.1",

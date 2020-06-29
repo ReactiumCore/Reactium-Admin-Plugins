@@ -5,7 +5,6 @@
  */
 
 import SDK from './sdk';
-import _ from 'underscore';
 import op from 'object-path';
 import FieldType from './FieldType';
 import Breadcrumbs from './Breadcrumbs';
