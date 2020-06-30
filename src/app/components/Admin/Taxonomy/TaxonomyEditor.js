@@ -42,6 +42,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
 
     const [state, update] = useDerivedState({
         error: null,
+        slug: false,
         type: op.get(props, 'type', op.get(value, 'type')),
         objectId: op.get(props, 'objectId', null),
     });
@@ -68,6 +69,12 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         } else {
             return op.get(state, 'error') !== null;
         }
+    };
+
+    const onNameChange = e => {
+        if (state.slug === true) return;
+        const v = e.currentTarget.value;
+        refs.slug.value = String(slugify(v)).toLowerCase();
     };
 
     const onSubmit = async () => {
@@ -149,7 +156,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         let valid = true;
 
         for (const key in rqd) {
-            if (!op.has(value, key)) {
+            if (!op.get(value, key)) {
                 valid = op.get(rqd, key);
                 break;
             }
@@ -194,7 +201,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
     };
 
     const clear = () => {
-        setState({ error: null });
+        setState({ error: null, slug: false });
 
         Object.values(refs).forEach(elm => {
             elm.value = '';
@@ -230,6 +237,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
                     <span className='sr-only'>Name:</span>
                     <input
                         type='text'
+                        onChange={onNameChange}
                         placeholder={__('Name')}
                         ref={elm => setRef('name', elm)}
                         defaultValue={op.get(value, 'name')}
@@ -245,6 +253,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
                         placeholder={__('Slug')}
                         ref={elm => setRef('slug', elm)}
                         defaultValue={op.get(value, 'slug')}
+                        onKeyDown={() => setState({ slug: true })}
                     />
                 </label>
                 <ErrorMsg error={state.error} field='slug' />
