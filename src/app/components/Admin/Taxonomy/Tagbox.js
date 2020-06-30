@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import _ from 'underscore';
 import slugify from 'slugify';
 import { useHookComponent } from 'reactium-core/sdk';
-import TagsInput from './TagsInput';
 
 export const Tagbox = props => {
-    //const { TagsInput } = useHookComponent('ReactiumUI');
+    const { TagsInput } = useHookComponent('ReactiumUI');
 
     const { add, cx, placeholder, remove, state } = props;
 
