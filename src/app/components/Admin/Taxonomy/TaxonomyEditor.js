@@ -42,9 +42,8 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
 
     const [state, update] = useDerivedState({
         error: null,
-        slug: false,
+        slug: !!op.get(value, 'objectId'),
         type: op.get(props, 'type', op.get(value, 'type')),
-        objectId: op.get(props, 'objectId', null),
     });
 
     const setRef = (key, elm) => op.set(refs, key, elm);
@@ -84,7 +83,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         // execute save operation
         const result = await save(value);
 
-        if (op.has(result, 'error')) {
+        if (op.get(result, 'error')) {
             // set the error message
             setState({ error: result.error });
         } else {
@@ -165,7 +164,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         if (valid === true && !op.get(value, 'objectId')) {
             const { slug } = value;
             try {
-                let exists = await Reactium.Taxonomy.exists({ slug });
+                const exists = await Reactium.Taxonomy.exists({ slug });
                 valid = exists
                     ? {
                           field: 'slug',
@@ -201,7 +200,9 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
     };
 
     const clear = () => {
-        setState({ error: null, slug: false });
+        setState({ error: null, slug: !!op.get(value, 'objectId') });
+
+        if (op.get(value, 'objectId')) return;
 
         Object.values(refs).forEach(elm => {
             elm.value = '';
