@@ -56,6 +56,11 @@ const ContentTypeMenuItem = memo(props => {
                         saving.item,
                     );
                     op.set(freshItem, 'type', op.get(saving, 'item.type'));
+
+                    // uuid and machineName only
+                    op.del(freshItem, 'type.objectId');
+                    op.del(freshItem, 'objectId');
+
                     if (!isMounted()) return;
 
                     Object.entries(menuItem).forEach(([key, value]) => {
