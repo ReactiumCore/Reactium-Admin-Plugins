@@ -11,7 +11,10 @@ export const Tagbox = props => {
 
     let { selected, taxonomy = [] } = state;
 
-    const [slugs, setSlugs] = useState([]);
+    const slugs = _.pluck(
+        selected.filter(({ deleted }) => deleted !== true),
+        'slug',
+    );
 
     const data = () =>
         taxonomy.map(({ slug, name }) => ({
@@ -58,13 +61,10 @@ export const Tagbox = props => {
         return !_.uniq(sel.map(formatter)).includes(formatter(val));
     };
 
-    useEffect(() => {
-        const newSlugs = _.pluck(
-            selected.map(({ deleted }) => deleted !== true),
-            'slug',
-        );
-        setSlugs(newSlugs);
-    }, [selected]);
+    // useEffect(() => {
+    //     const newSlugs = _.pluck(selected.filter(({ deleted }) => deleted !== true), 'slug');
+    //     setSlugs(newSlugs);
+    // }, [selected]);
 
     return (
         <div className={cx('tagbox')}>
