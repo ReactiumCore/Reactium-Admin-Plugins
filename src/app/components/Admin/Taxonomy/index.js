@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { TaxonomyEvent } from './TaxonomyEvent';
@@ -57,10 +56,7 @@ let Taxonomy = (
     // -------------------------------------------------------------------------
     // Components
     // -------------------------------------------------------------------------
-    const { Collapsible, Dialog, Button } = useHookComponent('ReactiumUI');
     const Helmet = useHookComponent('Helmet');
-    const TaxonomyEditor = useHookComponent('TaxonomyEditor');
-    const Modal = useModal();
 
     // -------------------------------------------------------------------------
     // State
@@ -134,8 +130,6 @@ let Taxonomy = (
         setState({ types });
     };
 
-    const showEditor = value => {};
-
     const unMounted = () => !containerRef.current;
 
     // -------------------------------------------------------------------------
@@ -157,7 +151,7 @@ let Taxonomy = (
         unMounted,
     });
 
-    const [handle, setNewHandle] = useEventHandle(_handle());
+    const [handle] = useEventHandle(_handle());
 
     useImperativeHandle(ref, () => handle, [handle]);
     useRegisterHandle('Taxonomy', () => handle, [handle]);
@@ -197,7 +191,6 @@ let Taxonomy = (
 };
 
 const TaxonomyListItem = ({
-    children,
     description,
     handle,
     name,
@@ -263,7 +256,7 @@ const TaxonomyListItem = ({
                     className='hover-show'
                     color={Button.ENUMS.COLOR.CLEAR}
                     onClick={() => showTypeEditor(value)}>
-                    <Icon name='Feather.Edit2' size={14} />
+                    <Icon name='Feather.Edit2' size={18} />
                 </Button>
                 <Button
                     color={Button.ENUMS.COLOR.CLEAR}
@@ -293,7 +286,7 @@ const TaxonomyListItem = ({
     );
 };
 
-const TaxonomySubListItem = ({ handle, type, value, ...props }) => {
+const TaxonomySubListItem = ({ handle, type, value }) => {
     const Modal = useModal();
     const ConfirmBox = useHookComponent('ConfirmBox');
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -346,7 +339,7 @@ const TaxonomySubListItem = ({ handle, type, value, ...props }) => {
     );
 };
 
-export const HeaderWidget = props => {
+export const HeaderWidget = () => {
     const Modal = useModal();
     const handle = useHandle('Taxonomy');
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -390,12 +383,14 @@ const Editor = ({ handle, namespace = 'admin-taxonomy', value }) => {
     const footer = {
         elements: [
             <Button
+                key='cancel-btn'
                 className='mr-xs-8'
                 color={Button.ENUMS.COLOR.DANGER}
                 onClick={() => dismiss()}>
                 {__('Cancel')}
             </Button>,
             <Button
+                key='save-btn'
                 color={Button.ENUMS.COLOR.PRIMARY}
                 disabled={status === ENUMS.STATUS.PENDING}
                 onClick={() => submit()}>
@@ -423,11 +418,13 @@ const Editor = ({ handle, namespace = 'admin-taxonomy', value }) => {
 
         try {
             result = await formRef.current.submit();
-            Toast.show({
-                type: Toast.TYPE.INFO,
-                message: __('Saved %name').replace(/\%name/gi, v.name),
-                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-            });
+            if (!op.get(result, 'error')) {
+                Toast.show({
+                    type: Toast.TYPE.INFO,
+                    message: __('Saved %name').replace(/\%name/gi, v.name),
+                    icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                });
+            }
         } catch (err) {
             result = { error: err };
             Toast.show({

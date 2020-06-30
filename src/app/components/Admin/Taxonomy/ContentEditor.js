@@ -91,6 +91,7 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         op.set(item, 'isTaxonomy', true);
         op.set(item, 'field', fieldName);
         op.set(item, 'type', type);
+
         updateSelected(item);
 
         if (create === true) {
@@ -115,10 +116,15 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         let selected = state.selected || [];
 
         const idx = _.findIndex(selected, { slug: item.slug });
-        if (idx >= 0) selected.splice(idx, 1, item);
-        else selected.push(item);
+        if (idx >= 0) {
+            selected.splice(idx, 1, item);
+        } else {
+            selected.push(item);
+        }
 
-        setState({ selected });
+        const slugs = _.pluck(selected, 'slug');
+
+        setState({ selected, slugs });
     };
 
     const hideEditor = () => {

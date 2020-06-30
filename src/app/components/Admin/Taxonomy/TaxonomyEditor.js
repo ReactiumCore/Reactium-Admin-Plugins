@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import slugify from 'slugify';
@@ -15,7 +14,6 @@ import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
-    useHookComponent,
     useRegisterHandle,
 } from 'reactium-core/sdk';
 
@@ -109,11 +107,11 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         await dispatch('taxonomy-save', { value });
 
         try {
-            let saved = op.has(value, 'objectId')
+            let saved = op.get(value, 'objectId')
                 ? await Reactium.Taxonomy.update(value)
                 : await Reactium.Taxonomy.create(value);
 
-            saved = op.has(saved, 'toJSON') ? saved.toJSON() : saved;
+            saved = op.get(saved, 'toJSON') ? saved.toJSON() : saved;
 
             if (!saved) {
                 const error = {
@@ -159,17 +157,24 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
 
         if (valid === true && !op.get(value, 'objectId')) {
             const { slug } = value;
-            const exists = await Reactium.Taxonomy.exists({ slug });
-
-            valid = exists
-                ? {
-                      field: 'slug',
-                      focus: refs.slug,
-                      message: __('%slug %type already exists')
-                          .replace(/\%slug/gi, slug)
-                          .replace(/\%type/gi, state.type),
-                  }
-                : valid;
+            try {
+                let exists = await Reactium.Taxonomy.exists({ slug });
+                valid = exists
+                    ? {
+                          field: 'slug',
+                          focus: refs.slug,
+                          message: __('%slug %type already exists')
+                              .replace(/\%slug/gi, slug)
+                              .replace(/\%type/gi, state.type),
+                      }
+                    : valid;
+            } catch (err) {
+                valid = {
+                    field: 'slug',
+                    focus: refs.slug,
+                    message: err.message,
+                };
+            }
         }
 
         await dispatch('taxonomy-validate', { valid, value });

@@ -1,5 +1,5 @@
+import _ from 'underscore';
 import op from 'object-path';
-import Actinium from 'appdir/api';
 import Reactium from 'reactium-core/sdk';
 
 const Taxonomy = {
@@ -26,13 +26,23 @@ const functions = [
     { key: 'Content.retrieve', value: 'taxonomy-content-retrieve' },
 ];
 // prettier-ignore
-functions.forEach(({ key, value }) => op.set(Taxonomy, key, params => Actinium.Cloud.run(value, params)));
+functions.forEach(({ key, value }) => op.set(Taxonomy, key, params => Reactium.Cloud.run(value, params)));
+
+Taxonomy.exists = async params => {
+    const results = await Reactium.Cloud.run('taxonomy-exists', params);
+    return _.isObject(results) ? Object.keys(results).length > 0 : false;
+};
+
+Taxonomy.Type.exists = async params => {
+    const results = await Reactium.Cloud.run('taxonomy-type-exists', params);
+    return _.isObject(results) ? Object.keys(results).length > 0 : false;
+};
 
 Taxonomy.Type.list = async params => {
     const cached = Reactium.Cache.get('taxonomy.types');
     if (cached && !op.has(params, 'refresh')) return cached;
 
-    const results = await Actinium.Cloud.run('taxonomy-types', params);
+    const results = await Reactium.Cloud.run('taxonomy-types', params);
 
     Reactium.Cache.set('taxonomy.types', results, 10000);
     return results;
@@ -44,7 +54,7 @@ Taxonomy.Type.retrieve = async params => {
     const cached = Reactium.Cache.get(cacheID);
     if (cached) return cached;
 
-    const results = await Actinium.Cloud.run('taxonomy-type-retrieve', params);
+    const results = await Reactium.Cloud.run('taxonomy-type-retrieve', params);
 
     Reactium.Cache.set(cacheID, results, 10000);
     return results;
