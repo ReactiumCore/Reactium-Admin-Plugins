@@ -12,86 +12,81 @@ export default ({
     refs,
     setRef,
     size,
-    ...handle
 }) => {
-    const render = () => {
-        return (
-            <div id={id} className='admin-thumbnail-select'>
-                <div className='form-group'>
-                    <label>
-                        {__('Size:')}
-                        <SizeSelect
-                            onChange={e => onSizeChange(e)}
-                            refs={refs}
-                            setRef={setRef}
-                            size={size}
-                            sizes={options.sizes}
-                        />
-                    </label>
-                </div>
-                {size === 'custom' && (
-                    <div className='form-group'>
-                        <div className='flex middle'>
-                            <div className='col-xs-5'>
-                                <input
-                                    className='text-center'
-                                    data-key='width'
-                                    onChange={onOptionChange}
-                                    placeholder='width'
-                                    ref={elm => setRef(elm, 'input.width')}
-                                    style={{ width: '100%' }}
-                                    type='number'
-                                    value={op.get(options, 'width') || ''}
-                                />
-                            </div>
-                            <div className='col-xs-2 text-center gray'>
-                                <Icon name='Feather.X' />
-                            </div>
-                            <div className='col-xs-5'>
-                                <input
-                                    className='text-center'
-                                    data-key='height'
-                                    onChange={onOptionChange}
-                                    placeholder='height'
-                                    ref={elm => setRef(elm, 'input.height')}
-                                    style={{ width: '100%' }}
-                                    type='number'
-                                    value={op.get(options, 'height') || ''}
-                                />
-                            </div>
-                        </div>
-                        <small className='text-right'>
-                            width and height must be in pixels
-                        </small>
-                    </div>
-                )}
-
-                <div className='form-group'>
-                    <label>
-                        {__('Property:')}
-                        <input
-                            data-key='property'
-                            onChange={onOptionChange}
-                            ref={elm => setRef(elm, 'input.property')}
-                            type='text'
-                            value={op.get(options, 'property') || ''}
-                        />
-                    </label>
-                </div>
-
-                <div className='actions'>
-                    <Button
-                        color='clear'
-                        onClick={() => navTo('pick', 'right')}
-                        style={{ width: 44, height: 40 }}>
-                        <Icon name='Feather.X' size={20} />
-                    </Button>
-                </div>
+    return (
+        <div id={id} className='admin-thumbnail-select'>
+            <div className='form-group'>
+                <label>
+                    {__('Size:')}
+                    <SizeSelect
+                        onChange={e => onSizeChange(e)}
+                        refs={refs}
+                        setRef={setRef}
+                        size={size}
+                        sizes={options.sizes}
+                    />
+                </label>
             </div>
-        );
-    };
+            {size === 'custom' && (
+                <div className='form-group'>
+                    <div className='flex middle'>
+                        <div className='col-xs-5'>
+                            <input
+                                className='text-center'
+                                data-key='width'
+                                onChange={onOptionChange}
+                                placeholder='width'
+                                ref={elm => setRef(elm, 'input.width')}
+                                style={{ width: '100%' }}
+                                type='number'
+                                value={op.get(options, 'width') || ''}
+                            />
+                        </div>
+                        <div className='col-xs-2 text-center gray'>
+                            <Icon name='Feather.X' />
+                        </div>
+                        <div className='col-xs-5'>
+                            <input
+                                className='text-center'
+                                data-key='height'
+                                onChange={onOptionChange}
+                                placeholder='height'
+                                ref={elm => setRef(elm, 'input.height')}
+                                style={{ width: '100%' }}
+                                type='number'
+                                value={op.get(options, 'height') || ''}
+                            />
+                        </div>
+                    </div>
+                    <small className='text-center'>
+                        {__('width and height must be in pixels')}
+                    </small>
+                </div>
+            )}
 
-    return render();
+            <div className='form-group'>
+                <label>
+                    {__('Property:')}
+                    <input
+                        data-key='property'
+                        onChange={onOptionChange}
+                        ref={elm => setRef(elm, 'input.property')}
+                        type='text'
+                        value={op.get(options, 'property') || ''}
+                    />
+                </label>
+            </div>
+
+            <div className='actions'>
+                <Button
+                    color='clear'
+                    onClick={() => navTo('pick', 'right')}
+                    style={{ width: 44, height: 40 }}>
+                    <Icon name='Feather.X' size={20} />
+                </Button>
+            </div>
+        </div>
+    );
 };
 
 export const SizeLabel = ({ label, width, height }) => {

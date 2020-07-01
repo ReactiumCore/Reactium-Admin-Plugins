@@ -1,13 +1,9 @@
 import axios from 'axios';
-import _ from 'underscore';
-import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
 import Pick from './scene/Picker';
 import Thumb from './scene/Thumb';
 import Config from './scene/Config';
 import Delete from './scene/Delete';
-import copy from 'copy-to-clipboard';
 import ENUMS from 'components/Admin/Media/enums';
 import Reactium, {
     __,
@@ -16,22 +12,9 @@ import Reactium, {
     useRegisterHandle,
 } from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useEffect,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-    useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import {
-    Button,
-    Dialog,
-    Icon,
-    Prefs,
-    Scene,
-    Spinner,
-} from '@atomic-reactor/reactium-ui';
+import { Dialog, Prefs, Scene, Spinner } from '@atomic-reactor/reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -39,10 +22,8 @@ import {
  * -----------------------------------------------------------------------------
  */
 
-const ThumbnailSelect = forwardRef((initialProps, ref) => {
-    const { editor, id, property, tooltip, ...props } = initialProps;
-
-    const ready = useRef(false);
+const ThumbnailSelect = initialProps => {
+    const { editor, id, property, ...props } = initialProps;
 
     // TODO: Create settings option for these values
     const DEFAULT_OPTIONS = {
@@ -117,7 +98,7 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
     };
 
     const generateThumb = file =>
-        new Promise(async (resolve, reject) => {
+        new Promise(async resolve => {
             setRendered(false);
             setStatus(ENUMS.STATUS.PROCESSING);
 
@@ -237,11 +218,6 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
         image.style.width = `${width}px`;
         image.style.height = `${height}px`;
 
-        let {
-            width: imageWidth,
-            height: imageHeight,
-        } = image.getBoundingClientRect();
-
         if (width > containerWidth) {
             const r = containerWidth / width;
             const h = height * r;
@@ -280,12 +256,12 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
         );
     };
 
-    const onCollapse = e => {
+    const onCollapse = () => {
         if (active !== 'delete') return;
         navTo('thumb', 'right', 0.001);
     };
 
-    const onExpand = e => {
+    const onExpand = () => {
         if (expanded) return;
 
         const image = op.get(refs, 'canvas.image');
@@ -380,38 +356,6 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
         img.src = thumbURL;
     };
 
-    const render = () => (
-        <Dialog
-            onCollapse={e => onCollapse(e)}
-            onExpand={e => onExpand(e)}
-            header={{ title }}
-            pref={`admin.dialog.media.editor.${property}`}>
-            <input
-                hidden
-                onChange={e => onFileSelect(e)}
-                ref={elm => setRef(elm, 'input.file')}
-                type='file'
-                visibility='hidden'
-            />
-            <Scene
-                active={active}
-                width='100%'
-                height={280}
-                onChange={e => onSceneChange(e)}
-                ref={elm => setRef(elm, 'scene')}>
-                <Config {...handle()} id='config' />
-                <Pick {...handle()} id='pick' />
-                <Thumb {...handle()} id='thumb' />
-                <Delete {...handle()} id='delete' />
-            </Scene>
-            {status === ENUMS.STATUS.PROCESSING && (
-                <div className='admin-thumbnail-select-blocker'>
-                    <Spinner />
-                </div>
-            )}
-        </Dialog>
-    );
-
     const handle = () => ({
         active,
         data,
@@ -504,8 +448,40 @@ const ThumbnailSelect = forwardRef((initialProps, ref) => {
         };
     });
 
+    const render = () => (
+        <Dialog
+            onCollapse={e => onCollapse(e)}
+            onExpand={e => onExpand(e)}
+            header={{ title }}
+            pref={`admin.dialog.media.editor.${property}`}>
+            <input
+                hidden
+                onChange={e => onFileSelect(e)}
+                ref={elm => setRef(elm, 'input.file')}
+                type='file'
+                visibility='hidden'
+            />
+            <Scene
+                active={active}
+                width='100%'
+                height={280}
+                onChange={e => onSceneChange(e)}
+                ref={elm => setRef(elm, 'scene')}>
+                <Config {...handle()} id='config' />
+                <Pick {...handle()} id='pick' />
+                <Thumb {...handle()} id='thumb' />
+                <Delete {...handle()} id='delete' />
+            </Scene>
+            {status === ENUMS.STATUS.PROCESSING && (
+                <div className='admin-thumbnail-select-blocker'>
+                    <Spinner />
+                </div>
+            )}
+        </Dialog>
+    );
+
     return render();
-});
+};
 
 ThumbnailSelect.defaultProps = {
     property: 'thumbnail',
