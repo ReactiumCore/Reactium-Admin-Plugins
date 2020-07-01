@@ -1,3 +1,5 @@
+export * from './useMediaFileTypes';
+
 export const bytesConvert = bytes => {
     if (isNaN(bytes)) return;
 

@@ -13,7 +13,7 @@ export default () => (
     <MenuItem
         label={__('Media')}
         route='/admin/media/1'
-        icon='Linear.Pictures'
+        icon='Linear.Picture'
         isActive={isActive}
     />
 );

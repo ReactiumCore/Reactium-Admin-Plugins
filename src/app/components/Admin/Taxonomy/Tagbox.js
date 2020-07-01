@@ -49,21 +49,16 @@ export const Tagbox = props => {
             _.findWhere(taxonomy, { name: item }) ||
             _.findWhere(taxonomy, { slug: item });
 
-        _.defer(remove, tax);
+        remove(tax);
     };
 
     const validator = val => {
-        let sel = _.pluck(
+        const sel = _.pluck(
             selected.filter(({ deleted }) => deleted !== true),
             'slug',
         );
         return !_.uniq(sel.map(formatter)).includes(formatter(val));
     };
-
-    // useEffect(() => {
-    //     const newSlugs = _.pluck(selected.filter(({ deleted }) => deleted !== true), 'slug');
-    //     setSlugs(newSlugs);
-    // }, [selected]);
 
     return (
         <div className={cx('tagbox')}>

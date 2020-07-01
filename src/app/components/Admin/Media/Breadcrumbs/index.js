@@ -75,7 +75,7 @@ export default () => {
                             size='sm'
                             to='/admin/media/1'
                             type='link'>
-                            <Icon name='Linear.Pictures' className='mr-xs-12' />
+                            <Icon name='Linear.Picture' className='mr-xs-12' />
                             {ENUMS.TEXT.MEDIA}
                         </Button>
                     </li>

@@ -8,6 +8,10 @@ $height-thumbnail-select: 280px !default;
     height: $height-thumbnail-select;
     position: relative;
 
+    .ar-dropdown {
+        width: 100%;
+    }
+
     .empty {
         width: 100%;
         height: 100%;

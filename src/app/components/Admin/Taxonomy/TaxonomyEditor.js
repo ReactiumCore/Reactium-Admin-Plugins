@@ -42,8 +42,8 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
 
     const [state, update] = useDerivedState({
         error: null,
+        slug: !!op.get(value, 'objectId'),
         type: op.get(props, 'type', op.get(value, 'type')),
-        objectId: op.get(props, 'objectId', null),
     });
 
     const setRef = (key, elm) => op.set(refs, key, elm);
@@ -70,6 +70,12 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         }
     };
 
+    const onNameChange = e => {
+        if (state.slug === true) return;
+        const v = e.currentTarget.value;
+        refs.slug.value = String(slugify(v)).toLowerCase();
+    };
+
     const onSubmit = async () => {
         // get form value
         const value = getValue();
@@ -77,7 +83,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         // execute save operation
         const result = await save(value);
 
-        if (op.has(result, 'error')) {
+        if (op.get(result, 'error')) {
             // set the error message
             setState({ error: result.error });
         } else {
@@ -149,7 +155,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         let valid = true;
 
         for (const key in rqd) {
-            if (!op.has(value, key)) {
+            if (!op.get(value, key)) {
                 valid = op.get(rqd, key);
                 break;
             }
@@ -158,7 +164,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
         if (valid === true && !op.get(value, 'objectId')) {
             const { slug } = value;
             try {
-                let exists = await Reactium.Taxonomy.exists({ slug });
+                const exists = await Reactium.Taxonomy.exists({ slug });
                 valid = exists
                     ? {
                           field: 'slug',
@@ -194,7 +200,9 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
     };
 
     const clear = () => {
-        setState({ error: null });
+        setState({ error: null, slug: !!op.get(value, 'objectId') });
+
+        if (op.get(value, 'objectId')) return;
 
         Object.values(refs).forEach(elm => {
             elm.value = '';
@@ -230,6 +238,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
                     <span className='sr-only'>Name:</span>
                     <input
                         type='text'
+                        onChange={onNameChange}
                         placeholder={__('Name')}
                         ref={elm => setRef('name', elm)}
                         defaultValue={op.get(value, 'name')}
@@ -245,6 +254,7 @@ let TaxonomyEditor = ({ value, ...props }, ref) => {
                         placeholder={__('Slug')}
                         ref={elm => setRef('slug', elm)}
                         defaultValue={op.get(value, 'slug')}
+                        onKeyDown={() => setState({ slug: true })}
                     />
                 </label>
                 <ErrorMsg error={state.error} field='slug' />
