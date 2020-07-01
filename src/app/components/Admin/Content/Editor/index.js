@@ -391,7 +391,19 @@ let ContentEditor = (
 
         await dispatch('save', { value: newValue }, onChange);
 
-        return Reactium.Content.save(newValue, [], handle);
+        return Reactium.Content.save(newValue, [], handle)
+            .then(async result => {
+                if (unMounted()) return;
+                await dispatch(
+                    'save-success',
+                    { value: result, ignoreChangeEvent: true },
+                    _onSuccess,
+                );
+            })
+            .catch(async error => {
+                if (unMounted()) return;
+                await dispatch('save-fail', { error }, _onFail);
+            });
     };
 
     const setContentStatus = async status => {
@@ -641,25 +653,19 @@ let ContentEditor = (
         return context;
     };
 
-    const _onFail = async (e, error, next) => {
-        await dispatch('save-fail', { error }, onFail);
-
-        const Msg = () => (
-            <span>
-                <Icon name='Feather.AlertOctagon' style={{ marginRight: 8 }} />
-                {String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type)}
-            </span>
-        );
-
-        Toast.update('content-save', {
-            render: <Msg />,
+    const _onFail = async e => {
+        const error = e.error;
+        Toast.show({
+            icon: 'Feather.AlertOctagon',
+            message: String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type),
             autoClose: 1000,
             closeOnClick: true,
             type: Toast.TYPE.ERROR,
         });
+        console.error(error);
 
         if (isMounted()) setAlert(error);
-        next();
+        onFail(e);
     };
 
     const _onStatus = ({ detail }) =>
@@ -678,38 +684,19 @@ let ContentEditor = (
 
             debug(e.value);
             await dispatch('submit', e.value, onSubmit);
-            save(e.value)
-                .then(async result => {
-                    if (unMounted()) return;
-                    await _onSuccess(e, result, resolve);
-                })
-                .catch(async error => {
-                    if (unMounted()) return;
-                    await _onFail(e, error, reject);
-                });
+            save(e.value);
         });
 
-    const _onSuccess = async (e, result, next) => {
-        const Msg = () => (
-            <span>
-                <Icon name='Feather.Check' style={{ marginRight: 8 }} />
-                {String(ENUMS.TEXT.SAVED).replace('%type', type)}
-            </span>
-        );
+    const _onSuccess = async e => {
+        const result = e.value;
 
-        Toast.update('content-save', {
-            render: <Msg />,
+        Toast.show({
+            icon: 'Feather.Check',
+            message: String(ENUMS.TEXT.SAVED).replace('%type', type),
             autoClose: 1000,
             closeOnClick: true,
+            type: Toast.TYPE.SUCCESS,
         });
-
-        if (unMounted()) return;
-
-        await dispatch(
-            'save-success',
-            { value: result, ignoreChangeEvent: true },
-            onSuccess,
-        );
 
         setValue(result, true);
 
@@ -720,7 +707,7 @@ let ContentEditor = (
             );
         }
 
-        next();
+        onSuccess(e);
     };
 
     const _onValidate = async e => {

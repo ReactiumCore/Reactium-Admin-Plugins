@@ -136,10 +136,7 @@ let WelcomeWidget = (
 
     return (
         <div ref={containerRef} className={cx('container')}>
-            <div className={cx()}>
-                WelcomeWidget
-                {children}
-            </div>
+            <div className={cx()}>{children}</div>
         </div>
     );
 };
