@@ -1,6 +1,7 @@
 import Reactium from 'reactium-core/sdk';
 import Settings from './Settings';
 import SettingsCheck from './Settings/Check';
+import Synchronize from './Settings/Sync';
 import SidebarWidget from './SidebarWidget';
 import ContentEditorControl from './ContentEditorControl';
 
@@ -37,6 +38,13 @@ const registerPlugin = async () => {
             zone: ['settings-editor-SyndicateClient'],
             component: SettingsCheck,
             order: 0,
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'SYNDICATE-CLIENT-SETTINGS-SYNC',
+            zone: ['settings-editor-SyndicateClient'],
+            component: Synchronize,
+            order: Reactium.Enums.priority.lowest,
         });
 
         Reactium.Zone.addComponent({
