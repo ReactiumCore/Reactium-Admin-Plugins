@@ -44,12 +44,6 @@ const Sync = memo(({ settingGroup }) => {
         });
     };
 
-    const retest = () => {
-        updateState({
-            forceUpdated: new Date(),
-        });
-    };
-
     const { appId, host, token } = settings(settingGroup);
     useAsyncEffect(
         async isMounted => {
@@ -71,11 +65,6 @@ const Sync = memo(({ settingGroup }) => {
         },
         [appId, host, token, state.forceUpdated],
     );
-
-    const msgs = {
-        success: __('Connection test successful.'),
-        failure: __('Connection test failed.'),
-    };
 
     const syncStatusLabels = {
         idle: __('Sync Content'),
