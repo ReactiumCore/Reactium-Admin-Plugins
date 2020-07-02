@@ -13,6 +13,7 @@ import SidebarWidget from './SidebarWidget';
 import ElementDialog from './Editor/ElementDialog';
 import SlugInput from './Editor/_plugins/SlugInput';
 import RevisionsWidget from './Revisions/ToolbarWidget';
+import Revisions from './Revisions';
 import ActivityLogWidget from './ActivityLog/ToolbarWidget';
 
 import {
@@ -46,6 +47,7 @@ const registerAdminContent = async () => {
     Reactium.Component.register('AdminContentLoading', Loading);
     Reactium.Component.register('AdminContentSidebar', Sidebar);
     Reactium.Component.register('ElementDialog', ElementDialog);
+    Reactium.Component.register('Revisions', Revisions);
 
     // Add components to zones
     Reactium.Zone.addComponent({

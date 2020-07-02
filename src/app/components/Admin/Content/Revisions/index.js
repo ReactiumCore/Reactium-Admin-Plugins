@@ -1,4 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, {
+    useRef,
+    useEffect,
+    forwardRef,
+    useImperativeHandle,
+} from 'react';
 import Reactium, { __, useDerivedState, useHandle } from 'reactium-core/sdk';
 import { Button, Icon, Scene } from '@atomic-reactor/reactium-ui';
 import op from 'object-path';
@@ -11,7 +16,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
  * Functional Component: RevisionManager
  * -----------------------------------------------------------------------------
  */
-const RevisionManager = props => {
+const RevisionManager = forwardRef((props, ref) => {
     // props derived
     const modalFrame = useRef();
     const sceneRef = useRef();
@@ -279,6 +284,8 @@ const RevisionManager = props => {
         saveChanges,
     };
 
+    useImperativeHandle(ref, () => handle, [handle]);
+
     return (
         <div className={cx()} tabIndex={0} ref={modalFrame}>
             <div className={cx('content')}>
@@ -344,6 +351,6 @@ const RevisionManager = props => {
             </div>
         </div>
     );
-};
+});
 
 export default RevisionManager;
