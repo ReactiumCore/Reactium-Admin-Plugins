@@ -362,6 +362,15 @@ let ContentEditor = (
         const { value = {} } = state;
         const newValue = { ...value, ...mergeValue };
 
+        Toast.show({
+            toastId: 'content-save',
+            icon: 'Feather.UploadCloud',
+            message: String(ENUMS.TEXT.SAVING).replace('%type', type),
+            type: Toast.TYPE.INFO,
+            autoClose: false,
+            closeButton: false,
+        });
+
         // only track branch for saves
         // always create new revision in current branch
         op.del(newValue, 'history.revision');
@@ -655,9 +664,15 @@ let ContentEditor = (
 
     const _onFail = async e => {
         const error = e.error;
-        Toast.show({
-            icon: 'Feather.AlertOctagon',
-            message: String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type),
+        const Msg = () => (
+            <span>
+                <Icon name='Feather.AlertOctagon' style={{ marginRight: 8 }} />
+                {String(ENUMS.TEXT.SAVE_ERROR).replace('%type', type)}
+            </span>
+        );
+
+        Toast.update('content-save', {
+            render: <Msg />,
             autoClose: 1000,
             closeOnClick: true,
             type: Toast.TYPE.ERROR,
@@ -673,15 +688,6 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            Toast.show({
-                icon: 'Feather.UploadCloud',
-                message: String(ENUMS.TEXT.SAVING).replace('%type', type),
-                type: Toast.TYPE.INFO,
-                toastId: 'content-save',
-                autoClose: false,
-                closeButton: false,
-            });
-
             debug(e.value);
             await dispatch('submit', e.value, onSubmit);
             save(e.value);
@@ -690,9 +696,15 @@ let ContentEditor = (
     const _onSuccess = async e => {
         const result = e.value;
 
-        Toast.show({
-            icon: 'Feather.Check',
-            message: String(ENUMS.TEXT.SAVED).replace('%type', type),
+        const Msg = () => (
+            <span>
+                <Icon name='Feather.Check' style={{ marginRight: 8 }} />
+                {String(ENUMS.TEXT.SAVED).replace('%type', type)}
+            </span>
+        );
+
+        Toast.update('content-save', {
+            render: <Msg />,
             autoClose: 1000,
             closeOnClick: true,
             type: Toast.TYPE.SUCCESS,
