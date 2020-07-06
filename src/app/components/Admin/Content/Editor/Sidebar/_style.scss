@@ -23,6 +23,7 @@
         top: $height-admin-header;
         height: calc(100vh - #{$height-admin-header});
         outline: none;
+        z-index: 1000001;
 
         &-toggle {
             position: absolute;
@@ -76,6 +77,7 @@
         }
 
         &.expanded {
+
             .#{$admin-content-ns}-toolbar {
                 box-shadow: $shadow-image;
 

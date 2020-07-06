@@ -1,19 +1,9 @@
 import op from 'object-path';
 import React, { useCallback } from 'react';
 import ENUMS from 'components/Admin/Media/enums';
-// import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
-//import ConfirmBox from 'components/Admin/registered-components/ConfirmBox';
 
-const MediaDelete = ({
-    className,
-    objectId,
-    redirect = {},
-    url,
-    zone: zones,
-}) => {
-    const redirectURL = op.get(redirect, 'url');
-
+const MediaDelete = ({ className, handle, objectId, url, zone: zones }) => {
     const zone = zones[0];
 
     const tools = useHandle('AdminTools');
@@ -23,10 +13,18 @@ const MediaDelete = ({
 
     const Modal = op.get(tools, 'Modal');
 
-    const deleteMedia = useCallback(() => {
-        Reactium.Media.delete(objectId);
+    const deleteMedia = async () => {
         Modal.dismiss();
-    });
+
+        const data = op.get(handle.state, 'data', {});
+        op.del(data, objectId);
+
+        // optimistic delete
+        handle.setState({ data });
+
+        // do delete
+        Reactium.Media.delete(objectId);
+    };
 
     const confirmDelete = useCallback(() => {
         Modal.show(
@@ -34,9 +32,7 @@ const MediaDelete = ({
                 message={
                     <>
                         {ENUMS.TEXT.DELETE_INFO[0]}
-                        <div className='my-xs-8'>
-                            <kbd>{url}</kbd>
-                        </div>
+                        <div className='my-xs-8 break-word blue'>{url}</div>
                         {ENUMS.TEXT.DELETE_INFO[1]}
                     </>
                 }
@@ -49,7 +45,7 @@ const MediaDelete = ({
 
     const isEditor = String(zone).includes('admin-media-editor');
 
-    return redirectURL ? null : (
+    return (
         <Button
             block
             className={className}

@@ -71,10 +71,11 @@ const PluginManager = memo(props => {
     });
 
     const idx = lunr(function() {
-        this.ref('ID');
-        this.field('name');
-        this.field('description');
-        allPlugins.forEach(plugin => this.add(plugin));
+        const lnr = this;
+        lnr.ref('ID');
+        lnr.field('name');
+        lnr.field('description');
+        allPlugins.forEach(plugin => lnr.add(plugin));
     });
 
     const renderManager = () => {

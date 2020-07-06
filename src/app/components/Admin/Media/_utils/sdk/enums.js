@@ -8,6 +8,8 @@ const ENUMS = {
     STATUS: {
         CANCELED: 'canceled',
         COMPLETE: 'complete',
+        DISMISS: 'DISMISS',
+        DONE: 'DONE',
         INIT: 'INIT',
         PENDING: 'pending',
         PROCESSING: 'processing',
@@ -21,7 +23,9 @@ const ENUMS = {
         LOADED: 'LOADED',
         SAVING: 'SAVING',
         SAVED: 'SAVED',
+        SUBMIT: 'SUBMIT',
         SUCCESS: 'SUCCESS',
+        UPDATE: 'UPDATE',
         VALIDATING: 'VALIDATING',
         VALIDATED: 'VALIDATED',
     },

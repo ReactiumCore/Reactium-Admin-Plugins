@@ -2,13 +2,12 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
-import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from 'components/Admin/Tools/useProperCase';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
-import { Icon, Spinner } from '@atomic-reactor/reactium-ui';
+import { Spinner } from '@atomic-reactor/reactium-ui';
 
 import React, {
     forwardRef,
@@ -23,11 +22,9 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useFulfilledObject,
     useHandle,
     useHookComponent,
     useRegisterHandle,
-    useSelect,
     Zone,
 } from 'reactium-core/sdk';
 
@@ -36,7 +33,7 @@ import Reactium, {
  * Functional Component: ContentList
  * -----------------------------------------------------------------------------
  */
-let ContentList = ({ className, id, namespace, ...props }, ref) => {
+let ContentList = ({ className, id, namespace }, ref) => {
     const initialStatus = useRef(true);
 
     const tools = useHandle('AdminTools');
@@ -56,7 +53,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         'type',
     ]);
 
-    const [search, setSearch] = useState();
+    const [, setSearch] = useState();
 
     const SearchBar = useHandle('SearchBar');
 
@@ -129,7 +126,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         );
     };
 
-    const dispatch = async (eventType, event, callback) => {
+    const dispatch = async (eventType, event) => {
         if (unMounted()) return;
 
         // dispatch exact eventType
@@ -171,6 +168,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
         state.busy = true;
 
         const contentType = await Reactium.ContentType.retrieve({
+            refresh: true,
             machineName: type,
         });
 
@@ -246,21 +244,22 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     useEffect(() => SearchBar.setState({ visible: true }), [SearchBar]);
 
     // get content
-    useAsyncEffect(
-        async mounted => {
-            if (!type) return;
-            const results = await getContent({
-                refresh: true,
-                status: op.get(state, 'status'),
-            });
-            if (mounted()) {
-                setState(results);
-                _.defer(() => dispatch('load', { ...state, ...results }));
-            }
-            return () => {};
-        },
-        [type, page],
-    );
+    useAsyncEffect(async () => {
+        if (!type) return;
+        const results = await getContent({
+            refresh: true,
+            status: op.get(state, 'status'),
+        });
+
+        if (results) {
+            setState(results);
+            _.defer(() => dispatch('load', { ...state, ...results }));
+        } else {
+            setState({ page: 1 });
+        }
+
+        return () => {};
+    }, [type, page]);
 
     // filter by status
     useAsyncEffect(
@@ -328,7 +327,7 @@ let ContentList = ({ className, id, namespace, ...props }, ref) => {
     }, [op.get(SearchBar, 'state.value')]);
 
     const render = () => {
-        const { content, group, page, status, type } = state;
+        const { content, group, status, type } = state;
         let count = Number(op.get(state, 'pagination.count', 0));
         count = count === 0 ? __('No') : count;
 

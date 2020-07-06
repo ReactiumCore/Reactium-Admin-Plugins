@@ -1,11 +1,14 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import op from 'object-path';
+import React, { useEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     useEventHandle,
+    useRefs,
     useRegisterHandle,
+    useStatus,
     useWindowSize,
     Zone,
 } from 'reactium-core/sdk';
@@ -22,13 +25,13 @@ const ENUMS = {
  * Hook Component: AdminSidebar
  * -----------------------------------------------------------------------------
  */
-let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
+let AdminSidebar = ({ namespace, zone, ...props }) => {
     // Refs
-    const containerRef = useRef();
+    const refs = useRefs();
 
     const { breakpoint } = useWindowSize();
 
-    const [status, setStatus] = useState(
+    const [status, setStatus, isStatus] = useStatus(
         Reactium.Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
     );
 
@@ -43,21 +46,21 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
 
     const collapse = () => {
         if (isCollapsed()) return;
-        setStatus(ENUMS.STATUS.COLLAPSED);
         handle.dispatchEvent(new Event('toggle'));
         handle.dispatchEvent(new Event('collapse'));
+        setStatus(ENUMS.STATUS.COLLAPSED, true);
     };
 
     const expand = () => {
         if (isExpanded()) return;
-        setStatus(ENUMS.STATUS.EXPANDED);
         handle.dispatchEvent(new Event('toggle'));
         handle.dispatchEvent(new Event('expand'));
+        setStatus(ENUMS.STATUS.EXPANDED, true);
     };
 
-    const isCollapsed = () => handle.status === ENUMS.STATUS.COLLAPSED;
+    const isCollapsed = () => isStatus(ENUMS.STATUS.COLLAPSED);
 
-    const isExpanded = () => handle.status === ENUMS.STATUS.EXPANDED;
+    const isExpanded = () => isStatus(ENUMS.STATUS.EXPANDED);
 
     const onHotkey = e => {
         if (Reactium.Utils.Fullscreen.isExpanded()) return;
@@ -76,7 +79,7 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
     const _handle = () => ({
         ENUMS,
         collapse,
-        container: containerRef.current,
+        container: refs.get('sidebar.container'),
         cx,
         expand,
         isCollapsed,
@@ -91,7 +94,7 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
     useRegisterHandle('AdminSidebar', () => handle, [handle]);
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        if (!refs.get('sidebar.container')) return;
         Reactium.Hotkeys.register('sidebar-toggle', {
             callback: onHotkey,
             key: 'mod+]',
@@ -106,12 +109,28 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
 
     useEffect(() => {
         Reactium.Prefs.set('admin.sidebar.status', status);
-        setHandle(_handle());
+        Object.entries(_handle()).forEach(([key, value]) =>
+            op.set(handle, key, value),
+        );
+        setHandle(handle);
     }, [status]);
 
     useEffect(() => {
         autoCollapse();
     }, [breakpoint]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const body = _.first(document.getElementsByTagName('BODY'));
+
+        if (isCollapsed()) {
+            body.classList.add(cx('collapsed'));
+            body.classList.remove(cx('expanded'));
+        } else {
+            body.classList.add(cx('expanded'));
+            body.classList.remove(cx('collapsed'));
+        }
+    });
 
     // Renderer
     const render = () => {
@@ -121,8 +140,10 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
         return (
             <>
                 <div className={sname}>.</div>
-                <div className={cname} ref={containerRef}>
-                    <Scrollbars autoHeight autoHeightMin='100vh'>
+                <div
+                    className={cname}
+                    ref={elm => refs.set('sidebar.container', elm)}>
+                    <Scrollbars>
                         <div className={cx('container')}>
                             <div className={cx('header')}>
                                 <Zone
@@ -154,8 +175,6 @@ let AdminSidebar = ({ namespace, zone, ...props }, ref) => {
     // Render
     return render();
 };
-
-AdminSidebar = forwardRef(AdminSidebar);
 
 AdminSidebar.ENUMS = ENUMS;
 

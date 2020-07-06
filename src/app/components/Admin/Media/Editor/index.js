@@ -1,16 +1,15 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import ENUMS from '../enums';
 import slugify from 'slugify';
 import Sidebar from './Sidebar';
-import ENUMS from 'components/Admin/Media/enums';
-import useDirectories from 'components/Admin/Media/Directory/useDirectories';
+import useDirectories from '../Directory/useDirectories';
 
 import React, {
     forwardRef,
     useCallback,
     useEffect,
-    useImperativeHandle,
     useRef,
     useState,
 } from 'react';
@@ -20,7 +19,6 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useHandle,
     useHookComponent,
     useRegisterHandle,
     Zone,
@@ -68,25 +66,20 @@ export class MediaEvent extends CustomEvent {
     }
 }
 
-let Editor = (
-    {
-        className,
-        dropzoneProps,
-        namespace,
-        onChange,
-        onError,
-        onFail,
-        onLoad,
-        onReady,
-        onStatus,
-        onSubmit,
-        onSuccess,
-        onValidate,
-        params,
-        ...props
-    },
-    ref,
-) => {
+const Editor = ({
+    className,
+    dropzoneProps,
+    namespace,
+    onError,
+    onFail,
+    onLoad,
+    onStatus,
+    onSubmit,
+    onSuccess,
+    onValidate,
+    params,
+    ...props
+}) => {
     // Hooks and External Components
     const Helmet = useHookComponent('Helmet');
 
@@ -113,7 +106,7 @@ let Editor = (
 
     const [errors, setNewErrors] = useState();
 
-    const [updated, setUpdated] = useState();
+    const [, setUpdated] = useState();
 
     const [prevState, setPrevState] = useDerivedState({
         ...defaultState,
@@ -289,18 +282,6 @@ let Editor = (
         return str;
     };
 
-    const parseTitle = () => {
-        if (state.id === 'new') return __('New User');
-
-        let str = state.title;
-        str = str.replace(/%id/gi, state.id);
-        return str;
-    };
-
-    const reset = () => {
-        if (isMounted()) setState({ value: {} });
-    };
-
     const save = async value => {
         const upload = op.get(state, 'upload');
         if (upload) {
@@ -322,15 +303,6 @@ let Editor = (
             'upload',
             'user',
         ].forEach(param => op.del(value, param));
-
-        let saveMessage = __('Saving %type...');
-        saveMessage = saveMessage.replace(/\%type/gi, type);
-
-        const alertObj = {
-            color: Alert.ENUMS.COLOR.INFO,
-            message: saveMessage,
-            icon: 'Feather.UploadCloud',
-        };
 
         setAlert(alertDefault);
         setErrors(undefined);
@@ -504,7 +476,7 @@ let Editor = (
 
         // Read file
         const reader = new FileReader();
-        reader.onload = async evt => {
+        reader.onload = async () => {
             op.set(value, 'filename', String(slugify(file.name)).toLowerCase());
             op.set(value, 'meta.size', file.size);
             op.set(value, 'ext', ext);
@@ -845,8 +817,6 @@ const ErrorMessages = ({ editor, errors }) => {
         </ul>
     );
 };
-
-Editor = forwardRef(Editor);
 
 Editor.defaultProps = {
     dropzoneProps: {

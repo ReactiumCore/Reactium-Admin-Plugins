@@ -91,6 +91,7 @@ let ContentEditor = (
 ) => {
     const alertRef = useRef();
     const formRef = useRef();
+    const loadingRef = useRef();
     const sidebarRef = useRef();
     const valueRef = useRef({});
     const ignoreChangeEvent = useRef(true);
@@ -186,7 +187,7 @@ let ContentEditor = (
             newValue = null;
         }
 
-        valueRef.current = newValue;
+        valueRef.current = newValue || {};
 
         if (forceUpdate === true) {
             update(valueRef.current);
@@ -268,11 +269,13 @@ let ContentEditor = (
         loadingStatus.current = Date.now();
 
         if (isNew()) {
-            await dispatch('load', { value: null }, onLoad);
+            await dispatch('load', { value: {} }, onLoad);
+            loadingStatus.current = undefined;
             return Promise.resolve({});
         }
 
         const request = {
+            refresh: true,
             type: contentType,
             slug,
             history: {
@@ -300,9 +303,8 @@ let ContentEditor = (
 
     const getTypes = refresh => Reactium.ContentType.types({ refresh });
 
-    const unMounted = (checkReady = false) => {
-        if (checkReady === true && !ready) return true;
-        return !formRef.current;
+    const unMounted = () => {
+        return !formRef.current && !loadingRef.current;
     };
 
     const isClean = () => dirty !== true;
@@ -350,10 +352,9 @@ let ContentEditor = (
     };
 
     const reset = () => {
-        ready = false;
         loadingStatus.current = undefined;
         ignoreChangeEvent.current = true;
-        update(null);
+        update({});
     };
 
     const save = async (mergeValue = {}) => {
@@ -752,6 +753,22 @@ let ContentEditor = (
         }
     };
 
+    const isReady = log => {
+        if (log) console.log('isReady() ready', 1);
+
+        if (ready !== true) return false;
+
+        if (isNew() !== true) {
+            let { value = {} } = state;
+            if (log) console.log('isReady() slug', 3, value);
+            if (!op.get(value, 'slug') || !currentSlug) return false;
+        } else {
+        }
+
+        if (log) console.log('isReady() done', 4);
+        return true;
+    };
+
     // Handle
     const _handle = () => ({
         AlertBox: alertRef.current,
@@ -802,7 +819,7 @@ let ContentEditor = (
     useAsyncEffect(
         async mounted => {
             if (!type) return;
-            const results = await getTypes(true);
+            const results = await getTypes();
             if (mounted()) setTypes(results);
             return () => {};
         },
@@ -810,7 +827,12 @@ let ContentEditor = (
     );
 
     // get fullfilled handle
-    let [ready] = useFulfilledObject(handle, ['contentType', 'type', 'types']);
+    let [ready] = useFulfilledObject(handle, [
+        'contentType',
+        'type',
+        'types',
+        'slug',
+    ]);
 
     // slug change
     useEffect(() => {
@@ -818,6 +840,10 @@ let ContentEditor = (
         if (currentSlug !== slug) {
             reset();
             setCurrentSlug(slug);
+        }
+
+        if (isNew() && isReady()) {
+            window.location.reload();
         }
     }, [currentSlug, slug]);
 
@@ -850,13 +876,15 @@ let ContentEditor = (
         handle.AlertBox = alertRef.current;
         handle.EventForm = formRef.current;
         handle.Sidebar = sidebarRef.current;
+        handle.value = valueRef.current;
     });
 
     // dispatch ready
     useEffect(() => {
-        if (ready === true)
+        if (isReady() === true) {
             dispatch('status', { event: 'READY', ready }, onReady);
-    }, [ready]);
+        }
+    }, [isReady()]);
 
     // dispatch status
     useEffect(() => {
@@ -885,17 +913,25 @@ let ContentEditor = (
     // get content
     useAsyncEffect(() => {
         if (!ready) return;
+
+        if (isNew()) {
+            setClean({ value: {} });
+            update({});
+        }
+
         if (loadingStatus.current) return;
 
-        const { value } = state;
+        if (unMounted() || !slug || !type) return;
 
-        if (unMounted() || !slug || !type || value) return;
         getContent()
             .then(result => {
                 if (unMounted()) return;
+
                 if (!result) return;
+
                 ignoreChangeEvent.current = true;
                 setClean({ value: result });
+
                 update(result);
             })
             .catch(error => {
@@ -918,8 +954,18 @@ let ContentEditor = (
         return () => Reactium.Pulse.unregister('content-editor');
     }, [ready]);
 
+    // clear on unmount
+    useEffect(() => {
+        return () => {
+            valueRef.current = {};
+            handle.value = valueRef.current;
+            formRef.current.setValue(null);
+            reset();
+        };
+    }, []);
+
     const render = () => {
-        if (ready !== true) return <Loading />;
+        if (!isReady()) return <Loading ref={loadingRef} />;
         const { title, value = {} } = state;
         const currentValue = value || {};
         const [contentRegions, sidebarRegions] = regions();

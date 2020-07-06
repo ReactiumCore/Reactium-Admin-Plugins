@@ -427,6 +427,10 @@ class Media {
 
         return url;
     }
+
+    createFromURL(params) {
+        return Reactium.Cloud.run('media-create-from-url', params);
+    }
 }
 
 export default Media;

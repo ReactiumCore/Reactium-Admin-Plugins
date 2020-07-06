@@ -1,35 +1,32 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
     const {
-        ext,
-        file,
         filename,
-        meta,
+        meta = {},
         objectId,
         thumbnail,
         type,
         url,
         style = {},
+        className = 'block',
         cx,
         onItemSelect,
         onItemUnselect,
-        selection,
+        redirect = {},
+        selected = false,
     } = props;
 
-    const selected = selection.includes(objectId);
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const thm = thumbnail
         ? Reactium.Media.url(thumbnail)
-        : Reactium.Media.url(file);
+        : op.get(redirect, 'url', url);
 
-    const cname = cn({
-        [String(type).toLowerCase()]: true,
-        [cx('item')]: true,
+    const cname = cn(className, cx('item'), String(type).toLowerCase(), {
         selected,
     });
 
@@ -41,16 +38,18 @@ export default props => {
     };
 
     const onClick = selected ? onItemUnselect : onItemSelect;
+    const color = selected ? 'danger' : 'primary';
+    const ico = selected ? 'Feather.X' : 'Feather.Check';
 
     return (
         <div className={cname} onClick={() => onClick(objectId)} style={styles}>
-            <div className='title'>{title}</div>
+            {title && <div className='title'>{title}</div>}
             <Button
                 appearance='circle'
-                color='primary'
                 className='check'
+                color={color}
                 readOnly>
-                <Icon name='Feather.Check' />
+                <Icon name={ico} />
             </Button>
         </div>
     );

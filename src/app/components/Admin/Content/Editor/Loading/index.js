@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Spinner } from '@atomic-reactor/reactium-ui';
 
-export default () => {
+export default forwardRef((props, ref) => {
     const style = {
         position: 'absolute',
         top: 0,
@@ -11,10 +11,10 @@ export default () => {
     };
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div ref={ref} style={{ position: 'relative' }}>
             <div style={style} className='flex center middle'>
                 <Spinner />
             </div>
         </div>
     );
-};
+});

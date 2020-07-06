@@ -1,3 +1,4 @@
+export * from './useData';
 export * from './useMediaFileTypes';
 
 export const bytesConvert = bytes => {

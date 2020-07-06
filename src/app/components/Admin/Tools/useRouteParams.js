@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { useDerivedState, useSelect } from 'reactium-core/sdk';
 
-export default (keys = ['type', 'slug', 'page']) => {
+export default (keys = ['type', 'slug', 'page'], deps = []) => {
     const timestamp = Date.now();
     const path = useSelect(state => op.get(state, 'Router.match.path'));
     const params = useSelect(state => op.get(state, 'Router.params'));
@@ -16,6 +16,8 @@ export default (keys = ['type', 'slug', 'page']) => {
         path,
         timestamp,
     });
+
+    deps.push(params, path);
 
     useEffect(() => {
         if (!params || !path) return;
@@ -45,7 +47,7 @@ export default (keys = ['type', 'slug', 'page']) => {
         });
 
         setValue(newValue);
-    }, [params, path]);
+    }, deps);
 
     return value;
 };

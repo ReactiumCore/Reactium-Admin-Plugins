@@ -18,16 +18,6 @@ export const FieldType = props => {
     return (
         <FieldTypeDialog {...props} showHelpText={false}>
             <div className={cx()}>
-                <div className='form-group'>
-                    <select name='type'>
-                        <option value='all'>{__('Type')}</option>
-                        {types.map(({ label, value }, i) => (
-                            <option key={`media-type-${id}-${i}`} value={value}>
-                                {label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
                 <div className='row'>
                     <div className='col-xs-12 col-md-5 pb-xs-20'>
                         <div className='form-group'>
@@ -62,6 +52,18 @@ export const FieldType = props => {
                             </label>
                         </div>
                     </div>
+                </div>
+                <div className='mb-xs-12 medium'>Media Type:</div>
+                <div className='checks mb-xs-20'>
+                    {types.map(({ label, value }, i) => (
+                        <Checkbox
+                            name='type'
+                            label={label}
+                            labelAlign='right'
+                            value={value}
+                            key={`media-type-${id}-${i}`}
+                        />
+                    ))}
                 </div>
                 <div className='checks'>
                     <Checkbox

@@ -19,13 +19,24 @@ import React, { useCallback, useEffect, useRef } from 'react';
 const Media = props => {
     const containerRef = useRef();
 
-    const [state] = useDerivedState(props, ['data', 'empty', 'emptyComponent']);
+    const [state, setState] = useDerivedState(props, [
+        'data',
+        'empty',
+        'emptyComponent',
+    ]);
 
     const Empty = useCallback(() =>
         op.get(state, 'emptyComponent', DefaultEmpty),
     );
 
-    const render = useCallback(() => {
+    const _handle = () => ({
+        state,
+        setState,
+    });
+
+    const [handle] = useEventHandle(_handle());
+
+    const render = () => {
         const data = _.sortBy(
             Object.entries(state.data).map(([key, item]) => {
                 item['key'] = key;
@@ -39,11 +50,16 @@ const Media = props => {
         return (
             <div className='media' ref={containerRef}>
                 {data.map(({ key, ...item }) => (
-                    <MediaCard {...item} key={key} objectId={key} />
+                    <MediaCard
+                        {...item}
+                        key={key}
+                        objectId={key}
+                        handle={handle}
+                    />
                 ))}
             </div>
         );
-    });
+    };
 
     return !op.get(state, 'empty') ? render() : <Empty />;
 };
@@ -138,7 +154,7 @@ const CardInfo = ({ editURL, redirect = {}, refs, url }) => {
 
     return (
         <div className='media-info'>
-            <div className='label'>
+            <div className='label break-word'>
                 <a href={url} target='_blank'>
                     {url}
                 </a>

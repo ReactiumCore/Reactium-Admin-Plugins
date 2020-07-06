@@ -2,11 +2,10 @@ import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../../enums';
 import domain from '../../domain';
+import Editor from '../../Directory/Editor';
+import useDirectories from '../../Directory/useDirectories';
 import React, { useEffect, useRef, useState } from 'react';
-import { __, useHandle, useStore } from 'reactium-core/sdk';
-import Editor from 'components/Admin/Media/Directory/Editor';
-import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
-import useDirectories from 'components/Admin/Media/Directory/useDirectories';
+import { __, useHandle, useHookComponent, useStore } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -15,6 +14,8 @@ import useDirectories from 'components/Admin/Media/Directory/useDirectories';
  */
 const DirectoryWidget = ({ Media }) => {
     const containerRef = useRef();
+
+    const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
 
     const { dispatch, getState, subscribe } = useStore();
 

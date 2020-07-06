@@ -2,34 +2,32 @@ import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import ENUMS from '../enums';
-import Reactium from 'reactium-core/sdk';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
     const {
         ext,
-        file,
         filename,
-        meta,
+        meta = {},
         objectId,
         thumbnail,
         type,
         url,
         style = {},
+        className = 'block',
         cx,
         onItemSelect,
         onItemUnselect,
-        selection,
+        redirect = {},
+        selected = false,
     } = props;
 
-    const selected = selection.includes(objectId);
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
-    const edgeURL = Reactium.Media.url(file);
+    const videoURL = op.get(redirect, 'url', url);
     const thm = thumbnail && Reactium.Media.url(thumbnail);
 
-    const cname = cn({
-        [String(type).toLowerCase()]: true,
-        [cx('item')]: true,
+    const cname = cn(className, cx('item'), String(type).toLowerCase(), {
         selected,
     });
 
@@ -41,20 +39,24 @@ export default props => {
     };
 
     const onClick = selected ? onItemUnselect : onItemSelect;
+    const color = selected ? 'danger' : 'primary';
+    const ico = selected ? 'Feather.X' : 'Feather.Check';
 
     return (
         <div className={cname} onClick={() => onClick(objectId)} style={styles}>
-            <video width='100%' height='100%' poster={thm}>
-                <source src={edgeURL} type={`video/${ext}`} />
-                {ENUMS.TEXT.VIDEO_UNSUPPORTED}
-            </video>
-            <div className='title'>{title}</div>
+            {!thm && (
+                <video width='100%' height='100%' poster={thm}>
+                    <source src={videoURL} type={`video/${ext}`} />
+                    {ENUMS.TEXT.VIDEO_UNSUPPORTED}
+                </video>
+            )}
+            {title && <div className='title'>{title}</div>}
             <Button
                 appearance='circle'
-                color='primary'
                 className='check'
+                color={color}
                 readOnly>
-                <Icon name='Feather.Check' />
+                <Icon name={ico} />
             </Button>
         </div>
     );

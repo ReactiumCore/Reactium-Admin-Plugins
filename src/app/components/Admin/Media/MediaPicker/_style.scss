@@ -1,301 +1,425 @@
-$height-media-header: 42px;
-$width-selection: 300px;
-$width-thumb: 172px;
-$padding-media-modal: 48px;
+$ar-media-picker-bg-color: #fdfdfd !default;
+$ar-media-picker-border-color: #f3f3f3 !default;
+$ar-media-picker-selection-width: 260px !default;
 
 .ar-media-picker {
-    width: 100%;
-    min-height: 480px;
     display: flex;
     flex-direction: column;
+    height: 100%;
     position: relative;
 
-    &-dialog {
-        width: 100%;
+    .grid {
+        display: block;
+        padding: 20px 20px 0 20px;
 
-        .ar-dialog-header-buttons {
-            align-items: center;
+        @include breakpoint(sm) {
+            padding: 20px 0 0 20px;
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+        }
 
-            button {
-                margin: 0 3px;
+        .block {
+            width: 100%;
+            height: 55vw;
+            margin-bottom: 20px;
+            background-color: $color-grey-light;
+            background-position: center center;
+            background-size: cover;
+            position: relative;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: flex-end;
+            opacity: 0.9;
+            transition: opacity 0.25s ease-in-out;
+            cursor: pointer;
+            user-select: none;
 
-                &:last-child {
-                    margin-right: 6px;
+            @include breakpoint(sm) {
+                margin: 0 20px 20px 0;
+                height: 25vw;
+                max-width: calc(50% - 20px);
+                flex-grow: 1;
+                border-radius: 2px;
+            }
+
+            @include breakpoint(md) {
+                max-width: calc(33.333% - 20px);
+                height: 200px;
+            }
+
+            @include breakpoint(lg) {
+                max-width: calc(25% - 20px);
+            }
+
+            @include breakpoint(xl) {
+                max-width: calc(20% - 20px);
+            }
+
+            @media only screen and (min-width: 2800px) {
+                max-width: calc(10% - 20px);
+            }
+
+            video {
+                object-fit: cover;
+                pointer-events: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .check {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                opacity: 0;
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .title {
+                border-radius: 2px;
+                background-color: rgba($color-black, 0.75);
+                color: $color-text-light;
+                text-align: center;
+                padding: 7px 8px 8px 8px;
+                width: 100%;
+                z-index: 200;
+                font-size: 12px;
+                opacity: 0;
+            }
+
+            &.selected,
+            &:hover {
+                &,
+                .check,
+                .title {
+                    opacity: 1;
+                    z-index: auto !important;
                 }
             }
         }
+    }
 
-        .ar-dialog-header-btn.btn-clear-xs {
-            height: 42px;
-            margin-right: 0 !important;
+    &-selection {
+        flex-shrink: 0;
+        width: $ar-media-picker-selection-width;
+        border-left: 1px solid $ar-media-picker-border-color;
+        display: none;
+        position: relative;
+
+        @include breakpoint(lg) {
+            display: block;
         }
+
+        .grid {
+            display: block;
+            padding: 20px 20px 0 20px;
+
+            .block {
+                max-width: 100% !important;
+                height: 200px;
+                margin-bottom: 20px;
+                border-radius: 2px;
+
+                @include breakpoint(sm) {
+                    height: 25vw;
+                }
+
+                @include breakpoint(md) {
+                    height: 200px !important;
+                }
+            }
+        }
+    }
+
+    &-no-selection {
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-right: 20px;
+        color: $color-gray;
+        user-select: none;
+
+        &-icon svg {
+            width: 96px;
+            height: 96px;
+            fill: $color-grey;
+            margin-bottom: 40px;
+            transform: rotate(-20deg);
+        }
+
+        &-label {
+            @extend .h3;
+            font-weight: 500;
+        }
+    }
+
+    &-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: row-reverse;
+
+        @include breakpoint(md) {
+            flex-direction: row;
+        }
+    }
+
+    &-library {
+        flex-grow: 1;
     }
 
     &-toolbar {
+        background-color: $ar-media-picker-bg-color;
+        border-bottom: 1px solid $ar-media-picker-border-color;
         width: 100%;
         height: 42px;
-        overflow:  visible;
-
-        > div:first-child {
-            @extend .ar-dialog-header;
-            overflow: visible;
-            justify-content: flex-start;
-            align-items: center;
-            width: 100%;
-            padding: 0 6px 0 12px;
-            border-radius: 0px;
-            border-bottom: 1px solid $color-border;
-
-            > *:first-child { flex-grow: 1; }
-        }
-    }
-
-    &-actions {
-        align-items: center;
-        justify-content: flex-end;
-
-        padding-right: 6px;
-
-        &:last-child {
-            padding: 0;
-        }
-
-        @include breakpoint(sm) {
-            display: flex;
-            padding-right: 0;
-        }
-    }
-
-    &-confirm {
-        display: flex;
-        align-items: center;
-        margin-right: -6px;
         flex-shrink: 0;
-        justify-content: flex-end;
+        display: flex;
+        align-items: center;
 
-        button {
-            width: 80px;
-            margin: 0 6px;
-        }
-
-        @include breakpoint(md) {
-            width: $width-selection;
-            justify-content: center;
-            align-items: center;
+        &-dismiss-button {
+            height: 40px;
+            padding: 0;
+            min-width: 40px;
         }
     }
 
-    &-search-bar {
+    &-footer {
+        width: 100%;
+        height: 60px;
         display: flex;
+        flex-shrink: 0;
         align-items: center;
-        position: relative;
+        justify-content: center;
+        background-color: $ar-media-picker-bg-color;
+        border-top: 1px solid $ar-media-picker-border-color;
+
+        @include breakpoint(lg) {
+            justify-content: flex-end;
+        }
+
+        &-submit-container {
+            padding: 0 20px;
+            flex-shrink: 0;
+            flex-grow: 0;
+
+            @include breakpoint(lg) {
+                padding: 0 20px 0 21px;
+                width: $ar-media-picker-selection-width;
+            }
+        }
+
+        &-submit-button {
+            width: 100px;
+            @include breakpoint(lg) {
+                width: 100%;
+            }
+        }
+    }
+
+    &-title {
+        padding: 0 8px 0 0;
         flex-grow: 1;
+        flex-shrink: 1;
+        overflow: hidden;
+        margin: 1px 0 -1px 0;
+        user-select: none;
+        z-index: 0;
+        white-space: nowrap;
+    }
+
+    &-search-input {
+        @extend .form-group;
+
+        position: relative;
+        color: $color-gray;
+        padding-right: 5px;
+        margin: 0 !important;
 
         svg {
-            width: 14px;
-            height: 14px;
-            fill: $color-gray;
             position: absolute;
-            left: 9px;
+            width: 16px;
+            height: 16px;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             pointer-events: none;
         }
 
         input {
-            border: 1px solid $color-border;
-            border-radius: 25px;
-            height: 32px;
-            width: 32px;
-            max-width: 300px;
-            padding-left: 30px;
-            transition: width 0.25s ease-in-out;
-            outline: none;
-            cursor: pointer;
             color: $color-gray;
+            width: 30px;
+            height: 30px;
+            margin: 0;
+            padding-left: 32px;
+            padding-right: 0;
+            transition: width 0.25s ease-in-out;
+            border: 1px solid transparent;
+            background-color: transparent;
+            overflow: hidden;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            &.active {
+                border: 1px solid $ar-media-picker-border-color;
+
+                &:focus {
+                    border-color: $color-primary;
+                }
+            }
+
+            &.active + svg {
+                fill: $color-primary;
+            }
 
             &:focus,
-            &.expanded {
-                width: 25vw;
-                min-width: 200px;
+            &.active {
+                width: 33vw;
+                outline: none;
+                border-radius: 40px;
+                background-color: $color-white;
                 cursor: text;
-            }
-        }
-    }
+                transition: width 0.125s ease-in-out;
+                padding-right: 10px;
+                margin-right: 5px;
 
-    &-container {
-        display: flex;
-        flex-grow: 1;
-        align-items: stretch;
-        position: relative;
-        overflow: hidden;
-        justify-content: center;
-
-        &-library {
-            flex-grow: 1;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            .content {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                padding: $padding-default;
-
-                .selected {
-                    opacity: 0.5;
-                    order: -1;
-
-                    @include breakpoint(md) {
-                        order: 0;
-                        display: none;
-                    }
+                @include breakpoint(sm) {
+                    width: calc(#{$ar-media-picker-selection-width} - 10px);
                 }
             }
         }
+    }
 
-        &-selection {
-            display: none;
-            flex-shrink: 0;
-            flex-grow: 0;
-            position: relative;
-            background-color: darken($color-white, 0.65%);
-            border-left: 1px solid $color-border;
+    &-directory-select {
+        .ar-dropdown-menu {
+            min-width: 180px;
 
-            @include breakpoint(md) {
-                width: $width-selection;
-                display: block;
-            }
-
-            .content {
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                flex-direction: column;
+            ul li.active button {
+                color: $color-primary;
             }
         }
     }
 
-    &-item {
-        border: none;
-        border-radius: 2px;
-        background-color: transparent;
-        background-position: center center;
-        background-size: cover;
-        overflow: visible;
-        width: 35vw;
-        height: 35vw;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-end;
-        position: relative;
-        margin: 10px;
+    &-directory-button,
+    &-type-button {
+        padding: 0;
+        min-width: 30px;
+        height: 42px;
         flex-shrink: 0;
-        opacity: 0.9;
-        transition: opacity 0.25s ease-in-out;
-        padding: 8px;
-        cursor: pointer;
-        user-select: none;
 
-        @include breakpoint(sm) {
-            margin: 20px;
-            width: $width-thumb;
-            height: $width-thumb;
-        }
-
-        video {
-            object-fit: cover;
-            pointer-events: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .check {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            opacity: 0;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .title {
-            border-radius: 2px;
-            background-color: rgba($color-black, 0.5);
-            color: $color-text-light;
-            text-align: center;
-            padding: 7px 8px 8px 8px;
-            width: 100%;
-            z-index: 200;
-            font-size: 12px;
-            opacity: 0;
-        }
-
-        &.selected,
-        &:hover {
-            &,
-            .check,
-            .title {
-                opacity: 1;
-            }
-        }
-    }
-
-    &-directory {
-        display: flex;
-        justify-content: center;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 5px 8px 4px 8px;
-
-        .chevron {
+        .label {
             display: none;
-        }
-
-        @include breakpoint(sm) {
-            justify-content: flex-start;
-            min-width: 200px;
-
-            .chevron {
-                display: block;
-            }
-
-            .folder {
-                display: none;
-            }
-        }
-
-        &-label {
-            text-align: left;
-            flex-grow: 1;
-            display: none;
+            font-size: 14px;
+            text-transform: none;
 
             @include breakpoint(sm) {
                 display: block;
             }
         }
 
-        &-select {
-            .ar-dropdown-menu {
-                min-width: 200px;
+        .icon {
+            width: 30px;
+            flex-shrink: 0;
+
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            &.active {
+                color: $color-primary;
             }
         }
     }
-}
 
-.ar-modal {
-    .ar-media-picker {
-        width: 100%;
-        height: calc(
-        100vh - #{$height-media-header} - #{$padding-media-modal} - 2px
-    );
+    &-type-select {
+        .ar-dropdown-menu {
+            width: 40px;
 
-        &-dialog {
-            width: calc(100vw - #{$padding-media-modal});
-            max-width: 1440px;
+            ul li button {
+                width: 100%;
+                height: 40px;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+
+            ul li.active button {
+                color: $color-primary;
+            }
+        }
+    }
+
+    &-pagination {
+        position: absolute;
+        left: 0;
+        padding: 10px;
+
+        &:first-child {
+            &:last-child {
+                position: relative;
+                left: auto;
+            }
+        }
+
+        @include breakpoint(lg) {
+            position: relative;
+            left: auto;
+        }
+        // margin-right: 20px;
+    }
+
+    &-remaining {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        &-label {
+            @extend .small;
+            color: $color-gray;
+            margin-top: 2px;
+            user-select: none;
+            padding-left: 8px;
+            background-color: $ar-media-picker-bg-color;
+
+            &:not(:last-child) {
+                margin-right: 4px;
+                padding-right: 12px;
+                line-height: 18px;
+                border-right: 1px solid $ar-media-picker-border-color;
+            }
+        }
+
+        &-clear-button {
+            padding: 0;
+            min-width: 30px;
+            height: 42px;
+            flex-shrink: 0;
+
+            svg {
+                width: 18px;
+                height: 18px;
+                fill: $color-danger;
+            }
         }
     }
 }

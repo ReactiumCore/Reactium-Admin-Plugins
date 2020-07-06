@@ -951,24 +951,6 @@ define({ "api": [
     "description": "<p>Creates a single reference object that can be managed using the <code>get</code>/<code>set</code>/<code>del</code>/<code>clear</code> functions.</p>",
     "examples": [
       {
-        "title": "Example",
-        "content": "import React, { useEffect, useState } from 'react';\nimport { useRefs } from '@atomic-reactor/reactium-sdk-core';\n\nconst MyComponent = () => {\n    const refs = useRefs();\n    const [state, setState] = useState({ input: null });\n\n    const onClick = () => {\n        const inputElm = refs.get('input');\n        setState({ ...state, input: inputElm.value });\n        inputElm.value = '';\n    };\n\n    return (\n        <div ref={elm => refs.set('container', elm)}>\n            {state.input && <div>{state.input}</div>}\n            <input type='text' ref={elm => refs.set('input', elm)} />\n            <button onClick={onClick}>Update</button>\n        </div>\n    );\n};",
-        "type": "json"
-      }
-    ],
-    "version": "0.0.0",
-    "filename": "src/app/components/Admin/Tools/useRefs.js",
-    "groupTitle": "ReactHook"
-  },
-  {
-    "type": "ReactHook",
-    "url": "useRefs()",
-    "title": "useRefs()",
-    "group": "ReactHook",
-    "name": "useRefs",
-    "description": "<p>Creates a single reference object that can be managed using the <code>get</code>/<code>set</code>/<code>del</code>/<code>clear</code> functions.</p>",
-    "examples": [
-      {
         "title": "Usage",
         "content": "import React, { useEffect, useState } from 'react';\nimport { useRefs } from '@atomic-reactor/reactium-sdk-core';\n\nconst MyComponent = () => {\n    const refs = useRefs();\n    const [state, setState] = useState({ input: null });\n\n    const onClick = () => {\n        const inputElm = refs.get('input');\n        setState({ ...state, input: inputElm.value });\n        inputElm.value = '';\n    };\n\n    return (\n        <div ref={elm => refs.set('container', elm)}>\n            {state.input && <div>{state.input}</div>}\n            <input type='text' ref={elm => refs.set('input', elm)} />\n            <button onClick={onClick}>Update</button>\n        </div>\n    );\n};",
         "type": "json"
@@ -8675,7 +8657,7 @@ define({ "api": [
       }
     ],
     "version": "0.0.0",
-    "filename": "src/app/components/Admin/Media/MediaPicker/index.js",
+    "filename": "src/app/components/Admin/Media/MediaPickerOld/indexOld.js",
     "groupTitle": "Registered_Component"
   },
   {

@@ -165,7 +165,7 @@ export const useTypes = () => {
         setStatus('fetching');
 
         Reactium.ContentType.types({
-            refresh: true,
+            refresh: false,
             schema: true,
         }).then(results => {
             setTypes(
