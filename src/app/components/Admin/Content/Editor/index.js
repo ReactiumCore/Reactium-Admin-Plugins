@@ -363,6 +363,15 @@ let ContentEditor = (
         const { value = {} } = state;
         const newValue = { ...value, ...mergeValue };
 
+        Toast.show({
+            toastId: 'content-save',
+            icon: 'Feather.UploadCloud',
+            message: String(ENUMS.TEXT.SAVING).replace('%type', type),
+            type: Toast.TYPE.INFO,
+            autoClose: false,
+            closeButton: false,
+        });
+
         // only track branch for saves
         // always create new revision in current branch
         op.del(newValue, 'history.revision');
@@ -392,7 +401,19 @@ let ContentEditor = (
 
         await dispatch('save', { value: newValue }, onChange);
 
-        return Reactium.Content.save(newValue, [], handle);
+        return Reactium.Content.save(newValue, [], handle)
+            .then(async result => {
+                if (unMounted()) return;
+                await dispatch(
+                    'save-success',
+                    { value: result, ignoreChangeEvent: true },
+                    _onSuccess,
+                );
+            })
+            .catch(async error => {
+                if (unMounted()) return;
+                await dispatch('save-fail', { error }, _onFail);
+            });
     };
 
     const setContentStatus = async status => {
@@ -642,9 +663,8 @@ let ContentEditor = (
         return context;
     };
 
-    const _onFail = async (e, error, next) => {
-        await dispatch('save-fail', { error }, onFail);
-
+    const _onFail = async e => {
+        const error = e.error;
         const Msg = () => (
             <span>
                 <Icon name='Feather.AlertOctagon' style={{ marginRight: 8 }} />
@@ -658,9 +678,10 @@ let ContentEditor = (
             closeOnClick: true,
             type: Toast.TYPE.ERROR,
         });
+        console.error(error);
 
         if (isMounted()) setAlert(error);
-        next();
+        onFail(e);
     };
 
     const _onStatus = ({ detail }) =>
@@ -668,29 +689,14 @@ let ContentEditor = (
 
     const _onSubmit = async e =>
         new Promise(async (resolve, reject) => {
-            Toast.show({
-                icon: 'Feather.UploadCloud',
-                message: String(ENUMS.TEXT.SAVING).replace('%type', type),
-                type: Toast.TYPE.INFO,
-                toastId: 'content-save',
-                autoClose: false,
-                closeButton: false,
-            });
-
             debug(e.value);
             await dispatch('submit', e.value, onSubmit);
-            save(e.value)
-                .then(async result => {
-                    if (unMounted()) return;
-                    await _onSuccess(e, result, resolve);
-                })
-                .catch(async error => {
-                    if (unMounted()) return;
-                    await _onFail(e, error, reject);
-                });
+            save(e.value);
         });
 
-    const _onSuccess = async (e, result, next) => {
+    const _onSuccess = async e => {
+        const result = e.value;
+
         const Msg = () => (
             <span>
                 <Icon name='Feather.Check' style={{ marginRight: 8 }} />
@@ -702,15 +708,8 @@ let ContentEditor = (
             render: <Msg />,
             autoClose: 1000,
             closeOnClick: true,
+            type: Toast.TYPE.SUCCESS,
         });
-
-        if (unMounted()) return;
-
-        await dispatch(
-            'save-success',
-            { value: result, ignoreChangeEvent: true },
-            onSuccess,
-        );
 
         setValue(result, true);
 
@@ -721,7 +720,7 @@ let ContentEditor = (
             );
         }
 
-        next();
+        onSuccess(e);
     };
 
     const _onValidate = async e => {

@@ -43,7 +43,6 @@ export default props => {
         } else {
             collapsibleRef.current.setState({ expanded: true });
             dialogRef.current.expand();
-            _onExpand();
         }
     };
 

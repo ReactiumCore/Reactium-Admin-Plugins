@@ -84,29 +84,33 @@ const Check = memo(({ settingGroup }) => {
     };
 
     return (
-        <Alert
-            dismissable
-            color={
-                state.valid
-                    ? Alert.ENUMS.COLOR.SUCCESS
-                    : Alert.ENUMS.COLOR.DANGER
-            }
-            icon={
-                <Icon
-                    name={
-                        state.valid ? 'Feather.Check' : 'Feather.AlertOctagon'
-                    }
-                />
-            }>
-            {state.valid ? msgs.success : msgs.failure}
-            <Button
-                className='ml-xs-16'
-                size='xs'
-                appearance='pill'
-                onClick={() => retest()}>
-                {__('Refresh')}
-            </Button>
-        </Alert>
+        <div className='p-xs-20'>
+            <Alert
+                dismissable
+                color={
+                    state.valid
+                        ? Alert.ENUMS.COLOR.SUCCESS
+                        : Alert.ENUMS.COLOR.DANGER
+                }
+                icon={
+                    <Icon
+                        name={
+                            state.valid
+                                ? 'Feather.Check'
+                                : 'Feather.AlertOctagon'
+                        }
+                    />
+                }>
+                {state.valid ? msgs.success : msgs.failure}
+                <Button
+                    className='ml-xs-16'
+                    size='xs'
+                    appearance='pill'
+                    onClick={() => retest()}>
+                    {__('Refresh')}
+                </Button>
+            </Alert>
+        </div>
     );
 }, checkEqual);
 
