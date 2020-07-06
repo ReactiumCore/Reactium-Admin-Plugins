@@ -6,18 +6,21 @@ export default {
         LOADED: 'LOADED',
     },
     CAPS: {
-        PUBLISH: collection => [
-            [`${collection}.publish`, 'publish-content'],
-            false,
-        ],
-        UNPUBLISH: collection => [
-            [`${collection}.unpublish`, 'unpublish-content'],
-            false,
-        ],
-        STATUS: (collection, status) => [
-            [`${collection}.setStatus-${status}`, 'set-content-status'],
-            false,
-        ],
+        PUBLISH: collection => ({
+            capabilities: [`${collection}.publish`, 'publish-content'],
+            strict: false,
+        }),
+        UNPUBLISH: collection => ({
+            capabilities: [`${collection}.unpublish`, 'unpublish-content'],
+            strict: false,
+        }),
+        STATUS: collection => ({
+            capabilities: [
+                `${collection}.setStatus-${status}`,
+                'set-content-status',
+            ],
+            strict: false,
+        }),
     },
     BUTTON_MODES: {
         PUBLISH: {
