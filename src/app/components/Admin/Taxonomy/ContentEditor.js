@@ -10,6 +10,7 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHookComponent,
+    useStatus,
 } from 'reactium-core/sdk';
 
 const STATUS = {
@@ -44,20 +45,17 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         update(newState);
     };
 
-    const setStatus = newStatus => {
-        if (editor.unMounted()) return;
-        refs.status = newStatus;
-    };
+    const [, setStatus, isStatus] = useStatus(STATUS.PENDING);
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
     const fetch = async () => {
         const { taxonomies = {} } = await Reactium.Taxonomy.Type.retrieve({
             slug: type,
-            verbos: true,
+            verbose: true,
         });
 
-        return _.sortBy(
+        const tax = _.sortBy(
             Object.values(op.get(taxonomies, 'results', {}))
                 .map(item => (op.has(item, 'id') ? item.toJSON() : item))
                 .map(({ name, objectId, slug }) => ({
@@ -69,21 +67,35 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
                 })),
             'name',
         );
+
+        return tax;
     };
 
     const load = async () => {
-        if (refs.status !== STATUS.PENDING || !editor) return;
+        reset();
+
+        if (!isStatus(STATUS.PENDING) || !editor) return;
+
         setStatus(STATUS.FETCHING);
         const [taxonomy] = await Promise.all([fetch()]);
 
         const slugs = _.pluck(op.get(editor.value, fieldName, []), 'slug');
         const selected = taxonomy.filter(({ slug }) => slugs.includes(slug));
 
+        // tack this data onto the editor state so other plugins can use it
+        op.set(editor, `state.taxonomy.${type}.types`, taxonomy);
+        op.set(editor, `state.taxonomy.${type}.selected`, selected);
+        editor.setState(editor.state);
+
         setStatus(STATUS.READY);
         setState({ selected, taxonomy });
     };
 
-    const isStatus = (...args) => Array.from(args).includes(refs.status);
+    const reset = () => {
+        if (!editor.isNew()) return;
+        setStatus(STATUS.PENDING);
+        setState({ taxonomy: [], selected: [] });
+    };
 
     const add = async (item, create = false) => {
         op.del(item, 'deleted');
@@ -123,6 +135,9 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         }
 
         const slugs = _.pluck(selected, 'slug');
+
+        op.set(editor, `state.taxonomy.${type}.selected`, selected);
+        editor.setState(editor.state);
 
         setState({ selected, slugs });
     };
@@ -203,6 +218,9 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         taxonomy.push(item);
         setState({ taxonomy });
 
+        op.set(editor, `state.taxonomy.${type}.types`, taxonomy);
+        editor.setState(editor.state);
+
         _.defer(() => refs.carousel.next());
     };
 
@@ -232,12 +250,14 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
+    // update handle
     useEffect(() => {
         if (!editor) return;
         handle['editor'] = editor;
         setHandle(handle);
-    }, [editor]);
+    }, [editor, state.taxonomy]);
 
+    // listeners
     useEffect(() => {
         if (!refs.taxEditor) return;
         refs.taxEditor.addEventListener('taxonomy-save', onTaxonomySave);
@@ -255,8 +275,13 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         };
     });
 
-    useAsyncEffect(load, [editor]);
+    // on reset
+    //useEffect(reset, [op.get(editor, 'value.objectId')]);
 
+    // data load
+    useAsyncEffect(load, [op.get(editor, 'value.objectId')]);
+
+    // on content save
     useEffect(onContentSave);
 
     return (

@@ -21,10 +21,10 @@ const ENUMS = {
 
 export default props => {
     // prettier-ignore
-    const { Alert, Button, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
+    const { Alert, Button, Dropdown, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
 
-    const { editor, fieldName, placeholder, required } = props;
+    const { editor, fieldName, placeholder, prefix, required } = props;
 
     const refs = useRef({}).current;
 
@@ -34,6 +34,9 @@ export default props => {
 
     // status
     const [status, setStatus, isStatus] = useStatus();
+
+    // taxonomy
+    const [tax, setTax] = useState(prefix);
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
@@ -65,10 +68,45 @@ export default props => {
         return op.get(editor.value, 'objectId') !== undefined;
     };
 
+    const hasTaxonomy = () => {
+        if (!editor) return;
+        if (!editor.state) return;
+        if (prefix === 'null' || !prefix) return;
+
+        const selected = _.reject(
+            op.get(editor.state, ['taxonomy', prefix, 'selected'], []),
+            { deleted: true },
+        );
+        if (!selected) return;
+        if (selected.length < 1) return;
+
+        return true;
+    };
+
+    const taxonomy = () => {
+        if (!prefix) return;
+
+        let tx = op.get(editor, ['state', 'taxonomy', prefix, 'selected']);
+
+        // exit if no selected taxonomy
+        if (!tx) return;
+
+        // strip out deleted values
+        tx = _.reject(tx, { deleted: true });
+
+        if (tx.length < 1) return;
+
+        return tx.map(({ slug }) => ({ label: `${slug}/`, value: slug }));
+    };
+
     const addURL = route => {
         route = route || refs.add.value;
 
         if (!route) return;
+
+        if (tax !== prefix) {
+            route = `${tax}/${route}`;
+        }
         if (isRoute(route)) {
             Toast.show({
                 type: Toast.TYPE.ERROR,
@@ -131,12 +169,12 @@ export default props => {
     };
 
     const load = async () => {
-        if (editor.slug === 'new' || !editor.value || !isSaved()) {
-            setStatus(ENUMS.STATUS.READY, true);
+        if (editor.isNew()) {
+            setStatus(ENUMS.STATUS.READY);
             setURLS({});
             return;
         } else if (isStatus(ENUMS.STATUS.READY)) {
-            setStatus(ENUMS.STATUS.PENDING, true);
+            setStatus(ENUMS.STATUS.PENDING);
         }
 
         if (!isStatus(ENUMS.STATUS.PENDING)) return;
@@ -222,6 +260,24 @@ export default props => {
     useAsyncEffect(load, [op.get(editor, 'value.objectId')]);
 
     useEffect(onSave);
+
+    useEffect(() => {
+        if (!editor) return;
+        if (!editor.state) return;
+        if (!hasTaxonomy()) return;
+
+        const tx = taxonomy();
+
+        if (!tx) {
+            if (tax !== prefix) setTax(prefix);
+            return;
+        }
+
+        if (tx.length === 1) {
+            if (tax === prefix) setTax(_.first(tx).value);
+        }
+    });
+
     return (
         <ElementDialog {...props}>
             <div className={cx()}>
@@ -234,6 +290,20 @@ export default props => {
                     </Alert>
                 )}
                 <div className={cn('input-group', { error: isError })}>
+                    {hasTaxonomy() && (
+                        <Dropdown
+                            size='md'
+                            align='left'
+                            onItemSelect={({ item }) => setTax(item.value)}
+                            data={taxonomy()}>
+                            <button
+                                className='dropdown-btn'
+                                data-dropdown-element
+                                type='button'>
+                                {`${tax}/`}
+                            </button>
+                        </Dropdown>
+                    )}
                     <input
                         onKeyDown={onEnter}
                         placeholder={placeholder}

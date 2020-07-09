@@ -117,7 +117,7 @@ let ContentEditor = (
     const [contentType, setContentType] = useState();
     const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
-    const [propState, setPropState] = useDerivedState(props, [
+    const [propState] = useDerivedState(props, [
         'params.type',
         'params.slug',
         'search.branch',
@@ -133,13 +133,17 @@ let ContentEditor = (
     const [status] = useState('pending');
     const [state, _setState] = useState({});
     const setState = (val = {}) => {
+        if (unMounted()) return;
+
         const newState = {
             ...state,
             ...(val || {}),
         };
 
         debug('setState', { val, newState });
+
         _setState(newState);
+        //_.defer(() => _setState({ ...newState, update: Date.now() }));
     };
 
     const [types, setTypes] = useState();
@@ -367,7 +371,10 @@ let ContentEditor = (
         ignoreChangeEvent.current = true;
         setValue(undefined, true);
         if (isNew() && formRef.current) {
-            _.defer(() => formRef.current.setValue(null));
+            _.defer(() => {
+                if (unMounted()) return;
+                formRef.current.setValue(null);
+            });
         }
     };
 
@@ -701,12 +708,11 @@ let ContentEditor = (
     const _onStatus = ({ detail }) =>
         dispatch('status', { event: detail }, onStatus);
 
-    const _onSubmit = async e =>
-        new Promise(async (resolve, reject) => {
-            debug(e.value);
-            await dispatch('submit', e.value, onSubmit);
-            save(e.value);
-        });
+    const _onSubmit = async e => {
+        debug(e.value);
+        await dispatch('submit', e.value, onSubmit);
+        save(e.value);
+    };
 
     const _onSuccess = async e => {
         const result = e.value;
@@ -772,7 +778,7 @@ let ContentEditor = (
         }
     };
 
-    const isReady = log => ready === true;
+    const isReady = () => ready === true;
 
     const isLoading = () => {
         if (!isReady()) return true;
@@ -958,6 +964,7 @@ let ContentEditor = (
         return () => {
             valueRef.current = {};
             handle.value = valueRef.current;
+            handle.state = {};
             reset();
         };
     }, []);

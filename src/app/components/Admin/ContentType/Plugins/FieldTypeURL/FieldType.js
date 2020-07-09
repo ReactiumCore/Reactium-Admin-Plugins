@@ -1,34 +1,82 @@
-import React from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import op from 'object-path';
+import React, { useState } from 'react';
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useHookComponent,
+    useStatus,
+} from 'reactium-core/sdk';
 
 export default props => {
     const { DragHandle } = props;
     const { Checkbox } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
+    const [taxonomy, setTaxonomy] = useState([]);
+    const [, setStatus, isStatus] = useStatus('init');
+
+    const load = async mounted => {
+        if (!isStatus('init')) return;
+
+        setStatus('loading');
+
+        if (!op.has(Reactium, 'Taxonomy.Type.list')) {
+            setStatus('ready', true);
+            return;
+        }
+
+        const { results } = await Reactium.Taxonomy.Type.list();
+        if (!mounted()) return;
+        const tax = Object.values(results);
+        setStatus('ready');
+        setTaxonomy(tax);
+    };
+
+    useAsyncEffect(load, []);
+
     return (
         <FieldTypeDialog {...props}>
             <div className='field-type-url'>
-                <div className='flex-grow'>
-                    <div className='form-group'>
-                        <label className='placeholder'>
-                            <span className='sr-only'>{__('Placeholder')}</span>
-                            <input
-                                type='text'
-                                name='placeholder'
-                                placeholder={__('Placeholder')}
-                            />
-                        </label>
-                    </div>
-                </div>
-                <div className='required'>
-                    <Checkbox
-                        name='required'
-                        label={__('Required')}
-                        labelAlign='right'
-                        value={true}
-                    />
-                </div>
+                {isStatus('ready') && (
+                    <>
+                        <div className='form-group'>
+                            <select name='prefix'>
+                                <option value='null'>
+                                    {__('Taxonomy Prefix')}
+                                </option>
+                                {taxonomy.map(({ slug, name }) => (
+                                    <option key={`tax-${slug}`} value={slug}>
+                                        {name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className='flex middle'>
+                            <div className='flex-grow'>
+                                <div className='form-group'>
+                                    <label className='placeholder'>
+                                        <span className='sr-only'>
+                                            {__('Placeholder')}
+                                        </span>
+                                        <input
+                                            type='text'
+                                            name='placeholder'
+                                            placeholder={__('Placeholder')}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='required'>
+                                <Checkbox
+                                    name='required'
+                                    label={__('Required')}
+                                    labelAlign='right'
+                                    value={true}
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </FieldTypeDialog>
     );

@@ -138,12 +138,20 @@ export const Editor = props => {
     };
 
     const removeAll = async (exclude = []) => {
+        if (!value) return;
         const values = Array.from(value).filter(
             ({ objectId }) => !exclude.includes(objectId),
         );
         values.forEach(item => op.set(item, 'delete', true));
         await nav('action', 'right');
         setSelection(values);
+    };
+
+    const reset = () => {
+        if (!editor.isNew()) return;
+        editor.active = 'action';
+        setActive('action');
+        removeAll();
     };
 
     const _handle = () => ({
@@ -253,10 +261,6 @@ export const Editor = props => {
 
     useEffect(updateHandle);
 
-    // useEffect(updateHandle, [
-    //     Object.keys(op.get(editor, 'state.media.data', {})),
-    // ]);
-
     // initial active
     useEffect(() => {
         if (active || !value) return;
@@ -275,11 +279,12 @@ export const Editor = props => {
 
     useEffect(() => {
         return () => {
-            console.log('unmount Media CTE');
-            editor.active = null;
-            setActive(null);
+            reset();
         };
     }, []);
+
+    // reset on new
+    useEffect(reset, [op.get(editor, 'value.objectId')]);
 
     return isReady() ? (
         <ElementDialog className={cx()} {...props}>
