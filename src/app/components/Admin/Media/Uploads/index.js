@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
-import { PDF } from '../_svg';
 import { bytesConvert } from '../_utils';
 import React, { useEffect, useRef } from 'react';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
@@ -16,10 +15,8 @@ import Reactium, {
 export default ({ onRemoveFile, uploads }) => {
     const iDoc = useDocument();
 
-    const animationRef = useRef({});
-
     const store = useStore();
-
+    const animationRef = useRef({});
     const [state, setState] = useDerivedState({
         uploads: uploads || op.get(store.getState(), 'Media.uploads'),
     });
@@ -69,11 +66,10 @@ export default ({ onRemoveFile, uploads }) => {
     const getStyle = ({ file, filename }) =>
         isImage(filename) ? { backgroundImage: `url(${file.dataURL})` } : null;
 
-    const getType = filename => {
-        return String(filename)
+    const getType = filename =>
+        String(filename)
             .split('.')
             .pop();
-    };
 
     const isImage = filename =>
         ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(filename));
@@ -103,7 +99,7 @@ export default ({ onRemoveFile, uploads }) => {
         return () => {
             Reactium.Pulse.unregister('MediaClearUploads');
         };
-    });
+    }, []);
 
     const render = () => {
         const currentUploads = op.get(state, 'uploads');

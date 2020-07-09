@@ -28,6 +28,13 @@
             transition: border 0.25s ease-in-out;
         }
 
+        video {
+            padding: 4px;
+            border: 2px dashed transparent;
+            transition: border 0.25s ease-in-out;
+            outline: none;
+        }
+
         .actions {
             position: absolute;
             top: 10px;
@@ -52,6 +59,10 @@
         &:focus,
         &.selected {
             img {
+                border: 2px dashed $color-grey;
+            }
+
+            video {
                 border: 2px dashed $color-grey;
             }
 

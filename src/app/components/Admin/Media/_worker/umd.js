@@ -159,9 +159,11 @@ class Uploader {
                     type: 'status',
                     params: {
                         ID,
+                        objectId: op.get(resp, 'data.result.objectId'),
                         progress: 1,
                         status: ENUMS.STATUS.COMPLETE,
                         url: op.get(resp, 'data.result.url'),
+                        result: op.get(resp, 'data.result'),
                     },
                 });
 

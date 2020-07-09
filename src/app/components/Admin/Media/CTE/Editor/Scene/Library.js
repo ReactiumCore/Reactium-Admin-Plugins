@@ -1,11 +1,10 @@
-import _ from 'underscore';
 import op from 'object-path';
 import React, { useEffect, useState } from 'react';
 
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 export default ({ handle, ...props }) => {
-    const { active, add, cx, editor, isActive, nav, max, refs, type } = handle;
+    const { active, add, cx, editor, isActive, back, max, refs, type } = handle;
 
     const MediaPicker = useHookComponent('MediaPicker');
 
@@ -22,7 +21,7 @@ export default ({ handle, ...props }) => {
     };
 
     const _onDismiss = async e => {
-        await nav('action', 'right');
+        await back();
         const picker = e ? e.currentTarget : refs.get('library.picker');
         picker.setStatus(picker.ENUMS.STATUS.PENDING, true);
     };
@@ -47,7 +46,7 @@ export default ({ handle, ...props }) => {
             <div className={cx('library')}>
                 {ready ? (
                     <MediaPicker
-                        confirm
+                        confirm={max !== 1}
                         data={op.get(editor.state, 'media')}
                         debug={false}
                         delayFetch={1000}
@@ -58,7 +57,6 @@ export default ({ handle, ...props }) => {
                         onSubmit={_onSubmit}
                         onDismiss={_onDismiss}
                         ref={elm => refs.set('library.picker', elm)}
-                        selection={[]}
                         title={__('Media Library')}
                     />
                 ) : null}

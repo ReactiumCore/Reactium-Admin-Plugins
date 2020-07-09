@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../../../enums';
+import DirectoryPicker from '../DirectoryPicker';
 import React, { useCallback, useMemo } from 'react';
 
 import Reactium, {
@@ -17,28 +18,19 @@ export default ({ handle }) => {
         cx,
         directories,
         editor,
-        max,
-        nav,
         refs,
         setDirectories,
-        setSelection,
         value,
     } = handle;
 
-    const { Alert, Button, Carousel, Icon, Slide, Spinner } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { Alert, Button, Icon, Spinner } = useHookComponent('ReactiumUI');
 
     const defaultIcon = useMemo(() => 'Feather.HelpCircle');
     const defaultMessage = useMemo(() =>
         __('Select directory and enter the fully qualified URL to a file'),
     );
 
-    const getDirectory = () => {
-        const directoryInput = refs.get('url.directory.input');
-        const directorySelect = refs.get('url.directory.select');
-        return directoryInput.value || directorySelect.value;
-    };
+    const getDirectory = () => refs.get('url.directory').value;
 
     const [, setStatus, isStatus] = useStatus(ENUMS.STATUS.READY);
     const [state, setState] = useDerivedState({
@@ -165,14 +157,17 @@ export default ({ handle }) => {
 
         if (op.get(editor.state, 'media')) {
             const { media } = editor.state;
-            let { data, directories = [] } = media;
+
+            let { data = {}, directories = [] } = media;
             op.set(data, result.objectId, result);
+
             directories.push(result.directory);
             directories = _.uniq(directories);
             directories.sort();
 
             op.set(media, 'directories', directories);
             op.set(media, 'data', data);
+
             editor.setState({ media });
         }
 
@@ -198,67 +193,11 @@ export default ({ handle }) => {
                     </Alert>
                 </div>
                 <div className='block mt-xs-24'>
-                    <Carousel ref={elm => refs.set('url.carousel', elm)}>
-                        <Slide>
-                            <div className='input-group'>
-                                <select
-                                    ref={elm =>
-                                        refs.set('url.directory.select', elm)
-                                    }>
-                                    <option value='uploads'>
-                                        {__('Select directory')}
-                                    </option>
-                                    {directories.map(dir => (
-                                        <option key={`dir-${dir}`}>
-                                            {dir}
-                                        </option>
-                                    ))}
-                                </select>
-                                <Button
-                                    color={Button.ENUMS.COLOR.TERTIARY}
-                                    data-tooltip={__('New directory')}
-                                    data-align='left'
-                                    data-vertical-align='middle'
-                                    disabled={!isStatus(ENUMS.STATUS.READY)}
-                                    onClick={() => {
-                                        const carousel = refs.get(
-                                            'url.carousel',
-                                        );
-                                        carousel.next();
-                                    }}>
-                                    <Icon name='Feather.Plus' />
-                                </Button>
-                            </div>
-                        </Slide>
-                        <Slide>
-                            <div className='input-group'>
-                                <input
-                                    type='text'
-                                    ref={elm =>
-                                        refs.set('url.directory.input', elm)
-                                    }
-                                    placeholder={__('directory')}
-                                    readOnly={!isStatus(ENUMS.STATUS.READY)}
-                                />
-                                <Button
-                                    color={Button.ENUMS.COLOR.DANGER}
-                                    disabled={!isStatus(ENUMS.STATUS.READY)}
-                                    onClick={() => {
-                                        const carousel = refs.get(
-                                            'url.carousel',
-                                        );
-                                        carousel.prev();
-                                        setTimeout(() => {
-                                            refs.get(
-                                                'url.directory.input',
-                                            ).value = '';
-                                        }, 500);
-                                    }}>
-                                    <Icon name='Feather.X' />
-                                </Button>
-                            </div>
-                        </Slide>
-                    </Carousel>
+                    <DirectoryPicker
+                        directories={directories}
+                        disabled={!isStatus(ENUMS.STATUS.READY)}
+                        ref={elm => refs.set('url.directory', elm)}
+                    />
                 </div>
                 <div className='block mt-xs-24'>
                     <div className='input-group'>

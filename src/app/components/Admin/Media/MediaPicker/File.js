@@ -17,27 +17,20 @@ const STATUS = {
 export default props => {
     const {
         filename,
-        meta = {},
         objectId,
         thumbnail,
         type,
-        url,
         style = {},
         className = 'block',
         cx,
         onItemSelect,
         onItemUnselect,
-        redirect = {},
         selected = false,
     } = props;
 
     const cont = useRef();
 
-    const thm = thumbnail
-        ? Reactium.Media.url(thumbnail)
-        : op.get(redirect, 'url', url);
-
-    const title = op.get(meta, 'title', filename);
+    const thm = thumbnail ? Reactium.Media.url(thumbnail) : null;
 
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
@@ -61,9 +54,13 @@ export default props => {
         setStatus(STATUS.LOADING);
 
         await new Promise(resolve => {
-            const img = new Image();
-            img.onload = resolve(img);
-            img.src = thm;
+            if (thm) {
+                const img = new Image();
+                img.onload = resolve(img);
+                img.src = thm;
+            } else {
+                resolve();
+            }
         });
 
         if (unMounted()) return;
@@ -77,7 +74,10 @@ export default props => {
 
     useEffect(() => {
         if (isStatus(STATUS.LOADED)) {
-            setStyles({ ...style, backgroundImage: `url('${thm}')` });
+            setStyles({
+                ...style,
+                backgroundImage: thm ? `url('${thm}')` : null,
+            });
             setStatus(STATUS.READY, true);
             return;
         }
@@ -89,7 +89,12 @@ export default props => {
             onClick={() => onClick(objectId)}
             ref={cont}
             style={styles}>
-            {title && <div className='title'>{title}</div>}
+            {!thm && (
+                <span className='icon'>
+                    <Icon name='Linear.FileEmpty' />
+                </span>
+            )}
+            {filename && <div className='label'>{filename}</div>}
             <Button
                 appearance='circle'
                 className='check'

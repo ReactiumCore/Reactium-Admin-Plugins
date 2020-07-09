@@ -82,7 +82,7 @@ const Audio = ({ editor, ...props }) => {
                     {imageUrl && <img src={imageUrl} style={style} />}
                     {!imageUrl && (
                         <span className={cx('audio-icon')}>
-                            <Icon name='Linear.MusicNote3' size={48} />
+                            <Icon name='Linear.Mic' size={48} />
                         </span>
                     )}
                     <audio width='100%' height='auto' controls>

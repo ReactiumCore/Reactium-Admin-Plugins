@@ -19,41 +19,19 @@ export const FieldType = props => {
         <FieldTypeDialog {...props} showHelpText={false}>
             <div className={cx()}>
                 <div className='row'>
-                    <div className='col-xs-12 col-md-5 pb-xs-20'>
-                        <div className='form-group'>
-                            <label>
-                                <input
-                                    type='text'
-                                    name='textSelect'
-                                    placeholder={__('Select Label')}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                    <div className='col-xs-12 col-md-5 pb-xs-20 px-md-16'>
-                        <div className='form-group'>
-                            <label>
-                                <input
-                                    type='text'
-                                    name='textUpload'
-                                    placeholder={__('Upload Label')}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                    <div className='col-xs-12 col-md-2 pb-xs-20'>
+                    <div className='col-xs-12'>
                         <div className='form-group'>
                             <label>
                                 <input
                                     name='max'
-                                    type='text'
-                                    placeholder={__('Max')}
+                                    type='number'
+                                    placeholder={__('Max Items')}
                                 />
                             </label>
                         </div>
                     </div>
                 </div>
-                <div className='mb-xs-12 medium'>Media Type:</div>
+                <div className='my-xs-24 medium'>Media Type:</div>
                 <div className='checks mb-xs-20'>
                     {types.map(({ label, value }, i) => (
                         <Checkbox

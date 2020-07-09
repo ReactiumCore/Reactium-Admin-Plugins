@@ -2,12 +2,14 @@ import _ from 'underscore';
 import op from 'object-path';
 import Thumb from './Scene/Thumb';
 import Action from './Scene/Action';
+import Upload from './Scene/Upload';
 import Library from './Scene/Library';
 import External from './Scene/External';
 import React, { useEffect, useState } from 'react';
 import useDirectories from '../../Directory/useDirectories';
 
 import Reactium, {
+    __,
     useEventHandle,
     useHookComponent,
     useRefs,
@@ -33,7 +35,7 @@ const useValue = ({ editor, fieldName }, deps) => {
 };
 
 const initialActive = (max, value) => {
-    if (max === 1 && value.length > 0) return 'thumb';
+    if (value.length > 0) return 'thumb';
     return 'action';
 };
 
@@ -106,6 +108,11 @@ export const Editor = props => {
 
     const back = () => refs.get('scene').back();
 
+    const browseFiles = () => {
+        const dropzone = refs.get('dropzone');
+        dropzone.browseFiles();
+    };
+
     const isReady = () => {
         if (!active) return;
         if (!editor) return;
@@ -144,6 +151,7 @@ export const Editor = props => {
         add,
         active,
         back,
+        browseFiles,
         cx,
         directories,
         isActive,
@@ -185,6 +193,24 @@ export const Editor = props => {
 
     const onContentAfterSave = e => op.set(e.value, fieldName, value);
 
+    const onFileAdded = async e => {
+        const upload = refs.get('upload');
+        let { directory } = upload.value;
+
+        if (!isActive('upload')) {
+            if (!directory) directory = 'uploads';
+            upload.setDirectory(directory);
+            await nav('upload', 'left');
+        }
+
+        if (!directory) {
+            upload.setError(__('Select directory'), e.added);
+            return;
+        }
+
+        upload.add(Reactium.Media.upload(e.added, directory));
+    };
+
     // listeners
     useEffect(() => {
         if (!editor) return;
@@ -214,14 +240,22 @@ export const Editor = props => {
     }, [dirs]);
 
     // update handle on value change
-    useEffect(() => {
+    const updateHandle = () => {
         const newHandle = _handle();
         if (_.isEqual(newHandle, handle)) return;
+
         Object.keys(newHandle).forEach(key =>
             op.set(handle, key, newHandle[key]),
         );
-        setHandle(newHandle);
-    });
+
+        setHandle(handle);
+    };
+
+    useEffect(updateHandle);
+
+    // useEffect(updateHandle, [
+    //     Object.keys(op.get(editor, 'state.media.data', {})),
+    // ]);
 
     // initial active
     useEffect(() => {
@@ -247,14 +281,11 @@ export const Editor = props => {
         };
     }, []);
 
-    useEffect(() => {
-        if (!active) return;
-        //console.log('active change', active);
-    });
-
     return isReady() ? (
         <ElementDialog className={cx()} {...props}>
-            <Dropzone ref={elm => refs.set('dropzone', elm)}>
+            <Dropzone
+                onFileAdded={onFileAdded}
+                ref={elm => refs.set('dropzone', elm)}>
                 <Scene
                     active={active}
                     className={cx('scene')}
@@ -264,6 +295,11 @@ export const Editor = props => {
                     <Thumb handle={handle} id='thumb' />
                     <External handle={handle} id='external' />
                     <Library handle={handle} id='library' />
+                    <Upload
+                        handle={handle}
+                        id='upload'
+                        ref={elm => refs.set('upload', elm)}
+                    />
                 </Scene>
             </Dropzone>
         </ElementDialog>

@@ -1,8 +1,6 @@
 import lunr from 'lunr';
 import _ from 'underscore';
 import cn from 'classnames';
-import Image from './Image';
-import Video from './Video';
 import op from 'object-path';
 import ENUMS from '../enums';
 import camelcase from 'camelcase';
@@ -27,6 +25,11 @@ import React, {
     useEffect,
     useState,
 } from 'react';
+
+import File from './File';
+import Audio from './Audio';
+import Image from './Image';
+import Video from './Video';
 
 const noop = () => {};
 
@@ -83,6 +86,9 @@ let MediaPicker = (initialProps, ref) => {
     // -------------------------------------------------------------------------
     const [state, updateState] = useState({
         ...props,
+        filters: _.isString(op.get(props, 'filters', []))
+            ? [props.filters]
+            : props.filters,
     });
 
     // -------------------------------------------------------------------------
@@ -120,6 +126,7 @@ let MediaPicker = (initialProps, ref) => {
 
         newState = newState ? { ...state, ...newState } : {};
         updateState(newState);
+        _.defer(() => updateState({ ...newState, update: Date.now() }));
     };
 
     // -------------------------------------------------------------------------
@@ -176,6 +183,7 @@ let MediaPicker = (initialProps, ref) => {
 
         // get parameters from state
         let { directory = 'all', filter, filters = [], search, type } = state;
+        filters = _.isString(filters) ? [filters] : filters;
 
         let files = op.get(data, 'data', {});
 
@@ -208,6 +216,8 @@ let MediaPicker = (initialProps, ref) => {
 
             return true;
         });
+
+        files = _.sortBy(files, 'updatedAt').reverse();
 
         // do a text search on the searchField properties
         files = search ? textSearch(`${String(search).trim()}*`, files) : files;
@@ -288,67 +298,57 @@ let MediaPicker = (initialProps, ref) => {
 
     const select = objectId => {
         const { data: files = {} } = data;
-        let { maxSelect, selection = [] } = state;
-
-        if (maxSelect && maxSelect > 0) {
-            if (maxSelect === 1 && selection.length === maxSelect) {
-                selection = [];
-            }
-
-            if (maxSelect > 1 && selection.length >= maxSelect) {
-                const message = __(
-                    'Max selection of (%max) already reached',
-                ).replace(/\%max/gi, maxSelect);
-
-                const error = { message, icon: 'Feather.AlertOctagon' };
-
-                setState({ error }, true);
-                dispatch(
-                    'error',
-                    { error, selection, max: maxSelect },
-                    onError,
-                );
-                setStatus(ENUMS.STATUS.ERROR, true);
-                return;
-            }
-        }
+        const { confirm, maxSelect } = state;
 
         const item = op.get(files, objectId);
+        if (!item) return;
+
+        const selection =
+            maxSelect === 1 ? [] : Array.from(op.get(state, 'selection', []));
+
+        if (maxSelect && maxSelect > 1 && selection.length >= maxSelect) {
+            const message = __(
+                'Max selection of (%max) already reached',
+            ).replace(/\%max/gi, maxSelect);
+
+            const error = { message, icon: 'Feather.AlertOctagon' };
+
+            setState({ error }, true);
+            dispatch('error', { error, selection, max: maxSelect }, onError);
+            setStatus(ENUMS.STATUS.ERROR, true);
+            return;
+        }
+
         const previous = Array.from(selection);
 
         selection.push(item);
 
-        const ids = _.chain(selection)
-            .pluck('objectId')
-            .uniq()
-            .value();
-
-        const newSelection = ids.map(id => op.get(files, id));
-
-        const count = newSelection.length;
+        const count = selection.length;
         const remaining = maxSelect && maxSelect > 0 ? maxSelect - count : null;
 
-        setState({ remaining, selection: newSelection }, true);
-        dispatch(
-            'select',
-            { item, selection: newSelection, remaining },
-            onItemSelect,
-        );
+        dispatch('select', { item, selection, remaining }, onItemSelect);
         dispatch(
             'change',
             {
-                current: newSelection,
+                selection,
                 previous,
                 item,
                 remaining,
             },
             onChange,
         );
-        setStatus(ENUMS.STATUS.UPDATE, true);
+
+        setStatus(ENUMS.STATUS.UPDATE);
+        setState({ remaining, selection });
+
+        if (confirm !== true) submit(selection);
     };
 
-    const submit = () => {
-        const { selection = [] } = state;
+    const submit = selection => {
+        selection = _.isArray(selection)
+            ? selection
+            : op.get(state, 'selection', []);
+
         dispatch('submit', { selection }, onSubmit);
     };
 
@@ -482,17 +482,7 @@ let MediaPicker = (initialProps, ref) => {
         );
 
         setHandle(handle);
-    }, [
-        children,
-        data,
-        state.directory,
-        state.page,
-        state.pages,
-        state.search,
-        state.selection,
-        state.type,
-        status,
-    ]);
+    });
 
     // page change
     useEffect(() => {
@@ -544,49 +534,49 @@ let MediaPicker = (initialProps, ref) => {
             Reactium.Zone.addComponent({
                 id: cx('title'),
                 component: Title,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 2,
                 zone: cx('toolbar'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('remaining'),
                 component: Remaining,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 4,
                 zone: cx('toolbar'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('directory-select'),
                 component: DirectorySelect,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 6,
                 zone: cx('toolbar'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('type-select'),
                 component: TypeSelect,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 8,
                 zone: cx('toolbar'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('search'),
                 component: SearchInput,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 10,
                 zone: cx('toolbar'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('pagination'),
                 component: PageNav,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 12,
                 zone: cx('footer'),
             }),
 
             Reactium.Zone.addComponent({
                 id: cx('submit-button'),
                 component: SubmitButton,
-                order: Reactium.Enums.priority.neutral,
+                order: Reactium.Enums.priority.neutral + 14,
                 zone: cx('footer'),
             }),
         ]);
@@ -601,7 +591,9 @@ let MediaPicker = (initialProps, ref) => {
     // Render
     // -------------------------------------------------------------------------
     return !data ? (
-        <Spinner />
+        <div className={cx('spinner')}>
+            <Spinner />
+        </div>
     ) : (
         <div
             ref={elm => refs.set('media.picker.container', elm)}
@@ -683,7 +675,10 @@ MediaPicker.propTypes = {
     directory: PropTypes.string,
     dismissable: PropTypes.bool,
     filter: PropTypes.func,
-    filters: PropTypes.arrayOf(PropTypes.string),
+    filters: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string),
+    ]),
     itemsPerPage: PropTypes.number,
     maxSelect: PropTypes.number,
     minSelect: PropTypes.number,
@@ -717,7 +712,7 @@ MediaPicker.defaultProps = {
     directory: 'all',
     dismissible: false,
     filters: Object.keys(ENUMS.TYPE),
-    itemsPerPage: 10,
+    itemsPerPage: 25,
     maxSelect: 1,
     minSelect: 0,
     namespace: 'ar-media-picker',
@@ -757,11 +752,17 @@ const Item = ({ handle, ...item }) => {
     const type = String(op.get(item, 'type', 'FILE')).toUpperCase();
 
     switch (type) {
+        case 'AUDIO':
+            return <Audio {...handle} {...item} />;
+
         case 'IMAGE':
             return <Image {...handle} {...item} />;
 
         case 'VIDEO':
             return <Video {...handle} {...item} />;
+
+        case 'FILE':
+            return <File {...handle} {...item} />;
 
         default:
             return null;
@@ -797,7 +798,7 @@ const SubmitButton = ({ picker }) => {
             <Button
                 className={cx('footer-submit-button')}
                 color={Button.ENUMS.COLOR.PRIMARY}
-                onClick={submit}
+                onClick={() => submit()}
                 size={Button.ENUMS.SIZE.SM}>
                 {state.submitLabel}
             </Button>
@@ -884,7 +885,7 @@ const DirectorySelect = ({ picker }) => {
     ) : null;
 };
 
-const TypeIcon = ({ type, ...props }) => {
+export const TypeIcon = ({ type, ...props }) => {
     type = String(type).toLowerCase();
 
     const { Icon } = useHookComponent('ReactiumUI');

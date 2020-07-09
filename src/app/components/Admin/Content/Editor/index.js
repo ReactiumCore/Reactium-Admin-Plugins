@@ -121,11 +121,7 @@ let ContentEditor = (
     const [errors, setErrors] = useState({});
     const [stale, setNewStale] = useState(false);
     const [status] = useState('pending');
-    const [state, setState] = useDerivedState(props, [
-        'title',
-        'sidebar',
-        'value',
-    ]);
+    const [state, setState] = useDerivedState(props);
     const [types, setTypes] = useState();
 
     // Aliases prevent memory leaks

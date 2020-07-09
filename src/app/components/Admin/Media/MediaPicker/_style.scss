@@ -31,11 +31,16 @@ $ar-media-picker-selection-width: 260px !default;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
+            align-items: center;
             justify-content: flex-end;
             opacity: 0.9;
-            transition: opacity 0.25s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
             cursor: pointer;
             user-select: none;
+
+            &.faded {
+                opacity: 0;
+            }
 
             @include breakpoint(sm) {
                 margin: 0 20px 20px 0;
@@ -81,7 +86,8 @@ $ar-media-picker-selection-width: 260px !default;
                 overflow: hidden;
             }
 
-            .title {
+            .title,
+            .label {
                 border-radius: 2px;
                 background-color: rgba($color-black, 0.75);
                 color: $color-text-light;
@@ -91,6 +97,21 @@ $ar-media-picker-selection-width: 260px !default;
                 z-index: 200;
                 font-size: 12px;
                 opacity: 0;
+            }
+
+            .label {
+                opacity: 1;
+                background-color: rgba($color-white, 0.75);
+                color: $color-text-dark;
+            }
+
+            .icon {
+                svg {
+                    width: 96px;
+                    height: 96px;
+                    fill: $color-gray;
+                }
+                margin-bottom: 20px;
             }
 
             &.selected,
@@ -125,6 +146,11 @@ $ar-media-picker-selection-width: 260px !default;
                 height: 200px;
                 margin-bottom: 20px;
                 border-radius: 2px;
+                transition: opacity 0.5s ease-in-out;
+
+                &.faded {
+                    opacity: 0;
+                }
 
                 @include breakpoint(sm) {
                     height: 25vw;
@@ -420,6 +446,25 @@ $ar-media-picker-selection-width: 260px !default;
                 height: 18px;
                 fill: $color-danger;
             }
+        }
+    }
+}
+
+.ar-modal-content {
+    .ar-media-picker {
+        background-color: $color-white;
+        width: 80vw;
+        height: calc(80vh - 66px);
+        min-height: 400px;
+
+        &-spinner {
+            width: 80vw;
+            height: calc(80vh - 24px);
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: $color-white;
         }
     }
 }

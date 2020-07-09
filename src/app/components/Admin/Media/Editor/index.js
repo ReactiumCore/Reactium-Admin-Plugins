@@ -6,13 +6,7 @@ import slugify from 'slugify';
 import Sidebar from './Sidebar';
 import useDirectories from '../Directory/useDirectories';
 
-import React, {
-    forwardRef,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Reactium, {
     __,
@@ -289,8 +283,6 @@ const Editor = ({
         } else {
             op.del(value, 'file');
         }
-
-        const type = String(op.get(state, 'value.type')).toLowerCase();
 
         // Clean up value object:
         [
