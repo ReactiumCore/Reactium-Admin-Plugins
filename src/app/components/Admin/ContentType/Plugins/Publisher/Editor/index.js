@@ -37,33 +37,38 @@ const usePublisherSettings = props => {
 
     useAsyncEffect(
         async isMounted => {
-            const can = {
-                publish: await Reactium.Capability.check(
-                    ...ENUMS.CAPS.PUBLISH(collection),
-                ),
-                unpublish: await Reactium.Capability.check(
-                    ...ENUMS.CAPS.UNPUBLISH(collection),
-                ),
+            const checks = {
+                publish: ENUMS.CAPS.PUBLISH(collection),
+                unpublish: ENUMS.CAPS.UNPUBLISH(collection),
             };
 
-            const canStatus = {};
             for (const status of statuses) {
-                const can = await Reactium.Capability.check(
-                    ...ENUMS.CAPS.STATUS(collection, status),
-                );
-                op.set(canStatus, status, can);
+                op.set(checks, [status], ENUMS.CAPS.STATUS(collection, status));
             }
 
-            if (isMounted())
+            const {
+                publish,
+                unpublish,
+                ...can
+            } = await Reactium.Cloud.run('capability-bulk-check', { checks });
+
+            if (isMounted()) {
+                const canStatus = {};
+                for (const status of statuses) {
+                    op.set(canStatus, status, op.get(can, [status], false));
+                }
+
                 setConfig({
                     ...config,
                     can: {
-                        ...can,
+                        publish,
+                        unpublish,
                         status: canStatus,
                     },
                 });
+            }
         },
-        [contentType.objectId],
+        [contentType.collection],
     );
 
     return useFulfilledObject(config, [

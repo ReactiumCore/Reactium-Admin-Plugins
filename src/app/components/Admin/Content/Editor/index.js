@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
 import DEFAULT_ENUMS from 'components/Admin/Content/enums';
 import useProperCase from 'components/Admin/Tools/useProperCase';
-import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 import React, {
     forwardRef,
@@ -85,10 +84,18 @@ let ContentEditor = (
         onSubmit,
         onSuccess,
         onValidate,
+        sidebar = true,
         ...props
     },
     ref,
 ) => {
+    const debugMode = ['on', 'true', '1'].includes(
+        op.get(props, 'search.debug'),
+    );
+    const stackTraceMode = ['on', 'true', '1'].includes(
+        op.get(props, 'search.stack'),
+    );
+
     const alertRef = useRef();
     const formRef = useRef();
     const loadingRef = useRef();
@@ -102,12 +109,6 @@ let ContentEditor = (
     const SlugInput = useHookComponent('SlugInput');
     const { Alert, EventForm, Icon, Toast } = useHookComponent('ReactiumUI');
 
-    let { type, slug, branch = 'master' } = useRouteParams([
-        'type',
-        'slug',
-        'branch',
-    ]);
-
     const alertDefault = {
         color: Alert.ENUMS.COLOR.INFO,
         icon: 'Feather.Flag',
@@ -116,12 +117,31 @@ let ContentEditor = (
     const [contentType, setContentType] = useState();
     const [alert, setNewAlert] = useState(alertDefault);
     const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
-    const [currentSlug, setCurrentSlug] = useState(slug);
+    const [propState, setPropState] = useDerivedState(props, [
+        'params.type',
+        'params.slug',
+        'search.branch',
+    ]);
+    const type = op.get(propState, 'params.type');
+    const slug = op.get(propState, 'params.slug', 'new');
+    const branch = op.get(propState, 'search.branch', 'master');
+    const currentSlug = op.get(valueRef.current, 'slug');
+
     const [dirty, setNewDirty] = useState(true);
     const [errors, setErrors] = useState({});
     const [stale, setNewStale] = useState(false);
     const [status] = useState('pending');
-    const [state, setState] = useDerivedState(props);
+    const [state, _setState] = useState({});
+    const setState = (val = {}) => {
+        const newState = {
+            ...state,
+            ...(val || {}),
+        };
+
+        debug('setState', { val, newState });
+        _setState(newState);
+    };
+
     const [types, setTypes] = useState();
 
     // Aliases prevent memory leaks
@@ -198,12 +218,9 @@ let ContentEditor = (
     };
 
     // Functions
-
     const debug = (...args) => {
-        const qstring = Reactium.Routing.history.location.search;
-        if (!qstring) return;
-        const params = new URLSearchParams(qstring);
-        if (!params.get('debug')) return;
+        if (!debugMode) return;
+        if (stackTraceMode) args.push(new Error().stack);
         console.log(...args);
     };
 
@@ -330,8 +347,6 @@ let ContentEditor = (
     const properCase = useProperCase();
 
     const regions = () => {
-        const { sidebar } = state;
-
         const _regions = op.get(contentType, 'regions', {});
 
         const contentRegions = sidebar
@@ -347,10 +362,13 @@ let ContentEditor = (
         return [contentRegions, sidebarRegions];
     };
 
-    const reset = () => {
+    const reset = async () => {
         loadingStatus.current = undefined;
         ignoreChangeEvent.current = true;
-        update({});
+        setValue(undefined, true);
+        if (isNew() && formRef.current) {
+            _.defer(() => formRef.current.setValue(null));
+        }
     };
 
     const save = async (mergeValue = {}) => {
@@ -738,7 +756,13 @@ let ContentEditor = (
     const pulse = () => {
         const { value = {} } = state;
 
-        if (!_.isEqual(value, valueRef.current)) {
+        const slug = op.get(value, 'slug');
+        const currentSlug = op.get(valueRef.current, 'slug');
+        if (
+            slug === currentSlug &&
+            Object.values(value).length > 0 &&
+            !_.isEqual(value, valueRef.current)
+        ) {
             update(valueRef.current);
             dispatch(
                 'change',
@@ -748,20 +772,12 @@ let ContentEditor = (
         }
     };
 
-    const isReady = log => {
-        if (log) console.log('isReady() ready', 1);
+    const isReady = log => ready === true;
 
-        if (ready !== true) return false;
-
-        if (isNew() !== true) {
-            let { value = {} } = state;
-            if (log) console.log('isReady() slug', 3, value);
-            if (!op.get(value, 'slug') || !currentSlug) return false;
-        } else {
-        }
-
-        if (log) console.log('isReady() done', 4);
-        return true;
+    const isLoading = () => {
+        if (!isReady()) return true;
+        if (!isNew() && slug !== currentSlug) return true;
+        return false;
     };
 
     // Handle
@@ -831,14 +847,12 @@ let ContentEditor = (
 
     // slug change
     useEffect(() => {
-        if (!slug) return;
-        if (currentSlug !== slug) {
-            reset();
-            setCurrentSlug(slug);
-        }
-
-        if (isNew() && isReady()) {
-            window.location.reload();
+        if (slug !== currentSlug) {
+            if (isNew()) {
+                reset();
+            } else {
+                loadingStatus.current = undefined;
+            }
         }
     }, [currentSlug, slug]);
 
@@ -907,27 +921,17 @@ let ContentEditor = (
 
     // get content
     useAsyncEffect(() => {
-        if (!ready) return;
-
-        if (isNew()) {
-            setClean({ value: {} });
-            update({});
-        }
-
+        if (ready !== true || isNew()) return;
         if (loadingStatus.current) return;
-
         if (unMounted() || !slug || !type) return;
 
         getContent()
             .then(result => {
                 if (unMounted()) return;
-
                 if (!result) return;
 
-                ignoreChangeEvent.current = true;
                 setClean({ value: result });
-
-                update(result);
+                setValue(result, true);
             })
             .catch(error => {
                 Reactium.Routing.history.push(`/admin/content/${type}/new`);
@@ -940,7 +944,7 @@ let ContentEditor = (
                     console.error({ error });
                 });
             });
-    }, [ready]);
+    }, [ready, isNew()]);
 
     // create pulse
     useEffect(() => {
@@ -954,15 +958,14 @@ let ContentEditor = (
         return () => {
             valueRef.current = {};
             handle.value = valueRef.current;
-            formRef.current.setValue(null);
             reset();
         };
     }, []);
 
     const render = () => {
-        if (!isReady()) return <Loading ref={loadingRef} />;
+        if (isLoading()) return <Loading ref={loadingRef} />;
         const { title, value = {} } = state;
-        const currentValue = value || {};
+        const currentValue = valueRef.current || {};
         const [contentRegions, sidebarRegions] = regions();
 
         return (

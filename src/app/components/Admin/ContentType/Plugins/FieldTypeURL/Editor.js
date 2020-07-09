@@ -61,7 +61,9 @@ export default props => {
         );
     };
 
-    const isSaved = () => op.has(editor.value, 'objectId');
+    const isSaved = () => {
+        return op.get(editor.value, 'objectId') !== undefined;
+    };
 
     const addURL = route => {
         route = route || refs.add.value;
@@ -129,20 +131,15 @@ export default props => {
     };
 
     const load = async () => {
-        if (editor.slug === 'new') {
+        if (editor.slug === 'new' || !editor.value || !isSaved()) {
             setStatus(ENUMS.STATUS.READY, true);
+            setURLS({});
             return;
-        }
-
-        if (!editor.value) return;
-
-        if (!isSaved()) {
-            setStatus(ENUMS.STATUS.READY, true);
-            return;
+        } else if (isStatus(ENUMS.STATUS.READY)) {
+            setStatus(ENUMS.STATUS.PENDING, true);
         }
 
         if (!isStatus(ENUMS.STATUS.PENDING)) return;
-
         setStatus(ENUMS.STATUS.FETCHING);
 
         const results = await fetch();
@@ -222,7 +219,7 @@ export default props => {
         };
     };
 
-    useAsyncEffect(load);
+    useAsyncEffect(load, [op.get(editor, 'value.objectId')]);
 
     useEffect(onSave);
     return (

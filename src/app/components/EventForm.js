@@ -5,6 +5,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 
 import Reactium, {
+    useAsyncEffect,
     useDerivedState,
     useEventHandle,
 } from '@atomic-reactor/reactium-sdk-core';
@@ -15,6 +16,7 @@ import React, {
     useImperativeHandle,
     useLayoutEffect as useWinEffect,
     useRef,
+    useState,
 } from 'react';
 
 const noop = () => {};
@@ -146,6 +148,12 @@ let EventForm = (initialProps, ref) => {
     const setNewValue = newValue => {
         if (unMounted()) return;
         newValue = newValue === null ? {} : newValue;
+
+        // cleanup value ref
+        Object.keys(valueRef.current).forEach(key => {
+            if (!newValue || !(key in newValue)) op.del(valueRef.current, key);
+        });
+
         Object.entries(newValue).forEach(([key, val]) =>
             op.set(valueRef.current, key, val),
         );
@@ -153,15 +161,31 @@ let EventForm = (initialProps, ref) => {
 
     const isToggle = type => ['checkbox', 'radio'].includes(type);
 
+    // applyValue called in number of useEffects
+    // can async override call on form.setValue(null)
+    // interpret clear, null, or {} as a clear
+    const isClearSignal = (newValue, clear = false) =>
+        clear === true ||
+        newValue === null ||
+        (typeof newValue === 'object' && Object.keys(newValue).length === 0);
+
     // -------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------
     const applyValue = async (newValue, clear = false) => {
+        // double-check for clear signal because of useEffects
+        clear = isClearSignal(newValue, clear);
+
         if (unMounted()) return;
         if (controlled === true || typeof newValue === 'undefined') return;
         const elements = getElements();
-        if (clear === true) clearForm(elements);
-        newValue = clear === true ? newValue : { ...value, ...newValue };
+
+        if (clear) {
+            clearForm(elements);
+            newValue = null;
+        } else {
+            newValue = { ...value, ...newValue };
+        }
 
         Object.entries(elements).forEach(([name, element]) => {
             let val = op.get(newValue, name);
@@ -217,7 +241,7 @@ let EventForm = (initialProps, ref) => {
 
     const clearForm = elements => {
         elements = elements || getElements();
-        Object.values(elements).forEach(element =>
+        Object.entries(elements).forEach(([name, element]) =>
             _.flatten([element]).forEach(elm => {
                 if (!elm.type) return;
 
@@ -377,15 +401,14 @@ let EventForm = (initialProps, ref) => {
 
     const setValue = newValue => {
         if (unMounted()) return;
-        if (newValue === null) {
-            applyValue(newValue, true);
-        } else {
-            applyValue(newValue);
-        }
 
+        const clear = isClearSignal(newValue);
         setNewValue(newValue);
-
-        dispatchChange({ value: newValue, event: formRef.current });
+        applyValue(newValue, clear);
+        dispatchChange({
+            value: clear ? {} : newValue,
+            event: formRef.current,
+        });
     };
 
     const unMounted = () => !formRef.current;
@@ -536,7 +559,8 @@ let EventForm = (initialProps, ref) => {
     });
 
     useEffect(() => {
-        if (state.ready === true) applyValue(value, true);
+        if (state.ready === true && state.count > 0)
+            applyValue(valueRef.current);
     }, [state.count]);
 
     // Update handle on change
@@ -551,7 +575,11 @@ let EventForm = (initialProps, ref) => {
 
     // update value from props
     useEffect(() => {
-        if (_.isEqual(value, initialValue)) return;
+        // ignore when would result in no change or when undefined
+        if (initialValue === undefined || _.isEqual(value, initialValue))
+            return;
+
+        setValue(initialValue);
         dispatchChange({ value: initialValue });
     }, [initialValue]);
 
@@ -583,11 +611,6 @@ let EventForm = (initialProps, ref) => {
             Object.keys(temp.current.watch).forEach(clearInterval);
         };
     });
-
-    // initial value change
-    useEffect(() => {
-        if (!_.isEqual(value, initialValue)) applyValue(initialValue);
-    }, [Object.values(initialValue)]);
 
     // -------------------------------------------------------------------------
     // Render
@@ -636,7 +659,7 @@ EventForm.defaultProps = {
     onError: noop,
     throttleChanges: 1500,
     required: [],
-    value: {},
+    value: undefined,
 };
 
 export { EventForm, EventForm as default, FormEvent };

@@ -72,6 +72,8 @@ const ContentStatus = props => {
         return true;
     };
 
+    if (!currentStatus) return null;
+
     if (!canChangeStatus()) {
         return <div className='status-label'>{statusLabel}</div>;
     }
