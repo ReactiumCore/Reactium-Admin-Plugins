@@ -12,7 +12,7 @@ import Reactium, {
     useStore,
 } from 'reactium-core/sdk';
 
-export default ({ onRemoveFile, uploads }) => {
+export default ({ delay = 250, onRemoveFile, uploads }) => {
     const iDoc = useDocument();
 
     const store = useStore();
@@ -21,11 +21,18 @@ export default ({ onRemoveFile, uploads }) => {
         uploads: uploads || op.get(store.getState(), 'Media.uploads'),
     });
 
-    const clearUploads = () => {
+    const clearUploads = async () => {
         if (Reactium.Media.completed.length < 1) return;
-        Reactium.Media.completed.forEach(({ ID, file }) =>
-            collapse(ID).then(() => _onRemoveFile(file, ID)),
-        );
+
+        const cleared = [];
+
+        for (let item of Reactium.Media.completed) {
+            const { ID, file } = item;
+            await collapse(ID);
+            cleared.push({ ...file, ID });
+        }
+
+        _onRemoveFile(cleared);
     };
 
     const collapse = ID => {
@@ -74,27 +81,31 @@ export default ({ onRemoveFile, uploads }) => {
     const isImage = filename =>
         ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(filename));
 
-    const _onRemoveFile = (file, ID) => {
-        Reactium.Media.cancel(file);
-        if (ID) delete animationRef.current[ID];
-        if (typeof onRemoveFile === 'function') onRemoveFile(file);
+    const _onRemoveFile = files => {
+        files = Array.isArray(files) ? files : [files];
+
+        Reactium.Media.cancel(files);
+
+        files.forEach(file => {
+            const ID = op.get(file, 'ID');
+            if (ID) delete animationRef.current[ID];
+            if (typeof onRemoveFile === 'function') onRemoveFile(file);
+        });
     };
 
     // Watch for uploads
     useEffect(() => {
-        if (uploads) return;
-
         const unsub = store.subscribe(() => {
             const currentUploads = op.get(store.getState(), 'Media.uploads');
             setState({ uploads: currentUploads });
         });
 
         return unsub;
-    });
+    }, []);
 
     // Clear uploads
     useEffect(() => {
-        Reactium.Pulse.register('MediaClearUploads', () => clearUploads());
+        Reactium.Pulse.register('MediaClearUploads', clearUploads, { delay });
 
         return () => {
             Reactium.Pulse.unregister('MediaClearUploads');

@@ -126,14 +126,22 @@ const UserMedia = ({ editor }) => {
         }
     };
 
-    const _onMediaChange = () => {
+    const _onMediaChange = e => {
+        console.log(e);
+
         const library = op.get(redux, 'library');
         const ids = Object.keys(data);
+
         const add = library.filter(item => {
             const { objectId, user } = item;
+            const uid = op.get(user, 'id', op.get(user, 'objectId'));
 
-            if (ids.includes(objectId)) return false;
-            if (user.id !== value.objectId) return false;
+            if (ids.includes(objectId)) {
+                return false;
+            }
+            if (uid !== value.objectId) {
+                return false;
+            }
 
             return true;
         });
@@ -223,10 +231,10 @@ const UserMedia = ({ editor }) => {
     useEffect(() => {
         if (!value) return;
         if (!isEmpty() && data && init !== true) {
-            _.delay(() => setInit(true), 250);
+            _.delay(() => setInit(true), 500);
         }
         if (isEmpty()) {
-            _.delay(() => setInit(true), 250);
+            _.delay(() => setInit(true), 500);
         }
     }, [data, value]);
 

@@ -16,6 +16,7 @@ import Reactium, {
     useReduxState,
     useRegisterHandle,
     useStatus,
+    useStore,
 } from 'reactium-core/sdk';
 
 const noop = () => {};
@@ -26,6 +27,9 @@ const noop = () => {};
  * -----------------------------------------------------------------------------
  */
 let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
+    // Store
+    const store = useStore();
+
     // Refs
     const containerRef = useRef();
     const dropzoneRef = useRef();
@@ -45,6 +49,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
         data: mapLibraryToList(reduxState.library),
         directory: null,
         page: props.page || 1,
+        search: null,
         type: null,
         updated: null,
     });
@@ -55,10 +60,6 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     };
 
     const setData = (data = []) => {
-        // if (_.isObject(data) && op.get(data, 'files')) {
-        //     data = op.get(data, 'files');
-        // }
-
         setStatus(ENUMS.STATUS.READY);
         setState({ data: mapLibraryToList(data) });
     };
@@ -77,7 +78,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
 
     const fetch = params => Reactium.Media.fetch({ ...params, page: -1 });
 
-    const isEmpty = () => op.get(reduxState, 'pagination.empty', true);
+    const isEmpty = () => {
+        if (isStatus(ENUMS.STATUS.READY)) {
+            return op.get(state, 'data', []).length < 1;
+        } else {
+            return op.get(reduxState, 'pagination.empty', true);
+        }
+    };
 
     const isMounted = () => !unMounted();
 
@@ -88,30 +95,23 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     const onFileRemoved = file => {
         if (unMounted()) return;
         dropzoneRef.current.removeFiles(file);
-        setData(reduxState.library);
         fetch();
     };
 
-    const search = pg => {
-        if (!isStatus(ENUMS.STATUS.READY)) return noop;
+    const search = () => {
+        const { data, directory, type } = state;
 
-        const { directory, page, type } = state;
-        const pages = op.get(reduxState, 'pagination.pages', 1);
+        const { search } = state;
 
-        pg = pg || page;
-        pg = pg > pages ? pages : pg;
-        pg = pg < 1 ? 1 : pg;
-
-        const newData = Reactium.Media.filter({
-            directory,
-            page: pg,
-            search: SearchBar.state.value,
-            type,
-            limit: 24,
-        });
-
-        setData(newData);
-        return noop;
+        return Reactium.Media.filter(
+            {
+                directory,
+                search,
+                type,
+                limit: 24,
+            },
+            Object.values(data),
+        );
     };
 
     const toggleSearch = () => {
@@ -157,8 +157,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     };
 
     // Side effects
-
-    useEffect(toggleSearch, [SearchBar, isEmpty()]);
+    // Fetch
+    useAsyncEffect(async () => {
+        if (isStatus(ENUMS.STATUS.INIT)) {
+            setStatus(ENUMS.STATUS.PENDING);
+            await fetch();
+        }
+    }, [status]);
 
     // Update handle
     useEffect(() => {
@@ -175,23 +180,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     });
 
     // Search
-    useEffect(search, [
-        SearchBar.state.value,
-        state.directory,
-        state.library,
-        state.type,
-        state.page,
-        op.get(reduxState, 'pagination.pages'),
-    ]);
-
-    // Fetch
-    useAsyncEffect(async () => {
-        if (isStatus(ENUMS.STATUS.INIT)) {
-            setStatus(ENUMS.STATUS.PENDING);
-            const data = await fetch();
-            setData(data.files);
+    useEffect(toggleSearch, [SearchBar, isEmpty()]);
+    useEffect(() => {
+        const search = SearchBar.state.value;
+        if (state.search !== search) {
+            setState({ search });
         }
-    });
+    }, [SearchBar.state.value]);
 
     // Page change
     useEffect(() => {
@@ -203,6 +198,24 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
         }
     }, [state.page]);
 
+    // Watch for library updates
+    useEffect(() => {
+        const unsub = store.subscribe(() => {
+            const data = op.get(store.getState(), 'Media.library');
+            if (!data) return;
+
+            const currentData = Object.values(state.data);
+            const equal = _.isEqual(
+                _.pluck(data, 'objectId').sort(),
+                _.pluck(currentData, 'objectId').sort(),
+            );
+
+            if (!equal) setData(data);
+        });
+
+        return unsub;
+    }, []);
+
     useRegisterHandle(domain.name, () => handle, [handle]);
 
     // Render
@@ -211,7 +224,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
             <Helmet>
                 <title>{title}</title>
             </Helmet>
-            {isStatus(ENUMS.STATUS.READY) ? (
+            {!isStatus([ENUMS.STATUS.INIT, ENUMS.STATUS.PENDING]) ? (
                 <Dropzone
                     {...dropzoneProps}
                     className={cx('dropzone')}
@@ -225,7 +238,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
                         uploads={op.get(reduxState, 'uploads', {})}
                     />
                     {!isEmpty() ? (
-                        <List data={state.data} />
+                        <List data={search()} />
                     ) : (
                         <Empty Media={handle} />
                     )}

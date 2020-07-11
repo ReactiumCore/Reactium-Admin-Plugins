@@ -304,7 +304,7 @@ class Media {
             let { directory: dir } = item;
 
             // search
-            if (match && match.length > 2 && searchFields.length > 0) {
+            if (match && searchFields.length > 0) {
                 const score = searchFields.reduce((s, field) => {
                     let val = op.get(item, field, '');
                     val = Array.isArray(val) ? val.join(', ') : val;
