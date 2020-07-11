@@ -37,6 +37,7 @@ export default props => {
 
     // taxonomy
     const [tax, setTax] = useState(prefix);
+    const [taxonomies, setTaxonomies] = useState([]);
 
     // prettier-ignore
     const [isError, setError] = useState(op.has(errors, [fieldName, 'message']));
@@ -70,11 +71,10 @@ export default props => {
 
     const hasTaxonomy = () => {
         if (!editor) return;
-        if (!editor.state) return;
         if (prefix === 'null' || !prefix) return;
 
         const selected = _.reject(
-            op.get(editor.state, ['taxonomy', prefix, 'selected'], []),
+            Reactium.Cache.get(`editor.taxonomy.${prefix}.selected`, []),
             { deleted: true },
         );
         if (!selected) return;
@@ -86,17 +86,13 @@ export default props => {
     const taxonomy = () => {
         if (!prefix) return;
 
-        let tx = op.get(editor, ['state', 'taxonomy', prefix, 'selected']);
-
         // exit if no selected taxonomy
-        if (!tx) return;
+        if (!taxonomies || taxonomies.length < 1) return;
 
-        // strip out deleted values
-        tx = _.reject(tx, { deleted: true });
-
-        if (tx.length < 1) return;
-
-        return tx.map(({ slug }) => ({ label: `${slug}/`, value: slug }));
+        return taxonomies.map(({ slug }) => ({
+            label: `${slug}/`,
+            value: slug,
+        }));
     };
 
     const addURL = route => {
@@ -263,7 +259,6 @@ export default props => {
 
     useEffect(() => {
         if (!editor) return;
-        if (!editor.state) return;
         if (!hasTaxonomy()) return;
 
         const tx = taxonomy();
@@ -277,6 +272,28 @@ export default props => {
             if (tax === prefix) setTax(_.first(tx).value);
         }
     });
+
+    useEffect(() => {
+        if (prefix === 'null' || !prefix) return;
+        return Reactium.Cache.subscribe(
+            `editor.taxonomy.${prefix}`,
+            ({ op }) => {
+                switch (op) {
+                    case 'set':
+                    case 'del':
+                        setTaxonomies(
+                            _.reject(
+                                Reactium.Cache.get(
+                                    `editor.taxonomy.${prefix}.selected`,
+                                ),
+                                { deleted: true },
+                            ),
+                        );
+                        break;
+                }
+            },
+        );
+    }, [prefix]);
 
     return (
         <ElementDialog {...props}>

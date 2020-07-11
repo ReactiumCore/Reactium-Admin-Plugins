@@ -969,6 +969,13 @@ let ContentEditor = (
         };
     }, []);
 
+    // scroll to top
+    useEffect(() => {
+        if (isLoading()) return;
+        if (typeof window === 'undefined') return;
+        document.body.scrollTop = 0;
+    }, [isLoading(), isNew()]);
+
     const render = () => {
         if (isLoading()) return <Loading ref={loadingRef} />;
         const { title, value = {} } = state;
@@ -1042,7 +1049,6 @@ let ContentEditor = (
                         </Sidebar>
                     )}
                 </EventForm>
-                {!state.value && <Loading />}
             </>
         );
     };

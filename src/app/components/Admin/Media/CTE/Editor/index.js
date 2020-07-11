@@ -149,7 +149,6 @@ export const Editor = props => {
 
     const reset = () => {
         if (!editor.isNew()) return;
-        editor.active = 'action';
         setActive('action');
         removeAll();
     };
@@ -266,16 +265,6 @@ export const Editor = props => {
         if (active || !value) return;
         setActive(initialActive(max, value || []));
     }, [active, max, value]);
-
-    // update value
-    useEffect(() => {
-        if (!value) return;
-        if (_.isEqual(op.get(editor.value, fieldName), value)) {
-            return;
-        }
-        const newValue = { ...editor.value, [fieldName]: value };
-        editor.setValue(newValue);
-    }, [value]);
 
     useEffect(() => {
         return () => {

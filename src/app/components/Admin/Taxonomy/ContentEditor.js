@@ -82,17 +82,18 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         const slugs = _.pluck(op.get(editor.value, fieldName, []), 'slug');
         const selected = taxonomy.filter(({ slug }) => slugs.includes(slug));
 
-        // tack this data onto the editor state so other plugins can use it
-        op.set(editor, `state.taxonomy.${type}.types`, taxonomy);
-        op.set(editor, `state.taxonomy.${type}.selected`, selected);
-        editor.setState(editor.state);
+        // cache this data so other plugins can use it
+        Reactium.Cache.set(`editor.taxonomy.${type}.types`, taxonomy);
+        Reactium.Cache.set(`editor.taxonomy.${type}.selected`, selected);
 
         setStatus(STATUS.READY);
         setState({ selected, taxonomy });
+        editor.setDirty();
     };
 
     const reset = () => {
         if (!editor.isNew()) return;
+        Reactium.Cache.del('editor.taxonomy');
         setStatus(STATUS.PENDING);
         setState({ taxonomy: [], selected: [] });
     };
@@ -136,10 +137,11 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
 
         const slugs = _.pluck(selected, 'slug');
 
-        op.set(editor, `state.taxonomy.${type}.selected`, selected);
-        editor.setState(editor.state);
+        // cache selected so other plugins can use it.
+        Reactium.Cache.set(`editor.taxonomy.${type}.selected`, selected);
 
         setState({ selected, slugs });
+        editor.setDirty();
     };
 
     const hideEditor = () => {
@@ -218,9 +220,8 @@ export const ContentEditor = ({ namespace = 'editor-taxonomy', ...props }) => {
         taxonomy.push(item);
         setState({ taxonomy });
 
-        op.set(editor, `state.taxonomy.${type}.types`, taxonomy);
-        editor.setState(editor.state);
-
+        Reactium.Cache.set(`editor.taxonomy.${type}.types`, taxonomy);
+        editor.setDirty();
         _.defer(() => refs.carousel.next());
     };
 

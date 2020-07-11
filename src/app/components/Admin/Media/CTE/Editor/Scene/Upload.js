@@ -77,8 +77,8 @@ export default forwardRef((props, ref) => {
             const ID = op.get(e.params, 'ID');
             const { directory, objectId, url } = e.params.result;
 
-            if (op.get(editor.state, 'media')) {
-                const { media = {} } = editor.state;
+            const { media } = Reactium.Cache.get('editor.media');
+            if (media) {
                 let { data = {}, directories = [] } = media;
 
                 directories.push(directory);
@@ -89,7 +89,7 @@ export default forwardRef((props, ref) => {
                 op.set(data, 'directories', directories);
                 op.set(media, 'data', data);
 
-                editor.setState({ media });
+                Reactium.Cache.set('editor.media', media);
             }
 
             _.defer(() => select({ ID, objectId, url }));

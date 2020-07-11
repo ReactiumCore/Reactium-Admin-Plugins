@@ -1,7 +1,6 @@
-import op from 'object-path';
 import React, { useEffect, useState } from 'react';
 
-import { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 export default ({ handle, ...props }) => {
     const { active, add, cx, editor, isActive, back, max, refs, type } = handle;
@@ -27,9 +26,8 @@ export default ({ handle, ...props }) => {
     };
 
     const _onLoad = ({ data }) => {
-        if (!op.get(editor.state, 'media')) {
-            editor.setState({ media: data });
-        }
+        const media = Reactium.Cache.get('editor.media');
+        if (!media) Reactium.Cache.set('editor.media', data);
     };
 
     useEffect(() => {
@@ -47,7 +45,7 @@ export default ({ handle, ...props }) => {
                 {ready ? (
                     <MediaPicker
                         confirm={max !== 1}
-                        data={op.get(editor.state, 'media')}
+                        data={Reactium.Cache.get('editor.media')}
                         debug={false}
                         delayFetch={1000}
                         dismissable

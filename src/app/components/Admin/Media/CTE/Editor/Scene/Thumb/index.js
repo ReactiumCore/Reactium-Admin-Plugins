@@ -33,7 +33,7 @@ export default ({ handle, ...props }) => {
 
     const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.INIT);
 
-    const [data, setData] = useState(op.get(editor.state, 'media'));
+    const [data, setData] = useState(Reactium.Cache.get('editor.media'));
 
     const hasData = () => _.isObject(data);
 
@@ -41,7 +41,6 @@ export default ({ handle, ...props }) => {
         if (!value) return;
         if (!editor) return;
         if (!hasData()) return;
-        if (!editor.state) return;
         if (value.length < 1) return;
         if (!isActive(props.id)) return;
 
@@ -55,11 +54,10 @@ export default ({ handle, ...props }) => {
 
         setStatus(ENUMS.STATUS.LOADING);
 
-        const media = op.get(editor.state, 'media')
-            ? editor.state.media
-            : await fetchMedia('media-retrieve');
+        const media =
+            Reactium.Cache.get('editor.media') ||
+            (await fetchMedia('media-retrieve'));
 
-        editor.setState({ media });
         setStatus(ENUMS.STATUS.LOADED);
         _.defer(() => setData(media));
     };

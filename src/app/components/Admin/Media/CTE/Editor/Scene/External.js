@@ -12,16 +12,7 @@ import Reactium, {
 } from 'reactium-core/sdk';
 
 export default ({ handle }) => {
-    const {
-        add,
-        back,
-        cx,
-        directories,
-        editor,
-        refs,
-        setDirectories,
-        value,
-    } = handle;
+    const { add, back, cx, directories, refs, setDirectories, value } = handle;
 
     const { Alert, Button, Icon, Spinner } = useHookComponent('ReactiumUI');
 
@@ -155,9 +146,8 @@ export default ({ handle }) => {
         input.value = '';
         input.focus();
 
-        if (op.get(editor.state, 'media')) {
-            const { media } = editor.state;
-
+        const media = Reactium.Cache.get('editor.media');
+        if (media) {
             let { data = {}, directories = [] } = media;
             op.set(data, result.objectId, result);
 
@@ -168,7 +158,7 @@ export default ({ handle }) => {
             op.set(media, 'directories', directories);
             op.set(media, 'data', data);
 
-            editor.setState({ media });
+            Reactium.Cache.set('editor.media', media);
         }
 
         const { objectId, url } = result;
