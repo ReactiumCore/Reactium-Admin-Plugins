@@ -24,7 +24,6 @@ export default forwardRef((props, ref) => {
         browseFiles,
         cx,
         directories,
-        editor,
         isActive,
         back,
         nav,
@@ -77,7 +76,7 @@ export default forwardRef((props, ref) => {
             const ID = op.get(e.params, 'ID');
             const { directory, objectId, url } = e.params.result;
 
-            const { media } = Reactium.Cache.get('editor.media');
+            const media = Reactium.Cache.get('editor.media');
             if (media) {
                 let { data = {}, directories = [] } = media;
 
@@ -98,11 +97,7 @@ export default forwardRef((props, ref) => {
 
     const reset = () => {
         if (isActive(props.id)) return;
-
-        // Clear directory
-        if (getState('directory')) {
-            setState('directory', null);
-        }
+        setState({ uploads: null, directory: null });
     };
 
     const select = async ({ ID, ...item }) => {
@@ -169,7 +164,7 @@ export default forwardRef((props, ref) => {
             const uploads = op.get(store.getState(), 'Media.uploads');
             setState('uploads', uploads);
         });
-    });
+    }, []);
 
     // Regsiter media-worker hook
     useEffect(() => {

@@ -278,6 +278,7 @@ export const Editor = props => {
     return isReady() ? (
         <ElementDialog className={cx()} {...props}>
             <Dropzone
+                files={{}}
                 onFileAdded={onFileAdded}
                 ref={elm => refs.set('dropzone', elm)}>
                 <Scene
