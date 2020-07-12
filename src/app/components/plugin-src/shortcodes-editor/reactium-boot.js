@@ -2,8 +2,12 @@ const { development } = require('./reactium-hooks.json');
 const Reactium = require('@atomic-reactor/reactium-sdk-core').default;
 
 if (development) {
-    Reactium.Server.AppStyleSheets.register('shortcodes', {
-        path: '/assets/style/shortcodes.css',
-        order: 1000,
-    });
+    Reactium.Hook.register(
+        'Server.AppStyleSheets',
+        async (req, AppStyleSheets) => {
+            AppStyleSheets.register('my-stylesheet', {
+                path: '/assets/style/shortcodes.css',
+            });
+        },
+    );
 }

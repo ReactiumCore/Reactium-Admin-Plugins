@@ -1058,7 +1058,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example",
-        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n\n    const { useCapabilitySettings } = Reactium;\n    const [capabilities] = useCapabilitySettings(zone);\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
+        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n    // Run the 'my-zone-capabilites' hook which allows plugins to auto register a Regsitry Object. \n    const { useCapabilitySettings } = Reactium;\n    const [capabilities] = useCapabilitySettings(zone);\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
         "type": "json"
       }
     ],

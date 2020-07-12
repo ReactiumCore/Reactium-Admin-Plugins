@@ -4,8 +4,8 @@
  * Use `arcli plugin local` to activate local development, and `arcli plugin eject`
  */
 
-import Reactium from 'reactium-core/sdk';
 import op from 'object-path';
+import Reactium from 'reactium-core/sdk';
 
 Reactium.Hook.register(
     'plugin-dependencies',
