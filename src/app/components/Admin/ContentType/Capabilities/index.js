@@ -1,7 +1,6 @@
-import _ from 'underscore';
 import ENUMS from './enums';
 import op from 'object-path';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
 
 const CTCapabilityEditor = props => {
