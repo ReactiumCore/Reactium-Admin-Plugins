@@ -1029,6 +1029,44 @@ define({ "api": [
   },
   {
     "type": "ReactHook",
+    "url": "useCapabilitySettings(id,defaultCapabilites)",
+    "title": "useCapabilitySettings()",
+    "version": "3.2.1",
+    "name": "useCapabilitySettings",
+    "group": "ReactHook",
+    "description": "<p>React hook that async combines capability settings from a Reactium hook based on the zone parameter and the Registry Object zone value.</p> <p>Returns the capabilites array and a setter function.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "zone",
+            "description": "<p>The Capability Setting zone. The zone value will be appended with <code>-capabilites</code> to create a Reactium async/sync hook.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "defaultCapabilites",
+            "description": "<p>Array of Capability Setting objects that will be auto registered.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example",
+        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n\n    const { useCapabilitySettings } = Reactium;\n    const [capabilities] = useCapabilitySettings(zone);\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
+        "type": "json"
+      }
+    ],
+    "filename": "src/app/components/Admin/Settings/AppSettings/useCapabilitySettings.js",
+    "groupTitle": "ReactHook"
+  },
+  {
+    "type": "ReactHook",
     "url": "useDerivedState(props,subscriptions,updateAll)",
     "title": "useDerivedState()",
     "description": "<p>Sometimes you would like to derive state from your component props, and also allow either a prop change, or an internal state change either to take effect. This hook will allow you to create a state object from your component props, and subscribe (by array of object-paths) only to those prop changes you would like to see reflected in a rendering updates to your component state. This hook returns an array similar in nature to the return of React's built-in <code>useState()</code> hook (<code>[state,setState]</code>), with some differences.</p> <ol> <li>The initial value coming from props (on first render) will contain all that was present in the props object passed to it. Note that any values that are not present in your component props on first render, or that which are explicitly subscribed to, will not exist in the returned state element.</li> <li>The setState callback can receive whole or partial state objects, and will be merged with the existing state.</li> <li>There is a third element function <code>forceRefresh</code></li> </ol>",
@@ -2038,6 +2076,63 @@ define({ "api": [
   },
   {
     "type": "Function",
+    "url": "Capability.Settings",
+    "title": "Capability.Settings",
+    "version": "3.2.1",
+    "description": "<p>Registry for adding Capabilites to the Settings dialog.</p>",
+    "name": "Capability.Settings",
+    "group": "Reactium.Capability",
+    "parameter": {
+      "fields": {
+        "Registry Object": [
+          {
+            "group": "Registry Object",
+            "type": "String",
+            "optional": false,
+            "field": "capability",
+            "description": "<p>Value used to identify the capability. Example: <code>my-component.create</code>.</p>"
+          },
+          {
+            "group": "Registry Object",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": "<p>Display text.</p>"
+          },
+          {
+            "group": "Registry Object",
+            "type": "String",
+            "optional": false,
+            "field": "tooltip",
+            "description": "<p>Help text.</p>"
+          },
+          {
+            "group": "Registry Object",
+            "type": "Mixed",
+            "optional": true,
+            "field": "zone",
+            "description": "<p>Array|String The AppSettings <code>id</code> value. If empty, the capabilites will show up in all AppSettings Capabilites list.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Registration",
+        "content": "Reactium.Capability.Settings.register('shortcodes-manage', {\n    capability: 'shortcodes.create',\n    title: 'Shortcodes: Create/Update/Delete',\n    tooltip: 'Ability to manage Shortcodes.',\n    zone: 'app-settings',\n });",
+        "type": "json"
+      },
+      {
+        "title": "Usage",
+        "content": "import React from 'react';\nimport _ from 'underscore';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n\n    // Filter only 'my-zone' capabilities\n    const capabilities = _.where(Reactium.Capability.Settings.list, { zone });\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
+        "type": "json"
+      }
+    ],
+    "filename": "src/app/components/Admin/Settings/AppSettings/reactium-hooks.js",
+    "groupTitle": "Reactium.Capability"
+  },
+  {
+    "type": "Function",
     "url": "Capability.check(capabilities,strict)",
     "title": "Capability.check",
     "version": "3.2.1",
@@ -2088,8 +2183,8 @@ define({ "api": [
   },
   {
     "type": "Function",
-    "url": "Capability.set(capability,",
-    "title": "perms) Capability.set()",
+    "url": "Capability.set(capability,perms)",
+    "title": "Capability.set()",
     "version": "3.2.1",
     "description": "<p>Set permissions on a capability for allowed and excluded roles.</p>",
     "name": "Capability.set",

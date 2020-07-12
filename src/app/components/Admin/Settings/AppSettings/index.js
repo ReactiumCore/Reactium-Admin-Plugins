@@ -1,31 +1,47 @@
 import React from 'react';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
-
-const capabilities = {};
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: AppSettings
  * -----------------------------------------------------------------------------
  */
-const AppSettings = ({ appSettingProps }) => {
-    const CapabilityEditor = useHookComponent('CapabilityEditor');
+const AppSettings = ({
+    appSettingProps,
+    children,
+    className = 'app-settings',
+    id = 'app-settings',
+    title,
+}) => {
     const Zone = useHookComponent('Zone');
     const Helmet = useHookComponent('Helmet');
-    const capabilities = op.get(appSettingProps, 'capabilities', []);
+    const CapabilityEditor = useHookComponent('CapabilityEditor');
+
+    const { useCapabilitySettings } = Reactium;
+    const [capabilities] = useCapabilitySettings(
+        id,
+        op.get(appSettingProps, 'capabilities', []),
+    );
 
     return (
-        <div className={'app-settings'}>
-            <Helmet>
-                <meta charSet='utf-8' />
-                <title>{__('App - Settings')}</title>
-            </Helmet>
-
-            <CapabilityEditor capabilities={capabilities} />
-            <Zone zone={'app-settings'} />
+        <div className={className}>
+            {title && (
+                <Helmet>
+                    <meta charSet='utf-8' />
+                    <title>{title}</title>
+                </Helmet>
+            )}
+            {capabilities && capabilities.length > 0 && (
+                <CapabilityEditor
+                    capabilities={capabilities}
+                    height='calc(100vh - 182px)'
+                />
+            )}
+            {children}
+            {id && <Zone zone={id} />}
         </div>
     );
 };
 
-export default AppSettings;
+export { AppSettings, AppSettings as default };

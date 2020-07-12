@@ -86,6 +86,7 @@ const RoleControl = ({
  */
 const CapabilityEditor = ({
     capabilities = [],
+    height,
     pref = 'capability-editor',
 }) => {
     const canSet = useCapabilityCheck(
@@ -133,8 +134,6 @@ const CapabilityEditor = ({
             maxPermWidth = 85;
     }
 
-    const [updated, setUpdated] = useState(1);
-    const forceRefresh = () => setUpdated(updated + 1);
     const capNames = capabilities.map(({ capability }) => capability);
     useAsyncEffect(
         async isMounted => {
@@ -282,8 +281,8 @@ const CapabilityEditor = ({
                 <Loading />
             ) : (
                 <DataTable
-                    scrollable={true}
-                    height={`${Math.min(data.length * 43 + 21, 450)}px`}
+                    scrollable={!!height}
+                    height={height}
                     columns={getColumns()}
                     data={data}
                 />

@@ -127,4 +127,11 @@ export default {
             },
         ],
     },
+    STATUS: {
+        PENDING: 'pending',
+        INIT: 'init',
+        LOADING: 'loading',
+        LOADED: 'loaded',
+        READY: 'ready',
+    },
 };

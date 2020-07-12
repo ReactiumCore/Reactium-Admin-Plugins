@@ -1,0 +1,178 @@
+.shortcodes {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: $height-admin-header;
+    height: 100vh;
+
+    &-insert {
+        flex-grow: 0;
+        flex-shrink: 0;
+        background-color: $color-light;
+        padding: $padding-admin-content-zone;
+        border-bottom: 1px solid darken($color-grey-light, 5%);
+        z-index: 20;
+    }
+
+    &-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: 1000;
+    }
+
+    &-list {
+        padding: $padding-admin-content-zone;
+        padding-bottom: 0;
+        display: flex;
+        flex-direction: column;
+
+        position: relative;
+
+        .input-group {
+            margin-bottom: $padding-admin-content-zone;
+        }
+    }
+
+    &-list-form {
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+
+    .input-group {
+        position: relative;
+        flex-wrap: wrap;
+
+        input,
+        textarea {
+            background-color: $color-white;
+            border-color: darken($color-grey-light, 5%);
+        }
+
+        .code {
+            flex-grow: 0;
+        }
+
+        .replacer {
+            flex-grow: 1;
+        }
+
+        .action {
+            width: 41px;
+            height: 41px;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .type {
+            height: 41px;
+        }
+
+        .ar-dropdown {
+            position: relative;
+            min-width: 200px;
+            background: $color-light;
+            font-family: inherit;
+
+            button {
+                font-size: 15px;
+                font-weight: normal;
+                font-family: inherit;
+            }
+
+            button.type {
+                justify-content: flex-start;
+                text-transform: none;
+                font-size: 15px;
+                padding: 4px 0 4px 12px;
+                background: $color-light;
+
+                span.label {
+                    flex-grow: 1;
+                    padding-right: 8px;
+                    text-align: left;
+                }
+
+                span.icon {
+                    width: 41px;
+                    svg {
+                        width: 18px;
+                        height: 18px;
+                    }
+                }
+            }
+
+            &.expanded {
+                z-index: 500000;
+            }
+
+            &-menu {
+                border-radius: 0;
+
+                ul {
+                    background-color: $color-grey-light;
+                }
+
+                li {
+                    margin-top: 1px;
+                }
+            }
+        }
+
+        @include breakpoint(xs) {
+            flex-wrap: wrap;
+            background-color: #eaeaea;
+            padding: 1px 1px 0 0;
+
+            > * {
+                margin: 0 0 1px 1px;
+            }
+
+            * {
+                border: none;
+                border-radius: 0;
+            }
+
+            .ar-dropdown {
+                flex-grow: 1;
+                max-width: 200px;
+            }
+
+            .code {
+                flex-grow: 1;
+                max-width: 100%;
+            }
+
+            .replacer {
+                flex-shrink: 0;
+                flex-grow: 1;
+                min-width: calc(100% - 43px);
+            }
+
+            button {
+                border-radius: 0;
+            }
+        }
+
+        @include breakpoint(lg) {
+            flex-wrap: nowrap;
+
+            .code {
+                width: 320px;
+                flex-shrink: 0;
+                flex-grow: 0;
+            }
+
+            .replacer {
+                flex-shrink: 1;
+                flex-grow: 1;
+                min-width: 200px;
+            }
+
+            .ar-dropdown {
+                max-width: 200px;
+            }
+        }
+    }
+}

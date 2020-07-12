@@ -19,8 +19,6 @@ import Reactium, {
     useStore,
 } from 'reactium-core/sdk';
 
-const noop = () => {};
-
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Media
@@ -80,7 +78,7 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
 
     const isEmpty = () => {
         if (isStatus(ENUMS.STATUS.READY)) {
-            return op.get(state, 'data', []).length < 1;
+            return Object.values(op.get(state, 'data', {})).length < 1;
         } else {
             return op.get(reduxState, 'pagination.empty', true);
         }
@@ -157,11 +155,13 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     };
 
     // Side effects
+
     // Fetch
     useAsyncEffect(async () => {
         if (isStatus(ENUMS.STATUS.INIT)) {
             setStatus(ENUMS.STATUS.PENDING);
             await fetch();
+            setStatus(ENUMS.STATUS.READY, true);
         }
     }, [status]);
 
@@ -218,13 +218,14 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
 
     useRegisterHandle(domain.name, () => handle, [handle]);
 
+    console.log(isEmpty(), status);
     // Render
     return (
         <div ref={containerRef}>
             <Helmet>
                 <title>{title}</title>
             </Helmet>
-            {!isStatus([ENUMS.STATUS.INIT, ENUMS.STATUS.PENDING]) ? (
+            {isStatus([ENUMS.STATUS.READY]) ? (
                 <Dropzone
                     {...dropzoneProps}
                     className={cx('dropzone')}
@@ -232,13 +233,15 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
                     onError={onError}
                     onFileAdded={e => onFileAdded(e)}
                     ref={dropzoneRef}>
-                    <Toolbar Media={handle} />
                     <Uploads
                         onRemoveFile={onFileRemoved}
                         uploads={op.get(reduxState, 'uploads', {})}
                     />
                     {!isEmpty() ? (
-                        <List data={search()} />
+                        <>
+                            <Toolbar Media={handle} />
+                            <List data={search()} />
+                        </>
                     ) : (
                         <Empty Media={handle} />
                     )}

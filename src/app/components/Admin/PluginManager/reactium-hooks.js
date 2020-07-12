@@ -1,4 +1,5 @@
 import Reactium from 'reactium-core/sdk';
+import Breadcrumbs from './Breadcrumbs';
 import SidebarWidget from './SidebarWidget';
 import PluginManager from './index';
 
@@ -23,6 +24,13 @@ const pluginManager = async () => {
             component: SidebarWidget,
             zone: ['admin-sidebar-menu'],
             order: 500,
+        });
+
+        Reactium.Zone.addComponent({
+            id: 'PLUGIN-MANAGER-BREADCRUMBS',
+            zone: ['admin-header'],
+            component: Breadcrumbs,
+            order: 0,
         });
     }
 };
