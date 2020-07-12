@@ -5,13 +5,14 @@ import { useEffect, useState } from 'react';
 
 import Reactium, { useAsyncEffect, useStatus } from 'reactium-core/sdk';
 
-export default (id = 'app-settings', defaultCapabilites = []) => {
-    const [capabilities, setCapabilities] = useState(defaultCapabilites);
+export default (id = 'app-settings', defaultCapabilities = [], deps) => {
+    const dependencies = Array.isArray(deps) ? deps : [defaultCapabilities];
+    const [capabilities, setCapabilities] = useState(defaultCapabilities);
     const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.PENDING);
 
     const getCapabilities = async () => {
         // auto register capabilities from appSettingProps.capabilities so they can be unregistered
-        capabilities.forEach(item =>
+        _.flatten([capabilities, defaultCapabilities]).forEach(item =>
             Reactium.Capability.Settings.register(
                 slugify(item.capability),
                 { ...item, zone: id },
@@ -42,7 +43,7 @@ export default (id = 'app-settings', defaultCapabilites = []) => {
 
     useEffect(() => {
         setStatus(ENUMS.STATUS.INIT, true);
-    }, [defaultCapabilites]);
+    }, dependencies);
 
     useEffect(() => {
         if (isStatus(ENUMS.STATUS.LOADED)) {
@@ -51,13 +52,17 @@ export default (id = 'app-settings', defaultCapabilites = []) => {
         }
     }, [status]);
 
-    useAsyncEffect(async () => {
-        if (!isStatus(ENUMS.STATUS.INIT)) return;
-        setStatus(ENUMS.STATUS.LOADING, true);
-        const newCapabilities = await getCapabilities();
-        setStatus(ENUMS.STATUS.LOADED);
-        setCapabilities(newCapabilities);
-    }, [status]);
+    useAsyncEffect(
+        async isMounted => {
+            if (!isStatus(ENUMS.STATUS.INIT)) return;
+            setStatus(ENUMS.STATUS.LOADING);
+            const newCapabilities = await getCapabilities();
+            if (!isMounted()) return;
+            setStatus(ENUMS.STATUS.LOADED);
+            setCapabilities(newCapabilities);
+        },
+        [isStatus(ENUMS.STATUS.INIT)],
+    );
 
     return [
         isStatus(ENUMS.STATUS.READY) ? capabilities : null,
@@ -66,22 +71,23 @@ export default (id = 'app-settings', defaultCapabilites = []) => {
 };
 
 /**
- * @api {ReactHook} useCapabilitySettings(id,defaultCapabilites) useCapabilitySettings()
+ * @api {ReactHook} useCapabilitySettings(id,defaultCapabilities) useCapabilitySettings()
  * @apiVersion 3.2.1
  * @apiName useCapabilitySettings
  * @apiGroup ReactHook
  * @apiDescription React hook that async combines capability settings from a Reactium hook based on the zone parameter and the Registry Object zone value.
 
-Returns the capabilites array and a setter function.
+Returns the capabilities array and a setter function.
 
- * @apiParam {String} zone The Capability Setting zone. The zone value will be appended with `-capabilites` to create a Reactium async/sync hook.
- * @apiParam {Array} defaultCapabilites Array of Capability Setting objects that will be auto registered.
+ * @apiParam {String} zone The Capability Setting zone. The zone value will be appended with `-capabilities` to create a Reactium async/sync hook.
+ * @apiParam {Array} [defaultCapabilities] Array of Capability Setting objects that will be auto registered.
+ * @apiParam {Array} [dependencies] Array of values that will cause a reload of the capabilities. Default: `[defaultCapabilities]`
  * @apiExample Example
 import React from 'react';
 import Reactium from 'reactium-core/sdk';
 
 const CapabilityList = ({ zone = 'my-zone' }) => {
-    // Run the 'my-zone-capabilites' hook which allows plugins to auto register a Regsitry Object. 
+    // Run the 'my-zone-capabilities' hook which allows plugins to auto register a Regsitry Object.
     const { useCapabilitySettings } = Reactium;
     const [capabilities] = useCapabilitySettings(zone);
 

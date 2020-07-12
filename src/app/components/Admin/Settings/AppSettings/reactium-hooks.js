@@ -54,7 +54,7 @@ appSettingsPlugin();
  * @apiParam (Registry Object) {String} capability Value used to identify the capability. Example: `my-component.create`.
  * @apiParam (Registry Object) {String} title Display text.
  * @apiParam (Registry Object) {String} tooltip Help text.
- * @apiParam (Registry Object) {Mixed} [zone] Array|String The AppSettings `id` value. If empty, the capabilites will show up in all AppSettings Capabilites list.
+ * @apiParam (Registry Object) {Mixed} [zone] Array|String The AppSettings `id` value. If empty, the capabilities will show up in all AppSettings Capabilites list.
  * @apiExample Registration
 Reactium.Capability.Settings.register('shortcodes-manage', {
     capability: 'shortcodes.create',

@@ -40,14 +40,7 @@ const registerPublisher = async () => {
 
     Reactium.Hook.register(
         'content-type-capabilities',
-        async (
-            capabilities,
-            type,
-            collection,
-            machineName,
-            ctValue,
-            context,
-        ) => {
+        async (capabilities, type, collection, machineName, ctValue) => {
             const statuses = _.compact(
                 op
                     .get(
@@ -55,18 +48,12 @@ const registerPublisher = async () => {
                         'fields.publisher.statuses',
                         'TRASH,DRAFT,PUBLISHED',
                     )
-                    .split(',')
-                    .filter(
-                        status =>
-                            !['DRAFT', 'TRASH', 'PUBLISHED'].includes(status),
-                    ),
+                    .split(','),
             );
 
-            context.capabilities = [...capabilities];
-
-            if (statuses.length) {
+            if (statuses.length > 0) {
                 statuses.forEach(status => {
-                    context.capabilities.push({
+                    capabilities.push({
                         capability: `${collection}.setStatus-${status}`,
                         title: __('%type: Set %status status')
                             .replace('%type', type)

@@ -1029,12 +1029,12 @@
   },
   {
     "type": "ReactHook",
-    "url": "useCapabilitySettings(id,defaultCapabilites)",
+    "url": "useCapabilitySettings(id,defaultCapabilities)",
     "title": "useCapabilitySettings()",
     "version": "3.2.1",
     "name": "useCapabilitySettings",
     "group": "ReactHook",
-    "description": "<p>React hook that async combines capability settings from a Reactium hook based on the zone parameter and the Registry Object zone value.</p> <p>Returns the capabilites array and a setter function.</p>",
+    "description": "<p>React hook that async combines capability settings from a Reactium hook based on the zone parameter and the Registry Object zone value.</p> <p>Returns the capabilities array and a setter function.</p>",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -1043,13 +1043,13 @@
             "type": "String",
             "optional": false,
             "field": "zone",
-            "description": "<p>The Capability Setting zone. The zone value will be appended with <code>-capabilites</code> to create a Reactium async/sync hook.</p>"
+            "description": "<p>The Capability Setting zone. The zone value will be appended with <code>-capabilities</code> to create a Reactium async/sync hook.</p>"
           },
           {
             "group": "Parameter",
             "type": "Array",
             "optional": false,
-            "field": "defaultCapabilites",
+            "field": "defaultCapabilities",
             "description": "<p>Array of Capability Setting objects that will be auto registered.</p>"
           }
         ]
@@ -1058,7 +1058,7 @@
     "examples": [
       {
         "title": "Example",
-        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n    // Run the 'my-zone-capabilites' hook which allows plugins to auto register a Regsitry Object. \n    const { useCapabilitySettings } = Reactium;\n    const [capabilities] = useCapabilitySettings(zone);\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
+        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\nconst CapabilityList = ({ zone = 'my-zone' }) => {\n    // Run the 'my-zone-capabilities' hook which allows plugins to auto register a Regsitry Object. \n    const { useCapabilitySettings } = Reactium;\n    const [capabilities] = useCapabilitySettings(zone);\n\n    // Render a list\n    return (\n        <ul>\n            {capabilities.map(({ capability, title, tooltip }) => (\n                <li key={capability} data-tooltip={tooltip}>\n                    {capability} - {title}\n                </li>\n            ))}\n        </ul>\n    );\n};",
         "type": "json"
       }
     ],
@@ -2111,7 +2111,7 @@
             "type": "Mixed",
             "optional": true,
             "field": "zone",
-            "description": "<p>Array|String The AppSettings <code>id</code> value. If empty, the capabilites will show up in all AppSettings Capabilites list.</p>"
+            "description": "<p>Array|String The AppSettings <code>id</code> value. If empty, the capabilities will show up in all AppSettings Capabilites list.</p>"
           }
         ]
       }
