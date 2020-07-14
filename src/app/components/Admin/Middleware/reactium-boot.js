@@ -107,7 +107,7 @@ SDK.Hook.registerSync(
     'Server.AppScripts',
     req => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
-            const script = op.get(plugin, 'meta.scriptURL');
+            const script = op.get(plugin, 'meta.assets.admin.script');
             SDK.Server.AppScripts.unregister(plugin.ID);
             if (script && plugin.active) {
                 const url = !/^http/.test(script) ? '/api' + script : script;
@@ -125,7 +125,7 @@ SDK.Hook.registerSync(
     'Server.AppStyleSheets',
     req => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
-            const style = op.get(plugin, 'meta.styleURL');
+            const style = op.get(plugin, 'meta.assets.admin.style');
             SDK.Server.AppStyleSheets.unregister(plugin.ID);
             if (style && plugin.active) {
                 const url = !/^http/.test(style) ? '/api' + style : style;

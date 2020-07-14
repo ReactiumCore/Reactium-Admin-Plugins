@@ -12,7 +12,7 @@ const Card = ({ plugin, canActivate = true }) => {
     const defaultGraphic = core
         ? '/assets/images/atomic-reactor-logo.svg'
         : '/assets/images/plugin.svg';
-    let graphic = op.get(plugin, 'meta.logoURL', defaultGraphic);
+    let graphic = op.get(plugin, 'meta.assets.admin.logo', defaultGraphic);
     if (!/^http/.test(graphic) && graphic !== defaultGraphic) {
         if (typeof window !== 'undefined')
             graphic = (window.restAPI || '/api') + graphic;
