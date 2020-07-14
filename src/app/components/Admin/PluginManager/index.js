@@ -10,6 +10,7 @@ import PluginList from './List';
 import PluginSettings from './Settings';
 import domain from './domain';
 import lunr from 'lunr';
+import _ from 'underscore';
 
 const getPlugins = async () => {
     const { plugins } = await Reactium.Cloud.run('plugins');
@@ -50,16 +51,10 @@ const PluginManager = memo(props => {
         refreshPlugins();
     }, [pluginId]);
 
-    const groups = {
-        core: __('Core'),
-        mail: __('Mailers'),
-        FilesAdapter: __('File Adapters'),
-        utilities: __('Utilities'),
-        search: __('Search'),
-        other: __('Other'),
-    };
-
-    Reactium.Hook.run('plugin-group-labels', groups);
+    const groups = {};
+    Reactium.Plugin.Groups.list.forEach(
+        ({ id, label }) => (groups[id] = label),
+    );
 
     const allPlugins = plugins.map(plugin => {
         const group = op.get(plugin, 'meta.group', 'other');
