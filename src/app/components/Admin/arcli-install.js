@@ -1,7 +1,6 @@
 const path = require('path');
 const chalk = require('chalk');
 const fs = require('fs-extra');
-const _ = require('underscore');
 const globby = require('globby');
 const op = require('object-path');
 const mod = path.dirname(require.main.filename);
@@ -15,6 +14,7 @@ module.exports = spinner => {
     const normalize = (...args) => path.normalize(path.join(...args));
 
     let cwd, append, insert, pluginDirectory, prompt, scss, stylePaths, styles;
+
     return {
         init: async ({ params, props }) => {
             cwd = op.get(props, 'cwd');
@@ -76,7 +76,7 @@ module.exports = spinner => {
                 })
                 .join('');
 
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 prompt.override = { append };
                 prompt.get(
                     [
@@ -151,7 +151,7 @@ module.exports = spinner => {
                 );
             });
         },
-        inject: ({ params, props }) => {
+        inject: () => {
             if (!insert) return;
 
             const getPath = (filepath, scss) => {

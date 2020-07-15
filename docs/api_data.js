@@ -2208,6 +2208,37 @@ define({ "api": [
   },
   {
     "type": "Function",
+    "url": "Component.get(hook,defaultComponent)",
+    "title": "Component.get()",
+    "group": "Reactium.Component",
+    "name": "Component.get",
+    "description": "<p>Call the hook and obtain the registered component. Get the defaultComponent if no hook component was registered.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "hook",
+            "description": "<p>The hook name</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Mixed",
+            "optional": true,
+            "field": "defaultComponent",
+            "description": "<p>the default component if no component is provided</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/component/index.js",
+    "groupTitle": "Reactium.Component"
+  },
+  {
+    "type": "Function",
     "url": "Component.register(hook,component,order,capabilities,strict)",
     "title": "Component.register()",
     "group": "Reactium.Component",
