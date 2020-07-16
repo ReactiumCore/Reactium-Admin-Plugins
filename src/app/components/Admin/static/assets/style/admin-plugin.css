@@ -29773,6 +29773,9 @@ body {
 .ar-alert .content {
     padding-bottom: 0;
 }
+.ar-data-table-heading.center {
+    text-align: center !important;
+}
 .admin-page .zone-admin-header {
     z-index: 7000;
     position: fixed;
