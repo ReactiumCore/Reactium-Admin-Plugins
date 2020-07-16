@@ -34,7 +34,7 @@ define({ "api": [
     "type": "Hook",
     "url": "default-blueprint",
     "title": "default-blueprint",
-    "description": "<p>Hook run on blueprint routing subscription to provide default blueprint if none exists for a route. In your hook implementation, you may modify the default blueprint object as a side-effect.</p>",
+    "description": "<p>Hook defining default blueprint configuration if none has been provided that matches the current routes' blueprint id.</p>",
     "name": "default-blueprint",
     "group": "Actinium-Admin.Hooks",
     "parameter": {

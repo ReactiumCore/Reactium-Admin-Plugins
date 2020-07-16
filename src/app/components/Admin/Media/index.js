@@ -218,7 +218,6 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
 
     useRegisterHandle(domain.name, () => handle, [handle]);
 
-    console.log(isEmpty(), status);
     // Render
     return (
         <div ref={containerRef}>

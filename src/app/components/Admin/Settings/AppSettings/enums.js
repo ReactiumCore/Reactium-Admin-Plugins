@@ -32,6 +32,11 @@ export default {
                 ),
             },
             {
+                capability: 'content-ui.view',
+                title: __('UI: Content Admin Pages'),
+                tooltip: __('Able to view the content editors when logged in.'),
+            },
+            {
                 capability: 'setting.app-get',
                 title: __('Setting: View Application Settings group'),
                 tooltip: __('Able to see the application settings page.'),

@@ -5,7 +5,7 @@ import SidebarWidget from './SidebarWidget';
 const PLUGIN = 'admin-settings';
 
 const settingsPlugin = async () => {
-    await Reactium.Plugin.register(PLUGIN);
+    await Reactium.Plugin.register(PLUGIN, -100000);
 
     const canView = await Reactium.Capability.check(
         ['Capability.create', 'Capability.update'],
