@@ -44,7 +44,7 @@ module.exports = spinner => {
                 return gulp
                     .src(src)
                     .pipe(
-                        sass.sync({
+                        sass({
                             functions: jsonFunctions,
                             importer: tildeImporter,
                             includePaths: [node_modules],
@@ -61,6 +61,9 @@ module.exports = spinner => {
 
             // second to run
             await gulp.task('styles')();
+
+            // Wait awhile before exiting the function to ensure the gulp task completes
+            return new Promise(resolve => setTimeout(resolve, 10000));
         },
         complete: () => {
             spinner.stopAndPersist({
@@ -68,6 +71,7 @@ module.exports = spinner => {
                 symbol: chalk.green('✔'),
             });
             console.log('');
+            return new Promise(resolve => setTimeout(resolve, 1000));
         },
     };
 };
