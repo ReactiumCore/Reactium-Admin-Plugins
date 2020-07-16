@@ -13,6 +13,7 @@ const jsonFunctions = require('node-sass-functions-json').default;
 
 module.exports = spinner => {
     let cwd;
+    const message = (...text) => (spinner.text = text.join(' '));
     const normalize = (...args) => path.normalize(path.join(...args));
 
     const nodeModulesDir = dir => {
@@ -32,13 +33,10 @@ module.exports = spinner => {
             cwd = op.get(props, 'cwd');
         },
         compileCSS: async () => {
-            const src = '**/_admin-plugin.scss';
+            const src = '**/admin-plugin.scss';
             const dest = normalize(cwd, 'static', 'assets', 'style');
 
-            spinner.stopAndPersist({
-                text: ['Generating', chalk.cyan('admin-plugin.css')].join(' '),
-                symbol: chalk.cyan('+'),
-            });
+            message('Generating', chalk.cyan('admin-plugin.css'));
 
             const node_modules = nodeModulesDir(cwd);
 
@@ -46,7 +44,7 @@ module.exports = spinner => {
                 return gulp
                     .src(src)
                     .pipe(
-                        sass({
+                        sass.sync({
                             functions: jsonFunctions,
                             importer: tildeImporter,
                             includePaths: [node_modules],

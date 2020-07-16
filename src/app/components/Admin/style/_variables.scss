@@ -1,95 +1,19 @@
-// THEME
-$color-danger: #E09797 !default;
-$color-primary: #4F82BA !default;
+// COLORS
+$color-danger: #e09797 !default;
+$color-primary: #4f82ba !default;
 $color-secondary: #000000 !default;
 $color-tertiary: #999999 !default;
-$color-light: #FFFFFF !default;
-$color-light-dark: #FDFDFD !default;
+$color-light: #ffffff !default;
+$color-light-dark: #fdfdfd !default;
 $color-dark: #333333 !default;
 $color-dark-light: #222222 !default;
 
-$color-text-light: #FFFFFF !default;
-$color-text-light-dark: #FDFDFD !default;
+$color-text-light: #ffffff !default;
+$color-text-light-dark: #fdfdfd !default;
 $color-text-dark: #000000 !default;
 $color-text-dark-light: #222222 !default;
 
-
 // Colors
-$color-border: #F7F7F7 !default;
+$color-border: #f7f7f7 !default;
 
-// Link Icon
-$fill-focus-icon-link: $color-primary !default;
-$stroke-focus-icon-link: $color-black !default;
-
-// Spacing
-$padding-default: 24px !default;
-$padding-admin-content-zone: $padding-default !default;
-$padding-settings-dialog: $padding-default !default;
-
-// Background
-$color-admin-bg: $color-grey-light !default;
-
-// Admin Header
-$color-admin-header: $color-gray !default;
-$color-admin-header-bg: $color-light !default;
-$color-admin-header-border: $color-grey-light !default;
-$height-admin-header: 60px !default;
-$height-admin-header-button: 30px !default;
-$height-admin-list-toolbar: 90px !default;
-
-// Sidebar
-$color-sidebar-bg: $color-dark !default;
-$color-sidebar-text: $color-grey-light !default;
-$font-size-sidebar: 14px !default;
-$width-sidebar-expanded: 320px !default;
-$width-sidebar-collapsed: 80px !default;
-
-// Sidebar menu
-$color-menu-item-active: $color-primary !default;
-$font-size-menu-item: 16px !default;
-$font-weight-menu-item: 500 !default;
-$width-menu-item: 50px !default;
-$height-menu-item: 60px !default;
-$height-menu-item-expanded: 40px !default;
-$admin-sidebar-ns: admin-sidebar !default;
-
-// Avatar
-$color-avatar-stroke: $color-dark !default;
-$color-avatar-text: $color-grey-light !default;
-
-// Profile
-$width-profile-avatar: 124px !default;
-$width-profile-avatar-button: 30px !default;
-
-// Media
-$width-upload-action-button: 30px !default;
-$height-media-form: calc(100vh - #{$height-admin-header}) !default;
-$width-media-form: 420px !default;
-$shadow-image: 0 0 5px 1px rgba(0, 0, 0, 0.05) !default;
-
-// Content List
-$admin-content-list-height: 80px !default;
-$admin-content-list-ns: admin-content-list !default;
-
-// Content Editor
-$width-ace-sidebar: 420px !default;
-$admin-content-ns: admin-content !default;
-
-// User List
-$admin-user-list-ns: admin-user-list !default;
-
-// Placeholder
-$color-place-holder: $color-grey-light !default;
-
-$z-indexes: (
-    "popup": 20000,
-    "overlay": 10000,
-    "sidebar": 9000,
-    "actions": 8000,
-    "header": 7000,
-    "content": 100,
-    "normal": 1,
-    "default": 0
-) !default;
-
-$input-color-border: #F3F3F3 !default;
+$input-color-border: #f3f3f3 !default;

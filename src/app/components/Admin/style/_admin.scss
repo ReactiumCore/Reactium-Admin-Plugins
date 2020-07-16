@@ -1,7 +1,14 @@
+// Colors
+@import 'colors';
+
+// Variables
+@import 'variables';
+
+// Reactium UI
 @import '~@atomic-reactor/reactium-ui/assets/style/reactium-ui';
 
-// Admin variables
-@import 'variables';
+// Admin theme
+@import 'theme';
 
 // Admin mixins
 @import 'mixins';
