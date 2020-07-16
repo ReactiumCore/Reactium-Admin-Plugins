@@ -80,24 +80,24 @@ SDK.Server.Middleware.register('plugins', {
     order: Enums.priority.highest,
 });
 
-SDK.Hook.registerSync('Server.AppGlobals', req => {
-    SDK.Server.AppGlobals.register('settings', {
+SDK.Hook.registerSync('Server.AppGlobals', (req, AppGlobals) => {
+    AppGlobals.register('settings', {
         value: req.settings,
         order: Enums.priority.highest,
     });
-    SDK.Server.AppGlobals.register('blueprints', {
+    AppGlobals.register('blueprints', {
         value: req.blueprints,
         order: Enums.priority.highest,
     });
-    SDK.Server.AppGlobals.register('routesConfig', {
+    AppGlobals.register('routesConfig', {
         value: req.routesConfig,
         order: Enums.priority.highest,
     });
-    SDK.Server.AppGlobals.register('routes', {
+    AppGlobals.register('routes', {
         value: req.routes,
         order: Enums.priority.highest,
     });
-    SDK.Server.AppGlobals.register('plugins', {
+    AppGlobals.register('plugins', {
         value: req.plugins,
         order: Enums.priority.highest,
     });
@@ -105,13 +105,13 @@ SDK.Hook.registerSync('Server.AppGlobals', req => {
 
 SDK.Hook.registerSync(
     'Server.AppScripts',
-    req => {
+    (req, AppScripts) => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
             const script = op.get(plugin, 'meta.assets.admin.script');
-            SDK.Server.AppScripts.unregister(plugin.ID);
+            AppScripts.unregister(plugin.ID);
             if (script && plugin.active) {
                 const url = !/^http/.test(script) ? '/api' + script : script;
-                SDK.Server.AppScripts.register(plugin.ID, {
+                AppScripts.register(plugin.ID, {
                     path: url,
                     order: Enums.priority.high,
                 });
@@ -123,13 +123,13 @@ SDK.Hook.registerSync(
 
 SDK.Hook.registerSync(
     'Server.AppStyleSheets',
-    req => {
+    (req, AppStyleSheets) => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
             const style = op.get(plugin, 'meta.assets.admin.style');
-            SDK.Server.AppStyleSheets.unregister(plugin.ID);
+            AppStyleSheets.unregister(plugin.ID);
             if (style && plugin.active) {
                 const url = !/^http/.test(style) ? '/api' + style : style;
-                SDK.Server.AppStyleSheets.register(plugin.ID, {
+                AppStyleSheets.register(plugin.ID, {
                     path: url,
                     order: Enums.priority.high,
                 });

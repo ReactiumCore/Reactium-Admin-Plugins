@@ -74,7 +74,7 @@ Reactium.Hook.register(
  */
 Reactium.Routing.subscribe(async () => {
     await Reactium.Hook.run('default-blueprint', defaultBlueprint);
-    Reactium.Routing.routes.forEach(route => {
+    Reactium.Routing.get().forEach(route => {
         if (route.component === Blueprint && !route.load) {
             const config = op.get(routesConfig, route.path);
             const blueprint = op.get(
