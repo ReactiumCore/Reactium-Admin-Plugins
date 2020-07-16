@@ -6570,7 +6570,28 @@ define({ "api": [
     "url": "Routing.unregister(id)",
     "title": "Routing.unregister()",
     "name": "Routing.unregister",
-    "description": "<p>Unregister an existing route, by id. Note: You can not unregister the 'NotFound' component. You can only replace it using the <code>404-component</code> hook.</p>",
+    "description": "<p>Unregister an existing route, by id. Note: You can not unregister the 'NotFound' component. You can only replace it using the registering a NotFound component with Reactium.Component.register().</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>the route id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": true,
+            "field": "update",
+            "defaultValue": "true",
+            "description": "<p>update subscribers</p>"
+          }
+        ]
+      }
+    },
     "group": "Reactium.Routing",
     "version": "0.0.0",
     "filename": ".core/sdk/routing/index.js",
