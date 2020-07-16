@@ -4,11 +4,8 @@ import ReactHelmet from 'react-helmet';
 import Blueprint from './index';
 import actions from './actions';
 import op from 'object-path';
-
-let blueprints =
-    typeof window !== 'undefined' ? window.blueprints : global.blueprints;
-let routesConfig =
-    typeof window !== 'undefined' ? window.routesConfig : global.routesConfig;
+import _ from 'underscore';
+import { Redirect } from 'react-router-dom';
 
 const defaultBlueprint = {
     sections: {
@@ -34,59 +31,136 @@ const defaultBlueprint = {
     className: 'Blueprint',
 };
 
-Reactium.Component.register('Blueprint', Blueprint);
+Reactium.Hook.register('routes-init', async () => {
+    Reactium.Component.register('Blueprint', Blueprint);
 
-// Implement `helmet-props` hook with priority order than highest
-// in your plugin to override these values
-Reactium.Hook.register(
-    'helmet-props',
-    async context => {
-        context.props = {
-            titleTemplate: __('%s - Reactium CMS'),
-        };
-    },
-    Reactium.Enums.priority.highest,
-);
+    // Build Blueprint Registry
+    Reactium.Blueprint = Reactium.Utils.registryFactory(
+        'Blueprint',
+        'ID',
+        Reactium.Utils.Registry.MODES.CLEAN,
+    );
 
-Reactium.Hook.register(
-    'plugin-init',
-    async () => {
-        const context = await Reactium.Hook.run('helmet-props');
+    /**
+     * @api {Hook} default-blueprint default-blueprint
+     * @apiDescription Hook defining default blueprint configuration if none has been provided that matches the current routes' blueprint id.
+     * @apiName default-blueprint
+     * @apiGroup Actinium-Admin.Hooks
+     * @apiParam {Object} defaultBlueprint The default blueprint object.
+     */
 
-        const helmetProps = op.get(context, 'props', {});
-        const Helmet = props => {
-            const { children = null } = props;
-            return <ReactHelmet {...helmetProps}>{children}</ReactHelmet>;
-        };
-
-        Reactium.Component.register('Helmet', Helmet);
-    },
-    Reactium.Enums.priority.lowest,
-);
-
-/**
- * @api {Hook} default-blueprint default-blueprint
- * @apiDescription Hook run on blueprint routing subscription to provide default
- blueprint if none exists for a route. In your hook implementation, you may modify the default blueprint object as a side-effect.
- * @apiName default-blueprint
- * @apiGroup Actinium-Admin.Hooks
- * @apiParam {Object} defaultBlueprint The default blueprint object.
- */
-Reactium.Routing.subscribe(async () => {
     await Reactium.Hook.run('default-blueprint', defaultBlueprint);
-    Reactium.Routing.get().forEach(route => {
-        if (route.component === Blueprint && !route.load) {
-            const config = op.get(routesConfig, route.path);
-            const blueprint = op.get(
-                blueprints,
-                op.get(config, 'blueprint', 'default'),
-                defaultBlueprint,
-            );
+    Reactium.Blueprint.register(defaultBlueprint.ID, defaultBlueprint);
+    (await Reactium.Cloud.run('blueprints')).forEach(bp =>
+        Reactium.Blueprint.register(bp.ID, bp),
+    );
+    await Reactium.Hook.run('blueprints', Reactium.Blueprint);
 
-            op.set(route, 'blueprint', blueprint);
-            op.set(route, 'routeConfig', config);
+    // Load Routes
+    const { routes = [] } = await Reactium.Cloud.run('routes');
 
-            route.load = actions.loadFactory(route, config, blueprint);
+    // gather relevant route capabilities ahead of time
+    let permissions = {};
+    const capChecks = {};
+    routes.forEach(route => {
+        const isPermitted = op.get(route, 'permitted');
+        if (typeof isPermitted === 'boolean') {
+            permissions[route.objectId] = isPermitted;
+            return;
         }
+
+        const capabilities = _.chain([op.get(route, 'capabilities')])
+            .flatten()
+            .compact()
+            .value()
+            .filter(cap => typeof cap === 'string');
+
+        if (Array.isArray(capabilities) && capabilities.length > 0)
+            op.set(capChecks, route.objectId, { capabilities, strict: false });
     });
+
+    // check permissions in bulk for current user
+    if (Object.keys(capChecks).length > 0) {
+        try {
+            permissions = {
+                ...permissions,
+                ...(await Reactium.Cloud.run('capability-bulk-check', {
+                    checks: capChecks,
+                })),
+            };
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+    }
+
+    // Register All routes User has permission to see
+    for (const r of routes) {
+        const { objectId: id, route: path, blueprint, meta, capabilities } = r;
+        const route = {
+            id,
+            path,
+            order: op.get(r, 'meta.order', Reactium.Enums.priority.normal),
+            meta,
+            blueprint: Reactium.Blueprint.get(blueprint) || defaultBlueprint,
+            capabilities,
+        };
+
+        if (op.get(permissions, id, true) === true) {
+            op.set(
+                route,
+                'load',
+                actions.loadFactory(
+                    route,
+                    {
+                        blueprint,
+                        capabilities,
+                        meta,
+                    },
+                    route.blueprint,
+                ),
+            );
+            op.set(route, 'component', Blueprint);
+        } else {
+            op.del(route, 'load');
+            op.set(route, 'component', () => <Redirect to={'/login'} />);
+        }
+
+        await Reactium.Routing.register(route);
+    }
+
+    // If there is no / route, create a redirect to /admin
+    if (!routes.find(({ path }) => path === '/')) {
+        await Reactium.Routing.register({
+            id: 'admin-redirect',
+            path: '/',
+            exact: true,
+            component: () => <Redirect to={'/admin'} />,
+            order: Reactium.Enums.priority.highest,
+        });
+    }
+});
+
+Reactium.Hook.register('plugin-init', async () => {
+    // Implement `helmet-props` hook with priority order than highest
+    // in your plugin to override these values
+    Reactium.Hook.register(
+        'helmet-props',
+        async context => {
+            context.props = {
+                titleTemplate: __('%s - Reactium CMS'),
+            };
+        },
+        Reactium.Enums.priority.highest,
+    );
+
+    const context = await Reactium.Hook.run('helmet-props');
+    const helmetProps = op.get(context, 'props', {});
+
+    const Helmet = props => {
+        const { children = null } = props;
+        return <ReactHelmet {...helmetProps}>{children}</ReactHelmet>;
+    };
+
+    Reactium.Component.register('Helmet', Helmet);
 });

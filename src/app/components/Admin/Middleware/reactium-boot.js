@@ -1,35 +1,12 @@
 const SDK = require('@atomic-reactor/reactium-sdk-core').default;
 const Enums = SDK.Enums;
-
-const {
-    settings,
-    routes,
-    blueprints,
-    plugins,
-} = require('./middlewares/config');
-
+const { plugins } = require('./middlewares/config');
 const { forceSSL } = require('./middlewares/forceSSL');
 const proxy = require('http-proxy-middleware');
 const op = require('object-path');
 const _ = require('underscore');
-
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
-
-const isMod = () => {
-    const d = path.normalize(
-        path.join(
-            process.cwd(),
-            'reactium_modules',
-            '@atomic-reactor',
-            'admin',
-            'static',
-        ),
-    );
-
-    if (fs.existsSync(d)) return d;
-};
 
 const isSrc = () => {
     const d = path.normalize(
@@ -56,24 +33,6 @@ SDK.Server.Middleware.register('forceSSL', {
     order: Enums.priority.highest,
 });
 
-SDK.Server.Middleware.register('settings', {
-    name: 'settings',
-    use: settings,
-    order: Enums.priority.highest,
-});
-
-SDK.Server.Middleware.register('blueprints', {
-    name: 'blueprints',
-    use: blueprints,
-    order: Enums.priority.highest,
-});
-
-SDK.Server.Middleware.register('frontEndRoutes', {
-    name: 'frontEndRoutes',
-    use: routes,
-    order: Enums.priority.highest,
-});
-
 SDK.Server.Middleware.register('plugins', {
     name: 'plugins',
     use: plugins,
@@ -81,22 +40,6 @@ SDK.Server.Middleware.register('plugins', {
 });
 
 SDK.Hook.registerSync('Server.AppGlobals', (req, AppGlobals) => {
-    AppGlobals.register('settings', {
-        value: req.settings,
-        order: Enums.priority.highest,
-    });
-    AppGlobals.register('blueprints', {
-        value: req.blueprints,
-        order: Enums.priority.highest,
-    });
-    AppGlobals.register('routesConfig', {
-        value: req.routesConfig,
-        order: Enums.priority.highest,
-    });
-    AppGlobals.register('routes', {
-        value: req.routes,
-        order: Enums.priority.highest,
-    });
     AppGlobals.register('plugins', {
         value: req.plugins,
         order: Enums.priority.highest,
