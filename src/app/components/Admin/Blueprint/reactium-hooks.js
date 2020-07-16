@@ -60,8 +60,15 @@ Reactium.Hook.register('routes-init', async () => {
     const { routes = [] } = await Reactium.Cloud.run('routes');
 
     // gather relevant route capabilities ahead of time
+    let permissions = {};
     const capChecks = {};
     routes.forEach(route => {
+        const isPermitted = op.get(route, 'permitted');
+        if (typeof isPermitted === 'boolean') {
+            permissions[route.objectId] = isPermitted;
+            return;
+        }
+
         const capabilities = _.chain([op.get(route, 'capabilities')])
             .flatten()
             .compact()
@@ -73,12 +80,14 @@ Reactium.Hook.register('routes-init', async () => {
     });
 
     // check permissions in bulk for current user
-    let permissions = {};
     if (Object.keys(capChecks).length > 0) {
         try {
-            permissions = await Reactium.Cloud.run('capability-bulk-check', {
-                checks: capChecks,
-            });
+            permissions = {
+                ...permissions,
+                ...(await Reactium.Cloud.run('capability-bulk-check', {
+                    checks: capChecks,
+                })),
+            };
         } catch (error) {
             console.error(error);
             return;
