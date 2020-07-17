@@ -75,7 +75,13 @@ const RoleControl = ({
     const disabled = !canSet || (anonymous && name !== 'anonymous');
 
     return (
-        <Checkbox checked={checked} onChange={onChange} disabled={disabled} />
+        <Checkbox
+            checked={checked}
+            onChange={onChange}
+            disabled={disabled}
+            label={name}
+            labelAlign='right'
+        />
     );
 };
 
