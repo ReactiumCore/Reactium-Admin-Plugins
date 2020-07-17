@@ -1,11 +1,12 @@
 .capability-editor {
     .ar-data-table {
+        overflow-x: auto;
+        
         .ar-data-table-heading {
             display: none;
         }
 
         @include breakpoint(lg) {
-            overflow-x: hidden;
 
             .ar-data-table-heading {
                 display: flex;

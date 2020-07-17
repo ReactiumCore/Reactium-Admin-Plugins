@@ -28263,13 +28263,13 @@ body.fullscreen [data-fullscreen='flex'] {
 .admin-confirm-box-buttons > button {
     min-width: 80px;
 }
+.capability-editor .ar-data-table {
+    overflow-x: auto;
+}
 .capability-editor .ar-data-table .ar-data-table-heading {
     display: none;
 }
 @media only screen and (min-width: 1281px) {
-    .capability-editor .ar-data-table {
-        overflow-x: hidden;
-    }
     .capability-editor .ar-data-table .ar-data-table-heading {
         display: flex;
     }
