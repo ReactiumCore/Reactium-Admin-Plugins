@@ -28263,56 +28263,59 @@ body.fullscreen [data-fullscreen='flex'] {
 .admin-confirm-box-buttons > button {
     min-width: 80px;
 }
-.capability-editor .ar-data-table .ar-checkbox-label-right > span:first-child {
+.capability-editor .ar-data-table .ar-data-table-heading {
     display: none;
 }
-@media only screen and (max-width: 640px) {
+@media only screen and (min-width: 1281px) {
     .capability-editor .ar-data-table {
-        overflow-x: auto;
+        overflow-x: hidden;
     }
     .capability-editor .ar-data-table .ar-data-table-heading {
-        display: none;
+        display: flex;
     }
     .capability-editor
         .ar-data-table
         .ar-checkbox-label-right
         > span:first-child {
-        display: inline;
+        display: none;
     }
 }
 .capability-editor .ar-data-table-col,
 .capability-editor .ar-data-table-heading {
     flex-shrink: 0;
+    font-size: 10px;
 }
 .capability-editor .ar-data-table-col:first-child,
 .capability-editor .ar-data-table-heading:first-child {
     flex-shrink: 1;
+    min-width: 280px !important;
 }
-@media only screen and (max-width: 640px) {
+@media only screen and (min-width: 1281px) {
     .capability-editor .ar-data-table-col:first-child,
     .capability-editor .ar-data-table-heading:first-child {
-        min-width: 200px !important;
+        min-width: 0 !important;
     }
 }
 .capability-editor .ar-data-table-col:not(:first-child):not(:last-child),
 .capability-editor .ar-data-table-heading:not(:first-child):not(:last-child) {
-    max-width: 150px !important;
-    min-width: 0 !important;
-    flex-grow: 0 !important;
+    width: 100px !important;
+    max-width: 100px !important;
+    min-width: 100px !important;
 }
-@media only screen and (max-width: 640px) {
+@media only screen and (min-width: 1281px) {
     .capability-editor .ar-data-table-col:not(:first-child):not(:last-child),
     .capability-editor
         .ar-data-table-heading:not(:first-child):not(:last-child) {
-        width: 100px !important;
-        min-width: 100px !important;
-        max-width: 100px !important;
+        width: 160px !important;
+        max-width: 160px !important;
+        min-width: 0 !important;
+        flex-grow: 0 !important;
     }
 }
-@media only screen and (max-width: 640px) {
+@media only screen and (min-width: 1281px) {
     .capability-editor .ar-data-table-col,
     .capability-editor .ar-data-table-heading {
-        font-size: 10px;
+        font-size: 14px;
     }
 }
 .capability-editor .ar-data-table-col-clear,

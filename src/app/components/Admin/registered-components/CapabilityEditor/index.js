@@ -231,7 +231,7 @@ const CapabilityEditor = ({
         }, columns);
 
         columns.clear = {
-            width: 42,
+            width: 43,
         };
 
         return columns;

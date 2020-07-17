@@ -1,18 +1,18 @@
 .capability-editor {
     .ar-data-table {
-        .ar-checkbox-label-right > span:first-child {
+        .ar-data-table-heading {
             display: none;
         }
 
-        @include breakpoint(xs-only) {
-            overflow-x: auto;
+        @include breakpoint(lg) {
+            overflow-x: hidden;
 
             .ar-data-table-heading {
-                display: none;
+                display: flex;
             }
 
             .ar-checkbox-label-right > span:first-child {
-                display: inline;
+                display: none;
             }
         }
     }
@@ -20,31 +20,35 @@
     .ar-data-table-col,
     .ar-data-table-heading {
         flex-shrink: 0;
+        font-size: 10px;
 
         &:first-child {
             flex-shrink: 1;
-            @include breakpoint(xs-only) {
-                min-width: 200px !important;
+            min-width: 280px !important;
+
+            @include breakpoint(lg) {
+                min-width: 0 !important;
             }
         }
 
         &:not(:first-child) {
             &:not(:last-child) {
-                max-width: 150px !important;
-                min-width: 0 !important;
+                width: 100px !important;
+                max-width: 100px !important;
+                min-width: 100px !important;
 
-                flex-grow: 0 !important;
+                @include breakpoint(lg) {
+                    width: 160px !important;
+                    max-width: 160px !important;
+                    min-width: 0 !important;
 
-                @include breakpoint(xs-only) {
-                    width: 100px !important;
-                    min-width: 100px !important;
-                    max-width: 100px !important;
+                    flex-grow: 0 !important;
                 }
             }
         }
 
-        @include breakpoint(xs-only) {
-            font-size: 10px;
+        @include breakpoint(lg) {
+            font-size: 14px;
         }
     }
 
