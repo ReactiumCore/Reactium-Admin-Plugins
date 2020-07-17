@@ -1,30 +1,60 @@
 .capability-editor {
-    .ar-data-table-col, .ar-data-table-heading {
+    .ar-data-table {
+        @include breakpoint(xs-only) {
+            overflow-x: auto;
+        }
+    }
+
+    .ar-data-table-col,
+    .ar-data-table-heading {
+        flex-shrink: 0;
+
         &:first-child {
+            flex-shrink: 1;
+            @include breakpoint(xs-only) {
+                min-width: 200px !important;
+            }
+        }
+
+        &:not(:first-child) {
+            max-width: 150px !important;
+            min-width: 0 !important;
+
+            flex-grow: 0 !important;
+
+            @include breakpoint(xs-only) {
+                width: 100px !important;
+                min-width: 100px !important;
+                max-width: 100px !important;
+            }
+        }
+
+        @include breakpoint(xs-only) {
+            font-size: 10px;
+        }
+    }
+
+    .ar-data-table-col-clear,
+    .ar-data-table-heading-clear {
+        display: none;
+        @include breakpoint(sm) {
+            display: flex;
             padding: 0;
             justify-content: center;
             align-items: center;
-        }
-
-        &:nth-child(2) {
-            padding-left: 4px;
-        }
-    }
-    .ar-data-table-heading {
-        @include breakpoint(sm-down) {
-            word-wrap: break-word;
-            font-size: 12px;
+            flex-shrink: 0;
         }
     }
 
     .clear-cap {
         padding: 0;
         margin: 0;
-        border-radius: 50%;
+        width: 20px;
+        height: 20px;
 
         svg {
-            width: 10px;
-            height: 10px;
+            width: 14px;
+            height: 14px;
         }
     }
 }

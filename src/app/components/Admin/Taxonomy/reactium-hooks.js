@@ -55,6 +55,43 @@ Reactium.Plugin.register('Taxonomy-plugin').then(() => {
         order: 100,
     });
 
+    /*
+    Reactium.Capability.Settings.register('media-ui.view', {
+        capability: 'media-ui.view',
+        title: __('UI: Media'),
+        tooltip: __('Able to view the media library when logged in.'),
+        zone: 'app-settings',
+    });
+
+    Reactium.Capability.Settings.register('Media.retrieve', {
+        capability: 'Media.retrieve',
+        title: __('Media: Retrieve'),
+        tooltip: __('Able to retrieve media when logged in.'),
+        zone: 'app-settings',
+    });
+
+    Reactium.Capability.Settings.register('Media.create', {
+        capability: 'Media.create',
+        title: __('Media: Create'),
+        tooltip: __('Able to create media when logged in.'),
+        zone: 'app-settings',
+    });
+
+    Reactium.Capability.Settings.register('Media.update', {
+        capability: 'Media.update',
+        title: __('Media: Update'),
+        tooltip: __('Able to update media when logged in.'),
+        zone: 'app-settings',
+    });
+
+    Reactium.Capability.Settings.register('Media.delete', {
+        capability: 'Media.delete',
+        title: __('Media: Delete'),
+        tooltip: __('Able to delete media when logged in.'),
+        zone: 'app-settings',
+    });
+    */
+
     Reactium.Component.register('AdminChecklist', Checklist);
     Reactium.Component.register('AdminTagbox', Tagbox);
     Reactium.Component.register('TaxonomyEditor', TaxonomyEditor);

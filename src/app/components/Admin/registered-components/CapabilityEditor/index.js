@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
 import {
     Button,
@@ -134,6 +134,8 @@ const CapabilityEditor = ({
             maxPermWidth = 85;
     }
 
+    const clearLabel = __('Clear roles');
+
     const capNames = capabilities.map(({ capability }) => capability);
     useAsyncEffect(
         async isMounted => {
@@ -149,9 +151,7 @@ const CapabilityEditor = ({
         [capNames.sort().join('')],
     );
 
-    const clearCap = capName => {
-        save(capName, { allowed: [], excluded: [] });
-    };
+    const clearCap = capName => save(capName, { allowed: [], excluded: [] });
 
     const addRole = capName => role => {
         const excluded = op.get(loadedCaps, ['caps', capName, 'excluded'], []);
@@ -173,7 +173,7 @@ const CapabilityEditor = ({
 
     const save = (capName, perms) => {
         // updateLoadedCaps({ loading: true });
-        Reactium.Cloud.run('capability-edit', {
+        return Reactium.Cloud.run('capability-edit', {
             capability: capName,
             perms,
         })
@@ -207,9 +207,6 @@ const CapabilityEditor = ({
 
     const getColumns = () => {
         const columns = {
-            clear: {
-                width: '32px',
-            },
             capability: {
                 label: __('Capability'),
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
@@ -226,6 +223,10 @@ const CapabilityEditor = ({
             };
             return columns;
         }, columns);
+
+        columns.clear = {
+            width: 42,
+        };
 
         return columns;
     };
@@ -254,13 +255,12 @@ const CapabilityEditor = ({
         }, {});
     };
 
-    const clearLabel = __('Clear roles');
     const data = capabilities.map(cap => ({
         clear: (
             <Button
                 className='clear-cap'
                 data-tooltip={clearLabel}
-                data-vertical-align='top'
+                data-vertical-align='middle'
                 data-align='left'
                 color={Button.ENUMS.COLOR.DANGER}
                 onClick={() => clearCap(cap.capability)}>

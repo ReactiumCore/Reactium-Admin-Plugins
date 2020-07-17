@@ -35,7 +35,7 @@ const AppSettings = ({
             {capabilities && capabilities.length > 0 && (
                 <CapabilityEditor
                     capabilities={capabilities}
-                    height='calc(100vh - 182px)'
+                    height='calc(100vh - 196px)'
                 />
             )}
             {children}

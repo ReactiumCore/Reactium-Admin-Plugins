@@ -28263,30 +28263,68 @@ body.fullscreen [data-fullscreen='flex'] {
 .admin-confirm-box-buttons > button {
     min-width: 80px;
 }
+@media only screen and (max-width: 640px) {
+    .capability-editor .ar-data-table {
+        overflow-x: auto;
+    }
+}
+.capability-editor .ar-data-table-col,
+.capability-editor .ar-data-table-heading {
+    flex-shrink: 0;
+}
 .capability-editor .ar-data-table-col:first-child,
 .capability-editor .ar-data-table-heading:first-child {
-    padding: 0;
-    justify-content: center;
-    align-items: center;
+    flex-shrink: 1;
 }
-.capability-editor .ar-data-table-col:nth-child(2),
-.capability-editor .ar-data-table-heading:nth-child(2) {
-    padding-left: 4px;
+@media only screen and (max-width: 640px) {
+    .capability-editor .ar-data-table-col:first-child,
+    .capability-editor .ar-data-table-heading:first-child {
+        min-width: 200px !important;
+    }
 }
-@media only screen and (max-width: 990px) {
+.capability-editor .ar-data-table-col:not(:first-child),
+.capability-editor .ar-data-table-heading:not(:first-child) {
+    max-width: 150px !important;
+    min-width: 0 !important;
+    flex-grow: 0 !important;
+}
+@media only screen and (max-width: 640px) {
+    .capability-editor .ar-data-table-col:not(:first-child),
+    .capability-editor .ar-data-table-heading:not(:first-child) {
+        width: 100px !important;
+        min-width: 100px !important;
+        max-width: 100px !important;
+    }
+}
+@media only screen and (max-width: 640px) {
+    .capability-editor .ar-data-table-col,
     .capability-editor .ar-data-table-heading {
-        word-wrap: break-word;
-        font-size: 12px;
+        font-size: 10px;
+    }
+}
+.capability-editor .ar-data-table-col-clear,
+.capability-editor .ar-data-table-heading-clear {
+    display: none;
+}
+@media only screen and (min-width: 641px) {
+    .capability-editor .ar-data-table-col-clear,
+    .capability-editor .ar-data-table-heading-clear {
+        display: flex;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
     }
 }
 .capability-editor .clear-cap {
     padding: 0;
     margin: 0;
-    border-radius: 50%;
+    width: 20px;
+    height: 20px;
 }
 .capability-editor .clear-cap svg {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
 }
 .setting-editor {
     padding: 20px;
