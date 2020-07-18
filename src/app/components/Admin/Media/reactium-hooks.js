@@ -1,7 +1,6 @@
 import op from 'object-path';
 import domain from './domain';
 import Editor from './Editor';
-import Actinium from 'appdir/api';
 import MediaLibrary from './index';
 import MediaSdk from './_utils/sdk';
 import Breadcrumbs from './Breadcrumbs';
@@ -21,9 +20,6 @@ import {
 } from './Editor/_plugins';
 
 Reactium.Plugin.register(domain.name, 100000).then(() => {
-    // Alias the Actinium.File SDK
-    Reactium['File'] = op.get(Reactium, 'File', Actinium.File);
-
     // Create Reactium.Media SDK
     Reactium[domain.name] = op.get(Reactium, domain.name, new MediaSdk());
 

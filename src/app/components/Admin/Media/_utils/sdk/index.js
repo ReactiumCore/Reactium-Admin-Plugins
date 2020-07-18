@@ -4,8 +4,8 @@ import ENUMS from './enums';
 import moment from 'moment';
 import op from 'object-path';
 import slugify from 'slugify';
-import api from 'appdir/api/config';
 import Reactium from 'reactium-core/sdk';
+const api = Reactium.ActiniumConfig;
 
 const SCRIPT = '/assets/js/umd/media-uploader/media-uploader.js';
 

@@ -1,7 +1,7 @@
 import SDK from '@atomic-reactor/reactium-sdk-core';
 import _ from 'underscore';
 import op from 'object-path';
-import Actinium from 'appdir/api';
+import API from '../api';
 
 const { Hook, Enums, Cache, Utils } = SDK;
 const User = { Meta: {}, Pref: {}, Role: {}, selected: null };
@@ -18,7 +18,7 @@ Enums.cache.sessionValidate = 5000;
  *
  */
 User.auth = (username, password) =>
-    Actinium.User.logIn(username, password)
+    API.Actinium.User.logIn(username, password)
         .then(u => u.fetch())
         .then(u => u.toJSON())
         .then(async u => {
@@ -58,7 +58,7 @@ User.logOut = async () => {
     await Hook.run('user.before.logout', u);
 
     try {
-        return Actinium.User.logOut().then(async () => {
+        return API.Actinium.User.logOut().then(async () => {
             await Hook.run('user.after.logout', u);
             return u;
         });
@@ -78,7 +78,8 @@ User.forgot('someone@email.com').then(response => {
     console.log(response);
 });
  */
-User.forgot = email => Actinium.Cloud.run('password-reset-request', { email });
+User.forgot = email =>
+    API.Actinium.Cloud.run('password-reset-request', { email });
 
 /**
  * @api {Asyncronous} User.reset() User.reset()
@@ -89,7 +90,7 @@ User.forgot = email => Actinium.Cloud.run('password-reset-request', { email });
  * @apiParam {String} password The new password.
  */
 User.reset = (token, password) =>
-    Actinium.Cloud.run('password-reset', { token, password });
+    API.Actinium.Cloud.run('password-reset', { token, password });
 
 /**
  * @api {Function} User.current(parseObject) User.current()
@@ -100,7 +101,7 @@ User.reset = (token, password) =>
  * @apiParam {Boolean} [parseObject=false] By default the return value is an object. If you need the Actinium.User object instead pass `true`.
  */
 User.current = (parseObject = false) => {
-    const u = Actinium.User.current();
+    const u = API.Actinium.User.current();
     return u ? (parseObject === true ? u : u.toJSON()) : null;
 };
 
@@ -134,7 +135,7 @@ User.isCurrent = user => {
  * @apiGroup Reactium.User
  */
 User.getSessionToken = () => {
-    const u = Actinium.User.current();
+    const u = API.Actinium.User.current();
     return u ? u.getSessionToken() : false;
 };
 
@@ -145,16 +146,24 @@ User.getSessionToken = () => {
  * @apiGroup Reactium.User
  */
 User.hasValidSession = async () => {
-    if (!User.current()) return false;
-
+    const current = User.current(true);
+    if (!current || !current.authenticated()) return false;
     let request = Cache.get('session-validate');
     if (request) {
         return request;
     }
 
-    request = Actinium.Cloud.run('session-validate')
+    request = API.Actinium.Cloud.run('session-validate')
         .then(() => Promise.resolve(true))
-        .catch(() => Promise.resolve(false));
+        .catch(error => {
+            // destroy current user on invalid session
+            if (op.get(error, 'code') === 209) {
+                API.Actinium.CoreManager.getUserController().removeUserFromDisk();
+                window.location.reload();
+            }
+
+            Promise.resolve(false);
+        });
 
     Cache.set('session-validate', request, Enums.cache.sessionValidate);
 
@@ -174,7 +183,7 @@ User.hasValidSession = async () => {
  */
 User.register = async user => {
     await Hook.run('user.before.register', user);
-    let response = await Actinium.Cloud.run('user-save', user);
+    let response = await API.Actinium.Cloud.run('user-save', user);
     await Hook.run('user.after.register', response);
     return response;
 };
@@ -221,7 +230,7 @@ const search = await User.list({ search: 'jeff' });
  */
 User.list = async params => {
     await Hook.run('before-user-list', params);
-    let response = await Actinium.Cloud.run('user-list', params);
+    let response = await API.Actinium.Cloud.run('user-list', params);
     await Hook.run('user-list-response', response, params);
     return response;
 };
@@ -265,7 +274,7 @@ User.save = async params => {
 
     await Hook.run('before-user-save', params);
 
-    return Actinium.Cloud.run('user-save', params)
+    return API.Actinium.Cloud.run('user-save', params)
         .then(async response => {
             if (_.isError(response)) {
                 await Hook.run('user-save-error', response, params);
@@ -300,7 +309,7 @@ Arguments: user:Actinium.User
 User.trash = async objectId => {
     const user = await User.retrieve({ objectId });
     await Hook.run('before-user-trash', user);
-    await Actinium.Cloud.run('user-trash', { objectId });
+    await API.Actinium.Cloud.run('user-trash', { objectId });
     await Hook.run('user-trash', user);
     return user;
 };
@@ -325,7 +334,7 @@ Arguments: user:Object, params:Object
  */
 User.retrieve = async params => {
     await Hook.run('before-user-retrieve', params);
-    const response = await Actinium.Cloud.run('user-retrieve', params);
+    const response = await API.Actinium.Cloud.run('user-retrieve', params);
     await Hook.run('user-retrieve', response, params);
     return response;
 };
@@ -382,7 +391,7 @@ User.Role.add = async (role, objectId) => {
         return Promise.reject('invalid user id');
     }
 
-    return Actinium.Cloud.run('role-user-add', { role, user: u })
+    return API.Actinium.Cloud.run('role-user-add', { role, user: u })
         .then(() => User.retrieve({ objectId: u, refresh: true }))
         .then(async u => {
             await Hook.run('user.role.add', role, u);
@@ -408,7 +417,7 @@ User.Role.remove = (role, objectId) => {
         return Promise.reject('invalid user id');
     }
 
-    return Actinium.Cloud.run('role-user-remove', { role, user: u })
+    return API.Actinium.Cloud.run('role-user-remove', { role, user: u })
         .then(() => User.retrieve({ objectId: u, refresh: true }))
         .then(async u => {
             await Hook.run('user.role.remove', role, u);
@@ -438,7 +447,7 @@ const updatedUser = await User.Meta.update({ objectId: 'slertjt5wzb', random: 'm
  */
 User.Meta.update = async params => {
     await Hook.run('before-user-meta-update', params);
-    const response = await Actinium.Cloud.run('user-meta-update', params);
+    const response = await API.Actinium.Cloud.run('user-meta-update', params);
     await Hook.run('user-meta-update-response', response, params);
     return response;
 };
@@ -463,7 +472,7 @@ Arguments: user:Actinium.user, params:Object
  */
 User.Meta.delete = async params => {
     await Hook.run('before-user-meta-delete', params);
-    const response = await Actinium.Cloud.run('user-meta-delete', params);
+    const response = await API.Actinium.Cloud.run('user-meta-delete', params);
     await Hook.run('user-meta-delete-response');
     return response;
 };
@@ -490,7 +499,7 @@ const updatedUser = await User.Pref.update({ objectId: 'slertjt5wzb', random: 'p
  */
 User.Pref.update = async params => {
     await Hook.run('before-user-pref-update', params);
-    const response = await Actinium.Cloud.run('user-pref-update', params);
+    const response = await API.Actinium.Cloud.run('user-pref-update', params);
     await Hook.run('user-pref-update-response', response, params);
     return response;
 };
@@ -515,7 +524,7 @@ Arguments: user:Actinium.user, params:Object
  */
 User.Pref.delete = async params => {
     await Hook.run('before-user-pref-delete', params);
-    const response = await Actinium.Cloud.run('user-pref-delete', params);
+    const response = await API.Actinium.Cloud.run('user-pref-delete', params);
     await Hook.run('user-pref-delete-response');
     return response;
 };

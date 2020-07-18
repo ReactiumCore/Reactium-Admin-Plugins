@@ -1,7 +1,6 @@
 import Reactium, { __ } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
-import Parse from 'appdir/api';
 
 const serialize = data => {
     if (!data || typeof data.toJSON === 'undefined') return data;
@@ -814,7 +813,7 @@ Reactium.Hook.register('changelog-created', async logEntry => {
 });
  */
 Content.changelogSubscribe = async (contentId, advancedQuery = [], handle) => {
-    const qry = new Parse.Query('Changelog');
+    const qry = new Reactium.Query('Changelog');
     if (contentId) qry.equalTo('contentId', contentId);
 
     // allow special queries

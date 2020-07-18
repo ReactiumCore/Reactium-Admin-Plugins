@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Actinium from 'appdir/api';
 import React, { useEffect, useRef, useState } from 'react';
 import Reactium, {
     __,
@@ -189,7 +188,7 @@ export default props => {
         const collection = op.get(editor.contentType, 'collection');
         const contentId = op.get(editor.value, 'objectId');
 
-        const { results = {} } = await Actinium.Cloud.run('urls', {
+        const { results = {} } = await Reactium.Cloud.run('urls', {
             collection,
             contentId,
         });
