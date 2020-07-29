@@ -7,7 +7,7 @@ const registerPlugin = async () => {
     await Reactium.Plugin.register('syndicate');
 
     const canManagePlugin = await Reactium.Capability.check(
-        ['Setting.create', 'Setting.update', 'Setting.retrieve'],
+        ['setting.create', 'setting.update', 'setting.retrieve'],
         false,
     );
 

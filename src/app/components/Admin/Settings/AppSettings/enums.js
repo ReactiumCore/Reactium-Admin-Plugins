@@ -47,76 +47,76 @@ export default {
                 tooltip: __('Able to access settings in the "admin" group.'),
             },
             {
-                capability: 'Setting.retrieve',
+                capability: 'setting.retrieve',
                 title: __('Setting: Retrieve any settings'),
                 tooltip: __(
                     'Able to access any Setting group regardless. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Setting.create',
+                capability: 'setting.create',
                 title: __('Setting: Create any setting group.'),
                 tooltip: __(
                     'Able to create a new setting group. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Setting.update',
+                capability: 'setting.update',
                 title: __('Setting: Update any setting group.'),
                 tooltip: __(
                     'Able to update any existing setting group. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Setting.delete',
+                capability: 'setting.delete',
                 title: __('Setting: Delete any setting group.'),
                 tooltip: __(
                     'Able to delete any existing setting group. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Capability.retrieve',
+                capability: 'capability.retrieve',
                 title: __('Capability: Retrieve all capabilities.'),
                 tooltip: __('Able to access any capability regardless.'),
             },
             {
-                capability: 'Capability.create',
+                capability: 'capability.create',
                 title: __('Capability: Create a capability.'),
                 tooltip: __(
                     'Able to create a new capability. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Capability.update',
+                capability: 'capability.update',
                 title: __('Capability: Update a capability.'),
                 tooltip: __(
                     'Able to update an existing capability. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Capability.delete',
+                capability: 'capability.delete',
                 title: __('Capability: Delete a capability.'),
                 tooltip: __(
                     'Able to delete an existing capability. (Assign with caution)',
                 ),
             },
             {
-                capability: 'Type.retrieve',
+                capability: 'type.retrieve',
                 title: __('Type: Retrieve any content type'),
                 tooltip: __('Able to access any content type definition.'),
             },
             {
-                capability: 'Type.create',
+                capability: 'type.create',
                 title: __('Type: Create content type.'),
                 tooltip: __('Able to create a new content type definition.'),
             },
             {
-                capability: 'Type.update',
+                capability: 'type.update',
                 title: __('Type: Update content type.'),
                 tooltip: __('Able to update any content type definition.'),
             },
             {
-                capability: 'Type.delete',
+                capability: 'type.delete',
                 title: __('Type: Delete any content type.'),
                 tooltip: __('Able to delete any content type definition.'),
             },

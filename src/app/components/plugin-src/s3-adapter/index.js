@@ -7,11 +7,11 @@ const registerPlugin = async () => {
 
     const canManagePlugin = await Reactium.Capability.check(
         [
-            'Setting.create',
-            'Setting.update',
-            'setting.S3Adapter-set',
-            'Setting.retrieve',
-            'setting.S3Adapter-get',
+            'setting.create',
+            'setting.update',
+            'setting.s3adapter-set',
+            'setting.retrieve',
+            'setting.s3adapter-get',
         ],
         false,
     );

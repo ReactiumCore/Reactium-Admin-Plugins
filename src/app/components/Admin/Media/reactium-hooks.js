@@ -51,28 +51,28 @@ Reactium.Plugin.register(domain.name, 100000).then(() => {
     });
 
     Reactium.Capability.Settings.register('Media.retrieve', {
-        capability: 'Media.retrieve',
+        capability: 'media.retrieve',
         title: __('Media: Retrieve'),
         tooltip: __('Able to retrieve media when logged in.'),
         zone: 'app-settings',
     });
 
     Reactium.Capability.Settings.register('Media.create', {
-        capability: 'Media.create',
+        capability: 'media.create',
         title: __('Media: Create'),
         tooltip: __('Able to create media when logged in.'),
         zone: 'app-settings',
     });
 
     Reactium.Capability.Settings.register('Media.update', {
-        capability: 'Media.update',
+        capability: 'media.update',
         title: __('Media: Update'),
         tooltip: __('Able to update media when logged in.'),
         zone: 'app-settings',
     });
 
     Reactium.Capability.Settings.register('Media.delete', {
-        capability: 'Media.delete',
+        capability: 'media.delete',
         title: __('Media: Delete'),
         tooltip: __('Able to delete media when logged in.'),
         zone: 'app-settings',

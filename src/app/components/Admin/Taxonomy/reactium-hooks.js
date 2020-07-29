@@ -55,42 +55,33 @@ Reactium.Plugin.register('Taxonomy-plugin').then(() => {
         order: 100,
     });
 
-    /*
-    Reactium.Capability.Settings.register('media-ui.view', {
-        capability: 'media-ui.view',
-        title: __('UI: Media'),
-        tooltip: __('Able to view the media library when logged in.'),
+    Reactium.Capability.Settings.register('taxonomy.retrieve', {
+        capability: 'taxonomy.retrieve',
+        title: __('Taxonomy: Retrieve'),
+        tooltip: __('Able to retrieve taxonomy when logged in.'),
         zone: 'app-settings',
     });
 
-    Reactium.Capability.Settings.register('Media.retrieve', {
-        capability: 'Media.retrieve',
-        title: __('Media: Retrieve'),
-        tooltip: __('Able to retrieve media when logged in.'),
+    Reactium.Capability.Settings.register('taxonomy.create', {
+        capability: 'taxonomy.create',
+        title: __('Taxonomy: Create'),
+        tooltip: __('Able to create taxonomy when logged in.'),
         zone: 'app-settings',
     });
 
-    Reactium.Capability.Settings.register('Media.create', {
-        capability: 'Media.create',
-        title: __('Media: Create'),
-        tooltip: __('Able to create media when logged in.'),
+    Reactium.Capability.Settings.register('taxonomy.update', {
+        capability: 'taxonomy.update',
+        title: __('Taxonomy: Update'),
+        tooltip: __('Able to update taxonomy when logged in.'),
         zone: 'app-settings',
     });
 
-    Reactium.Capability.Settings.register('Media.update', {
-        capability: 'Media.update',
-        title: __('Media: Update'),
-        tooltip: __('Able to update media when logged in.'),
+    Reactium.Capability.Settings.register('taxonomy.delete', {
+        capability: 'taxonomy.delete',
+        title: __('Taxonomy: Delete'),
+        tooltip: __('Able to delete taxonomy when logged in.'),
         zone: 'app-settings',
     });
-
-    Reactium.Capability.Settings.register('Media.delete', {
-        capability: 'Media.delete',
-        title: __('Media: Delete'),
-        tooltip: __('Able to delete media when logged in.'),
-        zone: 'app-settings',
-    });
-    */
 
     Reactium.Component.register('AdminChecklist', Checklist);
     Reactium.Component.register('AdminTagbox', Tagbox);

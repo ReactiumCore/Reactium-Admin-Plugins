@@ -14,7 +14,7 @@ export default (id = 'app-settings', defaultCapabilities = [], deps) => {
         // auto register capabilities from appSettingProps.capabilities so they can be unregistered
         _.flatten([capabilities, defaultCapabilities]).forEach(item =>
             Reactium.Capability.Settings.register(
-                slugify(item.capability),
+                slugify(item.capability, { lower: true }),
                 { ...item, zone: id },
                 100,
             ),
@@ -29,7 +29,7 @@ export default (id = 'app-settings', defaultCapabilities = [], deps) => {
         // auto register capabilities from hooks so they can be unregistered
         hookedCapabilities.forEach(item =>
             Reactium.Capability.Settings.register(
-                slugify(item.capability),
+                slugify(item.capability, { lower: true }),
                 { ...item, zone: id },
                 1000,
             ),

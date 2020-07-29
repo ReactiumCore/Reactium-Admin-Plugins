@@ -47,7 +47,6 @@ const enforceBlueprintCaps = (store, history, loginPath) => async location => {
 
             // restricted route
             if (pathname !== loginPath && capabilities.length > 0) {
-                const loggedIn = await Reactium.User.hasValidSession();
                 const permitted = await Reactium.Capability.check(capabilities);
 
                 // permitted, proceed

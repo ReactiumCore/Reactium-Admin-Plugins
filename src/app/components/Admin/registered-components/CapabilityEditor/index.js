@@ -96,7 +96,7 @@ const CapabilityEditor = ({
     pref = 'capability-editor',
 }) => {
     const canSet = useCapabilityCheck(
-        ['Capability.create', 'Capability.update'],
+        ['capability.create', 'capability.update'],
         false,
     );
     const currentRoles = useRoles();
@@ -142,7 +142,9 @@ const CapabilityEditor = ({
 
     const clearLabel = __('Clear roles');
 
-    const capNames = capabilities.map(({ capability }) => capability);
+    const capNames = capabilities.map(({ capability }) =>
+        String(capability).toLowerCase(),
+    );
     useAsyncEffect(
         async isMounted => {
             if (capNames.length > 0) {
@@ -157,57 +159,76 @@ const CapabilityEditor = ({
         [capNames.sort().join('')],
     );
 
-    const clearCap = capName => save(capName, { allowed: [], excluded: [] });
-
-    const addRole = capName => role => {
-        const excluded = op.get(loadedCaps, ['caps', capName, 'excluded'], []);
-        const allowed = op.get(loadedCaps, ['caps', capName, 'allowed'], []);
-        save(capName, {
-            allowed: _.uniq(allowed.concat(role)),
-            excluded: excluded.filter(r => r !== role),
-        });
+    const clearCap = capability => {
+        const role = op.get(loadedCaps, ['caps', capability, 'allowed']);
+        return save(capability, role, 'revoke');
     };
 
-    const removeRole = capName => role => {
-        const excluded = op.get(loadedCaps, ['caps', capName, 'excluded'], []);
-        const allowed = op.get(loadedCaps, ['caps', capName, 'allowed'], []);
-        save(capName, {
-            allowed: allowed.filter(r => r !== role),
-            excluded: _.uniq(excluded.concat(role)),
-        });
-    };
+    const addRole = capability => role => save(capability, role, 'grant');
 
-    const save = (capName, perms) => {
-        // updateLoadedCaps({ loading: true });
-        return Reactium.Cloud.run('capability-edit', {
-            capability: capName,
-            perms,
-        })
-            .then(updated => {
-                const caps = { ...op.get(loadedCaps, 'caps') };
-                op.set(caps, [capName], updated);
-                updateLoadedCaps({ caps, loading: false });
+    const removeRole = capability => role => save(capability, role, 'revoke');
 
+    const save = (capability, role, action) => {
+        const defaultError = __('Unable to save capability');
+
+        let caps = { ...op.get(loadedCaps, 'caps') };
+
+        if (_.isString(role)) {
+            if (action === 'grant') {
+                const roleArray = _.chain(Object.values(roles))
+                    .sortBy('level')
+                    .value();
+                const idx = _.findIndex(roleArray, { name: role });
+                const related = _.pluck(roleArray.slice(idx), 'name');
+                role = _.chain([role, related])
+                    .flatten()
+                    .uniq()
+                    .value();
+            } else {
+                role = _.flatten([role]);
+            }
+        }
+
+        role = _.without(role, 'super-admin', 'administrator');
+
+        if (role.length < 1) return;
+
+        // Optimistic update
+        let { allowed = [] } = op.get(caps, [capability], []);
+        allowed = _.flatten([allowed]);
+        allowed =
+            action === 'grant' ? [allowed, role] : _.without(allowed, ...role);
+
+        allowed = _.chain(allowed)
+            .flatten()
+            .uniq()
+            .value();
+
+        op.set(caps, [capability, 'allowed'], allowed);
+        updateLoadedCaps({ caps });
+
+        // Send to server
+        return Reactium.Capability[action](capability, role)
+            .then(() => {
+                // Notify on success
                 Toast.show({
-                    type: Toast.TYPE.SUCCESS,
+                    autoClose: 1000,
+                    type: Toast.TYPE.INFO,
                     message: __('Capability Saved'),
                     icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-                    autoClose: 1000,
                 });
             })
-            .catch(error => {
+            .catch(err => {
                 Toast.show({
+                    autoClose: 1000,
                     type: Toast.TYPE.ERROR,
-                    message: __('Error saving capability'),
+                    message: op.get(err, 'message', defaultError),
                     icon: (
                         <Icon.Feather.AlertOctagon
                             style={{ marginRight: 12 }}
                         />
                     ),
-                    autoClose: 1000,
                 });
-
-                console.log(error);
             });
     };
 
@@ -245,7 +266,7 @@ const CapabilityEditor = ({
         return roles.reduce((controls, role) => {
             controls[role.name] = (
                 <>
-                    {capability.allowed !== null && (
+                    {capability && (
                         <RoleControl
                             capName={cap}
                             capability={capability}

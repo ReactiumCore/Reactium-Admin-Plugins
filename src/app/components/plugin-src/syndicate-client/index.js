@@ -10,10 +10,10 @@ const registerPlugin = async () => {
 
     const canManagePlugin = await Reactium.Capability.check(
         [
-            'Setting.create',
-            'Setting.update',
-            'setting.SyndicateClient-get',
-            'setting.SyndicateClient-set',
+            'setting.create',
+            'setting.update',
+            'setting.syndicateClient-get',
+            'setting.syndicateClient-set',
         ],
         false,
     );

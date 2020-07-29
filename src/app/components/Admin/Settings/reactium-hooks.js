@@ -8,7 +8,7 @@ const settingsPlugin = async () => {
     await Reactium.Plugin.register(PLUGIN, -100000);
 
     const canView = await Reactium.Capability.check(
-        ['Capability.create', 'Capability.update'],
+        ['capability.create', 'capability.update'],
         false,
     );
 
