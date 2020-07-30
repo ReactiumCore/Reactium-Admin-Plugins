@@ -152,7 +152,7 @@ const CapabilityEditor = ({
                 if (isMounted())
                     updateLoadedCaps({
                         loading: false,
-                        caps,
+                        caps: _.indexBy(caps, 'group'),
                     });
             }
         },
@@ -160,6 +160,7 @@ const CapabilityEditor = ({
     );
 
     const clearCap = capability => {
+        capability = String(capability).toLowerCase();
         const role = op.get(loadedCaps, ['caps', capability, 'allowed']);
         return save(capability, role, 'revoke');
     };
@@ -169,6 +170,8 @@ const CapabilityEditor = ({
     const removeRole = capability => role => save(capability, role, 'revoke');
 
     const save = (capability, role, action) => {
+        capability = String(capability).toLowerCase();
+
         const defaultError = __('Unable to save capability');
 
         let caps = { ...op.get(loadedCaps, 'caps') };
@@ -259,6 +262,7 @@ const CapabilityEditor = ({
     };
 
     const roleControls = ({ capability: cap }) => {
+        cap = String(cap).toLowerCase();
         const capability = op.get(loadedCaps, ['caps', cap], {
             allowed: null,
         });
