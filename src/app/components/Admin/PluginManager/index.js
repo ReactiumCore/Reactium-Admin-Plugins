@@ -23,7 +23,7 @@ const getPlugins = async () => {
  * -----------------------------------------------------------------------------
  */
 const PluginManager = memo(props => {
-    const canView = useCapabilityCheck(['plugins-ui.view']);
+    const canView = useCapabilityCheck(['plugin-ui.view']);
     const canActivate = useCapabilityCheck(['plugins.activate']);
 
     const pluginId = op.get(props, 'params.id');
