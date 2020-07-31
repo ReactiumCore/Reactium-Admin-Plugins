@@ -2190,16 +2190,70 @@
   },
   {
     "type": "Function",
-    "url": "Capability.set(capability,perms)",
-    "title": "Capability.set()",
+    "url": "Capability.grant(capability,role)",
+    "title": "Capability.grant()",
     "version": "3.2.1",
-    "description": "<p>Set permissions on a capability for allowed and excluded roles.</p>",
-    "name": "Capability.set",
+    "description": "<p>Add role(s) to the capability allowed list.</p>",
+    "name": "Capability.grant",
     "group": "Reactium.Capability",
     "examples": [
       {
         "title": "Usage",
-        "content": "import Reactium from 'reactium-core/sdk';\n\nCapability.set('do-something', {\n    allowed: ['contributor'],\n    excluded: ['user']\n})",
+        "content": "Capability.grant('taxonomy.update', 'moderator');\nCapability.grant('taxonomy.update', ['moderator']);",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Reactium.Capability"
+  },
+  {
+    "type": "Function",
+    "url": "Capability.restrict(capability,role)",
+    "title": "Capability.restrict()",
+    "version": "3.2.1",
+    "description": "<p>Add role(s) to the capability excluded list.</p>",
+    "name": "Capability.restrict",
+    "group": "Reactium.Capability",
+    "examples": [
+      {
+        "title": "Usage",
+        "content": "Capability.restrict('taxonomy.update', 'moderator');\nCapability.restrict('taxonomy.update', ['moderator']);",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Reactium.Capability"
+  },
+  {
+    "type": "Function",
+    "url": "Capability.revoke(capability,role)",
+    "title": "Capability.revoke()",
+    "version": "3.2.1",
+    "description": "<p>Remove role(s) from the capability allowed list.</p>",
+    "name": "Capability.revoke",
+    "group": "Reactium.Capability",
+    "examples": [
+      {
+        "title": "Usage",
+        "content": "Capability.revoke('taxonomy.update', 'moderator');\nCapability.revoke('taxonomy.update', ['moderator']);",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Reactium.Capability"
+  },
+  {
+    "type": "Function",
+    "url": "Capability.unrestrict(capability,role)",
+    "title": "Capability.unrestrict()",
+    "version": "3.2.1",
+    "description": "<p>Remove role(s) from the capability excluded list.</p>",
+    "name": "Capability.unrestrict",
+    "group": "Reactium.Capability",
+    "examples": [
+      {
+        "title": "Usage",
+        "content": "Capability.unrestrict('taxonomy.update', 'moderator');\nCapability.unrestrict('taxonomy.update', ['moderator']);",
         "type": "json"
       }
     ],
