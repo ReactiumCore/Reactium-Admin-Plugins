@@ -1,6 +1,4 @@
-import _ from 'underscore';
-import cn from 'classnames';
-
+import op from 'object-path';
 import UserList from './List';
 import UserEditor from './Editor';
 import Breadcrumbs from './Breadcrumbs';
@@ -137,4 +135,24 @@ Reactium.Plugin.register(
         component: UserInputs,
         zone: ['admin-user-editor-form'],
     });
+
+    Reactium.Hook.register(
+        'user.before.logout',
+        async () => {
+            const user = Reactium.User.current(true);
+            user.set('prefs', Reactium.Prefs.get());
+            Reactium.Prefs.clear();
+            await user.save();
+        },
+        Reactium.Enums.priority.lowest,
+    );
+
+    Reactium.Hook.register(
+        'user.auth',
+        async u => {
+            const prefs = op.get(u, 'prefs', {}) || {};
+            localStorage.setItem('ar-prefs', JSON.stringify(prefs));
+        },
+        Reactium.Enums.priority.lowest,
+    );
 });
