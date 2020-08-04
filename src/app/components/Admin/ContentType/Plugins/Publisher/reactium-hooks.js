@@ -54,7 +54,7 @@ const registerPublisher = async () => {
             if (statuses.length > 0) {
                 statuses.forEach(status => {
                     capabilities.push({
-                        capability: `${collection}.setStatus-${status}`,
+                        capability: `${collection}.setstatus-${status}`.toLowerCase(),
                         title: __('%type: Set %status status')
                             .replace('%type', type)
                             .replace('%status', status),

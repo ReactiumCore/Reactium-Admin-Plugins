@@ -7,16 +7,22 @@ export default {
     },
     CAPS: {
         PUBLISH: collection => ({
-            capabilities: [`${collection}.publish`, 'publish-content'],
+            capabilities: [
+                `${collection}.publish`.toLowerCase(),
+                'publish-content',
+            ],
             strict: false,
         }),
         UNPUBLISH: collection => ({
-            capabilities: [`${collection}.unpublish`, 'unpublish-content'],
+            capabilities: [
+                `${collection}.unpublish`.toLowerCase(),
+                'unpublish-content',
+            ],
             strict: false,
         }),
         STATUS: collection => ({
             capabilities: [
-                `${collection}.setStatus-${status}`,
+                `${collection}.setstatus-${status}`.toLowerCase(),
                 'set-content-status',
             ],
             strict: false,

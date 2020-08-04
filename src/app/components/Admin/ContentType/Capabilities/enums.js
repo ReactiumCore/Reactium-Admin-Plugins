@@ -8,7 +8,7 @@ const enums = {
 
         return [
             {
-                capability: `${collection}.create`,
+                capability: `${collection}.create`.toLowerCase(),
                 title: __('%type: Create content').replace('%type', type),
                 tooltip: __(
                     'Able to create content of type %type (%machineName)',
@@ -17,7 +17,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.retrieve`,
+                capability: `${collection}.retrieve`.toLowerCase(),
                 title: __('%type: Retrieve content').replace('%type', type),
                 tooltip: __(
                     'Able to retrieve content of type %type (%machineName), if content ACL permits.',
@@ -26,7 +26,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.update`,
+                capability: `${collection}.update`.toLowerCase(),
                 title: __('%type: Update content').replace('%type', type),
                 tooltip: __(
                     'Able to update any content of type %type (%machineName), if content ACL permits.',
@@ -35,7 +35,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.delete`,
+                capability: `${collection}.delete`.toLowerCase(),
                 title: __('%type: Delete content').replace('%type', type),
                 tooltip: __(
                     'Able to delete content of type %type (%machineName), if content ACL permits.',
@@ -44,7 +44,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.retrieveAny`,
+                capability: `${collection}.retrieveany`.toLowerCase(),
                 title: __('%type: Retrieve any content (Caution)').replace(
                     '%type',
                     type,
@@ -56,7 +56,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.updateAny`,
+                capability: `${collection}.updateany`.toLowerCase(),
                 title: __('%type: Update any content (Caution)').replace(
                     '%type',
                     type,
@@ -68,7 +68,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.deleteAny`,
+                capability: `${collection}.deleteany`.toLowerCase(),
                 title: __('%type: Delete any content (Caution)').replace(
                     '%type',
                     type,
@@ -80,7 +80,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.publish`,
+                capability: `${collection}.publish`.toLowerCase(),
                 title: __('%type: Publish Content').replace('%type', type),
                 tooltip: __(
                     'Able to publish content of type %type (%machineName.)',
@@ -89,7 +89,7 @@ const enums = {
                     .replace('%machineName', machineName),
             },
             {
-                capability: `${collection}.unpublish`,
+                capability: `${collection}.unpublish`.toLowerCase(),
                 title: __('%type: Unpublish Content').replace('%type', type),
                 tooltip: __(
                     'Able to unpublish content of type %type (%machineName.)',
