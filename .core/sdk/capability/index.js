@@ -248,14 +248,16 @@ Capability.get = async (capability, refresh = false) => {
         let req = op.get(Capability.request, 'list');
 
         if (!req) {
-            req = API.Actinium.Cloud.run('capability-get').then(caps => {
-                caps = Object.values(caps);
-                Cache.set(cacheKey, caps, Capability.cache);
-                op.del(Capability.request, 'list');
-                return capability.length > 0
-                    ? caps.filter(({ group }) => capability.includes(group))
-                    : caps;
-            }).catch(() => op.del(Capability.request, 'list'));
+            req = API.Actinium.Cloud.run('capability-get')
+                .then(caps => {
+                    caps = Object.values(caps);
+                    Cache.set(cacheKey, caps, Capability.cache);
+                    op.del(Capability.request, 'list');
+                    return capability.length > 0
+                        ? caps.filter(({ group }) => capability.includes(group))
+                        : caps;
+                })
+                .catch(() => op.del(Capability.request, 'list'));
 
             op.set(Capability.request, 'list', req);
         }
@@ -392,13 +394,13 @@ Capability.User.get = async (user, refresh = false) => {
         let req = op.get(Capability.request, user);
 
         if (!req) {
-            req = API.Actinium.Cloud.run('capability-get-user', { user }).then(
-                caps => {
+            req = API.Actinium.Cloud.run('capability-get-user', { user })
+                .then(caps => {
                     Cache.set(cacheKey, caps, Capability.cache);
                     op.del(Capability.request, user);
                     return caps;
-                },
-            ).catch(() => op.del(Capability.request, user));
+                })
+                .catch(() => op.del(Capability.request, user));
 
             op.set(Capability.request, user, req);
         }
