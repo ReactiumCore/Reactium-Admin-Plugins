@@ -202,6 +202,14 @@ export default props => {
     };
 
     const applyURLS = ({ value }) => {
+        Object.entries(URLS).forEach(([key, URL]) => {
+            if (op.get(URL, 'user')) {
+                try {
+                    URL.user = URL.user.toPointer();
+                    URLS[key] = URL;
+                } catch (err) {}
+            }
+        });
         op.set(value, String(fieldName).toLowerCase(), URLS);
     };
 
@@ -238,15 +246,15 @@ export default props => {
         return context;
     };
 
-    const onSave = () => {
+    const listeners = () => {
         if (!editor) return;
 
-        editor.addEventListener('before-save', applyURLS);
+        editor.addEventListener('content-parse', applyURLS);
         editor.addEventListener('save-success', afterSave);
         editor.addEventListener('validate', validate);
 
         return () => {
-            editor.removeEventListener('before-save', applyURLS);
+            editor.removeEventListener('content-parse', applyURLS);
             editor.removeEventListener('save-success', afterSave);
             editor.removeEventListener('validate', validate);
         };
@@ -254,8 +262,10 @@ export default props => {
 
     useAsyncEffect(load, [op.get(editor, 'value.objectId')]);
 
-    useEffect(onSave);
+    // Editor listeners
+    useEffect(listeners);
 
+    // Taxonomy prefix dropdown
     useEffect(() => {
         if (!editor) return;
         if (!hasTaxonomy()) return;
