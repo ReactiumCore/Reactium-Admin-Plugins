@@ -397,6 +397,11 @@ let ContentEditor = (
         // always create new revision in current branch
         op.del(newValue, 'history.revision');
 
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.save',
+        });
+
         await dispatch('before-save', { value: newValue });
 
         if (!op.get(newValue, 'type')) {
@@ -450,6 +455,11 @@ let ContentEditor = (
             op.set(newValue, 'type', contentType);
         }
 
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.setContentStatus',
+        });
+
         await dispatch('before-content-set-status', { value: newValue });
 
         try {
@@ -489,6 +499,11 @@ let ContentEditor = (
         op.set(request, 'history', { branch });
         const newValue = await Reactium.Content.retrieve(request);
 
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.setBranch',
+        });
+
         await handle.dispatch('load', {
             value: newValue,
             ignoreChangeEvent: true,
@@ -519,7 +534,13 @@ let ContentEditor = (
             op.set(newValue, 'type', contentType);
         }
 
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.publish',
+        });
+
         await dispatch(`before-${action}`, { value: newValue });
+
         const successMessage = {
             publish: __('%type published').replace('%type', type),
             unpublish: __('%type unpublished').replace('%type', type),
@@ -570,7 +591,13 @@ let ContentEditor = (
             op.set(payload, 'type', contentType);
         }
 
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.schedule',
+        });
+
         await dispatch('before-schedule', { value: payload });
+
         const successMessage = __('%type scheduled').replace('%type', type);
         const errorMessage = __('Unable to schedule %type').replace(
             '%type',
@@ -623,6 +650,11 @@ let ContentEditor = (
         if (!op.get(payload, 'type')) {
             op.set(payload, 'type', contentType);
         }
+
+        await dispatch('content-parse', {
+            value: newValue,
+            dispatcher: 'ContentEditor.unschedule',
+        });
 
         await dispatch('before-unschedule', { value: payload });
         const successMessage = __('%type unscheduled').replace('%type', type);

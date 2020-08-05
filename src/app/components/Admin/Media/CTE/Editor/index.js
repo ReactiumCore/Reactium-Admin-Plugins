@@ -224,12 +224,12 @@ export const Editor = props => {
 
         editor.addEventListener('validate', onContentValidate);
         editor.addEventListener('save-success', onContentAfterSave);
-        editor.addEventListener('before-save', onContentBeforeSave);
+        editor.addEventListener('content-parse', onContentBeforeSave);
 
         return () => {
             editor.removeEventListener('validate', onContentValidate);
             editor.removeEventListener('save-success', onContentAfterSave);
-            editor.removeEventListener('before-save', onContentBeforeSave);
+            editor.removeEventListener('content-parse', onContentBeforeSave);
         };
     });
 

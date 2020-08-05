@@ -101,7 +101,9 @@ export default props => {
 
         if (tax !== prefix) {
             route = `${tax}/${route}`;
+            route = String(route).replace(/\/\/+/g, '/');
         }
+
         if (isRoute(route)) {
             Toast.show({
                 type: Toast.TYPE.ERROR,
@@ -146,6 +148,8 @@ export default props => {
         op.set(newURLS, [objectId, 'pending'], true);
         setURLS(newURLS);
     };
+
+    const disabled = () => Boolean(prefix && !hasTaxonomy());
 
     const unDeleteURL = ({ objectId }) => {
         const newURLS = { ...URLS };
@@ -202,6 +206,14 @@ export default props => {
     };
 
     const applyURLS = ({ value }) => {
+        Object.entries(URLS).forEach(([key, URL]) => {
+            if (op.get(URL, 'user')) {
+                try {
+                    URL.user = URL.user.toPointer();
+                    URLS[key] = URL;
+                } catch (err) {}
+            }
+        });
         op.set(value, String(fieldName).toLowerCase(), URLS);
     };
 
@@ -238,15 +250,15 @@ export default props => {
         return context;
     };
 
-    const onSave = () => {
+    const listeners = () => {
         if (!editor) return;
 
-        editor.addEventListener('before-save', applyURLS);
+        editor.addEventListener('content-parse', applyURLS);
         editor.addEventListener('save-success', afterSave);
         editor.addEventListener('validate', validate);
 
         return () => {
-            editor.removeEventListener('before-save', applyURLS);
+            editor.removeEventListener('content-parse', applyURLS);
             editor.removeEventListener('save-success', afterSave);
             editor.removeEventListener('validate', validate);
         };
@@ -254,8 +266,10 @@ export default props => {
 
     useAsyncEffect(load, [op.get(editor, 'value.objectId')]);
 
-    useEffect(onSave);
+    // Editor listeners
+    useEffect(listeners);
 
+    // Taxonomy prefix dropdown
     useEffect(() => {
         if (!editor) return;
         if (!hasTaxonomy()) return;
@@ -263,7 +277,9 @@ export default props => {
         const tx = taxonomy();
 
         if (!tx) {
-            if (tax !== prefix) setTax(prefix);
+            if (tax !== prefix) {
+                setTax(prefix);
+            }
             return;
         }
 
@@ -271,6 +287,20 @@ export default props => {
             if (tax === prefix) setTax(_.first(tx).value);
         }
     });
+
+    useEffect(() => {
+        if (!editor) return;
+        if (disabled()) {
+            setErrorText(
+                __('Select %prefix before adding a URL').replace(
+                    /\%prefix/gi,
+                    prefix,
+                ),
+            );
+        } else {
+            setErrorText();
+        }
+    }, [disabled(), editor]);
 
     useEffect(() => {
         if (prefix === 'null' || !prefix) return;
@@ -300,52 +330,57 @@ export default props => {
                 {errorText && (
                     <Alert
                         color={Alert.ENUMS.COLOR.DANGER}
-                        dismissable
                         icon={<Icon name='Feather.AlertOctagon' />}>
                         {errorText}
                     </Alert>
                 )}
-                <div className={cn('input-group', { error: isError })}>
-                    {hasTaxonomy() && (
-                        <Dropdown
-                            size='md'
-                            align='left'
-                            onItemSelect={({ item }) => setTax(item.value)}
-                            data={taxonomy()}>
-                            <button
-                                className='dropdown-btn'
-                                data-dropdown-element
-                                type='button'>
-                                {`${tax}/`}
-                            </button>
-                        </Dropdown>
-                    )}
-                    <input
-                        onKeyDown={onEnter}
-                        placeholder={placeholder}
-                        ref={elm => op.set(refs, 'add', elm)}
-                        type='text'
-                    />
-                    <Button
-                        color={Button.ENUMS.COLOR.TERTIARY}
-                        onClick={() => addURL()}
-                        style={{ width: 41, height: 41, padding: 0 }}>
-                        <Icon name='Feather.Plus' size={22} />
-                    </Button>
-                </div>
-                <ul className={cx('list')}>
-                    {Object.values(URLS).map(url => (
-                        <ListItem
-                            key={`list-item-${url.objectId}`}
-                            {...url}
-                            status={status}
-                            onChange={updateURL}
-                            onDelete={deleteURL}
-                            onUnDelete={unDeleteURL}
-                            placeholder={placeholder}
-                        />
-                    ))}
-                </ul>
+                {!disabled() && (
+                    <>
+                        <div className={cn('input-group', { error: isError })}>
+                            {hasTaxonomy() && (
+                                <Dropdown
+                                    size='md'
+                                    align='left'
+                                    onItemSelect={({ item }) =>
+                                        setTax(item.value)
+                                    }
+                                    data={taxonomy()}>
+                                    <button
+                                        className='dropdown-btn'
+                                        data-dropdown-element
+                                        type='button'>
+                                        {`${tax}/`}
+                                    </button>
+                                </Dropdown>
+                            )}
+                            <input
+                                onKeyDown={onEnter}
+                                placeholder={placeholder}
+                                ref={elm => op.set(refs, 'add', elm)}
+                                type='text'
+                            />
+                            <Button
+                                color={Button.ENUMS.COLOR.TERTIARY}
+                                onClick={() => addURL()}
+                                style={{ width: 41, height: 41, padding: 0 }}>
+                                <Icon name='Feather.Plus' size={22} />
+                            </Button>
+                        </div>
+                        <ul className={cx('list')}>
+                            {Object.values(URLS).map(url => (
+                                <ListItem
+                                    key={`list-item-${url.objectId}`}
+                                    {...url}
+                                    status={status}
+                                    onChange={updateURL}
+                                    onDelete={deleteURL}
+                                    onUnDelete={unDeleteURL}
+                                    placeholder={placeholder}
+                                />
+                            ))}
+                        </ul>
+                    </>
+                )}
                 {!isStatus([ENUMS.STATUS.READY, ENUMS.STATUS.COMPLETE]) && (
                     <Spinner />
                 )}

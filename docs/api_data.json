@@ -648,6 +648,141 @@
     "groupTitle": "BootHook"
   },
   {
+    "type": "Async",
+    "url": "Capability.User.get(userID,refresh)",
+    "title": "Capability.User.get()",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.User.get()",
+    "description": "<p>Return an Array of capability names granted to the user.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "userID",
+            "description": "<p>The Reactium.User id. If empty the User.current id is used.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": true,
+            "field": "refres",
+            "defaultValue": "false",
+            "description": "<p>Fetch capabilities from the server instead of cache.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example Usage",
+        "content": "const canEditArticle = async userID => {\n    const caps = await Reactium.Capability.User.get(userID);\n    return caps.includes('content.article.update');\n};",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
+    "type": "Static",
+    "url": "Capability.autosync",
+    "title": "Capability.autosync",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.autosync",
+    "description": "<p>Time in milliseconds that controls when registered capabilities are propagated to the server. If set to <code>false</code>, manually push registered capabilities with <code>Capability.propagate()</code>. Default: <code>10000</code>.</p>",
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
+    "type": "Static",
+    "url": "Capability.cache",
+    "title": "Capability.cache",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.cache",
+    "description": "<p>Time in milliseconds that controls how long to cache capability request results. Default: <code>60000</code>.</p>",
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
+    "type": "Function",
+    "url": "Capability.clearCache()",
+    "title": "Capability.clearCache()",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.clearCache()",
+    "description": "<p>Clear Capability related Cache keys.</p>",
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
+    "type": "Async",
+    "url": "Capability.propagate(force)",
+    "title": "Capability.propagate()",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.propagate()",
+    "description": "<p>Propagate registered capabilities to an Actinium server.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": true,
+            "field": "force",
+            "defaultValue": "false",
+            "description": "<p>Execute the propagation regardless of if a current propagation operation is under way. The resolution of the previous propagation operation will be cancelled. If <code>Capability.autosync</code> is <code>true</code>, this function will be called whenever the autosync is initiated.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example Usage",
+        "content": "await Capability.propagate();",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
+    "type": "Function",
+    "url": "Capability.register(id)",
+    "title": "Capability.register()",
+    "version": "3.1.2",
+    "group": "Capability",
+    "name": "Capability.register()",
+    "description": "<p>Register a new capability.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>String value used when checking for the capability. This function is limited in scope and regularly shouldn't be used. Server-side capability registration is preferred.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example Usage",
+        "content": "Capability.register('my-ui.view')",
+        "type": "json"
+      }
+    ],
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Capability"
+  },
+  {
     "type": "Asynchronous",
     "url": "Content.cloneBranch(params,handle)",
     "title": "Content.cloneBranch()",
@@ -2139,10 +2274,12 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.check(capabilities,strict)",
     "title": "Capability.check",
     "version": "3.2.1",
+    "name": "Capability.check",
+    "group": "Reactium.Capability",
     "description": "<p>Check a list of capabilities on the current user.</p>",
     "parameter": {
       "fields": {
@@ -2161,6 +2298,42 @@
             "field": "strict",
             "defaultValue": "true",
             "description": "<p>When true all capabilities must be allowed for user for check to return true, otherwise only one capability is required to get a true value.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "userID",
+            "description": "<p>The Reactium.User id to check.</p>"
+          }
+        ]
+      }
+    },
+    "filename": ".core/sdk/capability/index.js",
+    "groupTitle": "Reactium.Capability"
+  },
+  {
+    "type": "Async",
+    "url": "Capability.check(capabilities,strict)",
+    "title": "Capability.check",
+    "version": "3.2.1",
+    "description": "<p>Retrieve an enumerated list of capabilities for the specified user.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "capabilities",
+            "description": "<p>list of string capabilities to check, returns true if current user is allowed, false if not allowed.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "userID",
+            "description": "<p>The Actinium.User id value. If empty the current user is used.</p>"
           }
         ]
       }
@@ -2171,7 +2344,7 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.get(capability)",
     "title": "Capability.get()",
     "version": "3.2.1",
@@ -2189,7 +2362,7 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.grant(capability,role)",
     "title": "Capability.grant()",
     "version": "3.2.1",
@@ -2207,7 +2380,7 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.restrict(capability,role)",
     "title": "Capability.restrict()",
     "version": "3.2.1",
@@ -2225,7 +2398,7 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.revoke(capability,role)",
     "title": "Capability.revoke()",
     "version": "3.2.1",
@@ -2243,7 +2416,7 @@
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
+    "type": "Async",
     "url": "Capability.unrestrict(capability,role)",
     "title": "Capability.unrestrict()",
     "version": "3.2.1",
@@ -7369,8 +7542,8 @@
             "group": "Parameter",
             "type": "String",
             "optional": true,
-            "field": "objectId",
-            "description": "<p>The objectId of the user. If empty, the User.current() object is used.</p>"
+            "field": "userID",
+            "description": "<p>The Actinium.User id. If empty, the User.current() id is used.</p>"
           }
         ]
       }
