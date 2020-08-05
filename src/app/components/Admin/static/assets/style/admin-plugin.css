@@ -31540,6 +31540,9 @@ body.fullscreen .admin-content-list {
 .editor-urls .ar-alert {
     margin-bottom: 16px;
 }
+.editor-urls .ar-alert:first-child:last-child {
+    margin-bottom: 0;
+}
 .editor-urls .ar-spinner {
     position: absolute;
     top: 50%;
