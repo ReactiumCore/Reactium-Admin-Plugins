@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect, useHandle, __ } from 'reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
 
 const getRole = user => {
@@ -75,8 +75,8 @@ const useProfileAvatar = (initialUser = {}) => {
  */
 const useProfileGreeting = user => {
     user = user || Reactium.User.current() || {};
-
-    const ref = useRef('Hello');
+    const defaultGreeting = __('Hello %name%');
+    const ref = useRef(defaultGreeting);
 
     const [, updateRef] = useState(ref.current);
 
@@ -89,26 +89,25 @@ const useProfileGreeting = user => {
         }
     };
 
-    useEffect(() => {
-        Reactium.Setting.get('admin.sidebar.greeting')
-            .then(greeting => {
-                const name = op.get(user, 'fname', user.username);
-
-                greeting = greeting || 'Hello';
-                greeting = _.compact([greeting, name]).join(' ');
-
-                setState(greeting);
-                return greeting;
-            })
-            .then(() => {
-                Reactium.Hook.run('profile-greeting', ref.current, user).then(
-                    context => {
-                        const { greeting } = context;
-                        setState(greeting || ref.current);
-                    },
+    useAsyncEffect(
+        async isMounted => {
+            const name = op.get(user, 'fname', user.username);
+            let greeting = defaultGreeting;
+            try {
+                greeting = await Reactium.Setting.get(
+                    'profile.sidebar.greeting',
+                    greeting,
                 );
-            });
-    }, [op.get(Profile, 'updated'), op.get(user, 'objectId')]);
+            } catch (error) {
+                console.log(error);
+            }
+
+            if (isMounted()) {
+                setState(greeting.replace('%name%', name));
+            }
+        },
+        [op.get(Profile, 'updated'), op.get(user, 'objectId')],
+    );
 
     return ref.current;
 };
