@@ -91,7 +91,7 @@ const useProfileGreeting = user => {
 
     useAsyncEffect(
         async isMounted => {
-            const name = op.get(user, 'fname', user.username);
+            const name = op.get(user, 'fname') || op.get(user, 'username', '');
             let greeting = defaultGreeting;
             try {
                 greeting = await Reactium.Setting.get(
