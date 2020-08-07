@@ -5095,6 +5095,48 @@
   },
   {
     "type": "Function",
+    "url": "Plugin.isActive(ID)",
+    "title": "Plugin.isActive()",
+    "group": "Reactium.Plugin",
+    "name": "Plugin.isActive",
+    "description": "<p>Determine if a plugin ID is active.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "ID",
+            "description": "<p>the plugin id.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example Usage:",
+        "content": "Reactium.Plugin.isActive('Media');",
+        "type": "json"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/plugin/index.js",
+    "groupTitle": "Reactium.Plugin"
+  },
+  {
+    "type": "Function",
+    "url": "Plugin.list()",
+    "title": "Plugin.list()",
+    "group": "Reactium.Plugin",
+    "name": "Plugin.list",
+    "description": "<p>Return the list of registered plugins.</p>",
+    "version": "0.0.0",
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/plugin/index.js",
+    "groupTitle": "Reactium.Plugin"
+  },
+  {
+    "type": "Function",
     "url": "Plugin.register(ID,order)",
     "title": "Plugin.register()",
     "name": "Plugin.register",
@@ -8796,117 +8838,198 @@
         "Parameter": [
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "listById",
-            "description": "<p>{Getter} get Object keyed by id of most recent (or highest order) registered objects, filtering out unregistered or banned objects.</p>"
+            "description": "<p>get Object keyed by id of most recent (or highest order) registered objects, filtering out unregistered or banned objects.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "list",
-            "description": "<p>{Getter} get list of most recent (or highest order) registered objects, filtering out unregistered or banned objects.</p>"
+            "description": "<p>get list of most recent (or highest order) registered objects, filtering out unregistered or banned objects.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "registered",
-            "description": "<p>{Getter} get list of all historically registrated objects, even duplicates, ordered by order property of object (defaults to 100).</p>"
+            "description": "<p>get list of all historically registrated objects, even duplicates, ordered by order property of object (defaults to 100).</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "protected",
-            "description": "<p>{Getter} get list of protected registrations ids</p>"
+            "description": "<p>get list of protected registrations ids</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "unregistered",
-            "description": "<p>{Getter} get list of all existing registered objects ids that have been subsequently unregistered.</p>"
+            "description": "<p>get list of all existing registered objects ids that have been subsequently unregistered.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "banned",
-            "description": "<p>{Getter} get list of all banned objects ids.</p>"
+            "description": "<p>get list of all banned objects ids.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Getter",
             "optional": false,
             "field": "mode",
-            "description": "<p>{Getter} get current mode (Default Utils.Registry.MODES.HISTORY)</p>"
+            "description": "<p>get current mode (Default Utils.Registry.MODES.HISTORY)</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "get",
-            "description": "<p>{Method} pass the identifier of an object get that object from the registry</p>"
+            "description": "<p><code>reg.get(id)</code> pass the identifier of an object get that object from the registry</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "isProtected",
-            "description": "<p>{Method} pass the identifier of an object to see if it has been protected</p>"
+            "description": "<p>pass the identifier of an object to see if it has been protected</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "isRegistered",
-            "description": "<p>{Method} pass the identifier of an object to see if it has been registered</p>"
+            "description": "<p>pass the identifier of an object to see if it has been registered</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "isUnRegistered",
-            "description": "<p>{Method} pass the identifier of an object to see is NOT registered.</p>"
+            "description": "<p>pass the identifier of an object to see is NOT registered.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "isBanned",
-            "description": "<p>{Method} pass the identifier of an object to see if it has been banned</p>"
+            "description": "<p>pass the identifier of an object to see if it has been banned</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "ban",
-            "description": "<p>{Method} pass the identifier of an object to ban. Banned objects can not be registered and will not be show in list. Useful when you have code that needs to preempt the registration of an object from code you do not control. E.g. a plugin is introducing undesireable or disabled functionality</p>"
+            "description": "<p><code>reg.ban(id)</code> pass the identifier of an object to ban. Banned objects can not be registered and will not be show in list. Useful when you have code that needs to preempt the registration of an object from code you do not control. E.g. a plugin is introducing undesireable or disabled functionality</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "cleanup",
-            "description": "<p>{Method} pass the identifier of an object to be purged from historical registrations (i.e. free up memory) Automatically performed in mode Utils.Registry.CLEAN</p>"
+            "description": "<p><code>reg.cleanup(id)</code> pass the identifier of an object to be purged from historical registrations (i.e. free up memory) Automatically performed in mode Utils.Registry.CLEAN</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "protect",
-            "description": "<p>{Method} pass the identifier of an object to protect. Protected objects can not be overridden or cleaned up.</p>"
+            "description": "<p><code>reg.protect(id)</code> pass the identifier of an object to protect. Protected objects can not be overridden or cleaned up.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "register",
-            "description": "<p>{Method} pass an identifier and a data object to register the object. The identifier will be added if it is not already registered (but protected) and not banned.</p>"
+            "description": "<p><code>reg.register(id,data)</code> pass an identifier and a data object to register the object. The identifier will be added if it is not already registered (but protected) and not banned.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "unprotect",
-            "description": "<p>{Method} pass an identifier to unprotect an object</p>"
+            "description": "<p><code>reg.unprotect(id)</code> pass an identifier to unprotect an object</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "unregister",
-            "description": "<p>{Method} pass an identifier to unregister an object. When in HISTORY mode (default), previous registration will be retained, but the object will not be listed. In CLEAN mode, the previous registrations will be removed, unless protected.</p>"
+            "description": "<p><code>reg.unregister(id)</code> pass an identifier to unregister an object. When in HISTORY mode (default), previous registration will be retained, but the object will not be listed. In CLEAN mode, the previous registrations will be removed, unless protected.</p>"
           },
           {
             "group": "Parameter",
+            "type": "Method",
             "optional": false,
             "field": "flush",
-            "description": "<p>{Method} clear all registrations. Resets registry to newly constructed state.</p>"
+            "description": "<p><code>reg.flush()</code> clear all registrations. Resets registry to newly constructed state.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Method",
+            "optional": false,
+            "field": "subscribe",
+            "description": "<p><code>reg.subscribe(cb,id)</code> Adds a callback to indicate changes to the registry. Callback is called on register, unregister, protect, unprotect, ban, cleanup, and flush. Returns unsubscribe function.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Method",
+            "optional": false,
+            "field": "unsubscribe",
+            "description": "<p><code>reg.unsubscribe(id)</code> unsubscribe a subscriber by id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Method",
+            "optional": false,
+            "field": "unsubscribeAll",
+            "description": "<p><code>reg.unsubscribeAll()</code> unsubscribe all subscribers to changes made on the registry</p>"
+          }
+        ],
+        "register": [
+          {
+            "group": "register",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>the id of the data object to be registered</p>"
+          },
+          {
+            "group": "register",
+            "type": "Object",
+            "optional": false,
+            "field": "data",
+            "description": "<p>the object to be registered</p>"
+          }
+        ],
+        "subscribe": [
+          {
+            "group": "subscribe",
+            "type": "Function",
+            "optional": false,
+            "field": "cb",
+            "description": "<p>Callback to be invoked on changes to the registry.</p>"
+          },
+          {
+            "group": "subscribe",
+            "type": "String",
+            "optional": true,
+            "field": "id",
+            "description": "<p>optional id of the callback, if you want to invoke unsubscribe manually by id, instead of the callback returned from subscribe method</p>"
+          }
+        ],
+        "unsubscribe": [
+          {
+            "group": "unsubscribe",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>the id of the subscriber to unsubscribe</p>"
           }
         ]
       }
