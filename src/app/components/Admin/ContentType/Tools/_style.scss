@@ -83,3 +83,31 @@ $size-types-tool: 45px;
         }
     }
 }
+
+.tools-paging {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    background: $color-primary;
+
+    button {
+        &.tools-paging-left, &.tools-paging-right {
+            min-height: 10px;
+            height: 20px;
+            flex: 0 0 50%;
+            border-radius: 0;
+
+            svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            &:focus, &:hover, &:active {
+                background: $color-white;
+                svg {
+                    fill: $color-primary;
+                }
+            }
+        }
+    }
+}
