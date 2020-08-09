@@ -16776,6 +16776,7 @@ h6 {
     font-weight: 400;
     font-size: 1.5rem;
 }
+.admin-components-list .component-name input,
 .ar-media-picker-no-selection-label,
 .field-media-label,
 .field-media-label-dnd,
@@ -16791,6 +16792,7 @@ h6 {
     font-weight: 400;
     font-size: 1rem;
 }
+.admin-components-list h3,
 .h5 {
     font-family: Montserrat, Helvetica, Arial, sans-serif;
     font-weight: 400;
@@ -32165,6 +32167,40 @@ body.fullscreen .admin-content-list {
     cursor: -webkit-grabbing;
     cursor: grabbing;
 }
+.tools-paging {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    background: #4f82ba;
+}
+.tools-paging button.tools-paging-left,
+.tools-paging button.tools-paging-right {
+    min-height: 10px;
+    height: 20px;
+    flex: 0 0 50%;
+    border-radius: 0;
+}
+.tools-paging button.tools-paging-left svg,
+.tools-paging button.tools-paging-right svg {
+    width: 12px;
+    height: 12px;
+}
+.tools-paging button.tools-paging-left:active,
+.tools-paging button.tools-paging-left:focus,
+.tools-paging button.tools-paging-left:hover,
+.tools-paging button.tools-paging-right:active,
+.tools-paging button.tools-paging-right:focus,
+.tools-paging button.tools-paging-right:hover {
+    background: #fff;
+}
+.tools-paging button.tools-paging-left:active svg,
+.tools-paging button.tools-paging-left:focus svg,
+.tools-paging button.tools-paging-left:hover svg,
+.tools-paging button.tools-paging-right:active svg,
+.tools-paging button.tools-paging-right:focus svg,
+.tools-paging button.tools-paging-right:hover svg {
+    fill: #4f82ba;
+}
 .types-fields {
     padding: 20px 90px 20px 20px;
     min-height: 100px;
@@ -35358,4 +35394,162 @@ body.fullscreen .admin-content-list {
 }
 .admin-taxonomy-list-item ul li .trash {
     fill: #e09797;
+}
+.admin-components {
+    padding-top: 60px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    min-height: 100vh;
+    height: auto;
+    width: 100%;
+    overflow: hidden;
+}
+@media only screen and (min-width: 641px) {
+    .admin-components {
+        display: block;
+    }
+}
+@media only screen and (min-width: 991px) {
+    .admin-components {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        align-items: stretch;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+}
+.admin-components h3 {
+    margin-bottom: 16px;
+}
+.admin-components-creator {
+    display: block;
+    background-color: #fff;
+    width: 100%;
+    transition: width 0.2s ease-in-out;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-creator {
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 420px;
+        border-right: 1px solid #f2f2f2;
+    }
+}
+.admin-components-creator .info {
+    border-bottom: 1px solid #f7f7f7;
+    padding: 20px;
+}
+.admin-components-creator .attribute {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f7f7f7;
+}
+.admin-components-creator .attributes {
+    position: relative;
+    flex-grow: 1;
+}
+.admin-components-creator .attributes ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.admin-components-creator .attributes ul li {
+    list-style: none;
+}
+.admin-components-creator .footer {
+    padding: 20px;
+    flex-shrink: 0;
+    border-top: 1px solid #f7f7f7;
+}
+.admin-components-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+}
+.admin-components-list .component-name {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+.admin-components-list .component-name input {
+    border: none;
+    width: 100%;
+    height: 42px;
+    padding: 0 20px;
+    background-color: transparent;
+}
+.admin-components-list .component-name input:focus {
+    outline: 0;
+}
+.admin-components-list .component-name input:-moz-read-only {
+    cursor: default;
+    -moz-user-select: none;
+    user-select: none;
+}
+.admin-components-list .component-name input:read-only {
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.admin-components-list .ar-event-form:not(:last-child) {
+    margin-bottom: 24px;
+}
+.admin-components-list .info {
+    padding: 16px 20px;
+}
+.admin-components-list .attribute-add {
+    border-top: 1px solid #f7f7f7;
+    border-bottom: 1px solid #f7f7f7;
+    padding: 16px 20px;
+}
+.admin-components-list .attributes ul,
+.admin-components-list .attributes ul li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.admin-components-list .attributes .attribute {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f7f7f7;
+}
+.admin-components-list h3 {
+    font-weight: 500;
+}
+.admin-components-list h3:first-child:last-child {
+    margin-bottom: 0;
+}
+.admin-components .ar-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 50000;
+}
+.admin-components .ar-dialog-header-btn.delete svg {
+    fill: #e09797;
+}
+@media only screen and (min-width: 991px) and (max-width: 1280px) {
+    .admin-sidebar-expanded .admin-components {
+        display: block;
+        overflow: auto;
+    }
+}
+@media only screen and (min-width: 991px) and (max-width: 1280px) {
+    .admin-sidebar-expanded .admin-components-creator {
+        width: 100%;
+    }
+}
+@media only screen and (min-width: 991px) and (max-width: 1280px) {
+    .admin-sidebar-expanded .admin-components-list {
+        overflow: visible;
+    }
 }
