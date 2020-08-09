@@ -1,7 +1,187 @@
-.zone-admin-components {
+.admin-components {
     padding-top: $height-admin-header;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    min-height: 100vh;
+    height: auto;
+    width: 100%;
+    overflow: hidden;
+
+    @include breakpoint(sm) {
+        display: block;
+    }
+
+    @include breakpoint(md) {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        align-items: stretch;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+
+    h3 {
+        margin-bottom: 16px;
+    }
+
+    &-creator {
+        display: block;
+        background-color: $color-light;
+        width: 100%;
+        transition: width 0.2s ease-in-out;
+
+        @include breakpoint(md) {
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+            flex-shrink: 0;
+            overflow: hidden;
+            width: 420px;
+            border-right: 1px solid darken($color-border, 2%);
+        }
+
+        .info {
+            border-bottom: 1px solid $color-grey-light;
+            padding: 20px;
+        }
+
+        .attribute {
+            padding: 16px 20px;
+            border-bottom: 1px solid $color-grey-light;
+        }
+
+        .attributes {
+            position: relative;
+            flex-grow: 1;
+
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+
+                li {
+                    list-style: none;
+                }
+            }
+        }
+
+        .footer {
+            padding: 20px;
+            flex-shrink: 0;
+            border-top: 1px solid $color-grey-light;
+        }
+    }
+
+    &-list {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: $padding-admin-content-zone;
+        position: relative;
+
+        .component-name {
+
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+
+            input {
+                @extend .h3;
+                border: none;
+                width: 100%;
+                height: 42px;
+                padding: 0 20px;
+                background-color: transparent;
+
+                &:focus {
+                    outline: none;
+                }
+
+                &:read-only {
+                    cursor: default;
+                    user-select: none;
+                }
+            }
+        }
+
+        .ar-event-form {
+            &:not(:last-child) {
+                margin-bottom: $padding-admin-content-zone;
+            }
+        }
+
+        .info {
+            padding: 16px 20px;
+        }
+
+        .attribute-add {
+            border-top: 1px solid $color-grey-light;
+            border-bottom: 1px solid $color-grey-light;
+            padding: 16px 20px;
+        }
+
+        .attributes {
+            ul {
+                &,
+                li {
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                }
+            }
+
+            .attribute {
+                padding: 16px 20px;
+                border-bottom: 1px solid $color-grey-light;
+            }
+        }
+
+        h3 {
+            @extend .h5;
+            font-weight: 500;
+
+            &:first-child {
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+
+    .ar-spinner {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 50000;
+    }
+
+    .ar-dialog-header-btn.delete {
+        svg {
+            fill: $color-danger;
+        }
+    }
 }
 
-.admin-components-list {
-    padding: $padding-admin-content-zone;
+// Sidebar expanded
+.admin-sidebar-expanded {
+    .admin-components {
+        @include breakpoint(md-only) {
+            display: block;
+            overflow: auto;
+        }
+
+        &-creator {
+            @include breakpoint(md-only) {
+                width: 100%;
+            }
+        }
+
+        &-list {
+            @include breakpoint(md-only) {
+                overflow: visible;
+            }
+        }
+    }
 }

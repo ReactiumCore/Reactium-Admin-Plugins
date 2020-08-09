@@ -1,14 +1,24 @@
 import SDK from './sdk';
 import _ from 'underscore';
+import uuid from 'uuid/v4';
+import ENUMS from './enums';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
+import Editor from './Editor';
+import camelcase from 'camelcase';
 import PropTypes from 'prop-types';
+import Attribute from './Attribute';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import Reactium, {
+    __,
     ComponentEvent,
-    Zone,
+    useWindowSize,
     useDerivedState,
     useEventHandle,
+    useHandle,
+    useHookComponent,
     useRegisterHandle,
     useRefs,
     useStatus,
@@ -16,16 +26,48 @@ import Reactium, {
 
 import React, { forwardRef, useImperativeHandle, useEffect } from 'react';
 
-const ENUMS = {
-    STATUS: {
-        PENDING: 'PENDING',
-        INITIALIZING: 'INITIALIZING',
-        INITIALIZED: 'INITIALIZED',
-        READY: 'READY',
-    },
+const noop = () => {};
+
+const parseAttribute = attribute => {
+    attribute = String(attribute)
+        .trim()
+        .includes(' ')
+        ? camelcase(attribute)
+        : attribute;
+
+    attribute = slugify(attribute, '_');
+
+    return attribute;
 };
 
-const noop = () => {};
+class SearchIndex {
+    constructor(items = []) {
+        this.index = items.map(item => {
+            const { name, label, uuid } = item;
+            const attribute = op
+                .get(item, 'attribute', [])
+                .join(' ')
+                .toLowerCase()
+                .split(' ');
+
+            const index = _.chain([name, label, attribute])
+                .flatten()
+                .compact()
+                .value()
+                .join(' ')
+                .toLowerCase();
+
+            return { index, ref: uuid };
+        });
+    }
+
+    search(str) {
+        str = String(str)
+            .trim()
+            .toLowerCase();
+        return this.index.filter(({ index }) => index.includes(str));
+    }
+}
 
 /**
  * -----------------------------------------------------------------------------
@@ -33,19 +75,39 @@ const noop = () => {};
  * -----------------------------------------------------------------------------
  */
 let ComponentManager = (
-    { children, className, namespace, onStatus, ...props },
+    { children, className, namespace, onStatus, title, ...props },
     ref,
 ) => {
     // -------------------------------------------------------------------------
     // Refs
     // -------------------------------------------------------------------------
     const refs = useRefs();
+    const SearchBar = useHandle('SearchBar');
+    const Sidebar = useHandle('AdminSidebar');
+    const Helmet = useHookComponent('Helmet');
+
+    // -------------------------------------------------------------------------
+    // breakpoint
+    // -------------------------------------------------------------------------
+    const { breakpoint } = useWindowSize();
+
+    // -------------------------------------------------------------------------
+    // Reactium UI Components
+    // -------------------------------------------------------------------------
+    const { Button, EventForm, Icon, Spinner, Toast } = useHookComponent(
+        'ReactiumUI',
+    );
 
     // -------------------------------------------------------------------------
     // State
     // -------------------------------------------------------------------------
     const [state, update] = useDerivedState({
+        attributes: [],
         components: SDK.list(),
+        error: null,
+        scrollbar: {},
+        search: null,
+        sidebar: Date.now(),
     });
 
     const setState = newState => {
@@ -61,6 +123,69 @@ let ComponentManager = (
     // -------------------------------------------------------------------------
     // Internal Interface
     // -------------------------------------------------------------------------
+    const attr = {
+        add: e => {
+            const { input, stateKey = 'attributes' } = e;
+
+            const attribute = parseAttribute(input.value);
+
+            if (!attribute || String(attribute).length < 1) {
+                if (stateKey === 'attributes') {
+                    input.value = '';
+                    input.focus();
+                }
+                return;
+            }
+
+            let attributes = op.get(state, stateKey, []) || [];
+            attributes.splice(0, 0, attribute);
+            attributes = _.chain(attributes)
+                .compact()
+                .uniq()
+                .value();
+
+            const newState = { ...state };
+            op.set(newState, stateKey, attributes);
+            setState(state, newState);
+
+            input.value = '';
+            input.focus();
+
+            dispatch('attribute-add', {
+                ...e,
+                attribute,
+                attributes,
+                stateKey,
+            });
+
+            return attributes;
+        },
+
+        parse: parseAttribute,
+
+        remove: e => {
+            const { input, stateKey = 'attributes' } = e;
+            const idx = input.dataset.index;
+
+            const attribute = parseAttribute(input.value);
+
+            const attributes = op.get(state, stateKey, []) || [];
+            attributes.splice(idx, 1);
+
+            const newState = { ...state };
+            op.set(newState, stateKey, attributes);
+            setState(state, newState);
+
+            dispatch('attribute-remove', {
+                ...e,
+                attribute,
+                attributes,
+                stateKey,
+            });
+
+            return attributes;
+        },
+    };
 
     // cx(suffix:String);
     const cx = Reactium.Utils.cxFactory(className || namespace);
@@ -86,30 +211,210 @@ let ComponentManager = (
         if (typeof callback === 'function') await callback(evt);
     };
 
-    // initialize();
+    const filter = () => {
+        const { components = {}, index, search } = state;
+        const output =
+            index && search
+                ? index.search(search).map(({ ref }) => op.get(components, ref))
+                : Object.values(components);
 
-    const initialize = async () => {
-        // SET STATUS TO INITIALIZING
-        setStatus(ENUMS.STATUS.INITIALIZING);
-
-        // DO YOUR INITIALIZATION HERE
-        const components = await SDK.list(true);
-
-        // SET STATUS TO INITIALIZED WHEN COMPLETE
-        _.delay(() => {
-            setStatus(ENUMS.STATUS.READY);
-            setState({ fetched: Date.now(), components });
-        }, 500);
-
-        return components;
+        return _.sortBy(output, 'name');
     };
 
-    const save = () => {
-        console.log('save');
+    // initialize();
+    const initialize = async () => {
+        if (isStatus(ENUMS.STATUS.INITIALIZING)) return;
+
+        setStatus(ENUMS.STATUS.INITIALIZING, true);
+
+        const components = await SDK.list(true);
+
+        const index = new SearchIndex(Object.values(components));
+
+        setState({ components, index });
+
+        _.delay(() => setStatus(ENUMS.STATUS.INITIALIZED, true), 500);
+    };
+
+    const isEmpty = () =>
+        Boolean(Object.keys(op.get(state, 'components', {})).length < 1);
+
+    const isError = field => Boolean(op.get(state.error, 'field') === field);
+
+    const toggleSearch = () => {
+        SearchBar.setState({ visible: !isEmpty() });
     };
 
     // unMounted();
     const unMounted = () => !refs.get('container');
+
+    const _onAfterSave = () =>
+        Toast.show({
+            type: Toast.TYPE.INFO,
+            message: __('Saved Components'),
+            icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+        });
+
+    const _onCreate = e => {
+        const { value } = e;
+        const form = refs.get('creator');
+        const inputs = refs.get('create');
+
+        // validate
+        if (!op.get(value, 'name')) {
+            const error = {
+                field: 'name',
+                message: __('enter component name'),
+            };
+
+            setState({ error });
+            if (op.get(inputs, 'name')) {
+                inputs.name.focus();
+            }
+            return;
+        }
+
+        // format attributes
+        const attribute = _.chain([op.get(value, 'attribute')])
+            .flatten()
+            .compact()
+            .uniq()
+            .value();
+
+        op.set(value, 'attribute', attribute);
+        op.set(value, 'uuid', uuid());
+
+        // optimistically update components
+        const { components = {} } = state;
+        op.set(components, value.uuid, value);
+
+        // update the index
+        const index = new SearchIndex(Object.values(components));
+
+        // clear attributes and error
+        setState({ attributes: [], index, error: null });
+
+        // clear form
+        form.setValue(null);
+
+        // focus on name field
+        if (op.get(inputs, 'name')) {
+            inputs.name.focus();
+        }
+
+        // Save the components setting
+        return SDK.add(value).then(newComponents => {
+            if (unMounted()) return;
+            setState({ components: newComponents });
+            _.defer(() => dispatch('create', e));
+            return newComponents;
+        });
+    };
+
+    const _onDelete = e => {
+        const { uuid } = e;
+        const components = op.get(state, 'components');
+
+        // optimistically delete the component
+        op.del(components, uuid);
+
+        // update the index
+        const index = new SearchIndex(Object.values(components));
+
+        setState({ components, index });
+
+        return SDK.delete(uuid).then(newComponents => {
+            if (unMounted()) return;
+            setState({ components: newComponents });
+            _.defer(() => dispatch('delete', e));
+
+            return newComponents;
+        });
+    };
+
+    const _onDisable = uuid => {
+        // disable all other editors
+        Object.entries(handle.refs.get('editor')).forEach(([id, editor]) => {
+            if (id === uuid) return;
+            editor.disable();
+        });
+    };
+
+    const _onResize = e => {
+        switch (breakpoint) {
+            case 'sm':
+                setState({
+                    scrollbar: {
+                        autoHeight: true,
+                        autoHeightMin: 73,
+                        autoHeightMax: 147,
+                    },
+                });
+                break;
+
+            case 'md':
+                if (e.type === 'toggle') {
+                    if (Sidebar.isCollapsed()) {
+                        setState({
+                            scrollbar: {
+                                autoHeight: true,
+                                autoHeightMin: 73,
+                                autoHeightMax: '50vh',
+                            },
+                        });
+                    } else {
+                        setState({ scrollbar: {} });
+                    }
+                } else {
+                    if (Sidebar.isExpanded()) {
+                        setState({
+                            scrollbar: {
+                                autoHeight: true,
+                                autoHeightMin: 73,
+                                autoHeightMax: '50vh',
+                            },
+                        });
+                    } else {
+                        setState({ scrollbar: {} });
+                    }
+                }
+                break;
+
+            default:
+                setState({ scrollbar: {} });
+        }
+
+        _.defer(() => dispatch('resize', e));
+    };
+
+    const _onSave = () => {
+        const components = op.get(state, 'components', {});
+
+        Object.entries(refs.get('editor')).forEach(([uuid, editor]) => {
+            const val = editor.form.getValue();
+            const attribute = _.chain([op.get(val, 'attribute', [])])
+                .flatten()
+                .compact()
+                .uniq()
+                .value();
+            val.attribute = attribute;
+            op.set(components, uuid, val);
+        });
+
+        return SDK.save(components).then(newComponents => {
+            // update the index
+            const index = new SearchIndex(Object.values(components));
+
+            setState({ components: newComponents, index });
+            _.defer(() => dispatch('save'));
+
+            return newComponents;
+        });
+    };
+
+    const _onSearch = () => {
+        setState({ search: SearchBar.state.value });
+    };
 
     const _onStatusChange = () => {
         dispatch('status', { status }, onStatus);
@@ -117,6 +422,10 @@ let ComponentManager = (
         switch (status) {
             case ENUMS.STATUS.PENDING:
                 initialize();
+                break;
+
+            case ENUMS.STATUS.INITIALIZED:
+                setStatus(ENUMS.STATUS.READY);
                 break;
         }
     };
@@ -126,15 +435,22 @@ let ComponentManager = (
     // -------------------------------------------------------------------------
     const _handle = () => ({
         ENUMS,
+        add: _onCreate,
+        attribute: attr,
         children,
         className,
         cx,
+        delete: _onDelete,
+        disable: _onDisable,
         dispatch,
         initialize,
+        isEmpty,
+        isError,
         isStatus,
         namespace,
         props,
-        save,
+        refs,
+        save: _onSave,
         setState,
         setStatus,
         state,
@@ -153,13 +469,115 @@ let ComponentManager = (
     // Status change
     useEffect(_onStatusChange, [status]);
 
+    // Window resize
+    useEffect(() => _onResize(new Event('resize')), [breakpoint]);
+
+    // SearchBar hide/show
+    useEffect(toggleSearch, [SearchBar, isEmpty()]);
+
+    useEffect(_onSearch, [op.get(SearchBar, 'state.value')]);
+
+    // Sidebar toggle
+    useEffect(() => {
+        if (!Sidebar) return;
+        Sidebar.addEventListener('toggle', _onResize);
+
+        return () => {
+            Sidebar.removeEventListener('toggle', _onResize);
+        };
+    }, [Sidebar]);
+
+    // On Save
+    useEffect(() => {
+        handle.addEventListener('save', _onAfterSave);
+
+        return () => {
+            handle.removeEventListener('save', _onAfterSave);
+        };
+    }, []);
+
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
     return (
         <div className={cx()}>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+            <EventForm
+                onSubmit={_onCreate}
+                className={cx('creator')}
+                ref={elm => refs.set('creator', elm)}>
+                <div className='info'>
+                    <h3>{__('New Component')}</h3>
+
+                    <div
+                        className={cn('form-group', {
+                            error: isError('name'),
+                        })}>
+                        <input
+                            type='text'
+                            name='name'
+                            placeholder='Component'
+                            ref={elm => refs.set('create.name', elm)}
+                        />
+                        {isError('name') && (
+                            <small>{state.error.message}</small>
+                        )}
+                    </div>
+
+                    <div className='form-group'>
+                        <input
+                            type='text'
+                            name='label'
+                            placeholder='Label'
+                            ref={elm => refs.set('create.label', elm)}
+                        />
+                    </div>
+                </div>
+
+                <Attribute
+                    color={Button.ENUMS.COLOR.TERTIARY}
+                    icon='Feather.Plus'
+                    label={__('Attributes')}
+                    onClick={attr.add}
+                />
+
+                <div className='attributes'>
+                    <Scrollbars {...state.scrollbar}>
+                        <ul>
+                            {Object.values(state.attributes).map((item, i) => (
+                                <li key={item}>
+                                    <Attribute
+                                        color={Button.ENUMS.COLOR.DANGER}
+                                        icon='Feather.X'
+                                        name='attribute'
+                                        onClick={attr.remove}
+                                        value={item}
+                                        index={i}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    </Scrollbars>
+                </div>
+
+                <div className='footer'>
+                    <Button block size={Button.ENUMS.SIZE.MD} type='submit'>
+                        {__('Add Component')}
+                    </Button>
+                </div>
+            </EventForm>
             <div className={cx('list')} ref={elm => refs.set('container', elm)}>
-                Component List
+                {filter().map((item, i) => (
+                    <Editor
+                        {...item}
+                        key={item.uuid}
+                        index={i}
+                        ref={elm => refs.set(`editor.${item.uuid}`, elm)}
+                    />
+                ))}
+                {isStatus(ENUMS.STATUS.INITIALIZING) && <Spinner />}
             </div>
         </div>
     );
@@ -178,6 +596,7 @@ ComponentManager.propTypes = {
 ComponentManager.defaultProps = {
     namespace: 'admin-components',
     onStatus: noop,
+    title: __('Components'),
 };
 
 export { ComponentManager, ComponentManager as default };
