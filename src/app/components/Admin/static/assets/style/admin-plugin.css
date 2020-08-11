@@ -35417,7 +35417,7 @@ body.fullscreen .admin-content-list {
         height: 100vh;
         overflow: hidden;
         align-items: stretch;
-        flex-direction: row;
+        flex-direction: row-reverse;
         justify-content: flex-start;
     }
 }

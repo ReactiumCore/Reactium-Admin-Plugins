@@ -24,6 +24,8 @@ const useLocalState = (defaultState = {}) => {
             newState = { [newState]: newValue || null };
         }
 
+        newState = newState || {};
+
         newState = Object.keys(newState).reduce((obj, key) => {
             op.set(obj, key, op.get(newState, key, null));
             return obj;

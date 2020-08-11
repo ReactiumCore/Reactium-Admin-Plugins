@@ -121,8 +121,12 @@ export const Editor = props => {
         return true;
     };
 
-    const nav = (panel, direction) =>
-        refs.get('scene').navTo({ panel, direction });
+    const nav = (panel, direction) => {
+        const scene = refs.get('scene');
+        if (scene) {
+            scene.navTo({ panel, direction });
+        }
+    };
 
     const remove = async objectId => {
         const values = Array.from(value);
@@ -148,6 +152,9 @@ export const Editor = props => {
     };
 
     const reset = () => {
+        // clear editor.media value
+        Reactium.Cache.del('editor.media');
+
         if (!editor.isNew()) return;
         setActive('action');
         removeAll();

@@ -62,7 +62,11 @@ export default forwardRef((props, ref) => {
         setState({ watch });
     };
 
-    const hasUploads = () => Object.keys(getState('uploads')).length > 0;
+    const hasUploads = () => {
+        const uploads = getState('uploads');
+        if (!uploads) return false;
+        return Object.keys(uploads).length > 0;
+    };
 
     const onWorkerMessage = (...args) => {
         const worker = args[0];

@@ -2,7 +2,7 @@ import React from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 export default ({ handle }) => {
-    const { cx, browseFiles, nav } = handle;
+    const { cx, nav } = handle;
     const { Button } = useHookComponent('ReactiumUI');
 
     return (
@@ -33,7 +33,7 @@ export default ({ handle }) => {
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
                     color={Button.ENUMS.COLOR.PRIMARAY}
-                    onClick={browseFiles}
+                    onClick={() => nav('upload')}
                     size={Button.ENUMS.SIZE.sm}>
                     {__('Upload A File')}
                 </Button>
