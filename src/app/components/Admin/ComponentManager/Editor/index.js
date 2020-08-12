@@ -30,6 +30,8 @@ export default forwardRef((props, ref) => {
 
     const { Button, Dialog, EventForm, Icon } = useHookComponent('ReactiumUI');
 
+    const TypeEditor = useHookComponent('ComponentManagerTypeEditor');
+
     const [edit, setEdit] = useState(false);
 
     const [value, setValue] = useState({ name, label, attribute, uuid });
@@ -101,11 +103,20 @@ export default forwardRef((props, ref) => {
                       </div>,
                       edit === true ? (
                           <Button
-                              className='ar-dialog-header-btn delete'
+                              className='ar-dialog-header-btn danger'
                               color={Button.ENUMS.COLOR.CLEAR}
                               onMouseDown={confirmDelete}
                               key={`component-delete-${uuid}`}>
                               <Icon name='Feather.Trash2' />
+                          </Button>
+                      ) : null,
+                      edit === true ? (
+                          <Button
+                              className='ar-dialog-header-btn primary'
+                              color={Button.ENUMS.COLOR.CLEAR}
+                              onMouseDown={showTypeEditor}
+                              key={`component-type-${uuid}`}>
+                              <Icon name='Feather.Package' />
                           </Button>
                       ) : null,
                       <Button
@@ -120,6 +131,10 @@ export default forwardRef((props, ref) => {
                   ]),
               }
             : {};
+
+    const showTypeEditor = () => {
+        Modal.show(<TypeEditor editor={hndl} />);
+    };
 
     const stateKey = `components.${uuid}.attribute`;
 

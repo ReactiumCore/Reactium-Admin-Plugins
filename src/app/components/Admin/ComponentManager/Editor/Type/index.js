@@ -4,9 +4,12 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 
 import Reactium, {
+    __,
     ComponentEvent,
     useDerivedState,
     useEventHandle,
+    useHandle,
+    useHookComponent,
     useRefs,
     useStatus,
 } from 'reactium-core/sdk';
@@ -26,18 +29,32 @@ const noop = () => {};
 
 /**
  * -----------------------------------------------------------------------------
- * Hook Component: {{name}}
+ * Hook Component: Type
  * -----------------------------------------------------------------------------
  */
-let {{name}} = (initialProps, ref) => {
+let Type = (initialProps, ref) => {
     let {
         children,
         className,
+        editor,
         namespace,
         onStatus,
-        state:initialState,
+        state: initialState,
         ...props
     } = initialProps;
+
+    const tools = useHandle('AdminTools');
+
+    const Modal = op.get(tools, 'Modal');
+
+    const { Button, Icon, Dialog, Scene } = useHookComponent('ReactiumUI');
+
+    const Selector = useHookComponent('ComponentManagerTypeSelector');
+    const JsxComponent = useHookComponent('ComponentManagerJsxComponent');
+    const HookComponent = useHookComponent('ComponentManagerHookComponent');
+    const ContentComponent = useHookComponent(
+        'ComponentManagerContentComponent',
+    );
 
     // -------------------------------------------------------------------------
     // Refs
@@ -82,6 +99,49 @@ let {{name}} = (initialProps, ref) => {
         if (typeof callback === 'function') await callback(evt);
     };
 
+    const dismiss = () => {
+        Modal.hide();
+    };
+
+    const getIcon = active => {
+        switch (String(active).toLowerCase()) {
+            case 'hook':
+                return 'Linear.Chip';
+
+            case 'content':
+                return 'Linear.Typewriter';
+
+            case 'jsx':
+                return 'Linear.MagicWand';
+        }
+    };
+
+    const header = () => {
+        const { active, title } = state;
+        return {
+            title: active !== 'selector' ? `${title}: ${active}` : title,
+            elements: _.compact([
+                active !== 'selector' ? (
+                    <Button
+                        className='ar-dialog-header-btn'
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        onClick={() => navTo('selector', 'right')}
+                        key='component-type-selector'
+                        style={{ paddingLeft: 4 }}>
+                        <Icon name={getIcon(active)} />
+                    </Button>
+                ) : null,
+                <Button
+                    className='ar-dialog-header-btn'
+                    color={Button.ENUMS.COLOR.CLEAR}
+                    onClick={dismiss}
+                    key='component-type-dismiss'>
+                    <Icon name='Feather.X' />
+                </Button>,
+            ]),
+        };
+    };
+
     // initialize();
     // run initialization process
     const initialize = async () => {
@@ -94,9 +154,16 @@ let {{name}} = (initialProps, ref) => {
         setStatus(ENUMS.STATUS.INITIALIZED);
     };
 
+    const navTo = (panel, direction = 'left') => {
+        const scene = refs.get('scene');
+        if (!scene) return;
+
+        scene.navTo({ direction, panel });
+    };
+
     // unmount();
     // check if the component has been unmounted
-    const unMounted = () => !refs.get('container');
+    const unMounted = () => !refs.get('scene');
 
     // -------------------------------------------------------------------------
     // Handle
@@ -106,8 +173,10 @@ let {{name}} = (initialProps, ref) => {
         className,
         cx,
         dispatch,
+        editor,
         initialize,
         namespace,
+        navTo,
         onStatus,
         props,
         setState,
@@ -142,27 +211,42 @@ let {{name}} = (initialProps, ref) => {
     //   are not met.
     // -------------------------------------------------------------------------
     return (
-        <div ref={elm => refs.set('container', elm)} className={cx()}>
-            {children}
+        <div className={cx()}>
+            <Dialog collapsible={false} header={header()}>
+                <Scene
+                    active={state.active}
+                    ref={elm => refs.set('scene', elm)}
+                    width='100%'
+                    height={520}
+                    onChange={({ active }) => setState({ active })}>
+                    <Selector id='selector' handle={handle} />
+                    <ContentComponent id='content' handle={handle} />
+                    <HookComponent id='hook' handle={handle} />
+                    <JsxComponent id='jsx' handle={handle} />
+                </Scene>
+            </Dialog>
         </div>
     );
 };
 
-{{name}} = forwardRef({{name}});
+Type = forwardRef(Type);
 
-{{name}}.ENUMS = ENUMS;
+Type.ENUMS = ENUMS;
 
-{{name}}.propTypes = {
+Type.propTypes = {
     className: PropTypes.string,
     namespace: PropTypes.string,
     onStatus: PropTypes.func,
     state: PropTypes.object,
 };
 
-{{name}}.defaultProps = {
-    namespace: 'NAMESPACE',
+Type.defaultProps = {
+    namespace: 'admin-components-type',
     onStatus: noop,
-    state: {},
+    state: {
+        active: 'selector',
+        title: __('Component Type'),
+    },
 };
 
-export { {{name}}, {{name}} as default };
+export { Type, Type as default };
