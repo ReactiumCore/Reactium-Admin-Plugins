@@ -387,9 +387,8 @@ let ComponentManager = (
         _.defer(() => dispatch('resize', e));
     };
 
-    const _onSave = () => {
-        const components = op.get(state, 'components', {});
-
+    const _onSave = (newComponents = {}) => {
+        const currentComponents = op.get(state, 'components', {});
         Object.entries(refs.get('editor')).forEach(([uuid, editor]) => {
             const val = editor.form.getValue();
             const attribute = _.chain([op.get(val, 'attribute', [])])
@@ -398,17 +397,21 @@ let ComponentManager = (
                 .uniq()
                 .value();
             val.attribute = attribute;
-            op.set(components, uuid, val);
+            op.set(currentComponents, uuid, val);
         });
 
-        return SDK.save(components).then(newComponents => {
+        const components = { ...currentComponents, ...newComponents };
+
+        setState({ components });
+
+        return SDK.save(components).then(results => {
             // update the index
             const index = new SearchIndex(Object.values(components));
 
-            setState({ components: newComponents, index });
+            setState({ components: results, index });
             _.defer(() => dispatch('save'));
 
-            return newComponents;
+            return results;
         });
     };
 

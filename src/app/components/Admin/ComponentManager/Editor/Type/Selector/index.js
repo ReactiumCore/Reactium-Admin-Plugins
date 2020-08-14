@@ -30,7 +30,7 @@ const Selector = ({ handle }) => {
                     key={`selector-${btn.id}`}
                     onClick={() => onClick(btn)}>
                     <div className={cx('selector-icon')}>
-                        <Icon name={btn.icon} />
+                        <Icon name={btn.icon} className={btn.id} />
                     </div>
                     <div className={cx('selector-label')}>{btn.label}</div>
                 </button>

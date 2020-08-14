@@ -2434,111 +2434,6 @@ define({ "api": [
     "groupTitle": "Reactium.Capability"
   },
   {
-    "type": "Function",
-    "url": "Component.get(hook,defaultComponent)",
-    "title": "Component.get()",
-    "group": "Reactium.Component",
-    "name": "Component.get",
-    "description": "<p>Call the hook and obtain the registered component. Get the defaultComponent if no hook component was registered.</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "hook",
-            "description": "<p>The hook name</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Mixed",
-            "optional": true,
-            "field": "defaultComponent",
-            "description": "<p>the default component if no component is provided</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/component/index.js",
-    "groupTitle": "Reactium.Component"
-  },
-  {
-    "type": "Function",
-    "url": "Component.register(hook,component,order,capabilities,strict)",
-    "title": "Component.register()",
-    "group": "Reactium.Component",
-    "name": "Component.register",
-    "description": "<p>Register a React component to be used with a specific useHookComponent hook. This must be called before the useHookComponent that defines the hook.</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "hook",
-            "description": "<p>The hook name</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Mixed",
-            "optional": false,
-            "field": "component",
-            "description": "<p>component(s) to be output by useHookComponent</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "order",
-            "description": "<p>precedent of this if Component.register is called multiple times (e.g. if you are trying to override core or another plugin)</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "reactium-hooks.js",
-        "content": "import React from 'react';\nimport Reactium from 'reactium-core/sdk';\n\n// component to be used unless overriden by Reactium.Component.register()\nconst ReplacementComponentA = () => <div>My Plugin's Component</div>\nconst ReplacementComponentB = () => <div>My Alternative Component</div>\n\n// Simple Version\nReactium.Component.register('my-component', ReplacementComponentA);\n\n// Advanced Form using Reactium.Hook SDK\nReactium.Hook.register('my-component', async (...params) => {\n    const context = params.pop(); // context is last argument\n    const [param] = params;\n    if (param === 'test') {\n        context.component = ReplacementComponentA;\n    } else {\n        context.component = ReplacementComponentB;\n    }\n}\n})",
-        "type": "json"
-      },
-      {
-        "title": "parent.js",
-        "content": "import React from 'react';\nimport { useHookComponent } from 'reactium-core/sdk';\n\n// component to be used unless overriden by Reactium.Component.register()\nconst DefaultComponent = () => <div>Default or Placeholder component</div>\n\nexport props => {\n    const MyComponent = useHookComponent('my-component', DefaultComponent, 'test');\n    return (\n        <div>\n            <MyComponent {...props} />\n        </div>\n    );\n};",
-        "type": "json"
-      }
-    ],
-    "version": "0.0.0",
-    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/component/index.js",
-    "groupTitle": "Reactium.Component"
-  },
-  {
-    "type": "Function",
-    "url": "Component.unregister(uuid)",
-    "title": "Component.unregister()",
-    "group": "Reactium.Component",
-    "name": "Component.unregister",
-    "description": "<p>Unregister a component used in useHookComponent. This must be performed before useHookComponent is called. Alias for Reactium.Hook.unregister. See Hook.unregister()</p>",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "uuid",
-            "description": "<p>the registered component hook id provided to <code>Component.register()</code></p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/component/index.js",
-    "groupTitle": "Reactium.Component"
-  },
-  {
     "type": "Asynchronous",
     "url": "Content.ACLToReadWrite()",
     "title": "Content.ACLToReadWrite()",
@@ -8890,7 +8785,7 @@ define({ "api": [
             "type": "Method",
             "optional": false,
             "field": "get",
-            "description": "<p><code>reg.get(id)</code> pass the identifier of an object get that object from the registry</p>"
+            "description": "<p><code>reg.get(id,defaultValue)</code> pass the identifier of an object get that object from the registry. Optionally provide a default value if the id doesn't exist in the registry.</p>"
           },
           {
             "group": "Parameter",

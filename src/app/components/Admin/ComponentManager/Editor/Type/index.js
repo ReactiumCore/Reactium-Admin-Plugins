@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 
@@ -33,22 +32,17 @@ const noop = () => {};
  * -----------------------------------------------------------------------------
  */
 let Type = (initialProps, ref) => {
-    let {
-        children,
-        className,
-        editor,
-        namespace,
-        onStatus,
-        state: initialState,
-        ...props
-    } = initialProps;
+    // -------------------------------------------------------------------------
+    // Props
+    // -------------------------------------------------------------------------
+    const { editor, namespace, onStatus, ...props } = initialProps;
 
+    // -------------------------------------------------------------------------
+    // Components & external handles
+    // -------------------------------------------------------------------------
     const tools = useHandle('AdminTools');
-
     const Modal = op.get(tools, 'Modal');
-
     const { Button, Icon, Dialog, Scene } = useHookComponent('ReactiumUI');
-
     const Selector = useHookComponent('ComponentManagerTypeSelector');
     const JsxComponent = useHookComponent('ComponentManagerJsxComponent');
     const HookComponent = useHookComponent('ComponentManagerHookComponent');
@@ -64,10 +58,14 @@ let Type = (initialProps, ref) => {
     // -------------------------------------------------------------------------
     // State
     // -------------------------------------------------------------------------
-    const [state, update] = useDerivedState(initialState);
+    const [state, updateState] = useDerivedState({
+        active: op.get(props, 'active'),
+        title: op.get(props, 'title'),
+        updated: Date.now(),
+    });
     const setState = newState => {
         if (unMounted()) return;
-        update(newState);
+        updateState(newState);
     };
 
     // -------------------------------------------------------------------------
@@ -79,13 +77,13 @@ let Type = (initialProps, ref) => {
     // Internal Interface
     // -------------------------------------------------------------------------
 
-    // cx(suffix:String);
-    // className extension
-    const cx = Reactium.Utils.cxFactory(className || namespace);
+    const cx = Reactium.Utils.cxFactory(namespace);
 
-    // dispatch(eventType:String, event:Object, callback:Function);
-    // dispatch events, run a hook, execute a callack
-    const dispatch = async (eventType, event = {}, callback) => {
+    const dismiss = () => {
+        Modal.dismiss();
+    };
+
+    const dispatch = (eventType, event = {}, callback) => {
         eventType = String(eventType).toLowerCase();
 
         const evt = new ComponentEvent(eventType, event);
@@ -93,14 +91,10 @@ let Type = (initialProps, ref) => {
         handle.dispatchEvent(evt);
 
         if (unMounted()) return;
-        await Reactium.Hook.run(eventType, evt, handle);
+        Reactium.Hook.runSync(eventType, evt, handle);
 
         if (unMounted()) return;
-        if (typeof callback === 'function') await callback(evt);
-    };
-
-    const dismiss = () => {
-        Modal.hide();
+        if (typeof callback === 'function') callback(evt);
     };
 
     const getIcon = active => {
@@ -116,10 +110,13 @@ let Type = (initialProps, ref) => {
         }
     };
 
-    const header = () => {
-        const { active, title } = state;
-        return {
-            title: active !== 'selector' ? `${title}: ${active}` : title,
+    const header = (noHook = false) => {
+        if (!isStatus(ENUMS.STATUS.INITIALIZED)) return {};
+
+        let { active = 'selector' } = state;
+
+        const output = {
+            title: editor.value.name,
             elements: _.compact([
                 active !== 'selector' ? (
                     <Button
@@ -140,18 +137,20 @@ let Type = (initialProps, ref) => {
                 </Button>,
             ]),
         };
+
+        if (noHook !== true) {
+            dispatch('header', { header: output, active });
+        }
+
+        return output;
     };
 
-    // initialize();
-    // run initialization process
     const initialize = async () => {
         // SET STATUS TO INITIALIZING
-        setStatus(ENUMS.STATUS.INITIALIZING);
-
-        // DO YOUR INITIALIZATION HERE
+        setStatus(ENUMS.STATUS.INITIALIZING, true);
 
         // SET STATUS TO INITIALIZED WHEN COMPLETE
-        setStatus(ENUMS.STATUS.INITIALIZED);
+        _.defer(() => setStatus(ENUMS.STATUS.INITIALIZED, true));
     };
 
     const navTo = (panel, direction = 'left') => {
@@ -161,64 +160,77 @@ let Type = (initialProps, ref) => {
         scene.navTo({ direction, panel });
     };
 
-    // unmount();
-    // check if the component has been unmounted
-    const unMounted = () => !refs.get('scene');
+    const save = (value = {}) => {
+        const { uuid } = value;
+        editor.save({ [uuid]: value });
+        dismiss();
+    };
+
+    const unMounted = () => !refs.get('container');
 
     // -------------------------------------------------------------------------
     // Handle
     // -------------------------------------------------------------------------
     const _handle = () => ({
-        children,
-        className,
         cx,
         dispatch,
         editor,
+        header,
         initialize,
         namespace,
         navTo,
         onStatus,
         props,
+        save,
         setState,
         state,
         unMounted,
     });
     const [handle, setNewHandle] = useEventHandle(_handle());
-
     useImperativeHandle(ref, () => handle, [handle]);
 
     // -------------------------------------------------------------------------
     // Side effects
     // -------------------------------------------------------------------------
-    // Status change
+
+    // status
     useEffect(() => {
         dispatch('status', { status }, onStatus);
-
         switch (status) {
             case ENUMS.STATUS.PENDING:
                 initialize();
                 break;
+
+            case ENUMS.STATUS.INITIALIZED:
+                dispatch('change', { active: state.active });
+                break;
         }
     }, [status]);
+
+    // active
+    useEffect(() => {
+        dispatch('change', { active: state.active });
+    }, [state.active]);
+
+    // value
+    useEffect(() => {
+        handle.editor = editor;
+        setNewHandle(handle);
+    }, [Object.values(op.get(editor, 'value', {}))]);
 
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
-    //   The unMounted() function relies on refs.get('container').
-    //   If it is not present, setState() will not execute.
-    //   This could lead to your component rendering empty if you have a
-    //   condition that checks state and renders null if certain conditions
-    //   are not met.
-    // -------------------------------------------------------------------------
     return (
-        <div className={cx()}>
+        <div className={cx()} ref={elm => refs.set('container', elm)}>
             <Dialog collapsible={false} header={header()}>
                 <Scene
                     active={state.active}
+                    onBeforeChange={({ staged: active }) =>
+                        setState({ active })
+                    }
                     ref={elm => refs.set('scene', elm)}
-                    width='100%'
-                    height={520}
-                    onChange={({ active }) => setState({ active })}>
+                    width='100%'>
                     <Selector id='selector' handle={handle} />
                     <ContentComponent id='content' handle={handle} />
                     <HookComponent id='hook' handle={handle} />
@@ -234,19 +246,15 @@ Type = forwardRef(Type);
 Type.ENUMS = ENUMS;
 
 Type.propTypes = {
-    className: PropTypes.string,
     namespace: PropTypes.string,
     onStatus: PropTypes.func,
-    state: PropTypes.object,
 };
 
 Type.defaultProps = {
     namespace: 'admin-components-type',
     onStatus: noop,
-    state: {
-        active: 'selector',
-        title: __('Component Type'),
-    },
+    active: 'selector',
+    title: __('Component Type'),
 };
 
 export { Type, Type as default };

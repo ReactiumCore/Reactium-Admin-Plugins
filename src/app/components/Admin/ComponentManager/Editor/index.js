@@ -18,24 +18,38 @@ import React, {
 } from 'react';
 
 export default forwardRef((props, ref) => {
-    const { attribute = [], label, name, uuid } = props;
+    // -------------------------------------------------------------------------
+    // Props
+    // -------------------------------------------------------------------------
+    const { attribute = [], component, label, name, uuid, type } = props;
 
+    // -------------------------------------------------------------------------
+    // Components & external handles
+    // -------------------------------------------------------------------------
     const handle = useHandle('ComponentManager');
-
     const tools = useHandle('AdminTools');
-
     const Modal = op.get(tools, 'Modal');
-
     const ConfirmBox = useHookComponent('ConfirmBox');
-
     const { Button, Dialog, EventForm, Icon } = useHookComponent('ReactiumUI');
-
     const TypeEditor = useHookComponent('ComponentManagerTypeEditor');
 
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
     const [edit, setEdit] = useState(false);
 
-    const [value, setValue] = useState({ name, label, attribute, uuid });
+    const [value, setValue] = useState({
+        attribute,
+        component,
+        label,
+        name,
+        type,
+        uuid,
+    });
 
+    // -------------------------------------------------------------------------
+    // Internal Interface
+    // -------------------------------------------------------------------------
     const isContainer = useIsContainer();
 
     const confirmDelete = () => {
@@ -60,7 +74,7 @@ export default forwardRef((props, ref) => {
     const disable = () => setEdit(false);
 
     const dismiss = e => {
-        const form = hndl.form.form;
+        const form = editor.form.form;
         const cont = _.compact(form.getElementsByClassName('ar-dialog'));
 
         if (cont.length < 1) return;
@@ -132,8 +146,18 @@ export default forwardRef((props, ref) => {
               }
             : {};
 
+    const save = newValue => {
+        setValue(_.first(Object.values(newValue)));
+        handle.save(newValue);
+    };
+
     const showTypeEditor = () => {
-        Modal.show(<TypeEditor editor={hndl} />);
+        Modal.show(
+            <TypeEditor
+                editor={editor}
+                active={op.get(value, 'type', 'selector') || 'selector'}
+            />,
+        );
     };
 
     const stateKey = `components.${uuid}.attribute`;
@@ -146,7 +170,7 @@ export default forwardRef((props, ref) => {
         }
     };
 
-    const updateValue = () => setValue(hndl.form.getValue());
+    const updateValue = () => setValue(editor.form.getValue());
 
     const _onChange = () => {
         _.defer(() => updateValue());
@@ -168,19 +192,25 @@ export default forwardRef((props, ref) => {
         _.defer(() => updateValue());
     };
 
-    const _handle = () => ({
+    // -------------------------------------------------------------------------
+    // Handle
+    // -------------------------------------------------------------------------
+    const _editor = () => ({
         delete: confirmDelete,
         disable,
         enable,
         form: null,
+        save,
         value,
     });
+    const [editor, setEditor] = useEventHandle(_editor());
+    useImperativeHandle(ref, () => editor, [Object.values(value)]);
 
-    const [hndl] = useEventHandle(_handle());
+    // -------------------------------------------------------------------------
+    // Side effects
+    // -------------------------------------------------------------------------
 
-    useImperativeHandle(ref, () => hndl, [hndl]);
-
-    // disable on focus out
+    // listeners
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -193,16 +223,27 @@ export default forwardRef((props, ref) => {
         };
     }, []);
 
+    // value
+    useEffect(() => {
+        editor.value = value;
+        setEditor(editor);
+    }, [Object.values(value)]);
+
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
     return (
         <EventForm
             name={`component-${uuid}`}
             onChange={_onChange}
             ref={elm => {
                 handle.refs.set(`component.${uuid}.form`, elm);
-                hndl.form = elm;
+                editor.form = elm;
             }}
             value={value}>
-            <input type='hidden' name='uuid' value={uuid} />
+            <input type='hidden' name='type' value={type || ''} />
+            <input type='hidden' name='uuid' value={uuid || ''} />
+            <input type='hidden' name='component' value={component || ''} />
 
             <Dialog
                 header={header()}
