@@ -194,7 +194,7 @@ let ComponentManager = (
     const dispatch = async (eventType, event = {}, callback) => {
         if (!_.isObject(event)) {
             throw new Error(
-                'dispatch expectes 2nd parameter to be of type Object',
+                'dispatch expects 2nd parameter to be of type Object',
             );
         }
 

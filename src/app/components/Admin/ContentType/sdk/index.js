@@ -14,8 +14,10 @@ const ContentType = { FieldType: {} };
  * @apiParam {Boolean} refresh Retrieve a fresh list of ContentType objects.
  * @apiParam {Boolean} schema Include the Collection schema object.
  */
-ContentType.types = async (params = {}) => {
+ContentType.types = async (params = {}, debug) => {
     const refresh = op.get(params, 'refresh');
+
+    if (debug) console.log('ContentType.types', refresh, debug);
 
     let request = refresh !== true && Reactium.Cache.get('content-types');
 
@@ -25,7 +27,15 @@ ContentType.types = async (params = {}) => {
         return op.get(response, 'types', []);
     });
 
-    Reactium.Cache.set('content-types', request, Reactium.Enums.cache.types);
+    Reactium.Cache.set(
+        'content-types',
+        request,
+        Reactium.Enums.cache.types,
+        () => {
+            if (debug) console.log('content-types cache delete');
+        },
+    );
+
     return request;
 };
 

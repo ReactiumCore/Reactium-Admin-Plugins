@@ -14,7 +14,7 @@ export default () => {
     const [updated, update] = useState();
 
     const visible = String(path).startsWith('/admin/type');
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     // Get content types
     useAsyncEffect(

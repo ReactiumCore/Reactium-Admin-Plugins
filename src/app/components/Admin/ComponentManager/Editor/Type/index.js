@@ -246,14 +246,16 @@ Type = forwardRef(Type);
 Type.ENUMS = ENUMS;
 
 Type.propTypes = {
+    active: PropTypes.string,
     namespace: PropTypes.string,
     onStatus: PropTypes.func,
+    title: PropTypes.string,
 };
 
 Type.defaultProps = {
+    active: 'selector',
     namespace: 'admin-components-type',
     onStatus: noop,
-    active: 'selector',
     title: __('Component Type'),
 };
 

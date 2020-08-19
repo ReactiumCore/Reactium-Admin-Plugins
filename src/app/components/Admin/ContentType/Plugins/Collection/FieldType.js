@@ -164,10 +164,7 @@ export const useTypes = () => {
 
         setStatus('fetching');
 
-        Reactium.ContentType.types({
-            refresh: false,
-            schema: true,
-        }).then(results => {
+        Reactium.ContentType.types({ schema: true }).then(results => {
             setTypes(
                 results.map(item => {
                     item.icon = op.get(item, 'meta.icon');

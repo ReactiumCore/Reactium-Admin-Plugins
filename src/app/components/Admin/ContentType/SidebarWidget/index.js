@@ -22,11 +22,11 @@ export default () => {
             .toLowerCase()
             .startsWith('/admin/type');
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     useAsyncEffect(
         async mounted => {
-            const results = await getTypes(true);
+            const results = await getTypes();
             if (mounted()) setTypes(results);
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
                 if (['set', 'del'].includes(op) && mounted() === true) {

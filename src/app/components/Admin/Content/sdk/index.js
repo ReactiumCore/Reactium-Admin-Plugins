@@ -921,9 +921,126 @@ Reactium.Content.list({
 Content.list = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-list', request);
+    await Reactium.Hook.run('', contentObj, request, handle);
 
-    await Reactium.Hook.run('content-list', contentObj, request, handle);
     return contentObj;
+};
+
+/**
+ * @api {Asynchronous} Content.search(collection,search,handle) Content.search()
+ * @apiName Content.search
+ * @apiGroup Reactium.Content
+ * @apiDescription Search a content type.
+ * @apiParam {String} collection The content collection name or ContentType machineName value.
+ * @apiParam {Mixed} search Search string or search configuration object.
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {String} [search] Search string used in the cloud function. If empty, all objects in the collection are returned.
+ * @apiParam (params) {Object} [where] Search a particular field in the collection where the field includes the entire search string. Use in conjunction with `params.search` string to reduce the number of results returned from the server.
+ * @apiParam (params) {Float} [threshold=0] Minimum score value. Used to shake out lower ranking search results.
+ * @apiParam (params) {Number} [page=1] The page number of results to return. If value is less than 1 a single page is returned with all results.
+ * @apiParam (params) {Number} [limit=20] Number of results to return per page.
+ * @apiExample Basic Usage:
+const { results = {} } = await Reactium.Content.search('page', 'some page title');
+ * @apiExample Advanced Usage:
+
+// Basic Usage equivelent
+const { results = {} } = await Reactium.Content.search('page', { search: 'some page title' });
+
+// Search where and fetch all
+const { results = {} } = await Reactium.Content.search('page', { page: -1, where: { title: 'page title' } });
+
+// Threshold
+const { results = {} } = await Reactium.Content.search('page', { threshold: 1 });
+ */
+Content.search = async (collection, params = {}, handle) => {
+    if (!collection) {
+        throw new Error('Content.search `collection` is a required parameter');
+    }
+
+    if (_.isString(params)) {
+        const search = params;
+        params = { search };
+    }
+
+    collection = String(collection).startsWith('Content_')
+        ? collection
+        : `Content_${collection}`;
+
+    let { where = null, page = 1 } = params;
+
+    // When where is defined, fetch all records and filter the results after the fact
+    const isWhere = _.isObject(where);
+
+    // if isWhere, set the page to -1 so all results are retrieved
+    page = isWhere ? -1 : page;
+
+    // Create the cloud function request and remove unnecessary params.
+    let request = { ...params, index: collection, page: page < 1 ? 1 : page };
+    op.del(request, 'where');
+    op.del(request, 'threshold');
+
+    // Get the first page of results and run content-search hook
+    let fetched = await Reactium.Cloud.run('search', request);
+    await Reactium.Hook.run('content-search', fetched, request, handle);
+
+    const { pages = 1 } = fetched;
+
+    // Create the output object with the first page of results
+    const output = { ...fetched };
+
+    // Convert results into object;
+    op.set(output, 'results', _.indexBy(output.results, 'uuid'));
+
+    // Get all results when page < 1
+    if (page < 1 && pages > 1) {
+        page = 2;
+
+        while (page <= pages) {
+            op.set(request, 'page', page);
+            fetched = await Reactium.Cloud.run('search', request);
+            await Reactium.Hook.run('content-search', fetched, request, handle);
+
+            let { results = [] } = fetched;
+
+            results.forEach(item =>
+                op.set(output, ['results', item.uuid], item),
+            );
+            page += 1;
+        }
+
+        // adjust the pagination info
+        op.set(output, 'pages', 1);
+        op.set(output, 'next', null);
+    }
+
+    if (isWhere) {
+        // filter results by where object
+        const results = Object.values(op.get(output, 'results')).filter(
+            item => {
+                let match = false;
+                Object.entries(where).forEach(([key, search]) => {
+                    if (match === true) return;
+                    search = String(search).toLowerCase();
+                    let val = op.get(item, key);
+                    if (!val) return;
+
+                    val = val ? String(val).toLowerCase() : val;
+
+                    match = String(val).includes(search);
+                });
+
+                return match;
+            },
+        );
+
+        // convert results back into object.
+        op.set(output, 'results', _.indexBy(results, 'uuid'));
+
+        // adjust the pagination info
+        op.set(output, 'count', results.length);
+    }
+
+    return output;
 };
 
 Content.DirtyEvent = Reactium.Utils.registryFactory('ContentDirtyEvent');

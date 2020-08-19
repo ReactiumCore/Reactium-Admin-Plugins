@@ -60,7 +60,7 @@ const Content = ({ editor, data }) => {
 
     const [updated, update] = useState(Date.now());
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     const isExpanded = group => {
         if (op.get(expanded, group)) {

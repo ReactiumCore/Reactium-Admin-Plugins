@@ -3691,6 +3691,96 @@ define({ "api": [
   },
   {
     "type": "Asynchronous",
+    "url": "Content.search(collection,search,handle)",
+    "title": "Content.search()",
+    "name": "Content.search",
+    "group": "Reactium.Content",
+    "description": "<p>Search a content type.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "collection",
+            "description": "<p>The content collection name or ContentType machineName value.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Mixed",
+            "optional": false,
+            "field": "search",
+            "description": "<p>Search string or search configuration object.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "EventTarget",
+            "optional": true,
+            "field": "handle",
+            "description": "<p>EventTarget to the component where the call was executed from.</p>"
+          }
+        ],
+        "params": [
+          {
+            "group": "params",
+            "type": "String",
+            "optional": true,
+            "field": "search",
+            "description": "<p>Search string used in the cloud function. If empty, all objects in the collection are returned.</p>"
+          },
+          {
+            "group": "params",
+            "type": "Object",
+            "optional": true,
+            "field": "where",
+            "description": "<p>Search a particular field in the collection where the field includes the entire search string. Use in conjunction with <code>params.search</code> string to reduce the number of results returned from the server.</p>"
+          },
+          {
+            "group": "params",
+            "type": "Float",
+            "optional": true,
+            "field": "threshold",
+            "defaultValue": "0",
+            "description": "<p>Minimum score value. Used to shake out lower ranking search results.</p>"
+          },
+          {
+            "group": "params",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>The page number of results to return. If value is less than 1 a single page is returned with all results.</p>"
+          },
+          {
+            "group": "params",
+            "type": "Number",
+            "optional": true,
+            "field": "limit",
+            "defaultValue": "20",
+            "description": "<p>Number of results to return per page.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Basic Usage:",
+        "content": "const { results = {} } = await Reactium.Content.search('page', 'some page title');",
+        "type": "json"
+      },
+      {
+        "title": "Advanced Usage:",
+        "content": "\n// Basic Usage equivelent\nconst { results = {} } = await Reactium.Content.search('page', { search: 'some page title' });\n\n// Search where and fetch all\nconst { results = {} } = await Reactium.Content.search('page', { page: -1, where: { title: 'page title' } });\n\n// Threshold\nconst { results = {} } = await Reactium.Content.search('page', { threshold: 1 });",
+        "type": "json"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": "src/app/components/Admin/Content/sdk/index.js",
+    "groupTitle": "Reactium.Content"
+  },
+  {
+    "type": "Asynchronous",
     "url": "Content.setCurrent(params,handle)",
     "title": "Content.setCurrent()",
     "description": "<p>Take content from a specified branch or revision, and make it the &quot;official&quot; version of the content. If no <code>history</code> is param is specified the latest master branch revision will be used.</p>",

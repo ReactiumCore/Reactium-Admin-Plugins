@@ -4,6 +4,7 @@ import Attribute from '../Attribute';
 
 import {
     __,
+    useDerivedState,
     useEventHandle,
     useHandle,
     useHookComponent,
@@ -38,7 +39,7 @@ export default forwardRef((props, ref) => {
     // -------------------------------------------------------------------------
     const [edit, setEdit] = useState(false);
 
-    const [value, setValue] = useState({
+    const [value, setValue] = useDerivedState({
         attribute,
         component,
         label,
@@ -76,11 +77,16 @@ export default forwardRef((props, ref) => {
     const dismiss = e => {
         const form = editor.form.form;
         const cont = _.compact(form.getElementsByClassName('ar-dialog'));
+        const modal = _.chain(document.getElementsByClassName('ar-modal'))
+            .compact()
+            .first()
+            .value();
 
         if (cont.length < 1) return;
 
         const container = _.first(cont);
 
+        if (isContainer(e.target, modal)) return;
         if (isContainer(e.target, container)) return;
 
         disable();
@@ -201,6 +207,7 @@ export default forwardRef((props, ref) => {
         enable,
         form: null,
         save,
+        setValue,
         value,
     });
     const [editor, setEditor] = useEventHandle(_editor());
@@ -243,7 +250,15 @@ export default forwardRef((props, ref) => {
             value={value}>
             <input type='hidden' name='type' value={type || ''} />
             <input type='hidden' name='uuid' value={uuid || ''} />
-            <input type='hidden' name='component' value={component || ''} />
+            <input
+                type='hidden'
+                name='component'
+                value={
+                    _.isObject(component)
+                        ? JSON.stringify(component)
+                        : component || ''
+                }
+            />
 
             <Dialog
                 header={header()}

@@ -48,7 +48,7 @@ const HookComponent = ({ handle, id }) => {
     const [state, setState] = useDerivedState({
         helpExpanded: Reactium.Prefs.get(`admin.help.${namespace}-type`),
         error: null,
-        search: op.get(editor, 'value.component', op.get(editor, 'value.name')),
+        search: null,
     });
 
     // -------------------------------------------------------------------------
@@ -59,6 +59,12 @@ const HookComponent = ({ handle, id }) => {
         const component = refs.get('component');
         component.value = '';
         component.focus();
+    };
+
+    const component = () => {
+        const { name, type = id } = editor.value;
+        let val = type !== id ? name : op.get(editor.value, 'component', name);
+        return val;
     };
 
     const components = () => {
@@ -132,17 +138,21 @@ const HookComponent = ({ handle, id }) => {
             setState({ error: null, search: null });
             if (form) form.setValue(null);
         } else {
-            if (form) form.setValue(editor.value);
+            if (form) {
+                const val = { ...editor.value, component: component() };
+                form.setValue(val);
+            }
         }
     };
 
     const _onDropdownSelect = ({ item }) => {
-        setState({ error: null, search: item.value });
         const form = refs.get('form');
         if (form) form.setValue({ ...editor.value, component: item.value });
 
         const submit = refs.get('submit');
         if (submit) submit.focus();
+
+        setState({ error: null, search: null });
     };
 
     const _onHelpToggle = () => {
@@ -187,6 +197,7 @@ const HookComponent = ({ handle, id }) => {
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
+
     return (
         <div className={cx('hook')}>
             <Collapsible
@@ -199,24 +210,12 @@ const HookComponent = ({ handle, id }) => {
                 </div>
             </Collapsible>
             <EventForm onSubmit={_onSubmit} ref={elm => refs.set('form', elm)}>
-                <input
-                    type='hidden'
-                    ref={elm => refs.set('componentx', elm)}
-                    value={state.search || ''}
-                />
                 <Dropdown
-                    collapseEvent='blur'
                     data={components()}
-                    expandEvent='focus'
+                    expandEvent={['focus', 'click']}
                     onItemSelect={_onDropdownSelect}
                     ref={elm => refs.set('dropdown', elm)}
-                    selection={[
-                        op.get(
-                            editor.value,
-                            'component',
-                            op.get(editor.value, 'name'),
-                        ),
-                    ]}
+                    selection={[component()]}
                     size='md'>
                     <div
                         className={cn('form-group', {
@@ -224,11 +223,7 @@ const HookComponent = ({ handle, id }) => {
                         })}>
                         <input
                             data-dropdown-element
-                            defaultValue={op.get(
-                                editor.value,
-                                'component',
-                                op.get(editor.value, 'name'),
-                            )}
+                            defaultValue={component()}
                             onChange={_onSearch}
                             placeholder={__('Component')}
                             ref={elm => refs.set('component', elm)}

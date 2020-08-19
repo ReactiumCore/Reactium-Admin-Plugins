@@ -10,7 +10,7 @@ export default ({ className = 'media-empty', value = {} }) => {
 
     const [types, setTypes] = useState();
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     let msg = isMe
         ? __("Hey %name, looks like you haven't created any content yet!")

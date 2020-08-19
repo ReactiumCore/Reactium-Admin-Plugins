@@ -1,4 +1,6 @@
 import React from 'react';
+import _ from 'underscore';
+import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 /**
@@ -19,6 +21,7 @@ const buttons = [
 const Selector = ({ handle }) => {
     const { cx, navTo } = handle;
     const { Icon } = useHookComponent('ReactiumUI');
+
     const onClick = ({ id }) => navTo(id);
 
     return (

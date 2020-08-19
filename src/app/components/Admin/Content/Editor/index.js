@@ -318,7 +318,7 @@ let ContentEditor = (
         }
     };
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     const unMounted = () => {
         return !formRef.current && !loadingRef.current;

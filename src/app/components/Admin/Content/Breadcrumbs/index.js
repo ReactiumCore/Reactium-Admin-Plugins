@@ -28,7 +28,7 @@ export default () => {
         return isSlug() && slug === 'new';
     };
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     useAsyncEffect(
         async mounted => {

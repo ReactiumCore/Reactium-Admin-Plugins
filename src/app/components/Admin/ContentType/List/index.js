@@ -88,7 +88,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
 
     const isEmpty = () => Boolean(state.types.length < 1);
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     const properCase = useProperCase();
 
@@ -110,7 +110,7 @@ let ContentTypeList = ({ className, namespace, ...props }, ref) => {
         async mounted => {
             if (status.current !== 'init') return;
             setStatus('fetching');
-            const types = await getTypes(true);
+            const types = await getTypes();
             if (mounted()) {
                 setStatus('ready');
                 setState({ types });

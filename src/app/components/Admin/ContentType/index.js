@@ -276,7 +276,7 @@ const ContentType = props => {
     const getValue = () => ctRef.current;
     const saved = () => savedRef.current;
 
-    const getTypes = refresh => Reactium.ContentType.types({ refresh });
+    const getTypes = () => Reactium.ContentType.types();
 
     useEffect(() => {
         clear();
@@ -299,7 +299,7 @@ const ContentType = props => {
 
     useAsyncEffect(
         async mounted => {
-            const results = await getTypes(true);
+            const results = await getTypes();
             if (mounted()) setTypes(results);
 
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
