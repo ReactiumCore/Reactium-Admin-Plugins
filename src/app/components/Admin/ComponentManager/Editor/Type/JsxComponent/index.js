@@ -1,7 +1,7 @@
 import React from 'react';
 // import _ from 'underscore';
 // import op from 'object-path';
-// import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from 'react-custom-scrollbars';
 // import { LiveProvider, LiveEditor, LiveError } from 'react-live';
 import { useDerivedState, useHookComponent } from 'reactium-core/sdk';
 
@@ -21,7 +21,9 @@ const JsxComponent = ({ handle }) => {
     return (
         <div className={cx('jsx')}>
             <div className={cx('jsx-code')}>
-                <CodeEditor value={state.code} />
+                <Scrollbars>
+                    <CodeEditor value={state.code} lineNumbers />
+                </Scrollbars>
             </div>
         </div>
     );

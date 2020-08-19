@@ -49,6 +49,10 @@
             }
         }
 
+        .ar-dialog-content {
+            border-bottom: none !important;
+        }
+
         &-jsx,
         &-hook,
         &-content {

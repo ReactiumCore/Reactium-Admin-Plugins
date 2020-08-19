@@ -6,6 +6,8 @@ import prettier from 'prettier/standalone';
 import parserHtml from 'prettier/parser-html';
 import parserBabel from 'prettier/parser-babylon';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import vsDark from 'prism-react-renderer/themes/vsDark';
+import github from 'prism-react-renderer/themes/github';
 
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
 
@@ -26,7 +28,7 @@ const defaultFormat = {
     mode: 'jsx',
     parser: 'babel',
     plugins: [parserBabel, parserHtml],
-    printWidth: 200000000,
+    printWidth: 80,
     singleQuote: true,
     tabWidth: 2,
     trailingComma: 'es5',
@@ -59,6 +61,7 @@ const prettyJSX = (value, options) => {
     let oarray = output.split(';');
     if (oarray.length > 0) oarray.pop();
     output = oarray.join('');
+    output = String(output).trim();
 
     return output || '';
 };
@@ -74,13 +77,15 @@ const formatter = (value, opts) => {
     }
 };
 
+const isTextarea = elm => Boolean(elm instanceof HTMLInputElement);
+
 const noop = () => {};
 
 let CodeEditor = (initialProps, ref) => {
     let {
         className,
         format,
-        id = uuid(),
+        id,
         namespace,
         onChange = noop,
         value: initialValue,
@@ -99,6 +104,7 @@ let CodeEditor = (initialProps, ref) => {
     // State
     // -------------------------------------------------------------------------
     const [state, update] = useDerivedState({
+        lines: 1,
         livePreview: false,
         showErrors: false,
         value: initialValue,
@@ -149,7 +155,25 @@ let CodeEditor = (initialProps, ref) => {
         if (typeof callback === 'function') await callback(evt);
     };
 
+    const focus = () => {
+        const elm = document.getElementById(id);
+        if (elm) elm.focus();
+    };
+
     const getValue = () => formatter(state.value, format);
+
+    const listeners = () => {
+        Reactium.Hotkeys.register('code-format', {
+            callback: _onHotkey,
+            key: 'mod+f',
+            order: Reactium.Enums.priority.lowest,
+            scope: refs.get('container'),
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('code-format');
+        };
+    };
 
     const setValue = value => setState({ value });
 
@@ -160,6 +184,7 @@ let CodeEditor = (initialProps, ref) => {
     // -------------------------------------------------------------------------
     const _handle = () => ({
         dispatch,
+        focus,
         getValue,
         setState,
         setValue,
@@ -181,18 +206,54 @@ let CodeEditor = (initialProps, ref) => {
     const _onChange = () => {
         let { value } = state;
 
+        const lines = Math.max(value.split('\n').length, 1);
+
         value = formatter(value, format);
 
         // Update handle
         setHandle({ value });
+        setState({ lines });
 
         // Dispatch event and call onChange handler
         _.defer(() => dispatch('change', { value }, onChange));
     };
 
+    const _onHotkey = e => {
+        const elm = e.target;
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        let { value } = state;
+
+        const start = elm.selectionStart;
+        const line = value.substr(0, start).split('\n').length - 1;
+
+        value = formatter(value, format);
+
+        // move cursor to end of current line
+        const end = Number(
+            value
+                .split('\n')
+                .reduce(
+                    (e, str, i) => e + (i <= line ? String(str).length + 1 : 0),
+                    -1,
+                ),
+        );
+
+        elm.value = value;
+        elm.focus();
+        elm.setSelectionRange(end, end);
+
+        setState({ value });
+    };
+
     // -------------------------------------------------------------------------
     // Side effects
     // -------------------------------------------------------------------------
+
+    // listeners
+    useEffect(listeners, []);
 
     // state.value change
     useEffect(_onChange, [op.get(state, 'value')]);
@@ -201,26 +262,35 @@ let CodeEditor = (initialProps, ref) => {
     // Render
     // -------------------------------------------------------------------------
     return (
-        <LiveProvider code={state.value}>
+        <LiveProvider
+            code={state.value}
+            language={format.mode}
+            disabled={state.disabled}
+            theme={state.theme}>
             <div
                 className={cx()}
                 ref={elm => refs.set('container', elm)}
-                style={state.style}>
-                <div className={cx('editor')}>
-                    <div className={cx('input')}>
-                        <LiveEditor
-                            onValueChange={setValue}
-                            padding={16}
-                            tabSize={format.tabWidth}
-                            textareaId={id}
-                        />
-                    </div>
-                    {state.livePreview && (
-                        <div className={cx('preview')}>
-                            <LivePreview />
-                        </div>
-                    )}
+                style={{ ...state.theme.plain, ...state.style }}>
+                {state.lineNumbers && (
+                    <LineNumbers
+                        count={state.lines}
+                        className={cx('lines')}
+                        theme={state.theme}
+                    />
+                )}
+                <div className={cx('input')} onClick={focus}>
+                    <LiveEditor
+                        onValueChange={setValue}
+                        padding={0}
+                        tabSize={format.tabWidth}
+                        textareaId={id}
+                    />
                 </div>
+                {state.livePreview && (
+                    <div className={cx('preview')}>
+                        <LivePreview />
+                    </div>
+                )}
                 {state.showErrors && (
                     <div className={cx('errors')}>
                         <LiveError />
@@ -231,15 +301,30 @@ let CodeEditor = (initialProps, ref) => {
     );
 };
 
+const LineNumbers = ({ className, count, theme }) =>
+    count < 1 ? null : (
+        <div className={className} style={op.get(theme, 'plain')}>
+            {_.range(1, count + 1).map(n => (
+                <div key={`line-number-${n}`} className='num'>
+                    {n}
+                </div>
+            ))}
+        </div>
+    );
+
 CodeEditor = forwardRef(CodeEditor);
 
 CodeEditor.defaultProps = {
+    disabled: false,
     format: defaultFormat,
+    id: uuid(),
+    lineNumbers: false,
     livePreview: false,
     namespace: 'ar-code',
-    onChange: ({ value }) => console.log(value),
+    onChange: noop,
     showErrors: false,
     style: {},
+    theme: vsDark,
     value: '',
 };
 
