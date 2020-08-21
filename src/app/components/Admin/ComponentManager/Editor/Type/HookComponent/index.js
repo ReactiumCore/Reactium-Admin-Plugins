@@ -210,39 +210,45 @@ const HookComponent = ({ handle, id }) => {
                 </div>
             </Collapsible>
             <EventForm onSubmit={_onSubmit} ref={elm => refs.set('form', elm)}>
-                <Dropdown
-                    data={components()}
-                    expandEvent={['focus', 'click']}
-                    onItemSelect={_onDropdownSelect}
-                    ref={elm => refs.set('dropdown', elm)}
-                    selection={[component()]}
-                    size='md'>
-                    <div
-                        className={cn('form-group', {
-                            error: isError('component'),
-                        })}>
-                        <input
-                            data-dropdown-element
-                            defaultValue={component()}
-                            onChange={_onSearch}
-                            placeholder={__('Component')}
-                            ref={elm => refs.set('component', elm)}
-                            name='component'
-                        />
-                        {isError('component') && <small>{errorMsg()}</small>}
+                <div className='p-xs-20'>
+                    <Dropdown
+                        data={components()}
+                        expandEvent={['focus', 'click']}
+                        onItemSelect={_onDropdownSelect}
+                        ref={elm => refs.set('dropdown', elm)}
+                        selection={[component()]}
+                        size='md'>
+                        <div
+                            className={cn('form-group', {
+                                error: isError('component'),
+                            })}>
+                            <input
+                                data-dropdown-element
+                                defaultValue={component()}
+                                onChange={_onSearch}
+                                placeholder={__('Component')}
+                                ref={elm => refs.set('component', elm)}
+                                name='component'
+                            />
+                            {isError('component') && (
+                                <small>{errorMsg()}</small>
+                            )}
+                            <Button
+                                className='clear-btn'
+                                type='button'
+                                onClick={clear}
+                                color={Button.ENUMS.COLOR.DANGER}>
+                                <Icon name='Feather.X' />
+                            </Button>
+                        </div>
+                    </Dropdown>
+                    <div className='submit'>
                         <Button
-                            className='clear-btn'
-                            type='button'
-                            onClick={clear}
-                            color={Button.ENUMS.COLOR.DANGER}>
-                            <Icon name='Feather.X' />
+                            type='submit'
+                            ref={elm => refs.set('submit', elm)}>
+                            {__('Apply Component Type')}
                         </Button>
                     </div>
-                </Dropdown>
-                <div className='submit'>
-                    <Button type='submit' ref={elm => refs.set('submit', elm)}>
-                        {__('Apply Component Type')}
-                    </Button>
                 </div>
             </EventForm>
         </div>

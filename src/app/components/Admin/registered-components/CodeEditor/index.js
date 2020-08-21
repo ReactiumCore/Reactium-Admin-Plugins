@@ -5,9 +5,8 @@ import op from 'object-path';
 import prettier from 'prettier/standalone';
 import parserHtml from 'prettier/parser-html';
 import parserBabel from 'prettier/parser-babylon';
+import ReactiumLight from './theme/ReactiumLight';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
-import vsDark from 'prism-react-renderer/themes/vsDark';
-import github from 'prism-react-renderer/themes/github';
 
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
 
@@ -19,6 +18,10 @@ import Reactium, {
     useRefs,
     useStatus,
 } from 'reactium-core/sdk';
+
+Reactium.CodeEditorTheme =
+    Reactium.CodeEditorTheme ||
+    Reactium.Utils.registryFactory('CodeEditorTheme');
 
 const defaultFormat = {
     autoCloseBrackets: true,
@@ -81,6 +84,29 @@ const isTextarea = elm => Boolean(elm instanceof HTMLInputElement);
 
 const noop = () => {};
 
+const theme = props => {
+    const themeName = _.isObject(props)
+        ? op.get(
+              props,
+              'theme',
+              Reactium.Prefs.get('admin.theme.codeEditor', 'ReactiumLight'),
+          )
+        : props;
+
+    // Find theme in CodeEditorTheme registry
+    let theme;
+    try {
+        const regTheme = _.findWhere(Reactium.CodeEditorTheme.list, {
+            id: themeName,
+        });
+        theme = op.get(regTheme, 'theme', ReactiumLight);
+    } catch (err) {
+        // Empty on purpose
+    }
+    theme = theme || ReactiumLight;
+    return theme;
+};
+
 let CodeEditor = (initialProps, ref) => {
     let {
         className,
@@ -104,11 +130,10 @@ let CodeEditor = (initialProps, ref) => {
     // State
     // -------------------------------------------------------------------------
     const [state, update] = useDerivedState({
-        lines: 1,
-        livePreview: false,
-        showErrors: false,
-        value: initialValue,
         ...props,
+        lines: 1,
+        value: initialValue,
+        theme: theme(initialProps),
     });
     const setState = newState => {
         if (unMounted()) return;
@@ -258,6 +283,11 @@ let CodeEditor = (initialProps, ref) => {
     // state.value change
     useEffect(_onChange, [op.get(state, 'value')]);
 
+    // theme change from props
+    useEffect(() => {
+        setState({ theme: theme(initialProps) });
+    }, [initialProps.theme]);
+
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
@@ -324,7 +354,7 @@ CodeEditor.defaultProps = {
     onChange: noop,
     showErrors: false,
     style: {},
-    theme: vsDark,
+    theme: 'ReactiumLight',
     value: '',
 };
 

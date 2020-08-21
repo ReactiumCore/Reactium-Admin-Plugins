@@ -2,6 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 import Reactium, {
     __,
     useAsyncEffect,
@@ -45,6 +46,7 @@ const ContentComponent = ({ handle, id }) => {
     const {
         Alert,
         Button,
+        Checkbox,
         Collapsible,
         Dropdown,
         EventForm,
@@ -68,12 +70,13 @@ const ContentComponent = ({ handle, id }) => {
         content: [],
         error: null,
         helpExpanded: Reactium.Prefs.get(`admin.help.${namespace}-type`),
-        types: [],
         search: { content: null, type: null },
         selection: {
             content: [],
             type: [],
         },
+        schema: op.get(editor.value, 'component.schema'),
+        types: [],
     });
 
     // -------------------------------------------------------------------------
@@ -208,7 +211,7 @@ const ContentComponent = ({ handle, id }) => {
 
     const reset = () => {
         const form = refs.get('form');
-        if (form) form.getValue(null);
+        if (form) form.setValue(null);
     };
 
     const getValue = () => {
@@ -246,7 +249,28 @@ const ContentComponent = ({ handle, id }) => {
             ),
         );
 
+        op.set(
+            obj,
+            'schema',
+            op.get(
+                state,
+                'schema',
+                op.get(editor.value, 'component.schema', []),
+            ),
+        );
+
         return obj;
+    };
+
+    const schema = () => {
+        let { type } = state.selection;
+        const typeID = _.first(type);
+        if (!typeID) return [];
+        type = _.findWhere(types(), { uuid: typeID });
+        if (!type) return [];
+        const { fields } = type;
+        if (!fields) return [];
+        return _.sortBy(Object.values(fields), 'fieldName');
     };
 
     const types = () => {
@@ -285,13 +309,12 @@ const ContentComponent = ({ handle, id }) => {
     };
 
     const _onActive = ({ active = 'selector' }) => {
-        const form = refs.get('form');
         if (active !== id) {
             reset();
-            setState({ error: null, search: null });
-            if (form) form.getValue(null);
+            setState({ error: null, search: null, schema: [] });
         } else {
-            if (form) form.getValue(editor.value);
+            const form = refs.get('form');
+            if (form) form.setValue(editor.value);
         }
     };
 
@@ -404,7 +427,10 @@ const ContentComponent = ({ handle, id }) => {
         }
     };
 
-    const _onSubmit = () => {
+    const _onSubmit = e => {
+        let { schema } = e.value;
+        schema = _.flatten([schema]);
+
         const types = _.indexBy(op.get(state, 'types', []), 'uuid');
         const contents = op.get(state, 'content', []);
 
@@ -420,19 +446,17 @@ const ContentComponent = ({ handle, id }) => {
         type = op.get(types, type);
         content = op.get(contents, content);
 
-        console.log(content, type);
-
         const error = validate({ content, type });
         if (error) {
             setState({ error });
             return;
         }
 
-        const component = { ...type, content };
+        const component = { ...type, content, schema };
 
         const obj = { ...editor.value, type: id, component };
 
-        setState({ error: null });
+        setState({ error: null, schema });
         _.defer(() => handle.save(obj));
     };
 
@@ -449,6 +473,7 @@ const ContentComponent = ({ handle, id }) => {
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
+
     return (
         <div className={cx('content')}>
             <Collapsible
@@ -462,83 +487,121 @@ const ContentComponent = ({ handle, id }) => {
             </Collapsible>
             {isReady() && (
                 <EventForm
+                    onChange={({ value }) =>
+                        setState({
+                            schema: _.chain([op.get(value, 'schema')])
+                                .flatten()
+                                .compact()
+                                .value(),
+                        })
+                    }
                     onSubmit={_onSubmit}
                     ref={elm => refs.set('form', elm)}
                     value={getValue()}>
-                    <Dropdown
-                        data={types()}
-                        expandEvent={['focus', 'click']}
-                        maxHeight={252}
-                        onItemSelect={item => _onDropdownSelect(item, 'type')}
-                        ref={elm => refs.set('dropdown', elm)}
-                        selection={op.get(state, 'selection.type', [])}
-                        size='md'>
-                        <div
-                            className={cn('form-group', {
-                                error: isError('type'),
-                            })}>
-                            <input
-                                data-dropdown-element
-                                defaultValue={op.get(state, 'search.type')}
-                                onChange={_onSearchType}
-                                placeholder={__('Content Type')}
-                                ref={elm => refs.set('type', elm)}
-                                name='type'
-                            />
-                            {isError('type') && <small>{errorMsg()}</small>}
-                            <Button
-                                className='clear-btn'
-                                type='button'
-                                onClick={() => clear('type')}
-                                color={Button.ENUMS.COLOR.DANGER}>
-                                <Icon name='Feather.X' />
-                            </Button>
-                        </div>
-                    </Dropdown>
-                    {content().length > 0 && isStatus(ENUMS.STATUS.READY) && (
+                    <div className='px-xs-20 pt-xs-20'>
                         <Dropdown
-                            data={content()}
+                            data={types()}
                             expandEvent={['focus', 'click']}
                             maxHeight={252}
                             onItemSelect={item =>
-                                _onDropdownSelect(item, 'content')
+                                _onDropdownSelect(item, 'type')
                             }
-                            ref={elm => refs.set('contentDropdown', elm)}
-                            selection={op.get(state, 'selection.content', [])}
+                            ref={elm => refs.set('dropdown', elm)}
+                            selection={op.get(state, 'selection.type', [])}
                             size='md'>
                             <div
                                 className={cn('form-group', {
-                                    error: isError('content'),
+                                    error: isError('type'),
                                 })}>
                                 <input
                                     data-dropdown-element
-                                    defaultValue={op.get(
-                                        state,
-                                        'search.content',
-                                    )}
-                                    onChange={_onSearchContent}
-                                    placeholder={__('Select %type').replace(
-                                        /\%type/gi,
-                                        op.get(state, 'search.type') ||
-                                            __('content'),
-                                    )}
-                                    ref={elm => refs.set('content', elm)}
-                                    name='content'
+                                    defaultValue={op.get(state, 'search.type')}
+                                    onChange={_onSearchType}
+                                    placeholder={__('Content Type')}
+                                    ref={elm => refs.set('type', elm)}
+                                    name='type'
                                 />
-                                {isError('content') && (
-                                    <small>{errorMsg()}</small>
-                                )}
+                                {isError('type') && <small>{errorMsg()}</small>}
                                 <Button
                                     className='clear-btn'
-                                    color={Button.ENUMS.COLOR.DANGER}
-                                    onClick={() => clear('content')}
-                                    type='button'>
+                                    type='button'
+                                    onClick={() => clear('type')}
+                                    color={Button.ENUMS.COLOR.DANGER}>
                                     <Icon name='Feather.X' />
                                 </Button>
                             </div>
                         </Dropdown>
+                        {content().length > 0 && isStatus(ENUMS.STATUS.READY) && (
+                            <Dropdown
+                                data={content()}
+                                expandEvent={['focus', 'click']}
+                                maxHeight={252}
+                                onItemSelect={item =>
+                                    _onDropdownSelect(item, 'content')
+                                }
+                                ref={elm => refs.set('contentDropdown', elm)}
+                                selection={op.get(
+                                    state,
+                                    'selection.content',
+                                    [],
+                                )}
+                                size='md'>
+                                <div
+                                    className={cn('form-group', {
+                                        error: isError('content'),
+                                    })}>
+                                    <input
+                                        data-dropdown-element
+                                        defaultValue={op.get(
+                                            state,
+                                            'search.content',
+                                        )}
+                                        onChange={_onSearchContent}
+                                        placeholder={__('Select %type').replace(
+                                            /\%type/gi,
+                                            op.get(state, 'search.type') ||
+                                                __('content'),
+                                        )}
+                                        ref={elm => refs.set('content', elm)}
+                                        name='content'
+                                    />
+                                    {isError('content') && (
+                                        <small>{errorMsg()}</small>
+                                    )}
+                                    <Button
+                                        className='clear-btn'
+                                        color={Button.ENUMS.COLOR.DANGER}
+                                        onClick={() => clear('content')}
+                                        type='button'>
+                                        <Icon name='Feather.X' />
+                                    </Button>
+                                </div>
+                            </Dropdown>
+                        )}
+                    </div>
+                    {state.selection.type && state.selection.type.length > 0 && (
+                        <div className={cx('content-schema')}>
+                            <Scrollbars>
+                                <ul>
+                                    {schema().map(
+                                        ({ fieldName, fieldId: key }) => {
+                                            return (
+                                                <li key={key}>
+                                                    <Checkbox
+                                                        label={fieldName}
+                                                        labelAlign='right'
+                                                        name='schema'
+                                                        value={key}
+                                                    />
+                                                </li>
+                                            );
+                                        },
+                                    )}
+                                </ul>
+                            </Scrollbars>
+                        </div>
                     )}
-                    <div className='submit'>
+                    <div className={cx('content-footer')}>
                         <Button
                             type='submit'
                             ref={elm => refs.set('submit', elm)}>
