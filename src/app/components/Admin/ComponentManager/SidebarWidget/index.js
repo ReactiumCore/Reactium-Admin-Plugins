@@ -31,7 +31,7 @@ export default () => {
         <MenuItem
             label={__('Components')}
             route='/admin/components'
-            icon='Linear.Cube'
+            icon='Linear.Beaker'
             isActive={isActive}
         />
     ) : null;

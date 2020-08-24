@@ -64,32 +64,34 @@ const JsxComponent = ({ handle, id }) => {
         if (active !== id) return;
         const { elements = [] } = handle.header(true);
 
-        elements.splice(
-            0,
-            0,
-            <Button
-                className='ar-dialog-header-btn'
-                color={Button.ENUMS.COLOR.CLEAR}
-                key='component-type-theme'
-                onClick={themeToggle}
-                style={{ paddingLeft: 2 }}>
-                <Icon name={themeIcon(state.theme)} />
-            </Button>,
-        );
+        const buttons = [
+            {
+                key: 'component-type-info',
+                onClick: helpToggle,
+                icon: 'Feather.AlertCircle',
+            },
+            {
+                key: 'component-type-theme',
+                onClick: themeToggle,
+                icon: themeIcon(state.theme),
+            },
+        ];
 
-        elements.splice(
-            0,
-            0,
-            <Button
-                className='ar-dialog-header-btn'
-                color={Button.ENUMS.COLOR.CLEAR}
-                key='component-type-info'
-                onClick={helpToggle}
-                style={{ paddingLeft: 2 }}>
-                <Icon name='Feather.AlertCircle' />
-            </Button>,
-        );
+        const buttonProps = {
+            className: 'ar-dialog-header-btn',
+            color: Button.ENUMS.COLOR.CLEAR,
+            style: { paddingLeft: 2 },
+        };
 
+        buttons.forEach(({ key, icon, ...btn }) =>
+            elements.splice(
+                0,
+                0,
+                <Button key={key} {...buttonProps} {...btn}>
+                    <Icon name={icon} />
+                </Button>,
+            ),
+        );
         op.set(currentHeader, 'elements', elements);
     };
 

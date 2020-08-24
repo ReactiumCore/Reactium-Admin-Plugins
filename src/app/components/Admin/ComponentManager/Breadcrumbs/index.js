@@ -32,7 +32,7 @@ export default () => {
                     color={Button.ENUMS.COLOR.CLEAR}
                     size={Button.ENUMS.SIZE.SM}
                     type={Button.ENUMS.TYPE.BUTTON}>
-                    <Icon name='Linear.Cube' className='mr-xs-12' />
+                    <Icon name='Linear.Beaker' className='mr-xs-12' />
                     {__('Components')}
                 </Button>
             </li>

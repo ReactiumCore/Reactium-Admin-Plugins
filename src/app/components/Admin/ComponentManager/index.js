@@ -200,6 +200,8 @@ let ComponentManager = (
 
         eventType = String(eventType).toLowerCase();
 
+        event = op.get(event, 'type') ? event : { ...event, type: eventType };
+
         const evt = new ComponentEvent(eventType, event);
 
         handle.dispatchEvent(evt);
