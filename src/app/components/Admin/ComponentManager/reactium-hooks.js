@@ -3,9 +3,13 @@ import SaveWidget from './SaveWidget';
 import Breadcrumbs from './Breadcrumbs';
 import Reactium from 'reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
+import RTE from './RTE';
 
 Reactium.Plugin.register('ComponentManager').then(() => {
     Reactium.Component.register('ComponentManager', Component);
+
+    // RTE Plugin
+    Reactium.RTE.Plugin.register('block', RTE);
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-COMPONENTS',

@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
@@ -47,10 +46,6 @@ let Panel = (initialProps, ref) => {
 
     // Refs
     const containerRef = useRef();
-
-    const dragRef = useRef();
-
-    const dismissableRef = useRef();
 
     // Initial state
     const [state, setNewState] = useDerivedState(initialState);
@@ -150,12 +145,6 @@ let Panel = (initialProps, ref) => {
         if (!container || visible !== true || autohide !== true) return;
         if (isContainer(e.target, container)) return;
         hide(false, true);
-    };
-
-    // classname and namespace
-    const cname = () => {
-        const { className, namespace } = state;
-        return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
     // className prefixer
@@ -346,7 +335,7 @@ let Panel = (initialProps, ref) => {
 
     // visible toggle
     useEffect(() => {
-        //setHandle(_handle());
+        handle.visible = visible;
 
         if (visible === true) {
             handle.dispatchEvent(new Event('show'));
@@ -354,6 +343,8 @@ let Panel = (initialProps, ref) => {
             handle.dispatchEvent(new Event('hide'));
         }
         handle.dispatchEvent(new Event('toggle'));
+
+        setHandle(handle);
     }, [visible]);
 
     // update handle

@@ -1,11 +1,12 @@
 .ar-rte {
-    [type='embed'] {
+    *[type='embed'] {
         margin-left: -4px;
         margin-right: -4px;
         position: relative;
         outline: none;
         user-select: none;
         display: block;
+        width: 100%;
 
         [data-slate-spacer] {
             display: none;
@@ -21,36 +22,42 @@
             float: left;
         }
 
-        img {
+        &.box,
+        img,
+        video {
             padding: 4px;
             max-width: 100%;
             border: 2px dashed transparent;
             transition: border 0.25s ease-in-out;
         }
 
+        img {
+            max-width: 100%;
+        }
+
         video {
-            padding: 4px;
-            border: 2px dashed transparent;
-            transition: border 0.25s ease-in-out;
             outline: none;
         }
 
         .actions {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 0;
+            right: 0;
+            padding: 4px;
             opacity: 0;
             transition: opacity 0.25s ease-in-out;
-            display: inline;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
 
             button {
-                width: 40px;
-                height: 40px;
+                width: 24px;
+                height: 24px;
                 padding: 0;
 
                 svg {
-                    width: 20px;
-                    height: 20px;
+                    width: 14px;
+                    height: 14px;
                 }
             }
         }
@@ -58,10 +65,8 @@
         &:hover,
         &:focus,
         &.selected {
-            img {
-                border: 2px dashed $color-grey;
-            }
-
+            &.box,
+            img,
             video {
                 border: 2px dashed $color-grey;
             }

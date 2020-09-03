@@ -62,7 +62,7 @@ SDK.save = async (newComponents = {}) => {
 };
 
 SDK.list = refresh => {
-    return !refresh
+    return refresh !== true && Object.keys(_components).length > 0
         ? _components
         : Reactium.Setting.get('components', {}, refresh).then(results => {
               _components = results;

@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Reactium, {
     __,
@@ -262,16 +262,23 @@ const ContentComponent = ({ handle, id }) => {
         return obj;
     };
 
-    const schema = () => {
+    const schema = useCallback(() => {
         let { type } = state.selection;
+
         const typeID = _.first(type);
         if (!typeID) return [];
+
         type = _.findWhere(types(), { uuid: typeID });
         if (!type) return [];
+
         const { fields } = type;
         if (!fields) return [];
+
+        // return _.sortBy(Object.values(fields), 'fieldName').filter(
+        //     ({ fieldId }) => fieldId !== 'publisher',
+        // );
         return _.sortBy(Object.values(fields), 'fieldName');
-    };
+    }, []);
 
     const types = () => {
         const items = op.get(state, 'types', []);
@@ -487,14 +494,14 @@ const ContentComponent = ({ handle, id }) => {
             </Collapsible>
             {isReady() && (
                 <EventForm
-                    onChange={({ value }) =>
+                    onChange={({ value }) => {
                         setState({
                             schema: _.chain([op.get(value, 'schema')])
                                 .flatten()
                                 .compact()
                                 .value(),
-                        })
-                    }
+                        });
+                    }}
                     onSubmit={_onSubmit}
                     ref={elm => refs.set('form', elm)}
                     value={getValue()}>
@@ -586,7 +593,14 @@ const ContentComponent = ({ handle, id }) => {
                                     {schema().map(
                                         ({ fieldName, fieldId: key }) => {
                                             return (
-                                                <li key={key}>
+                                                <li
+                                                    key={key}
+                                                    style={{
+                                                        display:
+                                                            key === 'publisher'
+                                                                ? 'none'
+                                                                : null,
+                                                    }}>
                                                     <Checkbox
                                                         label={fieldName}
                                                         labelAlign='right'

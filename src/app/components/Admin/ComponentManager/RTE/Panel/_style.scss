@@ -1,0 +1,152 @@
+.blocks-rte {
+    position: relative;
+    height: 324px;
+
+    &-attributes {
+        width: calc(100vh - 40px);
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    &-list {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+
+        ul {
+            padding: 8px 0;
+            margin: 0;
+        }
+
+        ul li {
+            margin: 0;
+            padding: 4px 12px;
+            font-size: 14px;
+
+            button {
+                border: none;
+                background-color: transparent;
+                padding: 5px 8px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                font-family: inherit;
+                border-radius: 4px;
+                transition: background-color 0.2s ease-in-out;
+                color: $color-text-dark;
+                width: 100%;
+
+                &:hover {
+                    background-color: $color-white-dark;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    &-search {
+        flex-shrink: 0;
+        padding: 16px;
+        background-color: #fdfdfd;
+        border-bottom: 1px solid $color-border;
+
+        .form-group {
+            background-color: $color-text-light;
+
+            input {
+                min-width: 0;
+                flex-grow: 1;
+                margin: 0 -1px 0 0;
+                background-color: transparent;
+                border: 1px solid #f3f3f3;
+
+                &:focus {
+                    z-index: 10000;
+                    border: 1px solid $color-primary;
+                }
+            }
+        }
+    }
+
+    &-form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+
+        &-fields {
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+
+            .fieldset {
+                padding: 20px 20px;
+                z-index: 1;
+
+                .form-group {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                }
+            }
+
+            &:after {
+                position: absolute;
+                width: calc(100% - 10px);
+                height: 18px;
+                pointer-events: none;
+                bottom: 0;
+                left: 1;
+                z-index: 2;
+                content: '';
+                background: -moz-linear-gradient(
+                top,
+                rgba($color-white, 0) 0%,
+                rgba($color-white, 1) 100%
+            );
+                background: -webkit-linear-gradient(
+                top,
+                rgba($color-white, 0) 0%,
+                rgba($color-white, 1) 100%
+            );
+                background: linear-gradient(
+                to bottom,
+                rgba($color-white, 0) 0%,
+                rgba($color-white, 1) 100%
+            );
+            }
+        }
+
+        &-header {
+            padding: 6px 12px 6px 20px;
+            background-color: #fdfdfd;
+            border-bottom: 1px solid $color-grey-light;
+            font-size: 14px;
+        }
+
+        &-footer {
+            padding: 10px;
+            border-top: 1px solid $color-grey-light;
+        }
+    }
+
+    &-spinner {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+}
+
+.ar-rte {
+    .component {
+        position: relative;
+        padding: 4px 8px;
+
+        .actions {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+}
