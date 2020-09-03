@@ -1,10 +1,8 @@
 const path = require('path');
-const chalk = require('chalk');
-const fs = require('fs-extra');
-const globby = require('globby');
-const op = require('object-path');
 const mod = path.dirname(require.main.filename);
 const pad = require(`${mod}/lib/pad`);
+
+const { fs, chalk, globby, op } = arcli;
 
 module.exports = spinner => {
     const message = (...text) => {
