@@ -29170,6 +29170,7 @@ button.formatter-text-style > div > blockquote {
     -ms-user-select: none;
     user-select: none;
     display: block;
+    width: 100%;
 }
 .ar-rte [type='embed'] [data-slate-spacer] {
     display: none;
@@ -29182,43 +29183,49 @@ button.formatter-text-style > div > blockquote {
     width: auto;
     float: left;
 }
-.ar-rte [type='embed'] img {
+.ar-rte [type='embed'] img,
+.ar-rte [type='embed'] video,
+.ar-rte [type='embed'].box {
     padding: 4px;
     max-width: 100%;
     border: 2px dashed transparent;
     transition: border 0.25s ease-in-out;
 }
+.ar-rte [type='embed'] img {
+    max-width: 100%;
+}
 .ar-rte [type='embed'] video {
-    padding: 4px;
-    border: 2px dashed transparent;
-    transition: border 0.25s ease-in-out;
     outline: 0;
 }
 .ar-rte [type='embed'] .actions {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 0;
+    right: 0;
+    padding: 4px;
     opacity: 0;
     transition: opacity 0.25s ease-in-out;
-    display: inline;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 .ar-rte [type='embed'] .actions button {
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
     padding: 0;
 }
 .ar-rte [type='embed'] .actions button svg {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
 }
 .ar-rte [type='embed'].selected img,
-.ar-rte [type='embed']:focus img,
-.ar-rte [type='embed']:hover img {
-    border: 2px dashed #cfcfcf;
-}
 .ar-rte [type='embed'].selected video,
+.ar-rte [type='embed'].selected.box,
+.ar-rte [type='embed']:focus img,
 .ar-rte [type='embed']:focus video,
-.ar-rte [type='embed']:hover video {
+.ar-rte [type='embed']:focus.box,
+.ar-rte [type='embed']:hover img,
+.ar-rte [type='embed']:hover video,
+.ar-rte [type='embed']:hover.box {
     border: 2px dashed #cfcfcf;
 }
 .ar-rte [type='embed'].selected .actions,
@@ -29504,6 +29511,45 @@ button.formatter-text-style > div > blockquote {
 }
 .drag-list-item-inner > * {
     position: relative;
+}
+.ar-code {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    height: 100%;
+    width: 100%;
+    line-height: 1.5;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+.ar-code-lines {
+    line-height: inherit;
+    font-family: monospace;
+    font-size: 16px;
+    padding: 0;
+}
+.ar-code-lines .num {
+    color: inherit;
+    background-color: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: right;
+    width: 100%;
+    padding: 0 16px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.ar-code-lines .num:first-child {
+    padding-top: 16px;
+}
+.ar-code-lines .num:last-child {
+    padding-bottom: 16px;
+}
+.ar-code-input {
+    padding: 16px 0;
+    flex-grow: 1;
 }
 a.icon-link:active .icon,
 a.icon-link:focus .icon,
@@ -35395,6 +35441,136 @@ body.fullscreen .admin-content-list {
 .admin-taxonomy-list-item ul li .trash {
     fill: #e09797;
 }
+.blocks-rte {
+    position: relative;
+    height: 324px;
+}
+.blocks-rte-attributes {
+    width: calc(100vh - 40px);
+    max-width: 400px;
+    padding: 20px;
+}
+.blocks-rte-list {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.blocks-rte-list ul {
+    padding: 8px 0;
+    margin: 0;
+}
+.blocks-rte-list ul li {
+    margin: 0;
+    padding: 4px 12px;
+    font-size: 14px;
+}
+.blocks-rte-list ul li button {
+    border: none;
+    background-color: transparent;
+    padding: 5px 8px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+    color: #000;
+    width: 100%;
+}
+.blocks-rte-list ul li button:hover {
+    background-color: #fdfdfd;
+    cursor: pointer;
+}
+.blocks-rte-search {
+    flex-shrink: 0;
+    padding: 16px;
+    background-color: #fdfdfd;
+    border-bottom: 1px solid #f7f7f7;
+}
+.blocks-rte-search .ar-media-picker-search-input,
+.blocks-rte-search .editor-taxonomy-checklist-search,
+.blocks-rte-search .editor-urls,
+.blocks-rte-search .form-group {
+    background-color: #fff;
+}
+.blocks-rte-search .ar-media-picker-search-input input,
+.blocks-rte-search .editor-taxonomy-checklist-search input,
+.blocks-rte-search .editor-urls input,
+.blocks-rte-search .form-group input {
+    min-width: 0;
+    flex-grow: 1;
+    margin: 0 -1px 0 0;
+    background-color: transparent;
+    border: 1px solid #f3f3f3;
+}
+.blocks-rte-search .ar-media-picker-search-input input:focus,
+.blocks-rte-search .editor-taxonomy-checklist-search input:focus,
+.blocks-rte-search .editor-urls input:focus,
+.blocks-rte-search .form-group input:focus {
+    z-index: 10000;
+    border: 1px solid #4f82ba;
+}
+.blocks-rte-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.blocks-rte-form-fields {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+.blocks-rte-form-fields .fieldset {
+    padding: 20px 20px;
+    z-index: 1;
+}
+.blocks-rte-form-fields .fieldset .ar-media-picker-search-input,
+.blocks-rte-form-fields .fieldset .editor-taxonomy-checklist-search,
+.blocks-rte-form-fields .fieldset .editor-urls,
+.blocks-rte-form-fields .fieldset .form-group {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.blocks-rte-form-fields:after {
+    position: absolute;
+    width: calc(100% - 10px);
+    height: 18px;
+    pointer-events: none;
+    bottom: 0;
+    left: 1;
+    z-index: 2;
+    content: '';
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
+}
+.blocks-rte-form-header {
+    padding: 6px 12px 6px 20px;
+    background-color: #fdfdfd;
+    border-bottom: 1px solid #f7f7f7;
+    font-size: 14px;
+}
+.blocks-rte-form-footer {
+    padding: 10px;
+    border-top: 1px solid #f7f7f7;
+}
+.blocks-rte-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+.ar-rte .component {
+    position: relative;
+    padding: 4px 8px;
+}
+.ar-rte .component .actions {
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
 .admin-components {
     padding-top: 60px;
     position: relative;
@@ -35405,6 +35581,12 @@ body.fullscreen .admin-content-list {
     height: auto;
     width: 100%;
     overflow: hidden;
+}
+.admin-components .ar-media-picker-search-input input,
+.admin-components .editor-taxonomy-checklist-search input,
+.admin-components .editor-urls input,
+.admin-components .form-group input {
+    margin-top: 0;
 }
 @media only screen and (min-width: 641px) {
     .admin-components {
@@ -35424,11 +35606,327 @@ body.fullscreen .admin-content-list {
 .admin-components h3 {
     margin-bottom: 16px;
 }
+.admin-components-type {
+    width: calc(100vw - 40px);
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type {
+        width: 80vw;
+        max-width: 740px;
+    }
+}
+.admin-components-type .ar-scene {
+    width: 100%;
+    height: calc(100vh - 94px) !important;
+    min-height: 700px;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type .ar-scene {
+        height: 520px !important;
+        min-height: 520px;
+    }
+}
+.admin-components-type .ar-dialog-content {
+    border-bottom: none !important;
+}
+.admin-components-type-content,
+.admin-components-type-hook,
+.admin-components-type-jsx {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.admin-components-type-content .help,
+.admin-components-type-hook .help,
+.admin-components-type-jsx .help {
+    border-bottom: 1px solid #f7f7f7;
+    padding: 20px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+.admin-components-type-content form,
+.admin-components-type-hook form,
+.admin-components-type-jsx form {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.admin-components-type-content form input,
+.admin-components-type-hook form input,
+.admin-components-type-jsx form input {
+    padding-right: 45px;
+}
+.admin-components-type-content form .ar-media-picker-search-input,
+.admin-components-type-content form .editor-taxonomy-checklist-search,
+.admin-components-type-content form .editor-urls,
+.admin-components-type-content form .form-group,
+.admin-components-type-hook form .ar-media-picker-search-input,
+.admin-components-type-hook form .editor-taxonomy-checklist-search,
+.admin-components-type-hook form .editor-urls,
+.admin-components-type-hook form .form-group,
+.admin-components-type-jsx form .ar-media-picker-search-input,
+.admin-components-type-jsx form .editor-taxonomy-checklist-search,
+.admin-components-type-jsx form .editor-urls,
+.admin-components-type-jsx form .form-group {
+    margin: 0;
+}
+.admin-components-type-content form .ar-media-picker-search-input input,
+.admin-components-type-content form .editor-taxonomy-checklist-search input,
+.admin-components-type-content form .editor-urls input,
+.admin-components-type-content form .form-group input,
+.admin-components-type-hook form .ar-media-picker-search-input input,
+.admin-components-type-hook form .editor-taxonomy-checklist-search input,
+.admin-components-type-hook form .editor-urls input,
+.admin-components-type-hook form .form-group input,
+.admin-components-type-jsx form .ar-media-picker-search-input input,
+.admin-components-type-jsx form .editor-taxonomy-checklist-search input,
+.admin-components-type-jsx form .editor-urls input,
+.admin-components-type-jsx form .form-group input {
+    margin-top: 0;
+}
+.admin-components-type-content form .clear-btn,
+.admin-components-type-hook form .clear-btn,
+.admin-components-type-jsx form .clear-btn {
+    width: 33px;
+    height: 33px;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    padding: 0;
+}
+.admin-components-type-content form .clear-btn svg,
+.admin-components-type-hook form .clear-btn svg,
+.admin-components-type-jsx form .clear-btn svg {
+    width: 24px;
+    height: 24px;
+}
+.admin-components-type-content form .ar-dropdown,
+.admin-components-type-hook form .ar-dropdown,
+.admin-components-type-jsx form .ar-dropdown {
+    width: 100%;
+    margin-bottom: 20px;
+}
+.admin-components-type-content form .ar-dropdown-menu,
+.admin-components-type-hook form .ar-dropdown-menu,
+.admin-components-type-jsx form .ar-dropdown-menu {
+    margin-top: 2px;
+    z-index: 1000;
+}
+.admin-components-type-content form .ar-dropdown-menu ul li,
+.admin-components-type-hook form .ar-dropdown-menu ul li,
+.admin-components-type-jsx form .ar-dropdown-menu ul li {
+    width: 100%;
+}
+.admin-components-type-content form .ar-dropdown-menu li button,
+.admin-components-type-hook form .ar-dropdown-menu li button,
+.admin-components-type-jsx form .ar-dropdown-menu li button {
+    white-space: normal;
+    text-align: left;
+    flex-wrap: wrap !important;
+}
+.admin-components-type-content form .ar-dropdown-menu li button.active,
+.admin-components-type-content form .ar-dropdown-menu li button:hover,
+.admin-components-type-hook form .ar-dropdown-menu li button.active,
+.admin-components-type-hook form .ar-dropdown-menu li button:hover,
+.admin-components-type-jsx form .ar-dropdown-menu li button.active,
+.admin-components-type-jsx form .ar-dropdown-menu li button:hover {
+    color: #4f82ba;
+}
+.admin-components-type-content .submit,
+.admin-components-type-hook .submit,
+.admin-components-type-jsx .submit {
+    text-align: center;
+}
+.admin-components-type-content .submit button,
+.admin-components-type-hook .submit button,
+.admin-components-type-jsx .submit button {
+    width: 100%;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type-content .submit button,
+    .admin-components-type-hook .submit button,
+    .admin-components-type-jsx .submit button {
+        width: auto;
+    }
+}
+.admin-components-type-content .ar-spinner,
+.admin-components-type-hook .ar-spinner,
+.admin-components-type-jsx .ar-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.admin-components-type-content-footer,
+.admin-components-type-hook-footer,
+.admin-components-type-jsx-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    flex-shrink: 0;
+    padding: 10px;
+}
+.admin-components-type-content-footer button,
+.admin-components-type-hook-footer button,
+.admin-components-type-jsx-footer button {
+    width: 100%;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type-content-footer button,
+    .admin-components-type-hook-footer button,
+    .admin-components-type-jsx-footer button {
+        width: auto;
+    }
+}
+.admin-components-type-content-schema {
+    width: 100%;
+    flex-grow: 1;
+    border-bottom: 1px solid #f7f7f7;
+    border-top: 1px solid #f7f7f7;
+    overflow: hidden;
+}
+.admin-components-type-content-schema ul {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+.admin-components-type-content-schema ul li {
+    list-style: none;
+}
+.admin-components-type-content-schema ul .ar-checkbox-label-right {
+    padding: 6px 20px;
+}
+.admin-components-type-content-schema
+    ul
+    .ar-checkbox-label-right
+    span:first-child {
+    text-align: left;
+}
+.admin-components-type-jsx {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 94px) !important;
+    min-height: 700px;
+    overflow: hidden;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type-jsx {
+        height: 520px !important;
+        min-height: 520px;
+    }
+}
+.admin-components-type-jsx pre,
+.admin-components-type-jsx textarea {
+    border-radius: 0;
+    border: 0;
+    padding: 20px;
+    outline: 0;
+}
+.admin-components-type-jsx pre:focus,
+.admin-components-type-jsx textarea:focus {
+    border: 0;
+    border-radius: 0;
+}
+.admin-components-type-jsx-code {
+    flex-grow: 1;
+    position: relative;
+}
+.admin-components-type-jsx-error {
+    max-height: 100px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-top: 1px solid #f7f7f7;
+    background-color: #fcfcfc;
+}
+.admin-components-type-jsx-error pre {
+    font-size: 12px;
+    padding: 14px 14px 12px 14px;
+}
+.admin-components-type-jsx-error:empty {
+    display: none;
+}
+.admin-components-type-selector {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+@media only screen and (min-width: 991px) {
+    .admin-components-type-selector {
+        flex-direction: row;
+    }
+}
+.admin-components-type-selector-btn {
+    width: 180px;
+    height: 160px;
+    margin: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    opacity: 0.8;
+    transition: all 0.2s ease-in-out;
+}
+.admin-components-type-selector-btn:hover {
+    background-color: #4f82ba;
+}
+.admin-components-type-selector-btn:hover * {
+    color: #fff;
+}
+.admin-components-type-selector-btn:hover svg {
+    width: 80px;
+    height: 80px;
+    fill: #fff;
+}
+.admin-components-type-selector-icon {
+    flex-grow: 1;
+}
+.admin-components-type-selector-icon svg {
+    width: 70px;
+    height: 70px;
+    fill: #4f82ba;
+    transition: all 0.2s ease-in-out;
+}
+.admin-components-type-selector-icon svg.content {
+    margin-left: 12px;
+}
+.admin-components-type-selector-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 35px;
+    transition: all 0.2s ease-in-out;
+    color: #333;
+}
 .admin-components-creator {
     display: block;
     background-color: #fff;
     width: 100%;
     transition: width 0.2s ease-in-out;
+}
+.admin-components-creator .ar-media-picker-search-input input,
+.admin-components-creator .editor-taxonomy-checklist-search input,
+.admin-components-creator .editor-urls input,
+.admin-components-creator .form-group input {
+    margin-top: 0;
 }
 @media only screen and (min-width: 991px) {
     .admin-components-creator {
@@ -35534,8 +36032,11 @@ body.fullscreen .admin-content-list {
     transform: translate(-50%, -50%);
     z-index: 50000;
 }
-.admin-components .ar-dialog-header-btn.delete svg {
+.admin-components .ar-dialog-header-btn.danger svg {
     fill: #e09797;
+}
+.admin-components .ar-dialog-header-btn.primary svg {
+    fill: #4f82ba;
 }
 @media only screen and (min-width: 991px) and (max-width: 1280px) {
     .admin-sidebar-expanded .admin-components {
