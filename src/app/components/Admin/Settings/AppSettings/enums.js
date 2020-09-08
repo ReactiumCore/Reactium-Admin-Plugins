@@ -2,6 +2,33 @@ import { __ } from 'reactium-core/sdk';
 
 export default {
     appSettingProps: {
+        settings: {
+            title: __('Application Settings'),
+            group: 'App',
+            inputs: {
+                title: {
+                    type: 'text',
+                    label: __('App name'),
+                    tooltip: __('Title of this application.'),
+                    required: true,
+                },
+
+                url: {
+                    type: 'text',
+                    label: __('App URL'),
+                    tooltip: __('URL of this application if applicable.'),
+                    required: true,
+                },
+
+                maintenance: {
+                    type: 'toggle',
+                    label: __('Maintenance Mode'),
+                    tooltip: __(
+                        'Toggle the application into maintenance mode.',
+                    ),
+                },
+            },
+        },
         capabilities: [
             {
                 capability: 'admin-ui.view',

@@ -1,6 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent, __ } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -17,12 +17,24 @@ const AppSettings = ({
     const Zone = useHookComponent('Zone');
     const Helmet = useHookComponent('Helmet');
     const CapabilityEditor = useHookComponent('CapabilityEditor');
+    const SettingEditor = useHookComponent('SettingEditor');
 
     const { useCapabilitySettings } = Reactium;
     const [capabilities] = useCapabilitySettings(
         id,
         op.get(appSettingProps, 'capabilities', []),
     );
+
+    const settings = {
+        group: 'App',
+        title: __('Application Settings'),
+    };
+
+    Reactium.Setting.UI.list
+        .filter(item => item.group === settings.group)
+        .forEach(item => {
+            op.set(settings, ['inputs', item.id], { ...item.input });
+        });
 
     return (
         <div className={className}>
@@ -32,6 +44,7 @@ const AppSettings = ({
                     <title>{title}</title>
                 </Helmet>
             )}
+            <SettingEditor settings={settings} />
             {capabilities && capabilities.length > 0 && (
                 <CapabilityEditor
                     capabilities={capabilities}
