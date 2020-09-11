@@ -8,6 +8,28 @@ import MenuItem from 'components/Admin/registered-components/MenuItem';
 
 const PLUGIN = 'app-settings';
 
+Reactium.Hook.register('plugin-dependencies', async () => {
+    if (!op.get(Reactium, 'Setting.UI')) {
+        op.set(
+            Reactium,
+            'Setting.UI',
+            Reactium.Utils.registryFactory('SettingUI'),
+        );
+    }
+
+    const { title: groupTitle, group, inputs } = Enums.appSettingProps.settings;
+    Object.entries(inputs).forEach(([prop, input]) => {
+        const id = `${group}.${prop}`;
+        Reactium.Setting.UI.register(id, {
+            id,
+            group,
+            groupTitle,
+            prop,
+            input,
+        });
+    });
+});
+
 const appSettingsPlugin = async () => {
     await Reactium.Plugin.register(PLUGIN);
 
