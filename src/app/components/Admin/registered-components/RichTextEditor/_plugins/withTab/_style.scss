@@ -1,0 +1,62 @@
+.rte-tabs {
+    &-editor {
+        position: relative;
+        &-add {
+            padding: 20px;
+        }
+
+        &-tabs {
+            padding: 20px 0;
+            border-top: 1px solid $color-grey-light;
+            height: 320px;
+            overflow-y: auto;
+            position: relative;
+
+            &.dragging {
+                padding-bottom: 77px;
+            }
+
+            .draggable {
+                position: relative;
+
+                padding: 0 20px;
+                &:not(:first-child) {
+                    margin-top: 8px;
+                }
+
+                &.dragging {
+                    margin: 0;
+                    padding: 8px 20px;
+                    background-color: $color-white;
+                    display: block;
+                    min-height: 57px;
+                    box-shadow: $shadow-image;
+                }
+
+                &:after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 10px;
+                    height: 12px;
+                    width: 4px;
+                    border-left: 1px solid $color-grey;
+                    border-right: 1px solid $color-grey;
+                    transform: translate(-50%, -50%);
+                    opacity: 0;
+                }
+
+                &:hover::after,
+                &.dragging::after {
+                    opacity: 1;
+                }
+            }
+        }
+
+        &-footer {
+            padding: 10px;
+            border-top: 1px solid $color-grey-light;
+            background-color: lighten($color-grey-light, 2%);
+        }
+    }
+}

@@ -15,6 +15,7 @@ import withList from './withList';
 import withMediaImage from './withMediaImage';
 import withMediaVideo from './withMediaVideo';
 import withStrike from './withStrike';
+import withTab from './withTab';
 import withUnderline from './withUnderline';
 
 const plugins = {
@@ -34,6 +35,7 @@ const plugins = {
     withMediaVideo,
     withList,
     withStrike,
+    withTab,
     withUnderline,
 };
 

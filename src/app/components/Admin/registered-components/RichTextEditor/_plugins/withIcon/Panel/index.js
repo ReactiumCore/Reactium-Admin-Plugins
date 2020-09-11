@@ -1,17 +1,11 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
-import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
-import { Editor, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import React, { useEffect, useRef, useState } from 'react';
-import Reactium, {
-    __,
-    useFocusEffect,
-    useHookComponent,
-} from 'reactium-core/sdk';
+import { __, useFocusEffect, useHookComponent } from 'reactium-core/sdk';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 
 const CloseButton = props => (
@@ -75,7 +69,7 @@ const Panel = ({
 
     const setHeader = () =>
         setNewHeader({
-            elements: [<CloseButton onClick={hide} />],
+            elements: [<CloseButton onClick={hide} key='close-button' />],
             title,
         });
 
