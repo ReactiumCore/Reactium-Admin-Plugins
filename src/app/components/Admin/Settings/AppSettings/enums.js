@@ -6,9 +6,21 @@ export default {
             title: __('Application Settings'),
             group: 'App',
             inputs: {
+                logo: {
+                    type: 'media',
+                    label: __('App Logo'),
+                    tooltip: __('Upload or select a logo for this application'),
+                    required: false,
+                    pickerOptions: {
+                        title: __('Pick Logo'),
+                        maxSelect: 1,
+                        filter: 'IMAGE',
+                    },
+                },
+
                 title: {
                     type: 'text',
-                    label: __('App name'),
+                    label: __('App title'),
                     tooltip: __('Title of this application.'),
                     required: true,
                 },

@@ -4,7 +4,13 @@ import React, {
     useLayoutEffect as useWindowEffect,
     useEffect,
 } from 'react';
-import { __, useSettingGroup, useHandle, Zone } from 'reactium-core/sdk';
+import {
+    __,
+    useSettingGroup,
+    useHandle,
+    useHookComponent,
+    Zone,
+} from 'reactium-core/sdk';
 import {
     Dialog,
     Toggle,
@@ -17,6 +23,7 @@ import {
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import MediaSetting from './MediaSetting';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
@@ -30,6 +37,7 @@ const useLayoutEffect =
 const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
+
     const formRef = useRef();
     const errorsRef = useRef({});
     const [, setVersion] = useState(new Date());
@@ -143,6 +151,16 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
         if (typeof type === 'string') {
             switch (type) {
+                case 'media': {
+                    return (
+                        <MediaSetting
+                            formRef={formRef}
+                            key={key}
+                            config={config}
+                        />
+                    );
+                }
+
                 case 'checkbox': {
                     return (
                         <div className={formGroupClasses} key={key}>
