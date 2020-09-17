@@ -3,6 +3,7 @@ import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import withBold from './withBold';
 import withBlock from './withBlock';
+import withButton from './withButton';
 import withColor from './withColor';
 import withData from './withData';
 import withFont from './withFont';
@@ -24,6 +25,7 @@ const plugins = {
     withData,
     withBold,
     withBlock,
+    withButton,
     withColor,
     withFont,
     withFormatter,

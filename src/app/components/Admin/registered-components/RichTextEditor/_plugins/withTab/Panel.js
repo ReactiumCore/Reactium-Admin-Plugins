@@ -2,6 +2,7 @@ import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import { Transforms } from 'slate';
 import React, { useEffect } from 'react';
 import { ReactEditor, useEditor } from 'slate-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -27,13 +28,13 @@ const CloseButton = props => {
     );
 };
 
-export default props => {
-    const { title = __('Tabs') } = props;
+const Panel = ({ selection, title = __('Tabs') }) => {
     const refs = useRefs();
     const editor = useEditor();
 
     const [state, update] = useDerivedState({
         tabs: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+        vertical: false,
     });
 
     const setState = newState => {
@@ -42,19 +43,45 @@ export default props => {
         update(newState);
     };
 
-    const { Button, Dialog, EventForm, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Dialog, EventForm, Icon, Toggle } = useHookComponent(
+        'ReactiumUI',
+    );
 
     const cx = Reactium.Utils.cxFactory('rte-tabs-editor');
 
-    const hide = () => {
+    const direction = () => {
+        const dir = state.vertical === true ? __('vertical') : __('horizontal');
+        return String(__('Direction: %dir')).replace(/\%dir/gi, dir);
+    };
+
+    const hide = (noFocus = false) => {
         editor.panel.hide(false, true).setID('rte-panel');
-        ReactEditor.focus(editor);
+        if (noFocus !== true) ReactEditor.focus(editor);
     };
 
     const header = () => ({
         elements: [<CloseButton onClick={hide} key='close-btn' />],
         title,
     });
+
+    const insertNode = ({ tabs, vertical }) => {
+        const nodes = [
+            {
+                id: uuid(),
+                children: [{ text: '' }],
+                content: tabs.map(() => ({ text: '', type: 'empty' })),
+                tabs,
+                type: 'tabs',
+                vertical,
+            },
+            {
+                children: [{ text: '' }],
+                type: 'p',
+            },
+        ];
+
+        Transforms.insertNodes(editor, nodes, { at: selection });
+    };
 
     const unMounted = () => !refs.get('dialog');
 
@@ -97,6 +124,8 @@ export default props => {
         setState({ tabs });
     };
 
+    const _onChangeType = e => setState({ vertical: e.target.checked });
+
     const _onDelete = (index = 0) => {
         const { tabs = [] } = state;
         tabs.splice(index, 1);
@@ -118,8 +147,11 @@ export default props => {
 
     const _onSubmit = ({ value }) => {
         const { tabs } = value;
-        console.log(tabs);
-        hide();
+        const { vertical } = state;
+        try {
+            insertNode({ tabs, vertical });
+        } catch (err) {}
+        hide(true);
     };
 
     useFocusEffect(editor.panel.container);
@@ -132,56 +164,6 @@ export default props => {
 
         form.setValue({ tabs });
     }, [state.tabs]);
-
-    const renderDraggable = (tag, i) => (
-        <Draggable
-            key={`tab-group-${i}`}
-            draggableId={`tab-group-${i}`}
-            index={i}>
-            {(provided, snapshot) => {
-                if (snapshot.isDragging) {
-                    const offset = editor.panel.position;
-                    const x =
-                        op.get(provided.draggableProps.style, 'left') -
-                        offset.x;
-                    const y =
-                        op.get(provided.draggableProps.style, 'top') - offset.y;
-                    op.set(provided.draggableProps.style, 'left', x);
-                    op.set(provided.draggableProps.style, 'top', y);
-                }
-
-                return (
-                    <div
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        ref={provided.innerRef}
-                        className={cn('draggable', {
-                            dragging: snapshot.isDragging,
-                        })}>
-                        {provided.placeholder}
-                        <div className='input-group'>
-                            <input
-                                type='text'
-                                name='tabs'
-                                value={tag}
-                                onChange={_onChange}
-                            />
-                            <Button
-                                onClick={() => _onDelete(i)}
-                                style={{
-                                    width: 41,
-                                    height: 41,
-                                    padding: 0,
-                                }}
-                                color={Button.ENUMS.COLOR.DANGER}>
-                                <Icon name='Feather.X' />
-                            </Button>
-                        </div>
-                    </div>
-                );
-            }}
-        </Draggable>
-    );
 
     return (
         <Dialog
@@ -210,6 +192,9 @@ export default props => {
                         </Button>
                     </div>
                 </div>
+                <div className={cx('direction')}>
+                    <Toggle label={direction()} onChange={_onChangeType} />
+                </div>
                 {state.tabs.length > 0 && (
                     <DragDropContext onDragEnd={_onReorder}>
                         <Droppable droppableId={uuid()} direction='vertical'>
@@ -222,7 +207,15 @@ export default props => {
                                             snapshot.draggingFromThisWith,
                                     })}
                                     ref={provided.innerRef}>
-                                    {state.tabs.map(renderDraggable)}
+                                    {state.tabs.map((props, i) => (
+                                        <Drag
+                                            {...props}
+                                            key={`tab-${i}`}
+                                            index={i}
+                                            onChange={_onChange}
+                                            onDelete={_onDelete}
+                                        />
+                                    ))}
                                 </div>
                             )}
                         </Droppable>
@@ -239,3 +232,59 @@ export default props => {
         </Dialog>
     );
 };
+
+const Drag = ({ index, tab, onChange, onDelete }) => {
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    return (
+        <Draggable
+            key={`tab-group-${index}`}
+            draggableId={`tab-group-${index}`}
+            index={index}>
+            {(provided, snapshot) => {
+                if (snapshot.isDragging) {
+                    const offset = editor.panel.position;
+                    const x =
+                        op.get(provided.draggableProps.style, 'left') -
+                        offset.x;
+                    const y =
+                        op.get(provided.draggableProps.style, 'top') - offset.y;
+                    op.set(provided.draggableProps.style, 'left', x);
+                    op.set(provided.draggableProps.style, 'top', y);
+                }
+
+                return (
+                    <div
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                        className={cn('draggable', {
+                            dragging: snapshot.isDragging,
+                        })}>
+                        {provided.placeholder}
+                        <div className='input-group'>
+                            <input
+                                type='text'
+                                name='tabs'
+                                value={tab}
+                                onChange={onChange}
+                            />
+                            <Button
+                                onClick={() => onDelete(index)}
+                                style={{
+                                    width: 41,
+                                    height: 41,
+                                    padding: 0,
+                                }}
+                                color={Button.ENUMS.COLOR.DANGER}>
+                                <Icon name='Feather.X' />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            }}
+        </Draggable>
+    );
+};
+
+export default Panel;
