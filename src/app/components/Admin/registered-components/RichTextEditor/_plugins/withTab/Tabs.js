@@ -1,24 +1,22 @@
 import React from 'react';
 import uuid from 'uuid/v4';
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { useHookComponent, useRefs } from 'reactium-core/sdk';
+import { useHookComponent, useRefs } from 'reactium-core/sdk';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const Tab = ({ active, id, index, onBlur, onChange, onFocus, tab, refs }) => {
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+const Tab = ({
+    active,
+    addTab,
+    deleteTab,
+    index,
+    onChange,
+    onFocus,
+    tab,
+    refs,
+}) => {
     const cname = cn('tab', { active: index === active });
-
-    const isDragging = () =>
-        Reactium.Cache.get('rteTabDrag') === `${id}-${index}`;
-    const setDragging = val => {
-        if (val === null || val === undefined || typeof val === 'undefined') {
-            Reactium.Cache.del('rteTabDrag');
-        } else {
-            Reactium.Cache.set('rteTabDrag', `${id}-${val}`);
-        }
-    };
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     return (
         <Draggable
@@ -26,41 +24,43 @@ const Tab = ({ active, id, index, onBlur, onChange, onFocus, tab, refs }) => {
             draggableId={`tab-${index}`}
             index={index}>
             {(provided, snapshot) => {
-                if (snapshot.isDragging && isDragging() !== true) {
-                    setDragging(index);
-                }
+                const _onMouseDown = provided.dragHandleProps.onMouseDown;
+                const className = cn(cname, { dragging: snapshot.isDragging });
 
-                if (!snapshot.isDragging && isDragging() === true) {
-                    setDragging(null);
-                    const target = refs.get(`tab.input.${index}`);
-                    _.defer(() => onBlur({ target }));
-                }
+                provided.dragHandleProps.onMouseDown = e => {
+                    const input = refs.get(`tab.input.${index}`);
+                    onFocus({ index, target: input });
+                    _onMouseDown(e);
+                };
 
                 return (
                     <div
                         {...provided.draggableProps}
-                        {...provided.dragHandleProps}
                         ref={provided.innerRef}
                         tabIndex={-1}
-                        onMouseUp={e => onFocus(e, index)}
-                        className={cn(cname, {
-                            dragging: snapshot.isDragging,
-                        })}>
-                        <Button appearance='circle'>
-                            <Icon name='Feather.Plus' />
+                        className={className}>
+                        <Button
+                            appearance='circle'
+                            color='danger'
+                            onClick={e => deleteTab({ ...e, index })}>
+                            <Icon name='Feather.X' />
                         </Button>
-                        <div className='handle' />
+                        <div
+                            className='handle'
+                            {...provided.dragHandleProps}
+                            tabIndex={-1}
+                        />
                         <input
                             type='text'
                             value={tab}
                             ref={elm => refs.set(`tab.input.${index}`, elm)}
                             onChange={e => onChange(e, index)}
+                            onFocus={e => onFocus({ index, target: e.target })}
                         />
-                        <span className='placeholder'>
-                            {provided.placeholder}
-                        </span>
-                        <Button appearance='circle' color='danger'>
-                            <Icon name='Feather.X' />
+                        <Button
+                            appearance='circle'
+                            onClick={e => addTab({ ...e, index: index + 1 })}>
+                            <Icon name='Feather.Plus' />
                         </Button>
                     </div>
                 );
@@ -69,31 +69,32 @@ const Tab = ({ active, id, index, onBlur, onChange, onFocus, tab, refs }) => {
     );
 };
 
-const Tabs = ({ children, id, reorder, state, setActive, setTabs }) => {
+const Tabs = ({ children, ...props }) => {
     const refs = useRefs();
+    const { state } = props;
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
     const _onChange = (e, index) => {
         const tabs = Array.from(state.tabs);
         tabs.splice(index, 1, e.target.value);
-
-        setTabs(tabs, index);
+        props.setTabs(tabs, index);
     };
 
-    const _onFocus = (e, active) => setActive(active);
-
-    const _onBlur = e => {
+    const _onFocus = ({ index, target }) => {
         const inputs = Object.values(refs.get('tab.input'));
         inputs.forEach(input => {
-            if (input === e.target) return;
+            if (input === target) return;
             try {
                 input.blur();
             } catch (err) {}
         });
+        props.setActive(index);
     };
 
     const _onReorder = e => {
         const endIndex = op.get(e, 'destination.index');
         const startIndex = op.get(e, 'source.index');
-        reorder(startIndex, endIndex);
+        props.reorder(startIndex, endIndex);
     };
 
     return (
@@ -110,17 +111,29 @@ const Tabs = ({ children, id, reorder, state, setActive, setTabs }) => {
                                     snapshot.draggingFromThisWith,
                             })}
                             ref={provided.innerRef}>
+                            <div className='actions'>
+                                <Button
+                                    color='clear'
+                                    onClick={() => props.toggleVertical()}>
+                                    <Icon name='Feather.MoreVertical' />
+                                </Button>
+                                <Button
+                                    color='clear'
+                                    className='addBtn'
+                                    onClick={() => props.addTab({ index: 0 })}>
+                                    <Icon name='Feather.Plus' />
+                                </Button>
+                            </div>
                             {state.tabs.map((tab, i) => (
                                 <Tab
-                                    key={`${id}-tab-${i}`}
-                                    id={id}
+                                    {...props}
+                                    key={`${props.id}-tab-${i}`}
                                     active={state.active}
-                                    onBlur={_onBlur}
                                     onChange={_onChange}
                                     onFocus={_onFocus}
+                                    refs={refs}
                                     tab={tab}
                                     index={i}
-                                    refs={refs}
                                 />
                             ))}
                         </div>

@@ -231,10 +231,13 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     // 10.1 - Handle update.
     useEffect(() => {
         const newHandle = _handle();
+        Object.keys(newHandle).forEach(key =>
+            op.set(handle, key, newHandle[key]),
+        );
 
         setState({ updated: Date.now() });
-        setHandle(newHandle);
-        editor.handle = newHandle;
+        setHandle(handle);
+        editor.handle = handle;
     }, [
         buttons,
         blocks,

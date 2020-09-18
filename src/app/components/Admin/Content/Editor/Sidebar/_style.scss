@@ -23,7 +23,7 @@
         top: $height-admin-header;
         height: calc(100vh - #{$height-admin-header});
         outline: none;
-        z-index: 1000001;
+        z-index: map-get($z-indexes, 'sidebar');
 
         &-toggle {
             position: absolute;

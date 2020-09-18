@@ -1,32 +1,75 @@
-import uuid from 'uuid/v4';
-import _ from 'underscore';
-import cn from 'classnames';
-import op from 'object-path';
-import React, { useEffect, useState } from 'react';
-import { useEditor } from 'slate-react';
-import { Editor, Transforms } from 'slate';
-import TabContent from './TabContent';
 import Tabs from './Tabs';
-import Reactium, {
-    __,
-    useDerivedState,
-    useHookComponent,
-} from 'reactium-core/sdk';
+import _ from 'underscore';
+import op from 'object-path';
+import TabEditor from './TabEditor';
+import TabContent from './TabContent';
+import React, { useState } from 'react';
+import { Editor, Transforms } from 'slate';
+import { ReactEditor, useEditor } from 'slate-react';
+import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 
 const Element = props => {
+    const refs = useRefs();
     const editor = useEditor();
     const node = op.get(props, 'children.props.node');
 
     const cx = Reactium.Utils.cxFactory('rte-tabs');
-
-    const { vertical } = node;
 
     const [state, setState] = useDerivedState({
         id: node.id,
         active: 0,
         content: node.content,
         tabs: Array.from(node.tabs),
+        vertical: node.vertical,
     });
+
+    const addTab = ({ index }) => {
+        const { selection } = getSelection(state.id);
+        const content = Array.from(state.content);
+        const tabs = Array.from(state.tabs);
+
+        const count = tabs.length + 1;
+        const title = String(__('New Tab %count')).replace(/\%count/gi, count);
+        content.splice(index, 0, { children: [{ text: '' }], type: 'empty' });
+        tabs.splice(index, 0, title);
+
+        // Update RTE
+        Transforms.setNodes(editor, { content, tabs }, { at: selection });
+
+        setState({ active: index, content, tabs });
+    };
+
+    const isDeleting = () =>
+        Reactium.Cache.get(`tabsDeleting${state.id}`, false);
+
+    const setDeleting = val =>
+        Reactium.Cache.set(`tabsDeleting${state.id}`, val, 1000);
+
+    const deleteTab = ({ index }) => {
+        if (isDeleting() === true) return;
+
+        setDeleting(true);
+
+        const { selection } = getSelection(state.id);
+        const content = Array.from(state.content);
+        const tabs = Array.from(state.tabs);
+
+        if (tabs.length === 1) {
+            // Delete the entire node from the RTE
+            Transforms.delete(editor, { at: selection });
+            ReactEditor.focus(editor);
+        } else {
+            content.splice(index, 1);
+            tabs.splice(index, 1);
+
+            // Update RTE
+            Transforms.setNodes(editor, { content, tabs }, { at: selection });
+
+            const active = index - 1;
+
+            _.defer(() => setState({ active, content, tabs }));
+        }
+    };
 
     const getSelection = id => {
         const nodes = Array.from(Editor.nodes(editor, { at: [] }));
@@ -100,20 +143,32 @@ const Element = props => {
         return [tabs, index];
     };
 
+    const showEditor = () => {
+        const tabEditor = refs.get('editor');
+        tabEditor.show();
+    };
+
+    const toggleVertical = () => setState({ vertical: !state.vertical });
+
     const [handle] = useState({
         ...node,
+        addTab,
+        deleteTab,
+        editor,
         getSelection,
         reorder,
         setActive,
         setContent,
         setState,
         setTabs,
+        showEditor,
         state,
+        toggleVertical,
     });
 
     return (
         <div className={cx('element')} id={state.id} contentEditable={false}>
-            {vertical === true ? (
+            {state.vertical === true ? (
                 <Accordion {...handle}>
                     <TabContent {...handle} children={props.children} />
                 </Accordion>
@@ -122,6 +177,7 @@ const Element = props => {
                     <TabContent {...handle} children={props.children} />
                 </Tabs>
             )}
+            <TabEditor {...handle} ref={elm => refs.set('editor', elm)} />
         </div>
     );
 };
