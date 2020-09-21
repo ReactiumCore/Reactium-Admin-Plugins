@@ -64,7 +64,7 @@ const Panel = ({ selection, title = __('Tabs') }) => {
                 id: uuid(),
                 children: [{ text: '' }],
                 content: [{ children: [{ text: '' }], type: 'empty' }],
-                tabs: ['Tab Title'],
+                tabs: ['Tab 1'],
                 type: 'tabs',
                 vertical,
             },

@@ -29,15 +29,24 @@ const Element = props => {
         const content = Array.from(state.content);
         const tabs = Array.from(state.tabs);
 
-        const count = tabs.length + 1;
-        const title = String(__('New Tab %count')).replace(/\%count/gi, count);
+        let count = tabs.length + 1;
+        let title = String(__('Tab %count')).replace(/\%count/gi, count);
+
+        // Duplicate title?
+        while (tabs.includes(title)) {
+            count += 1;
+            title = String(__('Tab %count')).replace(/\%count/gi, count);
+        }
+
         content.splice(index, 0, { children: [{ text: '' }], type: 'empty' });
         tabs.splice(index, 0, title);
 
         // Update RTE
         Transforms.setNodes(editor, { content, tabs }, { at: selection });
 
-        setState({ active: index, content, tabs });
+        setState({ content, tabs });
+
+        _.defer(() => setActive(index));
     };
 
     const deleteTab = ({ index }) => {
@@ -57,12 +66,11 @@ const Element = props => {
             const newState = { active, content, tabs };
             const cont = content[active];
 
-            // Updated the state
             setState(newState);
 
-            // Update RTE
+            // Update RTE again with the newly active tab
             _.defer(() => {
-                setTabs(tabs, active, true);
+                setTabs(tabs, active, false);
                 setContent(active, cont, false);
             });
         }

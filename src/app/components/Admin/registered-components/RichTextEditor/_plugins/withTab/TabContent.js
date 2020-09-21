@@ -22,8 +22,10 @@ const TabContent = props => {
     useEffect(() => {
         if (state.updated === null) return;
         let newItem = state.content[state.active];
-        props.setContent(state.active, newItem);
-        setItem(newItem);
+        if (!_.isEqual(newItem, item)) {
+            props.setContent(state.active, newItem);
+            setItem(newItem);
+        }
     }, [state.updated]);
 
     return isEmpty() ? (
