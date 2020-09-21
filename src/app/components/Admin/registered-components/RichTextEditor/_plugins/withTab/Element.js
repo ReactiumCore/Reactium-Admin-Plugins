@@ -3,8 +3,8 @@ import _ from 'underscore';
 import op from 'object-path';
 import TabEditor from './TabEditor';
 import TabContent from './TabContent';
+import React, { useState } from 'react';
 import { Editor, Transforms } from 'slate';
-import React, { useEffect, useState } from 'react';
 import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 
