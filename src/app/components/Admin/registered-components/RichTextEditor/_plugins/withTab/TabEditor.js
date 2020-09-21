@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, {
@@ -64,14 +63,11 @@ let TabEditor = (props, ref) => {
         op.set(handle, 'visible', val);
         setHandle(handle);
         updateVisible(val);
-        if (val === false) updateValue(null);
     };
 
     const cx = Reactium.Utils.cxFactory('rte-tabs');
 
-    const dismiss = () => {
-        setVisible(false);
-    };
+    const dismiss = () => setVisible(false);
 
     const header = () => {
         const title = state.tabs[state.active];
@@ -119,19 +115,6 @@ let TabEditor = (props, ref) => {
     };
 
     const _onSubmit = () => {
-        // const contentInput = refs.get('tabs.editor.rte');
-        // const cont = contentInput.value;
-        // const [content] = props.setContent(state.active, cont, true);
-        //
-        // const tabInput = refs.get('tabs.editor.title');
-        // const tab = tabInput.value;
-        // const tabs = Array.from(state.tabs);
-        // tabs.splice(state.active, 1, tab);
-        // props.setTabs(tabs, state.active, true);
-        //
-        // setState({ tabs, content });
-        // setVisible(false);
-
         const contentInput = refs.get('tabs.editor.rte');
         const cont = contentInput.value;
         const content = Array.from(state.content);
@@ -143,7 +126,7 @@ let TabEditor = (props, ref) => {
         tabs.splice(state.active, 1, tab);
 
         setVisible(false);
-        setState({ content, tabs });
+        setState({ content, tabs, updated: Date.now() });
     };
 
     const _onTitleBlur = e => {
@@ -190,11 +173,7 @@ let TabEditor = (props, ref) => {
 
     useEffect(() => {
         updateValue(defaultValue(state.content[state.active]));
-    }, [state.active, JSON.stringify(state.content)]);
-
-    // if (visible === true && value) {
-    //     console.log(value, state.tabs, state.content);
-    // }
+    }, [state.active, state.updated]);
 
     return visible === true && value ? (
         <Portal>

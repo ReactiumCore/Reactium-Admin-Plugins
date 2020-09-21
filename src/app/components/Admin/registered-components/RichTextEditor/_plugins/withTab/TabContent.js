@@ -20,12 +20,14 @@ const TabContent = props => {
     };
 
     useEffect(() => {
+        if (state.updated === null) return;
+
         const newItem = state.content[state.active];
         setItem(newItem);
         if (newItem && !_.isEqual(newItem, item)) {
             props.setContent(state.active, newItem);
         }
-    }, [state.active, state.content]);
+    }, [state.updated]);
 
     return isEmpty() ? (
         <div className='text-center p-xs-40'>

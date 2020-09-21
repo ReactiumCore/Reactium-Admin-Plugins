@@ -3,8 +3,8 @@ import _ from 'underscore';
 import op from 'object-path';
 import TabEditor from './TabEditor';
 import TabContent from './TabContent';
-import React, { useState } from 'react';
 import { Editor, Transforms } from 'slate';
+import React, { useEffect, useState } from 'react';
 import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 
@@ -20,6 +20,7 @@ const Element = props => {
         active: 0,
         content: node.content,
         tabs: Array.from(node.tabs),
+        updated: null,
         vertical: node.vertical,
     });
 
@@ -39,17 +40,7 @@ const Element = props => {
         setState({ active: index, content, tabs });
     };
 
-    const isDeleting = () =>
-        Reactium.Cache.get(`tabsDeleting${state.id}`, false);
-
-    const setDeleting = val =>
-        Reactium.Cache.set(`tabsDeleting${state.id}`, val, 1000);
-
     const deleteTab = ({ index }) => {
-        if (isDeleting() === true) return;
-
-        setDeleting(true);
-
         const { selection } = getSelection(state.id);
         const content = Array.from(state.content);
         const tabs = Array.from(state.tabs);
@@ -65,9 +56,10 @@ const Element = props => {
             // Update RTE
             Transforms.setNodes(editor, { content, tabs }, { at: selection });
 
-            const active = index - 1;
+            let active = Math.max(index, 0);
+            active = Math.min(tabs.length - 1, active);
 
-            _.defer(() => setState({ active, content, tabs }));
+            setState({ active, content, tabs, updated: Date.now() });
         }
     };
 
@@ -108,7 +100,7 @@ const Element = props => {
         setState({ tabs, content });
         setContent(end, citem);
 
-        _.defer(() => setState({ active: end }));
+        _.defer(() => setState({ active: end, updated: Date.now() }));
     };
 
     const setActive = active => setState({ active });
@@ -165,6 +157,10 @@ const Element = props => {
         state,
         toggleVertical,
     });
+
+    useEffect(() => {
+        setState({ updated: Date.now() });
+    }, [state.active]);
 
     return (
         <div className={cx('element')} id={state.id} contentEditable={false}>
