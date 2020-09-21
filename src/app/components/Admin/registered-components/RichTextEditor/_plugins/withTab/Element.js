@@ -53,13 +53,18 @@ const Element = props => {
             content.splice(index, 1);
             tabs.splice(index, 1);
 
+            const active = Math.min(index, tabs.length - 1);
+            const newState = { active, content, tabs };
+            const cont = content[active];
+
+            // Updated the state
+            setState(newState);
+
             // Update RTE
-            Transforms.setNodes(editor, { content, tabs }, { at: selection });
-
-            let active = Math.max(index, 0);
-            active = Math.min(tabs.length - 1, active);
-
-            setState({ active, content, tabs, updated: Date.now() });
+            _.defer(() => {
+                setTabs(tabs, active, true);
+                setContent(active, cont, false);
+            });
         }
     };
 
@@ -103,7 +108,7 @@ const Element = props => {
         _.defer(() => setState({ active: end, updated: Date.now() }));
     };
 
-    const setActive = active => setState({ active });
+    const setActive = active => setState({ active, updated: Date.now() });
 
     const setContent = (index, newContent, noUpdate = false) => {
         index = Number(index);
@@ -157,10 +162,6 @@ const Element = props => {
         state,
         toggleVertical,
     });
-
-    useEffect(() => {
-        setState({ updated: Date.now() });
-    }, [state.active]);
 
     return (
         <div className={cx('element')} id={state.id} contentEditable={false}>
