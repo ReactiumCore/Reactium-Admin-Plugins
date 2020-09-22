@@ -17,24 +17,6 @@ import Reactium, {
     useHandle,
 } from 'reactium-core/sdk';
 
-const useValue = ({ editor, fieldName }, deps) => {
-    const [value, setValue] = useState([]);
-
-    // useEffect(() => {
-    //     if (!editor) return;
-    //     if (!fieldName) return;
-    //     if (!editor.value) return;
-    //     let newValue = op.get(editor.value, fieldName, []);
-    //     newValue = op.get(newValue, 'className') ? [] : newValue;
-    //
-    //     newValue = newValue.map(({ objectId, url }) => ({ objectId, url }));
-    //
-    //     setValue(newValue);
-    // }, deps);
-
-    return [value, setValue];
-};
-
 const initialActive = (max, value) => {
     if (value.length > 0) return 'thumb';
     return 'action';
@@ -42,25 +24,21 @@ const initialActive = (max, value) => {
 
 const MediaTool = props => {
     const refs = useRefs();
-    const { editor, fieldName, max, required } = props;
+    const { max } = props;
 
     let type = op.get(props, 'type', ['all']);
     type = Array.isArray(op.get(props, 'type', ['all'])) ? type : [type];
 
-    const [value, setSelection] = useValue({ editor, fieldName }, []);
+    const [value, setSelection] = useState(props.value || []);
 
     // DEBUG - HELP REFACTOR
     console.log({ value });
 
     const dirs = useDirectories() || [];
-    const [active, setActive, isActive] = useStatus(
-        editor.isNew() ? 'action' : null,
-    );
+    const [active, setActive, isActive] = useStatus(initialActive(max, value));
     const [directories, updateDirectories] = useState(dirs);
 
     const setDirectories = newDirectories => {
-        if (editor.unMounted()) return;
-
         if (_.isString(newDirectories)) {
             newDirectories = String(newDirectories)
                 .replace(/ /g, '-')
@@ -118,14 +96,6 @@ const MediaTool = props => {
         dropzone.browseFiles();
     };
 
-    const isReady = () => {
-        if (!active) return;
-        if (!editor) return;
-        if (editor.isNew()) return true;
-        if (!value) return;
-        return true;
-    };
-
     const nav = (panel, direction) => {
         const scene = refs.get('scene');
         if (scene) {
@@ -159,14 +129,12 @@ const MediaTool = props => {
     const reset = () => {
         // clear editor.media value
         Reactium.Cache.del('editor.media');
-
-        if (!editor.isNew()) return;
         setActive('action');
         removeAll();
     };
 
     const _handle = () => ({
-        ...props,
+        max,
         add,
         active,
         back,
@@ -187,31 +155,6 @@ const MediaTool = props => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
-    // const onContentValidate = ({ context }) => {
-    //     let values = Array.from(value);
-    //     values = values.filter(item => op.get(item, 'delete', false) !== true);
-    //
-    //     if (values.length > 0 || !required) return context;
-    //
-    //     const err = {
-    //         field: fieldName,
-    //         message: __('%name is a required parameter').replace(
-    //             /\%name/gi,
-    //             fieldName,
-    //         ),
-    //         value: values,
-    //     };
-    //
-    //     context.error[fieldName] = err;
-    //     context.valid = false;
-    //
-    //     return context;
-    // };
-    //
-    // const onContentBeforeSave = e => op.set(e.value, fieldName, value);
-    //
-    // const onContentAfterSave = e => op.set(e.value, fieldName, value);
-
     const onFileAdded = async e => {
         const upload = refs.get('upload');
         let { directory } = upload.value;
@@ -229,21 +172,6 @@ const MediaTool = props => {
 
         upload.add(Reactium.Media.upload(e.added, directory));
     };
-
-    // // listeners
-    // useEffect(() => {
-    //     if (!editor) return;
-    //
-    //     editor.addEventListener('validate', onContentValidate);
-    //     editor.addEventListener('save-success', onContentAfterSave);
-    //     editor.addEventListener('content-parse', onContentBeforeSave);
-    //
-    //     return () => {
-    //         editor.removeEventListener('validate', onContentValidate);
-    //         editor.removeEventListener('save-success', onContentAfterSave);
-    //         editor.removeEventListener('content-parse', onContentBeforeSave);
-    //     };
-    // });
 
     // update directories
     useEffect(() => {
@@ -288,7 +216,7 @@ const MediaTool = props => {
     // TODO: Externalize this. Put reset on handle, let parent component do this
     // useEffect(reset, [op.get(editor, 'value.objectId')]);
 
-    return isReady() ? (
+    return (
         <div className={cx()}>
             <Dropzone
                 files={{}}
@@ -311,7 +239,7 @@ const MediaTool = props => {
                 </Scene>
             </Dropzone>
         </div>
-    ) : null;
+    );
 };
 
 export default MediaTool;

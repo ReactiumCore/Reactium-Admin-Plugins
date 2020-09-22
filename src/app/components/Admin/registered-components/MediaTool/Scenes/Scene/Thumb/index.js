@@ -27,7 +27,7 @@ const fetchMedia = async hookID => {
 };
 
 const Thumb = ({ handle, ...props }) => {
-    const { cx, editor, max, value, isActive } = handle;
+    const { cx, max, value, isActive } = handle;
 
     const { Spinner } = useHookComponent('ReactiumUI');
 
@@ -39,7 +39,6 @@ const Thumb = ({ handle, ...props }) => {
 
     const isReady = () => {
         if (!value) return;
-        if (!editor) return;
         if (!hasData()) return;
         if (value.length < 1) return;
         if (!isActive(props.id)) return;
@@ -48,7 +47,6 @@ const Thumb = ({ handle, ...props }) => {
     };
 
     const load = async () => {
-        if (!editor) return;
         if (!isActive(props.id)) return;
         if (!isStatus(ENUMS.STATUS.INIT)) return;
 

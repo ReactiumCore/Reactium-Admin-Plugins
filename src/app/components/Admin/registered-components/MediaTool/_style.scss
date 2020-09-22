@@ -48,6 +48,7 @@
             button {
                 padding: 0;
                 width: 42px;
+                height: 41px;
 
                 svg {
                     width: 20px;
@@ -329,11 +330,6 @@
         @include breakpoint(md) {
             flex-direction: row;
             align-items: center;
-        }
-
-        > * {
-            margin-bottom: 16px;
-            flex-grow: 1;
         }
 
         input {

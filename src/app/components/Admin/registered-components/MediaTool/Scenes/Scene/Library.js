@@ -3,14 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 const Library = ({ handle, ...props }) => {
-    const { active, add, cx, editor, isActive, back, max, refs, type } = handle;
+    const { active, add, cx, isActive, back, max, refs, type } = handle;
 
     const MediaPicker = useHookComponent('MediaPicker');
 
     const [ready, updateReady] = useState(isActive(props.id));
 
     const setReady = newReady => {
-        if (editor.unMounted()) return;
         updateReady(newReady);
     };
 
