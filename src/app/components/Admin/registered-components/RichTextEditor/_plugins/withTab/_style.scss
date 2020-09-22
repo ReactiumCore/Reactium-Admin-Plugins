@@ -10,211 +10,10 @@
         width: 100%;
         border: 2px dashed transparent;
         overflow: visible;
-        padding: 0 4px 4px 4px;
+        padding: 4px;
 
         &:hover {
             border: 2px dashed $color-grey;
-        }
-
-        .tabs {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            align-items: flex-start;
-            justify-content: flex-start;
-            overflow: auto;
-            padding: 20px 12px 11px 0;
-            width: 100%;
-            height: 72px;
-            z-index: 2;
-            position: relative;
-
-            .actions {
-                display: flex;
-                flex-wrap: nowrap;
-                flex-shrink: 0;
-                padding-right: 12px;
-
-                button {
-                    height: 41px;
-                    width: 41px;
-                    padding: 0;
-
-                    &:focus {
-                        box-shadow: none;
-                        border: none;
-                        outline: none;
-                    }
-                }
-            }
-
-            &.droppable {
-                .tab:after {
-                    position: absolute;
-                    left: 2px;
-                    top: 2px;
-                    content: '';
-                    width: calc(100% - 4px);
-                    height: calc(100% - 4px);
-                    border: 2px dashed rgba($color-primary, 0.5);
-                }
-
-                .tab.dragging:after {
-                    display: none;
-                }
-
-                width: calc(100% + 200px);
-            }
-
-            .tab {
-                padding: 0;
-                display: flex;
-                flex-grow: 1;
-                flex-wrap: nowrap;
-                overflow: visible;
-                position: relative;
-                z-index: 3;
-                opacity: 1;
-                min-width: 100%;
-
-                @include breakpoint(sm) {
-                    min-width: 33%;
-                    max-width: 200px;
-                }
-
-                @include breakpoint(md) {
-                    min-width: 20%;
-                }
-
-                &:not(:last-child) {
-                    margin-right: -1px;
-                }
-
-                input {
-                    width: 100%;
-                    padding: 10px 16px;
-                    border: 1px solid transparent;
-                    border-bottom: 1px solid $color-primary;
-                    background-color: transparent;
-                    outline: none;
-                    z-index: 2;
-                }
-
-                button {
-                    width: 24px;
-                    height: 24px;
-                    padding: 0;
-                    position: absolute;
-                    top: 50%;
-                    z-index: 3;
-                    display: none;
-
-                    &:first-child {
-                        transform: translate(-50%, -50%);
-                        left: 0;
-                    }
-
-                    &:last-child {
-                        transform: translate(50%, -50%);
-                        right: 0;
-                    }
-
-                    svg {
-                        width: 16px;
-                        height: 16px;
-                    }
-                }
-
-                .handle {
-                    position: absolute;
-                    width: 100%;
-                    height: 16px;
-                    top: 0;
-                    left: 0;
-                    transform: translateY(-100%);
-                    background-color: $color-light;
-                    z-index: 1;
-                    opacity: 0;
-
-                    &:focus {
-                        outline: none;
-                        box-shadow: 0 0 0 2px rgba($color-dark, 0.25);
-                    }
-
-                    &:after {
-                        content: '';
-                        width: 20px;
-                        height: 4px;
-                        left: 50%;
-                        top: calc(50% - 1px);
-                        position: absolute;
-                        transform: translate(-50%, -50%);
-                        border-bottom: 1px solid $color-grey;
-                        border-top: 1px solid $color-grey;
-                    }
-                }
-
-                &.active {
-                    z-index: 3;
-                    opacity: 4;
-
-                    input {
-                        color: inherit;
-                        background-color: $color-light;
-                        border: 1px solid $color-primary;
-                        border-bottom: 1px solid transparent;
-
-                        &:focus {
-                            color: inherit;
-                            background-color: $color-light;
-                            border: 1px solid $color-primary;
-                            box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
-                            cursor: text;
-                        }
-                    }
-                }
-
-                &:hover {
-                    z-index: 5;
-                    opacity: 1;
-
-                    button {
-                        opacity: 1 !important;
-                        display: flex;
-                    }
-
-                    input {
-                        color: $color-light;
-                        background-color: $color-primary;
-                        border: 1px solid $color-primary;
-                        box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
-                        cursor: pointer;
-                    }
-
-                    .handle {
-                        opacity: 1;
-                    }
-                }
-
-                &.dragging {
-                    background-color: $color-light;
-
-                    input {
-                        z-index: 2;
-                        color: $color-light;
-                        background-color: $color-primary;
-                        border: 1px solid $color-primary;
-                        box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
-                        cursor: pointer;
-                    }
-
-                    .handle {
-                        z-index: 1;
-                        opacity: 1;
-                        border-radius: 4px 4px 0 0;
-                    }
-                }
-            }
         }
 
         .tabs-content {
@@ -226,6 +25,106 @@
                 padding: 20px;
                 background-color: $color-light;
                 border: 1px solid $color-primary;
+            }
+        }
+
+        .tab {
+            padding: 0;
+            display: flex;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
+            overflow: visible;
+            position: relative;
+            z-index: 3;
+            opacity: 1;
+            width: 100%;
+
+            input {
+                width: 100%;
+                padding: 10px 16px;
+                border: 1px solid transparent;
+                background-color: transparent;
+                outline: none;
+                z-index: 2;
+            }
+
+            button {
+                &.left,
+                &.right,
+                &.top,
+                &.bottom,
+                &.delete {
+                    padding: 0;
+                    position: absolute;
+                    z-index: 3;
+                    display: none;
+                    width: 24px;
+                    height: 24px;
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+
+                &.left {
+                    transform: translate(-50%, -50%);
+                    top: 50%;
+                    left: 0;
+                }
+
+                &.right {
+                    transform: translate(50%, -50%);
+                    top: 50%;
+                    right: 0;
+                }
+
+                &.top {
+                    transform: translate(-50%, -50%);
+                    top: 0;
+                    left: 50%;
+                }
+
+                &.bottom {
+                    transform: translate(-50%, 50%);
+                    bottom: 0;
+                    left: 50%;
+                }
+            }
+
+            &.active {
+                z-index: 3;
+                opacity: 4;
+
+                input {
+                    color: inherit;
+                    background-color: $color-light;
+                    border: 1px solid $color-primary;
+                    border-bottom: 1px solid transparent;
+
+                    &:focus {
+                        color: inherit;
+                        background-color: $color-light;
+                        border: 1px solid $color-primary;
+                        box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
+                        cursor: text;
+                    }
+                }
+            }
+
+            &:hover {
+                z-index: 5;
+                opacity: 1;
+
+                button {
+                    opacity: 1 !important;
+                    display: flex;
+                }
+            }
+
+            &.dragging {
+                background-color: $color-light;
             }
         }
     }
@@ -246,14 +145,13 @@
 
     &-content-editor {
         position: fixed;
-        padding: 40px;
+        padding: 50px;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        background-color: rgba($color-black, .8);
+        overflow: auto;
+        background-color: rgba($color-black, 0.8);
         z-index: map-get($z-indexes, overlay) - 2;
         display: flex;
 
@@ -262,6 +160,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            min-width: 400px;
 
             .ar-dialog-content {
                 flex-grow: 1;
@@ -329,12 +228,55 @@
                 }
             }
         }
+
+        .nav {
+            position: absolute;
+            top: 50%;
+            width: 40px;
+            display: flex;
+            overflow: hidden;
+
+            button {
+                padding: 0;
+                width: 80px;
+                height: 80px;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+
+            &.right {
+                right: 0;
+                transform: translate(100%, -50%);
+
+                &,
+                button {
+                    justify-content: flex-end;
+                }
+
+                button {
+                    padding-right: 8px;
+                }
+            }
+
+            &.left {
+                left: 0;
+                transform: translate(-100%, -50%);
+
+                &,
+                button {
+                    justify-content: flex-start;
+                }
+
+                button {
+                    padding-left: 8px;
+                }
+            }
+        }
     }
 
     &-content {
         position: relative;
-        min-height: 100px;
-        //padding-top: 64px;
+        min-height: 148px;
 
         .blocker {
             top: 0;
@@ -353,6 +295,15 @@
             transform: translate(-50%, -50%);
         }
 
+        .empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 148px;
+            width: 100%;
+            position: relative;
+        }
+
         &:hover {
             > .edit {
                 opacity: 1;
@@ -364,3 +315,6 @@
         }
     }
 }
+
+@import 'horizontal-tab';
+@import 'vertical-tab';

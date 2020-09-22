@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, {
@@ -44,12 +45,12 @@ const defaultValue = content => {
 };
 
 let TabEditor = (props, ref) => {
-    const { setState, state } = props;
+    const { addTab, setActive, setState, state } = props;
     const refs = useRefs();
 
     const Portal = useHookComponent('Portal');
-    const { Button, Dialog } = useHookComponent('ReactiumUI');
     const RichTextEditor = useHookComponent('RichTextEditor');
+    const { Button, Dialog, Icon } = useHookComponent('ReactiumUI');
 
     const isContainer = useIsContainer();
 
@@ -97,6 +98,12 @@ let TabEditor = (props, ref) => {
                     ref={elm => refs.set('tabs.editor.btn.edit', elm)}
                 />,
                 <HeaderButton
+                    icon='Feather.Plus'
+                    key='add-btn'
+                    ref={elm => refs.set('tabs.editor.btn.add', elm)}
+                    onClick={() => addTab({ index: state.active + 1 })}
+                />,
+                <HeaderButton
                     key='close-btn'
                     icon='Feather.X'
                     onClick={dismiss}
@@ -114,7 +121,7 @@ let TabEditor = (props, ref) => {
         setTitleEdit(!titleEdit);
     };
 
-    const _onSubmit = () => {
+    const _onSubmit = (close = false) => {
         const contentInput = refs.get('tabs.editor.rte');
         const cont = contentInput.value;
         const content = Array.from(state.content);
@@ -125,8 +132,9 @@ let TabEditor = (props, ref) => {
         const tabs = Array.from(state.tabs);
         tabs.splice(state.active, 1, tab);
 
-        setVisible(false);
+        if (close === true) setVisible(false);
         setState({ content, tabs, updated: Date.now() });
+        return new Promise(resolve => _.defer(resolve));
     };
 
     const _onTitleBlur = e => {
@@ -152,9 +160,26 @@ let TabEditor = (props, ref) => {
         buttons: ['tabs'],
     };
 
+    const next = () => {
+        let n = state.active + 1;
+        n = n >= state.tabs.length ? 0 : n;
+        navTo(n);
+    };
+
+    const prev = () => {
+        let n = state.active - 1;
+        n = n < 0 ? state.tabs.length - 1 : n;
+        navTo(n);
+    };
+
+    const navTo = n => _onSubmit().then(() => setActive(n));
+
     const _handle = () => ({
         hide: () => setVisible(false),
         show: () => setVisible(true),
+        navTo,
+        next,
+        prev,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
@@ -172,7 +197,15 @@ let TabEditor = (props, ref) => {
     }, [refs.get('tabs.editor.container')]);
 
     useEffect(() => {
-        updateValue(defaultValue(state.content[state.active]));
+        const content = defaultValue(state.content[state.active]);
+        const tab = state.tabs[state.active];
+
+        updateValue(content);
+        const rte = refs.get('tabs.editor.rte');
+        if (rte) rte.setValue(content);
+
+        const title = refs.get('tabs.editor.title');
+        if (title) title.value = tab;
     }, [state.active, state.updated]);
 
     return visible === true && value ? (
@@ -192,10 +225,24 @@ let TabEditor = (props, ref) => {
                             size='md'
                             type='button'
                             appearance='pill'
-                            onClick={_onSubmit}
+                            onClick={() => _onSubmit(true)}
                             className={cx('content-editor-submit')}>
-                            {__('Update Tab')}
+                            {__('Save and Exit')}
                         </Button>
+                        {state.tabs.length > 1 && (
+                            <>
+                                <div className='nav left'>
+                                    <Button onClick={prev} appearance='circle'>
+                                        <Icon name='Feather.ChevronLeft' />
+                                    </Button>
+                                </div>
+                                <div className='nav right'>
+                                    <Button onClick={next} appearance='circle'>
+                                        <Icon name='Feather.ChevronRight' />
+                                    </Button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </Dialog>
             </div>

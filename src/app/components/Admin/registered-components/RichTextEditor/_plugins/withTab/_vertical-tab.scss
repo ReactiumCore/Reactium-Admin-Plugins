@@ -1,0 +1,100 @@
+.rte-tabs-element .accordion {
+    //padding-right: 12px;
+
+    .tab {
+        display: block;
+        position: relative;
+
+        input {
+            border: 1px solid $color-primary;
+            background-color: $color-light;
+        }
+
+        button {
+            &.top {
+                margin-top: -1px;
+            }
+            &.delete {
+                top: 20px;
+                right: 8px;
+                transform: translate(0, -50%);
+                border-radius: 2px;
+            }
+        }
+
+        .handle {
+            position: absolute;
+            width: 12px;
+            height: 41px;
+            top: 0;
+            right: 0;
+            opacity: 0;
+            transform: translate(100%, 0%);
+            background-color: $color-light;
+
+            &:after {
+                content: '';
+                height: 20px;
+                width: 4px;
+                left: 50%;
+                top: 50%;
+                position: absolute;
+                transform: translate(-50%, -50%);
+                border-left: 1px solid $color-grey;
+                border-right: 1px solid $color-grey;
+            }
+        }
+
+        &:not(:last-child) {
+            margin-bottom: 1px;
+        }
+
+        &:first-child {
+            button.top {
+                margin-top: 0px;
+            }
+        }
+
+        &:hover {
+            input {
+                cursor: pointer;
+                &:focus {
+                    cursor: text;
+                }
+            }
+
+            .handle {
+                opacity: 1;
+            }
+        }
+
+        .tabs-content {
+            display: none;
+            margin-top: -1px;
+        }
+
+        &.active {
+            .tabs-content {
+                display: block;
+            }
+        }
+
+        &.dragging {
+            .handle {
+                opacity: 1;
+            }
+        }
+    }
+
+    &-actions {
+        button {
+            width: 40px;
+            height: 42px;
+            padding: 0;
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+}

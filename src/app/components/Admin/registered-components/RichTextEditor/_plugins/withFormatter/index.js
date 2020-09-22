@@ -114,7 +114,7 @@ Plugin.callback = editor => {
     });
 
     Reactium.RTE.Block.register('break', {
-        element: ({ children, ...props }) => (
+        element: ({ children }) => (
             <>
                 <br />
                 {children}

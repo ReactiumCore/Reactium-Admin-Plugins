@@ -29,13 +29,15 @@ const TabContent = props => {
     }, [state.updated]);
 
     return isEmpty() ? (
-        <div className='text-center p-xs-40'>
-            <Button
-                size='md'
-                appearance='pill'
-                onClick={props.showEditor}
-                children={__('Create Tab Content')}
-            />
+        <div className={cx()}>
+            <div className='empty'>
+                <Button
+                    size='md'
+                    appearance='pill'
+                    onClick={props.showEditor}
+                    children={__('Create Tab Content')}
+                />
+            </div>
         </div>
     ) : (
         <div className={cx()}>

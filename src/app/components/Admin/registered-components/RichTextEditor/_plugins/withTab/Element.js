@@ -1,10 +1,11 @@
-import Tabs from './Tabs';
 import _ from 'underscore';
 import op from 'object-path';
 import TabEditor from './TabEditor';
 import TabContent from './TabContent';
 import React, { useState } from 'react';
 import { Editor, Transforms } from 'slate';
+import VerticalTabs from './TabsVertical';
+import HorizontalTabs from './TabsHorizontal';
 import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 
@@ -45,8 +46,12 @@ const Element = props => {
         Transforms.setNodes(editor, { content, tabs }, { at: selection });
 
         setState({ content, tabs });
-
-        _.defer(() => setActive(index));
+        return new Promise(resolve =>
+            _.defer(() => {
+                setActive(index);
+                resolve({ tabs, content });
+            }),
+        );
     };
 
     const deleteTab = ({ index }) => {
@@ -69,9 +74,12 @@ const Element = props => {
             setState(newState);
 
             // Update RTE again with the newly active tab
-            _.defer(() => {
-                setTabs(tabs, active, false);
-                setContent(active, cont, false);
+            return new Promise(resolve => {
+                _.defer(() => {
+                    setTabs(tabs, active, false);
+                    setContent(active, cont, false);
+                    resolve();
+                });
             });
         }
     };
@@ -173,22 +181,21 @@ const Element = props => {
 
     return (
         <div className={cx('element')} id={state.id} contentEditable={false}>
-            {state.vertical === true ? (
-                <Accordion {...handle}>
-                    <TabContent {...handle} children={props.children} />
-                </Accordion>
-            ) : (
-                <Tabs {...handle}>
-                    <TabContent {...handle} children={props.children} />
-                </Tabs>
-            )}
+            <Tabs
+                {...handle}
+                children={<TabContent {...handle} children={props.children} />}
+            />
             <TabEditor {...handle} ref={elm => refs.set('editor', elm)} />
         </div>
     );
 };
 
-const Accordion = ({ children }) => {
-    return <div className='accordion'>{children}</div>;
+const Tabs = props => {
+    return props.state.vertical === true ? (
+        <VerticalTabs {...props} />
+    ) : (
+        <HorizontalTabs {...props} />
+    );
 };
 
 export default Element;
