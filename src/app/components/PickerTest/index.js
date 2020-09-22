@@ -30,7 +30,28 @@ const PickerTest = props => {
                 justifyContent: 'center',
                 alignItems: 'center',
             }}>
-            <MediaTool editor={new Editor()} />
+            <MediaTool
+                max={1}
+                value={[
+                    {
+                        objectId: 'stBGUYe906',
+                        url:
+                            '/media/uploads/screen-shot-2020-09-10-at-4.13.33-pm.png',
+                        delete: true,
+                    },
+                    {
+                        objectId: 'stBGUYe906',
+                        url:
+                            '/media/uploads/screen-shot-2020-09-10-at-4.13.33-pm.png',
+                        delete: true,
+                    },
+                    {
+                        objectId: 'EojbdUXJbW',
+                        url:
+                            '/media/uploads/screen-shot-2020-09-19-at-12.29.14-am.png',
+                    },
+                ]}
+            />
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from 'components/Admin/Media/enums';
-import DirectoryPicker from '../DirectoryPicker';
+import DirectoryPicker from '../../DirectoryPicker';
 import React, { useCallback, useMemo } from 'react';
 
 import Reactium, {

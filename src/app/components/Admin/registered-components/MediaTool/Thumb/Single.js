@@ -3,7 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import Toolbar from './Toolbar';
 import ENUMS from 'components/Admin/Media/enums';
-import useLocalState from '../../useLocalState';
+import useLocalState from '../useLocalState';
 
 import Reactium, {
     __,

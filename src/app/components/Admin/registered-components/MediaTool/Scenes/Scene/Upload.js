@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
-import useLocalState from '../useLocalState';
-import DirectoryPicker from '../DirectoryPicker';
+import useLocalState from '../../useLocalState';
+import DirectoryPicker from '../../DirectoryPicker';
 import React, {
     forwardRef,
     useEffect,
@@ -112,7 +112,8 @@ const Upload = forwardRef((props, ref) => {
         setState('watch', watch);
 
         if (Object.keys(watch).length < 1) {
-            await nav('thumb', 'left');
+            // TODO: do something here, close modal?
+            // await nav('thumb', 'left');
             Reactium.Media.clear();
         }
     };
