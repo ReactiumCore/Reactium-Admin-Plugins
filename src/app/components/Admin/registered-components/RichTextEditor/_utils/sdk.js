@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
-import { Editor, Transforms } from 'slate';
+import { Editor, Node, Transforms } from 'slate';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
@@ -157,21 +157,21 @@ class RTE {
         return this.list.tabs;
     }
 
-    hotKey(editor, event, hotkeys) {
+    onKeyDown(editor, event, hotkeys) {
         if (!editor || !event) return;
 
-        try {
-            const [parent, parentPath] = Editor.parent(
-                editor,
-                editor.selection,
-            );
-            if (isHotkey('backspace', event)) {
-                const text = _.compact([parent.children.text]);
-                if (_.isEmpty(text) && parentPath.length === 1) {
-                    return;
-                }
-            }
-        } catch (err) {}
+        // try {
+        //     const [parent, parentPath] = Editor.parent(
+        //         editor,
+        //         editor.selection,
+        //     );
+        //     if (isHotkey('backspace', event)) {
+        //         const text = _.compact([parent.children.text]);
+        //         if (_.isEmpty(text) && parentPath.length === 1) {
+        //             return;
+        //         }
+        //     }
+        // } catch (err) {}
 
         let next = true;
         hotkeys.forEach(item => {
@@ -197,6 +197,26 @@ class RTE {
                 next = false;
             }
         });
+    }
+
+    isEmpty(node) {
+        const text = Node.string(node);
+        return op.get(node, 'blocked') === true
+            ? false
+            : String(text).length < 1;
+    }
+
+    getNode({ editor, path }) {
+        let root = path.length === 1;
+        let p = Array.from(path);
+        p = root === true ? [Math.max(Number(_.first(p) - 1), 0), 0] : p;
+
+        const result = Editor.above(editor, { at: p });
+
+        p = result.pop();
+        const node = result.pop();
+        const empty = this.isEmpty(node);
+        return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
     }
 }
 

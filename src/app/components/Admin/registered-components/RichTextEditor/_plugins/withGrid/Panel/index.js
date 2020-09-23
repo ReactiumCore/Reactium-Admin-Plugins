@@ -1,10 +1,9 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
-import { Editor, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useFocusEffect } from 'reactium-core/sdk';
 import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
@@ -12,7 +11,6 @@ import React, {
     forwardRef,
     useCallback,
     useEffect,
-    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -52,32 +50,27 @@ let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
             .join('-');
 
     const insertNode = () => {
-        let children = value.column.map(item => {
+        const cols = value.column.map(item => {
             return {
                 type: 'col',
                 column: item,
-                children: [{ type: 'p', text: '' }],
+                children: [{ text: '', type: 'div' }],
             };
         });
 
         const node = {
-            type: 'row',
-            ID: uuid(),
-            columns: value.column,
-            children,
-        };
-
-        const p = {
-            type: 'p',
-            ID: uuid(),
-            children: [{ text: '' }],
+            type: 'block',
+            children: [
+                {
+                    type: 'row',
+                    ID: uuid(),
+                    columns: value.column,
+                    children: cols,
+                },
+            ],
         };
 
         Transforms.insertNodes(editor, node);
-        Transforms.insertNodes(editor, p, {
-            at: [editor.children.length],
-            select: true,
-        });
         ReactEditor.focus(editor);
     };
 

@@ -69,30 +69,30 @@ Plugin.callback = editor => {
             );
         },
     });
-
-    Reactium.RTE.Hotkey.register('grid-enter', {
-        keys: ['enter'],
-        order: 1,
-        callback: ({ editor, event }) => {
-            const [parent, parentAt] = Editor.parent(editor, editor.selection);
-            let [node, nodeAt] = Editor.node(editor, editor.selection);
-
-            const text = op.get(node, 'text');
-            const isEmpty = _.chain([text])
-                .compact()
-                .isEmpty()
-                .value();
-
-            let type = op.get(parent, 'type');
-            type = String(type).toLowerCase();
-
-            if (type === 'row' || type === 'col') {
-                if (isEmpty) return;
-                event.preventDefault();
-                return false;
-            }
-        },
-    });
+    //
+    // Reactium.RTE.Hotkey.register('grid-enter', {
+    //     keys: ['enter'],
+    //     order: 1,
+    //     callback: ({ editor, event }) => {
+    //         const [parent, parentAt] = Editor.parent(editor, editor.selection);
+    //         let [node, nodeAt] = Editor.node(editor, editor.selection);
+    //
+    //         const text = op.get(node, 'text');
+    //         const isEmpty = _.chain([text])
+    //             .compact()
+    //             .isEmpty()
+    //             .value();
+    //
+    //         let type = op.get(parent, 'type');
+    //         type = String(type).toLowerCase();
+    //
+    //         if (type === 'row' || type === 'col') {
+    //             if (isEmpty) return;
+    //             event.preventDefault();
+    //             return false;
+    //         }
+    //     },
+    // });
 
     return editor;
 };

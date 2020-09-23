@@ -64,57 +64,57 @@ Plugin.callback = editor => {
     });
 
     // register hotkeys
-    Reactium.RTE.Hotkey.register('list-enter', {
-        keys: ['enter'],
-        order: 100,
-        callback: ({ editor, event }) => {
-            const [parent] = Editor.parent(editor, editor.selection);
-            const [node] = Editor.node(editor, editor.selection);
-
-            const isEmpty = _.chain([op.get(node, 'text')])
-                .compact()
-                .isEmpty()
-                .value();
-
-            if (!isEmpty) return;
-
-            let type = op.get(parent, 'type');
-            type = String(type).toLowerCase();
-            type = type === 'paragraph' ? 'p' : type;
-
-            if (type !== 'li') return;
-
-            event.preventDefault();
-            Reactium.RTE.toggleBlock(editor, 'p');
-            return false;
-        },
-    });
-
-    Reactium.RTE.Hotkey.register('list-backspace', {
-        keys: ['backspace'],
-        order: 100,
-        callback: ({ editor, event }) => {
-            if (!_.first(editor.selection.focus.path) === 0) return;
-
-            const [node] = Editor.node(editor, editor.selection);
-            const [line] = Editor.parent(editor, editor.selection);
-
-            const isEmpty = _.chain([op.get(node, 'text')])
-                .compact()
-                .isEmpty()
-                .value();
-
-            const type = op.get(line, 'type');
-            const types = ['li', 'ul', 'ol'];
-
-            if (isEmpty) {
-                Transforms.unwrapNodes(editor, {
-                    match: n => types.includes(n.type),
-                });
-                Transforms.setNodes(editor, { type: 'div' }, editor.selection);
-            }
-        },
-    });
+    // Reactium.RTE.Hotkey.register('list-enter', {
+    //     keys: ['enter'],
+    //     order: 100,
+    //     callback: ({ editor, event }) => {
+    //         const [parent] = Editor.parent(editor, editor.selection);
+    //         const [node] = Editor.node(editor, editor.selection);
+    //
+    //         const isEmpty = _.chain([op.get(node, 'text')])
+    //             .compact()
+    //             .isEmpty()
+    //             .value();
+    //
+    //         if (!isEmpty) return;
+    //
+    //         let type = op.get(parent, 'type');
+    //         type = String(type).toLowerCase();
+    //         type = type === 'paragraph' ? 'p' : type;
+    //
+    //         if (type !== 'li') return;
+    //
+    //         event.preventDefault();
+    //         Reactium.RTE.toggleBlock(editor, 'p');
+    //         return false;
+    //     },
+    // });
+    //
+    // Reactium.RTE.Hotkey.register('list-backspace', {
+    //     keys: ['backspace'],
+    //     order: 100,
+    //     callback: ({ editor, event }) => {
+    //         if (!_.first(editor.selection.focus.path) === 0) return;
+    //
+    //         const [node] = Editor.node(editor, editor.selection);
+    //         const [line] = Editor.parent(editor, editor.selection);
+    //
+    //         const isEmpty = _.chain([op.get(node, 'text')])
+    //             .compact()
+    //             .isEmpty()
+    //             .value();
+    //
+    //         const type = op.get(line, 'type');
+    //         const types = ['li', 'ul', 'ol'];
+    //
+    //         if (isEmpty) {
+    //             Transforms.unwrapNodes(editor, {
+    //                 match: n => types.includes(n.type),
+    //             });
+    //             Transforms.setNodes(editor, { type: 'div' }, editor.selection);
+    //         }
+    //     },
+    // });
 
     Reactium.RTE.Hotkey.register('list-tab', {
         keys: ['tab', 'shift+tab'],

@@ -1,7 +1,8 @@
 import React from 'react';
+import _ from 'underscore';
 import uuid from 'uuid/v4';
-import { Transforms } from 'slate';
-import { useEditor } from 'slate-react';
+import { Editor, Transforms } from 'slate';
+import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
@@ -9,15 +10,29 @@ export default props => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const onClick = () => {
-        Transforms.insertNodes(editor, {
-            id: uuid(),
-            children: [{ text: '' }],
-            content: [{ children: [{ text: '' }], type: 'empty' }],
-            tabs: ['Tab 1'],
-            type: 'tabs',
-            vertical: false,
-        });
-        Transforms.insertNodes(editor, { children: [{ text: '' }], type: 'p' });
+        Transforms.insertNodes(editor, [
+            {
+                type: 'block',
+                blocked: true,
+                children: [
+                    {
+                        id: uuid(),
+                        children: [{ text: '' }],
+                        content: [{ children: [{ text: '' }], type: 'empty' }],
+                        tabs: ['Tab 1'],
+                        type: 'tabs',
+                        vertical: false,
+                    },
+                ],
+            },
+            {
+                type: 'p',
+                children: [{ text: '' }],
+            },
+        ]);
+
+        Transforms.move(editor, Editor.end(editor));
+        ReactEditor.focus(editor);
     };
 
     return (

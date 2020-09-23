@@ -102,7 +102,7 @@ Plugin.callback = editor => {
         formatter: true,
         label: 'Paragraph',
         size: 16,
-        element: props => <p {...props} />,
+        element: ({ children, props }) => <p {...props}>{children}</p>,
     });
 
     Reactium.RTE.Block.register('h1', {
@@ -304,65 +304,65 @@ Plugin.callback = editor => {
     );
 
     // register hotkeys
-    Reactium.RTE.Hotkey.register('clearformats', {
-        keys: ['enter'],
-        order: 1000,
-        callback: ({ editor, event }) => {
-            try {
-                const [node, path] = Editor.node(editor, editor.selection);
-
-                const text = op.get(node, 'text');
-                const isEmpty = _.chain([text])
-                    .compact()
-                    .isEmpty()
-                    .value();
-
-                if (!isEmpty) return;
-
-                const [parent] = Editor.parent(editor, editor.selection);
-
-                const selection = {
-                    anchor: { path, offset: 0 },
-                    focus: { path, offset: 0 },
-                };
-
-                let type = op.get(parent, 'type');
-                type = type === 'paragraph' ? 'p' : type;
-                type = String(type).toLowerCase();
-
-                if (!type || type === 'div' || type === 'col' || type === 'row')
-                    return;
-
-                const list = ['ol', 'ul', 'li'];
-                const types = [
-                    'blockquote',
-                    'h1',
-                    'h2',
-                    'h3',
-                    'h4',
-                    'h5',
-                    'h6',
-                ];
-                const isType = types.includes(type);
-
-                if (isType) {
-                    event.preventDefault();
-
-                    Transforms.unwrapNodes(editor, {
-                        match: n => list.includes(n.type),
-                    });
-
-                    Transforms.setNodes(
-                        editor,
-                        { type: 'p', style: {} },
-                        { at: selection },
-                    );
-                } else {
-                    Transforms.setSelection(editor, { styles: {} });
-                }
-            } catch (err) {}
-        },
-    });
+    // Reactium.RTE.Hotkey.register('clearformats', {
+    //     keys: ['enter'],
+    //     order: 1000,
+    //     callback: ({ editor, event }) => {
+    //         try {
+    //             const [node, path] = Editor.node(editor, editor.selection);
+    //
+    //             const text = op.get(node, 'text');
+    //             const isEmpty = _.chain([text])
+    //                 .compact()
+    //                 .isEmpty()
+    //                 .value();
+    //
+    //             if (!isEmpty) return;
+    //
+    //             const [parent] = Editor.parent(editor, editor.selection);
+    //
+    //             const selection = {
+    //                 anchor: { path, offset: 0 },
+    //                 focus: { path, offset: 0 },
+    //             };
+    //
+    //             let type = op.get(parent, 'type');
+    //             type = type === 'paragraph' ? 'p' : type;
+    //             type = String(type).toLowerCase();
+    //
+    //             if (!type || type === 'div' || type === 'col' || type === 'row')
+    //                 return;
+    //
+    //             const list = ['ol', 'ul', 'li'];
+    //             const types = [
+    //                 'blockquote',
+    //                 'h1',
+    //                 'h2',
+    //                 'h3',
+    //                 'h4',
+    //                 'h5',
+    //                 'h6',
+    //             ];
+    //             const isType = types.includes(type);
+    //
+    //             if (isType) {
+    //                 event.preventDefault();
+    //
+    //                 Transforms.unwrapNodes(editor, {
+    //                     match: n => list.includes(n.type),
+    //                 });
+    //
+    //                 Transforms.setNodes(
+    //                     editor,
+    //                     { type: 'p', style: {} },
+    //                     { at: selection },
+    //                 );
+    //             } else {
+    //                 Transforms.setSelection(editor, { styles: {} });
+    //             }
+    //         } catch (err) {}
+    //     },
+    // });
 
     // Extend editor
     editor.lastLine = () => [editor.children.length - 1, 0];

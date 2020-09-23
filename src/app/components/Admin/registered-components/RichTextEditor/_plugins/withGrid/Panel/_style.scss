@@ -1,15 +1,5 @@
 .ar-rte {
     [type='row'] {
-        margin-left: -4px;
-        margin-right: -4px;
-        margin-bottom: 15px;
-        position: relative;
-        outline: none;
-        user-select: none;
-        align-items: stretch !important;
-        padding: 4px;
-        border: 2px dashed lighten($color-grey, 5%);
-
         &:hover {
             border: 2px dashed $color-grey;
         }
