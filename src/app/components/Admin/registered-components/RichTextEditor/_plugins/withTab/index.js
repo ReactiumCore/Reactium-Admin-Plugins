@@ -11,9 +11,9 @@ Plugin.callback = editor => {
 
     // register toolbar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: -1000,
-        sidebar: true,
         button: ToolbarButton,
+        order: 100,
+        sidebar: true,
     });
 
     // Editor overrides

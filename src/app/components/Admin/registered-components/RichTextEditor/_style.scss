@@ -18,25 +18,24 @@ input[type='object'] {
 .ar-rte {
     position: relative;
 
+    [contentEditable='false'] {
+        user-select: none;
+    }
+
     * {
         line-height: 1;
     }
 
     p,
-    ol,
-    ul,
     h1,
     h2,
-    h3,
-    img {
+    h3 {
         margin-bottom: 15px;
         padding-bottom: 0px;
     }
 
     ol,
     ul {
-        margin-left: 32px;
-
         li {
             line-height: 2;
         }
@@ -197,17 +196,5 @@ input[type='object'] {
                 transparent;
             }
         }
-    }
-
-    [type='block'] {
-        margin-left: -4px;
-        margin-right: -4px;
-        margin-bottom: 15px;
-        position: relative;
-        outline: none;
-        user-select: none;
-        align-items: stretch !important;
-        padding: 4px;
-        border: 2px dashed lighten($color-grey, 5%);
     }
 }

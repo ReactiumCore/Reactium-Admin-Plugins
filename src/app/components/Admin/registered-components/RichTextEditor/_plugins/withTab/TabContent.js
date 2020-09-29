@@ -19,16 +19,25 @@ const TabContent = props => {
         return op.get(node, 'type') === 'empty';
     };
 
+    const isExpanded = () => {
+        const { expanded, vertical } = state;
+        if (vertical !== true) return true;
+        return expanded;
+    };
+
     useEffect(() => {
+        if (typeof op.get(state, 'active') === 'undefined') return;
         if (state.updated === null) return;
+        if (!state.content) return;
+
         let newItem = state.content[state.active];
-        if (!_.isEqual(newItem, item)) {
-            props.setContent(state.active, newItem);
-            setItem(newItem);
-        }
+        if (!newItem) return;
+
+        props.setContent(state.active, newItem);
+        setItem(newItem);
     }, [state.updated]);
 
-    return isEmpty() ? (
+    return isExpanded() === false ? null : isEmpty() ? (
         <div className={cx()}>
             <div className='empty'>
                 <Button

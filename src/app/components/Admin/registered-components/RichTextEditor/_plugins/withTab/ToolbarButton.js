@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'underscore';
 import uuid from 'uuid/v4';
 import { Editor, Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
@@ -14,6 +13,8 @@ export default props => {
             {
                 type: 'block',
                 blocked: true,
+                className: 'full',
+                id: uuid(),
                 children: [
                     {
                         id: uuid(),
@@ -25,10 +26,6 @@ export default props => {
                     },
                 ],
             },
-            {
-                type: 'p',
-                children: [{ text: '' }],
-            },
         ]);
 
         Transforms.move(editor, Editor.end(editor));
@@ -38,10 +35,10 @@ export default props => {
     return (
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-            onClick={onClick}
             data-tooltip={__('Add Tabs')}
             data-vertical-align='middle'
             data-align='right'
+            onClick={onClick}
             {...props}>
             <Icon
                 {...Reactium.RTE.ENUMS.PROPS.ICON}

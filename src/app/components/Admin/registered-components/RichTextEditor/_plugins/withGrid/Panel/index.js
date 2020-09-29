@@ -1,19 +1,19 @@
+import React, { useEffect } from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
-import { Transforms } from 'slate';
+import { Editor, Path, Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
-import Reactium, { __, useFocusEffect } from 'reactium-core/sdk';
-import { Button, Dialog, EventForm, Icon } from '@atomic-reactor/reactium-ui';
-import React, {
-    forwardRef,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+
+import Reactium, {
+    __,
+    useDerivedState,
+    useFocusEffect,
+    useRefs,
+} from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -30,48 +30,72 @@ const CloseButton = props => (
     </Button>
 );
 
-let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
-    const addRef = useRef();
-    const formRef = useRef();
-
+const Panel = ({ submitButtonLabel, namespace, title }) => {
+    const refs = useRefs();
     const editor = useEditor();
 
     // Initial state
-    const [value, setValue] = useState({
-        column: [],
+    const [state, setState] = useDerivedState({
+        max: 12,
+        min: 1,
+        columns: [],
+        selection: editor.selection,
+        sizes: ['xs', 'sm', 'md', 'lg'],
     });
 
     // className prefixer
-    const cx = cls =>
-        _.chain([op.get(props, 'className', op.get(props, 'namespace')), cls])
-            .compact()
-            .uniq()
-            .value()
-            .join('-');
+    const cx = Reactium.Utils.cxFactory(namespace);
 
-    const insertNode = () => {
-        const cols = value.column.map(item => {
-            return {
-                type: 'col',
-                column: item,
-                children: [{ text: '', type: 'div' }],
-            };
-        });
+    const insertNode = e => {
+        if (e) e.preventDefault();
+
+        Transforms.select(editor, state.selection.anchor.path);
+
+        const { columns = [] } = state;
 
         const node = {
             type: 'block',
-            children: [
-                {
-                    type: 'row',
-                    ID: uuid(),
-                    columns: value.column,
-                    children: cols,
-                },
-            ],
+            className: 'row',
+            blocked: true,
+            id: `block-${uuid()}`,
+            row: columns,
+            children: columns.map(col => ({
+                addAfter: false,
+                addBefore: false,
+                blocked: true,
+                children: [
+                    {
+                        type: 'div',
+                        data: { column: col },
+                        children: [{ text: '' }],
+                    },
+                ],
+                className: Object.entries(col)
+                    .map(([size, val]) => `col-${size}-${val}`)
+                    .join(' '),
+                column: col,
+                deletable: false,
+                id: `block-${uuid()}`,
+                type: 'block',
+            })),
         };
 
-        Transforms.insertNodes(editor, node);
-        ReactEditor.focus(editor);
+        let next = Path.next(state.selection.anchor.path);
+
+        let parent = Editor.above(editor);
+        if (parent) {
+            parent = _.object(['node', 'path'], parent);
+            next = Path.next(parent.path);
+        }
+
+        Transforms.insertNodes(editor, node, { at: next });
+        hide();
+    };
+
+    const _onChange = (e, { index, size }) => {
+        const { columns = [] } = state;
+        op.set(columns, [index, size], e.target.value);
+        setState({ columns });
     };
 
     const _onColumnAdd = e => {
@@ -80,130 +104,132 @@ let Panel = ({ submitButtonLabel, children, title, ...props }, ref) => {
             e.preventDefault();
         }
 
-        const val = addRef.current.value;
-        if (_.isEmpty(_.compact([val]))) return;
+        const { columns = [] } = state;
 
-        const newColumns = Array.from(op.get(value, 'column', []));
-        newColumns.push(val);
-        setValue({ column: newColumns });
+        const values = Object.values(refs.get('size')).reduce(
+            (output, input) => {
+                if (!_.isEmpty(input.value)) {
+                    op.set(output, input.name, Number(input.value));
+                }
 
-        addRef.current.value = '';
-        addRef.current.focus();
+                input.value = '';
+                return output;
+            },
+            {},
+        );
+
+        const firstInput = refs.get('size.xs');
+        if (firstInput) firstInput.focus();
+
+        columns.push(values);
+
+        setState({ columns });
     };
 
-    const _onColumnRemove = e => {
-        let index = op.get(e.currentTarget.dataset, 'index');
-        if (!index) return;
-
-        index = Number(index);
-        const newColumns = Array.from(value.column);
-        const removed = newColumns.splice(index, 1);
-
-        setValue({ column: newColumns });
-    };
-
-    const _onSubmit = e => {
-        if (_.isEmpty(_.compact(_.flatten([op.get(value, 'column')])))) return;
-        insertNode();
-        setValue({ column: [] });
-        hide();
-    };
-
-    const _onChange = e => {
-        setValue(e.value);
+    const _onColumnDelete = index => {
+        const { columns = [] } = state;
+        columns.splice(index, 1);
+        setState({ columns });
     };
 
     const hide = () => {
-        editor.panel.hide(false).setID('rte-panel');
+        editor.panel.hide(true).setID('rte-panel');
         ReactEditor.focus(editor);
     };
 
-    // On submit handler
-    useEffect(() => {
-        if (!formRef.current) return;
-        formRef.current.addEventListener('submit', _onSubmit);
-
-        return () => {
-            formRef.current.removeEventListener('submit', _onSubmit);
-        };
-    }, [editor.selection, value]);
+    const header = () => ({
+        elements: [<CloseButton onClick={hide} key='close-btn' />],
+        title,
+    });
 
     useFocusEffect(editor.panel.container);
 
+    useEffect(() => {
+        if (!editor.selection) return;
+        setState({ selection: editor.selection, columns: [] });
+    }, [editor.selection]);
+
     // Renderers
-    const render = useCallback(() => {
-        const header = {
-            elements: [<CloseButton onClick={hide} />],
-            title,
-        };
-
-        const columns = op.get(value, 'column', []);
-
-        return (
-            <EventForm
-                id='grid-insert'
-                ref={formRef}
-                className={cx()}
-                value={value}
-                onChange={_onChange}>
-                <Dialog collapsible={false} dismissable={false} header={header}>
-                    <div className='p-xs-20'>
-                        <div className='input-group'>
+    return (
+        <Dialog collapsible={false} dismissable={false} header={header()}>
+            {state.columns.length < 12 && (
+                <div className={cx('form')}>
+                    <h4>
+                        {__('Column %num').replace(
+                            /\%num/gi,
+                            state.columns.length + 1,
+                        )}
+                    </h4>
+                    <div className='input-group'>
+                        {state.sizes.map(size => (
                             <input
-                                data-focus
+                                key={`col-size-${size}`}
+                                type='number'
+                                placeholder={size}
                                 onKeyDown={_onColumnAdd}
-                                placeholder={__('col-xs-12 col-lg-4')}
-                                ref={addRef}
-                                type='text'
+                                name={size}
+                                data-focus={size === 'xs'}
+                                max={state.max}
+                                min={state.min}
+                                ref={elm => refs.set(`size.${size}`, elm)}
                             />
+                        ))}
+                        <Button
+                            color={Button.ENUMS.COLOR.TERTIARY}
+                            onClick={_onColumnAdd}
+                            type='button'
+                            size='sm'>
+                            <Icon name='Feather.Plus' size={20} />
+                        </Button>
+                    </div>
+                </div>
+            )}
+            {state.columns.length > 0 &&
+                state.columns.map((column, i) => (
+                    <div className={cx('col')} key={`row-${i}`}>
+                        <div className='input-group'>
+                            {state.sizes.map(size => (
+                                <input
+                                    key={`row-${i}-${size}`}
+                                    type='number'
+                                    placeholder={size}
+                                    name={size}
+                                    max={state.max}
+                                    min={state.min}
+                                    onChange={e =>
+                                        _onChange(e, { index: i, size })
+                                    }
+                                    value={op.get(column, size, '')}
+                                    ref={elm =>
+                                        refs.set(`column.${i}.${size}`, elm)
+                                    }
+                                />
+                            ))}
                             <Button
-                                color='tertiary'
-                                onClick={_onColumnAdd}
+                                onClick={() => _onColumnDelete(i)}
                                 type='button'
-                                size='sm'
-                                style={{ width: 40, padding: 0 }}>
-                                <Icon name='Feather.Plus' size={20} />
+                                color={Button.ENUMS.COLOR.DANGER}
+                                size='sm'>
+                                <Icon name='Feather.X' size={18} />
                             </Button>
                         </div>
                     </div>
-                    {columns.map((item, i) => (
-                        <div key={cx(i)}>
-                            <hr />
-                            <div className='px-xs-20 py-xs-12'>
-                                <div className='input-group'>
-                                    <input
-                                        type='text'
-                                        name={`column.${i}`}
-                                        data-index={Number(i)}
-                                    />
-                                    <Button
-                                        color='danger'
-                                        data-index={i}
-                                        onClick={_onColumnRemove}
-                                        type='button'
-                                        size='sm'
-                                        style={{ width: 40, padding: 0 }}>
-                                        <Icon name='Feather.X' size={20} />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <hr />
-                    <div className='p-xs-8'>
-                        <Button block color='tertiary' size='sm' type='submit'>
-                            {submitButtonLabel}
-                        </Button>
-                    </div>
-                </Dialog>
-            </EventForm>
-        );
-    }, [value]);
+                ))}
 
-    return render();
+            {state.columns.length > 0 && (
+                <div className={cx('footer')}>
+                    <Button
+                        block
+                        color='tertiary'
+                        size='md'
+                        onClick={insertNode}>
+                        {submitButtonLabel}
+                    </Button>
+                </div>
+            )}
+        </Dialog>
+    );
 };
-
-Panel = forwardRef(Panel);
 
 Panel.propTypes = {
     className: PropTypes.string,
@@ -214,8 +240,8 @@ Panel.propTypes = {
 };
 
 Panel.defaultProps = {
-    namespace: 'rte-grid-insert',
-    submitButtonLabel: __('Insert Columns'),
+    namespace: 'rte-grid-panel',
+    submitButtonLabel: __('Insert Grid'),
     title: __('Grid'),
 };
 

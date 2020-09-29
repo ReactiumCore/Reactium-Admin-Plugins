@@ -1,10 +1,12 @@
 import _ from 'underscore';
+import uuid from 'uuid/v4';
 import op from 'object-path';
 import { Icon } from '@atomic-reactor/reactium-ui';
 import React, { useEffect, useRef, useState } from 'react';
 import { __, useFulfilledObject, useHookComponent } from 'reactium-core/sdk';
 
 const defaultValue = {
+    type: 'div',
     children: [{ type: 'p', children: [{ text: '' }] }],
 };
 

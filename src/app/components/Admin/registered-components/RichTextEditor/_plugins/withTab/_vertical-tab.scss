@@ -1,5 +1,5 @@
 .rte-tabs-element .accordion {
-    //padding-right: 12px;
+    // padding-right: 12px;
 
     .tab {
         display: block;
@@ -30,18 +30,19 @@
             right: 0;
             opacity: 0;
             transform: translate(100%, 0%);
-            background-color: $color-light;
+            background-color: rgba($color-primary, .8);
+            transition: opacity .2s ease-in-out;
 
             &:after {
                 content: '';
-                height: 20px;
+                height: 14px;
                 width: 4px;
                 left: 50%;
                 top: 50%;
                 position: absolute;
                 transform: translate(-50%, -50%);
-                border-left: 1px solid $color-grey;
-                border-right: 1px solid $color-grey;
+                border-left: 1px solid $color-light;
+                border-right: 1px solid $color-light;
             }
         }
 
@@ -66,6 +67,10 @@
             .handle {
                 opacity: 1;
             }
+        }
+
+        &.collapsed {
+            margin-bottom: 1px;
         }
 
         .tabs-content {

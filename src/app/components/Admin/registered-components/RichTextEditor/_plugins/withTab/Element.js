@@ -20,6 +20,7 @@ const Element = props => {
         id: node.id,
         active: 0,
         content: node.content,
+        expanded: true,
         tabs: Array.from(node.tabs),
         updated: null,
         vertical: node.vertical,
@@ -121,10 +122,13 @@ const Element = props => {
         setState({ tabs, content });
         setContent(end, citem);
 
-        _.defer(() => setState({ active: end, updated: Date.now() }));
+        _.defer(() =>
+            setState({ active: end, updated: Date.now(), expanded: false }),
+        );
     };
 
-    const setActive = active => setState({ active, updated: Date.now() });
+    const setActive = active =>
+        setState({ active, updated: Date.now(), expanded: true });
 
     const setContent = (index, newContent, noUpdate = false) => {
         index = Number(index);
@@ -180,7 +184,11 @@ const Element = props => {
     });
 
     return (
-        <div className={cx('element')} id={state.id} contentEditable={false}>
+        <div
+            className={cx('element')}
+            id={state.id}
+            contentEditable={false}
+            style={{ userSelect: 'none' }}>
             <Tabs
                 {...handle}
                 children={<TabContent {...handle} children={props.children} />}

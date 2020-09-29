@@ -54,7 +54,7 @@ Plugin.callback = editor => {
 
     // register sidebar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: -1,
+        order: 60,
         sidebar: true,
         button: props => <SidebarButton {...props} onClick={onButtonClick} />,
     });

@@ -28,7 +28,7 @@ export const colors = {
 const Plugin = new RTEPlugin({ type: 'formatter', order: 100 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
+    const onButtonClick = (editor, e) => {
         const btn = e.currentTarget;
         const rect = btn.getBoundingClientRect();
         let { x, y, width } = rect;
@@ -49,7 +49,7 @@ Plugin.callback = editor => {
         button: ({ editor, ...props }) => (
             <Button
                 {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                onClick={onButtonClick}
+                onClick={e => onButtonClick(editor, e)}
                 {...props}>
                 <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Type' />
             </Button>
@@ -171,7 +171,16 @@ Plugin.callback = editor => {
     });
 
     Reactium.RTE.Block.register('div', {
-        element: props => <div {...props} />,
+        element: element => {
+            const node = op.get(element, 'children.props.node');
+            const props = { ...node };
+
+            op.del(props, 'type');
+            op.del(props, 'blocked');
+            op.del(props, 'children');
+
+            return <div {...element} {...props} />;
+        },
     });
 
     // register fonts

@@ -1,14 +1,11 @@
-import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
-import { Editor, Node, Transforms } from 'slate';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
+import { Editor, Node } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
-
-const { LIST_TYPES } = ENUMS;
 
 // TODO: Convert to Reactium.Utils.registryFactory
 export class Registry {
@@ -160,19 +157,6 @@ class RTE {
     onKeyDown(editor, event, hotkeys) {
         if (!editor || !event) return;
 
-        // try {
-        //     const [parent, parentPath] = Editor.parent(
-        //         editor,
-        //         editor.selection,
-        //     );
-        //     if (isHotkey('backspace', event)) {
-        //         const text = _.compact([parent.children.text]);
-        //         if (_.isEmpty(text) && parentPath.length === 1) {
-        //             return;
-        //         }
-        //     }
-        // } catch (err) {}
-
         let next = true;
         hotkeys.forEach(item => {
             if (next === false) return;
@@ -207,6 +191,8 @@ class RTE {
     }
 
     getNode({ editor, path }) {
+        path = path || editor.selection.anchor.path;
+
         let root = path.length === 1;
         let p = Array.from(path);
         p = root === true ? [Math.max(Number(_.first(p) - 1), 0), 0] : p;
@@ -217,6 +203,50 @@ class RTE {
         const node = result.pop();
         const empty = this.isEmpty(node);
         return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
+    }
+
+    siblings(editor, path) {
+        let children = [];
+        path = path || editor.selection.anchor.path;
+        path = Array.from(path);
+
+        path.pop();
+
+        let parent = Editor.above(editor, { at: path });
+        if (parent) {
+            parent = _.object(['node', 'path'], parent);
+            children = op.get(parent, 'node.children', []);
+        }
+        return children;
+    }
+
+    sibling(editor, path, offset = -1) {
+        path = path || editor.selection.anchor.path;
+        path = Array.from(path);
+
+        let node;
+
+        const siblings = this.siblings(editor, path);
+        const sibpath = Array.from(path);
+        sibpath.pop();
+
+        if (sibpath.length >= 1) {
+            let idx = sibpath.pop() + offset;
+            if (!_.range(siblings.length).includes(idx)) {
+                return;
+            }
+            node = siblings[idx];
+        }
+
+        return node;
+    }
+
+    before(editor, path) {
+        return this.sibling(editor, path);
+    }
+
+    after(editor, path) {
+        return this.sibling(editor, path, 1);
     }
 }
 

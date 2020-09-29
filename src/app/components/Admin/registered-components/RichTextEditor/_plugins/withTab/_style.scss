@@ -1,20 +1,12 @@
 .rte-tabs {
     &-element {
-        margin-left: -4px;
-        margin-right: -4px;
         position: relative;
         outline: none;
         user-select: none;
         display: flex;
         flex-direction: column;
         width: 100%;
-        border: 2px dashed transparent;
         overflow: visible;
-        padding: 4px;
-
-        &:hover {
-            border: 2px dashed $color-grey;
-        }
 
         .tabs-content {
             width: 100%;
@@ -25,6 +17,10 @@
                 padding: 20px;
                 background-color: $color-light;
                 border: 1px solid $color-primary;
+
+                &:empty {
+                    display: none;
+                }
             }
         }
 

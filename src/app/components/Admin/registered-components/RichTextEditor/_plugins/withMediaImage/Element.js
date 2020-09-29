@@ -1,64 +1,101 @@
-import React from 'react';
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
+import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { ReactEditor, useEditor, useSelected } from 'slate-react';
+import React, { useEffect } from 'react';
+import {
+    __,
+    useDerivedState,
+    useHandle,
+    useHookComponent,
+    useStatus,
+} from 'reactium-core/sdk';
 
-export default props => {
-    const { ID, children, src } = props;
+const INIT = 'INIT';
+const LOADING = 'LOADING';
+const COMPLETE = 'COMPLETE';
 
+export default ({ children, ...props }) => {
     const editor = useEditor();
-    const selected = useSelected();
+    const tools = useHandle('AdminTools');
 
-    const getSelection = () => {
-        const nodes = Array.from(Editor.nodes(editor, { at: [] }));
+    const MediaPicker = useHookComponent('MediaPicker');
+    const { Spinner } = useHookComponent('ReactiumUI');
 
-        if (nodes.length < 1) return;
+    const [, setStatus, isStatus] = useStatus(INIT);
 
-        let output;
+    const [state, setState] = useDerivedState({ src: null });
 
-        for (let i = 0; i < nodes.length; i++) {
-            const [node, selection] = nodes[i];
-            if (!op.has(node, 'children')) continue;
-            const c = _.findIndex(node.children, { ID });
+    const showPicker = () => {
+        const Modal = op.get(tools, 'Modal');
+        Modal.show(
+            <MediaPicker
+                confirm={false}
+                dismissable
+                filters='IMAGE'
+                onSubmit={_onMediaSelect}
+                onDismiss={() => Modal.hide()}
+                title={__('Select Image')}
+            />,
+        );
+    };
 
-            if (c > -1) {
-                selection.push(c);
-                output = selection;
-            }
+    const _onMediaSelect = e => {
+        const Modal = op.get(tools, 'Modal');
+
+        const nodes = Editor.nodes(editor, {
+            at: [],
+            match: ({ id }) => id === props.id,
+        });
+
+        let node = _.first(Array.from(nodes));
+        if (!node) {
+            Modal.hide();
+            return;
+        }
+        node = _.object(['node', 'path'], node);
+
+        const item = _.last(e.selection);
+        if (!item) {
+            Modal.hide();
+            return;
         }
 
-        return output;
+        const { objectId, url } = item;
+
+        Transforms.setNodes(editor, { objectId, src: url }, { at: node.path });
+        Modal.hide();
     };
 
-    const onDelete = e => {
-        e.preventDefault();
-        const selection = getSelection();
-        Transforms.removeNodes(editor, { at: selection });
-        ReactEditor.focus(editor);
+    const loadImage = url => {
+        setStatus(LOADING, true);
+        const img = new Image();
+        img.addEventListener('load', () => {
+            setStatus(COMPLETE);
+            setState({ src: url });
+        });
+        img.src = url;
     };
+
+    useEffect(() => {
+        if (props.src === state.src) return;
+        if (isStatus(LOADING)) return;
+        loadImage(props.src);
+    }, [props.src]);
 
     return (
-        <span
-            id={ID}
-            className={cn({ selected })}
-            tabIndex={1}
-            type='embed'
-            contentEditable={false}>
+        <div contentEditable={false} className='ar-rte-image'>
             {children}
-            <img src={src} contentEditable={false} />
-            <span className='actions'>
-                <Button
-                    appearance='circle'
-                    color='danger'
-                    onClick={onDelete}
-                    size='sm'
-                    type='button'>
-                    <Icon name='Feather.X' />
-                </Button>
-            </span>
-        </span>
+            {isStatus(COMPLETE) ? (
+                <img
+                    src={state.src}
+                    contentEditable={false}
+                    onClick={showPicker}
+                    style={{ userSelect: 'none' }}
+                />
+            ) : (
+                <Spinner className='flex flex-center' />
+            )}
+        </div>
     );
 };
