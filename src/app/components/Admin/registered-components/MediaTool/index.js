@@ -168,7 +168,14 @@ const MediaTool = props => {
 
         return (
             <div className={cx('value')}>
-                <Dropzone files={{}} onFileAdded={onFileAdded}>
+                <Dropzone
+                    ref={dz => refs.set('root-dropzone', dz)}
+                    files={{}}
+                    onFileAdded={onFileAdded}
+                    config={{
+                        chunking: false,
+                        clickable: true,
+                    }}>
                     {renderPreview()}
                 </Dropzone>
             </div>

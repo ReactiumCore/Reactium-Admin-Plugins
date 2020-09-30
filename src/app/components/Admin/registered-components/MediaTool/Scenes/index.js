@@ -46,7 +46,7 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
     const back = () => refs.get('scene').back();
 
     const browseFiles = () => {
-        const dropzone = refs.get('dropzone');
+        const dropzone = refs.get('root-dropzone');
         dropzone.browseFiles();
     };
 
@@ -123,12 +123,6 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
 
     useEffect(updateHandle);
 
-    // useEffect(() => {
-    //     return () => {
-    //         reset();
-    //     };
-    // }, []);
-
     // reset on new
     // TODO: Externalize this. Put reset on handle, let parent component do this
     // useEffect(reset, [op.get(editor, 'value.objectId')]);
@@ -136,6 +130,10 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
     return (
         <div className={cx()}>
             <Dropzone
+                config={{
+                    chunking: false,
+                    clickable: true,
+                }}
                 files={{}}
                 onFileAdded={onFileAdded}
                 ref={elm => refs.set('dropzone', elm)}>
@@ -144,11 +142,6 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
                     className={cx('scene')}
                     onChange={({ active }) => setActive(active, true)}
                     ref={elm => refs.set('scene', elm)}>
-                    {
-                        // <Action handle={handle} id='action' />
-                        // <Thumb handle={handle} id='thumb' />
-                    }
-
                     <External handle={handle} id={SCENES.external} />
                     <Library handle={handle} id={SCENES.library} />
                     <Upload
