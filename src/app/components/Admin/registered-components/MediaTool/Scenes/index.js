@@ -32,6 +32,7 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
         setSelection,
         directories,
         setDirectories,
+        onCloseSelect,
     } = props;
 
     let type = op.get(props, 'type', ['all']);
@@ -50,7 +51,6 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
     };
 
     const nav = (panel, direction) => {
-        console.log({ panel, direction });
         const scene = refs.get('scene');
         if (scene) {
             scene.navTo({ panel, direction });
@@ -63,7 +63,7 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
         Reactium.Cache.del('editor.media');
 
         // setActive('action');
-        removeAll();
+        // removeAll();
     };
 
     const onFileAdded = async e => {
@@ -103,6 +103,7 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
         type,
         value,
         onFileAdded,
+        onCloseSelect,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
@@ -122,11 +123,11 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
 
     useEffect(updateHandle);
 
-    useEffect(() => {
-        return () => {
-            reset();
-        };
-    }, []);
+    // useEffect(() => {
+    //     return () => {
+    //         reset();
+    //     };
+    // }, []);
 
     // reset on new
     // TODO: Externalize this. Put reset on handle, let parent component do this

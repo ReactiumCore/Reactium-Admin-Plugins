@@ -112,9 +112,8 @@ const Upload = forwardRef((props, ref) => {
         setState('watch', watch);
 
         if (Object.keys(watch).length < 1) {
-            // TODO: do something here, close modal?
-            // await nav('thumb', 'left');
             Reactium.Media.clear();
+            props.handle.onCloseSelect();
         }
     };
 

@@ -1,25 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import Reactium, { __, useHandle, useRefs } from 'reactium-core/sdk';
-import MediaToolScenes from './Scenes';
+import Reactium, {
+    __,
+    useHandle,
+    useRefs,
+    useHookComponent,
+} from 'reactium-core/sdk';
+import MediaToolScenes, { SCENES } from './Scenes';
 import useDirectoryState from './useDirectoryState';
 import op from 'object-path';
 import _ from 'underscore';
 
+import Action from './Action';
+import Thumb from './Thumb';
+
 // Notes:
 // 1. Stand alone preview for one or more media items or action
 // 2. Picker / Uploader
-
+const aNoop = async () => {};
 const MediaTool = props => {
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
-    const refs = useRefs();
+    console.log({ props });
     const { max, value: propValue } = props;
-    const [value, setSelection] = useState(propValue || []);
 
+    const refs = useRefs();
+    const tools = useHandle('AdminTools');
+    const { Dropzone, Scene } = useHookComponent('ReactiumUI');
+
+    const Modal = op.get(tools, 'Modal');
+    const [value, _setSelection] = useState(propValue || []);
     const [directories, setDirectories] = useDirectoryState();
-    console.log({ refs, tools, Modal });
-
     const cx = Reactium.Utils.cxFactory('media-tool');
+
+    const setSelection = value => {
+        console.log('setSelection', { value }, new Error().stack);
+        _setSelection(value);
+    };
+
+    const selection = () => _.reject(value, { delete: true });
 
     const add = (items = []) => {
         items = Array.isArray(items) ? items : [items];
@@ -34,12 +50,15 @@ const MediaTool = props => {
         // add the items to the value
         items.forEach(item => values.push(item));
 
-        // update the selection`
+        // update the selection
+        console.log('add', { values });
         setSelection(values);
 
         // show thumbs
         // _.defer(() => nav('thumb', 'left'));
     };
+
+    console.log({ value });
 
     const remove = async objectId => {
         const values = Array.from(value);
@@ -64,31 +83,96 @@ const MediaTool = props => {
         setSelection(values);
     };
 
-    const openScenes = () => {
-        const scenes = refs.get('scenes');
-        if (!scenes) {
-            Modal.show(
-                <div style={{ width: '80vw', height: '100vh' }}>
-                    <MediaToolScenes
-                        ref={c => refs.set('scenes', c)}
-                        {...props}
-                        refs={refs}
-                        cx={cx}
-                        add={add}
-                        remove={remove}
-                        removeAll={removeAll}
-                        value={value}
-                        setSelection={setSelection}
-                        directories={directories}
-                        setDirectories={setDirectories}
-                    />
-                </div>,
-            );
+    const nav = async (scene, direction) => {
+        if (!scene) return;
+
+        const scenes = await openScenes();
+        const { nav, isActive } = scenes;
+        if (!isActive(scene)) {
+            await nav(scene, direction);
         }
     };
 
+    const onFileAdded = async e => {
+        await nav(SCENES.upload, 'left');
+        const upload = refs.get('upload');
+
+        const directory =
+            op.get(upload.value, 'directory', props.directory) ||
+            props.directory ||
+            'uploads';
+        upload.setDirectory(directory);
+
+        if (!directory) {
+            upload.setError(__('Select directory'), e.added);
+            return;
+        }
+
+        upload.add(Reactium.Media.upload(e.added, directory));
+    };
+
+    const _handle = () => ({
+        max,
+        add,
+        // active,
+        // back,
+        // browseFiles,
+        cx,
+        directories,
+        // isActive,
+        nav,
+        refs,
+        remove,
+        removeAll,
+        // setActive,
+        setDirectories,
+        setSelection,
+        // type,
+        value,
+        // onFileAdded,
+    });
+
+    const openScenes = async () => {
+        let scenes = refs.get('scenes');
+        if (!scenes) {
+            scenes = await new Promise(resolve => {
+                Modal.show(
+                    <div style={{ width: '80vw', height: '100vh' }}>
+                        <MediaToolScenes
+                            ref={c => {
+                                refs.set('scenes', c);
+                                resolve(c);
+                            }}
+                            {...props}
+                            {..._handle()}
+                            onCloseSelect={() => Modal.hide()}
+                        />
+                    </div>,
+                );
+            });
+        }
+
+        return scenes;
+    };
+
+    const renderPreview = () => {
+        if (selection().length < 1) {
+            return <Action handle={_handle()} />;
+        }
+
+        return <Thumb handle={_handle()} />;
+    };
+
     const render = () => {
-        return <button onClick={openScenes}>Open Scenes</button>;
+        if (!Modal) return null;
+
+        return (
+            <div className={cx('value')}>
+                <Dropzone files={{}} onFileAdded={onFileAdded}>
+                    {renderPreview()}
+                </Dropzone>
+            </div>
+        );
     };
 
     return render();

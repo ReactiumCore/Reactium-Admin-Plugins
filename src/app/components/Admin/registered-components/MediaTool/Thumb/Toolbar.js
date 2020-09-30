@@ -6,13 +6,15 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
+import { SCENES } from '../Scenes';
+
 const ExternalButton = ({ nav }) => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
     return (
         <Button
             color={Button.ENUMS.COLOR.CLEAR}
-            onClick={() => nav('external', 'right')}>
+            onClick={() => nav(SCENES.external, 'right')}>
             <Icon name='Feather.Link' size={16} />
         </Button>
     );
@@ -24,7 +26,7 @@ const MediaButton = ({ nav }) => {
     return (
         <Button
             color={Button.ENUMS.COLOR.CLEAR}
-            onClick={() => nav('library', 'right')}>
+            onClick={() => nav(SCENES.library, 'right')}>
             <Icon name='Feather.Image' size={18} />
         </Button>
     );
@@ -36,7 +38,7 @@ const UploadButton = ({ nav }) => {
     return (
         <Button
             color={Button.ENUMS.COLOR.CLEAR}
-            onClick={() => nav('upload', 'right')}>
+            onClick={() => nav(SCENES.upload, 'right')}>
             <Icon name='Feather.UploadCloud' size={20} />
         </Button>
     );

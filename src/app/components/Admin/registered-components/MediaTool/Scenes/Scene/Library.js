@@ -3,7 +3,18 @@ import React, { useEffect, useState } from 'react';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 const Library = ({ handle, ...props }) => {
-    const { active, add, cx, isActive, back, max, refs, type } = handle;
+    const {
+        active,
+        add,
+        cx,
+        isActive,
+        back,
+        max,
+        refs,
+        type,
+        onCloseSelect,
+    } = handle;
+    console.log({ add, handle });
 
     const MediaPicker = useHookComponent('MediaPicker');
 
@@ -16,6 +27,7 @@ const Library = ({ handle, ...props }) => {
     const _onSubmit = async ({ selection }) => {
         if (selection.length < 1) return;
         add(selection);
+        onCloseSelect();
     };
 
     const _onDismiss = async e => {

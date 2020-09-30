@@ -41,13 +41,13 @@ const Thumb = ({ handle, ...props }) => {
         if (!value) return;
         if (!hasData()) return;
         if (value.length < 1) return;
-        if (!isActive(props.id)) return;
+        // if (!isActive(props.id)) return;
 
         return true;
     };
 
     const load = async () => {
-        if (!isActive(props.id)) return;
+        // if (!isActive(props.id)) return;
         if (!isStatus(ENUMS.STATUS.INIT)) return;
 
         setStatus(ENUMS.STATUS.LOADING);
@@ -61,7 +61,7 @@ const Thumb = ({ handle, ...props }) => {
     };
 
     const onStatusChange = () => {
-        if (!isActive(props.id)) return;
+        // if (!isActive(props.id)) return;
 
         if (isStatus(ENUMS.STATUS.LOADED)) {
             setStatus(ENUMS.STATUS.READY, true);
@@ -77,7 +77,7 @@ const Thumb = ({ handle, ...props }) => {
     // Status change
     useEffect(onStatusChange, [status]);
 
-    return isActive(props.id) ? (
+    return (
         <>
             {isReady() === true ? (
                 max === 1 ? (
@@ -99,7 +99,7 @@ const Thumb = ({ handle, ...props }) => {
                 </div>
             )}
         </>
-    ) : null;
+    );
 };
 
 export { Thumb, Thumb as default };

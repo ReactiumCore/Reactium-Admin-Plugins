@@ -1,5 +1,6 @@
 import React from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
+import { SCENES } from './Scenes';
 
 const Action = ({ handle }) => {
     const { cx, nav } = handle;
@@ -13,7 +14,7 @@ const Action = ({ handle }) => {
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
                     color={Button.ENUMS.COLOR.TERTIARY}
-                    onClick={() => nav('library')}
+                    onClick={() => nav(SCENES.library)}
                     outline
                     size={Button.ENUMS.SIZE.SM}>
                     {__('Select From Media')}
@@ -23,7 +24,7 @@ const Action = ({ handle }) => {
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
                     color={Button.ENUMS.COLOR.TERTIARY}
-                    onClick={() => nav('external')}
+                    onClick={() => nav(SCENES.external)}
                     outline
                     size={Button.ENUMS.SIZE.SM}>
                     {__('Import From URL')}
@@ -33,7 +34,7 @@ const Action = ({ handle }) => {
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
                     color={Button.ENUMS.COLOR.PRIMARAY}
-                    onClick={() => nav('upload')}
+                    onClick={() => nav(SCENES.upload)}
                     size={Button.ENUMS.SIZE.sm}>
                     {__('Upload A File')}
                 </Button>
