@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import RTEPlugin from '../../RTEPlugin';
@@ -29,31 +29,37 @@ const Plugin = new RTEPlugin({ type: 'formatter', order: 100 });
 
 Plugin.callback = editor => {
     const onButtonClick = (editor, e) => {
-        const btn = e.currentTarget;
-        const rect = btn.getBoundingClientRect();
-        let { x, y, width } = rect;
-
-        x += width;
-
+        e.preventDefault();
         editor.panel
             .setID('formatter')
             .setContent(<Panel selection={editor.selection} />)
-            .moveTo(x, y)
             .show();
     };
 
     // register buttons
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 0,
+        order: -1000,
         sidebar: true,
-        button: ({ editor, ...props }) => (
-            <Button
-                {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                onClick={e => onButtonClick(editor, e)}
-                {...props}>
-                <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Type' />
-            </Button>
-        ),
+        button: ({ editor, ...props }) => {
+            const [selection, setSelection] = useState(editor.selection);
+            useEffect(() => {
+                if (!_.isEqual(selection, editor.selection)) {
+                    setSelection(editor.selection);
+                }
+            }, [editor.selection]);
+
+            return (
+                <Button
+                    {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+                    onClick={e => onButtonClick(editor, e)}
+                    {...props}>
+                    <Icon
+                        {...Reactium.RTE.ENUMS.PROPS.ICON}
+                        name='Feather.Type'
+                    />
+                </Button>
+            );
+        },
     });
 
     Reactium.RTE.Button.register('align-left', {
@@ -97,6 +103,14 @@ Plugin.callback = editor => {
     });
 
     // register blocks
+    Reactium.RTE.Block.register('styled', {
+        order: -1,
+        formatter: true,
+        label: 'Body Text',
+        size: 16,
+        element: props => <span {...props} className='ar-rte-styled' />,
+    });
+
     Reactium.RTE.Block.register('p', {
         order: 0,
         formatter: true,

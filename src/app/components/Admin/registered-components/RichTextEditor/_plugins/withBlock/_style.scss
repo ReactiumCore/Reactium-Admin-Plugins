@@ -26,10 +26,10 @@ $rte-block-ns: block !default;
             }
 
             &:hover {
-                .#{$rte-block-ns}-actions {
+                > div > .#{$rte-block-ns}-actions {
                     opacity: 1;
                 }
-                .add {
+                > div > .add {
                     opacity: 1;
                 }
             }

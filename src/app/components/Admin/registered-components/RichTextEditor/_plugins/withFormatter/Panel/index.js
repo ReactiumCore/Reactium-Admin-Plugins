@@ -1,16 +1,16 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
-import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Range, Transforms } from 'slate';
-import { Button, Dialog, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import { ReactEditor, useSlate } from 'slate-react';
+import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 
-import Reactium, {
+import {
     __,
     useDerivedState,
     useEventHandle,
+    useStatus,
 } from 'reactium-core/sdk';
 
 import React, {
@@ -18,12 +18,11 @@ import React, {
     useEffect,
     useImperativeHandle,
     useRef,
-    useState,
 } from 'react';
 
-import { hexToRgb, rgbToHex } from './utils';
 import { FontSelect } from './FontSelect';
 import { ColorSelect } from './ColorSelect';
+import { hexToRgb, rgbToHex } from './utils';
 import { TextStyleSelect } from './TextStyleSelect';
 import { TextAlignSelect } from './TextAlignSelect';
 
@@ -42,10 +41,11 @@ const CloseButton = props => (
     </Button>
 );
 
-let Panel = ({ children, ...props }, ref) => {
+let Panel = ({ selection: initialSelection, ...props }, ref) => {
     const formRef = useRef();
-
     const editor = useSlate();
+
+    const [, setVisible, isVisible] = useStatus(false);
 
     // Initial state
     const [state, setNewState] = useDerivedState({
@@ -56,10 +56,11 @@ let Panel = ({ children, ...props }, ref) => {
         buttons: _.where(editor.buttons, item => op.has(item, 'formatter')),
         color: 'inherit',
         colors: editor.colors,
+        focused: null,
         fonts: _.sortBy(editor.fonts, 'label'),
         opacity: 100,
         bgOpacity: 100,
-        selection: editor.selection,
+        selection: initialSelection || editor.selection,
         size: { label: 16, value: 16 },
         style: {},
         value: {},
@@ -104,7 +105,8 @@ let Panel = ({ children, ...props }, ref) => {
                 }
             }
 
-            const padding = backgroundColor !== 'transparent' ? 20 : undefined;
+            const padding =
+                backgroundColor !== 'transparent' ? '0 10px' : undefined;
             newStyle = { ...newStyle, backgroundColor, padding };
         }
 
@@ -138,12 +140,6 @@ let Panel = ({ children, ...props }, ref) => {
         if (_.isEqual(newStyle, style)) return;
 
         setState({ style: newStyle });
-    };
-
-    // classname and namespace
-    const cname = () => {
-        const { className, namespace } = state;
-        return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
     // className prefixer
@@ -311,26 +307,34 @@ let Panel = ({ children, ...props }, ref) => {
 
     const _onSubmit = () => {
         const { selection, style, textStyle } = state;
-        const { id: type, label } = textStyle;
+        Transforms.select(editor, selection);
 
-        if (!type) {
-            return;
+        if (Range.isExpanded(selection)) {
+            if (op.get(textStyle, 'id') !== 'styled') {
+                Transforms.setNodes(
+                    editor,
+                    { style, type: textStyle.id },
+                    { split: true },
+                );
+            } else {
+                Editor.addMark(editor, 'style', style);
+            }
+        } else {
+            Transforms.insertNodes(editor, {
+                type: 'block',
+                blocked: true,
+                id: `block-${uuid()}`,
+                children: [
+                    {
+                        style,
+                        type: textStyle.id,
+                        children: [{ text: textStyle.label || '' }],
+                    },
+                ],
+            });
         }
-
-        const [line] = Editor.node(editor, selection);
-        const [parent, parentSelection] = Editor.parent(editor, selection);
-
-        let text = op.get(line, 'text', label);
-        text = String(text).length < 1 ? label : text;
-
-        let node = {
-            list: false,
-            type,
-            style,
-            children: [{ text: '' }],
-        };
-
-        Transforms.setNodes(editor, node, { at: selection });
+        Transforms.collapse(editor, { edge: 'end' });
+        hide();
     };
 
     // Handle
@@ -339,7 +343,7 @@ let Panel = ({ children, ...props }, ref) => {
         state,
     });
 
-    const [handle, setHandle] = useEventHandle(_handle());
+    const [handle] = useEventHandle(_handle());
 
     useImperativeHandle(ref, () => handle, [handle]);
 
@@ -347,17 +351,7 @@ let Panel = ({ children, ...props }, ref) => {
     useEffect(() => {
         const { blocks, selection } = state;
         if (blocks && selection) {
-            const [parent] = Editor.parent(editor, selection);
-
-            let { type } = parent;
-            type = type === 'paragraph' ? 'p' : type;
-
-            let textStyle = _.findWhere(blocks, { id: type });
-            textStyle = textStyle
-                ? textStyle
-                : _.findWhere(blocks, { id: 'p' });
-
-            textStyle['id'] = type;
+            const textStyle = _.findWhere(blocks, { id: 'styled' });
 
             setState({ textStyle });
         }
@@ -438,6 +432,28 @@ let Panel = ({ children, ...props }, ref) => {
         setState({ selection: editor.selection });
     }, [editor.selection]);
 
+    // Move panel to center
+    useEffect(() => {
+        if (!editor.panel || !formRef.current) return;
+        if (!isVisible(true)) {
+            let { width, height } = formRef.current.getBoundingClientRect();
+
+            width = width / 2;
+            height = height / 2;
+
+            let ox = window.innerWidth / 2;
+            let oy = window.innerHeight / 2;
+            let x = ox - width;
+            let y = oy - height;
+            x = Math.floor(x);
+            y = Math.floor(y);
+
+            editor.panel.moveTo(x, y);
+
+            setVisible(true, true);
+        }
+    }, [editor.panel, formRef.current]);
+
     // Renderers
     const render = () => {
         const {
@@ -451,7 +467,6 @@ let Panel = ({ children, ...props }, ref) => {
             font,
             fonts,
             opacity,
-            selection,
             size,
             style,
             title,
@@ -460,7 +475,7 @@ let Panel = ({ children, ...props }, ref) => {
         } = state;
 
         const header = {
-            elements: [<CloseButton onClick={hide} />],
+            elements: [<CloseButton onClick={hide} key='close-btn' />],
             title,
         };
 

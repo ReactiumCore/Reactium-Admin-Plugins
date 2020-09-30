@@ -71,8 +71,10 @@ let Panel = (initialProps, ref) => {
     const [visible, setVisible] = useState(isVisible);
 
     // Functions
-    const adjustPosition = (adjustX, adjustY, ID) => {
+    const adjustPosition = (adjustX, adjustY, ID, force) => {
         if (!containerRef.current || !parent) return;
+
+        force = force || false;
 
         const { dragProps, gutter } = state;
         const bounds = op.get(dragProps, 'bounds', { right: 0, bottom: 0 });
@@ -109,7 +111,12 @@ let Panel = (initialProps, ref) => {
                 bottom: maxY,
             };
 
-            const newState = { dragProps, update: Date.now(), reset: false };
+            const newState = {
+                dragProps,
+                update: Date.now(),
+                reset: force,
+                position,
+            };
 
             if (
                 y > maxY ||
@@ -135,8 +142,9 @@ let Panel = (initialProps, ref) => {
                 Reactium.Prefs.set(`admin.position.${ID}`, position);
             }
 
-            setPosition(position);
+            newState.position = position;
             setState(newState);
+            setPosition(position);
         }
     };
 
@@ -184,7 +192,7 @@ let Panel = (initialProps, ref) => {
     };
 
     const moveTo = (x, y, ID) => {
-        adjustPosition(x, y, ID);
+        adjustPosition(x, y, ID, true);
         return handle;
     };
 
@@ -249,6 +257,7 @@ let Panel = (initialProps, ref) => {
         hide,
         id,
         moveTo,
+        parent,
         position,
         prevState,
         props: initialProps,
@@ -314,21 +323,19 @@ let Panel = (initialProps, ref) => {
     // clear position rest
     useEffect(() => {
         if (state.reset === true) {
-            setState({ reset: false });
+            _.defer(() => setState({ reset: false }));
         }
     }, [state.reset]);
 
     // content change event dispatch
     useEffect(() => {
         if (content === children) return;
-        //setHandle(_handle());
         _onContentChange();
     }, [content]);
 
     // state change event dispatch
     useEffect(() => {
         if (_.isEqual(state, prevState)) return;
-        //setHandle(_handle());
         setPrevState(state);
         _onStateChange(state, prevState);
     }, [state]);
@@ -349,7 +356,11 @@ let Panel = (initialProps, ref) => {
 
     // update handle
     useEffect(() => {
-        setHandle(_handle());
+        const newHandle = _handle();
+        Object.keys(newHandle).forEach(key =>
+            op.set(handle, key, op.get(newHandle, key)),
+        );
+        setHandle(handle);
     }, [content, state, visible, id]);
 
     // auto hide
@@ -368,14 +379,14 @@ let Panel = (initialProps, ref) => {
     const render = () => {
         const { className, disabled, dragProps = {}, reset = false } = state;
 
-        dragProps.defaultPosition = position;
+        dragProps.defaultPosition = state.position;
         dragProps.onDrag = _onDrag;
         dragProps.onStart = _onStart;
         dragProps.onStop = _onStop;
         dragProps.disabled = disabled;
 
         if (reset === true) {
-            dragProps.position = position;
+            dragProps.position = state.position;
         } else {
             delete dragProps.position;
         }

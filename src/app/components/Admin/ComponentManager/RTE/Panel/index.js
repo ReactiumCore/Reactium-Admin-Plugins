@@ -215,17 +215,28 @@ let Panel = ({ editor, namespace, title, ...props }) => {
     const insertNode = ({ children = [], ...block }) => {
         Reactium.Hook.runSync('block-insert', block);
 
-        const nodes = [
-            {
-                ID: uuid(),
-                block,
-                children,
-                type: 'component',
-            },
-            { type: 'p', children: [{ text: '' }] },
-        ];
+        const node = {
+            ID: uuid(),
+            block,
+            children,
+            type: 'component',
+        };
 
-        Transforms.insertNodes(editor, nodes, { at: state.selection });
+        const blockNode = {
+            type: 'block',
+            blocked: true,
+            id: `block-${uuid()}`,
+            children: [
+                {
+                    type: 'div',
+                    children: [node],
+                },
+            ],
+        };
+
+        Reactium.Hook.runSync('block-node', blockNode);
+
+        Transforms.insertNodes(editor, blockNode, { at: state.selection });
     };
 
     const listeners = () => {

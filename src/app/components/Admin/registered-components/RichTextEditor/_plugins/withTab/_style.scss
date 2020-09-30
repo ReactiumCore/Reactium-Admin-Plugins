@@ -80,12 +80,16 @@
                     transform: translate(-50%, -50%);
                     top: 0;
                     left: 50%;
+                    width: 20px;
+                    height: 20px;
                 }
 
                 &.bottom {
                     transform: translate(-50%, 50%);
                     bottom: 0;
                     left: 50%;
+                    width: 20px;
+                    height: 20px;
                 }
             }
 
@@ -277,10 +281,14 @@
         .blocker {
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
+            margin: -20px;
             position: absolute;
-            background-color: rgba($color-white, 0);
+            z-index: 45;
+            opacity: 0;
+            background-color: $color-white;
+            transition: opacity .2s ease-in-out;
         }
 
         .edit {
@@ -289,6 +297,8 @@
             opacity: 0;
             position: absolute;
             transform: translate(-50%, -50%);
+            transition: opacity .2s ease-in-out;
+            z-index: 50;
         }
 
         .empty {
@@ -306,7 +316,7 @@
             }
 
             > .blocker {
-                background-color: rgba($color-white, 0.75);
+                opacity: 0.7;
             }
         }
     }

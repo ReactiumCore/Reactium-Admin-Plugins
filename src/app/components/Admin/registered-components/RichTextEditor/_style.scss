@@ -30,8 +30,8 @@ input[type='object'] {
     h1,
     h2,
     h3 {
-        margin-bottom: 15px;
-        padding-bottom: 0px;
+        margin: 0;
+        padding: 0;
     }
 
     ol,
@@ -41,6 +41,11 @@ input[type='object'] {
         }
     }
 
+    blockquote {
+        margin: 0;
+        background-color: $color-light;
+    }
+
     &-toolbar {
         position: absolute;
         overflow: visible;
@@ -48,7 +53,7 @@ input[type='object'] {
         opacity: 0;
         transition: opacity 0.25s ease-in-out;
         font-family: Courier, serif;
-        z-index: map-get($z-indexes, popup);
+        z-index: map-get($z-indexes, popup) - 1;
 
         &-rect {
             height: $ar-height-rte-toolbar;

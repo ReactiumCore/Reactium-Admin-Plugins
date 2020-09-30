@@ -1,10 +1,7 @@
-import _ from 'underscore';
-import op from 'object-path';
 import { useSlate } from 'slate-react';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { isMarkActive, toggleMark, useSelected } from '../_utils';
+import { useSelected } from '../_utils';
 
-import Reactium, {
+import {
     useDerivedState,
     useEventHandle,
     useHookComponent,
@@ -16,7 +13,6 @@ import React, {
     useImperativeHandle,
     useMemo,
     useRef,
-    useState,
 } from 'react';
 
 const Buttons = ({ container, editor, nodes }) => (
@@ -49,7 +45,7 @@ let Toolbar = ({ className, id, style }, ref) => {
 
     if (typeof window === 'undefined') return null;
 
-    const { range, rect, selected } = useSelected();
+    const { rect, selected } = useSelected();
 
     const [state, setState] = useDerivedState({});
 
