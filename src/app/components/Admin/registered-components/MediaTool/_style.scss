@@ -1,5 +1,6 @@
 .zone-admin-picker-test {
     @include admin-content-zone;
+    padding-top: 0;
     width: calc(100vw - 80px);
     min-height: 100vh;
 }
@@ -97,6 +98,10 @@
         padding: 20px;
         user-select: none;
         border: 4px dashed $color-grey;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
     }
 
     &-btn-container {
@@ -127,6 +132,8 @@
     }
 
     &-thumbs {
+        height: 400px;
+
         .ar-spinner {
             position: absolute;
             left: 50%;
@@ -153,7 +160,6 @@
             align-items: center;
             justify-content: center;
             padding: 40px;
-            height: 100%;
             position: relative;
 
             .preview {
@@ -226,7 +232,6 @@
         &.multiple {
             display: flex;
             flex-direction: column;
-            height: 100%;
             position: relative;
 
             .ar-data-table-headings {
@@ -239,6 +244,7 @@
 
             .table {
                 flex-grow: 1;
+                height: 100%;
             }
 
             .thumb {
@@ -321,8 +327,7 @@
 .media-tool {
     .input-group {
         width: 100%;
-
-        flex-direction: column;
+        // flex-direction: column;
 
         @include breakpoint(md) {
             flex-direction: row;

@@ -14,6 +14,7 @@ import Reactium, {
     useEventHandle,
     useHookComponent,
     useStore,
+    useAsyncEffect,
 } from 'reactium-core/sdk';
 
 const Upload = forwardRef((props, ref) => {
@@ -27,6 +28,7 @@ const Upload = forwardRef((props, ref) => {
         isActive,
         back,
         nav,
+        onCloseSelect,
     } = props.handle;
 
     const Uploads = useHookComponent('MediaUploads');
@@ -155,12 +157,15 @@ const Upload = forwardRef((props, ref) => {
     }, [state.directory]);
 
     // upload pending files
-    useEffect(() => {
-        if (!getState('directory')) return;
-        if (!getState('pending')) return;
-        add(Reactium.Media.upload(state.pending, state.directory));
-        setState('pending', null);
-    }, [state.directory]);
+    useAsyncEffect(
+        async isMounted => {
+            if (!getState('directory')) return;
+            if (!getState('pending')) return;
+            add(Reactium.Media.upload(state.pending, state.directory));
+            if (isMounted()) setState('pending', null);
+        },
+        [state.directory],
+    );
 
     // uploads subscription
     useEffect(() => {
@@ -215,7 +220,9 @@ const Upload = forwardRef((props, ref) => {
                 </div>
             </div>
             <span className='back-btn'>
-                <Button color={Button.ENUMS.COLOR.CLEAR} onClick={back}>
+                <Button
+                    color={Button.ENUMS.COLOR.CLEAR}
+                    onClick={onCloseSelect}>
                     <Icon name='Feather.X' />
                 </Button>
             </span>
