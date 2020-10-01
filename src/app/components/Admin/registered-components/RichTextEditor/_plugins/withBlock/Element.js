@@ -83,6 +83,8 @@ const Element = ({ children, ...props }) => {
     const _cancel = () => setState({ confirm: false });
 
     const _delete = confirmed => {
+        Transforms.collapse(editor, { edge: 'end' });
+
         const { node, selection } = getNode();
 
         if (node && !isEmpty(node) && confirmed !== true) {
@@ -102,8 +104,10 @@ const Element = ({ children, ...props }) => {
         }
 
         if (node && selection.length > 0) {
-            Transforms.removeNodes(editor, { at: selection });
+            Transforms.delete(editor, { at: selection });
         }
+
+        console.log(editor.children);
     };
 
     const getNode = () => {

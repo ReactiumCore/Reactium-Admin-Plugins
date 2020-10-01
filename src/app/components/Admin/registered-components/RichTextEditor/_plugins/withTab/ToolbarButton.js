@@ -7,12 +7,21 @@ export default props => {
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
-    const insertNode = () => {
+    const insertNode = e => {
+        e.preventDefault();
+
         const id = uuid();
         const node = {
+            blockID: `block-${id}`,
+            blocked: true,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+            content: [
+                {
+                    children: [{ type: 'p', children: [{ text: '' }] }],
+                    type: 'empty',
+                },
+            ],
             id,
-            children: [{ text: '' }],
-            content: [{ children: [{ text: '' }], type: 'empty' }],
             tabs: ['Tab 1'],
             type: 'tabs',
             vertical: false,
@@ -27,7 +36,7 @@ export default props => {
             data-tooltip={__('Add Tabs')}
             data-vertical-align='middle'
             data-align='right'
-            onClick={insertNode}
+            onClick={e => insertNode(e)}
             {...props}>
             <Icon
                 {...Reactium.RTE.ENUMS.PROPS.ICON}

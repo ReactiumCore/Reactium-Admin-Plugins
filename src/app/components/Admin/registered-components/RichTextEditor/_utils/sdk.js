@@ -5,7 +5,7 @@ import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
-import { Editor, Node, Transforms } from 'slate';
+import { Editor, Node, Path, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
 // TODO: Convert to Reactium.Utils.registryFactory
@@ -288,10 +288,7 @@ class RTE {
 
         const isEmpty = parent ? Editor.isEmpty(editor, parent.node) : false;
         const block = isEmpty ? this.getBlock(editor, parent.path) : null;
-
-        if (block && block.empty) {
-            Transforms.unwrapNodes(editor, { at: block.path });
-        }
+        const path = block ? block.path : parent.path;
 
         const node = {
             blocked: true,
@@ -306,13 +303,11 @@ class RTE {
             type: 'block',
         };
 
-        editor.insertNode(node);
-
         if (isEmpty) {
-            Transforms.removeNodes(editor, {
-                at: block ? block.path : parent.path,
-            });
+            Transforms.delete(editor, { at: path });
         }
+
+        Transforms.insertNodes(editor, node, { at: path });
     }
 }
 
