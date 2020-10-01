@@ -4,7 +4,6 @@ import uuid from 'uuid/v4';
 import SDK from '../../sdk';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { Transforms } from 'slate';
 import Attributes from './Attributes';
 import React, { useEffect } from 'react';
 
@@ -215,28 +214,18 @@ let Panel = ({ editor, namespace, title, ...props }) => {
     const insertNode = ({ children = [], ...block }) => {
         Reactium.Hook.runSync('block-insert', block);
 
+        const id = uuid();
+
         const node = {
-            ID: uuid(),
+            ID: id,
             block,
             children,
             type: 'component',
         };
 
-        const blockNode = {
-            type: 'block',
-            blocked: true,
-            id: `block-${uuid()}`,
-            children: [
-                {
-                    type: 'div',
-                    children: [node],
-                },
-            ],
-        };
+        Reactium.Hook.runSync('block-node', node);
 
-        Reactium.Hook.runSync('block-node', blockNode);
-
-        Transforms.insertNodes(editor, blockNode, { at: state.selection });
+        Reactium.RTE.insertBlock(editor, node, { id });
     };
 
     const listeners = () => {

@@ -3,7 +3,7 @@ import op from 'object-path';
 import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
 import React, { useEffect } from 'react';
-import {
+import Reactium, {
     __,
     useDerivedState,
     useHandle,
@@ -83,9 +83,19 @@ export default ({ children, ...props }) => {
         loadImage(props.src);
     }, [props.src]);
 
+    useEffect(() => {
+        const cid = Reactium.Zone.addComponent({
+            component: () => <Actions {...props} />,
+            zone: `${props.blockID}-toolbar`,
+        });
+
+        return () => {
+            Reactium.Zone.removeComponent(cid);
+        };
+    }, []);
+
     return (
         <div contentEditable={false} className='ar-rte-image'>
-            {children}
             {isStatus(COMPLETE) ? (
                 <img
                     src={state.src}
@@ -97,5 +107,15 @@ export default ({ children, ...props }) => {
                 <Spinner className='flex flex-center' />
             )}
         </div>
+    );
+};
+
+const Actions = props => {
+    const editor = useEditor();
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+    return (
+        <Button color={Button.ENUMS.COLOR.TERTIARY}>
+            <Icon name='Feather.Settings' size={14} />
+        </Button>
     );
 };

@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import { useEditor } from 'slate-react';
+import { ReactEditor, useEditor } from 'slate-react';
 import { Editor, Node, Path, Transforms } from 'slate';
 
 import Reactium, {
@@ -12,6 +12,7 @@ import Reactium, {
     useEventHandle,
     useHookComponent,
     useRefs,
+    Zone,
 } from 'reactium-core/sdk';
 
 const Element = ({ children, ...props }) => {
@@ -49,24 +50,34 @@ const Element = ({ children, ...props }) => {
             React.cloneElement(element, { block: handle }),
         );
 
-    const _add = inc => {
-        const { selection } = getNode();
+    const _add = above => {
+        let { selection } = getNode();
+        selection = Array.from(selection);
 
-        let path = Array.from(selection);
-        path = inc < 0 ? path : Path.next(path);
+        const path = above ? selection : Path.next(selection);
 
         Transforms.insertNodes(
             editor,
             {
-                type: 'block',
                 className: 'full',
+                blocked: true,
                 id: `block-${uuid()}`,
-                children: [{ type: 'p', children: [{ text: '' }] }],
+                type: 'block',
+                children: [
+                    {
+                        type: 'div',
+                        children: [{ type: 'p', children: [{ text: '' }] }],
+                    },
+                ],
             },
             {
                 at: path,
             },
         );
+
+        Transforms.select(editor, path);
+        Transforms.collapse(editor, { edge: 'end' });
+        ReactEditor.focus(editor);
     };
 
     const _cancel = () => setState({ confirm: false });
@@ -77,6 +88,17 @@ const Element = ({ children, ...props }) => {
         if (node && !isEmpty(node) && confirmed !== true) {
             setState({ confirm: true });
             return;
+        }
+
+        if (selection.length === 1 && editor.children.length === 1) {
+            Transforms.insertNodes(
+                editor,
+                {
+                    type: 'div',
+                    children: [{ type: 'p', text: '' }],
+                },
+                { at: Path.next(selection) },
+            );
         }
 
         if (node && selection.length > 0) {
@@ -129,6 +151,7 @@ const Element = ({ children, ...props }) => {
         state,
         type,
         unMounted,
+        zone: `${id}-toolbar`,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
@@ -142,11 +165,12 @@ const Element = ({ children, ...props }) => {
             <div contentEditable={false} style={{ userSelect: 'none' }}>
                 {!state.confirm && (
                     <div className={cx('actions')}>
+                        <Zone zone={handle.zone} />
                         {deletable && (
                             <Button
                                 color={Button.ENUMS.COLOR.DANGER}
                                 onClick={() => _delete()}>
-                                <Icon name='Feather.X' />
+                                <Icon name='Feather.X' size={16} />
                             </Button>
                         )}
                     </div>
@@ -182,7 +206,7 @@ const Element = ({ children, ...props }) => {
                     <div className='add before'>
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}
-                            onClick={() => _add(-1)}>
+                            onClick={() => _add(true)}>
                             <Icon name='Feather.Plus' />
                         </Button>
                     </div>
@@ -191,7 +215,7 @@ const Element = ({ children, ...props }) => {
                     <div className='add after'>
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}
-                            onClick={() => _add(1)}>
+                            onClick={() => _add()}>
                             <Icon name='Feather.Plus' />
                         </Button>
                     </div>

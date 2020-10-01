@@ -69,7 +69,7 @@ $rte-block-ns: block !default;
             }
 
             &.row {
-                > .block-content {
+                > .block-content > div {
                     @extend .row;
 
                     > .block {
@@ -100,17 +100,12 @@ $rte-block-ns: block !default;
             opacity: 0;
             transition: opacity .2s ease-in-out;
 
-            button {
+            > button {
                 padding: 0;
                 width: 20px;
                 height: 20px;
                 margin-left: 4px;
                 flex-shrink: 0;
-
-                svg {
-                    width: 16px;
-                    height: 16px;
-                }
             }
         }
 

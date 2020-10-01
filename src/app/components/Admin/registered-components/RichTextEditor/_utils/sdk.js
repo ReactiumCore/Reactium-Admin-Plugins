@@ -1,10 +1,11 @@
+import uuid from 'uuid/v4';
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
-import { Editor, Node } from 'slate';
+import { Editor, Node, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
 // TODO: Convert to Reactium.Utils.registryFactory
@@ -190,7 +191,7 @@ class RTE {
             : String(text).length < 1;
     }
 
-    getNode({ editor, path }) {
+    getNode(editor, path) {
         path = path || editor.selection.anchor.path;
 
         let root = path.length === 1;
@@ -247,6 +248,71 @@ class RTE {
 
     after(editor, path) {
         return this.sibling(editor, path, 1);
+    }
+
+    getBlock(editor, path) {
+        const nodes = Array.from(
+            Node.ancestors(editor, path, { reverse: true }),
+        );
+        const blocks = nodes.filter(([node]) => {
+            if (Editor.isEditor(node)) return false;
+            return op.get(node, 'type') === 'block';
+        });
+
+        let block = _.first(blocks);
+        block = block ? _.object(['node', 'path'], block) : null;
+
+        if (block) {
+            op.set(block, 'empty', String(Node.string(block.node)).length < 1);
+        }
+
+        return block;
+    }
+
+    insertBlock(editor, children, options = {}) {
+        children = Array.isArray(children) ? children : [children];
+
+        let { at, id, edge, ...props } = options;
+        edge = edge || 'end';
+        id = id || `block-${uuid()}`;
+
+        const args = [editor];
+        if (at) {
+            args.push({ at });
+        }
+
+        Transforms.collapse(editor, { edge });
+
+        let parent = Editor.above(...args) || Editor.node(...args);
+        parent = parent ? _.object(['node', 'path'], parent) : null;
+
+        const isEmpty = parent ? Editor.isEmpty(editor, parent.node) : false;
+        const block = isEmpty ? this.getBlock(editor, parent.path) : null;
+
+        if (block && block.empty) {
+            Transforms.unwrapNodes(editor, { at: block.path });
+        }
+
+        const node = {
+            blocked: true,
+            ...props,
+            children: [
+                {
+                    type: 'div',
+                    children,
+                },
+            ],
+            id,
+            type: 'block',
+        };
+
+        editor.insertNode(node);
+
+        if (isEmpty) {
+            Transforms.removeNodes(editor, {
+                at: block ? block.path : parent.path,
+            });
+        }
     }
 }
 

@@ -25,37 +25,32 @@ export default props => {
     };
 
     const insertNode = (url, objectId) => {
+        const id = uuid();
         const node = {
-            type: 'block',
-            id: `block-${uuid()}`,
+            blockID: `block-${id}`,
             blocked: true,
-            children: [
-                {
-                    type: 'image',
-                    src: url,
-                    blocked: true,
-                    objectId,
-                    id: uuid(),
-                    ext: url.split('.').pop(),
-                    children: [{ text: '' }],
-                },
-            ],
+            children: [{ text: '' }],
+            ext: url.split('.').pop(),
+            id: id,
+            objectId,
+            src: url,
+            type: 'image',
         };
-        editor.insertNode(node);
+
+        Reactium.RTE.insertBlock(editor, node, { id });
     };
 
-    const showPicker = () => {
+    const showPicker = () =>
         Modal.show(
             <MediaPicker
                 confirm={false}
                 dismissable
                 filters='IMAGE'
-                onSubmit={_onMediaSelect}
                 onDismiss={() => Modal.hide()}
+                onSubmit={_onMediaSelect}
                 title={__('Select Image')}
             />,
         );
-    };
 
     return (
         <Button

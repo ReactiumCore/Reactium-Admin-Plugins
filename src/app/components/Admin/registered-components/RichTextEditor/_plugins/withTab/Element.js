@@ -12,7 +12,7 @@ import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 const Element = props => {
     const refs = useRefs();
     const editor = useEditor();
-    const node = op.get(props, 'children.props.node');
+    let node = op.get(props, 'children.props.node');
 
     const cx = Reactium.Utils.cxFactory('rte-tabs');
 

@@ -49,46 +49,35 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
     const insertNode = e => {
         if (e) e.preventDefault();
 
-        Transforms.select(editor, state.selection.anchor.path);
-
+        const id = uuid();
         const { columns = [] } = state;
-
-        const node = {
-            type: 'block',
-            className: 'row',
+        const nodes = columns.map((col, i) => ({
+            addAfter: false,
+            addBefore: false,
             blocked: true,
-            id: `block-${uuid()}`,
+            children: [
+                {
+                    type: 'div',
+                    data: { column: col },
+                    children: [{ text: '' }],
+                },
+            ],
+            className: Object.entries(col)
+                .map(([size, val]) => `col-${size}-${val}`)
+                .join(' '),
+            column: col,
+            deletable: false,
+            id: `block-${id}-${i}`,
+            type: 'block',
+        }));
+
+        Transforms.select(editor, state.selection.anchor.path);
+        Reactium.RTE.insertBlock(editor, nodes, {
+            id,
+            className: 'row',
             row: columns,
-            children: columns.map(col => ({
-                addAfter: false,
-                addBefore: false,
-                blocked: true,
-                children: [
-                    {
-                        type: 'div',
-                        data: { column: col },
-                        children: [{ text: '' }],
-                    },
-                ],
-                className: Object.entries(col)
-                    .map(([size, val]) => `col-${size}-${val}`)
-                    .join(' '),
-                column: col,
-                deletable: false,
-                id: `block-${uuid()}`,
-                type: 'block',
-            })),
-        };
+        });
 
-        let next = Path.next(state.selection.anchor.path);
-
-        let parent = Editor.above(editor);
-        if (parent) {
-            parent = _.object(['node', 'path'], parent);
-            next = Path.next(parent.path);
-        }
-
-        Transforms.insertNodes(editor, node, { at: next });
         hide();
     };
 

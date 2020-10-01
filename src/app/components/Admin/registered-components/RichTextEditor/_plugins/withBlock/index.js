@@ -36,10 +36,11 @@ Plugin.callback = editor => {
         callback: ({ editor, event }) => {
             const offset = editor.selection.anchor.offset;
             const path = Array.from(editor.selection.anchor.path);
-            const node = Reactium.RTE.getNode({ editor, path });
-            const parent = Reactium.RTE.getNode({ editor, path: node.path });
+            const node = Reactium.RTE.getNode(editor, path);
+            const parent = Reactium.RTE.getNode(editor, node.path);
+            const block = Reactium.RTE.getBlock(editor, node.path);
 
-            let canDelete = offset !== 0;
+            let canDelete = !offset ? false : offset !== 0;
 
             // Check parent container's blocked status
             if (offset === 0 && node.empty && !parent.blocked) {
@@ -64,6 +65,10 @@ Plugin.callback = editor => {
                 isColumn(editor, node.path) &&
                 op.get(parent.node, 'children', []).length < 2
             ) {
+                canDelete = false;
+            }
+
+            if (block && block.empty && block.node.blocked) {
                 canDelete = false;
             }
 

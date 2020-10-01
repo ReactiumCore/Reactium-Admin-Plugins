@@ -50,7 +50,7 @@ const TabContent = props => {
         </div>
     ) : (
         <div className={cx()}>
-            {props.children}
+            <div style={{ pointerEvents: 'none' }}>{props.children}</div>
             <div className='blocker' />
             <Button
                 size='md'

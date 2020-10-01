@@ -5,6 +5,10 @@
         width: 100%;
         overflow: hidden;
 
+        [data-slate-node] {
+            display: none;
+        }
+        
         [data-slate-spacer] {
             display: none;
         }

@@ -281,9 +281,8 @@
         .blocker {
             top: 0;
             left: 0;
-            width: calc(100% + 40px);
-            height: calc(100% + 40px);
-            margin: -20px;
+            width: 100%;
+            height: 100%;
             position: absolute;
             z-index: 45;
             opacity: 0;
