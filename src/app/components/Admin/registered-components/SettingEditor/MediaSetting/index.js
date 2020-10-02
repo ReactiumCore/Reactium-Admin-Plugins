@@ -1,36 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useHookComponent, useHandle, __ } from 'reactium-core/sdk';
 import op from 'object-path';
 
 const noop = () => {};
-const MediaSetting = ({ config = {} }) => {
-    const MediaPicker = useHookComponent('MediaPicker');
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
-    const Modal = op.get(tools, 'Modal');
-    const pickerOptions = op.get(config, 'pickerOptions', {
-        maxSelect: 1,
-        filter: 'IMAGE',
-        title: __('Select Media'),
-    });
+const MediaSetting = ({ formRef, helpText = '', config = {} }) => {
+    const mediaToolRef = useRef();
+    const MediaTool = useHookComponent('MediaTool');
+    const defaultPickerOptions = op.get(
+        MediaTool,
+        'ENUMS.defaultPickerOptions',
+        {},
+    );
+    const directory = op.get(config, 'directory', 'uploads') || 'uploads';
+    const pickerOptions = op.get(config, 'pickerOptions', defaultPickerOptions);
 
-    const showPicker = () => {
-        Modal.show(
-            <MediaPicker
-                confirm={true}
-                dismissable
-                onSubmit={noop}
-                onDismiss={() => Modal.hide()}
-                {...pickerOptions}
-            />,
-        );
+    const onSelected = e => {
+        const values = e.values;
+        const target = e.target;
+        const selection = target.selection(values);
+
+        console.log({ values, selection, target, formRef });
     };
 
     useEffect(() => {
-        showPicker();
-    });
+        let cleanup = [];
 
-    return 'MediaPicker';
+        // mediaTool listeners
+        if (mediaToolRef.current) {
+            mediaToolRef.current.addEventListener('media-selected', onSelected);
+            cleanup.push(() =>
+                mediaToolRef.current.removeEventListener(
+                    'media-selected',
+                    onSelected,
+                ),
+            );
+        }
+
+        return () => cleanup.forEach(cb => cb());
+    }, [mediaToolRef.current]);
+
+    return (
+        <div className={'form-group'}>
+            <label>
+                <span data-tooltip={config.tooltip} data-align='left'>
+                    {config.label}
+                </span>
+
+                <MediaTool
+                    ref={mediaToolRef}
+                    pickerOptions={pickerOptions}
+                    directory={directory}
+                    value={[]}
+                />
+
+                <small>{helpText}</small>
+            </label>
+        </div>
+    );
 };
 
 export default MediaSetting;

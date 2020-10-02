@@ -157,6 +157,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                             formRef={formRef}
                             key={key}
                             config={config}
+                            helpText={helpText}
                         />
                     );
                 }
@@ -262,6 +263,15 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     },
                     ...classNames,
                 )}>
+                <Button
+                    disabled={!canSet}
+                    className={'mb-20'}
+                    color={Button.ENUMS.COLOR.PRIMARY}
+                    size={Button.ENUMS.SIZE.MD}
+                    type='submit'>
+                    {__('Save Settings')}
+                </Button>
+
                 {Object.entries(inputs).map(([key, config]) =>
                     renderInput(key, config),
                 )}

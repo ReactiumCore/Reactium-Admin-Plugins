@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-
+import op from 'object-path';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import ENUMS from '../../enums';
 
 const Library = ({ handle, ...props }) => {
     const {
@@ -9,12 +10,16 @@ const Library = ({ handle, ...props }) => {
         cx,
         isActive,
         back,
-        max,
         refs,
         type,
         onCloseSelect,
+        pickerOptions: po = {},
     } = handle;
-    console.log({ add, handle });
+    const max = op.get(pickerOptions, 'max', 1);
+    const pickerOptions = {
+        ...ENUMS.defaultPickerOptions,
+        ...po,
+    };
 
     const MediaPicker = useHookComponent('MediaPicker');
 
@@ -55,18 +60,17 @@ const Library = ({ handle, ...props }) => {
             <div className={cx('library')}>
                 {ready ? (
                     <MediaPicker
-                        confirm={max !== 1}
                         data={Reactium.Cache.get('editor.media')}
                         debug={false}
                         delayFetch={1000}
                         dismissable
-                        filters={type}
-                        maxSelect={max}
                         onLoad={_onLoad}
                         onSubmit={_onSubmit}
                         onDismiss={_onDismiss}
                         ref={elm => refs.set('library.picker', elm)}
                         title={__('Media Library')}
+                        {...pickerOptions}
+                        confirm={!!op.get(pickerOptions, 'confirm', max !== 1)}
                     />
                 ) : null}
             </div>

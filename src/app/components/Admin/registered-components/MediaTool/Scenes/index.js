@@ -33,10 +33,8 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
         directories,
         setDirectories,
         onCloseSelect,
+        pickerOptions,
     } = props;
-
-    let type = op.get(props, 'type', ['all']);
-    type = Array.isArray(op.get(props, 'type', ['all'])) ? type : [type];
 
     const [active, setActive, isActive] = useStatus(SCENES.upload);
 
@@ -100,10 +98,10 @@ const MediaToolScenes = forwardRef((props, scenesRef) => {
         setActive,
         setDirectories,
         setSelection,
-        type,
         value,
         onFileAdded,
         onCloseSelect,
+        pickerOptions,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());

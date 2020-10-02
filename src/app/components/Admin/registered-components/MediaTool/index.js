@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    forwardRef,
+    useState,
+    useEffect,
+    useImperativeHandle,
+} from 'react';
 import Reactium, {
     __,
     useHandle,
     useRefs,
     useHookComponent,
+    useEventHandle,
+    ComponentEvent,
 } from 'reactium-core/sdk';
 import MediaToolScenes, { SCENES } from './Scenes';
 import useDirectoryState from './useDirectoryState';
@@ -12,30 +19,31 @@ import _ from 'underscore';
 
 import Action from './Action';
 import Thumb from './Thumb';
+import ENUMS from './enums';
 
-// Notes:
-// 1. Stand alone preview for one or more media items or action
-// 2. Picker / Uploader
-const aNoop = async () => {};
-const MediaTool = props => {
-    console.log({ props });
-    const { max, value: propValue } = props;
+export { ENUMS };
 
+const MediaTool = forwardRef((props, mediaToolRef) => {
+    const { value: propValue, pickerOptions } = props;
+    const max = op.get(pickerOptions, 'maxSelect', 1);
     const refs = useRefs();
     const tools = useHandle('AdminTools');
-    const { Dropzone, Scene } = useHookComponent('ReactiumUI');
+    const { Dropzone } = useHookComponent('ReactiumUI');
 
     const Modal = op.get(tools, 'Modal');
     const [value, _setSelection] = useState(propValue || []);
-    const [directories, setDirectories] = useDirectoryState();
-    const cx = Reactium.Utils.cxFactory('media-tool');
-
-    const setSelection = value => {
-        console.log('setSelection', { value }, new Error().stack);
-        _setSelection(value);
+    const setSelection = values => {
+        _setSelection(values);
+        const evt = new ComponentEvent('media-selected', {
+            values,
+            type: 'media-selected',
+        });
+        mediaToolRef.current.dispatchEvent(evt);
     };
 
-    const selection = () => _.reject(value, { delete: true });
+    const [directories, setDirectories] = useDirectoryState();
+    const cx = Reactium.Utils.cxFactory('media-tool');
+    const selection = values => _.reject(values || value, { delete: true });
 
     const add = (items = []) => {
         items = Array.isArray(items) ? items : [items];
@@ -51,14 +59,8 @@ const MediaTool = props => {
         items.forEach(item => values.push(item));
 
         // update the selection
-        console.log('add', { values });
         setSelection(values);
-
-        // show thumbs
-        // _.defer(() => nav('thumb', 'left'));
     };
-
-    console.log({ value });
 
     const remove = async objectId => {
         const values = Array.from(value);
@@ -66,10 +68,6 @@ const MediaTool = props => {
         values.forEach(item => {
             if (item.objectId === objectId) op.set(item, 'delete', true);
         });
-
-        // TODO: switch between thumb and action naturally
-        // const count = _.reject(values, { delete: true }).length;
-        // if (max === 1 || count < 1) await nav('action', 'right');
 
         setSelection(values);
     };
@@ -114,23 +112,24 @@ const MediaTool = props => {
     const _handle = () => ({
         max,
         add,
-        // active,
-        // back,
-        // browseFiles,
         cx,
         directories,
-        // isActive,
         nav,
         refs,
         remove,
         removeAll,
-        // setActive,
         setDirectories,
         setSelection,
-        // type,
         value,
-        // onFileAdded,
+        selection,
+        pickerOptions,
     });
+
+    const [handle, setHandle] = useEventHandle(_handle());
+    useImperativeHandle(mediaToolRef, () => handle, [handle]);
+    useEffect(() => {
+        setHandle(_handle());
+    }, [value]);
 
     const openScenes = async () => {
         let scenes = refs.get('scenes');
@@ -167,7 +166,7 @@ const MediaTool = props => {
         if (!Modal) return null;
 
         return (
-            <div className={cx('value')}>
+            <div className={cx('value', { empty: selection().length < 1 })}>
                 <Dropzone
                     ref={dz => refs.set('root-dropzone', dz)}
                     files={{}}
@@ -183,6 +182,8 @@ const MediaTool = props => {
     };
 
     return render();
-};
+});
+
+MediaTool.ENUMS = ENUMS;
 
 export default MediaTool;

@@ -14,7 +14,7 @@ export default {
                     pickerOptions: {
                         title: __('Pick Logo'),
                         maxSelect: 1,
-                        filter: 'IMAGE',
+                        filters: ['IMAGE'],
                     },
                 },
 
