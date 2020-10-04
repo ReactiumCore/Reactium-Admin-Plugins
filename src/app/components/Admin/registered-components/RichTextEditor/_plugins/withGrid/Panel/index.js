@@ -122,7 +122,7 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
     };
 
     const hide = () => {
-        editor.panel.hide(true).setID('rte-panel');
+        editor.panel.hide(true, true).setID('rte-panel');
         ReactEditor.focus(editor);
     };
 

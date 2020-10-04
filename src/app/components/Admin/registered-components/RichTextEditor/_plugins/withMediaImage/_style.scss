@@ -1,6 +1,5 @@
 .ar-rte {
-    &-image
-    &-video {
+    &-image &-video {
         margin: 0;
         width: 100%;
         overflow: hidden;
@@ -8,7 +7,7 @@
         [data-slate-node] {
             display: none;
         }
-        
+
         [data-slate-spacer] {
             display: none;
         }
@@ -29,6 +28,21 @@
             padding: 4px;
             max-width: 100%;
             outline: none;
+        }
+    }
+}
+
+#rte-image-settings {
+    width: 80vw;
+
+    @include breakpoint(sm) {
+        max-width: 400px;
+        min-width: 300px;
+    }
+
+    .ar-settings-dialog {
+        > .ar-dialog-content {
+            height: calc(100vh - 60px);
         }
     }
 }

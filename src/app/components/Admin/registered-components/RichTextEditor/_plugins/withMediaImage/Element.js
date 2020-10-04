@@ -1,10 +1,13 @@
 import _ from 'underscore';
 import op from 'object-path';
+import Settings from './Settings';
 import { useEditor } from 'slate-react';
-import { Editor, Transforms } from 'slate';
 import React, { useEffect } from 'react';
+import { Editor, Transforms } from 'slate';
+
 import Reactium, {
     __,
+    useAsyncEffect,
     useDerivedState,
     useHandle,
     useHookComponent,
@@ -15,6 +18,33 @@ const INIT = 'INIT';
 const LOADING = 'LOADING';
 const COMPLETE = 'COMPLETE';
 
+const getImageProps = props => {
+    const { imageProps = {} } = props;
+    let allowed = [
+        'alt',
+        'className',
+        'crossorigin',
+        'style',
+        'width',
+        'height',
+    ];
+
+    Reactium.Hook.runSync('rte-image-props-allowed', allowed);
+
+    const output = allowed.reduce((obj, key) => {
+        const val = op.get(imageProps, key);
+
+        if (val && allowed.includes(key)) {
+            op.set(obj, key, val);
+        }
+        return obj;
+    }, {});
+
+    Reactium.Hook.runSync('rte-image-props', output);
+
+    return output;
+};
+
 export default ({ children, ...props }) => {
     const editor = useEditor();
     const tools = useHandle('AdminTools');
@@ -24,7 +54,10 @@ export default ({ children, ...props }) => {
 
     const [, setStatus, isStatus] = useStatus(INIT);
 
-    const [state, setState] = useDerivedState({ src: null });
+    const [state, setState] = useDerivedState({
+        src: null,
+        imageProps: getImageProps(props),
+    });
 
     const showPicker = () => {
         const Modal = op.get(tools, 'Modal');
@@ -84,38 +117,35 @@ export default ({ children, ...props }) => {
     }, [props.src]);
 
     useEffect(() => {
-        const cid = Reactium.Zone.addComponent({
-            component: () => <Actions {...props} />,
+        setState({ imageProps: getImageProps(props) });
+    }, [props.imageProps]);
+
+    useAsyncEffect(async () => {
+        const zid = await Reactium.Zone.addComponent({
+            component: () => (
+                <Settings {...props} imageProps={getImageProps(props)} />
+            ),
             zone: `${props.blockID}-toolbar`,
         });
 
         return () => {
-            Reactium.Zone.removeComponent(cid);
+            Reactium.Zone.removeComponent(zid);
         };
-    }, []);
+    }, [props]);
 
     return (
         <div contentEditable={false} className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
                 <img
+                    {...state.imageProps}
                     src={state.src}
                     contentEditable={false}
                     onClick={showPicker}
-                    style={{ userSelect: 'none' }}
                 />
             ) : (
                 <Spinner className='flex flex-center' />
             )}
+            <div className='hide'>{children}</div>
         </div>
-    );
-};
-
-const Actions = props => {
-    const editor = useEditor();
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-    return (
-        <Button color={Button.ENUMS.COLOR.TERTIARY}>
-            <Icon name='Feather.Settings' size={14} />
-        </Button>
     );
 };

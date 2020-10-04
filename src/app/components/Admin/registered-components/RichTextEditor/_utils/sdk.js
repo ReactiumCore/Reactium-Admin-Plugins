@@ -5,7 +5,7 @@ import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
-import { Editor, Node, Path, Transforms } from 'slate';
+import { Editor, Node, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
 // TODO: Convert to Reactium.Utils.registryFactory
@@ -191,17 +191,35 @@ class RTE {
             : String(text).length < 1;
     }
 
+    getNodeByID(editor, id) {
+        const nodes = Editor.nodes(editor, {
+            at: [],
+            match: node => op.get(node, 'id') === id,
+        });
+        let node = _.first(Array.from(nodes));
+        return node ? _.object(['node', 'path'], node) : { node: {}, path: [] };
+    }
+
     getNode(editor, path) {
-        path = path || editor.selection.anchor.path;
+        let node, p, root;
 
-        let root = path.length === 1;
-        let p = Array.from(path);
-        p = root === true ? [Math.max(Number(_.first(p) - 1), 0), 0] : p;
+        if (_.isString(path)) {
+            const n = this.getNodeByID(editor, path);
+            node = op.get(n, 'node');
+            p = op.get(n, 'path');
+            root = p.length === 1;
+        } else {
+            path = path || editor.selection.anchor.path;
 
-        const result = Editor.above(editor, { at: p });
+            root = path.length === 1;
+            p = Array.from(path);
+            p = root === true ? [Math.max(Number(_.first(p) - 1), 0), 0] : p;
 
-        p = result.pop();
-        const node = result.pop();
+            const result = Editor.above(editor, { at: p });
+
+            p = result.pop();
+            node = result.pop();
+        }
         const empty = this.isEmpty(node);
         return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
     }
@@ -274,7 +292,8 @@ class RTE {
 
         let { at, id, edge, ...props } = options;
         edge = edge || 'end';
-        id = id || `block-${uuid()}`;
+        id = id || uuid();
+        id = String(id).startsWith('block-') ? id : `block-${id}`;
 
         const args = [editor];
         if (at) {

@@ -1,6 +1,5 @@
 import React from 'react';
 import uuid from 'uuid/v4';
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import { ReactEditor, useEditor } from 'slate-react';
@@ -106,8 +105,6 @@ const Element = ({ children, ...props }) => {
         if (node && selection.length > 0) {
             Transforms.delete(editor, { at: selection });
         }
-
-        console.log(editor.children);
     };
 
     const getNode = () => {
@@ -172,7 +169,7 @@ const Element = ({ children, ...props }) => {
                         <Zone zone={handle.zone} />
                         {deletable && (
                             <Button
-                                color={Button.ENUMS.COLOR.DANGER}
+                                color={Button.ENUMS.COLOR.SECONDARY}
                                 onClick={() => _delete()}>
                                 <Icon name='Feather.X' size={16} />
                             </Button>

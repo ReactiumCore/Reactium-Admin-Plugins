@@ -230,9 +230,15 @@ $height-min-arp: 500px !default;
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid $color-arp-border;
+    width: 100%;
+
+    .btn-group {
+        width: 100%;
+    }
 
     button {
         opacity: 0.5;
+        flex-grow: 1;
 
         &.active,
         &:active,

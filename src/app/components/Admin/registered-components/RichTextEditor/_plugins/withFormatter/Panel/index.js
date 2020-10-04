@@ -290,8 +290,9 @@ let Panel = ({ selection: initialSelection, ...props }, ref) => {
         setState({ size, textStyle });
     };
 
-    const _onTextAlignClick = e => {
-        const align = e.currentTarget.dataset.align;
+    const _onTextAlignChange = e => {
+        //const align = e.currentTarget.dataset.align;
+        const align = e.target.value;
         setState({ align });
     };
 
@@ -519,9 +520,8 @@ let Panel = ({ selection: initialSelection, ...props }, ref) => {
                         transparent
                     />
                     <TextAlignSelect
-                        align={align}
-                        buttons={buttons}
-                        onClick={_onTextAlignClick}
+                        value={align}
+                        onChange={_onTextAlignChange}
                     />
                     <div className='p-xs-8'>
                         <Button
