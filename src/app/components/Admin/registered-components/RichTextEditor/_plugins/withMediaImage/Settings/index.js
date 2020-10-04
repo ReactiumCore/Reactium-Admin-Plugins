@@ -47,6 +47,7 @@ const Panel = props => {
         BorderSizes,
         BorderStyles,
         MarginStyles,
+        Opacity,
         PaddingStyles,
         Settings,
         Sizing,
@@ -82,12 +83,9 @@ const Panel = props => {
     };
 
     const setAlign = e => {
+        const key = 'float';
         const value = e.currentTarget.dataset.key;
-        const imageProps = JSON.parse(JSON.stringify(state.imageProps));
-        op.set(imageProps.style, 'float', value);
-
-        setState({ imageProps });
-        setValue({ 'style.float': value });
+        updateStyle({ key, value });
     };
 
     const setBorderStyle = e => {
@@ -101,25 +99,22 @@ const Panel = props => {
         i = i === state.borderStyleValues.length ? 0 : i;
 
         const value = state.borderStyleValues[i];
-        const imageProps = JSON.parse(JSON.stringify(state.imageProps));
-        op.set(imageProps.style, key, value);
 
-        setState({ imageProps });
-        setValue({ [`style.${key}`]: value });
+        updateStyle({ key, value });
     };
 
-    const setBorderColor = ({ key, value }) => {
-        const imageProps = JSON.parse(JSON.stringify(state.imageProps));
-        op.set(imageProps.style, key, value);
+    const setBorderColor = ({ key, value }) => updateStyle({ key, value });
 
-        setState({ imageProps });
-        setValue({ [`style.${key}`]: value });
+    const setBackgroundColor = e =>
+        updateStyle({ key: 'backgroundColor', value: e.target.value });
+
+    const setOpacity = e => {
+        const key = 'opacity';
+        const value = e.value / 100;
+        updateStyle({ key, value });
     };
 
-    const setBackgroundColor = e => {
-        const key = 'backgroundColor';
-        const value = e.target.value;
-
+    const updateStyle = ({ key, value }) => {
         const imageProps = JSON.parse(JSON.stringify(state.imageProps));
         op.set(imageProps.style, key, value);
 
@@ -157,10 +152,22 @@ const Panel = props => {
 
             <Dialog
                 className='sub'
-                header={heading(__('Width & Height'))}
+                header={heading(__('Size'))}
                 pref={pref('sizing')}>
                 <div className={cx('row')}>
                     <Sizing />
+                </div>
+            </Dialog>
+
+            <Dialog
+                className='sub'
+                header={heading(__('Opacity'))}
+                pref={pref('opacity')}>
+                <div className={cx('row')}>
+                    <Opacity
+                        styles={state.imageProps.style}
+                        onChange={setOpacity}
+                    />
                 </div>
             </Dialog>
 

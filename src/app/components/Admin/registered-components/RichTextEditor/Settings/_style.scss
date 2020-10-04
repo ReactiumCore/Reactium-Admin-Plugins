@@ -32,6 +32,12 @@
             h2 {
                 padding: 8px 16px !important;
             }
+
+            .ar-dialog-header-btn.toggle {
+                &:focus {
+                    box-shadow: none;
+                }
+            }
         }
 
         .ar-dialog-content {
@@ -296,8 +302,8 @@
 
     .remove,
     .swatch {
-        width: 52.5px;
-        height: 52.5px;
+        width: 23px;
+        height: 23px;
         margin: 12px 0 0 12px;
         user-select: none;
         position: relative;
@@ -328,12 +334,12 @@
 
     .remove {
         overflow: hidden;
-        border: 8px solid $color-danger;
+        border: 2px solid $color-danger;
         border-radius: 100%;
 
         &:hover,
         &.active {
-            border: 8px solid $color-danger;
+            border: 2px solid $color-danger;
             box-shadow: 0 0 0 2px rgba($color-danger, 0.25);
         }
 
@@ -343,7 +349,7 @@
             top: 50%;
             left: 50%;
             width: 200%;
-            height: 8px;
+            height: 2px;
             transform: translate(-50%, -50%) rotate(45deg);
             transform-origin: 50% 50%;
             background-color: $color-danger;
@@ -386,6 +392,11 @@
         border: 1px solid darken($color-grey-light, 1%);
         margin-right: 12px;
 
+        &,
+        * {
+            pointer-events: none;
+        }
+
         &:hover {
             cursor: default;
             box-shadow: none;
@@ -404,20 +415,26 @@
         flex-wrap: nowrap;
         flex-direction: row;
         border-top: 1px solid $color-grey-light;
+        position: relative;
 
         .swatch {
             margin: 0;
-            margin-right: 12px;
-            height: 48px;
+            margin-right: -1px;
             border-radius: 2px;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            position: absolute;
         }
 
         input {
             flex-grow: 1;
             flex-shrink: 1;
             width: auto;
-            height: 48px;
             margin: 0;
+            font-size: 12px;
+            padding: 0 60px 0 8px;
+            height: 32px;
         }
     }
 

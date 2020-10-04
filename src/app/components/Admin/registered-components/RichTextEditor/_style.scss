@@ -125,7 +125,7 @@ input[type='object'] {
         position: absolute;
         overflow: visible;
         height: $ar-height-rte-sidebar;
-        transition: opacity 0.25s ease-in-out;
+        transition: all 0.25s ease-in-out;
         font-family: Courier, serif;
         padding-bottom: 20px;
         z-index: map-get($z-indexes, header) - 1;
@@ -137,7 +137,7 @@ input[type='object'] {
 
             &.collapsed {
                 svg {
-                    transform: rotate(135deg);
+                    transform: rotate(-135deg);
                 }
             }
 
@@ -153,52 +153,49 @@ input[type='object'] {
         }
 
         &-buttons {
-            width: $ar-width-rte-sidebar;
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-bottom: 20px;
-        }
+            max-width: 80vh;
+            margin-left: -5px;
 
-        .btn-group {
-            flex-direction: column;
-            width: 100%;
-            position: relative;
-            margin-top: 20px;
-
-            button {
-                min-width: $ar-width-rte-sidebar;
-                min-height: $ar-width-rte-sidebar;
+            @include breakpoint(sm) {
+                max-width: 480px;
             }
 
-            > * {
-                border-radius: 0;
+            .btn-group {
+                justify-content: flex-start;
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: 100%;
+                position: relative;
+                margin-top: 20px;
+                background-color: $color-gray;
+                border-radius: 4px;
 
-                &:first-child {
-                    border-radius: 2px 2px 0 0;
+                button {
+                    min-width: $ar-width-rte-sidebar;
+                    min-height: $ar-width-rte-sidebar;
+                    flex-grow: 0;
                 }
 
-                &:last-child {
-                    border-radius: 0 0 2px 2px;
+                > * {
+                    border-radius: 0;
                 }
-            }
 
-            &:after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                top: 0;
-                left: 50%;
-                width: 0;
-                height: 0;
-                z-index: 100;
-                transform: translateX(-50%) translateY(-100%);
-                border-radius: 0;
-                border-style: solid;
-                border-width: 0 7px 10px 7px;
-                border-color: transparent transparent $ar-color-rte-toolbar
-                transparent;
+                &:after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    top: 0;
+                    left: 20px;
+                    width: 0;
+                    height: 0;
+                    z-index: 100;
+                    transform: translateX(-50%) translateY(-100%);
+                    border-radius: 0;
+                    border-style: solid;
+                    border-width: 0 7px 10px 7px;
+                    border-color: transparent transparent $ar-color-rte-toolbar
+                    transparent;
+                }
             }
         }
     }

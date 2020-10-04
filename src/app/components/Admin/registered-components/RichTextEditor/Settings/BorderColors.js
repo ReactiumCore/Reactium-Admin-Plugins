@@ -77,6 +77,12 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
         setState({ expanded: false });
     };
 
+    const scrollTo = () => {
+        const collapsible = refs.get('collapsible');
+        if (!collapsible) return;
+        collapsible.container.scrollIntoView();
+    };
+
     const onExpand = () => {
         setState({ expanded: true });
     };
@@ -91,9 +97,9 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
             if (state.expanded) {
                 setState({ active: null });
             }
-            collapsible.toggle();
+            collapsible.toggle().then(scrollTo);
         } else {
-            collapsible.expand();
+            collapsible.expand().then(scrollTo);
             setState({ active });
         }
     };

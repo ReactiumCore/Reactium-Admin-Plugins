@@ -6,6 +6,7 @@ import BorderSizes from './BorderSizes';
 import BorderStyles from './BorderStyles';
 import ColorSelect from './ColorSelect';
 import MarginStyles from './MarginStyles';
+import Opacity from './Opacity';
 import PaddingStyles from './PaddingStyles';
 import Settings from './Settings';
 import Sizing from './Sizing';
@@ -19,6 +20,7 @@ export default {
     BorderStyles,
     ColorSelect,
     MarginStyles,
+    Opacity,
     PaddingStyles,
     Settings,
     Sizing,
