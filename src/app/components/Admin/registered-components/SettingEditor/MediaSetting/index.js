@@ -1,9 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useHookComponent, useHandle, __ } from 'reactium-core/sdk';
 import op from 'object-path';
+import _ from 'underscore';
 
 const noop = () => {};
-const MediaSetting = ({ formRef, helpText = '', config = {} }) => {
+const MediaSetting = ({
+    name,
+    value = [],
+    updateValue,
+    helpText = '',
+    config = {},
+}) => {
     const mediaToolRef = useRef();
     const MediaTool = useHookComponent('MediaTool');
     const defaultPickerOptions = op.get(
@@ -17,9 +24,7 @@ const MediaSetting = ({ formRef, helpText = '', config = {} }) => {
     const onSelected = e => {
         const values = e.values;
         const target = e.target;
-        const selection = target.selection(values);
-
-        console.log({ values, selection, target, formRef });
+        updateValue(target.selection(values));
     };
 
     useEffect(() => {
@@ -39,6 +44,19 @@ const MediaSetting = ({ formRef, helpText = '', config = {} }) => {
         return () => cleanup.forEach(cb => cb());
     }, [mediaToolRef.current]);
 
+    useEffect(() => {
+        if (mediaToolRef.current && Array.isArray(value)) {
+            const tool = mediaToolRef.current;
+            const current = _.pluck(tool.value, 'url').sort();
+            const next = _.pluck(value, 'url').sort();
+            const left = _.difference(current, next);
+            const right = _.difference(next, current);
+            if (!_.isEmpty(left) || !_.isEmpty(right)) {
+                tool.setSelection(value);
+            }
+        }
+    }, [value]);
+
     return (
         <div className={'form-group'}>
             <label>
@@ -50,7 +68,7 @@ const MediaSetting = ({ formRef, helpText = '', config = {} }) => {
                     ref={mediaToolRef}
                     pickerOptions={pickerOptions}
                     directory={directory}
-                    value={[]}
+                    value={value}
                 />
 
                 <small>{helpText}</small>
