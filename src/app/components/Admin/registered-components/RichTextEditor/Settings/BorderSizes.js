@@ -33,11 +33,10 @@ const BorderSizes = ({ styles, ...props }) => {
             <div className='col-xs-12 form-group input-group qt'>
                 {data.map(({ key, input: params }) => (
                     <input
-                        defaultValue={op.get(styles, key, '0')}
+                        defaultValue={op.get(styles, key, '')}
                         key={`bs-${key}`}
                         className='ico'
                         placeholder='0'
-                        type='number'
                         min={0}
                         {...params}
                     />

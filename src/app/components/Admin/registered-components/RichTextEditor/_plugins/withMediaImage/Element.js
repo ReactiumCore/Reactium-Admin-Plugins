@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
-import Settings from './Settings';
+// import Settings from './Settings';
+import Settings from '../withBlock/Settings';
 import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
 import { Editor, Transforms } from 'slate';
@@ -18,21 +19,14 @@ const INIT = 'INIT';
 const LOADING = 'LOADING';
 const COMPLETE = 'COMPLETE';
 
-const getImageProps = props => {
-    const { imageProps = {} } = props;
-    let allowed = [
-        'alt',
-        'className',
-        'crossorigin',
-        'style',
-        'width',
-        'height',
-    ];
+const getNodeProps = props => {
+    const { nodeProps = {} } = props;
+    let allowed = ['alt', 'className', 'crossorigin', 'style'];
 
-    Reactium.Hook.runSync('rte-image-props-allowed', allowed);
+    Reactium.Hook.runSync('rte-node-props-allowed', allowed, props);
 
     const output = allowed.reduce((obj, key) => {
-        const val = op.get(imageProps, key);
+        const val = op.get(nodeProps, key);
 
         if (val && allowed.includes(key)) {
             op.set(obj, key, val);
@@ -40,7 +34,7 @@ const getImageProps = props => {
         return obj;
     }, {});
 
-    Reactium.Hook.runSync('rte-image-props', output);
+    Reactium.Hook.runSync('rte-node-props', output, props);
 
     return output;
 };
@@ -56,7 +50,7 @@ export default ({ children, ...props }) => {
 
     const [state, setState] = useDerivedState({
         src: null,
-        imageProps: getImageProps(props),
+        nodeProps: getNodeProps(props),
     });
 
     const showPicker = () => {
@@ -117,14 +111,19 @@ export default ({ children, ...props }) => {
     }, [props.src]);
 
     useEffect(() => {
-        setState({ imageProps: getImageProps(props) });
-    }, [props.imageProps]);
+        setState({ nodeProps: getNodeProps(props) });
+    }, [props.nodeProps]);
 
     useAsyncEffect(async () => {
         const zid = await Reactium.Zone.addComponent({
             component: () => (
-                <Settings {...props} imageProps={getImageProps(props)} />
+                <Settings
+                    {...props}
+                    nodeProps={getNodeProps(props)}
+                    icon='Feather.Camera'
+                />
             ),
+            order: Reactium.Enums.priority.highest,
             zone: `${props.blockID}-toolbar`,
         });
 
@@ -137,7 +136,7 @@ export default ({ children, ...props }) => {
         <div contentEditable={false} className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
                 <img
-                    {...state.imageProps}
+                    {...state.nodeProps}
                     src={state.src}
                     contentEditable={false}
                     onClick={showPicker}

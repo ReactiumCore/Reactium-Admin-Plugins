@@ -1,15 +1,28 @@
-.rte-settings {
-    width: 80vw;
+#rte-settings {
+    &,
+    .content,
+    .rte-settings {
+        width: 80vw;
+        @include breakpoint(sm) {
+            width: 400px;
+            max-width: 400px;
+        }
+    }
+}
 
-    @include breakpoint(sm) {
-        max-width: 400px;
-        min-width: 300px;
+.rte-settings {
+    input,
+    select,
+    textarea {
+        font-size: 13px;
+        padding: 8px;
     }
 
     .ar-settings-dialog {
         > .ar-dialog-content {
             position: relative;
-            height: 30vh;
+            height: calc(80vh - 60px);
+            //max-height: 1031px;
         }
 
         > .ar-dialog-header {
@@ -110,6 +123,7 @@
         }
 
         .form-group {
+            position: relative;
             margin: 0;
 
             input[type='number'] {
@@ -269,13 +283,13 @@
         button {
             > div {
                 border-top: none;
-                height: 4px;
+                height: 12px;
             }
 
             > small {
-                padding: 2px;
+                padding: 2px 10px;
                 line-height: 1;
-                border-radius: 30px;
+                margin-top: -1px;
             }
 
             &:hover,
@@ -431,10 +445,9 @@
             flex-grow: 1;
             flex-shrink: 1;
             width: auto;
-            margin: 0;
-            font-size: 12px;
-            padding: 0 60px 0 8px;
             height: 32px;
+            margin: 0;
+            padding: 0 60px 0 8px;
         }
     }
 

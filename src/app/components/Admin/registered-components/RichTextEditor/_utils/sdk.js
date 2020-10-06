@@ -196,6 +196,7 @@ class RTE {
             at: [],
             match: node => op.get(node, 'id') === id,
         });
+
         let node = _.first(Array.from(nodes));
         return node ? _.object(['node', 'path'], node) : { node: {}, path: [] };
     }
@@ -220,7 +221,8 @@ class RTE {
             p = result.pop();
             node = result.pop();
         }
-        const empty = this.isEmpty(node);
+
+        const empty = Object.keys(node).length > 0 ? this.isEmpty(node) : true;
         return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
     }
 

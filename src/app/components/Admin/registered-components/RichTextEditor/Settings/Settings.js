@@ -5,7 +5,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { ReactEditor, useEditor } from 'slate-react';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
-import {
+import Reactium, {
     __,
     ComponentEvent,
     useDerivedState,
@@ -60,7 +60,7 @@ let Settings = (initialProps, ref) => {
 
     const [, setReady, isReady] = useStatus(false);
 
-    const [state, update] = useDerivedState({
+    const [state, _update] = useDerivedState({
         ...props,
         excludes: ['id'],
         submitLabel: initialSubmitLabel,
@@ -68,9 +68,17 @@ let Settings = (initialProps, ref) => {
         value: {},
     });
 
+    const update = _.debounce(_update, 250);
+
     const setState = newState =>
         new Promise(resolve => {
             if (unMounted()) return;
+
+            newState = { ...state, ...newState };
+            Object.entries(newState).forEach(([key, value]) => {
+                op.set(state, key, value);
+            });
+
             update(newState);
 
             _.defer(() => resolve());
@@ -83,6 +91,8 @@ let Settings = (initialProps, ref) => {
         Object.entries(newValue).forEach(([key, val]) =>
             op.set(value, key, val),
         );
+
+        if (_.isEqual(state.value, newValue)) return;
 
         setState({ value });
         form.setValue(value);
@@ -136,45 +146,72 @@ let Settings = (initialProps, ref) => {
         };
     };
 
-    const _getValue = newValue => {
-        const value = JSON.parse(JSON.stringify(op.get(state, 'value')));
+    const _getValue = merge => {
+        let value = JSON.parse(JSON.stringify(op.get(state, 'value')));
+        value = { ...value, ...merge };
+
+        const form = refs.get('form');
+
+        const keys = _.compact(
+            Object.entries(form.elements).map(([, elm]) => {
+                try {
+                    return elm.getAttribute('name');
+                } catch (err) {}
+            }),
+        );
+
+        const newValue = keys.reduce((obj, key) => {
+            if (key === 'null') return obj;
+
+            const val = op.get(value, key, null);
+            op.set(obj, key, val);
+            return obj;
+        }, {});
 
         if (_.isObject(newValue)) {
-            Object.entries(newValue).forEach(([key, val]) => {
-                if (!state.excludes.includes(key)) {
-                    op.set(value, key, val);
-                }
+            Object.keys(newValue).forEach(key => {
+                if (state.excludes.includes(key)) op.del(newValue, key);
             });
         }
 
-        return value;
+        Reactium.Hook.runSync('rte-settings-value', newValue);
+
+        return newValue;
     };
 
     const _onChange = e => {
         if (isReady(false)) return;
-        const value = _getValue(e.value);
 
+        const value = _getValue(e.value);
+        const evt = new ComponentEvent('change', { value });
+
+        if (_.isEqual(state.value, value)) return;
+
+        state.value = value;
+        handle.state = state;
         handle.value = value;
-        setState({ value }).then(() => {
-            const evt = new ComponentEvent('change', { ...e, value });
-            handle.dispatchEvent(evt);
-            onChange(evt);
-        });
+
+        handle.dispatchEvent(evt);
+        onChange(evt);
+        setState({ value });
     };
 
-    const _onSubmit = e => {
-        const value = _getValue(e.value);
+    const _onSubmit = ({ value }) => {
+        value = _getValue(value);
+        const evt = new ComponentEvent('submit', { value });
+
+        state.value = value;
+        handle.state = state;
         handle.value = value;
-        setState({ value }).then(() => {
-            const evt = new ComponentEvent('submit', { ...e, value });
-            handle.dispatchEvent(evt);
-            onSubmit(evt);
-        });
+
+        handle.dispatchEvent(evt);
+        onSubmit(evt);
     };
 
     const _handle = () => ({
         hide,
         props,
+        refs,
         setState,
         setValue,
         state,
@@ -270,8 +307,8 @@ Settings.propTypes = {
 Settings.defaultProps = {
     onChange: noop,
     onSubmit: noop,
-    submitLabel: __('Update Settings'),
-    title: __('Settings'),
+    submitLabel: __('Update Properties'),
+    title: __('Property Inspector'),
     value: {},
 };
 

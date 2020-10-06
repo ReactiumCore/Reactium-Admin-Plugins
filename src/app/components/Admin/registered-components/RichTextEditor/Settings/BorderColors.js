@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
@@ -32,7 +33,7 @@ const ColorButton = ({ active, onClick, prop, styles }) => {
             <input type='hidden' name={`style.${prop}`} defaultValue={value} />
             <div style={style} />
             <small>
-                <Icon name='Linear.Drop2' size={12} />
+                <Icon name='Linear.Palette' size={16} />
             </small>
         </Button>
     );
@@ -45,10 +46,17 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
 
     const { ColorSelect } = useHookComponent('RichTextEditorSettings');
 
-    const [state, setState] = useDerivedState({
+    const [state, update] = useDerivedState({
         active: null,
         expanded: false,
+        value: styles,
     });
+
+    const setState = newState =>
+        new Promise(resolve => {
+            update(newState);
+            _.defer(() => resolve({ ...state, ...newState }));
+        });
 
     const extendColors = () => {
         const newColors = colors => {
@@ -104,10 +112,16 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
         }
     };
 
-    const _onChange = e => {
+    const onClick = e => {
         const key = state.active;
-        const value = e.target.value;
-        onChange({ key, value });
+        const val = e.target.value;
+
+        const { value } = state;
+        op.set(value, key, val);
+
+        setState({ value }).then(() =>
+            onChange({ key: Object.keys(value), value }),
+        );
     };
 
     useEffect(extendColors, []);
@@ -135,9 +149,11 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
                     ref={elm => refs.set('collapsible', elm)}>
                     <ColorSelect
                         name={`style.${state.active}`}
-                        onChange={_onChange}
+                        onChange={onClick}
                         value={
-                            state.active ? op.get(styles, state.active) : null
+                            state.active
+                                ? op.get(state.value, state.active)
+                                : null
                         }
                     />
                 </Collapsible>

@@ -2,11 +2,13 @@ import React from 'react';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
+import Settings from './Settings';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Editor, Node, Path, Transforms } from 'slate';
 
 import Reactium, {
     __,
+    useAsyncEffect,
     useDerivedState,
     useEventHandle,
     useHookComponent,
@@ -23,6 +25,7 @@ const Element = ({ children, ...props }) => {
         className,
         deletable = true,
         type = 'block',
+        nodeProps,
     } = op.get(children, 'props.node', {});
 
     const editor = useEditor();
@@ -157,13 +160,27 @@ const Element = ({ children, ...props }) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
+    useAsyncEffect(async () => {
+        const zid = await Reactium.Zone.addComponent({
+            component: () => (
+                <Settings {...props} id={id} nodeProps={nodeProps} />
+            ),
+            order: Reactium.Enums.priority.lowest,
+            zone: `${id}-toolbar`,
+        });
+
+        return () => {
+            Reactium.Zone.removeComponent(zid);
+        };
+    }, [props]);
+
     return (
         <div
             className={cn(cx(), className)}
             ref={elm => refs.set('block.container', elm)}
             type={state.type}
             {...props}>
-            <div contentEditable={false} style={{ userSelect: 'none' }}>
+            <div contentEditable={false}>
                 {!state.confirm && (
                     <div className={cx('actions')}>
                         <Zone zone={handle.zone} />
@@ -222,7 +239,9 @@ const Element = ({ children, ...props }) => {
                     </div>
                 )}
             </div>
-            <div className={cx('content')}>{clone(children)}</div>
+            <div className={cx('content')} {...nodeProps}>
+                {clone(children)}
+            </div>
         </div>
     );
 };

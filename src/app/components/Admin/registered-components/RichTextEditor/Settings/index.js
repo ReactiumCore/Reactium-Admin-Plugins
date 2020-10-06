@@ -8,6 +8,7 @@ import ColorSelect from './ColorSelect';
 import MarginStyles from './MarginStyles';
 import Opacity from './Opacity';
 import PaddingStyles from './PaddingStyles';
+import Position from './Position';
 import Settings from './Settings';
 import Sizing from './Sizing';
 
@@ -22,6 +23,7 @@ export default {
     MarginStyles,
     Opacity,
     PaddingStyles,
+    Position,
     Settings,
     Sizing,
 };

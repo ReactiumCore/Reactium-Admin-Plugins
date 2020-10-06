@@ -13,31 +13,27 @@ import Reactium, {
     useRefs,
 } from 'reactium-core/sdk';
 
+const borderStyleValues = [
+    'solid',
+    'dotted',
+    'dashed',
+    'double',
+    'groove',
+    'ridge',
+    'inset',
+    'outset',
+    'none',
+];
+
 const Panel = props => {
     const editor = useEditor();
 
     const refs = useRefs();
 
-    const [state, update] = useDerivedState({
-        borderStyleValues: [
-            'solid',
-            'dotted',
-            'dashed',
-            'double',
-            'groove',
-            'ridge',
-            'inset',
-            'outset',
-            'none',
-        ],
-        nodeProps: op.get(props, 'nodeProps', { float: 'none' }),
+    const [state] = useDerivedState({
+        nodeProps: op.get(props, 'nodeProps', { style: { opacity: 1 } }),
+        previous: op.get(props, 'nodeProps', { style: { opacity: 1 } }),
     });
-
-    const setState = newState =>
-        new Promise(resolve => {
-            update(newState);
-            _.defer(() => resolve());
-        });
 
     const {
         BackgroundColor,
@@ -62,67 +58,87 @@ const Panel = props => {
     const pref = suffix => `admin.rte.settings.image.${suffix}`;
 
     const onSubmit = ({ value }) => {
-        Reactium.Hook.runSync('rte-settings-apply', value);
+        const { node, path } = Reactium.RTE.getNode(editor, props.id);
 
-        const node = Reactium.RTE.getNode(editor, props.id);
-        Transforms.select(editor, node.path);
+        Reactium.Hook.runSync('rte-settings-apply', value, {
+            node,
+            path,
+            state,
+        });
+        Transforms.select(editor, path);
         Transforms.collapse(editor, { edge: 'end' });
-        Transforms.setNodes(editor, { nodeProps: value }, { at: node.path });
+        Transforms.setNodes(editor, { nodeProps: value }, { at: path });
     };
 
-    const onChange = ({ value }) => {
-        let nodeProps = JSON.parse(JSON.stringify(state.nodeProps));
-        nodeProps.style = !nodeProps.style ? {} : nodeProps.style;
+    //const onSubmit = _.throttle(_onSubmit, 1000, { trailing: false });
 
-        nodeProps = { ...nodeProps, ...value };
+    const _onChange = ({ value }) => setValue(value);
+    const onChange = _.debounce(_onChange, 500);
 
-        Reactium.Hook.runSync('rte-settings-value', nodeProps);
+    const mergeValue = newValue => {
+        let value = JSON.parse(JSON.stringify(state.nodeProps));
+        value.style = !value.style ? {} : value.style;
 
-        setState({ nodeProps });
-        onSubmit({ value: nodeProps });
+        Object.entries(newValue).forEach(([key, val]) => {
+            if (key === 'style') return;
+            op.set(value, key, val);
+        });
+
+        if (op.get(newValue, 'style')) {
+            Object.entries(newValue.style).forEach(([key, val]) =>
+                op.set(value.style, key, val),
+            );
+        }
+
+        Reactium.Hook.runSync('rte-settings-value', value, {
+            state,
+            props,
+        });
+
+        return value;
     };
 
     const setValue = newValue => {
-        const form = refs.get('settings');
-        if (!form) return;
-        form.setValue(newValue);
+        const next = mergeValue(newValue);
+        const prev = state.previous;
+
+        const equal = _.isEqual(
+            JSON.parse(JSON.stringify(next)),
+            JSON.parse(JSON.stringify(prev)),
+        );
+
+        if (equal) return;
+
+        state.nodeProps = next;
+
+        onSubmit({ value: next });
+
+        state.previous = JSON.parse(JSON.stringify(next));
     };
-
-    const setBorderStyle = e => {
-        const key = e.currentTarget.dataset.key;
-
-        const val = String(
-            op.get(state, ['nodeProps', 'style', key], 'solid'),
-        ).toLowerCase();
-
-        let i = state.borderStyleValues.indexOf(val) + 1;
-        i = i === state.borderStyleValues.length ? 0 : i;
-
-        const value = state.borderStyleValues[i];
-
-        updateStyle({ key, value });
-    };
-
-    const setBorderColor = ({ key, value }) => updateStyle({ key, value });
 
     const setBackgroundColor = e =>
         updateStyle({ key: 'backgroundColor', value: e.target.value });
 
-    const setPosition = ({ key, value }) => updateStyle({ key, value });
+    const setBorderColor = ({ key, value }) => updateStyle({ key, value });
+
+    const setBorderStyle = ({ key, value }) => updateStyle({ key, value });
 
     const setOpacity = ({ value }) => updateStyle({ key: 'opacity', value });
 
+    const setPosition = ({ key, value }) => updateStyle({ key, value });
+
     const updateStyle = ({ key, value }) => {
-        const nodeProps = JSON.parse(JSON.stringify(state.nodeProps));
-        nodeProps.style = !nodeProps.style ? {} : nodeProps.style;
+        const style = JSON.parse(
+            JSON.stringify(op.get(state, 'nodeProps.style', {})),
+        );
 
         if (Array.isArray(key) && _.isObject(value)) {
-            key.forEach(k => op.set(nodeProps.style, k, op.get(value, k)));
+            key.forEach(k => op.set(style, k, op.get(value, k)));
         } else {
-            op.set(nodeProps.style, key, value);
+            op.set(style, key, value);
         }
-        setValue(nodeProps);
-        onChange({ value: nodeProps });
+
+        setValue({ style });
     };
 
     useFocusEffect(editor.panel.container);
@@ -130,12 +146,11 @@ const Panel = props => {
     return (
         <Settings
             className={cx()}
+            footer={{}}
             id='rte-image-settings'
-            onSubmit={onSubmit}
             onChange={onChange}
             ref={elm => refs.set('settings', elm)}
-            title={__('Image Properties')}
-            footer={{}}
+            title={props.title}
             value={op.get(state, 'nodeProps', {})}>
             <Dialog
                 className='sub'
@@ -230,6 +245,7 @@ const Panel = props => {
                     <BorderStyles
                         styles={state.nodeProps.style}
                         onChange={setBorderStyle}
+                        borderStyles={borderStyleValues}
                     />
                     <BorderColors
                         styles={state.nodeProps.style}
@@ -241,18 +257,25 @@ const Panel = props => {
     );
 };
 
+Panel.defaultProps = {
+    title: __('Property Inspector'),
+};
+
 export default props => {
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
     const showPanel = () =>
         editor.panel
-            .setID('rte-image-settings')
+            .setID('rte-settings')
             .setContent(<Panel {...props} />)
             .show();
 
     return (
         <Button color={Button.ENUMS.COLOR.SECONDARY} onClick={showPanel}>
-            <Icon name='Feather.Camera' size={12} />
+            <Icon
+                name={props.icon || 'Linear.PageBreak'}
+                size={props.iconSize || 12}
+            />
         </Button>
     );
 };
