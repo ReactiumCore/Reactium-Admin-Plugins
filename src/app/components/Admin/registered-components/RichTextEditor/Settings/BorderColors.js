@@ -116,7 +116,7 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
         const key = state.active;
         const val = e.target.value;
 
-        const { value } = state;
+        const value = JSON.parse(JSON.stringify(op.get(state, 'value', {})));
         op.set(value, key, val);
 
         setState({ value }).then(() =>
