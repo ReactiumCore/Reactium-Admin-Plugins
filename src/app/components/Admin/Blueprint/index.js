@@ -4,6 +4,7 @@ import op from 'object-path';
 import Reactium, { Zone } from 'reactium-core/sdk';
 import { useCapabilityCheck } from 'reactium-core/sdk';
 import React, { useEffect, useRef, useState } from 'react';
+import actions from './actions';
 
 const ENUMS = {};
 
@@ -136,5 +137,6 @@ const Blueprint = () => {
 };
 
 Blueprint.ENUMS = ENUMS;
+Blueprint.actions = actions;
 
 export { Blueprint as default };

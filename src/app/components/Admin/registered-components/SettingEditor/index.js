@@ -4,7 +4,13 @@ import React, {
     useLayoutEffect as useWindowEffect,
     useEffect,
 } from 'react';
-import { __, useSettingGroup, useHandle, Zone } from 'reactium-core/sdk';
+import {
+    __,
+    useSettingGroup,
+    useHandle,
+    useHookComponent,
+    Zone,
+} from 'reactium-core/sdk';
 import {
     Dialog,
     Toggle,
@@ -17,6 +23,7 @@ import {
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
+import MediaSetting from './MediaSetting';
 
 // Server-Side Render safe useLayoutEffect (useEffect when node)
 const useLayoutEffect =
@@ -30,11 +37,23 @@ const useLayoutEffect =
 const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
+
     const formRef = useRef();
     const errorsRef = useRef({});
     const [, setVersion] = useState(new Date());
+    const update = () => setVersion(new Date());
     const groupName = op.get(settings, 'group');
-    const [value, setValue] = useState({});
+    const valueRef = useRef();
+    const value = op.get(valueRef.current) || {};
+    const setValue = newValue => {
+        valueRef.current = newValue;
+        update();
+    };
+
+    const updateValue = name => inputValue => {
+        op.set(valueRef.current, name, inputValue);
+        update();
+    };
 
     useLayoutEffect(() => {
         if (errorsRef.current && formRef.current) {
@@ -48,18 +67,19 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     }, [errorsRef.current]);
 
-    // hooks above here ^
-    if (!groupName) return null;
-
     const title = op.get(
         settings,
         'title',
         SettingEditor.defaultProps.settings.title,
     );
 
-    const { canGet, canSet, settingGroup, setSettingGroup } = useSettingGroup(
-        groupName,
-    );
+    const {
+        canGet,
+        canSet,
+        loading = true,
+        settingGroup,
+        setSettingGroup,
+    } = useSettingGroup(groupName);
 
     const group = {
         [groupName]: settingGroup,
@@ -68,15 +88,20 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const inputs = op.get(settings, 'inputs', {});
 
     useEffect(() => {
-        const newValue = {};
-        Object.keys(inputs).forEach(key => {
-            op.set(newValue, key, op.get(group, key, null));
-        });
+        if (!loading) {
+            const newValue = {};
+            Object.keys(inputs).forEach(key => {
+                op.set(newValue, key, op.get(group, key, null));
+            });
 
-        setValue(newValue);
-    }, [settingGroup]);
+            setValue(newValue);
+        }
+    }, [settingGroup, loading]);
 
     if (!canGet) return null;
+
+    // hooks above here ^
+    if (!groupName) return null;
 
     const sanitizeInput = (value, config) => {
         const type = op.get(config, 'type');
@@ -97,21 +122,24 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     };
 
     const onSubmit = async e => {
-        const { value } = e;
+        const { value: formValues } = e;
         errorsRef.current = {};
         if (!canSet) return;
 
         const newSettingsGroup = {};
         Object.entries(inputs).forEach(([key, config]) => {
-            op.set(
-                newSettingsGroup,
-                key,
-                sanitizeInput(op.get(value, key), config),
+            const currentInputValue = sanitizeInput(
+                op.get(formValues, key, op.get(value, key)),
+                config,
             );
+
+            op.set(newSettingsGroup, key, currentInputValue);
         });
 
         try {
+            valueRef.current = newSettingsGroup;
             await setSettingGroup(op.get(newSettingsGroup, groupName));
+
             Toast.show({
                 type: Toast.TYPE.SUCCESS,
                 message: __('Settings saved'),
@@ -143,6 +171,19 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
         if (typeof type === 'string') {
             switch (type) {
+                case 'media': {
+                    return (
+                        <MediaSetting
+                            value={op.get(value, key)}
+                            updateValue={updateValue(key)}
+                            key={key}
+                            name={key}
+                            config={config}
+                            helpText={helpText}
+                        />
+                    );
+                }
+
                 case 'checkbox': {
                     return (
                         <div className={formGroupClasses} key={key}>
@@ -244,6 +285,15 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     },
                     ...classNames,
                 )}>
+                <Button
+                    disabled={!canSet}
+                    className={'mb-20'}
+                    color={Button.ENUMS.COLOR.PRIMARY}
+                    size={Button.ENUMS.SIZE.MD}
+                    type='submit'>
+                    {__('Save Settings')}
+                </Button>
+
                 {Object.entries(inputs).map(([key, config]) =>
                     renderInput(key, config),
                 )}

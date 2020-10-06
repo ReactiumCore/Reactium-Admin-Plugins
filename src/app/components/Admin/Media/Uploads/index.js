@@ -10,6 +10,7 @@ import Reactium, {
     useDerivedState,
     useDocument,
     useStore,
+    useAsyncEffect,
 } from 'reactium-core/sdk';
 
 export default ({ delay = 250, onRemoveFile, uploads }) => {
@@ -94,10 +95,10 @@ export default ({ delay = 250, onRemoveFile, uploads }) => {
     };
 
     // Watch for uploads
-    useEffect(() => {
+    useAsyncEffect(isMounted => {
         const unsub = store.subscribe(() => {
             const currentUploads = op.get(store.getState(), 'Media.uploads');
-            setState({ uploads: currentUploads });
+            if (isMounted()) setState({ uploads: currentUploads });
         });
 
         return unsub;
