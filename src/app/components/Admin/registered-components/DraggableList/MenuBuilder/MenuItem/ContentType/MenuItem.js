@@ -33,7 +33,7 @@ const ContentTypeMenuItem = memo(props => {
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
 
-    const icon = op.get(item, 'type.meta.icon');
+    const icon = op.get(item, 'type.meta.icon', 'Linear.Papers');
     const typeSlug = op.get(item, 'type.machineName');
     const slug = op.get(item, 'slug');
 

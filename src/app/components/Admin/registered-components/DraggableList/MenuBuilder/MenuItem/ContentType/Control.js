@@ -243,7 +243,7 @@ const ContentTypeControl = props => {
         <div className={cx('control', 'control-types')}>
             {types.map(type => {
                 const uuid = op.get(type, 'uuid');
-                const icon = op.get(type, 'meta.icon');
+                const icon = op.get(type, 'meta.icon', 'Linear.Papers');
                 const title = op.get(
                     type,
                     'meta.label',
