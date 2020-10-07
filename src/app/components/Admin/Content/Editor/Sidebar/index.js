@@ -118,7 +118,7 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
                 className={cn(className, { expanded })}
                 ref={containerRef}>
                 <div className={cx('toolbar')}>
-                    <Scrollbars autoHeight autoHeightMin='calc(100vh - 60px)'>
+                    <Scrollbars>
                         <div className={cx('toolbar-scroll')}>
                             <div className={cx('toolbar-top')}>
                                 <Zone

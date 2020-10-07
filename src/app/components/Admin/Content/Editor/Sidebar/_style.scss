@@ -1,9 +1,8 @@
-
 .#{$admin-content-ns} {
     &-meta {
         background-color: $color-text-light;
         width: $width-ace-sidebar;
-        min-height: calc(100vh - #{$height-admin-header});
+        height: calc(100vh - #{$height-admin-header});
         border-left: 1px solid $color-admin-header-border;
 
         .#{$admin-content-ns}-editor-region {
@@ -78,7 +77,6 @@
         }
 
         &.expanded {
-
             .#{$admin-content-ns}-toolbar {
                 box-shadow: $shadow-image;
 
@@ -117,6 +115,7 @@
 
     &-toolbar {
         position: relative;
+        min-width: 70px;
         height: calc(100vh - #{$height-admin-header});
 
         &-scroll {
@@ -186,9 +185,22 @@
 
 .fullscreen {
     .#{$admin-content-ns} {
-        &-sidebar {
+        &-sidebar,
+        &-toolbar {
             top: 0;
             height: 100vh;
+
+            &-scroll {
+                min-height: 100vh;
+                display: none;
+                flex-direction: column;
+                position: relative;
+                background-color: $color-grey-light;
+
+                @include breakpoint(md) {
+                    display: flex;
+                }
+            }
         }
     }
 }
