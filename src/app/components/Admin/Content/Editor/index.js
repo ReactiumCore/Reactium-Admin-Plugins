@@ -35,7 +35,10 @@ const noop = () => {};
 
 const ErrorMessages = ({ editor, errors }) => {
     const { Icon } = useHookComponent('ReactiumUI');
-    const canFocus = element => typeof element.focus === 'function';
+    const canFocus = element => {
+        if (!element) return false;
+        return typeof element.focus === 'function';
+    };
 
     const jumpTo = (e, element) => {
         e.preventDefault();

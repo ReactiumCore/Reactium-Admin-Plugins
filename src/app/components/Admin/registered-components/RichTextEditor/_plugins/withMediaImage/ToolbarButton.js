@@ -57,8 +57,6 @@ export default props => {
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             onClick={() => showPicker()}
             data-tooltip={__('Add Image')}
-            data-align='right'
-            data-vertical-align='middle'
             {...props}>
             <Icon name='Feather.Camera' size={20} />
         </Button>

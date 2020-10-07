@@ -17,7 +17,7 @@ const ENUMS = {
     },
 };
 
-export const Editor = ({ namespace, ...props }) => {
+export const Editor = props => {
     const contRef = useRef();
 
     const { editor, fieldName } = props;
@@ -31,16 +31,16 @@ export const Editor = ({ namespace, ...props }) => {
     const { Button, Spinner } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
 
-    const cx = Reactium.Utils.cxFactory('template');
+    const cx = Reactium.Utils.cxFactory('blueprint');
 
     const unMounted = () => !contRef.current;
 
-    const templates = () => {
-        let templates = op.get(props, 'templates');
-        templates = templates ? templates.split(',') : [];
+    const blueprints = () => {
+        let blueprints = op.get(props, 'blueprints');
+        blueprints = blueprints ? blueprints.split(',') : [];
 
-        Reactium.Hook.runSync('template-list', templates, props);
-        return templates;
+        Reactium.Hook.runSync('blueprint-list', blueprints, props);
+        return blueprints;
     };
 
     const preview = async () => {
@@ -67,27 +67,25 @@ export const Editor = ({ namespace, ...props }) => {
         }, 1000);
     };
 
-    const template = editor ? op.get(editor.value, 'template') : null;
+    const blueprint = editor ? op.get(editor.value, 'blueprint') : null;
 
-    return templates().length < 1 ? null : (
+    return blueprints().length < 1 ? null : (
         <ElementDialog {...props}>
             <div className={cx('editor')} ref={contRef}>
-                <div className={!template ? 'col-xs-12' : 'col-xs-9'}>
+                <div className={!blueprint ? 'col-xs-12' : 'col-xs-9'}>
                     <div className='form-group'>
-                        <select defaultValue='select' name={fieldName}>
-                            <option value='select'>
-                                {__('Select template')}
-                            </option>
-                            {templates().map((template, i) => (
+                        <select defaultValue={blueprint} name={fieldName}>
+                            <option value=''>{__('Select blueprint')}</option>
+                            {blueprints().map((blueprint, i) => (
                                 <option
-                                    key={`template-${i}`}
-                                    children={template}
+                                    key={`blueprint-${i}`}
+                                    children={blueprint}
                                 />
                             ))}
                         </select>
                     </div>
                 </div>
-                {template && (
+                {blueprint && (
                     <div className='col-xs-3 pl-xs-8'>
                         <Button
                             block

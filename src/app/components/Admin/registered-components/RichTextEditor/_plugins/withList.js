@@ -77,8 +77,6 @@ Plugin.callback = editor => {
                 active={Reactium.RTE.isBlockActive(editor, 'ul')}
                 onClick={() => insertNode(editor, 'ul')}
                 data-tooltip={__('List')}
-                data-align='center'
-                data-vertical-align='middle'
                 {...props}>
                 <Icon
                     {...Reactium.RTE.ENUMS.PROPS.ICON}
@@ -99,8 +97,6 @@ Plugin.callback = editor => {
                 active={Reactium.RTE.isBlockActive(editor, 'ol')}
                 onClick={() => insertNode(editor, 'ol')}
                 data-tooltip={__('Ordered List')}
-                data-align='center'
-                data-vertical-align='middle'
                 {...props}>
                 <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Linear.List2' />
             </Button>

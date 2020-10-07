@@ -58,8 +58,6 @@ export default props => {
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             onClick={() => showPicker()}
             data-tooltip={__('Add Video')}
-            data-align='right'
-            data-vertical-align='middle'
             {...props}>
             <Icon name='Feather.Film' size={20} />
         </Button>

@@ -1,16 +1,16 @@
 import React from 'react';
 import Panel from './Panel';
-import op from 'object-path';
 import FormatElement from './Element';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 import RTEPlugin from '../../registered-components/RichTextEditor/RTEPlugin';
-
-import SDK from '../sdk';
 
 const SidebarButton = props => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
-        <Button {...Reactium.RTE.ENUMS.PROPS.BUTTON} {...props}>
+        <Button
+            {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+            data-tooltip={__('Content Block')}
+            {...props}>
             <Icon
                 {...Reactium.RTE.ENUMS.PROPS.ICON}
                 name='Feather.Box'

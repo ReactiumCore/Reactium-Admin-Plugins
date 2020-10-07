@@ -34,8 +34,6 @@ export default props => {
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             data-tooltip={__('Add Tabs')}
-            data-vertical-align='middle'
-            data-align='right'
             onClick={e => insertNode(e)}
             {...props}>
             <Icon

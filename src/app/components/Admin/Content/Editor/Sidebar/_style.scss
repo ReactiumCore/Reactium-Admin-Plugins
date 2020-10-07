@@ -1,3 +1,4 @@
+
 .#{$admin-content-ns} {
     &-meta {
         background-color: $color-text-light;
@@ -180,5 +181,14 @@
     &-collapsible {
         box-shadow: $shadow-image;
         background-color: $color-text-light;
+    }
+}
+
+.fullscreen {
+    .#{$admin-content-ns} {
+        &-sidebar {
+            top: 0;
+            height: 100vh;
+        }
     }
 }

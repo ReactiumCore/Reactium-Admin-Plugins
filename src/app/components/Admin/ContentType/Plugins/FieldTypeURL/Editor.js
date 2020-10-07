@@ -23,7 +23,15 @@ export default props => {
     const { Alert, Button, Dropdown, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
 
-    const { editor, fieldName, placeholder, prefix, required } = props;
+    const {
+        editor,
+        fieldName,
+        placeholder,
+        required = false,
+        app = 'site',
+    } = props;
+
+    const prefix = props.prefix === 'null' ? null : prefix;
 
     const refs = useRef({}).current;
 
@@ -120,6 +128,7 @@ export default props => {
         const collection = op.get(editor.contentType, 'collection');
         const type = op.get(editor.contentType, 'machineName');
         const meta = {
+            app,
             contentId: isSaved() ? editor.value.objectId : undefined,
             collection,
             type,
@@ -149,7 +158,7 @@ export default props => {
         setURLS(newURLS);
     };
 
-    const disabled = () => Boolean(prefix && !hasTaxonomy());
+    const disabled = () => (prefix !== null ? !hasTaxonomy() : false);
 
     const unDeleteURL = ({ objectId }) => {
         const newURLS = { ...URLS };
@@ -290,7 +299,7 @@ export default props => {
 
     useEffect(() => {
         if (!editor) return;
-        if (disabled()) {
+        if (prefix && disabled()) {
             setErrorText(
                 __('Select %prefix before adding a URL').replace(
                     /\%prefix/gi,

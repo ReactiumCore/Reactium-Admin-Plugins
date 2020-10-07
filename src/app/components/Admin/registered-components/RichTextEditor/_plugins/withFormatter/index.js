@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import RTEPlugin from '../../RTEPlugin';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Editor, Transforms } from 'slate';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Panel from './Panel';
@@ -52,6 +52,7 @@ Plugin.callback = editor => {
                 <Button
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                     onClick={e => onButtonClick(editor, e)}
+                    data-tooltip={__('Text Formatter')}
                     {...props}>
                     <Icon
                         {...Reactium.RTE.ENUMS.PROPS.ICON}
@@ -325,67 +326,6 @@ Plugin.callback = editor => {
     Object.entries(colors).forEach(([key, value]) =>
         Reactium.RTE.Color.register(key, { value, label: value }),
     );
-
-    // register hotkeys
-    // Reactium.RTE.Hotkey.register('clearformats', {
-    //     keys: ['enter'],
-    //     order: 1000,
-    //     callback: ({ editor, event }) => {
-    //         try {
-    //             const [node, path] = Editor.node(editor, editor.selection);
-    //
-    //             const text = op.get(node, 'text');
-    //             const isEmpty = _.chain([text])
-    //                 .compact()
-    //                 .isEmpty()
-    //                 .value();
-    //
-    //             if (!isEmpty) return;
-    //
-    //             const [parent] = Editor.parent(editor, editor.selection);
-    //
-    //             const selection = {
-    //                 anchor: { path, offset: 0 },
-    //                 focus: { path, offset: 0 },
-    //             };
-    //
-    //             let type = op.get(parent, 'type');
-    //             type = type === 'paragraph' ? 'p' : type;
-    //             type = String(type).toLowerCase();
-    //
-    //             if (!type || type === 'div' || type === 'col' || type === 'row')
-    //                 return;
-    //
-    //             const list = ['ol', 'ul', 'li'];
-    //             const types = [
-    //                 'blockquote',
-    //                 'h1',
-    //                 'h2',
-    //                 'h3',
-    //                 'h4',
-    //                 'h5',
-    //                 'h6',
-    //             ];
-    //             const isType = types.includes(type);
-    //
-    //             if (isType) {
-    //                 event.preventDefault();
-    //
-    //                 Transforms.unwrapNodes(editor, {
-    //                     match: n => list.includes(n.type),
-    //                 });
-    //
-    //                 Transforms.setNodes(
-    //                     editor,
-    //                     { type: 'p', style: {} },
-    //                     { at: selection },
-    //                 );
-    //             } else {
-    //                 Transforms.setSelection(editor, { styles: {} });
-    //             }
-    //         } catch (err) {}
-    //     },
-    // });
 
     // Extend editor
     editor.lastLine = () => [editor.children.length - 1, 0];

@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
@@ -21,41 +20,41 @@ export const FieldType = props => {
 
     const [state, setState] = useDerivedState({
         previewURL: null,
-        templates: [],
+        blueprints: [],
     });
 
     const { DragHandle } = props;
     const { Button, Carousel, Icon, Slide } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
-    const cx = Reactium.Utils.cxFactory('template-cte');
+    const cx = Reactium.Utils.cxFactory('blueprint-cte');
 
     const onAddClick = () => {
         const name = op.get(refs.current, 'name').value;
-        let { templates = [] } = state;
+        let { blueprints = [] } = state;
 
-        templates = _.flatten([templates]);
-        templates.push(name);
-        templates = _.uniq(templates);
+        blueprints = _.flatten([blueprints]);
+        blueprints.push(name);
+        blueprints = _.uniq(blueprints);
 
         refs.current.name.value = '';
         refs.current.name.focus();
 
-        setState({ templates });
+        setState({ blueprints });
     };
 
     const onChange = e => {
-        let { templates } = state;
+        let { blueprints } = state;
         const { value } = e.currentTarget;
         const { index } = e.currentTarget.dataset;
-        op.set(templates, index, value);
-        setState({ templates });
+        op.set(blueprints, index, value);
+        setState({ blueprints });
     };
 
-    const onDelete = template => {
-        let { templates = [] } = state;
-        templates = _.without(templates, template);
-        setState({ templates });
+    const onDelete = blueprint => {
+        let { blueprints = [] } = state;
+        blueprints = _.without(blueprints, blueprint);
+        setState({ blueprints });
     };
 
     const onEnterPress = e => {
@@ -70,14 +69,14 @@ export const FieldType = props => {
             `field-type-form-change-${id}`,
             async e => {
                 if (e.value) {
-                    const templates = String(
-                        op.get(e.value, 'templates') || '',
+                    const blueprints = String(
+                        op.get(e.value, 'blueprints') || '',
                     ).split(',');
 
                     const previewURL = op.get(e.value, 'previewURL');
 
-                    if (_.isEqual(templates, state.templates)) return;
-                    setState({ previewURL, templates });
+                    if (_.isEqual(blueprints, state.blueprints)) return;
+                    setState({ previewURL, blueprints });
                 }
             },
         );
@@ -89,12 +88,12 @@ export const FieldType = props => {
 
     const previewChange = e => setState({ previewURL: e.target.value });
 
-    const templates = () => {
-        let templates = op.get(state, 'templates');
-        templates = _.compact(templates);
+    const blueprints = () => {
+        let blueprints = op.get(state, 'blueprints');
+        blueprints = _.compact(blueprints);
 
-        Reactium.Hook.runSync('template-list', templates, props);
-        return templates;
+        Reactium.Hook.runSync('blueprint-list', blueprints, props);
+        return blueprints;
     };
 
     useEffect(onLoad);
@@ -103,8 +102,8 @@ export const FieldType = props => {
         <FieldTypeDialog {...props} showHelpText={false}>
             <input
                 type='hidden'
-                value={templates().join(',')}
-                name='templates'
+                value={blueprints().join(',')}
+                name='blueprints'
             />
             <input
                 type='hidden'
@@ -120,7 +119,7 @@ export const FieldType = props => {
                         <input
                             type='text'
                             ref={elm => op.set(refs.current, 'name', elm)}
-                            placeholder='Template Name'
+                            placeholder='Blueprint Name'
                             onKeyDown={onEnterPress}
                         />
 
@@ -161,12 +160,12 @@ export const FieldType = props => {
             <ul
                 className={cx('list')}
                 ref={elm => op.set(refs.current, 'list', elm)}>
-                {templates().map((item, i) => (
+                {blueprints().map((item, i) => (
                     <ListItem
-                        key={`page-template-${i}`}
+                        key={`page-blueprint-${i}`}
                         onDelete={onDelete}
                         onChange={onChange}
-                        template={item}
+                        blueprint={item}
                         index={i}
                     />
                 ))}
@@ -176,7 +175,7 @@ export const FieldType = props => {
 };
 
 const ListItem = props => {
-    const { index, template, onChange, onDelete } = props;
+    const { index, blueprint, onChange, onDelete } = props;
     const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
         <li>
@@ -184,13 +183,13 @@ const ListItem = props => {
                 <input
                     type='text'
                     data-index={index}
-                    placeholder={__('Template Name')}
-                    value={template}
+                    placeholder={__('Blueprint Name')}
+                    value={blueprint}
                     onChange={onChange}
                 />
                 <Button
                     color={Button.ENUMS.COLOR.DANGER}
-                    onClick={() => onDelete(template)}
+                    onClick={() => onDelete(blueprint)}
                     style={{ padding: 0, width: 41, height: 41 }}>
                     <Icon name='Feather.X' size={22} />
                 </Button>

@@ -1,10 +1,9 @@
 import _ from 'underscore';
 import op from 'object-path';
-// import Settings from './Settings';
-import Settings from '../withBlock/Settings';
 import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
 import { Editor, Transforms } from 'slate';
+import Settings from '../withBlock/Settings';
 
 import Reactium, {
     __,

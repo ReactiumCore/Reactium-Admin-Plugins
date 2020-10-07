@@ -12,8 +12,6 @@ export default props => {
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             data-tooltip={__('Add Section')}
-            data-vertical-align='middle'
-            data-align='right'
             onClick={onClick}
             {...props}>
             <Icon
