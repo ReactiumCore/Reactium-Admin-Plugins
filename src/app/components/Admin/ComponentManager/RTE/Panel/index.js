@@ -212,20 +212,19 @@ let Panel = ({ editor, namespace, title, ...props }) => {
     };
 
     const insertNode = ({ children = [], ...block }) => {
-        Reactium.Hook.runSync('block-insert', block);
-
         const id = uuid();
-
         const node = {
+            blockID: `block-${id}`,
+            blocked: true,
+            children,
             ID: id,
             block,
-            children,
             type: 'component',
         };
 
-        Reactium.Hook.runSync('block-node', node);
-
         Reactium.RTE.insertBlock(editor, node, { id });
+
+        Reactium.Hook.runSync('block-node', node);
     };
 
     const listeners = () => {
