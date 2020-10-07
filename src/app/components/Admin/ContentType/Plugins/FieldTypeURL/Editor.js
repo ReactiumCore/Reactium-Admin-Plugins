@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import slugify from 'slugify';
 import React, { useEffect, useRef, useState } from 'react';
 import Reactium, {
     __,
@@ -208,10 +209,29 @@ export default props => {
         return results;
     };
 
+    const normalizeURL = url => {
+        if (String(url).length < 1) return url;
+
+        url = url.split(' ').join('-');
+        url = String(url)
+            .toLowerCase()
+            .split('/')
+            .map(str => slugify(str))
+            .join('/');
+
+        return String(url).substr(0, 1) === '/' ? url : `/${url}`;
+    };
+
     const onEnter = e => {
-        if (e.which !== 13) return;
-        e.preventDefault();
-        addURL();
+        if (e.which === 13) {
+            e.preventDefault();
+            addURL();
+        }
+    };
+
+    const onKeyUp = e => {
+        let url = normalizeURL(e.target.value);
+        e.target.value = url;
     };
 
     const applyURLS = ({ value }) => {
@@ -364,6 +384,7 @@ export default props => {
                             )}
                             <input
                                 onKeyDown={onEnter}
+                                onKeyUp={onKeyUp}
                                 placeholder={placeholder}
                                 ref={elm => op.set(refs, 'add', elm)}
                                 type='text'
@@ -381,6 +402,7 @@ export default props => {
                                     key={`list-item-${url.objectId}`}
                                     {...url}
                                     status={status}
+                                    onKeyUp={onKeyUp}
                                     onChange={updateURL}
                                     onDelete={deleteURL}
                                     onUnDelete={unDeleteURL}
@@ -400,7 +422,14 @@ export default props => {
 
 const ListItem = props => {
     const refs = useRef({}).current;
-    const { onChange, onDelete, onUnDelete, placeholder, route } = props;
+    const {
+        onChange,
+        onDelete,
+        onUnDelete,
+        onKeyUp,
+        placeholder,
+        route,
+    } = props;
     const [deleted, setDeleted] = useState(op.get(props, 'delete', false));
     const { Button, Carousel, Icon, Slide, Toast } = useHookComponent(
         'ReactiumUI',
@@ -473,6 +502,7 @@ const ListItem = props => {
             ref={elm => op.set(refs, 'container', elm)}>
             <input
                 type='text'
+                onKeyDown={onKeyUp}
                 onChange={e => onChange(e.target.value, props)}
                 placeholder={placeholder}
                 ref={elm => op.set(refs, 'input', elm)}
