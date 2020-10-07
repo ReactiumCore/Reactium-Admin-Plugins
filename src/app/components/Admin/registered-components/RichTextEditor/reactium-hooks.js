@@ -1,6 +1,7 @@
 import op from 'object-path';
 import domain from './domain';
 import RTE from './_utils/sdk';
+import Settings from './Settings';
 import RichTextEditor from './index';
 import defaultPlugins from './_plugins';
 import Reactium from 'reactium-core/sdk';
@@ -12,6 +13,7 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
     () => {
         // Register the UI Component
         Reactium.Component.register('RichTextEditor', RichTextEditor);
+        Reactium.Component.register('RichTextEditorSettings', Settings);
 
         // Register default plugins
         Object.entries(defaultPlugins).forEach(([id, item]) =>

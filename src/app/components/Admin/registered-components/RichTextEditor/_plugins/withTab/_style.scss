@@ -1,20 +1,12 @@
 .rte-tabs {
     &-element {
-        margin-left: -4px;
-        margin-right: -4px;
         position: relative;
         outline: none;
         user-select: none;
         display: flex;
         flex-direction: column;
         width: 100%;
-        border: 2px dashed transparent;
         overflow: visible;
-        padding: 4px;
-
-        &:hover {
-            border: 2px dashed $color-grey;
-        }
 
         .tabs-content {
             width: 100%;
@@ -25,6 +17,10 @@
                 padding: 20px;
                 background-color: $color-light;
                 border: 1px solid $color-primary;
+
+                &:empty {
+                    display: none;
+                }
             }
         }
 
@@ -84,12 +80,16 @@
                     transform: translate(-50%, -50%);
                     top: 0;
                     left: 50%;
+                    width: 20px;
+                    height: 20px;
                 }
 
                 &.bottom {
                     transform: translate(-50%, 50%);
                     bottom: 0;
                     left: 50%;
+                    width: 20px;
+                    height: 20px;
                 }
             }
 
@@ -284,7 +284,10 @@
             width: 100%;
             height: 100%;
             position: absolute;
-            background-color: rgba($color-white, 0);
+            z-index: 45;
+            opacity: 0;
+            background-color: $color-white;
+            transition: opacity .2s ease-in-out;
         }
 
         .edit {
@@ -293,6 +296,8 @@
             opacity: 0;
             position: absolute;
             transform: translate(-50%, -50%);
+            transition: opacity .2s ease-in-out;
+            z-index: 50;
         }
 
         .empty {
@@ -310,7 +315,7 @@
             }
 
             > .blocker {
-                background-color: rgba($color-white, 0.75);
+                opacity: 0.7;
             }
         }
     }

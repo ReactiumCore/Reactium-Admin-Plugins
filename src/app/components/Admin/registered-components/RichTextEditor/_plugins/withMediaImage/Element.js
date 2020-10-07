@@ -1,64 +1,149 @@
-import React from 'react';
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
+import { useEditor } from 'slate-react';
+import React, { useEffect } from 'react';
 import { Editor, Transforms } from 'slate';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import { ReactEditor, useEditor, useSelected } from 'slate-react';
+import Settings from '../withBlock/Settings';
 
-export default props => {
-    const { ID, children, src } = props;
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useDerivedState,
+    useHandle,
+    useHookComponent,
+    useStatus,
+} from 'reactium-core/sdk';
 
+const INIT = 'INIT';
+const LOADING = 'LOADING';
+const COMPLETE = 'COMPLETE';
+
+const getNodeProps = props => {
+    const { nodeProps = {} } = props;
+    let allowed = ['alt', 'className', 'crossorigin', 'style'];
+
+    Reactium.Hook.runSync('rte-node-props-allowed', allowed, props);
+
+    const output = allowed.reduce((obj, key) => {
+        const val = op.get(nodeProps, key);
+
+        if (val && allowed.includes(key)) {
+            op.set(obj, key, val);
+        }
+        return obj;
+    }, {});
+
+    Reactium.Hook.runSync('rte-node-props', output, props);
+
+    return output;
+};
+
+export default ({ children, ...props }) => {
     const editor = useEditor();
-    const selected = useSelected();
+    const tools = useHandle('AdminTools');
 
-    const getSelection = () => {
-        const nodes = Array.from(Editor.nodes(editor, { at: [] }));
+    const MediaPicker = useHookComponent('MediaPicker');
+    const { Spinner } = useHookComponent('ReactiumUI');
 
-        if (nodes.length < 1) return;
+    const [, setStatus, isStatus] = useStatus(INIT);
 
-        let output;
+    const [state, setState] = useDerivedState({
+        src: null,
+        nodeProps: getNodeProps(props),
+    });
 
-        for (let i = 0; i < nodes.length; i++) {
-            const [node, selection] = nodes[i];
-            if (!op.has(node, 'children')) continue;
-            const c = _.findIndex(node.children, { ID });
+    const showPicker = () => {
+        const Modal = op.get(tools, 'Modal');
+        Modal.show(
+            <MediaPicker
+                confirm={false}
+                dismissable
+                filters='IMAGE'
+                onSubmit={_onMediaSelect}
+                onDismiss={() => Modal.hide()}
+                title={__('Select Image')}
+            />,
+        );
+    };
 
-            if (c > -1) {
-                selection.push(c);
-                output = selection;
-            }
+    const _onMediaSelect = e => {
+        const Modal = op.get(tools, 'Modal');
+
+        const nodes = Editor.nodes(editor, {
+            at: [],
+            match: ({ id }) => id === props.id,
+        });
+
+        let node = _.first(Array.from(nodes));
+        if (!node) {
+            Modal.hide();
+            return;
+        }
+        node = _.object(['node', 'path'], node);
+
+        const item = _.last(e.selection);
+        if (!item) {
+            Modal.hide();
+            return;
         }
 
-        return output;
+        const { objectId, url } = item;
+
+        Transforms.setNodes(editor, { objectId, src: url }, { at: node.path });
+        Modal.hide();
     };
 
-    const onDelete = e => {
-        e.preventDefault();
-        const selection = getSelection();
-        Transforms.removeNodes(editor, { at: selection });
-        ReactEditor.focus(editor);
+    const loadImage = url => {
+        setStatus(LOADING, true);
+        const img = new Image();
+        img.addEventListener('load', () => {
+            setStatus(COMPLETE);
+            setState({ src: url });
+        });
+        img.src = url;
     };
+
+    useEffect(() => {
+        if (props.src === state.src) return;
+        if (isStatus(LOADING)) return;
+        loadImage(props.src);
+    }, [props.src]);
+
+    useEffect(() => {
+        setState({ nodeProps: getNodeProps(props) });
+    }, [props.nodeProps]);
+
+    useAsyncEffect(async () => {
+        const zid = await Reactium.Zone.addComponent({
+            component: () => (
+                <Settings
+                    {...props}
+                    nodeProps={getNodeProps(props)}
+                    icon='Feather.Camera'
+                />
+            ),
+            order: Reactium.Enums.priority.highest,
+            zone: `${props.blockID}-toolbar`,
+        });
+
+        return () => {
+            Reactium.Zone.removeComponent(zid);
+        };
+    }, [props]);
 
     return (
-        <span
-            id={ID}
-            className={cn({ selected })}
-            tabIndex={1}
-            type='embed'
-            contentEditable={false}>
-            {children}
-            <img src={src} contentEditable={false} />
-            <span className='actions'>
-                <Button
-                    appearance='circle'
-                    color='danger'
-                    onClick={onDelete}
-                    size='sm'
-                    type='button'>
-                    <Icon name='Feather.X' />
-                </Button>
-            </span>
-        </span>
+        <div contentEditable={false} className='ar-rte-image'>
+            {isStatus(COMPLETE) ? (
+                <img
+                    {...state.nodeProps}
+                    src={state.src}
+                    contentEditable={false}
+                    onClick={showPicker}
+                />
+            ) : (
+                <Spinner className='flex flex-center' />
+            )}
+            <div className='hide'>{children}</div>
+        </div>
     );
 };

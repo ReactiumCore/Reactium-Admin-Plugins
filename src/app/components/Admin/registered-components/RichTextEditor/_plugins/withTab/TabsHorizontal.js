@@ -1,111 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import Tab from './Tab';
+import React from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { __, useHookComponent, useRefs } from 'reactium-core/sdk';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-const Tab = ({
-    active,
-    addTab,
-    deleteTab,
-    index,
-    onChange,
-    onEnter,
-    onFocus,
-    state,
-    tab,
-    refs,
-    ...props
-}) => {
-    const cname = cn('tab', { active: index === active });
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-    const [expanded, setExpanded] = useState(state.active === index);
-
-    useEffect(() => {
-        setExpanded(state.active === index);
-    }, [state.active]);
-
-    return (
-        <Draggable
-            key={`tab-${index}`}
-            draggableId={`tab-${index}`}
-            index={index}>
-            {(provided, snapshot) => {
-                const _onMouseDown = provided.dragHandleProps.onMouseDown;
-                const _onMouseUp = provided.dragHandleProps.onMouseUp;
-                const className = cn(cname, { dragging: snapshot.isDragging });
-
-                provided.dragHandleProps.onMouseDown = e => {
-                    setExpanded(false);
-                    _onMouseDown(e);
-                };
-
-                provided.dragHandleProps.onMouseUp = e => {
-                    const input = refs.get(`tab.input.${index}`);
-                    onFocus({ index, target: input, active: true });
-                    setExpanded(true);
-                    _onMouseUp(e);
-                };
-
-                return (
-                    <div
-                        {...provided.draggableProps}
-                        ref={provided.innerRef}
-                        tabIndex={-1}
-                        className={className}>
-                        <div
-                            className='handle'
-                            {...provided.dragHandleProps}
-                            tabIndex={-1}
-                        />
-                        <input
-                            type='text'
-                            value={tab}
-                            ref={elm => refs.set(`tab.input.${index}`, elm)}
-                            onKeyDown={e => onEnter(e, index)}
-                            onChange={e => onChange(e, index)}
-                            onFocus={e =>
-                                onFocus({
-                                    index,
-                                    target: e.target,
-                                    active: true,
-                                })
-                            }
-                        />
-                        {expanded === null || expanded === true
-                            ? props.children
-                            : null}
-                        <Button
-                            appearance='circle'
-                            color='danger'
-                            children={<Icon name='Feather.X' />}
-                            className={cn('delete', {
-                                left: !state.vertical,
-                            })}
-                            onClick={e => deleteTab({ ...e, index })}
-                        />
-                        {state.vertical && (
-                            <Button
-                                appearance='circle'
-                                children={<Icon name='Feather.Plus' />}
-                                className='top'
-                                onClick={e => addTab({ ...e, index: index })}
-                            />
-                        )}
-                        <Button
-                            appearance='circle'
-                            children={<Icon name='Feather.Plus' />}
-                            className={state.vertical ? 'bottom' : 'right'}
-                            onClick={e => addTab({ ...e, index: index + 1 })}
-                        />
-                    </div>
-                );
-            }}
-        </Draggable>
-    );
-};
 
 const TabsHorizontal = ({ children, ...props }) => {
     const refs = useRefs();
@@ -204,4 +104,4 @@ const TabsHorizontal = ({ children, ...props }) => {
     );
 };
 
-export { Tab, TabsHorizontal, TabsHorizontal as default };
+export { TabsHorizontal, TabsHorizontal as default };

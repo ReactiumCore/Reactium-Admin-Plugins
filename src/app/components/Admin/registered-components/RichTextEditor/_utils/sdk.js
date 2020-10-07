@@ -1,14 +1,12 @@
-import React from 'react';
+import uuid from 'uuid/v4';
 import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
-import { Editor, Transforms } from 'slate';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
+import { Editor, Node, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
-
-const { LIST_TYPES } = ENUMS;
 
 // TODO: Convert to Reactium.Utils.registryFactory
 export class Registry {
@@ -157,21 +155,8 @@ class RTE {
         return this.list.tabs;
     }
 
-    hotKey(editor, event, hotkeys) {
+    onKeyDown(editor, event, hotkeys) {
         if (!editor || !event) return;
-
-        try {
-            const [parent, parentPath] = Editor.parent(
-                editor,
-                editor.selection,
-            );
-            if (isHotkey('backspace', event)) {
-                const text = _.compact([parent.children.text]);
-                if (_.isEmpty(text) && parentPath.length === 1) {
-                    return;
-                }
-            }
-        } catch (err) {}
 
         let next = true;
         hotkeys.forEach(item => {
@@ -197,6 +182,153 @@ class RTE {
                 next = false;
             }
         });
+    }
+
+    isEmpty(node) {
+        const text = Node.string(node);
+        return op.get(node, 'blocked') === true
+            ? false
+            : String(text).length < 1;
+    }
+
+    getNodeByID(editor, id) {
+        const nodes = Editor.nodes(editor, {
+            at: [],
+            match: node => op.get(node, 'id') === id,
+        });
+
+        let node = _.first(Array.from(nodes));
+        return node ? _.object(['node', 'path'], node) : { node: {}, path: [] };
+    }
+
+    getNode(editor, path) {
+        let node, p, root;
+
+        if (_.isString(path)) {
+            const n = this.getNodeByID(editor, path);
+            node = op.get(n, 'node');
+            p = op.get(n, 'path');
+            root = p.length === 1;
+        } else {
+            path = path || editor.selection.anchor.path;
+
+            root = path.length === 1;
+            p = Array.from(path);
+            p = root === true ? [Math.max(Number(_.first(p) - 1), 0), 0] : p;
+
+            const result = Editor.above(editor, { at: p });
+
+            p = result.pop();
+            node = result.pop();
+        }
+
+        const empty = Object.keys(node).length > 0 ? this.isEmpty(node) : true;
+        return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
+    }
+
+    siblings(editor, path) {
+        let children = [];
+        path = path || editor.selection.anchor.path;
+        path = Array.from(path);
+
+        path.pop();
+
+        let parent = Editor.above(editor, { at: path });
+        if (parent) {
+            parent = _.object(['node', 'path'], parent);
+            children = op.get(parent, 'node.children', []);
+        }
+        return children;
+    }
+
+    sibling(editor, path, offset = -1) {
+        path = path || editor.selection.anchor.path;
+        path = Array.from(path);
+
+        let node;
+
+        const siblings = this.siblings(editor, path);
+        const sibpath = Array.from(path);
+        sibpath.pop();
+
+        if (sibpath.length >= 1) {
+            let idx = sibpath.pop() + offset;
+            if (!_.range(siblings.length).includes(idx)) {
+                return;
+            }
+            node = siblings[idx];
+        }
+
+        return node;
+    }
+
+    before(editor, path) {
+        return this.sibling(editor, path);
+    }
+
+    after(editor, path) {
+        return this.sibling(editor, path, 1);
+    }
+
+    getBlock(editor, path) {
+        const nodes = Array.from(
+            Node.ancestors(editor, path, { reverse: true }),
+        );
+        const blocks = nodes.filter(([node]) => {
+            if (Editor.isEditor(node)) return false;
+            return op.get(node, 'type') === 'block';
+        });
+
+        let block = _.first(blocks);
+        block = block ? _.object(['node', 'path'], block) : null;
+
+        if (block) {
+            op.set(block, 'empty', String(Node.string(block.node)).length < 1);
+        }
+
+        return block;
+    }
+
+    insertBlock(editor, children, options = {}) {
+        children = Array.isArray(children) ? children : [children];
+
+        let { at, id, edge, ...props } = options;
+        edge = edge || 'end';
+        id = id || uuid();
+        id = String(id).startsWith('block-') ? id : `block-${id}`;
+
+        const args = [editor];
+        if (at) {
+            args.push({ at });
+        }
+
+        Transforms.collapse(editor, { edge });
+
+        let parent = Editor.above(...args) || Editor.node(...args);
+        parent = parent ? _.object(['node', 'path'], parent) : null;
+
+        const isEmpty = parent ? Editor.isEmpty(editor, parent.node) : false;
+        const block = isEmpty ? this.getBlock(editor, parent.path) : null;
+        const path = block ? block.path : parent.path;
+
+        const node = {
+            blocked: true,
+            ...props,
+            children: [
+                {
+                    type: 'div',
+                    children,
+                },
+            ],
+            id,
+            type: 'block',
+        };
+
+        if (isEmpty) {
+            Transforms.delete(editor, { at: path });
+        }
+
+        Transforms.insertNodes(editor, node, { at: path });
     }
 }
 

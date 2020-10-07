@@ -1,7 +1,7 @@
 import React from 'react';
 import Panel from './Panel';
 import RTEPlugin from '../../RTEPlugin';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 const Plugin = new RTEPlugin({ type: 'icon', order: 100 });
@@ -47,6 +47,7 @@ Plugin.callback = editor => {
                 <Button
                     {...Reactium.RTE.ENUMS.PROPS.BUTTON}
                     onClick={onButtonClick}
+                    data-tooltip={__('Insert Icon')}
                     {...props}>
                     <Icon
                         {...Reactium.RTE.ENUMS.PROPS.ICON}

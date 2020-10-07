@@ -23,6 +23,7 @@
 @import '../registered-components/Blocker/style';
 @import '../registered-components/DragPanel/style';
 @import '../registered-components/RichTextEditor/style';
+@import '../registered-components/RichTextEditor/Settings/style';
 @import '../registered-components/RichTextEditor/_plugins/withFormatter/Panel/style';
 @import '../registered-components/RichTextEditor/_plugins/withLink/Panel/style';
 @import '../registered-components/RichTextEditor/_plugins/withColor/Panel/style';
@@ -30,6 +31,7 @@
 @import '../registered-components/RichTextEditor/_plugins/withGrid/Panel/style';
 @import '../registered-components/RichTextEditor/_plugins/withMediaImage/style';
 @import '../registered-components/RichTextEditor/_plugins/withTab/style';
+@import '../registered-components/RichTextEditor/_plugins/withBlock/style';
 @import '../registered-components/IconPicker/style';
 @import '../registered-components/ProfileWidget/style';
 @import '../registered-components/DraggableList/style';
@@ -62,7 +64,7 @@
 @import '../ContentType/Plugins/FieldTypeText/style';
 @import '../ContentType/Plugins/FieldTypeObject/style';
 @import '../ContentType/Plugins/Publisher/style';
-@import '../ContentType/Plugins/Templates/style';
+@import '../ContentType/Plugins/Blueprints/style';
 @import '../ContentType/TypeName/style';
 @import '../ContentType/IconPicker/style';
 @import '../ContentType/Tools/style';

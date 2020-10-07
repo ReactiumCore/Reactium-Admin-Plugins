@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import RTEPlugin from '../../RTEPlugin';
-import Reactium from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 import { Editor, Transforms } from 'slate';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Panel from './Panel';
@@ -28,32 +28,39 @@ export const colors = {
 const Plugin = new RTEPlugin({ type: 'formatter', order: 100 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
-        const btn = e.currentTarget;
-        const rect = btn.getBoundingClientRect();
-        let { x, y, width } = rect;
-
-        x += width;
-
+    const onButtonClick = (editor, e) => {
+        e.preventDefault();
         editor.panel
             .setID('formatter')
             .setContent(<Panel selection={editor.selection} />)
-            .moveTo(x, y)
             .show();
     };
 
     // register buttons
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 0,
+        order: -1000,
         sidebar: true,
-        button: ({ editor, ...props }) => (
-            <Button
-                {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-                onClick={onButtonClick}
-                {...props}>
-                <Icon {...Reactium.RTE.ENUMS.PROPS.ICON} name='Feather.Type' />
-            </Button>
-        ),
+        button: ({ editor, ...props }) => {
+            const [selection, setSelection] = useState(editor.selection);
+            useEffect(() => {
+                if (!_.isEqual(selection, editor.selection)) {
+                    setSelection(editor.selection);
+                }
+            }, [editor.selection]);
+
+            return (
+                <Button
+                    {...Reactium.RTE.ENUMS.PROPS.BUTTON}
+                    onClick={e => onButtonClick(editor, e)}
+                    data-tooltip={__('Text Formatter')}
+                    {...props}>
+                    <Icon
+                        {...Reactium.RTE.ENUMS.PROPS.ICON}
+                        name='Feather.Type'
+                    />
+                </Button>
+            );
+        },
     });
 
     Reactium.RTE.Button.register('align-left', {
@@ -97,12 +104,20 @@ Plugin.callback = editor => {
     });
 
     // register blocks
+    Reactium.RTE.Block.register('styled', {
+        order: -1,
+        formatter: true,
+        label: 'Body Text',
+        size: 16,
+        element: props => <span {...props} className='ar-rte-styled' />,
+    });
+
     Reactium.RTE.Block.register('p', {
         order: 0,
         formatter: true,
         label: 'Paragraph',
         size: 16,
-        element: props => <p {...props} />,
+        element: ({ children, props }) => <p {...props}>{children}</p>,
     });
 
     Reactium.RTE.Block.register('h1', {
@@ -171,7 +186,16 @@ Plugin.callback = editor => {
     });
 
     Reactium.RTE.Block.register('div', {
-        element: props => <div {...props} />,
+        element: element => {
+            const node = op.get(element, 'children.props.node');
+            const props = { ...node };
+
+            op.del(props, 'type');
+            op.del(props, 'blocked');
+            op.del(props, 'children');
+
+            return <div {...element} {...props} />;
+        },
     });
 
     // register fonts
@@ -302,67 +326,6 @@ Plugin.callback = editor => {
     Object.entries(colors).forEach(([key, value]) =>
         Reactium.RTE.Color.register(key, { value, label: value }),
     );
-
-    // register hotkeys
-    Reactium.RTE.Hotkey.register('clearformats', {
-        keys: ['enter'],
-        order: 1000,
-        callback: ({ editor, event }) => {
-            try {
-                const [node, path] = Editor.node(editor, editor.selection);
-
-                const text = op.get(node, 'text');
-                const isEmpty = _.chain([text])
-                    .compact()
-                    .isEmpty()
-                    .value();
-
-                if (!isEmpty) return;
-
-                const [parent] = Editor.parent(editor, editor.selection);
-
-                const selection = {
-                    anchor: { path, offset: 0 },
-                    focus: { path, offset: 0 },
-                };
-
-                let type = op.get(parent, 'type');
-                type = type === 'paragraph' ? 'p' : type;
-                type = String(type).toLowerCase();
-
-                if (!type || type === 'div' || type === 'col' || type === 'row')
-                    return;
-
-                const list = ['ol', 'ul', 'li'];
-                const types = [
-                    'blockquote',
-                    'h1',
-                    'h2',
-                    'h3',
-                    'h4',
-                    'h5',
-                    'h6',
-                ];
-                const isType = types.includes(type);
-
-                if (isType) {
-                    event.preventDefault();
-
-                    Transforms.unwrapNodes(editor, {
-                        match: n => list.includes(n.type),
-                    });
-
-                    Transforms.setNodes(
-                        editor,
-                        { type: 'p', style: {} },
-                        { at: selection },
-                    );
-                } else {
-                    Transforms.setSelection(editor, { styles: {} });
-                }
-            } catch (err) {}
-        },
-    });
 
     // Extend editor
     editor.lastLine = () => [editor.children.length - 1, 0];

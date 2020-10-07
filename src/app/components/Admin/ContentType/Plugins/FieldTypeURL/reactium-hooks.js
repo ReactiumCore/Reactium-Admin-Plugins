@@ -1,14 +1,18 @@
-import Reactium, { __ } from 'reactium-core/sdk';
-import { Icon } from '@atomic-reactor/reactium-ui';
 import { Editor, FieldType, UrlSelect } from './index';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 const ID = 'URLS';
 
+const Ico = () => {
+    const { Icon } = useHookComponent('ReactiumUI');
+    return <Icon name='Feather.Link' />;
+};
+
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     const fieldType = {
-        id: 'urls',
+        id: String(ID).toLowerCase(),
         label: __('URL Field'),
-        icon: Icon.Feather.Link,
+        icon: Ico,
         tooltip: __('Adds URLs to a content type.'),
         component: 'FieldTypeURL',
         order: Reactium.Enums.priority.highest,

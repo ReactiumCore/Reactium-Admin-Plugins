@@ -32,7 +32,10 @@ import React, {
 
 const noop = () => {};
 
-const defaultValue = [{ type: 'p', children: [{ text: '' }] }];
+const defaultValue = {
+    type: 'div',
+    children: [{ type: 'p', children: [{ text: '' }] }],
+};
 
 const RichTextEditor = forwardRef((initialProps, ref) => {
     // 0.0 - Get props
@@ -166,7 +169,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         setValue({ children: newValue });
     };
 
-    const _onKeyDown = e => Reactium.RTE.hotKey(editor, e, hotkeys);
+    const _onKeyDown = e => Reactium.RTE.onKeyDown(editor, e, hotkeys);
 
     // 7.0 - Renderers
     const _renderElement = useCallback(

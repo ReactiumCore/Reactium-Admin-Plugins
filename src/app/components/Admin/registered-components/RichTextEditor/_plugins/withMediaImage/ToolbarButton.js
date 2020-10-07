@@ -3,7 +3,6 @@ import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
 import { useEditor } from 'slate-react';
-import { Editor, Transforms } from 'slate';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
@@ -26,79 +25,38 @@ export default props => {
     };
 
     const insertNode = (url, objectId) => {
-        const selection = editor.selection;
-
-        const ext = url.split('.').pop();
+        const id = uuid();
         const node = {
-            ID: uuid(),
+            blockID: `block-${id}`,
+            blocked: true,
             children: [{ text: '' }],
-            ext,
+            ext: url.split('.').pop(),
+            id: id,
             objectId,
             src: url,
             type: 'image',
         };
 
-        const p = {
-            type: 'p',
-            ID: uuid(),
-            children: [{ text: '' }],
-        };
-
-        const [currentNode] = Editor.node(editor, selection);
-        const [parentNode, parentPath] = Editor.parent(editor, selection);
-
-        let type = op.get(parentNode, 'type');
-        type = String(type).toLowerCase();
-
-        if (type === 'col') {
-            const parentProps = { ...parentNode };
-            delete parentProps.children;
-
-            const currentText = op.get(currentNode, 'text', '');
-
-            const children = [];
-
-            if (!_.isEmpty(_.compact([currentText]))) {
-                children.push({
-                    children: [{ text: currentText }],
-                });
-            }
-            children.push(node);
-            children.push(p);
-            const newParent = { ...parentProps, children };
-            editor.insertNode(newParent);
-            Transforms.wrapNodes(editor, parentProps);
-            Transforms.removeNodes(editor, {
-                at: parentPath,
-                voids: true,
-            });
-        } else {
-            if (currentNode) {
-                const text = _.compact([currentNode.text]);
-                if (_.isEmpty(text)) editor.deleteBackward('block');
-            }
-            editor.insertNode(node);
-            editor.insertNode(p);
-        }
+        Reactium.RTE.insertBlock(editor, node, { id });
     };
 
-    const showPicker = () => {
+    const showPicker = () =>
         Modal.show(
             <MediaPicker
                 confirm={false}
                 dismissable
                 filters='IMAGE'
-                onSubmit={_onMediaSelect}
                 onDismiss={() => Modal.hide()}
+                onSubmit={_onMediaSelect}
                 title={__('Select Image')}
             />,
         );
-    };
 
     return (
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             onClick={() => showPicker()}
+            data-tooltip={__('Add Image')}
             {...props}>
             <Icon name='Feather.Camera' size={20} />
         </Button>

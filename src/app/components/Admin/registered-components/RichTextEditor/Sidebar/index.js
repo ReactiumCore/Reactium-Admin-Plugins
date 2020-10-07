@@ -1,18 +1,20 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import op from 'object-path';
 import { useSlate } from 'slate-react';
-import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
-import { isMarkActive, toggleMark, useSelected } from '../_utils';
-import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
+import { useSelected } from '../_utils';
+import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
+
+import {
+    useDerivedState,
+    useEventHandle,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useMemo,
     useRef,
-    useState,
 } from 'react';
 
 const Buttons = ({ container, editor, nodes }) => (
@@ -42,13 +44,14 @@ let Sidebar = (
 
     const { buttons } = editor;
 
+    const buttonRef = useRef();
     const containerRef = useRef();
-
-    const collapsibleRef = useRef();
 
     if (typeof window === 'undefined') return null;
 
-    const { range, rect, selected, selection } = useSelected();
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const { rect } = useSelected();
 
     const [state, setState] = useDerivedState({
         collapsed: true,
@@ -95,8 +98,69 @@ let Sidebar = (
 
     const toggle = () => {
         const { collapsed } = state;
-        setState({ collapsed: !collapsed });
-        collapsibleRef.current.toggle();
+        return collapsed ? expand() : collapse();
+    };
+
+    const collapse = () => {
+        if (state.animiation) return state.animation;
+
+        const animation = new Promise(resolve => {
+            const { collapsed } = state;
+            if (!collapsed) resolve();
+
+            const cont = buttonRef.current;
+
+            TweenMax.to(cont, 0.5, {
+                opacity: 0,
+                ease: Power2.easeInOut,
+                onComplete: () => {
+                    cont.removeAttribute('style');
+                    state.collapsed = true;
+                    setState({
+                        animation: null,
+                        collapsing: null,
+                        collapsed: true,
+                    });
+                    resolve();
+                },
+            });
+        });
+
+        setState({ animation, expanding: null, collapsing: true });
+
+        return animation;
+    };
+
+    const expand = () => {
+        if (state.animiation) return state.animation;
+
+        const animation = new Promise(resolve => {
+            const { collapsed } = state;
+            if (!collapsed) resolve();
+
+            const cont = buttonRef.current;
+            cont.style.opacity = 1;
+            cont.style.display = 'block';
+
+            TweenMax.from(cont, 0.5, {
+                opacity: 0,
+                ease: Power2.easeInOut,
+                onComplete: () => {
+                    cont.removeAttribute('style');
+                    state.collapsed = true;
+                    setState({
+                        animation: null,
+                        expanding: null,
+                        collapsed: false,
+                    });
+                    resolve();
+                },
+            });
+        });
+
+        setState({ animation, expanding: true, collapsing: null });
+
+        return animation;
     };
 
     const _handle = () => ({
@@ -107,7 +171,7 @@ let Sidebar = (
         toggle,
     });
 
-    const [handle, setHandle] = useEventHandle(_handle());
+    const [handle] = useEventHandle(_handle());
 
     useImperativeHandle(ref, () => handle);
 
@@ -116,39 +180,33 @@ let Sidebar = (
         if (!_.isEqual(position, state.position)) setState({ position });
     }, [state.position]);
 
-    const render = useMemo(() => {
-        const { collapsed } = state;
-
-        const _style = {
-            ...style,
-            ...getPosition(),
-        };
-
+    const render = () => {
+        const { collapsing, collapsed, expanding } = state;
+        const _style = { ...style, ...getPosition() };
         const nodes = buttons ? Object.values(buttons) : [];
+        const cls = cn({ collapsed: (collapsed || collapsing) && !expanding });
 
         return (
             <div style={_style} ref={containerRef} className={className}>
                 <Button
                     appearance='circle'
-                    className={cn({ collapsed: !collapsed })}
+                    className={cls}
                     color='primary'
                     onClick={toggle}
                     style={{ width: 30, height: 30, padding: 0 }}>
-                    <Icon name='Feather.Plus' size={20} />
+                    <Icon name='Feather.X' size={20} />
                 </Button>
-                <Collapsible
+                <div
+                    ref={buttonRef}
                     className={cx('buttons')}
-                    expanded={!collapsed}
-                    onExpand={() => setState({ collapsed: false })}
-                    onCollapse={() => setState({ collapsed: true })}
-                    ref={collapsibleRef}>
+                    style={{ display: state.collapsed ? 'none' : null }}>
                     <Buttons container={id} editor={editor} nodes={nodes} />
-                </Collapsible>
+                </div>
             </div>
         );
-    });
+    };
 
-    return render;
+    return render();
 };
 
 Sidebar = forwardRef(Sidebar);
@@ -160,3 +218,24 @@ Sidebar.defaultProps = {
 };
 
 export { Sidebar as default };
+
+/*
+<Collapsible
+    direction='horizontal'
+    expanded={!collapsed}
+    onExpand={() => setState({ collapsed: false })}
+    onCollapse={() => setState({ collapsed: true })}
+    ref={collapsibleRef}>
+
+    <Buttons container={id} editor={editor} nodes={nodes} />
+</Collapsible>
+
+{!state.collapsed && (
+    <Buttons
+        className={cx('buttons')}
+        container={id}
+        editor={editor}
+        nodes={nodes}
+    />
+)}
+*/

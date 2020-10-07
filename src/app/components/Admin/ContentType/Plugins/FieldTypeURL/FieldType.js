@@ -51,6 +51,15 @@ export default props => {
                                 ))}
                             </select>
                         </div>
+                        <div className='form-group'>
+                            <input
+                                type='text'
+                                name='app'
+                                placeholder={__(
+                                    'Target Application. default: site',
+                                )}
+                            />
+                        </div>
                         <div className='flex middle'>
                             <div className='flex-grow'>
                                 <div className='form-group'>
