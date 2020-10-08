@@ -5,7 +5,7 @@ import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
-import { Editor, Node, Transforms } from 'slate';
+import { Editor, Node, Path, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
 // TODO: Convert to Reactium.Utils.registryFactory
@@ -292,24 +292,20 @@ class RTE {
     insertBlock(editor, children, options = {}) {
         children = Array.isArray(children) ? children : [children];
 
-        let { at, id, edge, ...props } = options;
-        edge = edge || 'end';
+        let { at, id, ...props } = options;
         id = id || uuid();
         id = String(id).startsWith('block-') ? id : `block-${id}`;
 
         const args = [editor];
-        if (at) {
-            args.push({ at });
-        }
-
-        Transforms.collapse(editor, { edge });
+        if (at) args.push({ at });
 
         let parent = Editor.above(...args) || Editor.node(...args);
         parent = parent ? _.object(['node', 'path'], parent) : null;
 
-        const isEmpty = parent ? Editor.isEmpty(editor, parent.node) : false;
-        const block = isEmpty ? this.getBlock(editor, parent.path) : null;
-        const path = block ? block.path : parent.path;
+        const block = parent ? this.getBlock(editor, parent.path) : null;
+        const isEmpty = Editor.isEmpty(editor, parent.node);
+        const path = parent.path;
+        let next = Path.next(path);
 
         const node = {
             blocked: true,
@@ -324,11 +320,22 @@ class RTE {
             type: 'block',
         };
 
-        if (isEmpty) {
-            Transforms.delete(editor, { at: path });
-        }
+        Transforms.move(editor, { edge: 'end' });
 
-        Transforms.insertNodes(editor, node, { at: path });
+        if (block) {
+            if (block.empty) {
+                Transforms.insertNodes(editor, node, {
+                    at: Path.next(block.path),
+                });
+                Transforms.delete(editor, { at: block.path });
+            } else {
+                Transforms.insertNodes(editor, node, { at: next, split: true });
+                if (isEmpty) Transforms.delete(editor, { at: path });
+            }
+        } else {
+            Transforms.insertNodes(editor, node, { at: next, split: true });
+            if (isEmpty) Transforms.delete(editor, { at: path });
+        }
     }
 }
 

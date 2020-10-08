@@ -1,9 +1,10 @@
+import _ from 'underscore';
 import op from 'object-path';
 import Element from './Element';
-import { Editor, Node } from 'slate';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
+import { Editor, Node, Transforms } from 'slate';
 const Plugin = new RTEPlugin({ type: 'block', order: -1 });
 
 const isColumn = (editor, path) => {
@@ -82,9 +83,25 @@ Plugin.callback = editor => {
     });
 
     // Editor overrides
-    const { isInline } = editor;
+    const { isInline, normalizeNode } = editor;
     editor.isInline = element =>
         element.type === Plugin.type ? false : isInline(element);
+
+    editor.normalizeNode = entry => {
+        const path = [editor.children.length - 1];
+        const next = [editor.children.length];
+        const last = _.object(['node', 'path'], Editor.node(editor, path));
+
+        if (op.get(last.node, 'type') !== 'p') {
+            Transforms.insertNodes(
+                editor,
+                { type: 'p', children: [{ text: '' }] },
+                { at: next },
+            );
+        }
+
+        normalizeNode(entry);
+    };
 
     return editor;
 };
