@@ -1,26 +1,9 @@
-import uuid from 'uuid/v4';
-import _ from 'underscore';
-import cn from 'classnames';
-import op from 'object-path';
-import JsxParser from 'react-jsx-parser';
-import queryActions from './queryActions';
-import React, { useEffect, useRef, useState } from 'react';
-
-import Reactium, {
-    __,
-    useDerivedState,
-    useHookComponent,
-} from 'reactium-core/sdk';
-
-import {
-    Alert,
-    Button,
-    Dropdown,
-    Icon,
-    Spinner,
-} from '@atomic-reactor/reactium-ui';
+import React from 'react';
+import { __, useHookComponent } from 'reactium-core/sdk';
 
 const Help = () => {
+    const { Alert, Icon } = useHookComponent('ReactiumUI');
+
     return (
         <div className='help'>
             <Alert
