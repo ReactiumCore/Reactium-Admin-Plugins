@@ -62,7 +62,9 @@ const FieldType = props => {
             Reactium.Hook.register(
                 'content-type-validate-fields',
                 async context => {
-                    context[id] = await formRef.current.validate();
+                    if (formRef.current) {
+                        context[id] = await formRef.current.validate();
+                    }
                 },
             ),
         ];
