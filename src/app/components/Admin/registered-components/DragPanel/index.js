@@ -15,14 +15,10 @@ import Reactium, {
 import React, {
     forwardRef,
     useEffect,
-    useLayoutEffect as useWindowEffect,
     useImperativeHandle,
     useRef,
     useState,
 } from 'react';
-
-const useLayoutEffect =
-    typeof window !== 'undefined' ? useWindowEffect : useLayoutEffect;
 
 /**
  * -----------------------------------------------------------------------------

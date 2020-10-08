@@ -65,12 +65,7 @@ const Element = ({ children, ...props }) => {
                 blocked: true,
                 id: `block-${uuid()}`,
                 type: 'block',
-                children: [
-                    {
-                        type: 'div',
-                        children: [{ type: 'p', children: [{ text: '' }] }],
-                    },
-                ],
+                children: [{ type: 'p', children: [{ text: '' }] }],
             },
             {
                 at: path,
@@ -98,8 +93,8 @@ const Element = ({ children, ...props }) => {
             Transforms.insertNodes(
                 editor,
                 {
-                    type: 'div',
-                    children: [{ type: 'p', text: '' }],
+                    type: 'p',
+                    children: [{ text: '' }],
                 },
                 { at: Path.next(selection) },
             );
