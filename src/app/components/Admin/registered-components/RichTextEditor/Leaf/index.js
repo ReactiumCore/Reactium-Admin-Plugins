@@ -1,6 +1,5 @@
 import React from 'react';
 import op from 'object-path';
-import { Editor } from 'slate';
 
 const Leaf = props => {
     let { attributes, children, formats = [], leaf = {} } = props;
@@ -10,11 +9,7 @@ const Leaf = props => {
         children = <Element>{children}</Element>;
     });
 
-    return (
-        <span {...attributes} {...leaf}>
-            {children}
-        </span>
-    );
+    return <span {...attributes}>{children}</span>;
 };
 
 export default Leaf;

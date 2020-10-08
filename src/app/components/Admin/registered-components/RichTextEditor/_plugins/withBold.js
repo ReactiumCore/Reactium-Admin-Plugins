@@ -8,7 +8,7 @@ const Plugin = new RTEPlugin({ type: 'bold', order: 100 });
 Plugin.callback = editor => {
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: props => <strong {...props} />,
+        element: ({ children }) => <strong children={children} />,
     });
 
     // register toolbar button
