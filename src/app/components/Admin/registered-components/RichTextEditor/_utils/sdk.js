@@ -310,12 +310,7 @@ class RTE {
         const node = {
             blocked: true,
             ...props,
-            children: [
-                {
-                    type: 'div',
-                    children,
-                },
-            ],
+            children,
             id,
             type: 'block',
         };
