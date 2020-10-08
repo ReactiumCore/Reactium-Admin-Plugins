@@ -260,7 +260,7 @@ export const FieldType = props => {
         help: Reactium.Prefs.get('admin.help.cte.collection', true),
         key: [],
         query: [],
-        type: { type: 'Collection', objectId: null },
+        type: { type: 'Collection', machineName: null },
         wait: null,
     });
 
@@ -373,7 +373,7 @@ export const FieldType = props => {
 
     const schema = () => {
         if (!op.get(state, 'type')) return [];
-        const defaultKeys = ['ACL', 'objectId', 'createdAt', 'updatedAt'];
+        const defaultKeys = ['ACL', 'machineName', 'createdAt', 'updatedAt'];
         const schema = op.get(state, 'type.schema', {});
         const schemaKeys = Object.keys(schema);
         schemaKeys.sort();
@@ -409,8 +409,14 @@ export const FieldType = props => {
                 return;
             }
 
-            const type = _.findWhere(types, { objectId: collection });
-            setState({ type, wait: null });
+            let type = _.findWhere(types, { machineName: collection });
+
+            // support older definition with objectId as collection
+            if (!type) type = _.findWhere(types, { objectId: collection });
+
+            if (type) {
+                setState({ type, wait: null });
+            }
         }
 
         if (query) {
@@ -437,7 +443,7 @@ export const FieldType = props => {
         const formValue = formRef.current.getValue();
         formRef.current.setValue({
             ...formValue,
-            collection: item.objectId,
+            collection: item.machineName,
             targetClass: item.collection,
         });
     };
@@ -513,15 +519,16 @@ export const FieldType = props => {
                         <input type='hidden' name='targetClass' />
                         <div className='field-type-collection'>
                             <Help state={state} setState={setState} />
+
                             <Dropdown
                                 data={types}
                                 labelField='type'
                                 maxHeight='calc(40vh)'
                                 onItemClick={e => _onTypeSelect(e)}
                                 ref={typeRef}
-                                selection={[type.objectId]}
+                                selection={[type.machineName]}
                                 size='md'
-                                valueField='objectId'>
+                                valueField='machineName'>
                                 <Button
                                     color='default'
                                     data-dropdown-element
@@ -554,7 +561,7 @@ export const FieldType = props => {
 
                             <Error state={state} setState={setState} />
 
-                            {type.objectId !== null && (
+                            {type.machineName !== null && (
                                 <div
                                     className={cn(
                                         { 'input-group': !!func },
