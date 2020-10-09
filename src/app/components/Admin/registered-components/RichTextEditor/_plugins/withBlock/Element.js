@@ -61,7 +61,6 @@ const Element = ({ children, ...props }) => {
         Transforms.insertNodes(
             editor,
             {
-                className: 'full',
                 blocked: true,
                 id: `block-${uuid()}`,
                 type: 'block',
