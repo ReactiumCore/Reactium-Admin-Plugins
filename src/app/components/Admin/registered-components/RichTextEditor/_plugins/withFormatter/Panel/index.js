@@ -6,7 +6,7 @@ import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 
-import {
+import Reactium, {
     __,
     useDerivedState,
     useEventHandle,
@@ -308,30 +308,24 @@ let Panel = ({ selection: initialSelection, ...props }, ref) => {
 
     const _onSubmit = () => {
         const { selection, style, textStyle } = state;
+
         Transforms.select(editor, selection);
 
         if (Range.isExpanded(selection)) {
-            if (op.get(textStyle, 'id') !== 'styled') {
+            if (op.get(textStyle, 'id') === 'styled') {
+                Editor.addMark(editor, 'style', style);
+            } else {
                 Transforms.setNodes(
                     editor,
                     { style, type: textStyle.id },
                     { split: true },
                 );
-            } else {
-                Editor.addMark(editor, 'style', style);
             }
         } else {
-            Transforms.insertNodes(editor, {
-                type: 'block',
-                blocked: true,
-                id: `block-${uuid()}`,
-                children: [
-                    {
-                        style,
-                        type: textStyle.id,
-                        children: [{ text: textStyle.label || '' }],
-                    },
-                ],
+            Reactium.RTE.insertBlock(editor, {
+                style,
+                type: textStyle.id,
+                children: [{ text: textStyle.label || '' }],
             });
         }
         Transforms.collapse(editor, { edge: 'end' });
@@ -462,7 +456,6 @@ let Panel = ({ selection: initialSelection, ...props }, ref) => {
             bgColor,
             bgOpacity,
             blocks,
-            buttons,
             color,
             colors,
             font,

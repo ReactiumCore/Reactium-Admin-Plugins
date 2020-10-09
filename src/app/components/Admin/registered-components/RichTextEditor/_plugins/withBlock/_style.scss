@@ -78,6 +78,7 @@ $rte-block-ns: block !default;
                         margin: 0;
                         padding: 8px;
                         display: inline-block;
+
                         &:not(:first-child) {
                             margin-left: -2px;
                         }
