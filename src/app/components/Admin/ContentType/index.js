@@ -233,11 +233,11 @@ const uiReducer = (ui = {}, action) => {
 
 /**
  * Wrapper for naive uiReducer, which assumes all the fields are behaving.
- * This reducer does not, and normalized out any wonky field definition data,
+ * This reducer does not, and sanitize out any wonky field definition data,
  * such as undefined or missing field type.
  * Also cleans up regions of any field ids that don't exist.
  */
-const normalizeUIReducer = (state = {}, action) => {
+const sanitizingUIReducer = (state = {}, action) => {
     const ui = uiReducer(state, action);
     const fieldTypes = _.indexBy(
         Object.values(Reactium.ContentType.FieldType.list),
@@ -281,7 +281,7 @@ const ContentType = props => {
     const Enums = op.get(props, 'Enums', {});
 
     const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
-    const [ui, dispatch] = useReducer(normalizeUIReducer, {
+    const [ui, dispatch] = useReducer(sanitizingUIReducer, {
         fields: {},
         regions: REQUIRED_REGIONS,
         requiredRegions: REQUIRED_REGIONS,
