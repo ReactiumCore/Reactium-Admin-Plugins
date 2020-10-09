@@ -29,6 +29,7 @@ $rte-block-ns: block !default;
                 > div > .#{$rte-block-ns}-actions {
                     opacity: 1;
                 }
+
                 > div > .add {
                     opacity: 1;
                 }
@@ -45,7 +46,7 @@ $rte-block-ns: block !default;
                 justify-content: center;
                 z-index: 40;
                 opacity: 0;
-                transition: opacity .2s ease-in-out;
+                transition: opacity 0.2s ease-in-out;
 
                 button {
                     width: 20px;
@@ -69,14 +70,23 @@ $rte-block-ns: block !default;
             }
 
             &.row {
-                > .block-content > div {
+                > .block-content {
                     @extend .row;
 
                     > .block {
+                        max-width: none;
                         margin: 0;
                         padding: 8px;
                         display: inline-block;
-                        ul, li { width: 100%; }
+
+                        &:not(:first-child) {
+                            margin-left: -2px;
+                        }
+
+                        ul,
+                        li {
+                            width: 100%;
+                        }
 
                         > div {
                             width: 100%;
@@ -97,7 +107,7 @@ $rte-block-ns: block !default;
             right: 2px;
             z-index: 50;
             opacity: 0;
-            transition: opacity .2s ease-in-out;
+            transition: opacity 0.2s ease-in-out;
 
             > button {
                 padding: 0;

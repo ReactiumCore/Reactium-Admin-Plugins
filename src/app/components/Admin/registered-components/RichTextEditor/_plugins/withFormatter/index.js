@@ -109,7 +109,10 @@ Plugin.callback = editor => {
         formatter: true,
         label: 'Body Text',
         size: 16,
-        element: props => <span {...props} className='ar-rte-styled' />,
+        element: props => {
+            console.log('styled', props);
+            return <span {...props} className='ar-rte-styled' />;
+        },
     });
 
     Reactium.RTE.Block.register('p', {
