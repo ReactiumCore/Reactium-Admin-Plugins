@@ -182,8 +182,8 @@ const MenuEditor = memo(props => {
         props.editor.addEventListener('clean', clean);
         props.editor.addEventListener('save-success', clean);
         return () => {
-            props.editor.addEventListener('clean', clean);
-            props.editor.addEventListener('save-success', clean);
+            props.editor.removeEventListener('clean', clean);
+            props.editor.removeEventListener('save-success', clean);
         };
     }, [props.editor]);
 
