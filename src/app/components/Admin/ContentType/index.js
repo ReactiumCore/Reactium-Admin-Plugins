@@ -60,7 +60,6 @@ const UI = {
 };
 
 const uiReducer = (ui = {}, action) => {
-    // console.log('uiReducer', { action, ui });
     const fields = { ...op.get(ui, 'fields', {}) };
     const regions = { ...op.get(ui, 'regions', {}) };
     const regionFields = { ...op.get(ui, 'regionFields', {}) };
@@ -232,6 +231,45 @@ const uiReducer = (ui = {}, action) => {
     return ui;
 };
 
+/**
+ * Wrapper for naive uiReducer, which assumes all the fields are behaving.
+ * This reducer does not, and sanitize out any wonky field definition data,
+ * such as undefined or missing field type.
+ * Also cleans up regions of any field ids that don't exist.
+ */
+const sanitizingUIReducer = (state = {}, action) => {
+    const ui = uiReducer(state, action);
+    const fieldTypes = _.indexBy(
+        Object.values(Reactium.ContentType.FieldType.list),
+        'type',
+    );
+
+    // Clean up fields
+    const fields = op.get(ui, 'fields', {});
+    Object.entries(fields).forEach(([fieldId, field]) => {
+        // remove fields missing essential information or of unknown type
+        if (
+            !op.has(field, 'fieldType') ||
+            !op.has(fieldTypes, field.fieldType)
+        ) {
+            op.del(fields, fieldId);
+        }
+    });
+
+    // Clean up fields in regions
+    const regionFields = op.get(ui, 'regionFields', {});
+    Object.entries(regionFields).forEach(([region, ids = []]) => {
+        // remove any fields that don't exist from region
+        op.set(
+            regionFields,
+            region,
+            ids.filter(id => id in fields),
+        );
+    });
+
+    return ui;
+};
+
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), setValue: noop });
 const ContentType = props => {
@@ -243,7 +281,7 @@ const ContentType = props => {
     const Enums = op.get(props, 'Enums', {});
 
     const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
-    const [ui, dispatch] = useReducer(uiReducer, {
+    const [ui, dispatch] = useReducer(sanitizingUIReducer, {
         fields: {},
         regions: REQUIRED_REGIONS,
         requiredRegions: REQUIRED_REGIONS,
@@ -453,7 +491,7 @@ const ContentType = props => {
             op.get(ui, 'fields', {}),
         )) {
             const ref = getFormRef(fieldId);
-            if (!ref) continue;
+            if (!fieldId || !ref || !ref.setValue) continue;
 
             const ftContext = op.get(responseContext, fieldId, {
                 valid: true,
@@ -508,6 +546,7 @@ const ContentType = props => {
 
             // check to make sure UI version of field type matches saved
             if (
+                slug &&
                 op.has(savedFields, slug) &&
                 fieldType !== op.get(savedFields, [slug, 'fieldType'])
             ) {

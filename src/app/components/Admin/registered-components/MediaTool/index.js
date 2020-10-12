@@ -31,9 +31,9 @@ const MediaTool = forwardRef((props, mediaToolRef) => {
     const { Dropzone } = useHookComponent('ReactiumUI');
 
     const Modal = op.get(tools, 'Modal');
-    const [value, _setSelection] = useState(propValue || []);
+    const [value, setValue] = useState(propValue || []);
     const setSelection = values => {
-        _setSelection(values);
+        setValue(values);
         const evt = new ComponentEvent('media-selected', {
             values,
             type: 'media-selected',
@@ -121,6 +121,7 @@ const MediaTool = forwardRef((props, mediaToolRef) => {
         setDirectories,
         setSelection,
         value,
+        setValue,
         selection,
         pickerOptions,
     });

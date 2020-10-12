@@ -34,7 +34,7 @@ export const FieldType = props => {
 
     const [state, setState] = useDerivedState({
         options: {},
-        types: types(['number', 'tags', 'text', 'textarea']),
+        types: types(['number', 'tags', 'text', 'textarea', 'media']),
     });
 
     const { DragHandle } = props;
