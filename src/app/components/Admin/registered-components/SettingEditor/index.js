@@ -85,7 +85,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         [groupName]: settingGroup,
     };
 
-    const inputs = op.get(settings, 'inputs', {});
+    const [inputs, setInputs] = useState(op.get(settings, 'inputs', {}));
 
     const InputRender = () => {
         const renderInput = (key, config) => {
@@ -211,6 +211,12 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     };
 
     useEffect(() => {
+        const newInputs = JSON.parse(JSON.stringify(inputs));
+        Reactium.Hook.runSync(`settings-editor-config-${groupName}`, newInputs);
+        setInputs(newInputs);
+    }, [op.get(settings, 'inputs', {})]);
+
+    useEffect(() => {
         if (!loading) setValue(group);
     }, [settingGroup, loading]);
 
@@ -256,7 +262,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
         const newSettingsGroup = { ...formValues };
         Object.entries(inputs).forEach(([key, config]) => {
-            console.log('key', key);
             const currentInputValue = sanitizeInput(
                 op.get(newSettingsGroup, key, op.get(value, key)),
                 config,
