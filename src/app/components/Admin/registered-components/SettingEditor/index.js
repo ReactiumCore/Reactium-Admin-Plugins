@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import Reactium, {
     __,
+    useAsyncEffect,
     useSettingGroup,
     useHandle,
     useHookComponent,
@@ -221,8 +222,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     }, [settingGroup, loading]);
 
-    useEffect(() => {
-        const IID = Reactium.Zone.addComponent({
+    useAsyncEffect(async () => {
+        const IID = await Reactium.Zone.addComponent({
             component: InputRender,
             order: Reactium.Enums.priority.normal,
             zone: [`settings-editor-${groupName}-inputs`],
