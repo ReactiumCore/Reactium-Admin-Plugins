@@ -49,6 +49,7 @@ const AppSettings = ({
                 <CapabilityEditor
                     capabilities={capabilities}
                     height='calc(100vh - 196px)'
+                    pref='admin.dialog.capabilities'
                 />
             )}
             {children}

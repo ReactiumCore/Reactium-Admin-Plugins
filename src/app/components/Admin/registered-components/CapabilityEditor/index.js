@@ -93,7 +93,7 @@ const RoleControl = ({
 const CapabilityEditor = ({
     capabilities = [],
     height,
-    pref = 'capability-editor',
+    pref = 'admin.capability-editor',
 }) => {
     const canSet = useCapabilityCheck(
         ['capability.create', 'capability.update'],

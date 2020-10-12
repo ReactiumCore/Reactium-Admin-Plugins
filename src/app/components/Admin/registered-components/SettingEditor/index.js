@@ -4,7 +4,7 @@ import React, {
     useLayoutEffect as useWindowEffect,
     useEffect,
 } from 'react';
-import {
+import Reactium, {
     __,
     useSettingGroup,
     useHandle,
@@ -87,6 +87,129 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const inputs = op.get(settings, 'inputs', {});
 
+    const InputRender = () => {
+        const renderInput = (key, config) => {
+            const type = op.get(config, 'type', 'text');
+            const hasError = op.has(errorsRef.current, [key]);
+            const formGroupClasses = cn('form-group', {
+                error: hasError,
+            });
+            const helpText = op.get(
+                errorsRef.current,
+                [key, 'message'],
+                op.get(config, 'tooltip', ''),
+            );
+
+            if (typeof type === 'string') {
+                switch (type) {
+                    case 'media': {
+                        return (
+                            <MediaSetting
+                                value={op.get(value, key)}
+                                updateValue={updateValue(key)}
+                                key={key}
+                                name={key}
+                                config={config}
+                                helpText={helpText}
+                            />
+                        );
+                    }
+
+                    case 'checkbox': {
+                        return (
+                            <div
+                                className={cn(formGroupClasses, 'inline')}
+                                key={key}>
+                                <label htmlFor={key}>
+                                    <span
+                                        data-tooltip={config.tooltip}
+                                        data-align='left'>
+                                        {config.label}
+                                    </span>
+                                    <small>{helpText}</small>
+                                </label>
+                                <Checkbox name={key} value={true} id={key} />
+                            </div>
+                        );
+                    }
+                    case 'toggle': {
+                        return (
+                            <div
+                                className={cn(formGroupClasses, 'inline')}
+                                key={key}>
+                                <label htmlFor={key}>
+                                    <span aria-label={config.tooltip}>
+                                        {config.label}
+                                    </span>
+                                    <small>{helpText}</small>
+                                </label>
+                                <Toggle name={key} value={true} id={key} />
+                            </div>
+                        );
+                    }
+                    case 'textarea': {
+                        return (
+                            <div className={formGroupClasses} key={key}>
+                                <label>
+                                    <span
+                                        data-tooltip={config.tooltip}
+                                        data-align='left'>
+                                        {config.label}
+                                    </span>
+                                    <textarea
+                                        autoComplete='off'
+                                        name={key}
+                                        required={op.get(
+                                            config,
+                                            'required',
+                                            false,
+                                        )}
+                                    />
+                                    <small>{helpText}</small>
+                                </label>
+                            </div>
+                        );
+                    }
+                    case 'text':
+                    default:
+                        return (
+                            <div className={formGroupClasses} key={key}>
+                                <label>
+                                    <span
+                                        data-tooltip={config.tooltip}
+                                        data-align='left'>
+                                        {config.label}
+                                    </span>
+                                    <input
+                                        type='text'
+                                        autoComplete='off'
+                                        name={key}
+                                        required={op.get(
+                                            config,
+                                            'required',
+                                            false,
+                                        )}
+                                    />
+                                    <small>{helpText}</small>
+                                </label>
+                            </div>
+                        );
+                }
+            } else if (typeof type === 'function') {
+                try {
+                    const Component = type;
+                    return <Component key={key} {...config} />;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+
+        return Object.entries(inputs).map(([key, config]) =>
+            renderInput(key, config),
+        );
+    };
+
     useEffect(() => {
         if (!loading) {
             const newValue = {};
@@ -97,6 +220,18 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             setValue(newValue);
         }
     }, [settingGroup, loading]);
+
+    useEffect(() => {
+        const IID = Reactium.Zone.addComponent({
+            component: InputRender,
+            order: Reactium.Enums.priority.normal,
+            zone: [`settings-editor-${groupName}-inputs`],
+        });
+
+        return () => {
+            Reactium.Zone.removeComponent(IID);
+        };
+    }, []);
 
     if (!canGet) return null;
 
@@ -157,94 +292,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     };
 
-    const renderInput = (key, config) => {
-        const type = op.get(config, 'type', 'text');
-        const hasError = op.has(errorsRef.current, [key]);
-        const formGroupClasses = cn('form-group', {
-            error: hasError,
-        });
-        const helpText = op.get(
-            errorsRef.current,
-            [key, 'message'],
-            op.get(config, 'tooltip', ''),
-        );
-
-        if (typeof type === 'string') {
-            switch (type) {
-                case 'media': {
-                    return (
-                        <MediaSetting
-                            value={op.get(value, key)}
-                            updateValue={updateValue(key)}
-                            key={key}
-                            name={key}
-                            config={config}
-                            helpText={helpText}
-                        />
-                    );
-                }
-
-                case 'checkbox': {
-                    return (
-                        <div className={formGroupClasses} key={key}>
-                            <label>
-                                <span
-                                    data-tooltip={config.tooltip}
-                                    data-align='left'>
-                                    {config.label}
-                                </span>
-                                <Checkbox name={key} value={true} />
-                                <small>{helpText}</small>
-                            </label>
-                        </div>
-                    );
-                }
-                case 'toggle': {
-                    return (
-                        <div className={formGroupClasses} key={key}>
-                            <label>
-                                <span
-                                    data-tooltip={config.tooltip}
-                                    data-align='left'>
-                                    {config.label}
-                                </span>
-                                <Toggle name={key} value={true} />
-                                <small>{helpText}</small>
-                            </label>
-                        </div>
-                    );
-                }
-                case 'text':
-                default:
-                    return (
-                        <div className={formGroupClasses} key={key}>
-                            <label>
-                                <span
-                                    data-tooltip={config.tooltip}
-                                    data-align='left'>
-                                    {config.label}
-                                </span>
-                                <input
-                                    type='text'
-                                    autoComplete='off'
-                                    name={key}
-                                    required={op.get(config, 'required', false)}
-                                />
-                                <small>{helpText}</small>
-                            </label>
-                        </div>
-                    );
-            }
-        } else if (typeof type === 'function') {
-            try {
-                const Component = type;
-                return <Component key={key} {...config} />;
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    };
-
     const pref = op.has(settings, 'group')
         ? `setting-editor-${settings.group.toLowerCase()}`
         : 'setting-editor';
@@ -255,6 +302,19 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             dismissable={false}
             header={{
                 title,
+                elements: [
+                    <Button
+                        key='app-settings-save'
+                        className='ar-dialog-header-btn'
+                        color={Button.ENUMS.COLOR.CLEAR}
+                        disabled={!canSet}
+                        onClick={e => formRef.current.submit(e)}
+                        size={Button.ENUMS.SIZE.XS}
+                        title={__('Save Settings')}
+                        type='button'>
+                        <Icon name='Feather.Check' size={18} />
+                    </Button>,
+                ],
             }}>
             <Zone
                 zone={'settings-editor-all'}
@@ -285,27 +345,23 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     },
                     ...classNames,
                 )}>
-                <Button
-                    disabled={!canSet}
-                    className={'mb-20'}
-                    color={Button.ENUMS.COLOR.PRIMARY}
-                    size={Button.ENUMS.SIZE.MD}
-                    type='submit'>
-                    {__('Save Settings')}
-                </Button>
+                <Zone
+                    zone={`settings-editor-${groupName}-inputs`}
+                    groupName={groupName}
+                    settingGroup={settingGroup}
+                />
 
-                {Object.entries(inputs).map(([key, config]) =>
-                    renderInput(key, config),
-                )}
-
-                <Button
-                    disabled={!canSet}
-                    className={'mt-20'}
-                    color={Button.ENUMS.COLOR.PRIMARY}
-                    size={Button.ENUMS.SIZE.MD}
-                    type='submit'>
-                    {__('Save Settings')}
-                </Button>
+                <div className='flex middle center'>
+                    <Button
+                        appearance={Button.ENUMS.APPEARANCE.PILL}
+                        disabled={!canSet}
+                        className={'mt-20'}
+                        color={Button.ENUMS.COLOR.PRIMARY}
+                        size={Button.ENUMS.SIZE.MD}
+                        type='submit'>
+                        {__('Save Settings')}
+                    </Button>
+                </div>
             </EventForm>
         </Dialog>
     );
