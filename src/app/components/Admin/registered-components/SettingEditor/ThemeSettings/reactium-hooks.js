@@ -8,9 +8,6 @@ Reactium.Plugin.register('AdminThemeSettings').then(() => {
     // TODO: Remove this register - THIS IS TEMPORARILY HERE
     Reactium.Theme.register('solar', {
         label: 'Solar',
-        description: __('Solar site theme'),
-        scss: '/solar-theme.scss',
-        css: '/solar-theme.css',
     });
 
     Reactium.Component.register('AdminThemeSettings', ThemeSettings);
