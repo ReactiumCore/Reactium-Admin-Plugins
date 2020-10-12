@@ -9,7 +9,6 @@ import Reactium, {
     useAsyncEffect,
     useSettingGroup,
     useHandle,
-    useHookComponent,
     Zone,
 } from 'reactium-core/sdk';
 import {
@@ -212,20 +211,13 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     };
 
     useEffect(() => {
-        if (!loading) {
-            const newValue = {};
-            Object.keys(inputs).forEach(key => {
-                op.set(newValue, key, op.get(group, key, null));
-            });
-
-            setValue(newValue);
-        }
+        if (!loading) setValue(group);
     }, [settingGroup, loading]);
 
     useAsyncEffect(async () => {
         const IID = await Reactium.Zone.addComponent({
             component: InputRender,
-            order: Reactium.Enums.priority.normal,
+            order: Reactium.Enums.priority.neutral,
             zone: [`settings-editor-${groupName}-inputs`],
         });
 
@@ -262,10 +254,11 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         errorsRef.current = {};
         if (!canSet) return;
 
-        const newSettingsGroup = {};
+        const newSettingsGroup = { ...formValues };
         Object.entries(inputs).forEach(([key, config]) => {
+            console.log('key', key);
             const currentInputValue = sanitizeInput(
-                op.get(formValues, key, op.get(value, key)),
+                op.get(newSettingsGroup, key, op.get(value, key)),
                 config,
             );
 
@@ -275,6 +268,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         try {
             valueRef.current = newSettingsGroup;
             await setSettingGroup(op.get(newSettingsGroup, groupName));
+            formRef.current.setValue(valueRef.current);
 
             Toast.show({
                 type: Toast.TYPE.SUCCESS,
@@ -300,12 +294,26 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     return (
         <Dialog
             pref={pref}
+            className='mb-xs-24'
             dismissable={false}
+            footer={{
+                elements: [
+                    <Button
+                        key='app-settings-save-footer'
+                        disabled={!canSet}
+                        color={Button.ENUMS.COLOR.PRIMARY}
+                        onClick={e => formRef.current.submit(e)}
+                        size={Button.ENUMS.SIZE.SM}
+                        type='button'>
+                        {__('Save Settings')}
+                    </Button>,
+                ],
+            }}
             header={{
                 title,
                 elements: [
                     <Button
-                        key='app-settings-save'
+                        key='app-settings-save-header'
                         className='ar-dialog-header-btn'
                         color={Button.ENUMS.COLOR.CLEAR}
                         disabled={!canSet}
@@ -350,19 +358,9 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     zone={`settings-editor-${groupName}-inputs`}
                     groupName={groupName}
                     settingGroup={settingGroup}
+                    form={formRef.current}
+                    value={value}
                 />
-
-                <div className='flex middle center'>
-                    <Button
-                        appearance={Button.ENUMS.APPEARANCE.PILL}
-                        disabled={!canSet}
-                        className={'mt-20'}
-                        color={Button.ENUMS.COLOR.PRIMARY}
-                        size={Button.ENUMS.SIZE.MD}
-                        type='submit'>
-                        {__('Save Settings')}
-                    </Button>
-                </div>
             </EventForm>
         </Dialog>
     );

@@ -22,14 +22,14 @@ export default {
                     type: 'text',
                     label: __('App title'),
                     tooltip: __('Title of this application.'),
-                    required: true,
+                    required: false,
                 },
 
                 url: {
                     type: 'text',
                     label: __('App URL'),
                     tooltip: __('URL of this application if applicable.'),
-                    required: true,
+                    required: false,
                 },
 
                 maintenance: {
