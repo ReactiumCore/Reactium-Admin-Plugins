@@ -180,6 +180,16 @@
     &-collapsible {
         box-shadow: $shadow-image;
         background-color: $color-text-light;
+
+        .collection {
+            .ar-data-table-headings {
+                display: none;
+            }
+
+            .ar-data-table-rows {
+                margin-top: -1px;
+            }
+        }
     }
 }
 

@@ -7,7 +7,7 @@ Reactium.Theme = Reactium.Utils.registryFactory('Theme');
 Reactium.Plugin.register('AdminThemeSettings').then(() => {
     // TODO: Remove this register - THIS IS TEMPORARILY HERE
     Reactium.Theme.register('solar', {
-        label: 'Solar',
+        label: __('Solar'),
     });
 
     Reactium.Component.register('AdminThemeSettings', ThemeSettings);
