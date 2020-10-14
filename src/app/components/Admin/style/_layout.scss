@@ -145,6 +145,7 @@ body {
 }
 
 .ar-dropdown {
+    width: 100%;
     &-menu {
         box-shadow: 0 2px 2px 1px rgba($color-black, 0.025);
 
@@ -265,4 +266,4 @@ body {
 
 .block {
     display: block;
-}; 
+};

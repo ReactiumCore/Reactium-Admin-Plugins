@@ -255,7 +255,9 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         setVersion(new Date());
     };
 
-    const onSubmit = async e => {
+    const submit = (value, silent = false) => onSubmit({ value }, silent);
+
+    const onSubmit = async (e, silent) => {
         const { value: formValues } = e;
         errorsRef.current = {};
         if (!canSet) return;
@@ -275,12 +277,14 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             await setSettingGroup(op.get(newSettingsGroup, groupName));
             formRef.current.setValue(valueRef.current);
 
-            Toast.show({
-                type: Toast.TYPE.SUCCESS,
-                message: __('Settings saved'),
-                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
-                autoClose: 1000,
-            });
+            if (silent !== true) {
+                Toast.show({
+                    type: Toast.TYPE.SUCCESS,
+                    message: __('Settings saved'),
+                    icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                    autoClose: 1000,
+                });
+            }
         } catch (error) {
             Toast.show({
                 type: Toast.TYPE.ERROR,
@@ -364,6 +368,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     groupName={groupName}
                     settingGroup={settingGroup}
                     form={formRef.current}
+                    submit={submit}
                     value={value}
                 />
             </EventForm>

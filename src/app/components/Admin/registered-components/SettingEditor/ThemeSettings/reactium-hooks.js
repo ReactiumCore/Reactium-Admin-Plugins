@@ -1,17 +1,21 @@
 import React from 'react';
 import ThemeSettings from '.';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import * as Themes from './themes';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
-Reactium.Theme = Reactium.Utils.registryFactory('Theme');
+// Create Theme SDK
+Reactium.Theme = Reactium.Theme || Reactium.Utils.registryFactory('Theme');
 
 Reactium.Plugin.register('AdminThemeSettings').then(() => {
-    // TODO: Remove this register - THIS IS TEMPORARILY HERE
-    Reactium.Theme.register('solar', {
-        label: __('Solar'),
-    });
+    // Register default themes
+    Object.values(Themes).forEach(theme =>
+        Reactium.Theme.register(theme.id, theme),
+    );
 
+    // Register ThemeSettings component
     Reactium.Component.register('AdminThemeSettings', ThemeSettings);
 
+    // Add ThemeSettings to settings page
     Reactium.Zone.addComponent({
         order: Reactium.Enums.priority.neutral + 2,
         zone: ['settings-editor-App-inputs'],

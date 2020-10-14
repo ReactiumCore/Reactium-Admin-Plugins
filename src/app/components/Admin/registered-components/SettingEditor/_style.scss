@@ -9,4 +9,17 @@ $setting-editor-error-color: $color-danger !default;
             color: $setting-editor-error-color;
         }
     }
+
+    .form-group {
+        .hover-show {
+            opacity: 0;
+            transition: opacity .2s ease-in-out;
+        }
+
+        &:hover {
+            .hover-show {
+                opacity: 1;
+            }
+        }
+    }
 }
