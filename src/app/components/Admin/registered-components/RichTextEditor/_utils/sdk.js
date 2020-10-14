@@ -315,7 +315,7 @@ class RTE {
             type: 'block',
         };
 
-        Transforms.move(editor, { edge: 'end' });
+        // Transforms.move(editor, { edge: 'end' });
 
         if (block) {
             if (block.empty) {

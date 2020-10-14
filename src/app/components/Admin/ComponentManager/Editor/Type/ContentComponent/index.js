@@ -325,48 +325,41 @@ const ContentComponent = ({ handle, id }) => {
         }
     };
 
-    const _onDropdownSelect = async ({ item }, field) => {
-        const search = op.get(state, 'search') || { content: null, type: null };
-        const selection = op.get(state, 'selection') || {
-            content: [],
-            type: [],
-        };
+    const _onTypeSelect = async ({ item }) => {
+        setStatus(ENUMS.STATUS.SEARCHING, true);
 
-        // clear content if field === type and different
-        let changed = false;
-        if (field === 'type') {
-            const curr = op.get(item, 'value');
-            const prev = _.chain([op.get(selection, field)])
-                .flatten()
-                .compact()
-                .first()
-                .value();
+        const { label, value } = item;
+        const search = JSON.parse(JSON.stringify(state.search || {}));
+        const selection = JSON.parse(JSON.stringify(state.selection || {}));
 
-            if (curr !== prev) {
-                changed = true;
-                op.set(search, 'content', null);
-                op.set(selection, 'content', []);
-            }
-        }
+        op.set(search, 'type', label);
+        op.set(selection, 'type', [value]);
 
-        op.set(selection, field, _.compact([op.get(item, 'value')]));
-        op.set(search, field, null);
+        const newState = { content: [], error: null, search, selection };
 
-        const newState = { error: null, search, selection };
+        const { machineName } = item;
+        let { results: items = {} } = await Reactium.Content.list({
+            type: { machineName },
+        });
 
-        if (changed && field === 'type') {
-            if (changed === true) op.set(newState, 'content', []);
-
-            setStatus(ENUMS.STATUS.SEARCHING, true);
-            const { results: items = {} } = await Reactium.Content.search(
-                item.machineName,
-            );
-
-            op.set(newState, 'content', items);
-        }
+        items = _.indexBy(Object.values(items), 'uuid');
+        op.set(newState, 'content', items);
 
         setStatus(ENUMS.STATUS.READY);
         setState(newState);
+    };
+
+    const _onContentSelect = ({ item }) => {
+        const { label, value } = item;
+        const search = JSON.parse(JSON.stringify(state.search || {}));
+        const selection = JSON.parse(JSON.stringify(state.selection || {}));
+
+        console.log({ label, value, search, selection });
+
+        op.set(search, 'content', label);
+        op.set(selection, 'content', [value]);
+
+        setState({ error: null, selection, search });
     };
 
     const _onHelpToggle = () => {
@@ -422,9 +415,11 @@ const ContentComponent = ({ handle, id }) => {
                         .value(),
                 );
 
-                const { results: items = {} } = await Reactium.Content.search(
-                    component.machineName,
-                );
+                const { machineName } = component;
+                let { results: items = {} } = await Reactium.Content.list({
+                    type: { machineName },
+                });
+                items = _.indexBy(Object.values(items), 'uuid');
 
                 setStatus(ENUMS.STATUS.LOADED);
                 setState({ content: items, search, selection });
@@ -445,6 +440,7 @@ const ContentComponent = ({ handle, id }) => {
             .compact()
             .first()
             .value();
+
         let content = _.chain(op.get(state, 'selection.content') || [])
             .compact()
             .first()
@@ -510,9 +506,7 @@ const ContentComponent = ({ handle, id }) => {
                             data={types()}
                             expandEvent={['focus', 'click']}
                             maxHeight={252}
-                            onItemSelect={item =>
-                                _onDropdownSelect(item, 'type')
-                            }
+                            onItemSelect={item => _onTypeSelect(item, 'type')}
                             ref={elm => refs.set('dropdown', elm)}
                             selection={op.get(state, 'selection.type', [])}
                             size='md'>
@@ -543,9 +537,7 @@ const ContentComponent = ({ handle, id }) => {
                                 data={content()}
                                 expandEvent={['focus', 'click']}
                                 maxHeight={252}
-                                onItemSelect={item =>
-                                    _onDropdownSelect(item, 'content')
-                                }
+                                onItemSelect={_onContentSelect}
                                 ref={elm => refs.set('contentDropdown', elm)}
                                 selection={op.get(
                                     state,

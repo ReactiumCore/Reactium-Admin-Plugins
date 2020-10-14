@@ -200,7 +200,7 @@ let ComponentManager = (
 
         eventType = String(eventType).toLowerCase();
 
-        event = op.get(event, 'type') ? event : { ...event, type: eventType };
+        event = op.get(event, 'type') ? event : { ...event };
 
         const evt = new ComponentEvent(eventType, event);
 
@@ -327,6 +327,7 @@ let ComponentManager = (
 
         return SDK.delete(uuid).then(newComponents => {
             if (unMounted()) return;
+            handle.refs.del(`editor.${uuid}`);
             setState({ components: newComponents });
             _.defer(() => dispatch('delete', e));
 
@@ -337,7 +338,7 @@ let ComponentManager = (
     const _onDisable = uuid => {
         // disable all other editors
         Object.entries(handle.refs.get('editor')).forEach(([id, editor]) => {
-            if (id === uuid) return;
+            if (id === uuid || !editor) return;
             editor.disable();
         });
     };

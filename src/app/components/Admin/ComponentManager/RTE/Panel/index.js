@@ -6,6 +6,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import Attributes from './Attributes';
 import React, { useEffect } from 'react';
+import { Editor, Path, Transforms } from 'slate';
 
 import Reactium, {
     __,
@@ -101,7 +102,7 @@ let Panel = ({ editor, namespace, title, ...props }) => {
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const fetchContent = ({ component }) => {
+    const fetchContent = ({ component, ...props }) => {
         let { request = null } = state;
         if (request !== null) return request;
         setStatus(ENUMS.STATUS.FETCHING, true);
@@ -112,9 +113,14 @@ let Panel = ({ editor, namespace, title, ...props }) => {
                 : component;
 
         const { fields, schema = [], type } = component;
-        const { uuid } = component.content;
+
+        const uuid = op.get(component, 'content.uuid');
 
         request = Reactium.Content.retrieve({ uuid, type }).then(contentObj => {
+            if (!contentObj) {
+                throw new Error(`Unable to find ${type}: ${uuid}`);
+            }
+
             // loop through the schema array and build the new content node
             const content = schema.map(field => {
                 const { fieldType, fieldName } = op.get(fields, field);
@@ -214,17 +220,12 @@ let Panel = ({ editor, namespace, title, ...props }) => {
     const insertNode = ({ children = [], ...block }) => {
         const id = uuid();
         const node = {
-            blockID: `block-${id}`,
-            blocked: true,
             children,
             ID: id,
             block,
             type: 'component',
         };
-
         Reactium.RTE.insertBlock(editor, node, { id });
-
-        Reactium.Hook.runSync('block-node', node);
     };
 
     const listeners = () => {

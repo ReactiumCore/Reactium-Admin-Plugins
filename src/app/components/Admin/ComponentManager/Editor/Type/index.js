@@ -86,6 +86,9 @@ let Type = (initialProps, ref) => {
     const dispatch = (eventType, event = {}, callback) => {
         eventType = String(eventType).toLowerCase();
 
+        if (!_.isObject(event)) {
+            event = { eventType };
+        }
         const evt = new ComponentEvent(eventType, event);
 
         handle.dispatchEvent(evt);

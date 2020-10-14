@@ -38,11 +38,7 @@ const Element = initialProps => {
     // Render
     // -------------------------------------------------------------------------
     return (
-        <div
-            className={className}
-            contentEditable={false}
-            suppressContentEditableWarning
-            id={id}>
+        <div className={className} id={id}>
             {type === 'hook' && (
                 <HookComponent
                     {...props}

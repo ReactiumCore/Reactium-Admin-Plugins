@@ -5,6 +5,7 @@ import { Transforms } from 'slate';
 const insertBlock = (editor, props) => {
     const id = op.get(props, 'id') || `block-${uuid()}`;
     const blocked = op.get(props, 'blocked', true);
+
     Transforms.wrapNodes(
         editor,
         {
