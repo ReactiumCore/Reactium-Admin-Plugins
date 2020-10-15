@@ -9,7 +9,14 @@ import { useHookComponent } from 'reactium-core/sdk';
 const PickerTest = props => {
     const MediaTool = useHookComponent('MediaTool');
 
-    return <MediaTool max={10} directory={'uploads'} value={[]} />;
+    return (
+        <MediaTool
+            max={10}
+            directory={'uploads'}
+            value={[]}
+            onSelection={console.log}
+        />
+    );
 };
 
 export default PickerTest;

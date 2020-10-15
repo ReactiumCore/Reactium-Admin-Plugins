@@ -23,8 +23,9 @@ import ENUMS from './enums';
 
 export { ENUMS };
 
+const noop = () => {};
 const MediaTool = forwardRef((props, mediaToolRef) => {
-    const { value: propValue, pickerOptions } = props;
+    const { value: propValue, pickerOptions, onSelection = noop } = props;
     const max = op.get(pickerOptions, 'maxSelect', 1);
     const refs = useRefs();
     const tools = useHandle('AdminTools');
@@ -34,11 +35,17 @@ const MediaTool = forwardRef((props, mediaToolRef) => {
     const [value, setValue] = useState(propValue || []);
     const setSelection = values => {
         setValue(values);
-        const evt = new ComponentEvent('media-selected', {
-            values,
-            type: 'media-selected',
-        });
-        mediaToolRef.current.dispatchEvent(evt);
+
+        if (mediaToolRef && op.has(mediaToolRef.current, 'dispatchEvent')) {
+            const evt = new ComponentEvent('media-selected', {
+                values,
+                type: 'media-selected',
+            });
+
+            mediaToolRef.current.dispatchEvent(evt);
+        }
+
+        onSelection(values);
     };
 
     const [directories, setDirectories] = useDirectoryState();
