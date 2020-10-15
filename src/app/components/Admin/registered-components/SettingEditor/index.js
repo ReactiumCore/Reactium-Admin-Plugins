@@ -37,7 +37,6 @@ const useLayoutEffect =
 const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const tools = useHandle('AdminTools');
     const Toast = op.get(tools, 'Toast');
-
     const formRef = useRef();
     const errorsRef = useRef({});
     const [, setVersion] = useState(new Date());
@@ -263,20 +262,21 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         errorsRef.current = {};
         if (!canSet) return;
 
-        const newSettingsGroup = { ...formValues };
+        const newSettingsGroup = { ...valueRef.current, ...formValues };
         Object.entries(inputs).forEach(([key, config]) => {
             const currentInputValue = sanitizeInput(
-                op.get(newSettingsGroup, key, op.get(value, key)),
+                op.get(newSettingsGroup, key, op.get(valueRef.current, key)),
                 config,
             );
 
             op.set(newSettingsGroup, key, currentInputValue);
         });
 
-        await Reactium.Hook.run(`setting-save-${groupName}`, newSettingsGroup);
+        valueRef.current = newSettingsGroup;
+
+        await Reactium.Hook.run(`setting-save-${groupName}`, valueRef.current);
 
         try {
-            valueRef.current = newSettingsGroup;
             await setSettingGroup(op.get(newSettingsGroup, groupName));
             formRef.current.setValue(valueRef.current);
 
@@ -373,7 +373,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     settingGroup={settingGroup}
                     form={formRef.current}
                     submit={submit}
-                    value={value}
+                    value={valueRef.current}
                 />
             </EventForm>
         </Dialog>
