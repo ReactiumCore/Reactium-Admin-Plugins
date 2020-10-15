@@ -16,7 +16,7 @@ const areEqual = (pv, nx) => {
 
 const LinkMenuItem = memo(props => {
     const dialogRef = useRef();
-    const { Dialog, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Dialog, Icon } = useHookComponent('ReactiumUI');
     const DragHandle = useHookComponent('MenuItemDragHandle');
 
     const fieldName = op.get(props, 'fieldName');
@@ -73,7 +73,12 @@ const LinkMenuItem = memo(props => {
             header={{
                 title: (
                     <div className='menu-item-editor-title'>
-                        <Icon name={'Feather.Link'} />
+                        <Button
+                            className='ar-dialog-header-btn'
+                            color={Button.ENUMS.COLOR.CLEAR}
+                            style={{ padding: 0, border: 'none' }}>
+                            <Icon name='Feather.Link' />
+                        </Button>
                         <span>{title}</span>
                     </div>
                 ),

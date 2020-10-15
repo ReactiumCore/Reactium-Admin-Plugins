@@ -17,7 +17,7 @@ const areEqual = (pv, nx) => {
 
 const ContentTypeMenuItem = memo(props => {
     const dialogRef = useRef();
-    const { Dialog, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Dialog, Icon } = useHookComponent('ReactiumUI');
     const DragHandle = useHookComponent('MenuItemDragHandle');
     const fieldName = op.get(props, 'fieldName');
     const [menuItem, setMenuItem] = useDerivedState(op.get(props, 'item', {}), [
@@ -80,7 +80,14 @@ const ContentTypeMenuItem = memo(props => {
             header={{
                 title: typeSlug ? (
                     <div className='menu-item-editor-title'>
-                        {icon && <Icon name={icon} />}
+                        {icon && (
+                            <Button
+                                className='ar-dialog-header-btn'
+                                color={Button.ENUMS.COLOR.CLEAR}
+                                style={{ padding: 0, border: 'none' }}>
+                                <Icon name={icon} />
+                            </Button>
+                        )}
                         <Link
                             to={`/admin/content/${typeSlug}/${slug}`}
                             target={'__blank'}>
@@ -98,12 +105,8 @@ const ContentTypeMenuItem = memo(props => {
             ref={dialogRef}
             dismissable={true}
             onDismiss={onRemoveItem(menuItem)}
-            onCollapse={() => {
-                _.defer(animateResize);
-            }}
-            onExpand={() => {
-                _.defer(animateResize);
-            }}>
+            onCollapse={() => _.defer(animateResize)}
+            onExpand={() => _.defer(animateResize)}>
             <div className={'p-xs-20'}>
                 <div className='form-group'>
                     <label>

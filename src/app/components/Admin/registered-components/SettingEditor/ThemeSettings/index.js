@@ -34,6 +34,10 @@ const ThemeSettings = props => {
     // prettier-ignore
     const setTheme = id => setState({ theme: _.findWhere(Reactium.Theme.list, { id }) });
 
+    const _onNavSelect = e => {
+        console.log(e);
+    };
+
     const _onThemeSelect = e => setTheme(e.target.value);
 
     // set state.theme from form value
@@ -45,6 +49,10 @@ const ThemeSettings = props => {
         <div className='pt-xs-20 pl-xs-20'>
             {navigations().map(({ id, ...nav }) => {
                 const name = prefix(`navigation.${id}`);
+                const val = _.isObject(op.get(state.value, name))
+                    ? op.get(state.value, [name, 'slug'])
+                    : op.get(state.value, name);
+
                 return (
                     <NavSelect
                         {...nav}
@@ -52,7 +60,8 @@ const ThemeSettings = props => {
                         key={id}
                         name={name}
                         options={navs}
-                        value={op.get(state.value, name)}
+                        onChange={_onNavSelect}
+                        value={val}
                     />
                 );
             })}

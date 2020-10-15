@@ -256,7 +256,13 @@ const ContentTypeControl = props => {
                         header={{
                             title: (
                                 <div className='control-title'>
-                                    <Icon name={icon} />
+                                    <Button
+                                        className='ar-dialog-header-btn'
+                                        color={Button.ENUMS.COLOR.CLEAR}
+                                        readOnly
+                                        style={{ padding: 0, border: 'none' }}>
+                                        <Icon name={icon} />
+                                    </Button>
                                     <span>{title}</span>
                                 </div>
                             ),

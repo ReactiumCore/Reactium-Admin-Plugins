@@ -80,7 +80,13 @@ const LinkControl = props => {
                 header={{
                     title: (
                         <div className='control-title'>
-                            <Icon name={'Feather.Link'} />
+                            <Button
+                                className='ar-dialog-header-btn'
+                                color={Button.ENUMS.COLOR.CLEAR}
+                                readOnly
+                                style={{ padding: 0, border: 'none' }}>
+                                <Icon name='Feather.Link' />
+                            </Button>
                             <span>{__('Link')}</span>
                         </div>
                     ),

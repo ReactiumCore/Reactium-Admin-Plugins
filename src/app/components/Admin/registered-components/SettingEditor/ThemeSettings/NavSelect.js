@@ -1,5 +1,7 @@
+import _ from 'underscore';
 import op from 'object-path';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+
 import {
     ComponentEvent,
     useDerivedState,
@@ -30,14 +32,26 @@ const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
     useImperativeHandle(ref, () => handle);
 
     useEffect(() => {
-        const evt = new ComponentEvent('change', {
-            previous: handle.value,
-            value: state.value,
-        });
+        if (options.length < 1) return;
+
         op.set(handle, 'value', state.value);
-        onChange(evt);
+
+        handle.dispatchEvent(
+            new ComponentEvent('change', {
+                value: state.value,
+                menu: _.findWhere(options, { slug: state.value }),
+            }),
+        );
+
         setHandle(handle);
     }, [state.value]);
+
+    useEffect(() => {
+        handle.addEventListener('change', onChange);
+        return () => {
+            handle.removeEventListener('change', onChange);
+        };
+    }, []);
 
     return (
         <div className='pr-xs-20 pb-xs-20'>
@@ -52,10 +66,10 @@ const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
                         <select
                             id={name}
                             name={name}
-                            value={state.value}
+                            value={state.value || ''}
                             style={{ width: '100%' }}
                             onChange={_onChange}>
-                            <option value={null}>Select</option>
+                            <option value=''>Select</option>
                             {options.map(({ slug, title }) => (
                                 <option value={slug} key={slug}>
                                     {title}

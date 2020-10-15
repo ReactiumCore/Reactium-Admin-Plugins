@@ -519,15 +519,7 @@ const DraggableList = forwardRef((props, ref) => {
                                             role='option'
                                             {...(!delegateBind
                                                 ? delegatedBindables(i).bind
-                                                : {})}
-                                            style={{
-                                                boxShadow: shadow.to(
-                                                    s =>
-                                                        `rgba(0, 0, 0, 0.5) 0px ${1.1 *
-                                                            s}px ${2 *
-                                                            s}px 0px`,
-                                                ),
-                                            }}>
+                                                : {})}>
                                             <span
                                                 id={ariaActionLabel}
                                                 className='sr-only'>
