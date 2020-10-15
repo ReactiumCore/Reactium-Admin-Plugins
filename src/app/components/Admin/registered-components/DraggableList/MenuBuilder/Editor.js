@@ -144,9 +144,14 @@ const MenuEditor = memo(props => {
 
                 const url = _.first(urls);
 
-                op.set(context, 'menu', {});
+                op.set(context, 'menu', { item: {} });
                 op.set(context, 'menu.url', url);
                 op.set(context, 'menu.urls', urls);
+                op.set(
+                    context,
+                    'menu.item.title',
+                    op.get(context, 'item.title'),
+                );
 
                 break;
 

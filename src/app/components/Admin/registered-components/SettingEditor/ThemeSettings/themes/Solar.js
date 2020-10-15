@@ -57,6 +57,11 @@ const Solar = {
             defaultValue: '#FFFFFF',
         },
         {
+            id: 'header.main.accent',
+            label: __('Header Accent:'),
+            defaultValue: '#f7921e',
+        },
+        {
             id: 'header.sub.background',
             label: __('Sub Navigation Background:'),
             defaultValue: '#0086d8',
@@ -65,6 +70,11 @@ const Solar = {
             id: 'header.sub.text',
             label: __('Sub Navigation Text:'),
             defaultValue: '#FFFFFF',
+        },
+        {
+            id: 'header.sub.accent',
+            label: __('Sub Navigation Accent:'),
+            defaultValue: '#f7921e',
         },
         {
             id: 'footer.main.background',
