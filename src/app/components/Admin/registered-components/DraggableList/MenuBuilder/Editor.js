@@ -130,50 +130,37 @@ const MenuEditor = memo(props => {
         _.defer(() => props.editor.setValue({ [fieldName]: newValue }));
     };
 
-    const normalizeMenuItem = ({ item, ...context }) => {
-        console.log(context);
-
-        let obj = { ...context };
-
+    const normalizeMenuItem = context => {
         switch (context.type) {
             case 'ContentType':
                 const urls = _.pluck(
                     Reactium.Routing.routes.list.filter(
                         route =>
-                            op.get(route, 'meta.contentId') === item.objectId,
+                            op.get(route, 'meta.contentId') ===
+                            context.item.objectId,
                     ),
                     'path',
                 );
 
                 const url = _.first(urls);
-                const slug = op.get(item, 'slug');
-                const id = op.get(item, 'objectId');
-                const typeSlug = op.get(item, 'type.machineName');
-                const icon = op.get(item, 'type.meta.icon', 'Linear.Papers');
 
-                op.set(obj, 'item.url', url);
-                op.set(obj, 'item.urls', urls);
-                op.set(obj, 'item.slug', slug);
-                op.set(obj, 'item.objectId', id);
-                op.set(obj, 'item.title', item.title);
-                op.set(obj, 'item.type', { meta: {} });
-                op.set(obj, 'item.type.meta.icon', icon);
-                op.set(obj, 'item.type.machineName', typeSlug);
+                op.set(context, 'menu', {});
+                op.set(context, 'menu.url', url);
+                op.set(context, 'menu.urls', urls);
 
                 break;
 
             case 'Link':
-                op.set(obj, 'item', item);
-                op.set(obj, 'item.urls', [item.url]);
+                op.set(context, 'menu', context.item);
+                op.set(context, 'menu.urls', [context.item.url]);
                 break;
         }
 
-        return obj;
+        return context;
     };
 
     const addItems = item => {
         const added = _.flatten([item]).map(item => normalizeMenuItem(item));
-        // const added = _.flatten([item]);
         setItems(items.concat(added));
     };
 

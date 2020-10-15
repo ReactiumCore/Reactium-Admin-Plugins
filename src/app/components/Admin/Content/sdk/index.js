@@ -99,6 +99,7 @@ Content.ACLToReadWrite = async ACL => {
  * @apiGroup Reactium.Content
  */
 Content.save = async (content = {}, permissions = [], handle) => {
+    content = JSON.parse(JSON.stringify(content));
     const request = {
         ...content,
     };
@@ -434,6 +435,7 @@ Content.restore = async (params, handle) => {
  * @apiGroup Reactium.Content
  */
 Content.publish = async (params, handle) => {
+    params = JSON.parse(JSON.stringify(params));
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-publish', request);
 
