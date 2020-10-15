@@ -21,7 +21,7 @@ const KEYS = [
 
 const ColorButton = ({ active, onClick, prop, styles }) => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
-    const value = op.get(styles, prop);
+    const value = op.get(styles, prop, '');
     const style = { backgroundColor: value };
     return (
         <Button

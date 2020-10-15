@@ -43,7 +43,7 @@ const BorderStyleButton = ({
         prop && (
             <Button color={Button.ENUMS.COLOR.CLEAR} {...props} data-key={prop}>
                 <input
-                    defaultValue={value || 'solid'}
+                    defaultValue={value || ''}
                     name={`style.${prop}`}
                     type='hidden'
                 />
