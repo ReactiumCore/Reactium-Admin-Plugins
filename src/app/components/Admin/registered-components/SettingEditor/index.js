@@ -43,16 +43,17 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const [, setVersion] = useState(new Date());
     const update = () => setVersion(new Date());
     const groupName = op.get(settings, 'group');
-    const valueRef = useRef();
-    const value = op.get(valueRef.current) || {};
+    const valueRef = useRef({});
+    const value = valueRef.current;
+
     const setValue = newValue => {
         valueRef.current = newValue;
         update();
     };
 
-    const updateValue = name => inputValue => {
+    const updateValue = name => (inputValue, forceRender = false) => {
         op.set(valueRef.current, name, inputValue);
-        update();
+        if (forceRender) update();
     };
 
     useLayoutEffect(() => {
@@ -87,7 +88,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const [inputs, setInputs] = useState(op.get(settings, 'inputs', {}));
 
-    const InputRender = () => {
+    const InputRender = ({ value }) => {
         const renderInput = (key, config) => {
             const type = op.get(config, 'type', 'text');
             const hasError = op.has(errorsRef.current, [key]);
@@ -105,7 +106,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                     case 'media': {
                         return (
                             <MediaSetting
-                                value={op.get(value, key)}
+                                value={op.get(valueRef.current, key)}
                                 updateValue={updateValue(key)}
                                 key={key}
                                 name={key}
@@ -340,6 +341,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                 zone={'settings-editor-all'}
                 groupName={groupName}
                 settingGroup={settingGroup}
+                value={valueRef.current}
             />
             <Zone
                 zone={`settings-editor-${groupName}`}

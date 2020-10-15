@@ -21,28 +21,10 @@ const MediaSetting = ({
     const directory = op.get(config, 'directory', 'uploads') || 'uploads';
     const pickerOptions = op.get(config, 'pickerOptions', defaultPickerOptions);
 
-    const onSelected = e => {
-        const values = e.values;
-        const target = e.target;
-        updateValue(target.selection(values));
+    const onSelected = values => {
+        const selection = mediaToolRef.current.selection(values);
+        updateValue(selection, false);
     };
-
-    useEffect(() => {
-        let cleanup = [];
-
-        // mediaTool listeners
-        if (mediaToolRef.current) {
-            mediaToolRef.current.addEventListener('media-selected', onSelected);
-            cleanup.push(() =>
-                mediaToolRef.current.removeEventListener(
-                    'media-selected',
-                    onSelected,
-                ),
-            );
-        }
-
-        return () => cleanup.forEach(cb => cb());
-    }, [mediaToolRef.current]);
 
     useEffect(() => {
         if (mediaToolRef.current && Array.isArray(value)) {
@@ -52,7 +34,7 @@ const MediaSetting = ({
             const left = _.difference(current, next);
             const right = _.difference(next, current);
             if (!_.isEmpty(left) || !_.isEmpty(right)) {
-                tool.setSelection(value);
+                mediaToolRef.current.setSelection(value);
             }
         }
     }, [value]);
@@ -66,6 +48,7 @@ const MediaSetting = ({
 
                 <MediaTool
                     ref={mediaToolRef}
+                    onSelection={onSelected}
                     pickerOptions={pickerOptions}
                     directory={directory}
                     value={value}
