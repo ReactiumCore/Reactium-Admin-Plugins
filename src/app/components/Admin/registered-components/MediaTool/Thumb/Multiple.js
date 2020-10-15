@@ -6,9 +6,9 @@ import { TypeIcon } from 'components/Admin/Media/MediaPicker';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-const Multiple = ({ selection, handle, media }) => {
+const Multiple = forwardRef(({ selection, handle, media }, ref) => {
     const { cx, nav, remove, removeAll } = handle;
 
     const { Button, DataTable, Icon } = useHookComponent('ReactiumUI');
@@ -62,7 +62,7 @@ const Multiple = ({ selection, handle, media }) => {
         );
 
     return (
-        <div className={cn(cx('thumbs'), 'multiple')}>
+        <div className={cn(cx('thumbs'), 'multiple')} ref={ref}>
             <Toolbar nav={nav}>
                 <div className='delete-all-container'>
                     <Button
@@ -81,7 +81,7 @@ const Multiple = ({ selection, handle, media }) => {
             </div>
         </div>
     );
-};
+});
 
 export { Multiple, Multiple as default };
 

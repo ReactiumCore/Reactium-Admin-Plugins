@@ -126,7 +126,10 @@ let MediaPicker = (initialProps, ref) => {
 
         newState = newState ? { ...state, ...newState } : {};
         updateState(newState);
-        _.defer(() => updateState({ ...newState, update: Date.now() }));
+        _.defer(() => {
+            if (unMounted()) return;
+            updateState({ ...newState, update: Date.now() });
+        });
     };
 
     // -------------------------------------------------------------------------

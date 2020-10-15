@@ -2,8 +2,9 @@ import _ from 'underscore';
 import op from 'object-path';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
-import {
+import Reactium, {
     ComponentEvent,
+    useAsyncEffect,
     useDerivedState,
     useEventHandle,
 } from 'reactium-core/sdk';
@@ -11,17 +12,34 @@ import {
 const noop = () => {};
 
 const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
-    let { label, name, value, options = [] } = props;
+    let { groupName, label, name, value, options = [] } = props;
 
     const [state, setState] = useDerivedState({
         value,
     });
 
+    const getMenu = () => {
+        let menuData = _.findWhere(options, { slug: state.value }) || {};
+        let menuItems = op.get(menuData, 'menu_builder.items', []);
+        return menuItems.map(({ depth, id, menu, type }) => ({
+            depth,
+            id,
+            type,
+            ...menu,
+        }));
+    };
+
     const _onChange = e => setState({ value: e.target.value });
+
+    const _onSubmit = value => {
+        const menu = getMenu();
+        op.set(value, name, { menu, slug: state.value });
+    };
 
     const _handle = () => ({
         ...props,
         data: options,
+        menu: getMenu,
         state,
         setState,
         value: state.value,
@@ -32,26 +50,34 @@ const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
     useImperativeHandle(ref, () => handle);
 
     useEffect(() => {
-        if (options.length < 1) return;
-
         op.set(handle, 'value', state.value);
+        setHandle(handle);
+
+        if (options.length < 1) return;
 
         handle.dispatchEvent(
             new ComponentEvent('change', {
                 value: state.value,
-                menu: _.findWhere(options, { slug: state.value }),
             }),
         );
-
-        setHandle(handle);
     }, [state.value]);
+
+    useAsyncEffect(async () => {
+        const HID = await Reactium.Hook.register(
+            `setting-save-${groupName}`,
+            _onSubmit,
+        );
+        return () => {
+            Reactium.Hook.unregister(HID);
+        };
+    }, []);
 
     useEffect(() => {
         handle.addEventListener('change', onChange);
         return () => {
             handle.removeEventListener('change', onChange);
         };
-    }, []);
+    }, [handle]);
 
     return (
         <div className='pr-xs-20 pb-xs-20'>

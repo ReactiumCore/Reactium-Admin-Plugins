@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import op from 'object-path';
 import Single from './Single';
 import Multiple from './Multiple';
 import ENUMS from 'components/Admin/Media/enums';
@@ -10,7 +9,7 @@ import Reactium, {
     useStatus,
 } from 'reactium-core/sdk';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const fetchMedia = async hookID => {
     const results = await Reactium.Media.fetch({ page: -1 }).then(results => ({
@@ -26,8 +25,9 @@ const fetchMedia = async hookID => {
     return results;
 };
 
-const Thumb = ({ handle, ...props }) => {
-    const { cx, max, value, isActive } = handle;
+const Thumb = ({ handle }) => {
+    const contRef = useRef();
+    const { cx, max, value } = handle;
 
     const { Spinner } = useHookComponent('ReactiumUI');
 
@@ -85,16 +85,18 @@ const Thumb = ({ handle, ...props }) => {
                         file={_.last(selection())}
                         handle={handle}
                         media={data}
+                        ref={contRef}
                     />
                 ) : (
                     <Multiple
                         selection={selection()}
                         handle={handle}
                         media={data}
+                        ref={contRef}
                     />
                 )
             ) : (
-                <div className={cx('thumbs')}>
+                <div className={cx('thumbs')} ref={contRef}>
                     <Spinner />
                 </div>
             )}

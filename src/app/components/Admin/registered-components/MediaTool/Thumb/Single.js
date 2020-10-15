@@ -13,9 +13,9 @@ import Reactium, {
     useStatus,
 } from 'reactium-core/sdk';
 
-import React, { useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 
-const Single = ({ file, handle, media }) => {
+const Single = forwardRef(({ file, handle, media }, ref) => {
     const { cx, nav, remove } = handle;
 
     const containerRef = useRef();
@@ -84,7 +84,7 @@ const Single = ({ file, handle, media }) => {
     const viewImage = () => {
         const Modal = op.get(tools, 'Modal');
         Modal.show(
-            <div className='lightbox' onClick={() => Modal.hide()}>
+            <div className='lightbox' onClick={() => Modal.hide()} ref={ref}>
                 <img src={url()} />
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.CIRCLE}
@@ -174,6 +174,6 @@ const Single = ({ file, handle, media }) => {
             </Button>
         </div>
     );
-};
+});
 
 export { Single, Single as default };

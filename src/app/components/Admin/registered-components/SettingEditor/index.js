@@ -272,6 +272,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
             op.set(newSettingsGroup, key, currentInputValue);
         });
 
+        await Reactium.Hook.run(`setting-save-${groupName}`, newSettingsGroup);
+
         try {
             valueRef.current = newSettingsGroup;
             await setSettingGroup(op.get(newSettingsGroup, groupName));
