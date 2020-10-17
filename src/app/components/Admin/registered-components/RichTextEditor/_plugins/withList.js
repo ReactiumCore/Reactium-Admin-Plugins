@@ -115,16 +115,20 @@ Plugin.callback = editor => {
 
             if (!listItem) return;
 
-            event.preventDefault();
-
             const next = Path.next(listItem.path);
             Transforms.insertNodes(
                 editor,
-                { type: 'li', children: [{ text: '' }] },
+                {
+                    type: 'li',
+                    children: [{ type: 'p', children: [{ text: '' }] }],
+                },
                 { at: next },
             );
             Transforms.select(editor, next);
             ReactEditor.focus(editor);
+
+            event.preventDefault();
+            return false;
         },
     });
 

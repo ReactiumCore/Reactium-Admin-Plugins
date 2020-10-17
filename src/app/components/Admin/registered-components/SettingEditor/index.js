@@ -210,6 +210,11 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         );
     };
 
+    const saveHotkey = e => {
+        if (e) e.preventDefault();
+        formRef.current.submit();
+    };
+
     useEffect(() => {
         const newInputs = JSON.parse(JSON.stringify(inputs));
         Reactium.Hook.runSync(`settings-editor-config-${groupName}`, newInputs);
@@ -219,6 +224,22 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     useEffect(() => {
         if (!loading) setValue(group);
     }, [settingGroup, loading]);
+
+    // save hotkey
+    useEffect(() => {
+        if (loading) return;
+
+        Reactium.Hotkeys.register('settings-save', {
+            callback: saveHotkey,
+            key: 'mod+s',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('settings-save');
+        };
+    }, [loading]);
 
     useAsyncEffect(async () => {
         const IID = await Reactium.Zone.addComponent({

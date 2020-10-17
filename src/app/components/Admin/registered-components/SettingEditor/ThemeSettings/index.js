@@ -18,7 +18,7 @@ const ThemeSettings = props => {
     const { Tabs } = useHookComponent('ReactiumUI');
 
     const [state, setState] = useDerivedState({
-        active: 0,
+        active: Reactium.Prefs.get('admin.settings.theme.tab', 0),
         theme: null,
         value,
     });
@@ -110,6 +110,7 @@ const ThemeSettings = props => {
               });
 
         const _onChange = ({ activeTab: active }) => {
+            Reactium.Prefs.set('admin.settings.theme.tab', active);
             form.setValue(form.getValue());
             setState({ active });
         };
@@ -120,6 +121,7 @@ const ThemeSettings = props => {
                 collapsible
                 data={data}
                 onChange={_onChange}
+                pref='admin.settings.theme.dialog'
             />
         );
     };

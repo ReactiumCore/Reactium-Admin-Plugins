@@ -84,6 +84,7 @@
                 width: 40px;
                 height: 40px;
                 padding: 0;
+
                 svg {
                     width: 18px;
                     height: 18px;
@@ -169,15 +170,17 @@
             .preview {
                 width: 100%;
                 height: 100%;
-                background-size: contain;
+                background-size: auto;
                 background-repeat: no-repeat;
                 background-position: center;
+                background-color: #F9F9F9;
                 user-select: none;
                 transition: opacity 0.5s ease-in-out;
                 opacity: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                position: relative;
 
                 &.faded {
                     opacity: 0;
@@ -290,17 +293,19 @@
 
     &-upload {
         padding: 0;
+
         > .content {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: row;
-            border-top: 1px solid #F3F3F3;
+            border-top: 1px solid #f3f3f3;
         }
+
         .list {
             height: 100%;
             width: 66%;
-            border-right: 1px solid #F3F3F3;
+            border-right: 1px solid #f3f3f3;
         }
 
         .dropbox {

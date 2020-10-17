@@ -4,7 +4,7 @@ import Element from './Element';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
-import { Editor, Node, Transforms } from 'slate';
+import { Editor, Node, Path, Transforms } from 'slate';
 const Plugin = new RTEPlugin({ type: 'block', order: -1 });
 
 const isColumn = (editor, path) => {
@@ -35,7 +35,7 @@ Plugin.callback = editor => {
         order: -100000000,
         keys: ['backspace'],
         callback: ({ editor, event }) => {
-            const offset = editor.selection.anchor.offset;
+            const offset = op.get(editor, 'selection.anchor.offset', 0);
             const path = Array.from(editor.selection.anchor.path);
             const node = Reactium.RTE.getNode(editor, path);
             const parent = Reactium.RTE.getNode(editor, node.path);

@@ -52,12 +52,22 @@ const Panel = ({
     const insertNode = icon => {
         const { color, size } = pickerRef.current;
         const children = [{ text: '' }];
+        const id = uuid();
         const node = {
-            ID: uuid(),
+            id,
             children,
             color,
             icon,
             size,
+            nodeProps: {
+                name: icon,
+                size,
+                style: {
+                    fill: color,
+                    width: size,
+                    height: size,
+                },
+            },
             type: 'icon',
         };
 
@@ -80,8 +90,8 @@ const Panel = ({
         if (typeof onSelect === 'function') return onSelect(e);
 
         insertNode(e.item);
-        pickerRef.current.setValue([]);
-        hide();
+        // pickerRef.current.setValue([]);
+        // hide();
     };
 
     useEffect(() => {

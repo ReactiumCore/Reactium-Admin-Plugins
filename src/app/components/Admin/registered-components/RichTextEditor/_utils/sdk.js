@@ -222,7 +222,8 @@ class RTE {
             node = result.pop();
         }
 
-        const empty = Object.keys(node).length > 0 ? this.isEmpty(node) : true;
+        let empty = Object.keys(node).length > 0 ? this.isEmpty(node) : true;
+
         return { node, path: p, root, empty, blocked: op.get(node, 'blocked') };
     }
 
