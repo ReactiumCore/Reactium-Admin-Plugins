@@ -376,7 +376,7 @@ let ContentEditor = (
         if (isNew() && formRef.current) {
             _.defer(() => {
                 if (unMounted()) return;
-                formRef.current.setValue(null);
+                if (formRef.current) formRef.current.setValue(null);
             });
         }
     };
@@ -515,11 +515,9 @@ let ContentEditor = (
         _.defer(() => {
             const slug = op.get(value, 'slug');
             if (branch === 'master') {
-                Reactium.Routing.history.push(`/admin/content/${type}/${slug}`);
+                window.location.href = `/admin/content/${type}/${slug}`;
             } else {
-                Reactium.Routing.history.push(
-                    `/admin/content/${type}/${slug}/branch/${branch}`,
-                );
+                window.location.href = `/admin/content/${type}/${slug}/branch/${branch}`;
             }
         });
     };
@@ -975,7 +973,7 @@ let ContentEditor = (
                 setValue(result, true);
             })
             .catch(error => {
-                Reactium.Routing.history.push(`/admin/content/${type}/new`);
+                window.location.href = `/admin/content/${type}/new`;
                 _.defer(() => {
                     Toast.show({
                         icon: 'Feather.AlertOctagon',
