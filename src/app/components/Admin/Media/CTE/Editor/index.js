@@ -277,6 +277,26 @@ export const Editor = props => {
         upload.add(Reactium.Media.upload(e.added, directory));
     };
 
+    const showSettings = () => {
+        const settings = refs.get('settings');
+        if (!settings) return;
+        settings.show();
+    };
+
+    const headerElements = () =>
+        max === 1
+            ? []
+            : [
+                  <Button
+                      className='ar-dialog-header-btn'
+                      key='config-btn'
+                      color={Button.ENUMS.COLOR.CLEAR}
+                      onClick={() => showSettings()}
+                      style={{ position: 'relative' }}>
+                      <Icon name='Linear.Equalizer' />
+                  </Button>,
+              ];
+
     // listeners
     useEffect(() => {
         if (!editor) return;
@@ -333,23 +353,6 @@ export const Editor = props => {
 
     // reset on new
     useEffect(reset, [op.get(editor, 'value.objectId')]);
-
-    const showSettings = () => {
-        const settings = refs.get('settings');
-        if (!settings) return;
-        settings.panel.toggle.visible();
-    };
-
-    const headerElements = () => [
-        <Button
-            className='ar-dialog-header-btn'
-            key='config-btn'
-            color={Button.ENUMS.COLOR.CLEAR}
-            onClick={() => showSettings()}
-            style={{ position: 'relative' }}>
-            <Icon name='Feather.Settings' />
-        </Button>,
-    ];
 
     return isReady() ? (
         <ElementDialog className={cx()} {...props} elements={headerElements()}>

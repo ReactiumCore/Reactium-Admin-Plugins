@@ -1,9 +1,8 @@
-import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import Reactium, {
     __,
-    useDerivedState,
-    useEventHandle,
     useHookComponent,
+    useIsContainer,
     useRefs,
 } from 'reactium-core/sdk';
 
@@ -14,13 +13,9 @@ let Settings = (props, ref) => {
     const refs = useRefs();
 
     const Portal = useHookComponent('Portal');
-    const { Button, Dialog, EventForm, Icon, Toggle } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { Dialog, EventForm, Toggle } = useHookComponent('ReactiumUI');
 
-    const [state, setState] = useDerivedState({
-        visible: props.visible,
-    });
+    const isContainer = useIsContainer();
 
     const cx = Reactium.Utils.cxFactory('field-media-slide');
 
@@ -28,16 +23,13 @@ let Settings = (props, ref) => {
         title: `${fieldName} ${__('Config')}`,
     });
 
-    const _createHandle = () => ({
-        panel: refs.get('panel'),
-    });
-
-    const [_handle, setHandle] = useEventHandle(() => _createHandle());
-
-    useEffect(() => {
-        _handle.panel = refs.get('panel');
-        setHandle(_handle);
-    }, [refs.get('panel')]);
+    const dismiss = e => {
+        let container = refs.get('container');
+        if (!container) return;
+        const elm = container.container.current.container;
+        if (elm && isContainer(e.target, elm)) return;
+        container.hide();
+    };
 
     useEffect(() => {
         const form = refs.get('form');
@@ -46,7 +38,17 @@ let Settings = (props, ref) => {
         form.setValue(config);
     }, [config]);
 
-    useImperativeHandle(ref, () => _handle);
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        window.addEventListener('mousedown', dismiss);
+        window.addEventListener('touchstart', dismiss);
+
+        return () => {
+            window.removeEventListener('mousedown', dismiss);
+            window.removeEventListener('touchstart', dismiss);
+        };
+    }, []);
 
     return (
         <Portal>
@@ -55,8 +57,11 @@ let Settings = (props, ref) => {
                 collapsible={false}
                 className={cx('config')}
                 dismissable
-                ref={elm => refs.set('panel', elm)}
-                visible={state.visible}>
+                ref={elm => {
+                    refs.set('container', elm);
+                    ref(elm);
+                }}
+                visible={props.visible}>
                 <EventForm
                     className='form'
                     value={config}
@@ -74,16 +79,18 @@ let Settings = (props, ref) => {
                     <div className='form-group'>
                         <label>
                             {__('Duration:')}
-                            <input type='number' name='duration' />
+                            <input type='number' name='duration' min={0} />
                         </label>
                     </div>
                     <div className='form-group'>
                         <label>
                             {__('Animation Speed:')}
                             <input
-                                type='number'
+                                min={0}
                                 name='animationSpeed'
                                 placeholder={__('0.5')}
+                                step={0.25}
+                                type='number'
                             />
                         </label>
                     </div>

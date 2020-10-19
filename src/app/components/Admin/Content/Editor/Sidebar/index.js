@@ -4,7 +4,6 @@ import op from 'object-path';
 import { Scrollbars } from 'react-custom-scrollbars';
 import React, {
     forwardRef,
-    memo,
     useImperativeHandle,
     useEffect,
     useRef,
@@ -12,13 +11,9 @@ import React, {
 } from 'react';
 import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
 
-import Reactium, {
-    useIsContainer,
-    useRegisterHandle,
-    Zone,
-} from 'reactium-core/sdk';
+import Reactium, { useIsContainer, Zone } from 'reactium-core/sdk';
 
-let Sidebar = ({ children, editor, ...props }, ref) => {
+let Sidebar = ({ children, editor }, ref) => {
     const hash = op.get(Reactium.Routing, 'history.location.hash', '');
 
     const collapsibleRef = useRef();
@@ -26,7 +21,8 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
 
     const { cx, type } = editor;
 
-    const [className, setClassName] = useState(cx('sidebar'));
+    const className = cx('sidebar');
+
     const [expanded, setExpanded] = useState(String(hash).endsWith('sidebar'));
 
     const isContainer = useIsContainer();

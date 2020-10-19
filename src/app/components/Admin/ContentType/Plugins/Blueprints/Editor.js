@@ -43,6 +43,11 @@ export const Editor = props => {
         return blueprints;
     };
 
+    const path = () => {
+        const elm = document.querySelector('.editor-urls-list input');
+        if (elm) return elm.value;
+    };
+
     const preview = async () => {
         setStatus(ENUMS.STATUS.LOADING);
 
@@ -58,6 +63,7 @@ export const Editor = props => {
 
         const url = String(previewURL)
             .replace(/\:type/gi, type)
+            .replace(/\/:url/gi, path())
             .replace(/\:branch/gi, branch)
             .replace(/\:revision/gi, revision);
 
