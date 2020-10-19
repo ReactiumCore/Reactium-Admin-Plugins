@@ -1,10 +1,8 @@
-import cn from 'classnames';
 import React, { useRef } from 'react';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 import {
     Alert,
     Button,
-    Checkbox,
     Collapsible,
     Dialog,
     Icon,
@@ -49,6 +47,7 @@ export default props => {
     if (helpText) {
         header.elements.push(
             <Button
+                key='help'
                 className='ar-dialog-header-btn'
                 color={Button.ENUMS.COLOR.CLEAR}
                 onClick={toggleHelp}

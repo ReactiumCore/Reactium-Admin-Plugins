@@ -265,6 +265,7 @@ button.formatter-text-style {
     border-bottom: 1px solid $color-arp-border;
     text-align: left;
     font-size: 16px;
+    text-shadow: 0 1px 1px rgba($color-black, 0.8);
 
     > div {
         max-width: 240px;
@@ -322,3 +323,9 @@ button.formatter-text-style {
 .ar-rte-styled {
     display: inline-block;
 };
+
+.field-media-slide-rte {
+    .block {
+        text-shadow: 0 2px 2px rgba($color-black, 0.8);
+    }
+}

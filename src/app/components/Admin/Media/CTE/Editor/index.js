@@ -6,6 +6,7 @@ import Upload from './Scene/Upload';
 import Library from './Scene/Library';
 import External from './Scene/External';
 import React, { useEffect, useState } from 'react';
+import Settings from './Scene/Thumb/carousel/Settings';
 import useDirectories from '../../Directory/useDirectories';
 
 import Reactium, {
@@ -16,7 +17,44 @@ import Reactium, {
     useStatus,
 } from 'reactium-core/sdk';
 
-const useValue = ({ editor, fieldName }, deps) => {
+const useConfig = ({ editor, fieldName }, deps = []) => {
+    const [config, updateConfig] = useState();
+
+    useEffect(() => {
+        if (!editor) return;
+        if (!fieldName) return;
+        if (!editor.value) return;
+
+        const value = op.get(editor.value, ['meta', fieldName, 'config'], {
+            animationSpeed: 0.5,
+            autoplay: true,
+            className: null,
+            duration: 10,
+            loop: true,
+        });
+
+        updateConfig(value);
+    }, deps);
+
+    return [config, updateConfig];
+};
+
+const useSlides = ({ editor, fieldName }, deps = []) => {
+    const [slides, setSlides] = useState();
+
+    useEffect(() => {
+        if (!editor) return;
+        if (!fieldName) return;
+        if (!editor.value) return;
+
+        const value = op.get(editor.value, ['meta', fieldName, 'slides']);
+        setSlides(value);
+    }, deps);
+
+    return [slides, setSlides];
+};
+
+const useValue = ({ editor, fieldName }, deps = []) => {
     const [value, setValue] = useState();
 
     useEffect(() => {
@@ -25,7 +63,6 @@ const useValue = ({ editor, fieldName }, deps) => {
         if (!editor.value) return;
         let newValue = op.get(editor.value, fieldName, []);
         newValue = op.get(newValue, 'className') ? [] : newValue;
-
         newValue = newValue.map(({ objectId, url }) => ({ objectId, url }));
 
         setValue(newValue);
@@ -43,11 +80,16 @@ export const Editor = props => {
     const refs = useRefs();
     const { editor, fieldName, max, required } = props;
 
+    const ElementDialog = useHookComponent('ElementDialog');
+    const { Button, Dropzone, Icon, Scene } = useHookComponent('ReactiumUI');
+
     let type = op.get(props, 'type', ['all']);
     type = Array.isArray(op.get(props, 'type', ['all'])) ? type : [type];
 
-    const [value, setSelection] = useValue({ editor, fieldName }, []);
     const dirs = useDirectories() || [];
+    const [value, setSelection] = useValue({ editor, fieldName });
+    const [slides, setSlides] = useSlides({ editor, fieldName });
+    const [config, updateConfig] = useConfig({ editor, fieldName });
     const [active, setActive, isActive] = useStatus(
         editor.isNew() ? 'action' : null,
     );
@@ -80,9 +122,6 @@ export const Editor = props => {
 
         updateDirectories(newDirectories);
     };
-
-    const ElementDialog = useHookComponent('ElementDialog');
-    const { Dropzone, Scene } = useHookComponent('ReactiumUI');
 
     const add = (items = []) => {
         items = Array.isArray(items) ? items : [items];
@@ -166,8 +205,10 @@ export const Editor = props => {
         active,
         back,
         browseFiles,
+        config,
         cx,
         directories,
+        editor,
         isActive,
         nav,
         refs,
@@ -176,7 +217,10 @@ export const Editor = props => {
         setActive,
         setDirectories,
         setSelection,
+        setSlides,
+        slides,
         type,
+        updateConfig,
         value,
     });
 
@@ -203,9 +247,17 @@ export const Editor = props => {
         return context;
     };
 
-    const onContentBeforeSave = e => op.set(e.value, fieldName, value);
+    const onContentBeforeSave = e => {
+        op.set(e.value, fieldName, value);
+        op.set(e.value, ['meta', fieldName, 'slides'], slides);
+        op.set(e.value, ['meta', fieldName, 'config'], config);
+    };
 
-    const onContentAfterSave = e => op.set(e.value, fieldName, value);
+    const onContentAfterSave = e => {
+        op.set(e.value, fieldName, value);
+        op.set(e.value, ['meta', fieldName, 'slides'], slides);
+        op.set(e.value, ['meta', fieldName, 'config'], config);
+    };
 
     const onFileAdded = async e => {
         const upload = refs.get('upload');
@@ -282,8 +334,25 @@ export const Editor = props => {
     // reset on new
     useEffect(reset, [op.get(editor, 'value.objectId')]);
 
+    const showSettings = () => {
+        const settings = refs.get('settings');
+        if (!settings) return;
+        settings.panel.toggle.visible();
+    };
+
+    const headerElements = () => [
+        <Button
+            className='ar-dialog-header-btn'
+            key='config-btn'
+            color={Button.ENUMS.COLOR.CLEAR}
+            onClick={() => showSettings()}
+            style={{ position: 'relative' }}>
+            <Icon name='Feather.Settings' />
+        </Button>,
+    ];
+
     return isReady() ? (
-        <ElementDialog className={cx()} {...props}>
+        <ElementDialog className={cx()} {...props} elements={headerElements()}>
             <Dropzone
                 files={{}}
                 onFileAdded={onFileAdded}
@@ -304,6 +373,7 @@ export const Editor = props => {
                     />
                 </Scene>
             </Dropzone>
+            <Settings handle={handle} ref={elm => refs.set('settings', elm)} />
         </ElementDialog>
     ) : null;
 };

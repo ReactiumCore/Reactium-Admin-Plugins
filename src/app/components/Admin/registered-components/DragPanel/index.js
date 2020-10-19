@@ -440,6 +440,10 @@ Panel.defaultProps = {
         defaultClassName: 'ar-panel',
         defaultClassNameDragged: 'ar-panel-dragged',
         defaultClassNameDragging: 'ar-panel-dragging',
+        defaultPosition: {
+            x: 50,
+            y: 50,
+        },
         handle: '.ar-dialog-header',
     },
     gutter: 8,

@@ -81,11 +81,14 @@ const Single = forwardRef(({ file, handle, media }, ref) => {
         }
     };
 
-    const viewImage = () => {
+    const viewImage = e => {
+        e.preventDefault();
+        e.stopPropagation();
+
         const Modal = op.get(tools, 'Modal');
         Modal.show(
             <div className='lightbox' onClick={() => Modal.hide()} ref={ref}>
-                <img src={url()} />
+                <img src={url()} style={{ width: 'auto', height: 'auto' }} />
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                     className='close'

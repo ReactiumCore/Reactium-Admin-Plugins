@@ -117,15 +117,7 @@ Plugin.callback = editor => {
         formatter: true,
         label: 'Paragraph',
         size: 16,
-        element: ({ children, props }) => <p {...props}>{children}</p>,
-    });
-
-    Reactium.RTE.Block.register('h1', {
-        order: 1,
-        formatter: true,
-        label: 'Heading 1',
-        size: 32,
-        element: props => <h1 {...props} />,
+        element: ({ children, ...props }) => <p {...props}>{children}</p>,
     });
 
     Reactium.RTE.Block.register('break', {
@@ -135,6 +127,14 @@ Plugin.callback = editor => {
                 {children}
             </>
         ),
+    });
+
+    Reactium.RTE.Block.register('h1', {
+        order: 1,
+        formatter: true,
+        label: 'Heading 1',
+        size: 32,
+        element: props => <h1 {...props} />,
     });
 
     Reactium.RTE.Block.register('h2', {

@@ -200,3 +200,13 @@ input[type='object'] {
         }
     }
 }
+
+.ar-dialog-header {
+    overflow-x: hidden;
+    h2 {
+        white-space: nowrap;
+        overflow: hidden;
+        flex-shrink: 1;
+
+    }
+}
