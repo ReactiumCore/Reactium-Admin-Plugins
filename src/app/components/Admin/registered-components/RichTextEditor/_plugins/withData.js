@@ -14,7 +14,7 @@ Plugin.callback = editor => {
                     Transforms.insertText(editor, line);
                 } else {
                     Transforms.insertNodes(editor, {
-                        type: 'paragraph',
+                        type: 'p',
                         children: [{ text: line }],
                     });
                 }

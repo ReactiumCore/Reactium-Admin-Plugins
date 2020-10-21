@@ -146,6 +146,7 @@ body {
 
 .ar-dropdown {
     width: 100%;
+
     &-menu {
         box-shadow: 0 2px 2px 1px rgba($color-black, 0.025);
 
@@ -240,8 +241,9 @@ body {
         align-self: flex-start;
 
         &:hover {
-        cursor: zoom-out;
-    }}
+            cursor: zoom-out;
+        }
+    }
 
     button.close {
         position: absolute;
@@ -261,10 +263,60 @@ body {
 .ar-alert .content {
     padding-bottom: 0;
 }
+
 .ar-data-table-heading.center {
     text-align: center !important;
 }
 
 .block {
     display: block;
-};
+}
+
+.input-group {
+    input,
+    textarea,
+    select {
+        &:first-child {
+            &:last-child {
+                &:focus {
+                    border-right: 1px solid $color-primary;
+                }
+            }
+        }
+    }
+}
+
+.form-group.input-group {
+    * {
+        margin-top: 0 !important;
+    }
+}
+
+.ar-dialog-header-btn {
+    &:focus {
+        box-shadow: none;
+        background-color: rgba($color-light, 0.5);
+
+        svg {
+            fill: $color-primary;
+        }
+    }
+
+    &:hover {
+        opacity: 1;
+
+        svg {
+            fill: $color-primary;
+        }
+    }
+}
+
+.ar-dialog-footer-btn {
+    @extend .ar-dialog-header-btn;
+    border-left: none;
+    border-right: 1px solid #f7f7f7;
+    width: 42px;
+    height: 100%;
+    min-height: 43px;
+    margin: -8px 0 -8px -8px;
+}

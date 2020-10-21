@@ -10,11 +10,14 @@ import Enums from '../enums';
  * Functional Component: IconPicker
  * -----------------------------------------------------------------------------
  */
-const CTIconPicker = () => {
+const CTIconPicker = props => {
+    const pickerRef = useRef();
+
     const defaultIcon = Enums.DEFAULT_ICON;
     const containerRef = useRef();
     const CTE = useHandle('ContentTypeEditor');
-    const currentIcon = op.get(CTE.getValue(), 'meta.icon', defaultIcon);
+    const currentIcon =
+        props.value || op.get(CTE.getValue(), 'meta.icon', defaultIcon);
     const [state, setState] = useState({
         icon: currentIcon,
         showPicker: false,
@@ -31,6 +34,12 @@ const CTIconPicker = () => {
 
     const IconPicker = useHookComponent('IconPicker', null);
 
+    const onButtonClick = () => {
+        update({
+            showPicker: !state.showPicker,
+        });
+    };
+
     const onIconChange = e => {
         const { value } = e.target;
         const [icon] = _.flatten([value]);
@@ -43,13 +52,10 @@ const CTIconPicker = () => {
         }
     };
 
-    const onButtonClick = () => {
-        update({
-            showPicker: !state.showPicker,
-        });
-    };
-
     const isContainer = useIsContainer();
+
+    const _search = value => pickerRef.current.setSearch(value);
+    const search = _.throttle(_search, 100);
 
     const autoHidePanel = e => {
         const container = containerRef.current;
@@ -77,7 +83,7 @@ const CTIconPicker = () => {
         <div className='type-icon'>
             <input
                 type='hidden'
-                name='meta.icon'
+                name={props.name}
                 value={state.icon || defaultIcon}
             />
             <Button
@@ -89,11 +95,25 @@ const CTIconPicker = () => {
             </Button>
             {state.showPicker && (
                 <div className='type-icon-picker' ref={containerRef}>
-                    <IconPicker onChange={onIconChange} />
+                    <div className='rte-icons-search'>
+                        <div className='form-group'>
+                            <input
+                                type='search'
+                                placeholder='search'
+                                onFocus={e => e.target.select()}
+                                onChange={e => search(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <IconPicker onChange={onIconChange} ref={pickerRef} />
                 </div>
             )}
         </div>
     );
+};
+
+CTIconPicker.defaultProps = {
+    name: 'meta.icon',
 };
 
 export default CTIconPicker;

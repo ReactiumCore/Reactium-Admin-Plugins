@@ -430,7 +430,7 @@ RichTextEditor.defaultProps = {
     value: {
         children: [
             {
-                type: 'paragraph',
+                type: 'p',
                 children: [{ text: '' }],
             },
         ],
