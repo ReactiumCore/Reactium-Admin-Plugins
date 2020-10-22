@@ -36,12 +36,7 @@ const ancestor = (child, selector = 'form') => {
 };
 
 let IconSelect = (props, ref) => {
-    const {
-        className,
-        name = 'testing',
-        style = {},
-        value: initialValue,
-    } = props;
+    const { className, name, style = {}, value: initialValue } = props;
 
     const refs = useRefs();
 
