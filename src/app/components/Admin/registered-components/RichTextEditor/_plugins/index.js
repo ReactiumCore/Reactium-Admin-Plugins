@@ -7,6 +7,7 @@ import withButton from './withButton';
 import withColor from './withColor';
 import withData from './withData';
 import withFont from './withFont';
+import withForm from './withForm';
 import withFormatter from './withFormatter';
 import withGrid from './withGrid';
 import withIcon from './withIcon';
@@ -28,6 +29,7 @@ const plugins = {
     withButton,
     withColor,
     withFont,
+    withForm,
     withFormatter,
     withGrid,
     withIcon,

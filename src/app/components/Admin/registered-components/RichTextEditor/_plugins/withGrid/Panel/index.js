@@ -4,7 +4,7 @@ import uuid from 'uuid/v4';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import PropTypes from 'prop-types';
-import { Editor, Path, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
 

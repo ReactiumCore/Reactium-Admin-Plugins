@@ -1,0 +1,48 @@
+.rte-form-panel {
+    &-footer {
+        padding: 8px;
+        background-color: lighten($color-grey-light, 1%);
+    }
+}
+
+.rte-form {
+    border: 2px dashed $color-danger;
+
+    &-element {
+        position: relative;
+        padding: 12px;
+        color: $color-gray;
+        background-color: $color-white;
+        border: 1px solid $color-grey;
+        border-radius: 2px;
+
+        &:not(:first-child) {
+            margin-top: 8px;
+        }
+
+        &:hover {
+            .delete-btn {
+                opacity: 1;
+            }
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 50%;
+            left: -18px;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border-radius: 100%;
+            opacity: 0;
+            margin-right: 8px;
+
+            svg {
+                width: 14px;
+                height: 14px;
+                fill: currentColor;
+            }
+        }
+    }
+}

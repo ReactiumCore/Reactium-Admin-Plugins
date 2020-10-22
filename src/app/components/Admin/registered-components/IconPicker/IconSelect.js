@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
+import PropTypes from 'prop-types';
 import camelcase from 'camelcase';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
@@ -13,8 +14,34 @@ import {
     useStatus,
 } from 'reactium-core/sdk';
 
-const IconSelect = forwardRef((props, ref) => {
-    const { className, style = {}, value: initialValue } = props;
+const ancestor = (child, selector = 'form') => {
+    if (!child || !selector) return null;
+
+    const findAncestor = () => {
+        let result = null;
+        let parent = child.parentNode;
+        while (parent && !result) {
+            result = parent.querySelector(selector) || null;
+            try {
+                parent = parent.parentNode;
+            } catch (err) {
+                parent = undefined;
+            }
+        }
+
+        return result;
+    };
+
+    return findAncestor();
+};
+
+let IconSelect = (props, ref) => {
+    const {
+        className,
+        name = 'testing',
+        style = {},
+        value: initialValue,
+    } = props;
 
     const refs = useRefs();
 
@@ -27,14 +54,16 @@ const IconSelect = forwardRef((props, ref) => {
 
     const [state, setState] = useDerivedState({
         dataset: {},
+        form: ancestor(refs.get('container'), 'form'),
         value: initialValue,
         visible: props.visible,
     });
 
     const autoHide = e => {
+        if (state.visible !== true) return;
         const container = refs.get('container');
         if (!container || isContainer(e.target, container)) return;
-        hide();
+        _.defer(() => hide());
     };
 
     const hide = () => setState({ visible: false });
@@ -55,12 +84,18 @@ const IconSelect = forwardRef((props, ref) => {
         const etype = camelcase(`on-${eventType}`);
         const handler = op.get(props, etype);
         if (typeof handler === 'function') handler(evt);
+
+        if (eventType === 'change' && state.form && name) {
+            const formChange = new Event('change');
+            state.form.dispatchEvent(formChange);
+        }
     };
 
     const _onChange = e => {
         const { value } = e.target;
         const [icon] = _.flatten([value]);
         if (icon && icon !== state.value && op.has(Icon, icon)) {
+            if (name && refs.get('input')) refs.get('input').value = value;
             setState({ value: icon });
         }
 
@@ -81,10 +116,19 @@ const IconSelect = forwardRef((props, ref) => {
         toggle,
         value: state.value,
         visible: state.visible,
+        Form: state.form,
         Picker: refs.get('picker'),
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
+
+    const refresh = () => {
+        const newHandle = _handle();
+        Object.entries(newHandle).forEach(([key, val]) => {
+            handle[key] = val;
+        });
+        setHandle(handle);
+    };
 
     useImperativeHandle(ref, () => handle);
 
@@ -108,13 +152,7 @@ const IconSelect = forwardRef((props, ref) => {
         setState({ visible: props.visible });
     }, [props.visible]);
 
-    useEffect(() => {
-        const newHandle = _handle();
-        Object.entries(newHandle).forEach(([key, val]) => {
-            handle[key] = val;
-        });
-        setHandle(handle);
-    }, [
+    useEffect(refresh, [
         state.value,
         state.visible,
         state.dataset,
@@ -131,6 +169,13 @@ const IconSelect = forwardRef((props, ref) => {
         if (!isStatus('ready')) return;
         dispatch('change', { value: state.value });
     }, [state.value]);
+
+    useEffect(() => {
+        const container = refs.get('container');
+        if (!name || !container || state.form) return;
+        const form = ancestor(container, 'form');
+        setState({ form });
+    });
 
     useEffect(() => {
         const dataset = Object.keys(props)
@@ -151,6 +196,14 @@ const IconSelect = forwardRef((props, ref) => {
             style={style}
             className={className}
             ref={elm => refs.set('container', elm)}>
+            {name && (
+                <input
+                    type='hidden'
+                    name={name}
+                    defaultValue={state.value}
+                    ref={elm => refs.set('input', elm)}
+                />
+            )}
             <div className='rte-icons-search'>
                 <div className='form-group'>
                     <input
@@ -164,6 +217,16 @@ const IconSelect = forwardRef((props, ref) => {
             <Picker onChange={_onChange} ref={elm => refs.set('picker', elm)} />
         </div>
     );
-});
+};
+
+IconSelect = forwardRef(IconSelect);
+
+IconSelect.propTypes = {
+    className: PropTypes.string,
+    name: PropTypes.string,
+    style: PropTypes.object,
+    value: PropTypes.string,
+    visible: PropTypes.bool,
+};
 
 export { IconSelect, IconSelect as default };

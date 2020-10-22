@@ -4,7 +4,7 @@ import Element from './Element';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
-import { Editor, Node, Path, Transforms } from 'slate';
+import { Editor, Node, Transforms } from 'slate';
 const Plugin = new RTEPlugin({ type: 'block', order: -1 });
 
 const isColumn = (editor, path) => {

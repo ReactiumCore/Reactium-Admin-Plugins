@@ -28,6 +28,8 @@ const Element = ({ children, ...props }) => {
         nodeProps,
     } = op.get(children, 'props.node', {});
 
+    console.log(props);
+
     const editor = useEditor();
 
     const refs = useRefs({});
