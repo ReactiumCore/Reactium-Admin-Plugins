@@ -109,7 +109,7 @@ Reactium.Hook.register('routes-init', async () => {
         if (op.get(permissions, id, true) === true) {
             op.set(
                 route,
-                'load',
+                'thunk',
                 actions.loadFactory(
                     route,
                     {

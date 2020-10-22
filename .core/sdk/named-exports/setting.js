@@ -76,15 +76,18 @@ export const useSettingGroup = group => {
         }
     };
 
-    useAsyncEffect(async isMounted => {
-        if (group && canGet) {
-            const settingGroup = await Setting.get(group);
-            if (isMounted()) {
-                updateSettingRef(settingGroup);
-                setLoading(false);
+    useAsyncEffect(
+        async isMounted => {
+            if (group && canGet) {
+                const settingGroup = await Setting.get(group);
+                if (isMounted()) {
+                    updateSettingRef(settingGroup);
+                    setLoading(false);
+                }
             }
-        }
-    }, [canGet, canSet, group]);
+        },
+        [canGet, canSet, group],
+    );
 
     return {
         canGet,
