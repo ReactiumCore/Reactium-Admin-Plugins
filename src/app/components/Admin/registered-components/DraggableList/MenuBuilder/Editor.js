@@ -134,7 +134,7 @@ const MenuEditor = memo(props => {
         switch (context.type) {
             case 'ContentType':
                 const urls = _.pluck(
-                    Reactium.Routing.routes.list.filter(
+                    Reactium.Routing.get().filter(
                         route =>
                             op.get(route, 'meta.contentId') ===
                             context.item.objectId,
@@ -201,8 +201,21 @@ const MenuEditor = memo(props => {
         const saveItems = mapFieldsToItems(op.get(currentValue, 'items', []));
 
         await Promise.all(
-            saveItems.map(item =>
-                Reactium.Hook.run('menu-build-item-save', fieldName, item),
+            _.flatten(
+                saveItems.map(async item => {
+                    return [
+                        Reactium.Hook.runSync(
+                            'menu-build-item-save',
+                            fieldName,
+                            item,
+                        ),
+                        Reactium.Hook.run(
+                            'menu-build-item-save',
+                            fieldName,
+                            item,
+                        ),
+                    ];
+                }),
             ),
         );
 

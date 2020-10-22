@@ -16,33 +16,46 @@ const areEqual = (pv, nx) => {
 
 const LinkMenuItem = memo(props => {
     const dialogRef = useRef();
+    const iconPickerRef = useRef();
     const { Button, Dialog, Icon } = useHookComponent('ReactiumUI');
     const DragHandle = useHookComponent('MenuItemDragHandle');
-
+    const IconSelect = useHookComponent('IconSelect');
     const fieldName = op.get(props, 'fieldName');
     const [menuItem, setMenuItem] = useDerivedState(op.get(props, 'item', {}), [
         'id',
         'item.title',
         'item.url',
+        'item.icon',
     ]);
 
     const item = op.get(menuItem, 'item', {});
     const title = op.get(item, 'title');
     const url = op.get(item, 'url');
+    const icon = op.get(item, 'icon', 'Feather.Link');
 
     const onRemoveItem = op.get(props, 'onRemoveItem', noop);
 
     const onChange = type => e => {
-        const updatedItem = {
-            ...item,
-            [type]: e.target.value,
-        };
+        setMenuItem({ [type]: e.target.value });
+    };
 
-        setMenuItem({ item: updatedItem });
+    const toggleIconPicker = () => {
+        if (dialogRef.current && iconPickerRef.current) {
+            iconPickerRef.current.toggle();
+
+            // about to show
+            if (!iconPickerRef.visible) _.defer(dialogRef.current.expand);
+        }
     };
 
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
+
+    useEffect(() => {
+        if (!op.has(item, 'icon')) {
+            setMenuItem({ ['item.icon']: icon });
+        }
+    }, [op.get(item.id)]);
 
     useEffect(() => {
         if (dialogRef.current) {
@@ -50,15 +63,11 @@ const LinkMenuItem = memo(props => {
         }
     }, [menuItem.id]);
 
-    useAsyncEffect(async isMounted => {
-        const menuItemSave = Reactium.Hook.register(
+    useEffect(() => {
+        const menuItemSave = Reactium.Hook.registerSync(
             'menu-build-item-save',
-            async (fn, saving) => {
-                if (
-                    fn === fieldName &&
-                    saving.id === menuItem.id &&
-                    isMounted()
-                ) {
+            (fn, saving) => {
+                if (fn === fieldName && saving.id === menuItem.id) {
                     op.set(saving, 'item', item);
                 }
             },
@@ -76,8 +85,9 @@ const LinkMenuItem = memo(props => {
                         <Button
                             className='ar-dialog-header-btn'
                             color={Button.ENUMS.COLOR.CLEAR}
-                            style={{ padding: 0, border: 'none' }}>
-                            <Icon name='Feather.Link' />
+                            style={{ padding: 0, border: 'none' }}
+                            onClick={toggleIconPicker}>
+                            <Icon name={icon} />
                         </Button>
                         <span>{title}</span>
                     </div>
@@ -97,13 +107,18 @@ const LinkMenuItem = memo(props => {
                 _.defer(animateResize);
             }}>
             <div className={'p-xs-20'}>
+                <IconSelect
+                    ref={iconPickerRef}
+                    value={icon}
+                    onChange={onChange('item.icon')}
+                />
                 <div className='form-group'>
                     <label>
                         <span>{__('Title')}</span>
                         <input
                             type='text'
                             value={title}
-                            onChange={onChange('title')}
+                            onChange={onChange('item.title')}
                         />
                     </label>
                 </div>
@@ -113,7 +128,7 @@ const LinkMenuItem = memo(props => {
                         <input
                             type='text'
                             value={url}
-                            onChange={onChange('url')}
+                            onChange={onChange('item.url')}
                         />
                     </label>
                 </div>
