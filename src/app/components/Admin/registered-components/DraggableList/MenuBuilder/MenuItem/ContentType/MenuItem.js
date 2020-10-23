@@ -17,8 +17,10 @@ const areEqual = (pv, nx) => {
 
 const ContentTypeMenuItem = memo(props => {
     const dialogRef = useRef();
+    const iconPickerRef = useRef();
     const { Button, Dialog, Icon } = useHookComponent('ReactiumUI');
     const DragHandle = useHookComponent('MenuItemDragHandle');
+    const IconSelect = useHookComponent('IconSelect');
     const fieldName = op.get(props, 'fieldName');
     const [menuItem, setMenuItem] = useDerivedState(op.get(props, 'item', {}), [
         'id',
@@ -33,13 +35,33 @@ const ContentTypeMenuItem = memo(props => {
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
 
-    const icon = op.get(item, 'type.meta.icon', 'Linear.Papers');
+    const icon = op.get(
+        item,
+        'icon',
+        op.get(item, 'type.meta.icon', 'Linear.Papers'),
+    );
     const typeSlug = op.get(item, 'type.machineName');
     const slug = op.get(item, 'slug');
 
     const onChange = type => e => {
         setMenuItem({ [type]: e.target.value });
     };
+
+    const toggleIconPicker = () => {
+        if (dialogRef.current && iconPickerRef.current) {
+            iconPickerRef.current.toggle();
+            console.log(iconPickerRef.current.visible);
+
+            // about to show
+            if (!iconPickerRef.visible) _.defer(dialogRef.current.expand);
+        }
+    };
+
+    useEffect(() => {
+        if (!op.has(item, 'icon')) {
+            setMenuItem({ ['item.icon']: icon });
+        }
+    }, [op.get(item.id)]);
 
     useEffect(() => {
         if (dialogRef.current) {
@@ -52,15 +74,23 @@ const ContentTypeMenuItem = memo(props => {
             'menu-build-item-save',
             async (fn, saving) => {
                 if (fn === fieldName && saving.id === menuItem.id) {
-                    const freshItem = await Reactium.Content.retrieve(
-                        saving.item,
-                    );
+                    const freshItem = await Reactium.Content.retrieve({
+                        type: {
+                            machineName: op.get(
+                                saving.item,
+                                'type.machineName',
+                            ),
+                        },
+                        uuid: op.get(saving.item, 'uuid'),
+                        current: true,
+                        resolveRelations: true,
+                    });
+
                     op.set(freshItem, 'type', op.get(saving, 'item.type'));
 
-                    // uuid and machineName only
+                    // trim objectIds to discourage migration unsafe coding downstream
                     op.del(freshItem, 'type.objectId');
                     op.del(freshItem, 'objectId');
-
                     if (!isMounted()) return;
 
                     Object.entries(menuItem).forEach(([key, value]) => {
@@ -84,7 +114,8 @@ const ContentTypeMenuItem = memo(props => {
                             <Button
                                 className='ar-dialog-header-btn'
                                 color={Button.ENUMS.COLOR.CLEAR}
-                                style={{ padding: 0, border: 'none' }}>
+                                style={{ padding: 0, border: 'none' }}
+                                onClick={toggleIconPicker}>
                                 <Icon name={icon} />
                             </Button>
                         )}
@@ -108,6 +139,11 @@ const ContentTypeMenuItem = memo(props => {
             onCollapse={() => _.defer(animateResize)}
             onExpand={() => _.defer(animateResize)}>
             <div className={'p-xs-20'}>
+                <IconSelect
+                    ref={iconPickerRef}
+                    value={icon}
+                    onChange={onChange('item.icon')}
+                />
                 <div className='form-group'>
                     <label>
                         <span>{__('Label')}</span>

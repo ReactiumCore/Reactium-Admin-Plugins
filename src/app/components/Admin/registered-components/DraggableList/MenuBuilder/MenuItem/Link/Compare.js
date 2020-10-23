@@ -7,10 +7,11 @@ const Compare = ({ item }) => {
 
     const title = op.get(item, 'item.title', '');
     const url = op.get(item, 'item.url', '');
+    const icon = op.get(item, 'icon', 'Feather.Link');
 
     return (
         <div>
-            <Icon name='Feather.Link' /> <strong>{title}:</strong> {url}
+            <Icon name={icon} /> <strong>{title}:</strong> {url}
         </div>
     );
 };
