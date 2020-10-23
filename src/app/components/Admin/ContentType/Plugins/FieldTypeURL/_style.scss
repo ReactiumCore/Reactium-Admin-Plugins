@@ -25,6 +25,10 @@
     @extend .form-group;
     position: relative;
 
+    .ar-dropdown {
+        max-width: 33%;
+    }
+
     .input-group * {
         z-index: auto;
 
@@ -33,13 +37,32 @@
             min-width: 100px;
 
             button {
+                font-family: Montserrat, Helvetica, Arial, sans-serif;
                 font-size: 16px !important;
                 font-weight: normal !important;
             }
         }
     }
 
-    .dropdown-btn {
+    .input-group {
+        button {
+            z-index: 1;
+
+            &.add-btn {
+                z-index: 11;
+            }
+        }
+
+        input {
+            z-index: 1;
+
+            &:focus {
+                z-index: 10;
+            }
+        }
+    }
+
+    button.dropdown-btn {
         display: flex;
         align-items: center;
         align-self: stretch;
@@ -47,10 +70,10 @@
         padding: 0 8px 2px 12px;
         background-color: transparent;
         height: 100%;
+        font-family: Montserrat, Helvetica, Arial, sans-serif;
         font-size: 16px !important;
         font-weight: normal;
-        font-family: Arial, sans-serif;
-        color: $color-gray;
+        color: $color-gray !important;
     }
 
     input {
@@ -87,6 +110,10 @@
         border-top: 1px solid $color-grey-light;
         min-height: 41px;
         position: relative;
+
+        .edit-toggle {
+            z-index: 20;
+        }
 
         li {
             list-style: none;

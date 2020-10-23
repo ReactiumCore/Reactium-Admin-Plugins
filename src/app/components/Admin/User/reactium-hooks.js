@@ -139,10 +139,7 @@ Reactium.Plugin.register(
     Reactium.Hook.register(
         'user.before.logout',
         async () => {
-            console.log('before clear prefs');
             const { objectId } = Reactium.User.current();
-            // user.set('prefs', Reactium.Prefs.get());
-            // await user.save();
             const prefs = Reactium.Prefs.get();
             const shallowPrefs = Object.keys(prefs).reduce((obj, key) => {
                 obj[key] = op.get(prefs, key);
@@ -151,7 +148,14 @@ Reactium.Plugin.register(
 
             await Reactium.User.Pref.update({ objectId, ...shallowPrefs });
             Reactium.Prefs.clear();
-            console.log('after clear prefs');
+        },
+        Reactium.Enums.priority.lowest,
+    );
+
+    Reactium.Hook.register(
+        'user.after.logout',
+        async () => {
+            window.location.href = '/login';
         },
         Reactium.Enums.priority.lowest,
     );
