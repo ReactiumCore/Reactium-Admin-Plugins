@@ -1,15 +1,17 @@
 .ar-rte {
-    &-image &-video {
+    &-image,
+    &-video {
         margin: 0;
         width: 100%;
         overflow: hidden;
+        position: relative;
 
-        [data-slate-node] {
-            display: none;
-        }
-
-        [data-slate-spacer] {
-            display: none;
+        .children {
+            position: absolute;
+            top: 0;
+            left: 0;
+            line-height: 1;
+            z-index: 0;
         }
     }
 

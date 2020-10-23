@@ -57,9 +57,13 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
             blocked: true,
             children: [
                 {
-                    type: 'div',
+                    type: 'block',
+                    blocked: true,
+                    deletable: false,
+                    inspector: false,
                     data: { column: col },
-                    children: [{ text: '' }],
+                    id: `block-inner-${id}-${i}`,
+                    children: [{ type: 'p', children: [{ text: '' }] }],
                 },
             ],
             className: Object.entries(col)
@@ -75,6 +79,7 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
         Reactium.RTE.insertBlock(editor, nodes, {
             id,
             className: 'row',
+            inspector: false,
             row: columns,
         });
 

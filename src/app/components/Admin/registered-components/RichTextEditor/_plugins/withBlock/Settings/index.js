@@ -143,7 +143,7 @@ const Panel = props => {
 
     useFocusEffect(editor.panel.container);
 
-    return (
+    return op.get(state, 'inspector') === false ? null : (
         <Settings
             className={cx()}
             footer={{}}
@@ -262,6 +262,7 @@ Panel.defaultProps = {
 };
 
 export default props => {
+    const { node = {} } = props;
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
     const showPanel = () =>
@@ -270,7 +271,7 @@ export default props => {
             .setContent(<Panel {...props} />)
             .show();
 
-    return (
+    return node.inspector === false ? null : (
         <Button color={Button.ENUMS.COLOR.SECONDARY} onClick={showPanel}>
             <Icon
                 name={props.icon || 'Linear.PageBreak'}

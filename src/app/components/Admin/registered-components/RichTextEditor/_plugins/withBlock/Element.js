@@ -16,7 +16,8 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
-const Element = ({ children, ...props }) => {
+const Element = ({ children, ...initialProps }) => {
+    const node = op.get(children, 'props.node', {});
     const {
         id,
         addAfter = true,
@@ -26,7 +27,9 @@ const Element = ({ children, ...props }) => {
         deletable = true,
         type = 'block',
         nodeProps,
-    } = op.get(children, 'props.node', {});
+    } = node;
+
+    const props = { ...initialProps, node };
 
     const editor = useEditor();
 

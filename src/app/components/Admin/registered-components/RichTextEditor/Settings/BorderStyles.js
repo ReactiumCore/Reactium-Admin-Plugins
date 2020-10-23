@@ -77,7 +77,7 @@ const BorderStyles = ({
 
     const onClick = e => {
         const key = e.currentTarget.dataset.key;
-        const val = String(op.get(state, key, 'solid')).toLowerCase();
+        const val = String(op.get(state, key, 'none')).toLowerCase();
 
         let i = borderStyles.indexOf(val) + 1;
         i = i === borderStyles.length ? 0 : i;
@@ -91,7 +91,7 @@ const BorderStyles = ({
             {KEYS.map((prop, i) => {
                 // prettier-ignore
                 const borderColor = op.get(state, String(prop).replace(/Style/g, 'Color'));
-                const borderStyle = op.get(state, prop, 'solid');
+                const borderStyle = op.get(state, prop, 'none');
 
                 return (
                     <BorderStyleButton

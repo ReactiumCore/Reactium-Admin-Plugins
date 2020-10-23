@@ -132,7 +132,7 @@ export default ({ children, ...props }) => {
     }, [props]);
 
     return (
-        <div contentEditable={false} className='ar-rte-image'>
+        <span className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
                 <img
                     {...state.nodeProps}
@@ -143,7 +143,7 @@ export default ({ children, ...props }) => {
             ) : (
                 <Spinner className='flex flex-center' />
             )}
-            <div className='hide'>{children}</div>
-        </div>
+            <span>{children}</span>
+        </span>
     );
 };
