@@ -5,9 +5,16 @@
     }
 }
 
-.rte-form {
-    border: 2px dashed $color-danger;
+.ar-rte {
+    [type='block'] {
+        &.block.rte-form {
+            border: 2px dashed $color-danger;
+            padding: 24px 16px;
+        }
+    }
+}
 
+.rte-form {
     &-element {
         position: relative;
         padding: 12px;
@@ -21,12 +28,14 @@
         }
 
         &:hover {
-            .delete-btn {
+            .delete-btn,
+            .edit-btn {
                 opacity: 1;
             }
         }
 
-        .delete-btn {
+        .delete-btn,
+        .edit-btn {
             position: absolute;
             top: 50%;
             left: -18px;
@@ -34,15 +43,95 @@
             width: 24px;
             height: 24px;
             padding: 0;
-            border-radius: 100%;
             opacity: 0;
             margin-right: 8px;
+            z-index: 10;
 
             svg {
                 width: 14px;
                 height: 14px;
                 fill: currentColor;
             }
+        }
+
+        .edit-btn {
+            right: 1px;
+            left: auto;
+            width: 40px;
+            height: 40px;
+            margin-right: 0;
+            transform: translateY(-50%);
+            background-color: $color-light;
+        }
+
+        &.textarea {
+            height: 126px;
+
+            .delete-btn {
+                top: 20px;
+            }
+
+            .edit-btn {
+                top: 1px;
+                transform: none;
+            }
+        }
+
+        &.checkbox,
+        &.radio {
+            &:after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 12px;
+                width: 18px;
+                height: 18px;
+                background-color: $color-light;
+                border: 2px solid $color-primary;
+                border-radius: 2px;
+                transform: translateY(-50%);
+            }
+        }
+
+        &.radio {
+            &:after {
+                border-radius: 100%;
+            }
+        }
+
+        &.select {
+            &:after {
+                content: '';
+                position: absolute;
+                top: calc(50% - 1px);
+                right: 15px;
+                width: 12px;
+                height: 12px;
+                border: 2px solid $color-gray;
+                border-top: none;
+                border-left: none;
+                transform-origin: 50% 50%;
+                transform: translateY(-50%) rotate(45deg);
+            }
+        }
+
+        &.submit {
+            display: flex;
+            justify-content: center;
+            border: none;
+
+            .label {
+                @extend .btn-primary;
+                min-width: 126px;
+            }
+
+            .delete-btn {
+                left: -17px;
+            }
+        }
+
+        &.hidden {
+            opacity: 0.8;
         }
     }
 }

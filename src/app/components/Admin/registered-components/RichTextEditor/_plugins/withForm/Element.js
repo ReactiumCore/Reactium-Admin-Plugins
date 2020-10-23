@@ -4,7 +4,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from 'reactium-core/sdk';
 
 const Element = props => {
     const editor = useEditor();
@@ -39,16 +39,25 @@ const Element = props => {
         }
     };
 
+    const _showProperties = () => {};
+
     return (
         <div className={cn('rte-form-element', element)}>
-            {children}
+            <span className='label'>{children}</span>
             <Button
+                appearance='circle'
                 contentEditable={false}
                 color='danger'
                 className='delete-btn'
-                style={{ width: 24, height: 24 }}
                 onClick={_delete}>
                 <Icon name='Feather.X' />
+            </Button>
+            <Button
+                contentEditable={false}
+                color='clear'
+                className='edit-btn'
+                onClick={_showProperties}>
+                <Icon name='Feather.Sliders' />
             </Button>
         </div>
     );

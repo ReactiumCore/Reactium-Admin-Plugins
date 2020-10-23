@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import uuid from 'uuid/v4';
+import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Transforms } from 'slate';
 import React, { useEffect, useState } from 'react';
@@ -58,32 +59,52 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
     const insertNode = e => {
         if (e) e.preventDefault();
 
-        const element = refs.get('element').value;
-
         const id = uuid();
+        const { value: element, label } = _.findWhere(elements, {
+            value: refs.get('element').value,
+        });
 
         const children = [
             {
+                children: [{ text: label }],
+                element,
                 id: `form-element-${id}`,
                 type: 'formElement',
-                element,
-                children: [{ text: element }],
             },
+            { children: [{ text: '' }], type: 'p' },
         ];
 
         const node = {
             blockID: `block-${id}`,
-            blocked: true,
             children,
             id: `form-${id}`,
             type: 'form',
         };
 
-        const selection = JSON.parse(JSON.stringify(editor.selection));
+        const selection = JSON.parse(
+            JSON.stringify(editor.selection.anchor.path),
+        );
 
-        Reactium.RTE.insertBlock(editor, node, { id, className: 'rte-form' });
-        Transforms.select(editor, selection);
+        let block = Reactium.RTE.getBlock(editor, selection);
+        block = block ? block.node : null;
 
+        const isForm = block ? op.get(block, 'form') : false;
+
+        if (!isForm) {
+            Reactium.RTE.insertBlock(editor, node, {
+                id,
+                className: 'rte-form',
+                form: true,
+            });
+            Transforms.move(editor, { distance: 2, edge: 'end', unit: 'line' });
+        } else {
+            op.set(node, 'blockID', block.id);
+            Transforms.insertNodes(editor, node);
+        }
+
+        Transforms.collapse(editor, { edge: 'end' });
+
+        ReactEditor.focus(editor);
         // hide();
     };
 
@@ -144,6 +165,7 @@ Panel.defaultProps = {
         { value: 'email', label: __('Email') },
         { value: 'password', label: __('Password') },
         { value: 'phone', label: __('Phone') },
+        { value: 'hidden', label: __('Hidden') },
         { value: 'select', label: __('Select') },
         { value: 'checkbox', label: __('Checkbox') },
         { value: 'radio', label: __('Radio') },

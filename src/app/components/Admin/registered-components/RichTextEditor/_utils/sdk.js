@@ -309,8 +309,8 @@ class RTE {
         let next = Path.next(path);
 
         const node = {
-            blocked: true,
             ...props,
+            blocked: true,
             children,
             id,
             type: 'block',
@@ -322,6 +322,7 @@ class RTE {
             if (block.empty) {
                 Transforms.insertNodes(editor, node, {
                     at: Path.next(block.path),
+                    split: true,
                 });
                 Transforms.delete(editor, { at: block.path });
             } else {
