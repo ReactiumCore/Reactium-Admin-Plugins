@@ -50,7 +50,6 @@ const ContentTypeMenuItem = memo(props => {
     const toggleIconPicker = () => {
         if (dialogRef.current && iconPickerRef.current) {
             iconPickerRef.current.toggle();
-            console.log(iconPickerRef.current.visible);
 
             // about to show
             if (!iconPickerRef.visible) _.defer(dialogRef.current.expand);
