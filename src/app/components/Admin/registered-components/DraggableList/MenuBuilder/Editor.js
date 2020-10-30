@@ -158,6 +158,11 @@ const MenuEditor = memo(props => {
             case 'Link':
                 op.set(context, 'menu', context.item);
                 op.set(context, 'menu.urls', [context.item.url]);
+                op.set(
+                    context,
+                    'menu.item.title',
+                    op.get(context, 'item.title'),
+                );
                 break;
         }
 
@@ -194,7 +199,7 @@ const MenuEditor = memo(props => {
         setValue(formValue);
     };
 
-    const save = async (statusEvt, type, handle) => {
+    const save = async statusEvt => {
         const currentValue = getValue();
         const formValue = op.get(statusEvt, ['value', fieldName], {});
 

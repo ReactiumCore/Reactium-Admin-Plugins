@@ -10,11 +10,11 @@ const Solar = {
     navigation: [
         {
             id: 'header.main',
-            label: __('Header Navigation:'),
+            label: __('Header: Desktop'),
         },
         {
-            id: 'header.sub',
-            label: __('Sub Navigation:'),
+            id: 'header.mobile',
+            label: __('Header: Mobile'),
         },
         {
             id: 'footer.main',
@@ -34,7 +34,7 @@ const Solar = {
         {
             id: 'body.text',
             label: __('Body Text:'),
-            defaultValue: '#FFFFFF',
+            defaultValue: '#262626',
         },
         {
             id: 'content.background',
