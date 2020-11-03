@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import Panel from './Settings';
 import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
 import { useHookComponent } from 'reactium-core/sdk';
@@ -11,6 +12,10 @@ const Element = props => {
     const { children, element, id } = props;
 
     const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const nodeProps = op.get(props, 'nodeProps', {});
+
+    const { className, style } = nodeProps;
 
     const getNode = () => {
         const nodes = Array.from(Editor.nodes(editor, { at: [] }));
@@ -39,27 +44,61 @@ const Element = props => {
         }
     };
 
-    const _showProperties = () => {};
+    const showPanel = () =>
+        editor.panel
+            .setID('rte-settings')
+            .setContent(<Panel {...props} {...getNode()} />)
+            .show();
 
     return (
-        <div className={cn('rte-form-element', element)}>
-            <span className='label'>{children}</span>
-            <Button
-                appearance='circle'
-                contentEditable={false}
-                color='danger'
-                className='delete-btn'
-                onClick={_delete}>
-                <Icon name='Feather.X' />
-            </Button>
-            <Button
-                contentEditable={false}
-                color='clear'
-                className='edit-btn'
-                onClick={_showProperties}>
-                <Icon name='Feather.Sliders' />
-            </Button>
-        </div>
+        <>
+            {nodeProps.label && (
+                <div className='rte-form-element-label' contentEditable={false}>
+                    {nodeProps.label}
+                </div>
+            )}
+            <div
+                className={cn(
+                    'rte-form-element',
+                    element,
+                    element !== 'submit' ? className : null,
+                    {
+                        checked: nodeProps.checked,
+                    },
+                )}
+                style={style}>
+                <span
+                    className={
+                        element === 'submit' && className
+                            ? className
+                            : 'placeholder'
+                    }>
+                    {children}
+                </span>
+                <Button
+                    appearance='circle'
+                    contentEditable={false}
+                    color='danger'
+                    className='delete-btn'
+                    onClick={_delete}>
+                    <Icon name='Feather.X' />
+                </Button>
+                <Button
+                    contentEditable={false}
+                    color='clear'
+                    className='edit-btn'
+                    onClick={showPanel}>
+                    <Icon name='Feather.Sliders' />
+                </Button>
+                {nodeProps.checked && element === 'checkbox' && (
+                    <Icon
+                        name='Feather.Check'
+                        contentEditable={false}
+                        className='check'
+                    />
+                )}
+            </div>
+        </>
     );
 };
 
