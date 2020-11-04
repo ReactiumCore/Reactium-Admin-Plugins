@@ -55,7 +55,7 @@ const Panel = props => {
 
     const heading = title => ({ title });
 
-    const pref = suffix => `admin.rte.settings.image.${suffix}`;
+    const pref = suffix => `admin.rte.settings.block.${suffix}`;
 
     const onSubmit = ({ value }) => {
         const { node, path } = Reactium.RTE.getNode(editor, props.id);
@@ -69,8 +69,6 @@ const Panel = props => {
         Transforms.collapse(editor, { edge: 'end' });
         Transforms.setNodes(editor, { nodeProps: value }, { at: path });
     };
-
-    //const onSubmit = _.throttle(_onSubmit, 1000, { trailing: false });
 
     const _onChange = ({ value }) => setValue(value);
     const onChange = _.debounce(_onChange, 500);
@@ -147,11 +145,27 @@ const Panel = props => {
         <Settings
             className={cx()}
             footer={{}}
-            id='rte-image-settings'
+            id='rte-block-settings'
             onChange={onChange}
             ref={elm => refs.set('settings', elm)}
             title={props.title}
             value={op.get(state, 'nodeProps', {})}>
+            <Dialog
+                className='sub'
+                header={heading(__('ID'))}
+                pref={pref('id')}>
+                <div className={cx('row')}>
+                    <div className='col-xs-12 form-group'>
+                        <input
+                            data-focus
+                            type='text'
+                            name='data.id'
+                            title={__('id')}
+                        />
+                    </div>
+                </div>
+            </Dialog>
+
             <Dialog
                 className='sub'
                 header={heading(__('CSS Class'))}
@@ -159,7 +173,6 @@ const Panel = props => {
                 <div className={cx('row')}>
                     <div className='col-xs-12 form-group'>
                         <input
-                            data-focus
                             type='text'
                             name='className'
                             title={__('css class')}

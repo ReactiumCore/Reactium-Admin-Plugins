@@ -63,7 +63,7 @@ export const FieldType = props => {
                             placeholder={__('Max Characters')}
                         />
                     </label>
-                    <div className='checks'>
+                    <div className='checks pl-xs-0 pl-md-20'>
                         <Checkbox
                             name='multiline'
                             label={__('Multiline')}

@@ -59,7 +59,7 @@
     }
 
     input.ico {
-        padding-left: 32px;
+        padding-left: 32px !important;
     }
 
     svg {
@@ -126,8 +126,46 @@
             position: relative;
             margin: 0;
 
+            input {
+                padding: 6px 8px;
+            }
+
             input[type='number'] {
                 padding-right: 2px;
+            }
+
+            label > span {
+                font-weight: 500;
+                font-size: 13px;
+                padding-left: 4px;
+            }
+
+            &.inline {
+                width: 100%;
+
+                label {
+                    font-size: 13px;
+
+                    &:first-child {
+                        &:last-child {
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            width: 100%;
+
+                            > span:first-child {
+                                flex-grow: 1;
+                            }
+
+                            input {
+                                max-width: 50%;
+                                padding-right: 4px;
+                            }
+
+                            > * { margin: 0; }
+                        }
+                    }
+                }
             }
         }
 

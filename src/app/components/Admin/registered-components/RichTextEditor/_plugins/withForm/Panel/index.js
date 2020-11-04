@@ -6,13 +6,7 @@ import { Transforms } from 'slate';
 import React, { useEffect, useState } from 'react';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
-
-import Reactium, {
-    __,
-    useDerivedState,
-    useFocusEffect,
-    useRefs,
-} from 'reactium-core/sdk';
+import Reactium, { __, useFocusEffect, useRefs } from 'reactium-core/sdk';
 
 const useElements = props => {
     const [elements, setElements] = useState(props.elements);
@@ -48,11 +42,6 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
     const editor = useEditor();
     const [elements] = useElements(props);
 
-    // Initial state
-    const [state, setState] = useDerivedState({
-        selection: editor.selection,
-    });
-
     // className prefixer
     const cx = Reactium.Utils.cxFactory(namespace);
 
@@ -64,12 +53,19 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
             value: refs.get('element').value,
         });
 
+        const nodeProps = {};
+
+        if (element === 'button') {
+            nodeProps.data = { type: 'button' };
+        }
+
         const children = [
             {
                 children: [{ text: label }],
                 element,
                 id: `form-element-${id}`,
                 type: 'formElement',
+                nodeProps,
             },
             { children: [{ text: '' }], type: 'p' },
         ];
@@ -120,11 +116,6 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
 
     useFocusEffect(editor.panel.container);
 
-    useEffect(() => {
-        if (!editor.selection) return;
-        setState({ selection: editor.selection });
-    }, [editor.selection]);
-
     // Renderers
     return (
         <Dialog collapsible={false} dismissable={false} header={header()}>
@@ -164,12 +155,14 @@ Panel.defaultProps = {
         { value: 'number', label: __('Number') },
         { value: 'email', label: __('Email') },
         { value: 'password', label: __('Password') },
-        { value: 'phone', label: __('Phone') },
+        { value: 'tel', label: __('Phone') },
         { value: 'hidden', label: __('Hidden') },
         { value: 'select', label: __('Select') },
+        { value: 'search', label: __('Search') },
+        { value: 'url', label: __('URL') },
         { value: 'checkbox', label: __('Checkbox') },
         { value: 'radio', label: __('Radio') },
-        { value: 'submit', label: __('Button') },
+        { value: 'button', label: __('Button') },
     ],
     namespace: 'rte-form-panel',
     submitButtonLabel: __('Insert Element'),

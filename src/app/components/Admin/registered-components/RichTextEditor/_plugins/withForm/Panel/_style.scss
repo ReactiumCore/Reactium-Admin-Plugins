@@ -34,6 +34,11 @@
             }
         }
 
+        &-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
         .delete-btn,
         .edit-btn {
             position: absolute;
@@ -79,7 +84,9 @@
 
         &.checkbox,
         &.radio {
-            &:after {
+            position: relative;
+
+            &:before {
                 content: '';
                 position: absolute;
                 top: 50%;
@@ -91,16 +98,41 @@
                 border-radius: 2px;
                 transform: translateY(-50%);
             }
+
+            .check {
+                width: 16px;
+                height: 16px;
+                position: absolute;
+                top: 50%;
+                right: 13px;
+                fill: $color-black;
+                transform: translateY(-50%);
+            }
         }
 
         &.radio {
-            &:after {
+            &:before {
                 border-radius: 100%;
+            }
+
+            &.checked {
+                &:after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    right: 16px;
+                    width: 10px;
+                    height: 10px;
+                    background-color: $color-black;
+                    border: 2px solid transparent;
+                    border-radius: 100%;
+                    transform: translateY(-50%);
+                }
             }
         }
 
         &.select {
-            &:after {
+            &:before {
                 content: '';
                 position: absolute;
                 top: calc(50% - 1px);
@@ -115,12 +147,12 @@
             }
         }
 
-        &.submit {
+        &.button {
             display: flex;
             justify-content: center;
             border: none;
 
-            .label {
+            .placeholder {
                 @extend .btn-primary;
                 min-width: 126px;
             }
@@ -132,6 +164,86 @@
 
         &.hidden {
             opacity: 0.8;
+        }
+    }
+}
+
+.rte-form-select-options {
+    position: relative;
+
+    .add-row,
+    .edit-row {
+        position: relative;
+
+        button {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        input {
+            background-color: $color-light;
+            width: auto;
+            flex-shrink: 1;
+            max-width: calc(50% - 17px);
+        }
+    }
+
+    .add-row {
+        padding: 16px;
+        background-color: darken($color-light, 0.8%);
+        button svg { width: 20px; height: 20px; }
+    }
+
+    .edit-row {
+        padding: 8px 16px;
+        margin-top: 0;
+        background-color: $color-light;
+
+        &:hover {
+            .handle {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 16px !important;
+                height: 100%;
+
+                &:after {
+                    content: '';
+                    border-left: 1px solid $color-grey;
+                    border-right: 1px solid $color-grey;
+                    position: absolute;
+                    width: 3px;
+                    height: 16px;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            }
+        }
+
+        &.dragging {
+            padding: 8px;
+            min-height: 50px;
+        }
+
+        button {
+            border-radius: 0 2px 2px 0;
+        }
+    }
+
+    .options {
+        padding: 8px 0;
+        border-top: 1px solid $color-grey-light;
+
+        &:empty {
+            display: none;
         }
     }
 }

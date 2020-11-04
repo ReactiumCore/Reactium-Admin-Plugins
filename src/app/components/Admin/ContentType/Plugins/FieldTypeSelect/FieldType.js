@@ -23,7 +23,7 @@ export const FieldType = props => {
     });
 
     const { DragHandle } = props;
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Checkbox, Icon } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
     const cx = Reactium.Utils.cxFactory('template-cte');
@@ -96,13 +96,24 @@ export const FieldType = props => {
 
     return (
         <FieldTypeDialog {...props} showHelpText={false}>
-            <div className='form-group'>
-                <input
-                    type='text'
-                    placeholder='Placeholder'
-                    name='placeholder'
-                    defaultValue='Select'
-                />
+            <div className='flex middle mb-xs-12'>
+                <div className='flex-grow'>
+                    <div className='form-group'>
+                        <input
+                            type='text'
+                            name='placeholder'
+                            placeholder={__('Placeholder')}
+                        />
+                    </div>
+                </div>
+                <div className='pl-xs-0 pl-md-20'>
+                    <Checkbox
+                        name='multiple'
+                        label={__('Multiple')}
+                        labelAlign='right'
+                        value={true}
+                    />
+                </div>
             </div>
             <div className={cn('input-group', cx('slide'))}>
                 <input
