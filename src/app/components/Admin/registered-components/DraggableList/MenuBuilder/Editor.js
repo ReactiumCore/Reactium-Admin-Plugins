@@ -165,25 +165,18 @@ const MenuEditor = memo(props => {
         const formValue = op.get(statusEvt, ['value', fieldName], {});
 
         const saveItems = mapFieldsToItems(op.get(currentValue, 'items', []));
+        await new Promise(async resolve => {
+            for (const item of saveItems) {
+                Reactium.Hook.runSync('menu-build-item-save', fieldName, item);
+                await Reactium.Hook.run(
+                    'menu-build-item-save',
+                    fieldName,
+                    item,
+                );
+            }
 
-        await Promise.all(
-            _.flatten(
-                saveItems.map(async item => {
-                    return [
-                        Reactium.Hook.runSync(
-                            'menu-build-item-save',
-                            fieldName,
-                            item,
-                        ),
-                        Reactium.Hook.run(
-                            'menu-build-item-save',
-                            fieldName,
-                            item,
-                        ),
-                    ];
-                }),
-            ),
-        );
+            resolve();
+        });
 
         op.set(statusEvt, ['value', fieldName], {
             ...formValue,

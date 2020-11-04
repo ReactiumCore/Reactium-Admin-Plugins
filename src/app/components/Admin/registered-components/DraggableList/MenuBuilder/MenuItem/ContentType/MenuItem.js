@@ -93,8 +93,6 @@ const ContentTypeMenuItem = memo(props => {
 
                     if (!isMounted()) return;
 
-                    console.log({ freshItem });
-
                     Object.entries(menuItem).forEach(([key, value]) => {
                         if (key === 'item')
                             value = {
@@ -126,8 +124,6 @@ const ContentTypeMenuItem = memo(props => {
 
                         op.set(saving, key, value);
                     });
-
-                    console.log({ saving });
                 }
             },
         );
