@@ -150,6 +150,7 @@ const PaginatedTab = ({ type, onAddItems = noop }) => {
                     limit: 10,
                     orderBy: 'updatedAt',
                     direction: 'descending',
+                    resolveRelations: true,
                 });
 
                 if (isMounted()) {
@@ -218,7 +219,19 @@ const ContentTypeControl = props => {
             items.map(item => ({
                 id: uuid(),
                 type: 'ContentType',
-                item,
+                item: {
+                    icon: op.get(item, 'type.meta.icon', 'Linear.Papers'),
+                    title: op.get(item, 'title', op.get(item, 'slug', '')),
+                    url: op.get(
+                        item,
+                        'urls.0.route',
+                        `/${op.get(item, 'type.machineName')}/${op.get(
+                            item,
+                            'slug',
+                        )}`,
+                    ),
+                    context: item,
+                },
                 depth: 0,
             })),
         );

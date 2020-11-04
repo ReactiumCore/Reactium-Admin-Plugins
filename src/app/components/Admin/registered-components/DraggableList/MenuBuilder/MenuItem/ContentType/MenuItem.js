@@ -27,10 +27,12 @@ const ContentTypeMenuItem = memo(props => {
         'item.objectId',
     ]);
     const item = op.get(menuItem, 'item', {});
-    let title = op.get(menuItem, 'label', '');
-    if (!title || title.length < 1)
-        title = op.get(item, 'title', op.get(item, 'slug'));
 
+    const title = op.get(
+        item,
+        'title',
+        op.get(item, 'context.title', op.get(item, 'context.slug')),
+    );
     const onRemoveItem = op.get(props, 'onRemoveItem', noop);
     const animateResize = () =>
         op.get(props.listRef.current, 'animateResize', noop)();
@@ -38,10 +40,10 @@ const ContentTypeMenuItem = memo(props => {
     const icon = op.get(
         item,
         'icon',
-        op.get(item, 'type.meta.icon', 'Linear.Papers'),
+        op.get(item, 'context.type.meta.icon', 'Linear.Papers'),
     );
-    const typeSlug = op.get(item, 'type.machineName');
-    const slug = op.get(item, 'slug');
+    const typeSlug = op.get(item, 'context.type.machineName');
+    const slug = op.get(item, 'context.slug');
 
     const onChange = type => e => {
         setMenuItem({ [type]: e.target.value });
@@ -77,25 +79,55 @@ const ContentTypeMenuItem = memo(props => {
                         type: {
                             machineName: op.get(
                                 saving.item,
-                                'type.machineName',
+                                'context.type.machineName',
                             ),
                         },
-                        uuid: op.get(saving.item, 'uuid'),
+                        uuid: op.get(saving.item, 'context.uuid'),
                         current: true,
                         resolveRelations: true,
                     });
 
-                    op.set(freshItem, 'type', op.get(saving, 'item.type'));
-
                     // trim objectIds to discourage migration unsafe coding downstream
                     op.del(freshItem, 'type.objectId');
                     op.del(freshItem, 'objectId');
+
                     if (!isMounted()) return;
 
+                    console.log({ freshItem });
+
                     Object.entries(menuItem).forEach(([key, value]) => {
-                        if (key === 'item') value = freshItem;
+                        if (key === 'item')
+                            value = {
+                                ...op.get(saving, 'item', {}),
+                                icon: op.get(
+                                    saving,
+                                    'item.icon',
+                                    op.get(
+                                        freshItem,
+                                        'type.meta.icon',
+                                        'Linear.Papers',
+                                    ),
+                                ),
+                                title: op.get(
+                                    saving,
+                                    'item.title',
+                                    op.get(freshItem, 'title', ''),
+                                ),
+                                url: op.get(
+                                    freshItem,
+                                    'urls.0.route',
+                                    `/${op.get(
+                                        freshItem,
+                                        'type.machineName',
+                                    )}/${op.get(freshItem, 'slug')}`,
+                                ),
+                                context: freshItem,
+                            };
+
                         op.set(saving, key, value);
                     });
+
+                    console.log({ saving });
                 }
             },
         );
@@ -149,7 +181,7 @@ const ContentTypeMenuItem = memo(props => {
                         <input
                             type='text'
                             value={title}
-                            onChange={onChange('label')}
+                            onChange={onChange('item.title')}
                         />
                     </label>
                 </div>
