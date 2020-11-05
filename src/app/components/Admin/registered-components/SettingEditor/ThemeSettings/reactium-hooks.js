@@ -32,9 +32,6 @@ Reactium.Plugin.register('AdminThemeSettings').then(() => {
             type: 'text',
         };
 
-        // UA-137912516-1
-        // AIzaSyA1oBrTSuMi22NMN0Z29fbJ-ckBezrR344
-
         inputs['App.google.maps.key'] = {
             label: __('Google Map API Key'),
             required: false,

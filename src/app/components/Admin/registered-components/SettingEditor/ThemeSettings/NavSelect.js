@@ -12,7 +12,7 @@ import Reactium, {
 const noop = () => {};
 
 const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
-    let { groupName, label, name, value, options = [] } = props;
+    let { label, name, value, options = [] } = props;
 
     const [state, setState] = useDerivedState({
         value,
@@ -30,11 +30,6 @@ const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
     };
 
     const _onChange = e => setState({ value: e.target.value });
-
-    const _onSubmit = value => {
-        const menu = getMenu();
-        op.set(value, name, { menu, slug: state.value });
-    };
 
     const _handle = () => ({
         ...props,
@@ -61,16 +56,6 @@ const NavSelect = forwardRef(({ onChange = noop, ...props }, ref) => {
             }),
         );
     }, [state.value]);
-
-    useAsyncEffect(async () => {
-        const HID = await Reactium.Hook.register(
-            `setting-save-${groupName}`,
-            _onSubmit,
-        );
-        return () => {
-            Reactium.Hook.unregister(HID);
-        };
-    }, []);
 
     useEffect(() => {
         handle.addEventListener('change', onChange);
