@@ -130,47 +130,8 @@ const MenuEditor = memo(props => {
         _.defer(() => props.editor.setValue({ [fieldName]: newValue }));
     };
 
-    const normalizeMenuItem = context => {
-        switch (context.type) {
-            case 'ContentType':
-                const urls = _.pluck(
-                    Reactium.Routing.get().filter(
-                        route =>
-                            op.get(route, 'meta.contentId') ===
-                            context.item.objectId,
-                    ),
-                    'path',
-                );
-
-                const url = _.first(urls);
-
-                op.set(context, 'menu', { item: {} });
-                op.set(context, 'menu.url', url);
-                op.set(context, 'menu.urls', urls);
-                op.set(
-                    context,
-                    'menu.item.title',
-                    op.get(context, 'item.title'),
-                );
-
-                break;
-
-            case 'Link':
-                op.set(context, 'menu', context.item);
-                op.set(context, 'menu.urls', [context.item.url]);
-                op.set(
-                    context,
-                    'menu.item.title',
-                    op.get(context, 'item.title'),
-                );
-                break;
-        }
-
-        return context;
-    };
-
     const addItems = item => {
-        const added = _.flatten([item]).map(item => normalizeMenuItem(item));
+        const added = _.flatten([item]);
         setItems(items.concat(added));
     };
 
@@ -204,25 +165,18 @@ const MenuEditor = memo(props => {
         const formValue = op.get(statusEvt, ['value', fieldName], {});
 
         const saveItems = mapFieldsToItems(op.get(currentValue, 'items', []));
+        await new Promise(async resolve => {
+            for (const item of saveItems) {
+                Reactium.Hook.runSync('menu-build-item-save', fieldName, item);
+                await Reactium.Hook.run(
+                    'menu-build-item-save',
+                    fieldName,
+                    item,
+                );
+            }
 
-        await Promise.all(
-            _.flatten(
-                saveItems.map(async item => {
-                    return [
-                        Reactium.Hook.runSync(
-                            'menu-build-item-save',
-                            fieldName,
-                            item,
-                        ),
-                        Reactium.Hook.run(
-                            'menu-build-item-save',
-                            fieldName,
-                            item,
-                        ),
-                    ];
-                }),
-            ),
-        );
+            resolve();
+        });
 
         op.set(statusEvt, ['value', fieldName], {
             ...formValue,
