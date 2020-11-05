@@ -6,7 +6,6 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import Attributes from './Attributes';
 import React, { useEffect } from 'react';
-import { Editor, Path, Transforms } from 'slate';
 
 import Reactium, {
     __,
@@ -102,7 +101,7 @@ let Panel = ({ editor, namespace, title, ...props }) => {
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const fetchContent = ({ component, ...props }) => {
+    const fetchContent = ({ component }) => {
         let { request = null } = state;
         if (request !== null) return request;
         setStatus(ENUMS.STATUS.FETCHING, true);
@@ -217,15 +216,19 @@ let Panel = ({ editor, namespace, title, ...props }) => {
         }
     };
 
-    const insertNode = ({ children = [], ...block }) => {
+    const insertNode = ({ children, ...block }) => {
+        children = children || [{ text: '' }];
         const id = uuid();
-        const node = {
-            children,
-            ID: id,
-            block,
-            type: 'component',
-        };
-        Reactium.RTE.insertBlock(editor, node, { id });
+        const node = [
+            {
+                children,
+                ID: id,
+                block,
+                type: 'component',
+            },
+        ];
+
+        Reactium.RTE.insertBlock(editor, node, { at: props.selection, id });
     };
 
     const listeners = () => {

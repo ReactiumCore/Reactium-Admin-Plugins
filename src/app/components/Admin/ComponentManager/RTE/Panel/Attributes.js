@@ -61,15 +61,15 @@ let Attributes = (props, ref) => {
         setHandle(handle);
     };
 
-    const _onSubmit = e =>
-        handle.dispatchEvent(
-            new ComponentEvent('submit', {
-                block: {
-                    ...state.block,
-                    attribute: e.currentTarget.getValue(),
-                },
-            }),
-        );
+    const _onSubmit = e => {
+        const evt = new ComponentEvent('submit', {
+            block: {
+                ...state.block,
+                attribute: e.currentTarget.getValue(),
+            },
+        });
+        handle.dispatchEvent(evt);
+    };
 
     const _handle = () => ({
         attributes: op.get(state, 'attributes'),
