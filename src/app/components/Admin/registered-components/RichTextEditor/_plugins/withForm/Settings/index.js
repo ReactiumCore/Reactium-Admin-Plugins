@@ -1,11 +1,9 @@
 import React from 'react';
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
+import Select from './Select';
 import { Transforms } from 'slate';
 import { useEditor } from 'slate-react';
-
-import Select from './Select';
 
 import Reactium, {
     __,
@@ -216,7 +214,7 @@ const Panel = props => {
                 <Dialog
                     className='sub'
                     header={heading(__('Label'))}
-                    pref={pref('name')}>
+                    pref={pref('label')}>
                     <div className={cx('row')}>
                         <div className='col-xs-12 form-group'>
                             <input

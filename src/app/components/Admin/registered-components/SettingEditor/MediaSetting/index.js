@@ -1,9 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useHookComponent, useHandle, __ } from 'reactium-core/sdk';
+import React, { useRef, useEffect } from 'react';
+import { useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
-const noop = () => {};
 const MediaSetting = ({
     name,
     value = [],
@@ -42,9 +41,7 @@ const MediaSetting = ({
     return (
         <div className={'form-group'}>
             <label>
-                <span data-tooltip={config.tooltip} data-align='left'>
-                    {config.label}
-                </span>
+                <span aria-label={config.tooltip}>{config.label}</span>
 
                 <MediaTool
                     ref={mediaToolRef}

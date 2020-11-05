@@ -1,7 +1,7 @@
 import React from 'react';
 import ThemeSettings from '.';
 import * as Themes from './themes';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 // Create Theme SDK
 Reactium.Theme = Reactium.Theme || Reactium.Utils.registryFactory('Theme');
@@ -23,5 +23,28 @@ Reactium.Plugin.register('AdminThemeSettings').then(() => {
             const Settings = useHookComponent('AdminThemeSettings');
             return <Settings {...props} />;
         },
+    });
+
+    Reactium.Hook.registerSync('settings-editor-config-App', inputs => {
+        inputs['App.google.analytics.key'] = {
+            label: __('Google Analytics API Key'),
+            required: false,
+            type: 'text',
+        };
+
+        // UA-137912516-1
+        // AIzaSyA1oBrTSuMi22NMN0Z29fbJ-ckBezrR344
+
+        inputs['App.google.maps.key'] = {
+            label: __('Google Map API Key'),
+            required: false,
+            type: 'text',
+        };
+
+        inputs['App.google.maps.zoom'] = {
+            label: __('Google Map Zoom'),
+            required: false,
+            type: 'number',
+        };
     });
 });

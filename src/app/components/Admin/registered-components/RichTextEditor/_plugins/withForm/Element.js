@@ -61,7 +61,7 @@ const Element = props => {
                 className={cn(
                     'rte-form-element',
                     element,
-                    element !== 'submit' ? className : null,
+                    element !== 'button' ? className : null,
                     {
                         checked: nodeProps.checked,
                     },
@@ -69,7 +69,7 @@ const Element = props => {
                 style={style}>
                 <span
                     className={
-                        element === 'submit' && className
+                        element === 'button' && className
                             ? className
                             : 'placeholder'
                     }>

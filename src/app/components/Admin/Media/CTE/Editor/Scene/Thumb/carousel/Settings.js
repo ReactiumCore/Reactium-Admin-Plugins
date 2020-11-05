@@ -96,6 +96,12 @@ let Settings = (props, ref) => {
                     </div>
                     <div className='form-group'>
                         <label>
+                            {__('ID:')}
+                            <input type='text' name='id' />
+                        </label>
+                    </div>
+                    <div className='form-group'>
+                        <label>
                             {__('Class:')}
                             <input type='text' name='className' />
                         </label>

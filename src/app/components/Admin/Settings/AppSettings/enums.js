@@ -18,9 +18,17 @@ export default {
                     },
                 },
 
+                maintenance: {
+                    type: 'toggle',
+                    label: __('Maintenance Mode'),
+                    tooltip: __(
+                        'Toggle the application into maintenance mode.',
+                    ),
+                },
+
                 title: {
                     type: 'text',
-                    label: __('App title'),
+                    label: __('App Title'),
                     tooltip: __('Title of this application.'),
                     required: false,
                 },
@@ -30,14 +38,6 @@ export default {
                     label: __('App URL'),
                     tooltip: __('URL of this application if applicable.'),
                     required: false,
-                },
-
-                maintenance: {
-                    type: 'toggle',
-                    label: __('Maintenance Mode'),
-                    tooltip: __(
-                        'Toggle the application into maintenance mode.',
-                    ),
                 },
             },
         },

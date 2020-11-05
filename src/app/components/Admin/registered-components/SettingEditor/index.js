@@ -85,15 +85,14 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         [groupName]: settingGroup,
     };
 
-    const [inputs, setInputs] = useState(op.get(settings, 'inputs', {}));
+    const inputs = op.get(settings, 'inputs', {});
+    Reactium.Hook.runSync(`settings-editor-config-${groupName}`, inputs);
 
-    const InputRender = ({ value }) => {
+    const InputRender = () => {
         const renderInput = (key, config) => {
             const type = op.get(config, 'type', 'text');
             const hasError = op.has(errorsRef.current, [key]);
-            const formGroupClasses = cn('form-group', {
-                error: hasError,
-            });
+            const formGroupClasses = cn('form-group', { error: hasError });
             const helpText = op.get(
                 errorsRef.current,
                 [key, 'message'],
@@ -121,9 +120,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                                 className={cn(formGroupClasses, 'inline')}
                                 key={key}>
                                 <label htmlFor={key}>
-                                    <span
-                                        data-tooltip={config.tooltip}
-                                        data-align='left'>
+                                    <span aria-label={config.tooltip}>
                                         {config.label}
                                     </span>
                                     <small>{helpText}</small>
@@ -151,9 +148,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         return (
                             <div className={formGroupClasses} key={key}>
                                 <label>
-                                    <span
-                                        data-tooltip={config.tooltip}
-                                        data-align='left'>
+                                    <span aria-label={config.tooltip}>
                                         {config.label}
                                     </span>
                                     <textarea
@@ -170,20 +165,19 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                             </div>
                         );
                     }
-                    case 'text':
+
                     default:
                         return (
                             <div className={formGroupClasses} key={key}>
                                 <label>
-                                    <span
-                                        data-tooltip={config.tooltip}
-                                        data-align='left'>
+                                    <span aria-label={config.tooltip}>
                                         {config.label}
                                     </span>
                                     <input
-                                        type='text'
-                                        autoComplete='off'
                                         name={key}
+                                        type={type}
+                                        autoComplete='off'
+                                        spellcheck='false'
                                         required={op.get(
                                             config,
                                             'required',
@@ -214,12 +208,6 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         if (e) e.preventDefault();
         formRef.current.submit();
     };
-
-    useEffect(() => {
-        const newInputs = JSON.parse(JSON.stringify(inputs));
-        Reactium.Hook.runSync(`settings-editor-config-${groupName}`, newInputs);
-        setInputs(newInputs);
-    }, [op.get(settings, 'inputs', {})]);
 
     useEffect(() => {
         if (!loading) setValue(group);
