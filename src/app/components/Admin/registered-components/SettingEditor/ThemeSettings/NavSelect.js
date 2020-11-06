@@ -2,9 +2,8 @@ import _ from 'underscore';
 import op from 'object-path';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
-import Reactium, {
+import {
     ComponentEvent,
-    useAsyncEffect,
     useDerivedState,
     useEventHandle,
 } from 'reactium-core/sdk';

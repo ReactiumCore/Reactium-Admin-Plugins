@@ -118,6 +118,7 @@ export default ({ children, ...props }) => {
             component: () => (
                 <Settings
                     {...props}
+                    linkable
                     nodeProps={getNodeProps(props)}
                     icon='Feather.Camera'
                 />

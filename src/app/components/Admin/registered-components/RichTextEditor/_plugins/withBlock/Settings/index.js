@@ -25,7 +25,7 @@ const borderStyleValues = [
     'none',
 ];
 
-const Panel = props => {
+const Panel = ({ linkable, ...props }) => {
     const editor = useEditor();
 
     const refs = useRefs();
@@ -165,6 +165,24 @@ const Panel = props => {
                     </div>
                 </div>
             </Dialog>
+
+            {linkable && (
+                <Dialog
+                    className='sub'
+                    header={heading(__('Link'))}
+                    pref={pref('link')}>
+                    <div className={cx('row')}>
+                        <div className='col-xs-12 form-group'>
+                            <input
+                                data-focus
+                                type='text'
+                                name='data.link'
+                                title={__('hyperlink to a page')}
+                            />
+                        </div>
+                    </div>
+                </Dialog>
+            )}
 
             <Dialog
                 className='sub'
