@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import Toolbar from './Toolbar';

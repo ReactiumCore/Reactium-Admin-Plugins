@@ -170,14 +170,20 @@ export const Editor = props => {
     const remove = async objectId => {
         const values = Array.from(value);
 
-        values.forEach(item => {
-            if (item.objectId === objectId) op.set(item, 'delete', true);
+        values.forEach((item, i) => {
+            if (item.objectId === objectId) {
+                op.set(item, 'delete', true);
+                if (slides && Array.isArray(slides) && slides[i]) {
+                    op.del(slides, [i]);
+                }
+            }
         });
 
         const count = _.reject(values, { delete: true }).length;
         if (max === 1 || count < 1) await nav('action', 'right');
 
         setSelection(values);
+        setSlides(slides);
     };
 
     const removeAll = async (exclude = []) => {
@@ -188,6 +194,7 @@ export const Editor = props => {
         values.forEach(item => op.set(item, 'delete', true));
         await nav('action', 'right');
         setSelection(values);
+        setSlides([]);
     };
 
     const reset = () => {

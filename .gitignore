@@ -91,7 +91,6 @@ src/app/toolkit/icons
 
 # Library Local Development
 src/app/components/Reactium-UI/
-src/reactium-sdk-core
 
 # Flow
 flow-typed
