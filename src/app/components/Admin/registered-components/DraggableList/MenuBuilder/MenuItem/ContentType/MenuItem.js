@@ -119,7 +119,32 @@ const ContentTypeMenuItem = memo(props => {
                                         'type.machineName',
                                     )}/${op.get(freshItem, 'slug')}`,
                                 ),
-                                context: freshItem,
+                                // fly-weight context
+                                context: {
+                                    uuid: op.get(freshItem, 'uuid'),
+                                    slug: op.get(freshItem, 'slug'),
+                                    title: op.get(freshItem, 'title'),
+                                    meta: op.get(freshItem, 'meta', {}),
+                                    type: {
+                                        uuid: op.get(freshItem, 'type.uuid'),
+                                        machineName: op.get(
+                                            freshItem,
+                                            'type.machineName',
+                                        ),
+                                        namespace: op.get(
+                                            freshItem,
+                                            'type.namespace',
+                                        ),
+                                        meta: op.get(
+                                            freshItem,
+                                            'type.meta',
+                                            {},
+                                        ),
+                                    },
+                                    ...(op.has(freshItem, 'urls')
+                                        ? { urls: op.get(freshItem, 'urls') }
+                                        : {}),
+                                },
                             };
 
                         op.set(saving, key, value);
