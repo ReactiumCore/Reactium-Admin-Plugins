@@ -177,7 +177,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                                         name={key}
                                         type={type}
                                         autoComplete='off'
-                                        spellcheck='false'
+                                        spellCheck='false'
                                         required={op.get(
                                             config,
                                             'required',
