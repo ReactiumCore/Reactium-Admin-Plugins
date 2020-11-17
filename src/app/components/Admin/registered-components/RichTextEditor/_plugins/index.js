@@ -17,6 +17,8 @@ import withList from './withList';
 import withMediaImage from './withMediaImage';
 import withMediaVideo from './withMediaVideo';
 import withStrike from './withStrike';
+import withSub from './withSub';
+import withSup from './withSup';
 import withTab from './withTab';
 import withUnderline from './withUnderline';
 
@@ -39,6 +41,8 @@ const plugins = {
     withMediaVideo,
     withList,
     withStrike,
+    withSub,
+    withSup,
     withTab,
     withUnderline,
 };

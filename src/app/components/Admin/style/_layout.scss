@@ -320,3 +320,45 @@ body {
     min-height: 43px;
     margin: -8px 0 -8px -8px;
 }
+
+.overflow {
+    &-hidden {
+        overflow: none;
+    }
+
+    &-auto {
+        overflow: auto;
+    }
+
+    &-scroll {
+        overflow: scroll;
+    }
+
+    &-y {
+        &-hidden {
+            overflow-y: hidden;
+        }
+
+        &-auto {
+            overflow-y: auto;
+        }
+
+        &-scroll {
+            overflow-y: scroll;
+        }
+    }
+
+    &-x {
+        &-hidden {
+            overflow-x: none;
+        }
+
+        &-auto {
+            overflow-x: auto;
+        }
+
+        &-scroll {
+            overflow-x: scroll;
+        }
+    }
+}

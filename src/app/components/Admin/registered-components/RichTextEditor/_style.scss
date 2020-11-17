@@ -46,6 +46,12 @@ input[type='object'] {
         background-color: $color-light;
     }
 
+
+    sub,
+    sup {
+        font-size: 10px;
+    }
+
     &-toolbar {
         position: absolute;
         overflow: visible;

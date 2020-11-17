@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Button, Dialog, Icon } from '@atomic-reactor/reactium-ui';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import Reactium, {
     __,
@@ -79,7 +80,7 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
         Reactium.RTE.insertBlock(editor, nodes, {
             id,
             className: 'row',
-            inspector: false,
+            inspector: true,
             row: columns,
         });
 
@@ -146,69 +147,75 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
     // Renderers
     return (
         <Dialog collapsible={false} dismissable={false} header={header()}>
-            {state.columns.length < 12 && (
-                <div className={cx('form')}>
-                    <h4>
-                        {__('Column %num').replace(
-                            /\%num/gi,
-                            state.columns.length + 1,
-                        )}
-                    </h4>
-                    <div className='input-group'>
-                        {state.sizes.map(size => (
-                            <input
-                                key={`col-size-${size}`}
-                                type='number'
-                                placeholder={size}
-                                onKeyDown={_onColumnAdd}
-                                name={size}
-                                data-focus={size === 'xs'}
-                                max={state.max}
-                                min={state.min}
-                                ref={elm => refs.set(`size.${size}`, elm)}
-                            />
+            <div className={cx('form')}>
+                <h4>
+                    {__('Column %num').replace(
+                        /\%num/gi,
+                        state.columns.length + 1,
+                    )}
+                </h4>
+                <div className='input-group'>
+                    {state.sizes.map(size => (
+                        <input
+                            key={`col-size-${size}`}
+                            type='number'
+                            placeholder={size}
+                            onKeyDown={_onColumnAdd}
+                            name={size}
+                            data-focus={size === 'xs'}
+                            max={state.max}
+                            min={state.min}
+                            ref={elm => refs.set(`size.${size}`, elm)}
+                        />
+                    ))}
+                    <Button
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        onClick={_onColumnAdd}
+                        type='button'
+                        size='sm'>
+                        <Icon name='Feather.Plus' size={20} />
+                    </Button>
+                </div>
+            </div>
+            {state.columns.length > 0 && (
+                <div style={{ height: '50vh', minHeight: 200 }}>
+                    <Scrollbars>
+                        {state.columns.map((column, i) => (
+                            <div className={cx('col')} key={`row-${i}`}>
+                                <div className='input-group'>
+                                    {state.sizes.map(size => (
+                                        <input
+                                            key={`row-${i}-${size}`}
+                                            type='number'
+                                            placeholder={size}
+                                            name={size}
+                                            max={state.max}
+                                            min={state.min}
+                                            onChange={e =>
+                                                _onChange(e, { index: i, size })
+                                            }
+                                            value={op.get(column, size, '')}
+                                            ref={elm =>
+                                                refs.set(
+                                                    `column.${i}.${size}`,
+                                                    elm,
+                                                )
+                                            }
+                                        />
+                                    ))}
+                                    <Button
+                                        onClick={() => _onColumnDelete(i)}
+                                        type='button'
+                                        color={Button.ENUMS.COLOR.DANGER}
+                                        size='sm'>
+                                        <Icon name='Feather.X' size={18} />
+                                    </Button>
+                                </div>
+                            </div>
                         ))}
-                        <Button
-                            color={Button.ENUMS.COLOR.TERTIARY}
-                            onClick={_onColumnAdd}
-                            type='button'
-                            size='sm'>
-                            <Icon name='Feather.Plus' size={20} />
-                        </Button>
-                    </div>
+                    </Scrollbars>
                 </div>
             )}
-            {state.columns.length > 0 &&
-                state.columns.map((column, i) => (
-                    <div className={cx('col')} key={`row-${i}`}>
-                        <div className='input-group'>
-                            {state.sizes.map(size => (
-                                <input
-                                    key={`row-${i}-${size}`}
-                                    type='number'
-                                    placeholder={size}
-                                    name={size}
-                                    max={state.max}
-                                    min={state.min}
-                                    onChange={e =>
-                                        _onChange(e, { index: i, size })
-                                    }
-                                    value={op.get(column, size, '')}
-                                    ref={elm =>
-                                        refs.set(`column.${i}.${size}`, elm)
-                                    }
-                                />
-                            ))}
-                            <Button
-                                onClick={() => _onColumnDelete(i)}
-                                type='button'
-                                color={Button.ENUMS.COLOR.DANGER}
-                                size='sm'>
-                                <Icon name='Feather.X' size={18} />
-                            </Button>
-                        </div>
-                    </div>
-                ))}
 
             {state.columns.length > 0 && (
                 <div className={cx('footer')}>
