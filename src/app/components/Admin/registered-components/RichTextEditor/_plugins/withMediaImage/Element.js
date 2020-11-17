@@ -132,7 +132,6 @@ export default ({ children, ...props }) => {
         };
     }, [props]);
 
-    console.log(state.nodeProps);
     return (
         <span className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
