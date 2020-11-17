@@ -20,7 +20,7 @@ const COMPLETE = 'COMPLETE';
 
 const getNodeProps = props => {
     const { nodeProps = {} } = props;
-    let allowed = ['alt', 'className', 'crossorigin', 'style'];
+    let allowed = ['alt', 'className', 'crossorigin', 'data', 'style'];
 
     Reactium.Hook.runSync('rte-node-props-allowed', allowed, props);
 
@@ -132,6 +132,7 @@ export default ({ children, ...props }) => {
         };
     }, [props]);
 
+    console.log(state.nodeProps);
     return (
         <span className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
