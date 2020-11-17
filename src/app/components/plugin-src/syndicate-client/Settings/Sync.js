@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import Reactium, {
     useHookComponent,
     useAsyncEffect,
+    useHandle,
     __,
 } from 'reactium-core/sdk';
 import op from 'object-path';
@@ -26,6 +27,8 @@ const defaultSyncContext = {
 };
 
 const Sync = memo(({ settingGroup }) => {
+    const tools = useHandle('AdminTools');
+    const Toast = op.get(tools, 'Toast');
     const { Icon, Button } = useHookComponent('ReactiumUI');
     const [state, setState] = useState({
         loading: true,
@@ -33,7 +36,7 @@ const Sync = memo(({ settingGroup }) => {
         forceUpdated: new Date(),
     });
     const [syncState, setSyncState] = useState({
-        syncStatus: 'idle',
+        syncStatus: 'end',
         syncContext: defaultSyncContext,
     });
 
@@ -67,61 +70,73 @@ const Sync = memo(({ settingGroup }) => {
     );
 
     const syncStatusLabels = {
-        idle: __('Sync Content'),
-        start: __('Syncing...'),
-        begin: __('Syncing Taxonomies...'),
-        'after-taxonomies': __('Syncing Media...'),
-        'after-media': __('Syncing Types...'),
-        'after-types': __('Syncing %context...'),
-        end: __('Finishing...'),
+        end: __('Sync Content'),
+        begin: __('Starting...'),
+        taxonomies: __('Syncing Taxonomies...'),
+        media: __('Syncing Media...'),
+        types: __('Syncing Types...'),
+        content: __('Syncing %context...'),
+        relations: __('Syncing %context...'),
+    };
+
+    Reactium.Hook.runSync('syndicate-client-status-labels', syncStatusLabels);
+
+    const sync = async () => {
+        const {
+            syncStatus = 'end',
+            syncContext = defaultSyncContext,
+        } = await Reactium.Cloud.run('syndicate-satellite-sync');
+        // console.log('sync', { syncStatus, syncContext });
+
+        setSyncState({ syncStatus, syncContext });
     };
 
     const { syncStatus, syncContext } = syncState;
     useAsyncEffect(
         async isMounted => {
-            if (syncStatus === 'idle') return;
-            if (syncStatus === 'end') {
-                await Reactium.Cloud.run('syndicate-satellite-sync-reset');
-                if (isMounted())
-                    setSyncState({
-                        syncStatus: 'idle',
-                        syncContext: defaultSyncContext,
-                    });
-            } else {
+            if (syncStatus !== 'end') {
                 const check = setInterval(async () => {
                     const {
-                        syncStatus,
-                        syncContext,
-                    } = await Reactium.Cloud.run('syndicate-satellite-sync');
+                        syncStatus = 'end',
+                        syncContext = defaultSyncContext,
+                    } = await Reactium.Cloud.run('syndicate-satellite-status');
+
+                    // console.log('check', { syncStatus, syncContext });
+
                     if (isMounted()) setSyncState({ syncStatus, syncContext });
                 }, 500);
 
                 return () => clearInterval(check);
             }
+
+            // return;
+            // if (syncStatus === 'end') {
+            //     await Reactium.Cloud.run('syndicate-satellite-sync-reset');
+            //     if (isMounted())
+            //         setSyncState({
+            //             syncStatus: 'idle',
+            //             syncContext: defaultSyncContext,
+            //         });
+            // } else {
+            // }
         },
         [syncStatus, ...op.get(syncContext, 'count', defaultSyncContext.count)],
     );
-
-    const sync = async () => {
-        const { syncStatus, syncContext } = await Reactium.Cloud.run(
-            'syndicate-satellite-sync',
-        );
-        setSyncState({ syncStatus, syncContext });
-    };
 
     if (!(appId && host && token)) return null;
     if (state.loading || state.valid) null;
 
     const contextLabel = op.get(syncContext, 'label', '');
     const [n, of] = op.get(syncContext, 'count', [0, 0]);
+    // console.log({ syncStatus, contextLabel, n, of });
     return (
         <div className='m-xs-20'>
             <Button
                 size='md'
-                color={syncStatus === 'idle' ? 'danger' : 'clear'}
+                color={syncStatus === 'end' ? 'danger' : 'clear'}
                 onClick={() => sync()}
-                disabled={syncStatus !== 'idle'}>
-                {syncStatus !== 'idle' && (
+                disabled={syncStatus !== 'end'}>
+                {syncStatus !== 'end' && (
                     <div
                         className='mr-xs-8'
                         style={{ width: '20px', height: '20px' }}>
