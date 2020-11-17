@@ -16,9 +16,9 @@ const Compare = ({ item }) => {
         op.get(item, 'item.type.meta.icon', 'Linear.Papers'),
     );
 
-    const slug = op.get(item, 'item.slug');
-    const typeSlug = op.get(item, 'item.type.machineName');
-    const url = `/admin/content/${typeSlug}/${slug}`;
+    const slug = op.get(item, 'item.context.slug');
+    const typeSlug = op.get(item, 'item.context.type.machineName');
+    const url = op.get(item, 'item.url');
 
     return (
         <div>
