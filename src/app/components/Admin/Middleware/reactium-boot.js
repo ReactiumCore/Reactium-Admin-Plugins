@@ -1,6 +1,5 @@
-const SDK = require('@atomic-reactor/reactium-sdk-core').default;
-const Enums = SDK.Enums;
-const { plugins } = require('./middlewares/config');
+const Reactium = require('reactium-core/sdk').default;
+const Enums = Reactium.Enums;
 const { forceSSL } = require('./middlewares/forceSSL');
 const proxy = require('http-proxy-middleware');
 const op = require('object-path');
@@ -16,7 +15,7 @@ const isSrc = () => {
     if (fs.existsSync(d)) return d;
 };
 
-SDK.Server.Middleware.register('media-proxy', {
+Reactium.Server.Middleware.register('media-proxy', {
     name: 'media-proxy',
     use: proxy('/media', {
         target: restAPI.replace(/\/api$/, ''),
@@ -27,26 +26,26 @@ SDK.Server.Middleware.register('media-proxy', {
     order: Enums.priority.highest,
 });
 
-SDK.Server.Middleware.register('forceSSL', {
+Reactium.Server.Middleware.register('forceSSL', {
     name: 'forceSSL',
     use: forceSSL,
     order: Enums.priority.highest,
 });
 
-SDK.Server.Middleware.register('plugins', {
-    name: 'plugins',
-    use: plugins,
-    order: Enums.priority.highest,
+Reactium.Hook.register('Server.beforeApp', async (req, Server) => {
+    try {
+        const { plugins } = await Reactium.Cloud.run('plugins');
+        req.plugins = global.plugins = plugins;
+        Server.AppGlobals.register('plugins', {
+            value: plugins,
+            order: Enums.priority.highest,
+        });
+    } catch (error) {
+        console.error('Unable to load plugins list', error);
+    }
 });
 
-SDK.Hook.registerSync('Server.AppGlobals', (req, AppGlobals) => {
-    AppGlobals.register('plugins', {
-        value: req.plugins,
-        order: Enums.priority.highest,
-    });
-});
-
-SDK.Hook.registerSync(
+Reactium.Hook.registerSync(
     'Server.AppScripts',
     (req, AppScripts) => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
@@ -64,7 +63,7 @@ SDK.Hook.registerSync(
     Enums.priority.highest,
 );
 
-SDK.Hook.registerSync(
+Reactium.Hook.registerSync(
     'Server.AppStyleSheets',
     (req, AppStyleSheets) => {
         _.sortBy(op.get(req, 'plugins', []), 'order').forEach(plugin => {
@@ -82,7 +81,7 @@ SDK.Hook.registerSync(
     Enums.priority.highest,
 );
 
-SDK.Hook.registerSync(
+Reactium.Hook.registerSync(
     'Server.AppStyleSheets.includes',
     includes => {
         if (!includes.includes('admin.css') && isSrc()) {
@@ -92,7 +91,7 @@ SDK.Hook.registerSync(
     Enums.priority.highest,
 );
 
-SDK.Hook.registerSync(
+Reactium.Hook.registerSync(
     'Server.AppStyleSheets.excludes',
     excludes => {
         if (!excludes.includes('style.css') && isSrc()) {
