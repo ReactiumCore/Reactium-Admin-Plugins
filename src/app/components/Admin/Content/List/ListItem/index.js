@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 
-import { Link } from 'react-router-dom';
 import Reactium, {
     __,
     useEventHandle,
@@ -188,7 +187,7 @@ const QuickEditor = ({ list, row, ...props }) => {
 };
 
 export const ListColumn = ({ column, list, row, ...props }) => {
-    const { className, id, zones } = column;
+    const { className, zones } = column;
     return (
         <div className={className}>
             {zones.map(zone => (
@@ -205,7 +204,7 @@ export const ListColumn = ({ column, list, row, ...props }) => {
     );
 };
 
-export const ListItemActions = ({ url, column, row }) => {
+export const ListItemActions = ({ row }) => {
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
         size: Button.ENUMS.SIZE.XS,
@@ -229,7 +228,7 @@ export const ListItemActions = ({ url, column, row }) => {
     );
 };
 
-export const ListItemStatus = ({ column, list, status, ...props }) => (
+export const ListItemStatus = ({ list, status }) => (
     <Button
         appearance={Button.ENUMS.APPEARANCE.PILL}
         block
@@ -247,9 +246,9 @@ export const ListItemStatus = ({ column, list, status, ...props }) => (
     </Button>
 );
 
-export const ListItemTitle = ({ column, slug, title, url, row }) => (
+export const ListItemTitle = ({ slug, title, url }) => (
     <div
-        onClick={e => Reactium.Routing.history.push(url)}
+        onClick={() => Reactium.Routing.history.push(url)}
         className='flex middle'
         style={{
             flexGrow: 1,
@@ -260,7 +259,7 @@ export const ListItemTitle = ({ column, slug, title, url, row }) => (
         }}>
         <div>
             <div className='title'>{title}</div>
-            <div className='slug'>/{slug}</div>
+            <div className='slug'>{slug}</div>
         </div>
     </div>
 );

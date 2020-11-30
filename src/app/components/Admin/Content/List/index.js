@@ -2,31 +2,52 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from '../enums';
 import op from 'object-path';
+import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
-import ContentEvent from '../_utils/ContentEvent';
 import useProperCase from 'components/Admin/Tools/useProperCase';
-import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
-import { Spinner } from '@atomic-reactor/reactium-ui';
-
-import React, {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
 import Reactium, {
     __,
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
-    useHandle,
     useHookComponent,
-    useRegisterHandle,
+    useRefs,
+    useStatus,
     Zone,
 } from 'reactium-core/sdk';
+
+const { STATUS } = ENUMS;
+
+const getColumns = type => {
+    if (!type) return [];
+
+    const cx = Reactium.Utils.cxFactory(ContentList.defaultProps.namespace);
+
+    return Reactium.Content.ListColumn.list
+        .filter(col => op.get(col, 'types', [type]).includes(type))
+        .map(col => {
+            const { className, id } = col;
+
+            const newClassName = !className
+                ? cn(
+                      cx(`column-${id}-${type}`),
+                      cx(`column-${id}`),
+                      cx('column'),
+                  )
+                : String(className)
+                      .replace(/\%prefix/gi, cx())
+                      .replace(/\%column/gi, id)
+                      .replace(/\%type/gi, type);
+
+            op.set(col, 'className', newClassName);
+            op.set(col, 'zones', [cx(id), cx(`${id}-${type}`)]);
+
+            return col;
+        });
+};
 
 /**
  * -----------------------------------------------------------------------------
@@ -34,35 +55,59 @@ import Reactium, {
  * -----------------------------------------------------------------------------
  */
 let ContentList = ({ className, id, namespace }, ref) => {
-    const initialStatus = useRef(true);
+    const route = op.get(Reactium.Routing, 'currentRoute', { params: {} });
 
-    const tools = useHandle('AdminTools');
+    const properCase = useProperCase();
 
-    const Modal = op.get(tools, 'Modal');
+    // Refs
+    const refs = useRefs();
 
+    // Components
+    const Helmet = useHookComponent('Helmet');
+    const ListItem = useHookComponent(`${id}Item`);
+    const { Spinner } = useHookComponent('ReactiumUI');
     const ConfirmBox = useHookComponent('ConfirmBox');
 
-    const ListItem = useHookComponent(`${id}Item`);
+    // Status
+    const [status, setStatus, isStatus] = useStatus(STATUS.PENDING);
 
-    const containerRef = useRef();
+    // State
+    const [state, update] = useDerivedState({
+        columns: op.get(route, 'params.type')
+            ? getColumns(pluralize.singular(route.params.type))
+            : [],
+        content: {},
+        filter: Reactium.Cache.get('contentListFilter'),
+        group: op.get(route, 'params.type'),
+        page: Number(op.get(route, 'params.page', 1)),
+        pagination: null,
+        type: op.get(route, 'params.type')
+            ? pluralize.singular(route.params.type)
+            : null,
+    });
 
-    const { group, page, path, type } = useRouteParams([
-        'group',
-        'page',
-        'path',
-        'type',
-    ]);
+    const setState = newState => {
+        if (unMounted()) return;
+        update(newState);
+    };
 
-    const [, setSearch] = useState();
-
-    const SearchBar = useHandle('SearchBar');
+    // Internal interface
+    const cacheKey = key => {
+        let str = `contentList.${state.type}`;
+        str = key ? `${str}.${key}` : str;
+        return str;
+    };
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const cname = cn(cx(), { [className]: !!className });
-
     const deleteContent = objectId => {
-        const { content, contentType } = state;
+        const { Modal } = Reactium.Handle.get('AdminTools').current;
+
+        if (!Modal) return;
+
+        const { contentType } = state;
+
+        const content = Object.values(op.get(state, 'content', {}));
 
         const index = _.findIndex(content, { objectId });
         const item = content[index];
@@ -90,9 +135,6 @@ let ContentList = ({ className, id, namespace }, ref) => {
             } else {
                 await Reactium.Content.delete({ type: contentType, objectId });
             }
-
-            // fetch the current page again.
-            await getContent();
         };
 
         const Message = () => (
@@ -126,246 +168,149 @@ let ContentList = ({ className, id, namespace }, ref) => {
         );
     };
 
-    const dispatch = async (eventType, event) => {
-        if (unMounted()) return;
+    const fetch = () => {
+        const cacheReq =
+            Reactium.Cache.get(cacheKey(state.page)) ||
+            Promise.all([
+                Reactium.Content.list({
+                    limit: 20,
+                    optimize: false,
+                    page: state.page,
+                    status: state.filter,
+                    type: { machineName: state.type },
+                }),
+                Reactium.ContentType.retrieve({
+                    refresh: true,
+                    machineName: state.type,
+                }),
+            ]);
 
-        // dispatch exact eventType
-        const evt = new ContentEvent(eventType, event);
+        Reactium.Cache.set(cacheKey(state.page), cacheReq, 30000);
 
-        handle.dispatchEvent(evt);
+        return cacheReq;
     };
 
-    const getColumns = () => {
-        if (!type) return [];
+    const unMounted = () => !refs.get('container');
 
-        return Reactium.Content.ListColumn.list
-            .filter(col => op.get(col, 'types', [type]).includes(type))
-            .map(col => {
-                const { className, id } = col;
-
-                const newClassName = !className
-                    ? cn(
-                          cx(`column-${id}-${type}`),
-                          cx(`column-${id}`),
-                          cx('column'),
-                      )
-                    : String(className)
-                          .replace(/\%prefix/gi, cx())
-                          .replace(/\%column/gi, id)
-                          .replace(/\%type/gi, type);
-
-                op.set(col, 'className', newClassName);
-                op.set(col, 'zones', [cx(id), cx(`${id}-${type}`)]);
-
-                return col;
-            });
+    const _onFilterChange = () => {
+        if (!isStatus(STATUS.COMPLETE)) return;
+        Reactium.Cache.del(cacheKey());
+        Reactium.Cache.set(cacheKey('filter'), state.filter);
+        setStatus(STATUS.PENDING);
+        setState({ content: {}, page: 1, pagination: null });
     };
 
-    const getContent = async (params = {}) => {
-        let { refresh, page: pg, status } = params;
-        pg = pg || page;
+    const _onLoad = async () => {
+        if (!isStatus(STATUS.PENDING) || !state.type) return;
+        setStatus(STATUS.FETCHING, true);
 
-        state.busy = true;
+        const [list, contentType] = await fetch();
 
-        const contentType = await Reactium.ContentType.retrieve({
-            refresh: true,
-            machineName: type,
-        });
+        setStatus(STATUS.COMPLETE);
+        const { results: content, ...pagination } = list;
+        setState({ content, contentType, pagination });
+        updateHandle();
+    };
 
-        let { results: content, ...pagination } = await Reactium.Content.list({
-            limit: 20,
-            optimize: false,
-            page: pg,
-            refresh,
-            status,
-            type: contentType,
-        });
+    const _onRouteChange = () => {
+        const page = Number(op.get(route, 'params.page', 1));
 
-        if (pg > pagination.pages) {
-            state.busy = false;
-            pg -= 1;
-            pg = Math.max(1, pg);
-            pg = Math.min(pg, pagination.pages);
-            const route = `/admin/content/${group}/page/${pg}`;
-            Reactium.Routing.history.push(route);
-            return;
+        const type = op.get(route, 'params.type')
+            ? pluralize.singular(route.params.type)
+            : null;
+
+        if (!type) Reactium.Cache.del(cacheKey('filter'));
+
+        const newState = {};
+        if (page && page !== state.page) op.set(newState, 'page', page);
+        if (type && type !== state.type) op.set(newState, 'type', type);
+
+        if (Object.keys(newState).length > 0) {
+            newState['columns'] = getColumns(type);
+            newState['content'] = {};
+            newState['group'] = pluralize(type);
+            newState['pagination'] = null;
+            setStatus(STATUS.PENDING);
+            setState(newState);
         }
-
-        return { busy: false, content, contentType, pagination };
     };
 
-    const isBusy = () => Boolean(state.busy);
-
-    const isMounted = () => containerRef.current;
-    const unMounted = () => !containerRef.current;
-
-    const properCase = useProperCase();
-
-    const [state, setNewState] = useDerivedState({
-        busy: false,
-        columns: undefined,
-        content: undefined,
-        contentType: undefined,
-        group: undefined,
-        page: 1,
-        pagination: undefined,
-        path,
-        status: null,
-        title: ENUMS.TEXT.LIST,
-        type: undefined,
-    });
-
-    const setState = newState => {
-        if (unMounted()) return;
-        setNewState(newState);
-    };
-
+    // Handle
     const _handle = () => ({
+        ...state,
         cx,
         deleteContent,
-        group,
         id,
-        isBusy,
-        isMounted,
-        page,
+        isBusy: () => isStatus(STATUS.FETCHING),
+        isMounted: () => !unMounted(),
+        unMounted,
         state,
         setState,
-        type,
-        unMounted,
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
+    const updateHandle = () => {
+        if (unMounted()) return;
 
-    useImperativeHandle(ref, () => handle, [handle]);
-
-    useRegisterHandle(id, () => handle, [handle]);
-
-    // SearchBar show
-    useEffect(() => SearchBar.setState({ visible: true }), [SearchBar]);
-
-    // get content
-    useAsyncEffect(async () => {
-        if (!type) return;
-        const results = await getContent({
-            refresh: true,
-            status: op.get(state, 'status'),
-        });
-
-        if (results) {
-            setState(results);
-            _.defer(() => dispatch('load', { ...state, ...results }));
-        } else {
-            setState({ page: 1 });
-        }
-
-        return () => {};
-    }, [type, page]);
-
-    // filter by status
-    useAsyncEffect(
-        async mounted => {
-            if (initialStatus.current === true) {
-                initialStatus.current = false;
-                return;
-            }
-
-            const results = await getContent({
-                page: 1,
-                refresh: true,
-                status: op.get(state, 'status'),
-            });
-
-            if (mounted()) {
-                setState(results);
-                _.defer(() => {
-                    dispatch('load', { ...state, ...results });
-                });
-            }
-            return () => {};
-        },
-        [op.get(state, 'status')],
-    );
-
-    // update handle
-    useEffect(() => {
         const newHandle = _handle();
-        //if (_.isEqual(handle, newHandle)) return;
-        setHandle(newHandle);
-    }, [state, page, op.get(state, 'page'), op.get(state, 'pagination')]);
 
-    useEffect(() => {
-        if (page === op.get(state, 'page')) return;
-        setState({ page });
-    }, [page]);
+        Object.entries(newHandle).forEach(
+            ([key, value]) => (handle[key] = value),
+        );
 
-    // set title
-    useEffect(() => {
-        if (!group) return;
-        const newTitle = properCase(group);
-        if (op.get(state, 'title') === newTitle) return;
-        setState({ title: newTitle });
-    }, [group]);
+        setHandle(handle);
+    };
 
-    // set state -> group, page, type
-    useEffect(() => {
-        const newState = {};
+    useImperativeHandle(ref, () => handle);
 
-        if (group !== op.get(state, 'group')) newState['group'] = group;
-        if (page !== op.get(state, 'page')) newState['page'] = page;
+    // Side Effects
 
-        if (type !== op.get(state, 'type')) {
-            newState['columns'] = getColumns();
-            newState['type'] = type;
-        }
+    useAsyncEffect(_onLoad, [status]);
 
-        if (Object.keys(newState).length > 0) setState(newState);
-    }, [group, page, type]);
+    useEffect(_onFilterChange, [state.filter]);
 
-    // search
-    useEffect(() => {
-        setSearch(SearchBar.state.value);
-    }, [op.get(SearchBar, 'state.value')]);
+    useEffect(_onRouteChange, [route]);
 
-    const render = () => {
-        const { content, group, status, type } = state;
-        let count = Number(op.get(state, 'pagination.count', 0));
-        count = count === 0 ? __('No') : count;
-
-        return (
-            <div ref={containerRef} className={cname}>
+    // Render
+    return (
+        <div
+            className={cn(className, cx())}
+            ref={elm => refs.set('container', elm)}>
+            {state.group && (
+                <Helmet>
+                    <title>{properCase(state.group)}</title>
+                </Helmet>
+            )}
+            {isStatus(STATUS.COMPLETE) && (
                 <div className={cx('heading')}>
-                    {!isBusy() && (
-                        <h2>
-                            <span className={cx('heading-count')}>{count}</span>
-                            {status && (
-                                <span className='blue mr-xs-8 lowercase hide-xs-only'>
-                                    {status && status === 'TRASH'
-                                        ? 'TRASHED'
-                                        : status}
-                                </span>
+                    <h2 className='flex-grow'>
+                        <span className={cx('heading-count')}>
+                            {pluralize(
+                                state.type,
+                                state.pagination.count,
+                                true,
                             )}
-                            {count === 1 ? type : group}
-                        </h2>
-                    )}
-                    <div className={cx('toolbar')}>
+                        </span>
+                    </h2>
+                    <div className={cx('toolbar')} style={{ flexGrow: 0 }}>
                         <Zone list={handle} zone={cx('toolbar')} />
                     </div>
                 </div>
+            )}
+            <Zone list={handle} zone={cx('top')} />
 
-                <Zone list={handle} zone={cx('top')} />
-
-                {content &&
-                    content.map(item => (
+            {isStatus(STATUS.COMPLETE) &&
+                Object.values(state.content).map(item => {
+                    return (
                         <ListItem key={item.objectId} list={handle} {...item} />
-                    ))}
+                    );
+                })}
 
-                <Zone list={handle} zone={cx('bottom')} />
-                {isBusy() && <Spinner className={cx('spinner')} />}
-            </div>
-        );
-    };
+            <Zone list={handle} zone={cx('bottom')} />
 
-    return render();
+            {isStatus(STATUS.FETCHING) && <Spinner className={cx('spinner')} />}
+        </div>
+    );
 };
 
 ContentList = forwardRef(ContentList);

@@ -1,15 +1,7 @@
-import _ from 'underscore';
-import op from 'object-path';
+import React from 'react';
 import uuid from 'uuid/v4';
-import React, { useEffect, useState } from 'react';
-import { Pagination } from '@atomic-reactor/reactium-ui';
-import useRouteParams from 'components/Admin/Tools/useRouteParams';
-
-import Reactium, {
-    useDerivedState,
-    useFulfilledObject,
-    useHandle,
-} from 'reactium-core/sdk';
+import op from 'object-path';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 const Wrap = ({ children, zone }) => {
     switch (zone) {
@@ -24,23 +16,25 @@ const Wrap = ({ children, zone }) => {
     }
 };
 
-const PaginationComponent = ({ list, zone: zones, ...props }) => {
+export default ({ list, zone: zones }) => {
+    const { Pagination } = useHookComponent('ReactiumUI');
+
     const zone = zones[0];
 
     const { state = {} } = list;
 
-    const { group, pagination = {}, path } = state;
+    const { group } = state;
 
-    const { page, pages } = pagination;
+    const page = op.get(state, 'pagination.page', 1);
+    const pages = op.get(state, 'pagination.pages', 1);
 
-    const nav = p => {
+    const nav = p =>
         Reactium.Routing.history.push(`/admin/content/${group}/page/${p}`);
-    };
 
     const onChange = (e, p) => nav(p);
 
     const render = () => {
-        if (!page || !pages) return null;
+        if (!page || !pages || pages === 1) return null;
 
         let color, size, verticalAlign;
 
@@ -75,24 +69,4 @@ const PaginationComponent = ({ list, zone: zones, ...props }) => {
     };
 
     return render();
-};
-
-export default ({ list, ...props }) => {
-    const { page, group, path, type } = useRouteParams([
-        'page',
-        'path',
-        'group',
-        'type',
-    ]);
-
-    const isVisible = () => {
-        if (!list) return false;
-        if (!page || !path || !group) return false;
-        if (String(path).startsWith('/admin/content/:type/:slug')) return false;
-        return String(path).startsWith('/admin/content/:type');
-    };
-
-    const { zone } = props;
-
-    return isVisible() ? <PaginationComponent list={list} {...props} /> : null;
 };

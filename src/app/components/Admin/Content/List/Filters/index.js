@@ -1,14 +1,16 @@
 import _ from 'underscore';
 import op from 'object-path';
-import React, { useEffect, useRef, useState } from 'react';
-import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
-import { Button, Dropdown, Icon } from '@atomic-reactor/reactium-ui';
+import React, { useEffect, useRef } from 'react';
+import { useHookComponent } from 'reactium-core/sdk';
 
-export default ({ list, ...props }) => {
+export default ({ list }) => {
     const ddRef = useRef();
+
     const { setState, state = {} } = list;
 
-    const status = op.get(state, 'status');
+    const status = op.get(state, 'filter');
+
+    const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
 
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
@@ -25,24 +27,17 @@ export default ({ list, ...props }) => {
             'TRASH',
         ])
             .flatten()
+            .compact()
             .uniq()
             .value()
             .map(item => ({ label: item, value: item }));
 
-    const setStatus = newStatus => {
-        newStatus = newStatus === 'ALL' ? null : newStatus;
-        if (newStatus === op.get(state, 'status')) return;
-        setState({ busy: true, status: newStatus });
-    };
-
-    const clearStatus = () => {
-        op.set(state, 'status', null);
-        Reactium.Routing.history.push(`/admin/content/${state.group}/page/1`);
-    };
+    const setStatus = newStatus =>
+        setState({ filter: newStatus === 'ALL' ? null : newStatus });
 
     useEffect(() => {
-        ddRef.current.setState({ selection: [op.get(state, 'status')] });
-    }, [op.get(state, 'status')]);
+        ddRef.current.setState({ selection: [op.get(state, 'filter')] });
+    }, [op.get(state, 'filter')]);
 
     return (
         <Dropdown
@@ -51,13 +46,13 @@ export default ({ list, ...props }) => {
             maxHeight='calc(100vh - 150px)'
             onItemSelect={({ item }) => setStatus(item.value)}
             ref={ddRef}
-            selection={[op.get(state, 'status', null)]}>
+            selection={[op.get(state, 'filter', null)]}>
             <div className='flex middle'>
                 {status && (
                     <Button
                         className='mr-xs-8 ml-xs-12'
                         color={Button.ENUMS.COLOR.TERTIARY}
-                        onClick={() => clearStatus()}
+                        onClick={() => setStatus('ALL')}
                         outline
                         size={Button.ENUMS.SIZE.XS}
                         style={{ padding: '2px 4px 2px 5px', maxHeight: 20 }}

@@ -1,6 +1,11 @@
 import { __ } from 'reactium-core/sdk';
 
 const ENUMS = {
+    STATUS: {
+        PENDING: 'pending',
+        FETCHING: 'fetching',
+        COMPLETE: 'complete',
+    },
     TEXT: {
         EDITOR: __('Editor'),
         LIST: __('Content'),
