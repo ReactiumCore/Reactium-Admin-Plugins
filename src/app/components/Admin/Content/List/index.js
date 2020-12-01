@@ -323,7 +323,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
 
     useEffect(_onRouteChange, [route]);
 
-    useEffect(toggleSearch, []);
+    useEffect(toggleSearch);
 
     useEffect(() => {
         const searchString = SearchBar.state.value;
