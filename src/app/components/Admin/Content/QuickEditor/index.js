@@ -147,17 +147,20 @@ const StatusButton = ({ item, list, row }) => {
         row.collapse();
 
         // execute operation
-        if (state.status === 'PUBLISHED') {
-            await Reactium.Content.publish({ type, objectId });
-        } else {
-            await Reactium.Content.unpublish({ type, objectId });
-        }
+        const updated =
+            state.status === 'PUBLISHED'
+                ? await Reactium.Content.publish({ type, objectId })
+                : await Reactium.Content.unpublish({ type, objectId });
 
         setStatus(ENUMS.STATUS.PENDING);
 
         // Update list content item.
         const content = JSON.parse(JSON.stringify(list.state.content));
-        op.set(content, [objectId, 'status'], state.status);
+        if (!list.filter) {
+            op.set(content, [objectId, 'status'], updated.status);
+        } else {
+            if (updated.status !== list.state.filter) op.del(content, objectId);
+        }
 
         Reactium.Cache.del(`contentList.${type}`);
         list.setState({ content });

@@ -1,12 +1,14 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import ENUMS from '../../enums';
 
 import Reactium, {
     __,
     useEventHandle,
     useHookComponent,
     useIsContainer,
+    useStatus,
     Zone,
 } from 'reactium-core/sdk';
 import { Button, Collapsible, Icon } from '@atomic-reactor/reactium-ui';
@@ -220,7 +222,9 @@ export const ListColumn = ({ column, list, row, ...props }) => {
     );
 };
 
-export const ListItemActions = ({ row, item }) => {
+export const ListItemActions = ({ item, list, row }) => {
+    const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.PENDING);
+
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
         size: Button.ENUMS.SIZE.XS,
@@ -228,9 +232,27 @@ export const ListItemActions = ({ row, item }) => {
         type: 'button',
     };
 
-    const clone = () => {
-        console.log(item);
+    const clone = async () => {
+        if (!isStatus(ENUMS.STATUS.PENDING)) return;
+
+        setStatus(ENUMS.STATUS.BUSY, true);
+
+        await list.clone(item.objectId);
+
+        setStatus(ENUMS.STATUS.COMPLETE, true);
     };
+
+    const cloneTooltip = () => ({
+        title: String(__('Copy: %title')).replace(/\%title/gi, item.title),
+    });
+
+    useEffect(() => {
+        switch (status) {
+            case ENUMS.STATUS.COMPLETE:
+                setTimeout(() => setStatus(ENUMS.STATUS.PENDING, true), 2000);
+                break;
+        }
+    }, [status]);
 
     return (
         <>
@@ -239,11 +261,29 @@ export const ListItemActions = ({ row, item }) => {
                     <Icon name='Feather.Trash2' />
                 </span>
             </Button>
-            <Button {...buttonProps} onClick={() => clone()}>
-                <span>
-                    <Icon name='Feather.Copy' />
-                </span>
-            </Button>
+            {item.status !== 'TRASH' && (
+                <Button
+                    {...buttonProps}
+                    onClick={() => clone()}
+                    {...cloneTooltip()}
+                    disabled={isStatus(ENUMS.STATUS.BUSY)}>
+                    {isStatus(ENUMS.STATUS.PENDING) && (
+                        <span>
+                            <Icon name='Feather.Copy' />
+                        </span>
+                    )}
+                    {isStatus(ENUMS.STATUS.BUSY) && (
+                        <span className='red'>
+                            <Icon name='Feather.Activity' />
+                        </span>
+                    )}
+                    {isStatus(ENUMS.STATUS.COMPLETE) && (
+                        <span className='blue'>
+                            <Icon name='Feather.Check' />
+                        </span>
+                    )}
+                </Button>
+            )}
             <Button {...buttonProps} onClick={() => row.toggle()}>
                 <span>
                     <Icon name='Feather.MoreVertical' />

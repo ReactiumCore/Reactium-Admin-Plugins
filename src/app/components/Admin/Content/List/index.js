@@ -101,6 +101,27 @@ let ContentList = ({ className, id, namespace }, ref) => {
         return str;
     };
 
+    const clone = async objectId => {
+        const item = op.get(state, ['content', objectId]);
+
+        if (!item) return;
+
+        const newObj = await Reactium.Content.clone(item);
+
+        Reactium.Cache.del(`contentList.${state.type}`);
+
+        let content = JSON.parse(JSON.stringify(Object.values(state.content)));
+
+        const index = _.findIndex(content, { objectId });
+
+        content.splice(index + 1, 0, newObj);
+        content = _.indexBy(content, 'objectId');
+
+        setState({ content });
+
+        return content;
+    };
+
     const cx = Reactium.Utils.cxFactory(namespace);
 
     const deleteContent = objectId => {
@@ -141,31 +162,10 @@ let ContentList = ({ className, id, namespace }, ref) => {
             }
         };
 
-        const Message = () => (
-            <>
-                {status !== 'PUBLISHED' && (
-                    <>
-                        <p>{__('Are you sure you want to delete')}</p>
-                        <strong>{item.title}?</strong>
-                    </>
-                )}
-                {status === 'PUBLISHED' && (
-                    <>
-                        <p>
-                            <strong>{item.title}</strong>
-                            <br />
-                            {__('is a published item')}
-                        </p>
-                        <strong>{__('Are you sure?')}</strong>
-                    </>
-                )}
-            </>
-        );
-
         Modal.show(
             <ConfirmBox
                 title={__('Confirm Delete')}
-                message={<Message />}
+                message={<DeleteMessage {...item} />}
                 onConfirm={confirmed}
                 onCancel={Modal.hide}
             />,
@@ -181,6 +181,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
                     optimize: false,
                     page: state.page,
                     status: state.filter ? state.filter : '!TRASH',
+                    refresh: true,
                     resolveRelations: true,
                     title: state.search,
                     type: { machineName: state.type },
@@ -288,6 +289,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
     // Handle
     const _handle = () => ({
         ...state,
+        clone,
         cx,
         deleteContent,
         id,
@@ -344,7 +346,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
                         <span className={cx('heading-count')}>
                             {pluralize(
                                 state.type,
-                                state.pagination.count,
+                                Object.keys(state.content).length,
                                 true,
                             )}
                         </span>
@@ -367,6 +369,36 @@ let ContentList = ({ className, id, namespace }, ref) => {
             {isStatus(STATUS.FETCHING) && <Spinner className={cx('spinner')} />}
         </div>
     );
+};
+
+const DeleteMessage = ({ status, title }) => {
+    switch (status) {
+        case 'TRASH':
+            return (
+                <>
+                    <p>{__('Are you sure you want to permanently delete')}</p>
+                    <strong>{title}?</strong>
+                </>
+            );
+        case 'PUBLISHED':
+            return (
+                <>
+                    <p>
+                        <strong>{title}</strong>
+                        <br />
+                        {__('is a published item')}
+                    </p>
+                    <strong>{__('Are you sure?')}</strong>
+                </>
+            );
+        default:
+            return (
+                <>
+                    <p>{__('Are you sure you want to delete')}</p>
+                    <strong>{title}?</strong>
+                </>
+            );
+    }
 };
 
 ContentList = forwardRef(ContentList);

@@ -276,6 +276,34 @@ Content.labelBranch = async (params, handle) => {
 };
 
 /**
+ * @api {Asynchronous} Content.clone(params,handle) Content.clone()
+ * @apiName Content.clone
+ * @apiGroup Reactium.Content
+ * @apiDescription Retrieve one item of content.
+ * @apiParam {Object} params See below
+ * @apiParam {EventTarget} [handle] EventTarget to the component where the call was executed from.
+ * @apiParam (params) {Mixed} type Type object, or type machineName
+ * @apiParam (params) {Boolean} [current=false] When true, get the currently committed content (not from revision system). Otherwise, construct the content from the provided history (branch and revision index).
+ * @apiParam (params) {String} [slug] The unique slug for the content.
+ * @apiParam (params) {String} [objectId] The objectId for the content.
+ * @apiParam (params) {String} [uuid] The uuid for the content.
+ * @apiParam (type) {String} [objectId] Parse objectId of content type
+ * @apiParam (type) {String} [uuid] UUID of content type
+ * @apiParam (type) {String} [machineName] the machine name of the existing content type (default index of latest revision)
+ * @apiParam (hooks) {Async} before-content-clone Executed before the content is cloned.
+ * @apiParam (hooks) {Async} content-clone Executed after the content has been cloned.
+ */
+Content.clone = async (params, handle) => {
+    const request = { ...params, type: setType(params.type) };
+    await Reactium.Hook.run('before-content-clone', params, request, handle);
+
+    const contentObj = await Reactium.Cloud.run('content-clone', request);
+
+    await Reactium.Hook.run('content-clone', contentObj, request, handle);
+    return contentObj;
+};
+
+/**
   * @api {Asynchronous} Content.cloneBranch(params,handle) Content.cloneBranch()
   * @apiDescription Clone a branch / specific revision as a new branch.
   * @apiParam {Object} params See below
