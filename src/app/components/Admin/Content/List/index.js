@@ -13,6 +13,7 @@ import Reactium, {
     useAsyncEffect,
     useDerivedState,
     useEventHandle,
+    useHandle,
     useHookComponent,
     useRefs,
     useStatus,
@@ -63,6 +64,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
     const refs = useRefs();
 
     // Components
+    const SearchBar = useHandle('SearchBar');
     const Helmet = useHookComponent('Helmet');
     const ListItem = useHookComponent(`${id}Item`);
     const { Spinner } = useHookComponent('ReactiumUI');
@@ -81,6 +83,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
         group: op.get(route, 'params.type'),
         page: Number(op.get(route, 'params.page', 1)),
         pagination: null,
+        search: null,
         type: op.get(route, 'params.type')
             ? pluralize.singular(route.params.type)
             : null,
@@ -105,12 +108,11 @@ let ContentList = ({ className, id, namespace }, ref) => {
 
         if (!Modal) return;
 
-        const { contentType } = state;
+        const content = JSON.parse(JSON.stringify(state.content));
 
-        const content = Object.values(op.get(state, 'content', {}));
+        const { contentType, type } = state;
 
-        const index = _.findIndex(content, { objectId });
-        const item = content[index];
+        const item = content[objectId];
 
         if (!item) return;
 
@@ -118,8 +120,10 @@ let ContentList = ({ className, id, namespace }, ref) => {
 
         const confirmed = async () => {
             // instantly remove from content
-            content.splice(index, 1);
+            op.del(content, [objectId]);
             setState({ content });
+
+            Reactium.Cache.del(`contentList.${type}`);
 
             Modal.hide();
 
@@ -176,18 +180,65 @@ let ContentList = ({ className, id, namespace }, ref) => {
                     limit: 20,
                     optimize: false,
                     page: state.page,
-                    status: state.filter,
+                    status: state.filter ? state.filter : '!TRASH',
+                    resolveRelations: true,
+                    title: state.search,
                     type: { machineName: state.type },
                 }),
                 Reactium.ContentType.retrieve({
                     refresh: true,
                     machineName: state.type,
                 }),
-            ]);
+            ]).then(results => {
+                const [list, contentType] = results;
+
+                const { results: content, ...pagination } = list;
+
+                Reactium.Cache.del(cacheKey(state.page));
+                return {
+                    content: _.indexBy(content, 'objectId'),
+                    contentType,
+                    pagination,
+                };
+            });
 
         Reactium.Cache.set(cacheKey(state.page), cacheReq, 30000);
 
         return cacheReq;
+    };
+
+    const _search = async str => {
+        str = String(str).length > 0 ? str : null;
+
+        if (state.search === str) return;
+
+        setState({ search: str });
+
+        const { content, pagination } = await Reactium.Content.list({
+            limit: 20,
+            optimize: false,
+            page: state.page,
+            status: state.filter ? state.filter : '!TRASH',
+            refresh: true,
+            resolveRelations: true,
+            title: str,
+            type: { machineName: state.type },
+        }).then(response => {
+            const { results, ...pagination } = response;
+            return {
+                content: _.indexBy(results, 'objectId'),
+                pagination,
+            };
+        });
+
+        if (str === state.search) setState({ content, pagination });
+    };
+
+    const search = _.throttle(_search, 250, { leading: false });
+
+    const toggleSearch = () => {
+        const SearchBar = Reactium.Handle.get('SearchBar').current;
+        SearchBar.setState({ visible: true });
     };
 
     const unMounted = () => !refs.get('container');
@@ -204,11 +255,10 @@ let ContentList = ({ className, id, namespace }, ref) => {
         if (!isStatus(STATUS.PENDING) || !state.type) return;
         setStatus(STATUS.FETCHING, true);
 
-        const [list, contentType] = await fetch();
+        const results = await fetch();
 
         setStatus(STATUS.COMPLETE);
-        const { results: content, ...pagination } = list;
-        setState({ content, contentType, pagination });
+        setState(results);
         updateHandle();
     };
 
@@ -271,6 +321,13 @@ let ContentList = ({ className, id, namespace }, ref) => {
 
     useEffect(_onRouteChange, [route]);
 
+    useEffect(toggleSearch, []);
+
+    useEffect(() => {
+        const searchString = SearchBar.state.value;
+        if (state.search !== searchString) search(searchString);
+    }, [op.get(SearchBar, 'state.value')]);
+
     // Render
     return (
         <div
@@ -297,14 +354,13 @@ let ContentList = ({ className, id, namespace }, ref) => {
                     </div>
                 </div>
             )}
+
             <Zone list={handle} zone={cx('top')} />
 
             {isStatus(STATUS.COMPLETE) &&
-                Object.values(state.content).map(item => {
-                    return (
-                        <ListItem key={item.objectId} list={handle} {...item} />
-                    );
-                })}
+                Object.values(state.content).map(item => (
+                    <ListItem key={item.objectId} list={handle} {...item} />
+                ))}
 
             <Zone list={handle} zone={cx('bottom')} />
 

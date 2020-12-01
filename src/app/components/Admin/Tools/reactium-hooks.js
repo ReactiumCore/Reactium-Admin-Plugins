@@ -10,6 +10,6 @@ Reactium.Plugin.register('AdminTools').then(() => {
         id: 'ADMIN-TOOLS',
         component: Tools,
         zone: ['admin-tools'],
-        order: 1000000000,
+        order: Reactium.Enums.priority.highest,
     });
 });

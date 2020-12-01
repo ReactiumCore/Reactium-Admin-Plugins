@@ -5,6 +5,7 @@ const ENUMS = {
         PENDING: 'pending',
         FETCHING: 'fetching',
         COMPLETE: 'complete',
+        BUSY: 'busy',
     },
     TEXT: {
         EDITOR: __('Editor'),

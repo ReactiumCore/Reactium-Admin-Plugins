@@ -4,6 +4,7 @@ import cn from 'classnames';
 import ContentList from './List';
 import Filters from './List/Filters';
 import ContentEditor from './Editor';
+import QuickEditor from './QuickEditor';
 import Sidebar from './Editor/Sidebar';
 import Loading from './Editor/Loading';
 import Breadcrumbs from './Breadcrumbs';
@@ -138,6 +139,13 @@ const registerAdminContent = async () => {
         component: Filters,
         order: Reactium.Enums.priority.lowest,
         zone: ['admin-content-list-toolbar'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-LIST-QUICKEDITOR',
+        component: QuickEditor,
+        order: Reactium.Enums.priority.highest,
+        zone: ['admin-content-list-item-quick-editor'],
     });
 };
 

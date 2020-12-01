@@ -62,9 +62,15 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
         handle.collapse();
     };
 
+    const onCollapse = () => {
+        setExpanded(false);
+        handle.dispatchEvent(new Event('collapse'));
+    };
+
     const onExpand = () => {
         setExpanded(true);
         setConfirm(false);
+        handle.dispatchEvent(new Event('expand'));
     };
 
     const _handle = () => {
@@ -143,6 +149,7 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
             <Collapsible
                 ref={collapsibleRef}
                 expanded={expanded}
+                onCollapse={onCollapse}
                 onExpand={onExpand}>
                 <QuickEditor {...props} list={list} row={handle} />
             </Collapsible>
@@ -188,6 +195,14 @@ const QuickEditor = ({ list, row, ...props }) => {
 
 export const ListColumn = ({ column, list, row, ...props }) => {
     const { className, zones } = column;
+    const item = JSON.parse(JSON.stringify(props));
+
+    op.del(item, 'column');
+    op.del(item, 'order');
+    op.del(item, 'zone');
+    op.del(item, 'url');
+    op.del(item, 'id');
+
     return (
         <div className={className}>
             {zones.map(zone => (
@@ -197,6 +212,7 @@ export const ListColumn = ({ column, list, row, ...props }) => {
                     list={list}
                     row={row}
                     column={column}
+                    item={item}
                     {...props}
                 />
             ))}
@@ -204,7 +220,7 @@ export const ListColumn = ({ column, list, row, ...props }) => {
     );
 };
 
-export const ListItemActions = ({ row }) => {
+export const ListItemActions = ({ row, item }) => {
     const buttonProps = {
         color: Button.ENUMS.COLOR.CLEAR,
         size: Button.ENUMS.SIZE.XS,
@@ -212,11 +228,20 @@ export const ListItemActions = ({ row }) => {
         type: 'button',
     };
 
+    const clone = () => {
+        console.log(item);
+    };
+
     return (
         <>
             <Button {...buttonProps} onClick={() => row.deleteConfirmToggle()}>
                 <span className='red'>
                     <Icon name='Feather.Trash2' />
+                </span>
+            </Button>
+            <Button {...buttonProps} onClick={() => clone()}>
+                <span>
+                    <Icon name='Feather.Copy' />
                 </span>
             </Button>
             <Button {...buttonProps} onClick={() => row.toggle()}>
@@ -235,8 +260,8 @@ export const ListItemStatus = ({ list, status }) => (
         color={statusToColor(status)}
         onClick={e => {
             e.currentTarget.blur();
-            if (op.get(list, 'state.status') === status) return;
-            list.setState({ busy: true, status });
+            if (op.get(list, 'state.filter') === status) return;
+            list.setState({ filter: status });
         }}
         outline
         readOnly={op.get(list, 'state.status') === status}
