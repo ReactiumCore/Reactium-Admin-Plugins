@@ -304,7 +304,7 @@ export const ListItemStatus = ({ list, status }) => (
             list.setState({ filter: status });
         }}
         outline
-        readOnly={op.get(list, 'state.status') === status}
+        readOnly={op.get(list, 'state.filter') === status}
         size={Button.ENUMS.SIZE.XS}
         type={Button.ENUMS.TYPE.BUTTON}>
         {status}

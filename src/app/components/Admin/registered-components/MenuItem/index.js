@@ -1,25 +1,25 @@
-import uuid from 'uuid/v4';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
+import { Icon } from '@atomic-reactor/reactium-ui';
 import React, {
     forwardRef,
-    useCallback,
     useEffect,
+    useImperativeHandle,
     useRef,
-    useState,
 } from 'react';
 
 import Reactium, {
+    useAsyncEffect,
+    useDerivedState,
+    useEventHandle,
     useHandle,
-    useSelect,
     useWindowSize,
 } from 'reactium-core/sdk';
 
-const defaultIsActive = (match = {}, location = {}, src) => {
+const defaultIsActive = (match = {}, location = {}) => {
     const url = op.get(match, 'url');
     let pathname = op.get(location, 'pathname');
 
@@ -33,7 +33,11 @@ const defaultIsActive = (match = {}, location = {}, src) => {
 };
 
 const Label = ({ cname, expanded, state }) => {
-    let { add, countNumber, icon, label, title } = state;
+    let { icon, label, title } = state;
+
+    const countNumber = Reactium.Utils.abbreviatedNumber(
+        op.get(state, 'count', 0),
+    );
 
     const Ico = icon
         ? typeof icon === 'string'
@@ -69,7 +73,7 @@ const Label = ({ cname, expanded, state }) => {
 };
 
 const Heading = ({ state, hideTooltip, cname, expanded }) => {
-    const { active = false, add, label, onClick } = state;
+    const { active = false, add, onClick } = state;
     const classname = cn({ [cname('link')]: true, active });
     const _onClick = e => {
         hideTooltip(e);
@@ -97,7 +101,7 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
 };
 
 const Link = ({ state, cname, onClick, expanded }) => {
-    const { active, add, exact, route, label } = state;
+    const { active, add, route } = state;
     const classname = cn({ [cname('link')]: true, active });
 
     return (
@@ -119,19 +123,21 @@ const Link = ({ state, cname, onClick, expanded }) => {
  * Hook Component: MenuItem
  * -----------------------------------------------------------------------------
  */
-let MenuItem = ({ children, count, capabilities = [], ...props }) => {
-    const watchProps = ['count', 'icon', 'label', 'updated'];
+let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
+    const watchProps = ['icon', 'label', 'updated'];
 
-    const prevChildren = useRef(React.Children.toArray(children));
-
-    const match = useSelect(state => op.get(state, 'Router.match'));
-    const pathname = useSelect(state => op.get(state, 'Router.pathname', '/'));
+    const match = op.get(Reactium.Routing, 'currentRoute.match.match');
+    const pathname = op.get(
+        Reactium.Routing,
+        'currentRoute.location.pathname',
+        '/',
+    );
 
     const Sidebar = useHandle('AdminSidebar');
 
     const Tools = useHandle('AdminTools');
 
-    const { width, breakpoint } = useWindowSize({ delay: 0 });
+    const { breakpoint } = useWindowSize({ delay: 0 });
 
     const isActive = (match, location) => {
         if (op.has(props, 'isActive')) {
@@ -145,9 +151,17 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
     const containerRef = useRef();
 
     // State
-    const [permitted, setPermitted] = useState(false);
-    const [state, setNewState] = useState(props);
-    const setState = newState => setNewState({ ...state, ...newState });
+    const [state, updateState] = useDerivedState({
+        ...props,
+        permitted: false,
+    });
+
+    const setState = newState => {
+        if (unMounted()) return;
+        updateState(newState);
+    };
+
+    const unMounted = () => !containerRef.current;
 
     const cx = () => {
         const { className, namespace } = state;
@@ -179,6 +193,18 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
         }
     };
 
+    // Handle
+    const _handle = () => ({
+        expanded,
+        state,
+        setState,
+        Sidebar,
+    });
+
+    const [handle] = useEventHandle(_handle());
+
+    useImperativeHandle(ref, () => handle);
+
     // Side Effects
 
     // Props to state update
@@ -197,84 +223,66 @@ let MenuItem = ({ children, count, capabilities = [], ...props }) => {
     );
 
     // Permitted
-    useEffect(() => {
+    useAsyncEffect(async mounted => {
         if (!capabilities || capabilities.length < 1) {
-            const timeout = setTimeout(() => setPermitted(true), 1);
-            return () => {
-                clearTimeout(timeout);
-            };
+            updateState({ permitted: true });
+            return;
         }
 
-        Reactium.User.can(capabilities, false).then(allowed => {
-            if (permitted !== allowed) {
-                setPermitted(allowed);
-            }
-        });
+        const allowed = await Reactium.User.can(capabilities, false);
+        if (mounted()) updateState({ permitted: allowed });
     }, []);
 
     // Count
     useEffect(() => {
-        const countNumber = Reactium.Utils.abbreviatedNumber(count);
-        if (state.countNumber !== countNumber) {
-            const timeout = setTimeout(() => setState({ countNumber }), 1);
-            return () => {
-                clearTimeout(timeout);
-            };
-        }
-    }, [count]);
+        setState({ count: props.count });
+    }, [props.count]);
 
     // Active
     useEffect(() => {
         const { active, route } = state;
         const location = { pathname: route };
         const newActive = isActive(match, location);
-        if (active !== newActive) {
-            let timeout = setTimeout(() => setState({ active: newActive }), 1);
-            return () => clearTimeout(timeout);
-        }
+        if (active !== newActive) setState({ active: newActive });
     }, [match, pathname, op.get(state, 'route'), op.get(state, 'active')]);
 
     // Renderer
-    const render = () => {
-        const { active, id, label, route } = state;
-        return (
-            <div ref={containerRef} className={cx()}>
-                <div className={cname('row')}>
-                    {route ? (
-                        <Link
-                            match={match}
-                            pathname={pathname}
-                            state={state}
-                            cname={cname}
-                            isActive={isActive}
-                            onClick={collapseSidebar}
-                            expanded={expanded}
-                        />
-                    ) : (
-                        <Heading
-                            state={state}
-                            hideTooltip={hideTooltip}
-                            cname={cname}
-                            expanded={expanded}
-                        />
-                    )}
-                    {children && (
-                        <div
-                            className={cn({
-                                [cname('content')]: true,
-                                active,
-                            })}>
-                            {children}
-                        </div>
-                    )}
-                </div>
+    return !state.permitted ? null : (
+        <div ref={containerRef} className={cx()}>
+            <div className={cname('row')}>
+                {state.route ? (
+                    <Link
+                        match={match}
+                        pathname={pathname}
+                        state={state}
+                        cname={cname}
+                        isActive={isActive}
+                        onClick={collapseSidebar}
+                        expanded={expanded}
+                    />
+                ) : (
+                    <Heading
+                        state={state}
+                        hideTooltip={hideTooltip}
+                        cname={cname}
+                        expanded={expanded}
+                    />
+                )}
+                {children && (
+                    <div
+                        className={cn({
+                            [cname('content')]: true,
+                            active: state.active,
+                        })}>
+                        {children}
+                    </div>
+                )}
             </div>
-        );
-    };
-
-    // Render
-    return permitted ? render() : null;
+        </div>
+    );
 };
+
+MenuItem = forwardRef(MenuItem);
 
 MenuItem.propTypes = {
     active: PropTypes.bool,
@@ -338,7 +346,7 @@ const SidebarWidget = () => (
 );
 
   * @apiExample Sub MenuItems:
-import MenuItem from 'components/Admin/registered-components/MenuItem';
+import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';
 
 const SidebarWidget = () => (
   <MenuItem
@@ -359,7 +367,7 @@ const SidebarWidget = () => (
 );
 
  * @apiExample Component Zone:
-import MenuItem from 'components/Admin/registered-components/MenuItem';
+import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';
 import { Zone } from 'reactium-core/sdk';
 
 const SidebarWidget = () => (
@@ -372,7 +380,7 @@ const SidebarWidget = () => (
 );
 
  * @apiExample Import
-import MenuItem from 'components/Admin/registered-components/MenuItem';
+import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';
 
  * @apiExample Dependencies
 import { NavLink } from 'react-router-dom';
