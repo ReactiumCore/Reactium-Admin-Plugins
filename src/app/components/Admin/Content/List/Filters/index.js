@@ -18,19 +18,26 @@ export default ({ list }) => {
         style: { width: 40, height: 40, padding: 0 },
     };
 
-    const statuses = () =>
-        _.chain([
-            'ALL',
-            op
-                .get(state, 'contentType.fields.publisher.statuses', '')
-                .split(','),
-            'TRASH',
-        ])
+    const statuses = () => {
+        let list = op.get(
+            state,
+            'contentType.fields.publisher.statuses',
+            op.get(state, 'statuses'),
+        );
+
+        list = Array.isArray(list)
+            ? list
+            : String(list)
+                  .replace(/ /gi, '')
+                  .split(',');
+
+        return _.chain(['ALL', list, 'TRASH'])
             .flatten()
             .compact()
             .uniq()
             .value()
             .map(item => ({ label: item, value: item }));
+    };
 
     const setStatus = newStatus =>
         setState({ filter: newStatus === 'ALL' ? null : newStatus });
