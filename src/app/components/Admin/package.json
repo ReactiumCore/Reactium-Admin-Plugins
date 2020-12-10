@@ -1,11 +1,11 @@
 {
   "name": "@atomic-reactor/admin",
-  "version": "0.0.177",
+  "version": "0.0.178",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd ../../../.. && npx patch-package --include 'package.json' --exclude='mAdEuPExc' --patch-dir='reactium_modules/@atomic-reactor/admin/patches'"
+    "postinstall": "node ../patch-react-spring.js"
   },
   "repository": {
     "type": "git",
