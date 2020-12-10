@@ -1,11 +1,11 @@
 {
   "name": "@atomic-reactor/admin",
-  "version": "0.0.176",
+  "version": "0.0.177",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd ../../../.. && patch-package --include 'package.json' --exclude='mAdEuPExc' --patch-dir='reactium_modules/@atomic-reactor/admin/patches'"
+    "postinstall": "cd ../../../.. && npx patch-package --include 'package.json' --exclude='mAdEuPExc' --patch-dir='reactium_modules/@atomic-reactor/admin/patches'"
   },
   "repository": {
     "type": "git",
@@ -47,9 +47,6 @@
     "slate-react": "^0.57.1",
     "underscore": "*",
     "uuid": "^3.4.0"
-  },
-  "devDependencies": {
-    "patch-package": "^6.2.2"
   },
   "reactium": {
     "version": "3.2.6"
