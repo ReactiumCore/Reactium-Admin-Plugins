@@ -4,7 +4,8 @@
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "patch-package --include 'package.json' --exclude='mAdEuPExc' --patch-dir='../patches'"
   },
   "repository": {
     "type": "git",
@@ -37,15 +38,18 @@
     "pluralize": "^8.0.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-draggable": "^4.2.0",
-    "react-live": "^2.2.2",
     "react-jsx-parser": "^1.21.0",
-    "react-spring": "next",
+    "react-live": "^2.2.2",
+    "react-spring": "9.0.0-rc.3",
     "react-use-gesture": "^7.0.11",
     "slate": "^0.57.1",
     "slate-history": "^0.57.1",
     "slate-react": "^0.57.1",
     "underscore": "*",
     "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "patch-package": "^6.2.2"
   },
   "reactium": {
     "version": "3.2.6"

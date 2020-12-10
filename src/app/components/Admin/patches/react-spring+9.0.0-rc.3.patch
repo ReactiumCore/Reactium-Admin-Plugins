@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-spring/package.json b/node_modules/react-spring/package.json
+index 9d5f9eb..1036357 100644
+--- a/node_modules/react-spring/package.json
++++ b/node_modules/react-spring/package.json
+@@ -64,7 +64,6 @@
+   "publishConfig": {
+     "access": "public"
+   },
+-  "sideEffects": false,
+   "types": "web.d.ts",
+   "version": "9.0.0-rc.3"
+ }
