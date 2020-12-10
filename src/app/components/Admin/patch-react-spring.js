@@ -1,6 +1,6 @@
 const path = require('path');
 const op = require('object-path');
-const fs = require('fs-extra');
+const fs = require('fs');
 
 const reactSpringEntry = require.resolve('react-spring');
 const jsonPath = path.resolve(path.dirname(reactSpringEntry), 'package.json');
