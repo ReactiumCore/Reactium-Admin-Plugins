@@ -29206,12 +29206,17 @@ input[type='object'] {
     line-height: 1;
 }
 .ar-rte-sidebar-buttons {
-    max-width: 80vh;
+    max-width: 80vw;
     margin-left: -5px;
 }
 @media only screen and (min-width: 641px) {
     .ar-rte-sidebar-buttons {
         max-width: 480px;
+    }
+}
+@media only screen and (min-width: 991px) {
+    .ar-rte-sidebar-buttons {
+        max-width: 80vw;
     }
 }
 .ar-rte [type='block'] .ar-rte-sidebar-buttons .block-actions,
@@ -31388,6 +31393,7 @@ button.formatter-text-style > div > blockquote {
     list-style: none;
     margin: 0;
     padding: 8px 0;
+    overflow-x: hidden;
 }
 .menu-editor .content-option {
     display: flex;
