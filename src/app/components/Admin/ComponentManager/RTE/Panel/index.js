@@ -101,67 +101,6 @@ let Panel = ({ editor, namespace, title, ...props }) => {
 
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const fetchContent = ({ component }) => {
-        let { request = null } = state;
-        if (request !== null) return request;
-        setStatus(ENUMS.STATUS.FETCHING, true);
-
-        component =
-            _.isString(component) && String(component).substr(0, 1) === '{'
-                ? JSON.parse(component)
-                : component;
-
-        const { fields, schema = [], type } = component;
-
-        const uuid = op.get(component, 'content.uuid');
-
-        request = Reactium.Content.retrieve({ uuid, type }).then(contentObj => {
-            if (!contentObj) {
-                throw new Error(`Unable to find ${type}: ${uuid}`);
-            }
-
-            // loop through the schema array and build the new content node
-            const content = schema.map(field => {
-                const { fieldType, fieldName } = op.get(fields, field);
-
-                const val =
-                    op.get(contentObj, fieldName) ||
-                    op.get(contentObj, String(fieldName).toLowerCase());
-
-                const node = {
-                    fieldName,
-                    fieldType,
-                    type: 'componentContent',
-                    children: [{ type: 'p', text: val }],
-                };
-
-                // If fieldType === RichText return the children as a new node.
-                if (fieldType === 'RichText') {
-                    op.set(node, 'children', [
-                        _.first(op.get(val, 'children', [])),
-                    ]);
-                }
-
-                Reactium.Hook.runSync('rte-component-content-node', node, {
-                    value: val,
-                    fieldType,
-                    fieldName,
-                    editor,
-                    content: contentObj,
-                    component,
-                });
-
-                return node;
-            });
-
-            return content;
-        });
-
-        setState({ request });
-
-        return request;
-    };
-
     const hide = index => {
         const carousel = refs.get('carousel');
         if (!carousel) return;
@@ -189,15 +128,7 @@ let Panel = ({ editor, namespace, title, ...props }) => {
     const insert = async block => {
         if (isStatus(ENUMS.STATUS.FETCHING)) return;
 
-        const { attribute = [], type } = block;
-
-        switch (type) {
-            case 'content':
-                block.children = await fetchContent(block);
-                setStatus(ENUMS.STATUS.READY);
-                setState({ request: null });
-                break;
-        }
+        const { attribute = [] } = block;
 
         if (attribute.length > 0) {
             const carousel = refs.get('carousel');

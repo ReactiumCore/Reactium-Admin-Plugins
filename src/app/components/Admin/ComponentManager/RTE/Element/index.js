@@ -57,26 +57,25 @@ const Element = initialProps => {
     // Render
     // -------------------------------------------------------------------------
     return (
-        <>
-            <div className={className} id={id} contentEditable={false}>
-                {type === 'hook' && (
-                    <HookComponent
-                        {...props}
-                        attributes={attr}
-                        node={op.get(children, 'props.node')}
-                        name={op.get(children, 'props.node.block.component')}
-                    />
-                )}
-                {type === 'jsx' && (
-                    <JsxComponent
-                        {...props}
-                        attributes={attr}
-                        node={op.get(children, 'props.node')}
-                        jsx={op.get(children, 'props.node.block.component')}
-                    />
-                )}
-            </div>
-        </>
+        <div className={className} id={id} contentEditable={false}>
+            {type === 'hook' && (
+                <HookComponent
+                    {...props}
+                    attributes={attr}
+                    node={op.get(children, 'props.node')}
+                    name={op.get(children, 'props.node.block.component')}
+                />
+            )}
+            {type === 'jsx' && (
+                <JsxComponent
+                    {...props}
+                    attributes={attr}
+                    node={op.get(children, 'props.node')}
+                    jsx={op.get(children, 'props.node.block.component')}
+                />
+            )}
+            {children}
+        </div>
     );
 };
 

@@ -46,9 +46,6 @@ let Type = (initialProps, ref) => {
     const Selector = useHookComponent('ComponentManagerTypeSelector');
     const JsxComponent = useHookComponent('ComponentManagerJsxComponent');
     const HookComponent = useHookComponent('ComponentManagerHookComponent');
-    const ContentComponent = useHookComponent(
-        'ComponentManagerContentComponent',
-    );
 
     // -------------------------------------------------------------------------
     // Refs
@@ -105,9 +102,6 @@ let Type = (initialProps, ref) => {
             case 'hook':
                 return 'Linear.Chip';
 
-            case 'content':
-                return 'Linear.Typewriter';
-
             case 'jsx':
                 return 'Linear.MagicWand';
         }
@@ -162,6 +156,8 @@ let Type = (initialProps, ref) => {
 
         scene.navTo({ direction, panel });
     };
+
+    const onChange = ({ staged: active }) => setState({ active });
 
     const save = (value = {}) => {
         const { uuid } = value;
@@ -228,14 +224,11 @@ let Type = (initialProps, ref) => {
         <div className={cx()} ref={elm => refs.set('container', elm)}>
             <Dialog collapsible={false} header={header()}>
                 <Scene
+                    width='100%'
                     active={state.active}
-                    onBeforeChange={({ staged: active }) =>
-                        setState({ active })
-                    }
-                    ref={elm => refs.set('scene', elm)}
-                    width='100%'>
+                    onBeforeChange={onChange}
+                    ref={elm => refs.set('scene', elm)}>
                     <Selector id='selector' handle={handle} />
-                    <ContentComponent id='content' handle={handle} />
                     <HookComponent id='hook' handle={handle} />
                     <JsxComponent id='jsx' handle={handle} />
                 </Scene>

@@ -9,11 +9,11 @@ const SidebarButton = props => {
     return (
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-            data-tooltip={__('Content Block')}
+            data-tooltip={__('Component')}
             {...props}>
             <Icon
                 {...Reactium.RTE.ENUMS.PROPS.ICON}
-                name='Feather.Box'
+                name='Linear.Beaker'
                 size={20}
             />
         </Button>
@@ -26,17 +26,12 @@ const Plugin = new RTEPlugin({
 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
-        const btn = e.currentTarget;
-        let { x, y, width } = btn.getBoundingClientRect();
-
-        x += width;
-        y = Math.floor(window.innerHeight / 4);
-
+    const onButtonClick = () => {
+        const x = window.innerWidth / 2 - 150;
         editor.panel
             .setID(Plugin.type)
             .setContent(<Panel selection={editor.selection} editor={editor} />)
-            .moveTo(x, y)
+            .moveTo(x, 50)
             .show();
     };
 
@@ -54,7 +49,7 @@ Plugin.callback = editor => {
 
     // register sidebar button
     Reactium.RTE.Button.register(Plugin.type, {
-        order: 60,
+        order: 62,
         sidebar: true,
         button: props => <SidebarButton {...props} onClick={onButtonClick} />,
     });

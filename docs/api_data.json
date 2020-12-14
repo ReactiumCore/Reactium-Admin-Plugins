@@ -2711,6 +2711,114 @@
   },
   {
     "type": "Asynchronous",
+    "url": "Content.clone(params,handle)",
+    "title": "Content.clone()",
+    "name": "Content.clone",
+    "group": "Reactium.Content",
+    "description": "<p>Retrieve one item of content.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Object",
+            "optional": false,
+            "field": "params",
+            "description": "<p>See below</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "EventTarget",
+            "optional": true,
+            "field": "handle",
+            "description": "<p>EventTarget to the component where the call was executed from.</p>"
+          }
+        ],
+        "params": [
+          {
+            "group": "params",
+            "type": "Mixed",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Type object, or type machineName</p>"
+          },
+          {
+            "group": "params",
+            "type": "Boolean",
+            "optional": true,
+            "field": "current",
+            "defaultValue": "false",
+            "description": "<p>When true, get the currently committed content (not from revision system). Otherwise, construct the content from the provided history (branch and revision index).</p>"
+          },
+          {
+            "group": "params",
+            "type": "String",
+            "optional": true,
+            "field": "slug",
+            "description": "<p>The unique slug for the content.</p>"
+          },
+          {
+            "group": "params",
+            "type": "String",
+            "optional": true,
+            "field": "objectId",
+            "description": "<p>The objectId for the content.</p>"
+          },
+          {
+            "group": "params",
+            "type": "String",
+            "optional": true,
+            "field": "uuid",
+            "description": "<p>The uuid for the content.</p>"
+          }
+        ],
+        "type": [
+          {
+            "group": "type",
+            "type": "String",
+            "optional": true,
+            "field": "objectId",
+            "description": "<p>Parse objectId of content type</p>"
+          },
+          {
+            "group": "type",
+            "type": "String",
+            "optional": true,
+            "field": "uuid",
+            "description": "<p>UUID of content type</p>"
+          },
+          {
+            "group": "type",
+            "type": "String",
+            "optional": true,
+            "field": "machineName",
+            "description": "<p>the machine name of the existing content type (default index of latest revision)</p>"
+          }
+        ],
+        "hooks": [
+          {
+            "group": "hooks",
+            "type": "Async",
+            "optional": false,
+            "field": "before-content-clone",
+            "description": "<p>Executed before the content is cloned.</p>"
+          },
+          {
+            "group": "hooks",
+            "type": "Async",
+            "optional": false,
+            "field": "content-clone",
+            "description": "<p>Executed after the content has been cloned.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/app/components/Admin/Content/sdk/index.js",
+    "groupTitle": "Reactium.Content"
+  },
+  {
+    "type": "Asynchronous",
     "url": "Content.delete(params,handle)",
     "title": "Content.delete()",
     "description": "<p>Delete content of a defined Type. To identify the content, you must provided the <code>type</code> object, and one of <code>slug</code>, <code>objectId</code>, or <code>uuid</code> of the content.</p>",
@@ -9600,17 +9708,17 @@
       },
       {
         "title": "Sub MenuItems:",
-        "content": "import MenuItem from 'components/Admin/registered-components/MenuItem';\n\nconst SidebarWidget = () => (\n  <MenuItem\n    icon='Linear.Equalizer'\n    id='admin-sidebar-settings'\n    label='Settings'>\n    <MenuItem\n      label='App'\n      route='/admin/settings/app'\n      title='Application settings'\n    />\n    <MenuItem\n      label='Email'\n      route='/admin/settings/email'\n      title='Email settings'\n    />\n  </MenuItem>\n);",
+        "content": "import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';\n\nconst SidebarWidget = () => (\n  <MenuItem\n    icon='Linear.Equalizer'\n    id='admin-sidebar-settings'\n    label='Settings'>\n    <MenuItem\n      label='App'\n      route='/admin/settings/app'\n      title='Application settings'\n    />\n    <MenuItem\n      label='Email'\n      route='/admin/settings/email'\n      title='Email settings'\n    />\n  </MenuItem>\n);",
         "type": "json"
       },
       {
         "title": "Component Zone:",
-        "content": "import MenuItem from 'components/Admin/registered-components/MenuItem';\nimport { Zone } from 'reactium-core/sdk';\n\nconst SidebarWidget = () => (\n  <MenuItem\n    icon='Linear.Equalizer'\n    id='admin-sidebar-settings'\n    label='Settings' >\n    <Zone zone='admin-sidebar-settings' />\n  </MenuItem>\n);",
+        "content": "import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';\nimport { Zone } from 'reactium-core/sdk';\n\nconst SidebarWidget = () => (\n  <MenuItem\n    icon='Linear.Equalizer'\n    id='admin-sidebar-settings'\n    label='Settings' >\n    <Zone zone='admin-sidebar-settings' />\n  </MenuItem>\n);",
         "type": "json"
       },
       {
         "title": "Import",
-        "content": "import MenuItem from 'components/Admin/registered-components/MenuItem';",
+        "content": "import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';",
         "type": "json"
       },
       {

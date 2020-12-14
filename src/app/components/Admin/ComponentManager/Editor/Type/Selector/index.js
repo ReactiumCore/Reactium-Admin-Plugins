@@ -1,6 +1,4 @@
 import React from 'react';
-import _ from 'underscore';
-import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 /**
@@ -10,11 +8,6 @@ import { __, useHookComponent } from 'reactium-core/sdk';
  */
 const buttons = [
     { icon: 'Linear.Chip', label: __('Hook'), id: 'hook' },
-    {
-        icon: 'Linear.Typewriter',
-        label: __('Content'),
-        id: 'content',
-    },
     { icon: 'Linear.MagicWand', label: __('JSX'), id: 'jsx' },
 ];
 
@@ -28,10 +21,10 @@ const Selector = ({ handle }) => {
         <div className={cx('selector')}>
             {buttons.map(btn => (
                 <button
-                    className={cx('selector-btn')}
                     data-id={btn.id}
                     key={`selector-${btn.id}`}
-                    onClick={() => onClick(btn)}>
+                    onClick={() => onClick(btn)}
+                    className={cx('selector-btn')}>
                     <div className={cx('selector-icon')}>
                         <Icon name={btn.icon} className={btn.id} />
                     </div>

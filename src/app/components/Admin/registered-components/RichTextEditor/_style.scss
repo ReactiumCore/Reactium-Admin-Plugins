@@ -159,11 +159,15 @@ input[type='object'] {
         }
 
         &-buttons {
-            max-width: 80vh;
+            max-width: 80vw;
             margin-left: -5px;
 
             @include breakpoint(sm) {
                 max-width: 480px;
+            }
+
+            @include breakpoint(md) {
+                max-width: 80vw;
             }
 
             .btn-group {
