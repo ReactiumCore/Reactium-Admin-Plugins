@@ -7,13 +7,9 @@ import { Button, Icon } from '@atomic-reactor/reactium-ui';
 const Plugin = new RTEPlugin({ type: 'grid', order: 100 });
 
 Plugin.callback = editor => {
-    const onButtonClick = e => {
-        const btn = e.currentTarget;
-        const rect = btn.getBoundingClientRect();
-        let { x, width } = rect;
-
-        x += width;
-        const y = Math.floor(window.innerHeight / 4);
+    const onButtonClick = () => {
+        const x = window.innerWidth / 2 - 150;
+        const y = 50;
 
         editor.panel
             .setID(Plugin.type)

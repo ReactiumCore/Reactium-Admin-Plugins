@@ -31,7 +31,7 @@ const CloseButton = props => (
     </Button>
 );
 
-const Panel = ({ submitButtonLabel, namespace, title }) => {
+const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
     const refs = useRefs();
     const editor = useEditor();
 
@@ -39,7 +39,10 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
     const [state, setState] = useDerivedState({
         max: 12,
         min: 1,
-        columns: [],
+        id: op.get(props, 'id', uuid()),
+        columns: JSON.parse(JSON.stringify(op.get(props, 'columns', []))),
+        node: op.get(props, 'node'),
+        path: op.get(props, 'path'),
         selection: editor.selection,
         sizes: ['xs', 'sm', 'md', 'lg'],
     });
@@ -47,11 +50,18 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
     // className prefixer
     const cx = Reactium.Utils.cxFactory(namespace);
 
-    const insertNode = e => {
+    const submit = e => {
         if (e) e.preventDefault();
+        if (op.get(state, 'node')) {
+            updateNode(e);
+        } else {
+            insertNode(e);
+        }
+    };
 
-        const id = uuid();
-        const { columns = [] } = state;
+    const insertNode = () => {
+        const { columns = [], id } = state;
+
         const nodes = columns.map((col, i) => ({
             addAfter: false,
             addBefore: false,
@@ -82,6 +92,75 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
             className: 'row',
             inspector: true,
             row: columns,
+        });
+
+        hide();
+    };
+
+    const updateNode = () => {
+        const { columns = [], id, node, path } = state;
+        if (columns.length < 1) return;
+
+        let children = op.get(node, 'children', []);
+
+        // Add/Remove columns if needed
+        const diff = columns.length - children.length;
+
+        if (diff > 0) {
+            const apath = _.flatten([path, 0]);
+            const cols = columns.slice(columns.length - diff);
+
+            const nodes = cols.map((col, i) => ({
+                addAfter: false,
+                addBefore: false,
+                blocked: true,
+                children: [
+                    {
+                        type: 'block',
+                        blocked: true,
+                        deletable: false,
+                        inspector: false,
+                        data: { column: col },
+                        id: `block-inner-${id}-${i}`,
+                        children: [{ type: 'p', children: [{ text: '' }] }],
+                    },
+                ],
+                className: Object.entries(col)
+                    .map(([size, val]) => `col-${size}-${val}`)
+                    .join(' '),
+                column: col,
+                deletable: false,
+                id: `block-${id}-${i}`,
+                type: 'block',
+            }));
+
+            Transforms.insertNodes(editor, nodes, { at: apath });
+        }
+
+        if (diff < 0) {
+            const orig = _.range(children.length);
+            const indices = _.range(children.length + Math.abs(diff));
+            _.without(indices, ...orig).forEach(i =>
+                Transforms.delete(editor, { at: _.flatten([path, i - 1]) }),
+            );
+        }
+
+        // Update the row element
+        Transforms.setNodes(editor, { row: columns }, { at: path });
+
+        columns.forEach((col, i) => {
+            if (!col) return;
+
+            const cpath = _.flatten([path, i]);
+            const className = Object.entries(col)
+                .map(([size, val]) => `col-${size}-${val}`)
+                .join(' ');
+
+            Transforms.setNodes(
+                editor,
+                { className, column: col },
+                { at: cpath },
+            );
         });
 
         hide();
@@ -141,7 +220,14 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
 
     useEffect(() => {
         if (!editor.selection) return;
-        setState({ selection: editor.selection, columns: [] });
+        setState({
+            selection: editor.selection,
+            columns: JSON.parse(
+                JSON.stringify(
+                    op.get(props, 'columns', op.get(state, 'columns', [])),
+                ),
+            ),
+        });
     }, [editor.selection]);
 
     // Renderers
@@ -219,11 +305,7 @@ const Panel = ({ submitButtonLabel, namespace, title }) => {
 
             {state.columns.length > 0 && (
                 <div className={cx('footer')}>
-                    <Button
-                        block
-                        color='tertiary'
-                        size='md'
-                        onClick={insertNode}>
+                    <Button block color='tertiary' size='md' onClick={submit}>
                         {submitButtonLabel}
                     </Button>
                 </div>
@@ -242,7 +324,7 @@ Panel.propTypes = {
 
 Panel.defaultProps = {
     namespace: 'rte-grid-panel',
-    submitButtonLabel: __('Insert Grid'),
+    submitButtonLabel: __('Apply Grid'),
     title: __('Grid'),
 };
 

@@ -3,6 +3,7 @@ import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import Settings from './Settings';
+import GridSettings from '../withGrid/Panel';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Editor, Node, Path, Transforms } from 'slate';
 
@@ -135,6 +136,26 @@ const Element = ({ children, ...initialProps }) => {
         return !node ? true : String(Node.string(node)).length < 1;
     };
 
+    const showGridPanel = () => {
+        const { node, selection: path } = getNode();
+        const x = window.innerWidth / 2 - 150;
+        const y = 50;
+
+        editor.panel
+            .setID('grid')
+            .setContent(
+                <GridSettings
+                    selection={editor.selection}
+                    columns={node.row}
+                    node={node}
+                    path={path}
+                    id={id}
+                />,
+            )
+            .moveTo(x, y)
+            .show();
+    };
+
     const unMounted = () => !refs.get('block.container');
 
     const _handle = () => ({
@@ -158,7 +179,7 @@ const Element = ({ children, ...initialProps }) => {
     const [handle, setHandle] = useEventHandle(_handle());
 
     useAsyncEffect(async () => {
-        const zid = await Reactium.Zone.addComponent({
+        const settingID = await Reactium.Zone.addComponent({
             component: () => (
                 <Settings {...props} id={id} nodeProps={nodeProps} />
             ),
@@ -166,8 +187,25 @@ const Element = ({ children, ...initialProps }) => {
             zone: `${id}-toolbar`,
         });
 
+        const gridSettingsID = op.get(node, 'row')
+            ? await Reactium.Zone.addComponent({
+                  component: () => (
+                      <Button
+                          color={Button.ENUMS.COLOR.SECONDARY}
+                          onClick={showGridPanel}>
+                          <Icon name='Feather.Layout' size={16} />
+                      </Button>
+                  ),
+                  order: Reactium.Enums.priority.highest,
+                  zone: `type-${id}-toolbar`,
+              })
+            : null;
+
         return () => {
-            Reactium.Zone.removeComponent(zid);
+            Reactium.Zone.removeComponent(settingID);
+            if (gridSettingsID) {
+                Reactium.Zone.removeComponent(gridSettingsID);
+            }
         };
     }, [props]);
 
@@ -179,16 +217,21 @@ const Element = ({ children, ...initialProps }) => {
             {...props}>
             <div contentEditable={false}>
                 {!state.confirm && (
-                    <div className={cx('actions')}>
-                        <Zone zone={handle.zone} />
-                        {deletable && (
-                            <Button
-                                color={Button.ENUMS.COLOR.SECONDARY}
-                                onClick={() => _delete()}>
-                                <Icon name='Feather.X' size={16} />
-                            </Button>
-                        )}
-                    </div>
+                    <>
+                        <div className={cx('actions')}>
+                            <Zone zone={handle.zone} />
+                            {deletable && (
+                                <Button
+                                    color={Button.ENUMS.COLOR.SECONDARY}
+                                    onClick={() => _delete()}>
+                                    <Icon name='Feather.X' size={16} />
+                                </Button>
+                            )}
+                        </div>
+                        <div className={cx('type-actions')}>
+                            <Zone zone={`type-${handle.zone}`} />
+                        </div>
+                    </>
                 )}
                 {state.confirm && deletable && (
                     <Alert

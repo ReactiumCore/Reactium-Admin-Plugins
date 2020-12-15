@@ -124,7 +124,7 @@ export default ({ children, ...props }) => {
                 />
             ),
             order: Reactium.Enums.priority.highest,
-            zone: `${props.blockID}-toolbar`,
+            zone: `type-${props.blockID}-toolbar`,
         });
 
         return () => {

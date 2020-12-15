@@ -26,11 +26,9 @@ $rte-block-ns: block !default;
             }
 
             &:hover {
-                > div > .#{$rte-block-ns}-actions {
-                    opacity: 1;
-                }
-
-                > div > .add {
+                > div > .add,
+                > div > .#{$rte-block-ns}-actions,
+                > div > .#{$rte-block-ns}-type-actions {
                     opacity: 1;
                 }
             }
@@ -101,6 +99,23 @@ $rte-block-ns: block !default;
             position: absolute;
             top: 2px;
             right: 2px;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+
+            > button {
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+            }
+        }
+
+        .#{$rte-block-ns}-type-actions {
+            @extend .btn-group;
+            position: absolute;
+            top: 2px;
+            left: 2px;
             z-index: 50;
             opacity: 0;
             transition: opacity 0.2s ease-in-out;
