@@ -15,7 +15,7 @@ Plugin.callback = editor => {
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
         element: elementProps => {
-            const { button, className, style = {}, ...props } = elementProps;
+            let { button, className, style = {}, ...props } = elementProps;
 
             op.del(props, 'content');
             op.del(props, 'type');

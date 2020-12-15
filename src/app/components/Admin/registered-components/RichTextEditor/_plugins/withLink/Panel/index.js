@@ -53,7 +53,7 @@ let Panel = (
 
     const [isButton, setButton] = useState(false);
 
-    const [status, setStatus, isStatus] = useStatus(STATUS.PENDING);
+    const [, setStatus, isStatus] = useStatus(STATUS.PENDING);
 
     const { Button, Dialog, Icon, Spinner, Toggle } = useHookComponent(
         'ReactiumUI',
@@ -124,6 +124,7 @@ let Panel = (
         if (String(href).startsWith('/')) {
             setStatus(STATUS.FETCHING, true);
             const content = await fetch({ route: href });
+            if (unMounted()) return;
             setStatus(STATUS.COMPLETE);
             op.set(node, 'content', content);
         }
