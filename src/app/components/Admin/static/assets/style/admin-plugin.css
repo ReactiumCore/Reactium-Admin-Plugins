@@ -24516,6 +24516,7 @@ button:hover {
 .ar-datepicker-calendar-footer,
 .ar-datepicker-calendar-header,
 .ar-rte [type='block'] .block-actions,
+.ar-rte [type='block'] .block-type-actions,
 .btn-group {
     border-radius: 2px;
     display: inline-flex;
@@ -24525,6 +24526,7 @@ button:hover {
 .ar-datepicker-calendar-footer [class*='btn-'],
 .ar-datepicker-calendar-header [class*='btn-'],
 .ar-rte [type='block'] .block-actions [class*='btn-'],
+.ar-rte [type='block'] .block-type-actions [class*='btn-'],
 .btn-group [class*='btn-'] {
     border-radius: 0;
 }
@@ -24546,6 +24548,12 @@ button:hover {
 .ar-rte [type='block'] .block-actions > .editor-urls,
 .ar-rte [type='block'] .block-actions > .form-group,
 .ar-rte [type='block'] .block-actions > .wizard-input-group,
+.ar-rte [type='block'] .block-type-actions > .ar-color-select-input,
+.ar-rte [type='block'] .block-type-actions > .ar-media-picker-search-input,
+.ar-rte [type='block'] .block-type-actions > .editor-taxonomy-checklist-search,
+.ar-rte [type='block'] .block-type-actions > .editor-urls,
+.ar-rte [type='block'] .block-type-actions > .form-group,
+.ar-rte [type='block'] .block-type-actions > .wizard-input-group,
 .btn-group > .ar-color-select-input,
 .btn-group > .ar-media-picker-search-input,
 .btn-group > .editor-taxonomy-checklist-search,
@@ -24596,6 +24604,34 @@ button:hover {
 .ar-rte [type='block'] .block-actions > .form-group select,
 .ar-rte [type='block'] .block-actions > .wizard-input-group input,
 .ar-rte [type='block'] .block-actions > .wizard-input-group select,
+.ar-rte [type='block'] .block-type-actions > .ar-color-select-input input,
+.ar-rte [type='block'] .block-type-actions > .ar-color-select-input select,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-search-input
+    input,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-search-input
+    select,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .editor-taxonomy-checklist-search
+    input,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .editor-taxonomy-checklist-search
+    select,
+.ar-rte [type='block'] .block-type-actions > .editor-urls input,
+.ar-rte [type='block'] .block-type-actions > .editor-urls select,
+.ar-rte [type='block'] .block-type-actions > .form-group input,
+.ar-rte [type='block'] .block-type-actions > .form-group select,
+.ar-rte [type='block'] .block-type-actions > .wizard-input-group input,
+.ar-rte [type='block'] .block-type-actions > .wizard-input-group select,
 .btn-group > .ar-color-select-input input,
 .btn-group > .ar-color-select-input select,
 .btn-group > .ar-media-picker-search-input input,
@@ -24662,6 +24698,38 @@ button:hover {
 .ar-rte [type='block'] .block-actions > .form-group select:focus,
 .ar-rte [type='block'] .block-actions > .wizard-input-group input:focus,
 .ar-rte [type='block'] .block-actions > .wizard-input-group select:focus,
+.ar-rte [type='block'] .block-type-actions > .ar-color-select-input input:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-color-select-input
+    select:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-search-input
+    input:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-search-input
+    select:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .editor-taxonomy-checklist-search
+    input:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .editor-taxonomy-checklist-search
+    select:focus,
+.ar-rte [type='block'] .block-type-actions > .editor-urls input:focus,
+.ar-rte [type='block'] .block-type-actions > .editor-urls select:focus,
+.ar-rte [type='block'] .block-type-actions > .form-group input:focus,
+.ar-rte [type='block'] .block-type-actions > .form-group select:focus,
+.ar-rte [type='block'] .block-type-actions > .wizard-input-group input:focus,
+.ar-rte [type='block'] .block-type-actions > .wizard-input-group select:focus,
 .btn-group > .ar-color-select-input input:focus,
 .btn-group > .ar-color-select-input select:focus,
 .btn-group > .ar-media-picker-search-input input:focus,
@@ -24707,6 +24775,24 @@ button:hover {
 .ar-rte [type='block'] .block-actions > .editor-urls:not(:first-child),
 .ar-rte [type='block'] .block-actions > .form-group:not(:first-child),
 .ar-rte [type='block'] .block-actions > .wizard-input-group:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-color-select-input:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-search-input:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .editor-taxonomy-checklist-search:not(:first-child),
+.ar-rte [type='block'] .block-type-actions > .editor-urls:not(:first-child),
+.ar-rte [type='block'] .block-type-actions > .form-group:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .wizard-input-group:not(:first-child),
 .btn-group > .ar-color-select-input:not(:first-child),
 .btn-group > .ar-media-picker-search-input:not(:first-child),
 .btn-group > .editor-taxonomy-checklist-search:not(:first-child),
@@ -24718,12 +24804,14 @@ button:hover {
 .ar-datepicker-calendar-footer > *,
 .ar-datepicker-calendar-header > *,
 .ar-rte [type='block'] .block-actions > *,
+.ar-rte [type='block'] .block-type-actions > *,
 .btn-group > * {
     flex-grow: 1;
 }
 .ar-datepicker-calendar-footer > :first-child,
 .ar-datepicker-calendar-header > :first-child,
 .ar-rte [type='block'] .block-actions > :first-child,
+.ar-rte [type='block'] .block-type-actions > :first-child,
 .btn-group > :first-child {
     border-radius: 2px 0 0 2px;
 }
@@ -24733,6 +24821,8 @@ button:hover {
 .ar-datepicker-calendar-header > :first-child select,
 .ar-rte [type='block'] .block-actions > :first-child input,
 .ar-rte [type='block'] .block-actions > :first-child select,
+.ar-rte [type='block'] .block-type-actions > :first-child input,
+.ar-rte [type='block'] .block-type-actions > :first-child select,
 .btn-group > :first-child input,
 .btn-group > :first-child select {
     border-radius: 0;
@@ -24740,6 +24830,7 @@ button:hover {
 .ar-datepicker-calendar-footer > :last-child,
 .ar-datepicker-calendar-header > :last-child,
 .ar-rte [type='block'] .block-actions > :last-child,
+.ar-rte [type='block'] .block-type-actions > :last-child,
 .btn-group > :last-child {
     border-radius: 0 2px 2px 0;
 }
@@ -24749,6 +24840,8 @@ button:hover {
 .ar-datepicker-calendar-header > :last-child select,
 .ar-rte [type='block'] .block-actions > :last-child input,
 .ar-rte [type='block'] .block-actions > :last-child select,
+.ar-rte [type='block'] .block-type-actions > :last-child input,
+.ar-rte [type='block'] .block-type-actions > :last-child select,
 .btn-group > :last-child input,
 .btn-group > :last-child select {
     border-radius: 0;
@@ -24756,6 +24849,7 @@ button:hover {
 .ar-datepicker-calendar-footer > :last-child:first-child,
 .ar-datepicker-calendar-header > :last-child:first-child,
 .ar-rte [type='block'] .block-actions > :last-child:first-child,
+.ar-rte [type='block'] .block-type-actions > :last-child:first-child,
 .btn-group > :last-child:first-child {
     border-radius: 2px;
 }
@@ -24765,6 +24859,8 @@ button:hover {
 .ar-datepicker-calendar-header > :last-child:first-child select,
 .ar-rte [type='block'] .block-actions > :last-child:first-child input,
 .ar-rte [type='block'] .block-actions > :last-child:first-child select,
+.ar-rte [type='block'] .block-type-actions > :last-child:first-child input,
+.ar-rte [type='block'] .block-type-actions > :last-child:first-child select,
 .btn-group > :last-child:first-child input,
 .btn-group > :last-child:first-child select {
     border-radius: 0;
@@ -24772,6 +24868,7 @@ button:hover {
 .ar-datepicker-calendar-footer > span:hover,
 .ar-datepicker-calendar-header > span:hover,
 .ar-rte [type='block'] .block-actions > span:hover,
+.ar-rte [type='block'] .block-type-actions > span:hover,
 .btn-group > span:hover {
     cursor: default !important;
 }
@@ -29220,9 +29317,11 @@ input[type='object'] {
     }
 }
 .ar-rte [type='block'] .ar-rte-sidebar-buttons .block-actions,
+.ar-rte [type='block'] .ar-rte-sidebar-buttons .block-type-actions,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-footer,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-header,
 .ar-rte-sidebar-buttons .ar-rte [type='block'] .block-actions,
+.ar-rte-sidebar-buttons .ar-rte [type='block'] .block-type-actions,
 .ar-rte-sidebar-buttons .btn-group {
     justify-content: flex-start;
     flex-direction: row;
@@ -29234,25 +29333,31 @@ input[type='object'] {
     border-radius: 4px;
 }
 .ar-rte [type='block'] .ar-rte-sidebar-buttons .block-actions button,
+.ar-rte [type='block'] .ar-rte-sidebar-buttons .block-type-actions button,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-footer button,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-header button,
 .ar-rte-sidebar-buttons .ar-rte [type='block'] .block-actions button,
+.ar-rte-sidebar-buttons .ar-rte [type='block'] .block-type-actions button,
 .ar-rte-sidebar-buttons .btn-group button {
     min-width: 40px;
     min-height: 40px;
     flex-grow: 0;
 }
 .ar-rte [type='block'] .ar-rte-sidebar-buttons .block-actions > *,
+.ar-rte [type='block'] .ar-rte-sidebar-buttons .block-type-actions > *,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-footer > *,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-header > *,
 .ar-rte-sidebar-buttons .ar-rte [type='block'] .block-actions > *,
+.ar-rte-sidebar-buttons .ar-rte [type='block'] .block-type-actions > *,
 .ar-rte-sidebar-buttons .btn-group > * {
     border-radius: 0;
 }
 .ar-rte [type='block'] .ar-rte-sidebar-buttons .block-actions:after,
+.ar-rte [type='block'] .ar-rte-sidebar-buttons .block-type-actions:after,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-footer:after,
 .ar-rte-sidebar-buttons .ar-datepicker-calendar-header:after,
 .ar-rte-sidebar-buttons .ar-rte [type='block'] .block-actions:after,
+.ar-rte-sidebar-buttons .ar-rte [type='block'] .block-type-actions:after,
 .ar-rte-sidebar-buttons .btn-group:after {
     content: '';
     position: absolute;
@@ -29380,9 +29485,11 @@ input[type='object'] {
     color: #4f82ba;
 }
 .ar-rte [type='block'] .rte-settings-row .block-actions,
+.ar-rte [type='block'] .rte-settings-row .block-type-actions,
 .rte-settings-row .ar-datepicker-calendar-footer,
 .rte-settings-row .ar-datepicker-calendar-header,
 .rte-settings-row .ar-rte [type='block'] .block-actions,
+.rte-settings-row .ar-rte [type='block'] .block-type-actions,
 .rte-settings-row .btn-group {
     width: 100%;
     position: relative;
@@ -29899,10 +30006,9 @@ input[type='object'] {
 .ar-rte [type='block'].block .block:last-child {
     margin-bottom: 0;
 }
-.ar-rte [type='block'].block:hover > div > .block-actions {
-    opacity: 1;
-}
-.ar-rte [type='block'].block:hover > div > .add {
+.ar-rte [type='block'].block:hover > div > .add,
+.ar-rte [type='block'].block:hover > div > .block-actions,
+.ar-rte [type='block'].block:hover > div > .block-type-actions {
     opacity: 1;
 }
 .ar-rte [type='block'].block .add {
@@ -30052,6 +30158,20 @@ main.password
     transition: opacity 0.2s ease-in-out;
 }
 .ar-rte [type='block'] .block-actions > button {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.ar-rte [type='block'] .block-type-actions {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.ar-rte [type='block'] .block-type-actions > button {
     padding: 0;
     width: 24px;
     height: 24px;
@@ -30244,9 +30364,11 @@ main.password
     width: 100%;
 }
 .ar-rte [type='block'] .formatter-text-align .block-actions,
+.ar-rte [type='block'] .formatter-text-align .block-type-actions,
 .formatter-text-align .ar-datepicker-calendar-footer,
 .formatter-text-align .ar-datepicker-calendar-header,
 .formatter-text-align .ar-rte [type='block'] .block-actions,
+.formatter-text-align .ar-rte [type='block'] .block-type-actions,
 .formatter-text-align .btn-group {
     width: 100%;
 }
@@ -32183,12 +32305,14 @@ body {
 .ar-datepicker-calendar-footer > .ar-dropdown:first-child > button,
 .ar-datepicker-calendar-header > .ar-dropdown:first-child > button,
 .ar-rte [type='block'] .block-actions > .ar-dropdown:first-child > button,
+.ar-rte [type='block'] .block-type-actions > .ar-dropdown:first-child > button,
 .btn-group > .ar-dropdown:first-child > button {
     border-radius: 2px 0 0 2px;
 }
 .ar-datepicker-calendar-footer > .ar-dropdown:last-child > button,
 .ar-datepicker-calendar-header > .ar-dropdown:last-child > button,
 .ar-rte [type='block'] .block-actions > .ar-dropdown:last-child > button,
+.ar-rte [type='block'] .block-type-actions > .ar-dropdown:last-child > button,
 .btn-group > .ar-dropdown:last-child > button {
     border-radius: 0 2px 2px 0;
 }
@@ -33279,6 +33403,13 @@ body.fullscreen .admin-content {
     [type='block']
     .block-actions
     > *,
+.admin-content-list
+    .pagination-bottom
+    .ar-dropdown
+    .ar-rte
+    [type='block']
+    .block-type-actions
+    > *,
 .admin-content-list .pagination-bottom .ar-dropdown .btn-group > *,
 .ar-rte
     [type='block']
@@ -33286,6 +33417,13 @@ body.fullscreen .admin-content {
     .pagination-bottom
     .ar-dropdown
     .block-actions
+    > *,
+.ar-rte
+    [type='block']
+    .admin-content-list
+    .pagination-bottom
+    .ar-dropdown
+    .block-type-actions
     > * {
     transition: border-radius 125ms ease-in-out;
 }
@@ -33312,6 +33450,13 @@ body.fullscreen .admin-content {
 .admin-content-list
     .pagination-bottom
     .ar-dropdown.expanded
+    .ar-rte
+    [type='block']
+    .block-type-actions
+    > :first-child,
+.admin-content-list
+    .pagination-bottom
+    .ar-dropdown.expanded
     .btn-group
     > :first-child,
 .ar-rte
@@ -33320,6 +33465,13 @@ body.fullscreen .admin-content {
     .pagination-bottom
     .ar-dropdown.expanded
     .block-actions
+    > :first-child,
+.ar-rte
+    [type='block']
+    .admin-content-list
+    .pagination-bottom
+    .ar-dropdown.expanded
+    .block-type-actions
     > :first-child {
     border-top-left-radius: 0;
 }
@@ -33343,6 +33495,13 @@ body.fullscreen .admin-content {
 .admin-content-list
     .pagination-bottom
     .ar-dropdown.expanded
+    .ar-rte
+    [type='block']
+    .block-type-actions
+    > :last-child,
+.admin-content-list
+    .pagination-bottom
+    .ar-dropdown.expanded
     .btn-group
     > :last-child,
 .ar-rte
@@ -33351,6 +33510,13 @@ body.fullscreen .admin-content {
     .pagination-bottom
     .ar-dropdown.expanded
     .block-actions
+    > :last-child,
+.ar-rte
+    [type='block']
+    .admin-content-list
+    .pagination-bottom
+    .ar-dropdown.expanded
+    .block-type-actions
     > :last-child {
     border-top-right-radius: 0;
 }
@@ -34729,18 +34895,22 @@ body.fullscreen .admin-content-list {
     position: relative;
 }
 .ar-rte [type='block'] .wizard-input-group .block-actions,
+.ar-rte [type='block'] .wizard-input-group .block-type-actions,
 .wizard-input-group .ar-datepicker-calendar-footer,
 .wizard-input-group .ar-datepicker-calendar-header,
 .wizard-input-group .ar-rte [type='block'] .block-actions,
+.wizard-input-group .ar-rte [type='block'] .block-type-actions,
 .wizard-input-group .btn-group {
     position: absolute;
     right: 2px;
     top: 1px;
 }
 .ar-rte [type='block'] .wizard-input-group .block-actions button,
+.ar-rte [type='block'] .wizard-input-group .block-type-actions button,
 .wizard-input-group .ar-datepicker-calendar-footer button,
 .wizard-input-group .ar-datepicker-calendar-header button,
 .wizard-input-group .ar-rte [type='block'] .block-actions button,
+.wizard-input-group .ar-rte [type='block'] .block-type-actions button,
 .wizard-input-group .btn-group button {
     width: 42px;
     height: 39px;
