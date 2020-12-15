@@ -1,4 +1,6 @@
+import _ from 'underscore';
 import Panel from './Panel';
+import cn from 'classnames';
 import op from 'object-path';
 import { Editor } from 'slate';
 import { useEditor } from 'slate-react';
@@ -12,7 +14,37 @@ const Plugin = new RTEPlugin({ type: 'link', order: 100 });
 Plugin.callback = editor => {
     // register leaf format
     Reactium.RTE.Format.register(Plugin.type, {
-        element: ({ type, ...props }) => <a {...props} className='blue link' />,
+        element: elementProps => {
+            const { button, className, style = {}, ...props } = elementProps;
+
+            op.del(props, 'content');
+            op.del(props, 'type');
+
+            let cls = null;
+
+            if (button) {
+                cls = _.chain([
+                    'btn',
+                    op.get(button, 'color'),
+                    op.get(button, 'size'),
+                    op.get(button, 'outline'),
+                    op.get(button, 'appearance'),
+                ])
+                    .flatten()
+                    .compact()
+                    .value()
+                    .join('-');
+
+                op.set(style, 'width', op.get(button, 'width'));
+                op.set(style, 'height', op.get(button, 'height'));
+            } else {
+                className = className || 'link';
+            }
+
+            return (
+                <a {...props} style={style} className={cn(className, cls)} />
+            );
+        },
     });
 
     // register toolbar button
@@ -43,13 +75,10 @@ Plugin.callback = editor => {
             };
 
             const onButtonClick = e => {
-                const btn = e.currentTarget;
-                const rect = editor.toolbar.container.current.getBoundingClientRect();
+                if (e) e.preventDefault();
 
-                let { width, height, x, y } = rect;
-
-                x += width / 2 - 150;
-                y += height;
+                const x = window.innerWidth / 2 - 150;
+                const y = 50;
 
                 editor.panel
                     .setID('link')
