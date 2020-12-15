@@ -107,7 +107,7 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
         const diff = columns.length - children.length;
 
         if (diff > 0) {
-            const apath = _.flatten([path, 0]);
+            const at = _.flatten([path, columns.length - 1]);
             const cols = columns.slice(columns.length - diff);
 
             const nodes = cols.map((col, i) => ({
@@ -134,7 +134,8 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
                 type: 'block',
             }));
 
-            Transforms.insertNodes(editor, nodes, { at: apath });
+            Transforms.insertNodes(editor, nodes, { at });
+            Transforms.select(editor, at);
         }
 
         if (diff < 0) {
