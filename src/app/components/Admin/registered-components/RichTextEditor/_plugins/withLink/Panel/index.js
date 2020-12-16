@@ -2,14 +2,13 @@ import _ from 'underscore';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Editor, Range, Transforms } from 'slate';
-import React, { forwardRef, useState } from 'react';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import React, { forwardRef, useEffect, useState } from 'react';
 
 import Reactium, {
     __,
     useHookComponent,
-    useFocusEffect,
     useRefs,
     useStatus,
 } from 'reactium-core/sdk';
@@ -40,6 +39,8 @@ let Panel = (
 
     const editor = useSlate();
 
+    const [selection, setSelection] = useState();
+
     const activeNode = () => {
         const [results] = Editor.nodes(editor, {
             match: n => n.type === 'link',
@@ -49,7 +50,7 @@ let Panel = (
             : undefined;
     };
 
-    const [selection] = useState(props.selection);
+    const [node, setNode] = useState(activeNode());
 
     const [isButton, setButton] = useState(false);
 
@@ -176,108 +177,113 @@ let Panel = (
     const _onTypeToggle = e => setButton(e.target.checked);
 
     const hide = () => {
-        editor.panel.hide(false).setID('rte-panel');
+        editor.panel.hide(false, true).setID('rte-panel');
         Transforms.collapse(editor, { edge: 'end' });
         ReactEditor.focus(editor);
     };
 
-    useFocusEffect(editor.panel.container);
+    useEffect(() => {
+        if (unMounted()) return;
+        if (!editor.selection) return;
+
+        if (!_.isEqual(selection, editor.selection)) {
+            setSelection(editor.selection);
+        }
+
+        const newNode = activeNode();
+        if (newNode && isButton !== !!op.get(newNode, 'button')) {
+            setButton(!!op.get(newNode, 'button'));
+            setNode(newNode);
+        }
+    }, [selection, editor.selection]);
 
     // Renderers
-    const render = () => {
-        const node = activeNode();
-        const submitLabel = node ? updateButtonLabel : submitButtonLabel;
+    const submitLabel = node ? updateButtonLabel : submitButtonLabel;
 
-        return (
-            <div className={cx()} ref={ref}>
-                <Dialog
-                    dismissable
-                    header={{ title }}
-                    collapsible={false}
-                    onDismiss={_onDismiss}
-                    pref='admin.dialog.formatter'
-                    ref={elm => refs.set('container', elm)}>
-                    <Scrollbars
-                        autoHeight
-                        autoHeightMin={286}
-                        autoHeightMax='80vh'>
-                        <div className='p-xs-20'>
-                            <div className='form-group'>
-                                <input
-                                    data-focus
-                                    type='text'
-                                    ref={elm => refs.set('url', elm)}
-                                    defaultValue={op.get(node, 'href', '')}
-                                    placeholder={__('http://site.com/page')}
-                                />
-                                <Icon name='Feather.Link' />
-                            </div>
-                            <div className='form-group'>
-                                <input
-                                    type='text'
-                                    placeholder={__('class')}
-                                    ref={elm => refs.set('className', elm)}
-                                    defaultValue={op.get(node, 'className', '')}
-                                />
-                                <Icon name='Feather.Droplet' />
-                            </div>
-                            <div className='form-group'>
-                                <input
-                                    type='text'
-                                    placeholder={__('target')}
-                                    ref={elm => refs.set('target', elm)}
-                                    defaultValue={op.get(node, 'target', '')}
-                                />
-                                <Icon name='Feather.Target' />
-                            </div>
-                            <hr style={{ marginLeft: -20, marginRight: -20 }} />
-                            <div className='form-group'>
-                                <Toggle
-                                    label={__('Button')}
-                                    onChange={_onTypeToggle}
-                                    checked={op.has(node, 'button') || isButton}
-                                />
-                            </div>
-                            <ButtonOptions
-                                refs={refs}
-                                node={node}
-                                isButton={isButton}
+    return (
+        <div className={cx()} ref={ref}>
+            <Dialog
+                dismissable
+                header={{ title }}
+                collapsible={false}
+                onDismiss={_onDismiss}
+                pref='admin.dialog.formatter'
+                ref={elm => refs.set('container', elm)}>
+                <Scrollbars autoHeight autoHeightMin={286} autoHeightMax='80vh'>
+                    <div className='p-xs-20'>
+                        <div className='form-group'>
+                            <input
+                                data-focus
+                                type='text'
+                                ref={elm => refs.set('url', elm)}
+                                defaultValue={op.get(node, 'href', '')}
+                                placeholder={__('http://site.com/page')}
+                            />
+                            <Icon name='Feather.Link' />
+                        </div>
+                        <div className='form-group'>
+                            <input
+                                type='text'
+                                placeholder={__('class')}
+                                ref={elm => refs.set('className', elm)}
+                                defaultValue={op.get(node, 'className', '')}
+                            />
+                            <Icon name='Feather.Droplet' />
+                        </div>
+                        <div className='form-group'>
+                            <input
+                                type='text'
+                                placeholder={__('target')}
+                                ref={elm => refs.set('target', elm)}
+                                defaultValue={op.get(node, 'target', '')}
+                            />
+                            <Icon name='Feather.Target' />
+                        </div>
+                        <hr style={{ marginLeft: -20, marginRight: -20 }} />
+                        <div className='form-group'>
+                            <Toggle
+                                checked={isButton}
+                                label={__('Button')}
+                                onChange={_onTypeToggle}
                             />
                         </div>
-                    </Scrollbars>
-                    <hr />
-                    <div className='p-xs-8'>
-                        {node && (
-                            <Button
-                                block
-                                outline
-                                size='sm'
-                                data-focus
-                                type='button'
-                                color='danger'
-                                className='my-xs-8'
-                                onClick={_onClearLink}
-                                children={removeButtonLabel}
-                                disabled={isStatus(STATUS.FETCHING)}
-                            />
-                        )}
-                        <Button
-                            block
-                            size='sm'
-                            type='button'
-                            color='primary'
-                            onClick={_onSubmit}
-                            children={submitLabel}
-                            disabled={isStatus(STATUS.FETCHING)}
+                        <ButtonOptions
+                            refs={refs}
+                            node={node}
+                            isButton={isButton}
                         />
                     </div>
-                    {isStatus(STATUS.FETCHING) && <Spinner />}
-                </Dialog>
-            </div>
-        );
-    };
-
-    return render();
+                </Scrollbars>
+                <hr />
+                <div className='p-xs-8'>
+                    {node && (
+                        <Button
+                            block
+                            outline
+                            size='sm'
+                            data-focus
+                            type='button'
+                            color='danger'
+                            className='my-xs-8'
+                            onClick={_onClearLink}
+                            children={removeButtonLabel}
+                            disabled={isStatus(STATUS.FETCHING)}
+                        />
+                    )}
+                    <Button
+                        block
+                        size='sm'
+                        type='button'
+                        color='primary'
+                        onClick={_onSubmit}
+                        children={submitLabel}
+                        disabled={isStatus(STATUS.FETCHING)}
+                    />
+                </div>
+                {isStatus(STATUS.FETCHING) && <Spinner />}
+            </Dialog>
+        </div>
+    );
 };
 
 const ButtonOptions = ({ isButton, node, refs }) => {
