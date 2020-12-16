@@ -1,12 +1,9 @@
-import _ from 'underscore';
-import cn from 'classnames';
-import op from 'object-path';
+import ReactPlayer from 'react-player';
 import Reactium, { __ } from 'reactium-core/sdk';
-import ENUMS from 'components/Admin/Media/enums';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { useCallback, useEffect, useState } from 'react';
 
-const Video = ({ editor, ...props }) => {
+const Video = ({ editor }) => {
     const { cx, state = {} } = editor;
     const { value = {} } = state;
 
@@ -19,7 +16,6 @@ const Video = ({ editor, ...props }) => {
     };
 
     const _onFileAdded = e => {
-        const { height: maxHeight, width: maxWidth } = e.file;
         setUpload(true);
         setUrl(e.file.dataURL);
     };
@@ -49,18 +45,16 @@ const Video = ({ editor, ...props }) => {
             },
         };
 
-        const poster = op.get(value, 'thumbnail')
-            ? Reactium.Media.url(value.thumbnail)
-            : null;
-
         return (
             <>
                 <div className={cx('filename')}>{value.filename}</div>
                 <div className={cx('video')}>
-                    <video width='100%' height='auto' controls>
-                        <source src={url} type={`video/${value.ext}`} />
-                        {ENUMS.TEXT.VIDEO_UNSUPPORTED}
-                    </video>
+                    <ReactPlayer
+                        controls
+                        url={url}
+                        width='100%'
+                        height='100%'
+                    />
                     <div className='flex middle'>
                         <Button {...selectProps}>{__('Select Video')}</Button>
                         {upload && (
@@ -80,7 +74,7 @@ const Video = ({ editor, ...props }) => {
         return () => {
             editor.removeEventListener('FILE-ADDED', _onFileAdded);
         };
-    });
+    }, []);
 
     return render();
 };

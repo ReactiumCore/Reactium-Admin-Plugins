@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
+import ReactPlayer from 'react-player';
 import { Link } from 'react-router-dom';
 import ENUMS from 'components/Admin/Media/enums';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -205,7 +206,7 @@ const ImageCard = props => {
 };
 
 const VideoCard = props => {
-    const { className, edgeURL, ext, poster, refs } = props;
+    const { className, edgeURL, poster, refs } = props;
 
     return (
         <div
@@ -213,10 +214,13 @@ const VideoCard = props => {
             onMouseLeave={() => refs.actions.current.collapse()}>
             <div>
                 <div className='media-preview'>
-                    <video poster={poster} width='100%' height='100%' controls>
-                        <source src={edgeURL} type={`video/${ext}`} />
-                        {ENUMS.TEXT.VIDEO_UNSUPPORTED}
-                    </video>
+                    <ReactPlayer
+                        controls
+                        width='100%'
+                        height='100%'
+                        url={edgeURL}
+                        poster={poster}
+                    />
                     <CardActions {...props} />
                 </div>
                 <CardInfo {...props} />

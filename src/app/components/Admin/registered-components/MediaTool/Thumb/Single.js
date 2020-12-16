@@ -2,8 +2,9 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Toolbar from './Toolbar';
-import ENUMS from 'components/Admin/Media/enums';
+import ReactPlayer from 'react-player';
 import useLocalState from '../useLocalState';
+import ENUMS from 'components/Admin/Media/enums';
 
 import Reactium, {
     __,
@@ -124,13 +125,12 @@ const Single = forwardRef(({ file, handle, media }, ref) => {
             )}
             {isType('video') && (
                 <div className={state.cls}>
-                    <video width='100%' height='100%' controls>
-                        <source
-                            src={url()}
-                            type={`video/${getState('item.ext')}`}
-                        />
-                        {ENUMS.TEXT.VIDEO_UNSUPPORTED}
-                    </video>
+                    <ReactPlayer
+                        controls
+                        url={url()}
+                        width='100%'
+                        height='100%'
+                    />
                 </div>
             )}
             {isType('audio') && (

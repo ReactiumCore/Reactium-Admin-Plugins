@@ -1,12 +1,11 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import ENUMS from '../enums';
+import ReactPlayer from 'react-player';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
     const {
-        ext,
         filename,
         meta = {},
         objectId,
@@ -35,7 +34,7 @@ export default props => {
 
     const styles = {
         ...style,
-        backgroundImage: `url('${thm}')`,
+        backgroundImage: thm ? `url('${thm}')` : undefined,
     };
 
     const onClick = selected ? onItemUnselect : onItemSelect;
@@ -45,10 +44,15 @@ export default props => {
     return (
         <div className={cname} onClick={() => onClick(objectId)} style={styles}>
             {!thm && (
-                <video width='100%' height='100%' poster={thm}>
-                    <source src={videoURL} type={`video/${ext}`} />
-                    {ENUMS.TEXT.VIDEO_UNSUPPORTED}
-                </video>
+                <div className='video-wrapper'>
+                    <ReactPlayer
+                        controls={false}
+                        poster={thm}
+                        width='100%'
+                        height='100%'
+                        url={videoURL}
+                    />
+                </div>
             )}
             {title && <div className='title'>{title}</div>}
             <Button

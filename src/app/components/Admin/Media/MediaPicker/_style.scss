@@ -28,11 +28,7 @@ $ar-media-picker-selection-width: 260px !default;
             background-size: cover;
             position: relative;
             padding: 10px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            align-items: center;
-            justify-content: flex-end;
+            display: block;
             opacity: 0.9;
             transition: opacity 0.5s ease-in-out;
             cursor: pointer;
@@ -67,12 +63,26 @@ $ar-media-picker-selection-width: 260px !default;
                 max-width: calc(10% - 20px);
             }
 
+            .video-wrapper {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 0;
+                user-select: none;
+                position: absolute;
+                pointer-events: none;
+            }
+
             video {
                 object-fit: cover;
                 pointer-events: none;
                 position: absolute;
                 top: 0;
                 left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 0;
             }
 
             .check {
@@ -97,6 +107,15 @@ $ar-media-picker-selection-width: 260px !default;
                 z-index: 200;
                 font-size: 12px;
                 opacity: 0;
+            }
+
+            .title {
+                left: 50%;
+                bottom: 10px;
+                z-index: 200;
+                position: absolute;
+                width: calc(100% - 20px);
+                transform: translateX(-50%);
             }
 
             .label {

@@ -11,7 +11,6 @@ const Library = ({ handle, ...props }) => {
         isActive,
         back,
         refs,
-        type,
         onCloseSelect,
         pickerOptions: po = {},
     } = handle;

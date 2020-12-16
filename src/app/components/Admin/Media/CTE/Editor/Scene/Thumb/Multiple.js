@@ -1,16 +1,13 @@
+import React from 'react';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Toolbar from './Toolbar';
-import React, { useRef, useEffect } from 'react';
+import ReactPlayer from 'react-player';
+import SlideContent from './carousel/SlideContent';
 import { TypeIcon } from '../../../../MediaPicker';
 import { Scrollbars } from 'react-custom-scrollbars';
-import SlideContent from './carousel/SlideContent';
-import Reactium, {
-    useHandle,
-    useHookComponent,
-    useStatus,
-} from 'reactium-core/sdk';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const Multiple = ({ selection, handle, media }) => {
     const { cx, nav, remove, removeAll } = handle;
@@ -20,9 +17,9 @@ const Multiple = ({ selection, handle, media }) => {
     const columns = () => {
         const output = {
             thumb: {
-                width: '80px',
+                width: '200px',
             },
-            url: {
+            link: {
                 verticalAlign: 'middle',
             },
             delete: {
@@ -47,7 +44,14 @@ const Multiple = ({ selection, handle, media }) => {
                     ? url(item, 'thumbnail')
                     : null;
 
-                op.set(item, 'url', url(item, 'relative'));
+                const relURL = url(item, 'relative');
+                op.set(item, 'url', relURL);
+
+                op.set(
+                    item,
+                    'link',
+                    <a href={relURL} target='_blank' children={relURL} />,
+                );
 
                 op.set(
                     item,
@@ -90,8 +94,6 @@ const Multiple = ({ selection, handle, media }) => {
     );
 };
 
-export { Multiple, Multiple as default };
-
 const ContentButton = ({ handle, file, ...props }) => {
     const tools = useHandle('AdminTools');
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -124,83 +126,18 @@ const DeleteButton = props => {
     );
 };
 
-const Video = props => {
-    const { ext, url } = props;
-
-    const videoRef = useRef();
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    const [, setStatus, isStatus] = useStatus();
-
-    const play = () => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        if (video.paused) {
-            if (video.requestFullscreen) {
-                video.requestFullscreen();
-            } else if (video.mozRequestFullScreen) {
-                video.mozRequestFullScreen();
-            } else if (video.webkitRequestFullscreen) {
-                video.webkitRequestFullscreen();
-            } else if (video.msRequestFullscreen) {
-                video.msRequestFullscreen();
-            }
-
-            video.play();
-        } else {
-            video.pause();
-        }
-    };
-
-    const updateStatus = e => {
-        const { type } = e;
-        setStatus(type, true);
-    };
-
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        video.addEventListener('play', updateStatus);
-        video.addEventListener('pause', updateStatus);
-
-        return () => {
-            video.removeEventListener('play', updateStatus);
-            video.removeEventListener('pause', updateStatus);
-        };
-    }, [videoRef.current]);
-
-    const ico = isStatus('play') ? 'Feather.Pause' : 'Feather.Play';
-
-    return (
+const Thumbnail = ({ thumbnail, type, url }) =>
+    type === 'VIDEO' ? (
         <div className='thumb'>
-            <video width='48' height='36' loop ref={videoRef}>
-                <source src={url} type={`video/${ext}`} />
-            </video>
-            <Button
-                color={Button.ENUMS.COLOR.CLEAR}
-                className='video-btn'
-                onClick={play}>
-                <Icon name={ico} />
-            </Button>
+            <ReactPlayer controls url={url} width={200} height={100} />
         </div>
-    );
-};
-
-const Thumbnail = props => {
-    const { thumbnail, type } = props;
-
-    return type !== 'VIDEO' ? (
+    ) : (
         <div
             className='thumb'
             style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : null }}>
             {!thumbnail && <TypeIcon type={type} />}
         </div>
-    ) : (
-        <Video {...props} />
     );
-};
 
 const url = (item, which) => {
     switch (which) {
@@ -214,3 +151,5 @@ const url = (item, which) => {
             return op.get(item, 'redirect.url', op.get(item, 'url'));
     }
 };
+
+export { Multiple, Multiple as default };

@@ -2,6 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import Toolbar from './Toolbar';
+import ReactPlayer from 'react-player';
 import { TypeIcon } from 'components/Admin/Media/MediaPicker';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
@@ -18,7 +19,7 @@ const Multiple = forwardRef(({ selection, handle, media }, ref) => {
             thumb: {
                 width: '80px',
             },
-            url: {
+            link: {
                 verticalAlign: 'middle',
             },
             delete: {
@@ -43,7 +44,14 @@ const Multiple = forwardRef(({ selection, handle, media }, ref) => {
                     ? url(item, 'thumbnail')
                     : null;
 
-                op.set(item, 'url', url(item, 'relative'));
+                const relURL = url(item, 'relative');
+                op.set(item, 'url', relURL);
+
+                op.set(
+                    item,
+                    'link',
+                    <a href={relURL} target='_blank' children={relURL} />,
+                );
 
                 op.set(
                     item,
@@ -83,8 +91,6 @@ const Multiple = forwardRef(({ selection, handle, media }, ref) => {
     );
 });
 
-export { Multiple, Multiple as default };
-
 const DeleteButton = props => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
@@ -97,13 +103,18 @@ const DeleteButton = props => {
     );
 };
 
-const Thumbnail = ({ thumbnail, type }) => (
-    <div
-        className='thumb'
-        style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : null }}>
-        {!thumbnail && <TypeIcon type={type} />}
-    </div>
-);
+const Thumbnail = ({ thumbnail, type, url }) =>
+    type === 'VIDEO' ? (
+        <div className='thumb'>
+            <ReactPlayer controls url={url} width={200} height={100} />
+        </div>
+    ) : (
+        <div
+            className='thumb'
+            style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : null }}>
+            {!thumbnail && <TypeIcon type={type} />}
+        </div>
+    );
 
 const url = (item, which) => {
     switch (which) {
@@ -117,3 +128,5 @@ const url = (item, which) => {
             return op.get(item, 'redirect.url', op.get(item, 'url'));
     }
 };
+
+export { Multiple, Multiple as default };
