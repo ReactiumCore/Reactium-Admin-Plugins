@@ -44,7 +44,7 @@ const Panel = ({
 
     const [value, updateValue] = useDerivedState(cloneObj(node));
 
-    const getValue = (key, def = '') => op.get(value, key, def);
+    const getValue = (key, def = '') => op.get(value, key, def) || def;
 
     const setValue = (key, newValue = null) => {
         if (unMounted()) return;
@@ -54,6 +54,10 @@ const Panel = ({
         } else {
             if (_.isNumber(newValue)) {
                 newValue = Number(newValue);
+            }
+
+            if (_.isString(newValue) && String(newValue).length < 1) {
+                newValue = null;
             }
 
             updateValue({ [key]: newValue });
@@ -69,17 +73,17 @@ const Panel = ({
         ReactEditor.focus(editor);
     };
 
-    const showPicker = () => {
+    const showPicker = (TYPE, TITLE) => () => {
         setVisible(false, true);
         const { Modal } = Reactium.Handle.get('AdminTools').current;
         Modal.show(
             <MediaPicker
                 dismissable
-                filters='VIDEO'
+                title={TITLE}
+                filters={TYPE}
                 confirm={false}
-                title={__('Select Video')}
-                onSubmit={_onMediaSelect}
                 onDismiss={() => Modal.hide()}
+                onSubmit={_onMediaSelect(TYPE)}
             />,
         );
     };
@@ -107,15 +111,23 @@ const Panel = ({
 
     const _onDismiss = () => hide();
 
-    const _onInput = key => e => setValue(key, e.target.value);
+    const _onInput = KEY => e => setValue(KEY, e.target.value);
 
-    const _onMediaSelect = e => {
+    const _onMediaSelect = TYPE => e => {
         if (!Array.isArray(e.selection) || e.selection.length < 1) return;
         const item = e.selection.pop();
 
         const { Modal } = Reactium.Handle.get('AdminTools').current;
-        const { objectId, url: src, ext } = item;
-        setValue({ objectId, src, ext });
+
+        if (TYPE === 'VIDEO') {
+            const { objectId, url: src, ext } = item;
+            setValue({ objectId, src, ext });
+        }
+
+        if (TYPE === 'IMAGE') {
+            const { url: thumbnail } = item;
+            setValue({ thumbnail, autoplay: !!thumbnail });
+        }
         submit();
         Modal.hide();
     };
@@ -125,11 +137,7 @@ const Panel = ({
         submit();
     };
 
-    const _onToggle = key => e => setValue(key, e.target.checked);
-
-    useEffect(() => {
-        console.log(value);
-    }, [Object.values(value)]);
+    const _onToggle = KEY => e => setValue(KEY, e.target.checked);
 
     // Renderer
     return (
@@ -150,16 +158,43 @@ const Panel = ({
                                 <div className='input-group-full'>
                                     <input
                                         type='text'
-                                        value={getValue('src')}
                                         onChange={_onInput('src')}
+                                        value={getValue('src', '')}
                                         ref={elm => refs.set('src', elm)}
                                     />
                                     <Button
-                                        onClick={showPicker}
                                         title={__('Select Video')}
                                         className={cx('btn-inline')}
-                                        color={Button.ENUMS.COLOR.TERTIARY}>
+                                        color={Button.ENUMS.COLOR.TERTIARY}
+                                        onClick={showPicker(
+                                            'VIDEO',
+                                            __('Select Video'),
+                                        )}>
                                         <Icon name='Feather.Film' />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Container>
+                    <Container title={__('Thumbnail')} id='classname'>
+                        <div className='p-xs-16'>
+                            <div className='form-group'>
+                                <div className='input-group-full'>
+                                    <input
+                                        type='text'
+                                        onChange={_onInput('thumbnail')}
+                                        value={getValue('thumbnail', '')}
+                                        ref={elm => refs.set('thumbnail', elm)}
+                                    />
+                                    <Button
+                                        className={cx('btn-inline')}
+                                        title={__('Select Thumbnail')}
+                                        color={Button.ENUMS.COLOR.TERTIARY}
+                                        onClick={showPicker(
+                                            'IMAGE',
+                                            __('Select Thumbnail'),
+                                        )}>
+                                        <Icon name='Feather.Camera' />
                                     </Button>
                                 </div>
                             </div>
@@ -245,15 +280,15 @@ const Panel = ({
 };
 
 Panel.propTypes = {
+    title: PropTypes.string,
     namespace: PropTypes.string,
     updateButtonLabel: PropTypes.node,
-    title: PropTypes.string,
 };
 
 Panel.defaultProps = {
+    title: __('Video Inspector'),
     namespace: 'rte-video-settings',
     updateButtonLabel: __('Apply Settings'),
-    title: __('Video Inspector'),
 };
 
 const Container = ({ children, id, title }) => {
@@ -270,7 +305,7 @@ const Container = ({ children, id, title }) => {
     );
 };
 
-const Settings = props => {
+export default props => {
     const { id } = props;
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -316,5 +351,3 @@ const Settings = props => {
         </Button>
     );
 };
-
-export { Settings as default, Panel };

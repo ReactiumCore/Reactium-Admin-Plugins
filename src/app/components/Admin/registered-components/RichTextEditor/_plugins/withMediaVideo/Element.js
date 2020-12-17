@@ -12,7 +12,6 @@ const STATUS = {
 };
 
 export default props => {
-    console.log(props);
     const [status, setStatus, isStatus] = useStatus(STATUS.LOADING);
 
     useEffect(() => {
@@ -46,7 +45,7 @@ export default props => {
         }
     }, [status]);
 
-    return (
+    return !op.get(props, 'src') || !ReactPlayer.canPlay(props.src) ? null : (
         <div contentEditable={false} className='ar-rte-video'>
             {isStatus(STATUS.READY) ? (
                 <ReactPlayer
@@ -56,6 +55,7 @@ export default props => {
                     playing={op.get(props, 'autoplay')}
                     width={op.get(props, 'width', '640px')}
                     height={op.get(props, 'height', '360px')}
+                    light={op.get(props, 'thumbnail', false)}
                     controls={op.get(props, 'controls', false)}
                     onReady={() => setStatus(STATUS.READY, true)}
                     volume={Number(op.get(props, 'volume', 0)) / 100}
