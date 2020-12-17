@@ -29415,8 +29415,8 @@ input[type='object'] {
 .rte-settings .ar-dialog.sub .ar-dialog-header {
     height: 24px;
     min-height: 32px;
+    border-top: 1px solid #f7f7f7;
     border-bottom: 1px solid #f7f7f7;
-    background-color: #fefefe;
 }
 .rte-settings .ar-dialog.sub .ar-dialog-header h2 {
     padding: 8px 16px !important;
@@ -30335,7 +30335,7 @@ main.password
     font-family: Helvetica, Arial, sans;
     line-height: 1;
     letter-spacing: 0.5px;
-    padding: 14px 20px 8px 20px;
+    padding: 14px 20px 8px 16px;
 }
 .ar-rte-panel .ar-dialog-header h2 {
     padding-top: 12px;
@@ -30801,15 +30801,13 @@ button.formatter-text-style > div > blockquote {
 .rte-form-select-options .options:empty {
     display: none;
 }
-.ar-rte-image,
-.ar-rte-video {
+.ar-rte-image {
     margin: 0;
     width: 100%;
     overflow: hidden;
     position: relative;
 }
-.ar-rte-image .children,
-.ar-rte-video .children {
+.ar-rte-image .children {
     position: absolute;
     top: 0;
     left: 0;
@@ -30822,11 +30820,6 @@ button.formatter-text-style > div > blockquote {
 .ar-rte-image img:hover {
     cursor: pointer;
 }
-.ar-rte-video video {
-    padding: 4px;
-    max-width: 100%;
-    outline: 0;
-}
 #rte-image-settings {
     width: 80vw;
 }
@@ -30835,6 +30828,87 @@ button.formatter-text-style > div > blockquote {
         max-width: 400px;
         min-width: 300px;
     }
+}
+.rte-video-settings {
+    position: relative;
+}
+.rte-video-settings-btn-inline {
+    padding: 0;
+    width: 34px;
+    height: 34px;
+}
+.rte-video-settings-btn-inline svg {
+    width: 16px;
+    height: 16px;
+}
+.rte-video-settings .ar-color-select-input .input-group input,
+.rte-video-settings .ar-color-select-input .input-group-full input,
+.rte-video-settings .ar-color-select-input .wizard-input-group input,
+.rte-video-settings .ar-media-picker-search-input .input-group input,
+.rte-video-settings .ar-media-picker-search-input .input-group-full input,
+.rte-video-settings .ar-media-picker-search-input .wizard-input-group input,
+.rte-video-settings .editor-taxonomy-checklist-search .input-group input,
+.rte-video-settings .editor-taxonomy-checklist-search .input-group-full input,
+.rte-video-settings .editor-taxonomy-checklist-search .wizard-input-group input,
+.rte-video-settings .editor-urls .input-group input,
+.rte-video-settings .editor-urls .input-group-full input,
+.rte-video-settings .editor-urls .wizard-input-group input,
+.rte-video-settings .form-group .input-group input,
+.rte-video-settings .form-group .input-group-full input,
+.rte-video-settings .form-group .wizard-input-group input,
+.rte-video-settings .wizard-input-group .input-group input,
+.rte-video-settings .wizard-input-group .input-group-full input,
+.rte-video-settings .wizard-input-group .wizard-input-group input {
+    margin-top: 0;
+}
+.rte-video-settings .ar-color-select-input .input-group-full,
+.rte-video-settings .ar-media-picker-search-input .input-group-full,
+.rte-video-settings .editor-taxonomy-checklist-search .input-group-full,
+.rte-video-settings .editor-urls .input-group-full,
+.rte-video-settings .form-group .input-group-full,
+.rte-video-settings .wizard-input-group .input-group-full {
+    position: relative;
+}
+.rte-video-settings .ar-color-select-input .input-group-full input,
+.rte-video-settings .ar-media-picker-search-input .input-group-full input,
+.rte-video-settings .editor-taxonomy-checklist-search .input-group-full input,
+.rte-video-settings .editor-urls .input-group-full input,
+.rte-video-settings .form-group .input-group-full input,
+.rte-video-settings .wizard-input-group .input-group-full input {
+    z-index: 1;
+    width: 100% !important;
+    padding-right: 44px;
+}
+.rte-video-settings .ar-color-select-input .input-group-full button:last-child,
+.rte-video-settings
+    .ar-media-picker-search-input
+    .input-group-full
+    button:last-child,
+.rte-video-settings
+    .editor-taxonomy-checklist-search
+    .input-group-full
+    button:last-child,
+.rte-video-settings .editor-urls .input-group-full button:last-child,
+.rte-video-settings .form-group .input-group-full button:last-child,
+.rte-video-settings .wizard-input-group .input-group-full button:last-child {
+    z-index: 10;
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    height: 32px;
+    border-radius: 0 1px 1px 0;
+}
+.ar-rte-video {
+    margin: 0;
+    width: 100%;
+    display: flex;
+    position: relative;
+    justify-content: center;
+}
+.ar-rte-video video {
+    padding: 4px;
+    max-width: 100%;
+    outline: 0;
 }
 .rte-tabs-element {
     position: relative;
