@@ -19,8 +19,11 @@ Plugin.callback = editor => {
     });
 
     // Editor overrides
-    const { isInline } = editor;
+    const { isInline, isVoid } = editor;
+
     editor.isInline = n => (n.type === Plugin.type ? false : isInline(n));
+
+    editor.isVoid = n => (n.type === Plugin.type ? true : isVoid(n));
 
     return editor;
 };

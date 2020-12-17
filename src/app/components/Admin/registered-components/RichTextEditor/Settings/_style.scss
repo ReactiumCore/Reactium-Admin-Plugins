@@ -39,8 +39,8 @@
         .ar-dialog-header {
             height: 24px;
             min-height: 32px;
+            border-top: 1px solid #f7f7f7;
             border-bottom: 1px solid #f7f7f7;
-            background-color: darken($color-light, 0.5%);
 
             h2 {
                 padding: 8px 16px !important;

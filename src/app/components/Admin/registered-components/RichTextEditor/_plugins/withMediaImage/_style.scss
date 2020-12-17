@@ -1,6 +1,5 @@
 .ar-rte {
-    &-image,
-    &-video {
+    &-image {
         margin: 0;
         width: 100%;
         overflow: hidden;
@@ -22,14 +21,6 @@
             &:hover {
                 cursor: pointer;
             }
-        }
-    }
-
-    &-video {
-        video {
-            padding: 4px;
-            max-width: 100%;
-            outline: none;
         }
     }
 }

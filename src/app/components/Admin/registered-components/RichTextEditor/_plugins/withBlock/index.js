@@ -88,16 +88,31 @@ Plugin.callback = editor => {
         element.type === Plugin.type ? false : isInline(element);
 
     editor.normalizeNode = entry => {
-        const path = [editor.children.length - 1];
         const next = [editor.children.length];
-        const last = _.object(['node', 'path'], Editor.node(editor, path));
+        const blankNode = { type: 'p', children: [{ text: '' }] };
+
+        // Fix for if last node isn't a p
+        let last = _.object(['node', 'path'], Editor.last(editor, []));
+
+        last =
+            last.path.length > 1
+                ? _.object(['node', 'path'], Editor.parent(editor, last.path))
+                : last;
 
         if (op.get(last.node, 'type') !== 'p') {
-            Transforms.insertNodes(
-                editor,
-                { type: 'p', children: [{ text: '' }] },
-                { at: next },
-            );
+            Transforms.insertNodes(editor, blankNode, { at: next });
+        }
+
+        // Fix for if first node isn't a p
+        let first = _.object(['node', 'path'], Editor.first(editor, []));
+
+        first =
+            first.path.length > 1
+                ? _.object(['node', 'path'], Editor.parent(editor, first.path))
+                : first;
+
+        if (op.get(first.node, 'type') !== 'p') {
+            Transforms.insertNodes(editor, blankNode, { at: [0] });
         }
 
         normalizeNode(entry);
