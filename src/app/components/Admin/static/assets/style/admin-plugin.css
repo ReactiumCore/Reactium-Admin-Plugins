@@ -16730,6 +16730,9 @@ strong {
 .ar-color-select-input .ar-media-picker-remaining-label:last-child,
 .ar-color-select-input .small:last-child,
 .ar-color-select-input small:last-child,
+.ar-media-picker-import-input .ar-media-picker-remaining-label:last-child,
+.ar-media-picker-import-input .small:last-child,
+.ar-media-picker-import-input small:last-child,
 .ar-media-picker-search-input .ar-media-picker-remaining-label:last-child,
 .ar-media-picker-search-input .small:last-child,
 .ar-media-picker-search-input small:last-child,
@@ -17056,6 +17059,7 @@ main.password h1 {
     }
 }
 .ar-color-select-input,
+.ar-media-picker-import-input,
 .ar-media-picker-search-input,
 .editor-taxonomy-checklist-search,
 .editor-urls,
@@ -17067,6 +17071,7 @@ main.password h1 {
     margin: 1.25rem 0;
 }
 .ar-color-select-input:first-of-type,
+.ar-media-picker-import-input:first-of-type,
 .ar-media-picker-search-input:first-of-type,
 .editor-taxonomy-checklist-search:first-of-type,
 .editor-urls:first-of-type,
@@ -17075,6 +17080,7 @@ main.password h1 {
     margin-top: 0;
 }
 .ar-color-select-input:last-of-type,
+.ar-media-picker-import-input:last-of-type,
 .ar-media-picker-search-input:last-of-type,
 .editor-taxonomy-checklist-search:last-of-type,
 .editor-urls:last-of-type,
@@ -17083,6 +17089,7 @@ main.password h1 {
     margin-bottom: 0;
 }
 .ar-color-select-input label,
+.ar-media-picker-import-input label,
 .ar-media-picker-search-input label,
 .editor-taxonomy-checklist-search label,
 .editor-urls label,
@@ -17098,6 +17105,7 @@ main.password h1 {
     font-weight: 500;
 }
 .ar-color-select-input label *,
+.ar-media-picker-import-input label *,
 .ar-media-picker-search-input label *,
 .editor-taxonomy-checklist-search label *,
 .editor-urls label *,
@@ -17111,6 +17119,12 @@ main.password h1 {
 .ar-color-select-input label textarea,
 .ar-color-select-input select,
 .ar-color-select-input textarea,
+.ar-media-picker-import-input input,
+.ar-media-picker-import-input label input,
+.ar-media-picker-import-input label select,
+.ar-media-picker-import-input label textarea,
+.ar-media-picker-import-input select,
+.ar-media-picker-import-input textarea,
 .ar-media-picker-search-input input,
 .ar-media-picker-search-input label input,
 .ar-media-picker-search-input label select,
@@ -17164,6 +17178,18 @@ main.password h1 {
 .ar-color-select-input select:focus,
 .ar-color-select-input textarea.focus,
 .ar-color-select-input textarea:focus,
+.ar-media-picker-import-input input.focus,
+.ar-media-picker-import-input input:focus,
+.ar-media-picker-import-input label input.focus,
+.ar-media-picker-import-input label input:focus,
+.ar-media-picker-import-input label select.focus,
+.ar-media-picker-import-input label select:focus,
+.ar-media-picker-import-input label textarea.focus,
+.ar-media-picker-import-input label textarea:focus,
+.ar-media-picker-import-input select.focus,
+.ar-media-picker-import-input select:focus,
+.ar-media-picker-import-input textarea.focus,
+.ar-media-picker-import-input textarea:focus,
 .ar-media-picker-search-input input.focus,
 .ar-media-picker-search-input input:focus,
 .ar-media-picker-search-input label input.focus,
@@ -17234,6 +17260,12 @@ main.password h1 {
 .ar-color-select-input label textarea:disabled,
 .ar-color-select-input select:disabled,
 .ar-color-select-input textarea:disabled,
+.ar-media-picker-import-input input:disabled,
+.ar-media-picker-import-input label input:disabled,
+.ar-media-picker-import-input label select:disabled,
+.ar-media-picker-import-input label textarea:disabled,
+.ar-media-picker-import-input select:disabled,
+.ar-media-picker-import-input textarea:disabled,
 .ar-media-picker-search-input input:disabled,
 .ar-media-picker-search-input label input:disabled,
 .ar-media-picker-search-input label select:disabled,
@@ -17272,6 +17304,12 @@ main.password h1 {
 .ar-color-select-input label textarea:first-child:last-child,
 .ar-color-select-input select:first-child:last-child,
 .ar-color-select-input textarea:first-child:last-child,
+.ar-media-picker-import-input input:first-child:last-child,
+.ar-media-picker-import-input label input:first-child:last-child,
+.ar-media-picker-import-input label select:first-child:last-child,
+.ar-media-picker-import-input label textarea:first-child:last-child,
+.ar-media-picker-import-input select:first-child:last-child,
+.ar-media-picker-import-input textarea:first-child:last-child,
 .ar-media-picker-search-input input:first-child:last-child,
 .ar-media-picker-search-input label input:first-child:last-child,
 .ar-media-picker-search-input label select:first-child:last-child,
@@ -17307,6 +17345,8 @@ main.password h1 {
 }
 .ar-color-select-input label textarea,
 .ar-color-select-input textarea,
+.ar-media-picker-import-input label textarea,
+.ar-media-picker-import-input textarea,
 .ar-media-picker-search-input label textarea,
 .ar-media-picker-search-input textarea,
 .editor-taxonomy-checklist-search label textarea,
@@ -17320,12 +17360,14 @@ main.password h1 {
     line-height: 1.25;
 }
 .ar-color-select-input .inline,
+.ar-media-picker-import-input .inline,
 .ar-media-picker-search-input .inline,
 .editor-taxonomy-checklist-search .inline,
 .editor-urls .inline,
 .form-group .inline,
 .form-group.inline,
 .inline.ar-color-select-input,
+.inline.ar-media-picker-import-input,
 .inline.ar-media-picker-search-input,
 .inline.editor-taxonomy-checklist-search,
 .inline.editor-urls,
@@ -17339,6 +17381,9 @@ main.password h1 {
 .ar-color-select-input .ar-media-picker-remaining-label:last-child,
 .ar-color-select-input .small:last-child,
 .ar-color-select-input small:last-child,
+.ar-media-picker-import-input .ar-media-picker-remaining-label:last-child,
+.ar-media-picker-import-input .small:last-child,
+.ar-media-picker-import-input small:last-child,
 .ar-media-picker-search-input .ar-media-picker-remaining-label:last-child,
 .ar-media-picker-search-input .small:last-child,
 .ar-media-picker-search-input small:last-child,
@@ -17358,6 +17403,7 @@ main.password h1 {
     font-weight: 400;
 }
 .admin-content-list-item-quick-editor > div.ar-color-select-input label,
+.admin-content-list-item-quick-editor > div.ar-media-picker-import-input label,
 .admin-content-list-item-quick-editor > div.ar-media-picker-search-input label,
 .admin-content-list-item-quick-editor
     > div.editor-taxonomy-checklist-search
@@ -17365,6 +17411,7 @@ main.password h1 {
 .admin-content-list-item-quick-editor > div.editor-urls label,
 .admin-content-list-item-quick-editor > div.form-group label,
 .admin-content-list-item-quick-editor > div.wizard-input-group label,
+.admin-dashboard.ar-media-picker-import-input label,
 .admin-dashboard.ar-media-picker-search-input label,
 .admin-dashboard.editor-taxonomy-checklist-search label,
 .admin-dashboard.editor-urls label,
@@ -17376,6 +17423,10 @@ main.password h1 {
 .ar-rte [type='block'].block.row > .ar-color-select-input.block-content label,
 .ar-rte
     [type='block'].block.row
+    > .block-content.ar-media-picker-import-input
+    label,
+.ar-rte
+    [type='block'].block.row
     > .block-content.ar-media-picker-search-input
     label,
 .ar-rte
@@ -17385,6 +17436,7 @@ main.password h1 {
 .ar-rte [type='block'].block.row > .block-content.editor-urls label,
 .ar-rte [type='block'].block.row > .block-content.wizard-input-group label,
 .ar-rte [type='block'].block.row > .form-group.block-content label,
+.blueprint-editor.ar-media-picker-import-input label,
 .blueprint-editor.ar-media-picker-search-input label,
 .blueprint-editor.editor-taxonomy-checklist-search label,
 .blueprint-editor.wizard-input-group label,
@@ -17397,17 +17449,21 @@ main.password h1 {
 .form-group.object-editor label,
 .form-group.row label,
 .form-group.rte-settings-row label,
+.media.ar-media-picker-import-input label,
 .media.ar-media-picker-search-input label,
 .media.editor-taxonomy-checklist-search label,
+.object-editor.ar-media-picker-import-input label,
 .object-editor.ar-media-picker-search-input label,
 .object-editor.editor-taxonomy-checklist-search label,
 .object-editor.wizard-input-group label,
 .row.ar-color-select-input label,
+.row.ar-media-picker-import-input label,
 .row.ar-media-picker-search-input label,
 .row.editor-taxonomy-checklist-search label,
 .row.editor-urls label,
 .row.wizard-input-group label,
 .rte-settings-row.ar-color-select-input label,
+.rte-settings-row.ar-media-picker-import-input label,
 .rte-settings-row.ar-media-picker-search-input label,
 .rte-settings-row.editor-taxonomy-checklist-search label,
 .rte-settings-row.editor-urls label,
@@ -17415,12 +17471,14 @@ main.password h1 {
 .wizard-input-group.media label,
 main.login .ar-color-select-input.links label,
 main.login .form-group.links label,
+main.login .links.ar-media-picker-import-input label,
 main.login .links.ar-media-picker-search-input label,
 main.login .links.editor-taxonomy-checklist-search label,
 main.login .links.editor-urls label,
 main.login .links.wizard-input-group label,
 main.password .ar-color-select-input.links label,
 main.password .form-group.links label,
+main.password .links.ar-media-picker-import-input label,
 main.password .links.ar-media-picker-search-input label,
 main.password .links.editor-taxonomy-checklist-search label,
 main.password .links.editor-urls label,
@@ -17431,6 +17489,11 @@ main.password .links.wizard-input-group label {
 .admin-content-list-item-quick-editor > div.ar-color-select-input input,
 .admin-content-list-item-quick-editor > div.ar-color-select-input select,
 .admin-content-list-item-quick-editor > div.ar-color-select-input textarea,
+.admin-content-list-item-quick-editor > div.ar-media-picker-import-input input,
+.admin-content-list-item-quick-editor > div.ar-media-picker-import-input select,
+.admin-content-list-item-quick-editor
+    > div.ar-media-picker-import-input
+    textarea,
 .admin-content-list-item-quick-editor > div.ar-media-picker-search-input input,
 .admin-content-list-item-quick-editor > div.ar-media-picker-search-input select,
 .admin-content-list-item-quick-editor
@@ -17454,6 +17517,9 @@ main.password .links.wizard-input-group label {
 .admin-content-list-item-quick-editor > div.wizard-input-group input,
 .admin-content-list-item-quick-editor > div.wizard-input-group select,
 .admin-content-list-item-quick-editor > div.wizard-input-group textarea,
+.admin-dashboard.ar-media-picker-import-input input,
+.admin-dashboard.ar-media-picker-import-input select,
+.admin-dashboard.ar-media-picker-import-input textarea,
 .admin-dashboard.ar-media-picker-search-input input,
 .admin-dashboard.ar-media-picker-search-input select,
 .admin-dashboard.ar-media-picker-search-input textarea,
@@ -17483,6 +17549,18 @@ main.password .links.wizard-input-group label {
 .ar-rte
     [type='block'].block.row
     > .ar-color-select-input.block-content
+    textarea,
+.ar-rte
+    [type='block'].block.row
+    > .block-content.ar-media-picker-import-input
+    input,
+.ar-rte
+    [type='block'].block.row
+    > .block-content.ar-media-picker-import-input
+    select,
+.ar-rte
+    [type='block'].block.row
+    > .block-content.ar-media-picker-import-input
     textarea,
 .ar-rte
     [type='block'].block.row
@@ -17517,6 +17595,9 @@ main.password .links.wizard-input-group label {
 .ar-rte [type='block'].block.row > .form-group.block-content input,
 .ar-rte [type='block'].block.row > .form-group.block-content select,
 .ar-rte [type='block'].block.row > .form-group.block-content textarea,
+.blueprint-editor.ar-media-picker-import-input input,
+.blueprint-editor.ar-media-picker-import-input select,
+.blueprint-editor.ar-media-picker-import-input textarea,
 .blueprint-editor.ar-media-picker-search-input input,
 .blueprint-editor.ar-media-picker-search-input select,
 .blueprint-editor.ar-media-picker-search-input textarea,
@@ -17553,12 +17634,18 @@ main.password .links.wizard-input-group label {
 .form-group.rte-settings-row input,
 .form-group.rte-settings-row select,
 .form-group.rte-settings-row textarea,
+.media.ar-media-picker-import-input input,
+.media.ar-media-picker-import-input select,
+.media.ar-media-picker-import-input textarea,
 .media.ar-media-picker-search-input input,
 .media.ar-media-picker-search-input select,
 .media.ar-media-picker-search-input textarea,
 .media.editor-taxonomy-checklist-search input,
 .media.editor-taxonomy-checklist-search select,
 .media.editor-taxonomy-checklist-search textarea,
+.object-editor.ar-media-picker-import-input input,
+.object-editor.ar-media-picker-import-input select,
+.object-editor.ar-media-picker-import-input textarea,
 .object-editor.ar-media-picker-search-input input,
 .object-editor.ar-media-picker-search-input select,
 .object-editor.ar-media-picker-search-input textarea,
@@ -17571,6 +17658,9 @@ main.password .links.wizard-input-group label {
 .row.ar-color-select-input input,
 .row.ar-color-select-input select,
 .row.ar-color-select-input textarea,
+.row.ar-media-picker-import-input input,
+.row.ar-media-picker-import-input select,
+.row.ar-media-picker-import-input textarea,
 .row.ar-media-picker-search-input input,
 .row.ar-media-picker-search-input select,
 .row.ar-media-picker-search-input textarea,
@@ -17586,6 +17676,9 @@ main.password .links.wizard-input-group label {
 .rte-settings-row.ar-color-select-input input,
 .rte-settings-row.ar-color-select-input select,
 .rte-settings-row.ar-color-select-input textarea,
+.rte-settings-row.ar-media-picker-import-input input,
+.rte-settings-row.ar-media-picker-import-input select,
+.rte-settings-row.ar-media-picker-import-input textarea,
 .rte-settings-row.ar-media-picker-search-input input,
 .rte-settings-row.ar-media-picker-search-input select,
 .rte-settings-row.ar-media-picker-search-input textarea,
@@ -17607,6 +17700,9 @@ main.login .ar-color-select-input.links textarea,
 main.login .form-group.links input,
 main.login .form-group.links select,
 main.login .form-group.links textarea,
+main.login .links.ar-media-picker-import-input input,
+main.login .links.ar-media-picker-import-input select,
+main.login .links.ar-media-picker-import-input textarea,
 main.login .links.ar-media-picker-search-input input,
 main.login .links.ar-media-picker-search-input select,
 main.login .links.ar-media-picker-search-input textarea,
@@ -17625,6 +17721,9 @@ main.password .ar-color-select-input.links textarea,
 main.password .form-group.links input,
 main.password .form-group.links select,
 main.password .form-group.links textarea,
+main.password .links.ar-media-picker-import-input input,
+main.password .links.ar-media-picker-import-input select,
+main.password .links.ar-media-picker-import-input textarea,
 main.password .links.ar-media-picker-search-input input,
 main.password .links.ar-media-picker-search-input select,
 main.password .links.ar-media-picker-search-input textarea,
@@ -17642,6 +17741,9 @@ main.password .links.wizard-input-group textarea {
 .error.ar-color-select-input input,
 .error.ar-color-select-input select,
 .error.ar-color-select-input textarea,
+.error.ar-media-picker-import-input input,
+.error.ar-media-picker-import-input select,
+.error.ar-media-picker-import-input textarea,
 .error.ar-media-picker-search-input input,
 .error.ar-media-picker-search-input select,
 .error.ar-media-picker-search-input textarea,
@@ -17670,6 +17772,12 @@ main.password .links.wizard-input-group textarea {
 .error.ar-color-select-input select:focus,
 .error.ar-color-select-input textarea.focus,
 .error.ar-color-select-input textarea:focus,
+.error.ar-media-picker-import-input input.focus,
+.error.ar-media-picker-import-input input:focus,
+.error.ar-media-picker-import-input select.focus,
+.error.ar-media-picker-import-input select:focus,
+.error.ar-media-picker-import-input textarea.focus,
+.error.ar-media-picker-import-input textarea:focus,
 .error.ar-media-picker-search-input input.focus,
 .error.ar-media-picker-search-input input:focus,
 .error.ar-media-picker-search-input select.focus,
@@ -17712,6 +17820,9 @@ main.password .links.wizard-input-group textarea {
 .error.ar-color-select-input .ar-media-picker-remaining-label,
 .error.ar-color-select-input .small,
 .error.ar-color-select-input small,
+.error.ar-media-picker-import-input .ar-media-picker-remaining-label,
+.error.ar-media-picker-import-input .small,
+.error.ar-media-picker-import-input small,
 .error.ar-media-picker-search-input .ar-media-picker-remaining-label,
 .error.ar-media-picker-search-input .small,
 .error.ar-media-picker-search-input small,
@@ -24531,30 +24642,35 @@ button:hover {
     border-radius: 0;
 }
 .ar-datepicker-calendar-footer > .ar-color-select-input,
+.ar-datepicker-calendar-footer > .ar-media-picker-import-input,
 .ar-datepicker-calendar-footer > .ar-media-picker-search-input,
 .ar-datepicker-calendar-footer > .editor-taxonomy-checklist-search,
 .ar-datepicker-calendar-footer > .editor-urls,
 .ar-datepicker-calendar-footer > .form-group,
 .ar-datepicker-calendar-footer > .wizard-input-group,
 .ar-datepicker-calendar-header > .ar-color-select-input,
+.ar-datepicker-calendar-header > .ar-media-picker-import-input,
 .ar-datepicker-calendar-header > .ar-media-picker-search-input,
 .ar-datepicker-calendar-header > .editor-taxonomy-checklist-search,
 .ar-datepicker-calendar-header > .editor-urls,
 .ar-datepicker-calendar-header > .form-group,
 .ar-datepicker-calendar-header > .wizard-input-group,
 .ar-rte [type='block'] .block-actions > .ar-color-select-input,
+.ar-rte [type='block'] .block-actions > .ar-media-picker-import-input,
 .ar-rte [type='block'] .block-actions > .ar-media-picker-search-input,
 .ar-rte [type='block'] .block-actions > .editor-taxonomy-checklist-search,
 .ar-rte [type='block'] .block-actions > .editor-urls,
 .ar-rte [type='block'] .block-actions > .form-group,
 .ar-rte [type='block'] .block-actions > .wizard-input-group,
 .ar-rte [type='block'] .block-type-actions > .ar-color-select-input,
+.ar-rte [type='block'] .block-type-actions > .ar-media-picker-import-input,
 .ar-rte [type='block'] .block-type-actions > .ar-media-picker-search-input,
 .ar-rte [type='block'] .block-type-actions > .editor-taxonomy-checklist-search,
 .ar-rte [type='block'] .block-type-actions > .editor-urls,
 .ar-rte [type='block'] .block-type-actions > .form-group,
 .ar-rte [type='block'] .block-type-actions > .wizard-input-group,
 .btn-group > .ar-color-select-input,
+.btn-group > .ar-media-picker-import-input,
 .btn-group > .ar-media-picker-search-input,
 .btn-group > .editor-taxonomy-checklist-search,
 .btn-group > .editor-urls,
@@ -24566,6 +24682,8 @@ button:hover {
 }
 .ar-datepicker-calendar-footer > .ar-color-select-input input,
 .ar-datepicker-calendar-footer > .ar-color-select-input select,
+.ar-datepicker-calendar-footer > .ar-media-picker-import-input input,
+.ar-datepicker-calendar-footer > .ar-media-picker-import-input select,
 .ar-datepicker-calendar-footer > .ar-media-picker-search-input input,
 .ar-datepicker-calendar-footer > .ar-media-picker-search-input select,
 .ar-datepicker-calendar-footer > .editor-taxonomy-checklist-search input,
@@ -24578,6 +24696,8 @@ button:hover {
 .ar-datepicker-calendar-footer > .wizard-input-group select,
 .ar-datepicker-calendar-header > .ar-color-select-input input,
 .ar-datepicker-calendar-header > .ar-color-select-input select,
+.ar-datepicker-calendar-header > .ar-media-picker-import-input input,
+.ar-datepicker-calendar-header > .ar-media-picker-import-input select,
 .ar-datepicker-calendar-header > .ar-media-picker-search-input input,
 .ar-datepicker-calendar-header > .ar-media-picker-search-input select,
 .ar-datepicker-calendar-header > .editor-taxonomy-checklist-search input,
@@ -24590,6 +24710,8 @@ button:hover {
 .ar-datepicker-calendar-header > .wizard-input-group select,
 .ar-rte [type='block'] .block-actions > .ar-color-select-input input,
 .ar-rte [type='block'] .block-actions > .ar-color-select-input select,
+.ar-rte [type='block'] .block-actions > .ar-media-picker-import-input input,
+.ar-rte [type='block'] .block-actions > .ar-media-picker-import-input select,
 .ar-rte [type='block'] .block-actions > .ar-media-picker-search-input input,
 .ar-rte [type='block'] .block-actions > .ar-media-picker-search-input select,
 .ar-rte [type='block'] .block-actions > .editor-taxonomy-checklist-search input,
@@ -24606,6 +24728,16 @@ button:hover {
 .ar-rte [type='block'] .block-actions > .wizard-input-group select,
 .ar-rte [type='block'] .block-type-actions > .ar-color-select-input input,
 .ar-rte [type='block'] .block-type-actions > .ar-color-select-input select,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-import-input
+    input,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-import-input
+    select,
 .ar-rte
     [type='block']
     .block-type-actions
@@ -24634,6 +24766,8 @@ button:hover {
 .ar-rte [type='block'] .block-type-actions > .wizard-input-group select,
 .btn-group > .ar-color-select-input input,
 .btn-group > .ar-color-select-input select,
+.btn-group > .ar-media-picker-import-input input,
+.btn-group > .ar-media-picker-import-input select,
 .btn-group > .ar-media-picker-search-input input,
 .btn-group > .ar-media-picker-search-input select,
 .btn-group > .editor-taxonomy-checklist-search input,
@@ -24648,6 +24782,8 @@ button:hover {
 }
 .ar-datepicker-calendar-footer > .ar-color-select-input input:focus,
 .ar-datepicker-calendar-footer > .ar-color-select-input select:focus,
+.ar-datepicker-calendar-footer > .ar-media-picker-import-input input:focus,
+.ar-datepicker-calendar-footer > .ar-media-picker-import-input select:focus,
 .ar-datepicker-calendar-footer > .ar-media-picker-search-input input:focus,
 .ar-datepicker-calendar-footer > .ar-media-picker-search-input select:focus,
 .ar-datepicker-calendar-footer > .editor-taxonomy-checklist-search input:focus,
@@ -24660,6 +24796,8 @@ button:hover {
 .ar-datepicker-calendar-footer > .wizard-input-group select:focus,
 .ar-datepicker-calendar-header > .ar-color-select-input input:focus,
 .ar-datepicker-calendar-header > .ar-color-select-input select:focus,
+.ar-datepicker-calendar-header > .ar-media-picker-import-input input:focus,
+.ar-datepicker-calendar-header > .ar-media-picker-import-input select:focus,
 .ar-datepicker-calendar-header > .ar-media-picker-search-input input:focus,
 .ar-datepicker-calendar-header > .ar-media-picker-search-input select:focus,
 .ar-datepicker-calendar-header > .editor-taxonomy-checklist-search input:focus,
@@ -24672,6 +24810,16 @@ button:hover {
 .ar-datepicker-calendar-header > .wizard-input-group select:focus,
 .ar-rte [type='block'] .block-actions > .ar-color-select-input input:focus,
 .ar-rte [type='block'] .block-actions > .ar-color-select-input select:focus,
+.ar-rte
+    [type='block']
+    .block-actions
+    > .ar-media-picker-import-input
+    input:focus,
+.ar-rte
+    [type='block']
+    .block-actions
+    > .ar-media-picker-import-input
+    select:focus,
 .ar-rte
     [type='block']
     .block-actions
@@ -24707,6 +24855,16 @@ button:hover {
 .ar-rte
     [type='block']
     .block-type-actions
+    > .ar-media-picker-import-input
+    input:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
+    > .ar-media-picker-import-input
+    select:focus,
+.ar-rte
+    [type='block']
+    .block-type-actions
     > .ar-media-picker-search-input
     input:focus,
 .ar-rte
@@ -24732,6 +24890,8 @@ button:hover {
 .ar-rte [type='block'] .block-type-actions > .wizard-input-group select:focus,
 .btn-group > .ar-color-select-input input:focus,
 .btn-group > .ar-color-select-input select:focus,
+.btn-group > .ar-media-picker-import-input input:focus,
+.btn-group > .ar-media-picker-import-input select:focus,
 .btn-group > .ar-media-picker-search-input input:focus,
 .btn-group > .ar-media-picker-search-input select:focus,
 .btn-group > .editor-taxonomy-checklist-search input:focus,
@@ -24746,6 +24906,8 @@ button:hover {
 }
 .ar-datepicker-calendar-footer > .ar-color-select-input:not(:first-child),
 .ar-datepicker-calendar-footer
+    > .ar-media-picker-import-input:not(:first-child),
+.ar-datepicker-calendar-footer
     > .ar-media-picker-search-input:not(:first-child),
 .ar-datepicker-calendar-footer
     > .editor-taxonomy-checklist-search:not(:first-child),
@@ -24753,6 +24915,8 @@ button:hover {
 .ar-datepicker-calendar-footer > .form-group:not(:first-child),
 .ar-datepicker-calendar-footer > .wizard-input-group:not(:first-child),
 .ar-datepicker-calendar-header > .ar-color-select-input:not(:first-child),
+.ar-datepicker-calendar-header
+    > .ar-media-picker-import-input:not(:first-child),
 .ar-datepicker-calendar-header
     > .ar-media-picker-search-input:not(:first-child),
 .ar-datepicker-calendar-header
@@ -24764,6 +24928,10 @@ button:hover {
     [type='block']
     .block-actions
     > .ar-color-select-input:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-actions
+    > .ar-media-picker-import-input:not(:first-child),
 .ar-rte
     [type='block']
     .block-actions
@@ -24782,6 +24950,10 @@ button:hover {
 .ar-rte
     [type='block']
     .block-type-actions
+    > .ar-media-picker-import-input:not(:first-child),
+.ar-rte
+    [type='block']
+    .block-type-actions
     > .ar-media-picker-search-input:not(:first-child),
 .ar-rte
     [type='block']
@@ -24794,6 +24966,7 @@ button:hover {
     .block-type-actions
     > .wizard-input-group:not(:first-child),
 .btn-group > .ar-color-select-input:not(:first-child),
+.btn-group > .ar-media-picker-import-input:not(:first-child),
 .btn-group > .ar-media-picker-search-input:not(:first-child),
 .btn-group > .editor-taxonomy-checklist-search:not(:first-child),
 .btn-group > .editor-urls:not(:first-child),
@@ -28903,6 +29076,7 @@ body.fullscreen [data-fullscreen='flex'] {
     color: #e09797;
 }
 .setting-editor .ar-color-select-input .hover-show,
+.setting-editor .ar-media-picker-import-input .hover-show,
 .setting-editor .ar-media-picker-search-input .hover-show,
 .setting-editor .editor-taxonomy-checklist-search .hover-show,
 .setting-editor .editor-urls .hover-show,
@@ -28912,6 +29086,7 @@ body.fullscreen [data-fullscreen='flex'] {
     transition: opacity 0.2s ease-in-out;
 }
 .setting-editor .ar-color-select-input:hover .hover-show,
+.setting-editor .ar-media-picker-import-input:hover .hover-show,
 .setting-editor .ar-media-picker-search-input:hover .hover-show,
 .setting-editor .editor-taxonomy-checklist-search:hover .hover-show,
 .setting-editor .editor-urls:hover .hover-show,
@@ -29495,6 +29670,7 @@ input[type='object'] {
     position: relative;
 }
 .rte-settings-row .ar-color-select-input,
+.rte-settings-row .ar-media-picker-import-input,
 .rte-settings-row .ar-media-picker-search-input,
 .rte-settings-row .editor-taxonomy-checklist-search,
 .rte-settings-row .editor-urls,
@@ -29504,6 +29680,7 @@ input[type='object'] {
     margin: 0;
 }
 .rte-settings-row .ar-color-select-input input,
+.rte-settings-row .ar-media-picker-import-input input,
 .rte-settings-row .ar-media-picker-search-input input,
 .rte-settings-row .editor-taxonomy-checklist-search input,
 .rte-settings-row .editor-urls input,
@@ -29512,6 +29689,7 @@ input[type='object'] {
     padding: 6px 8px;
 }
 .rte-settings-row .ar-color-select-input input[type='number'],
+.rte-settings-row .ar-media-picker-import-input input[type='number'],
 .rte-settings-row .ar-media-picker-search-input input[type='number'],
 .rte-settings-row .editor-taxonomy-checklist-search input[type='number'],
 .rte-settings-row .editor-urls input[type='number'],
@@ -29520,6 +29698,7 @@ input[type='object'] {
     padding-right: 2px;
 }
 .rte-settings-row .ar-color-select-input label > span,
+.rte-settings-row .ar-media-picker-import-input label > span,
 .rte-settings-row .ar-media-picker-search-input label > span,
 .rte-settings-row .editor-taxonomy-checklist-search label > span,
 .rte-settings-row .editor-urls label > span,
@@ -29531,6 +29710,7 @@ input[type='object'] {
 }
 .rte-settings-row .form-group.inline,
 .rte-settings-row .inline.ar-color-select-input,
+.rte-settings-row .inline.ar-media-picker-import-input,
 .rte-settings-row .inline.ar-media-picker-search-input,
 .rte-settings-row .inline.editor-taxonomy-checklist-search,
 .rte-settings-row .inline.editor-urls,
@@ -29539,6 +29719,7 @@ input[type='object'] {
 }
 .rte-settings-row .form-group.inline label,
 .rte-settings-row .inline.ar-color-select-input label,
+.rte-settings-row .inline.ar-media-picker-import-input label,
 .rte-settings-row .inline.ar-media-picker-search-input label,
 .rte-settings-row .inline.editor-taxonomy-checklist-search label,
 .rte-settings-row .inline.editor-urls label,
@@ -29547,6 +29728,9 @@ input[type='object'] {
 }
 .rte-settings-row .form-group.inline label:first-child:last-child,
 .rte-settings-row .inline.ar-color-select-input label:first-child:last-child,
+.rte-settings-row
+    .inline.ar-media-picker-import-input
+    label:first-child:last-child,
 .rte-settings-row
     .inline.ar-media-picker-search-input
     label:first-child:last-child,
@@ -29566,6 +29750,10 @@ input[type='object'] {
     > span:first-child,
 .rte-settings-row
     .inline.ar-color-select-input
+    label:first-child:last-child
+    > span:first-child,
+.rte-settings-row
+    .inline.ar-media-picker-import-input
     label:first-child:last-child
     > span:first-child,
 .rte-settings-row
@@ -29592,6 +29780,10 @@ input[type='object'] {
     label:first-child:last-child
     input,
 .rte-settings-row
+    .inline.ar-media-picker-import-input
+    label:first-child:last-child
+    input,
+.rte-settings-row
     .inline.ar-media-picker-search-input
     label:first-child:last-child
     input,
@@ -29610,6 +29802,10 @@ input[type='object'] {
 .rte-settings-row .form-group.inline label:first-child:last-child > *,
 .rte-settings-row
     .inline.ar-color-select-input
+    label:first-child:last-child
+    > *,
+.rte-settings-row
+    .inline.ar-media-picker-import-input
     label:first-child:last-child
     > *,
 .rte-settings-row
@@ -29658,10 +29854,12 @@ input[type='object'] {
     z-index: 2;
 }
 .rte-settings-row .ar-color-select-input.wizard-input-group,
+.rte-settings-row .ar-media-picker-import-input.wizard-input-group,
 .rte-settings-row .ar-media-picker-search-input.wizard-input-group,
 .rte-settings-row .editor-taxonomy-checklist-search.wizard-input-group,
 .rte-settings-row .editor-urls.wizard-input-group,
 .rte-settings-row .input-group.ar-color-select-input,
+.rte-settings-row .input-group.ar-media-picker-import-input,
 .rte-settings-row .input-group.ar-media-picker-search-input,
 .rte-settings-row .input-group.editor-taxonomy-checklist-search,
 .rte-settings-row .input-group.editor-urls,
@@ -29670,10 +29868,12 @@ input[type='object'] {
     margin: 0;
 }
 .rte-settings-row .ar-color-select-input.wizard-input-group > *,
+.rte-settings-row .ar-media-picker-import-input.wizard-input-group > *,
 .rte-settings-row .ar-media-picker-search-input.wizard-input-group > *,
 .rte-settings-row .editor-taxonomy-checklist-search.wizard-input-group > *,
 .rte-settings-row .editor-urls.wizard-input-group > *,
 .rte-settings-row .input-group.ar-color-select-input > *,
+.rte-settings-row .input-group.ar-media-picker-import-input > *,
 .rte-settings-row .input-group.ar-media-picker-search-input > *,
 .rte-settings-row .input-group.editor-taxonomy-checklist-search > *,
 .rte-settings-row .input-group.editor-urls > *,
@@ -29683,6 +29883,9 @@ input[type='object'] {
 }
 .rte-settings-row .ar-color-select-input.wizard-input-group > :first-child,
 .rte-settings-row
+    .ar-media-picker-import-input.wizard-input-group
+    > :first-child,
+.rte-settings-row
     .ar-media-picker-search-input.wizard-input-group
     > :first-child,
 .rte-settings-row
@@ -29690,6 +29893,7 @@ input[type='object'] {
     > :first-child,
 .rte-settings-row .editor-urls.wizard-input-group > :first-child,
 .rte-settings-row .input-group.ar-color-select-input > :first-child,
+.rte-settings-row .input-group.ar-media-picker-import-input > :first-child,
 .rte-settings-row .input-group.ar-media-picker-search-input > :first-child,
 .rte-settings-row .input-group.editor-taxonomy-checklist-search > :first-child,
 .rte-settings-row .input-group.editor-urls > :first-child,
@@ -29699,6 +29903,9 @@ input[type='object'] {
 }
 .rte-settings-row .ar-color-select-input.wizard-input-group > :last-child,
 .rte-settings-row
+    .ar-media-picker-import-input.wizard-input-group
+    > :last-child,
+.rte-settings-row
     .ar-media-picker-search-input.wizard-input-group
     > :last-child,
 .rte-settings-row
@@ -29706,6 +29913,7 @@ input[type='object'] {
     > :last-child,
 .rte-settings-row .editor-urls.wizard-input-group > :last-child,
 .rte-settings-row .input-group.ar-color-select-input > :last-child,
+.rte-settings-row .input-group.ar-media-picker-import-input > :last-child,
 .rte-settings-row .input-group.ar-media-picker-search-input > :last-child,
 .rte-settings-row .input-group.editor-taxonomy-checklist-search > :last-child,
 .rte-settings-row .input-group.editor-urls > :last-child,
@@ -29715,6 +29923,9 @@ input[type='object'] {
 }
 .rte-settings-row .ar-color-select-input.wizard-input-group > :last-child:focus,
 .rte-settings-row
+    .ar-media-picker-import-input.wizard-input-group
+    > :last-child:focus,
+.rte-settings-row
     .ar-media-picker-search-input.wizard-input-group
     > :last-child:focus,
 .rte-settings-row
@@ -29722,6 +29933,7 @@ input[type='object'] {
     > :last-child:focus,
 .rte-settings-row .editor-urls.wizard-input-group > :last-child:focus,
 .rte-settings-row .input-group.ar-color-select-input > :last-child:focus,
+.rte-settings-row .input-group.ar-media-picker-import-input > :last-child:focus,
 .rte-settings-row .input-group.ar-media-picker-search-input > :last-child:focus,
 .rte-settings-row
     .input-group.editor-taxonomy-checklist-search
@@ -30458,6 +30670,7 @@ button.formatter-text-style > div > blockquote {
     left: 50%;
 }
 .rte-link-insert .ar-color-select-input,
+.rte-link-insert .ar-media-picker-import-input,
 .rte-link-insert .ar-media-picker-search-input,
 .rte-link-insert .editor-taxonomy-checklist-search,
 .rte-link-insert .editor-urls,
@@ -30467,6 +30680,7 @@ button.formatter-text-style > div > blockquote {
     color: #999;
 }
 .rte-link-insert .ar-color-select-input input,
+.rte-link-insert .ar-media-picker-import-input input,
 .rte-link-insert .ar-media-picker-search-input input,
 .rte-link-insert .editor-taxonomy-checklist-search input,
 .rte-link-insert .editor-urls input,
@@ -30475,6 +30689,7 @@ button.formatter-text-style > div > blockquote {
     padding-left: 36px;
 }
 .rte-link-insert .ar-color-select-input svg,
+.rte-link-insert .ar-media-picker-import-input svg,
 .rte-link-insert .ar-media-picker-search-input svg,
 .rte-link-insert .editor-taxonomy-checklist-search svg,
 .rte-link-insert .editor-urls svg,
@@ -30844,6 +31059,9 @@ button.formatter-text-style > div > blockquote {
 .rte-video-settings .ar-color-select-input .input-group input,
 .rte-video-settings .ar-color-select-input .input-group-full input,
 .rte-video-settings .ar-color-select-input .wizard-input-group input,
+.rte-video-settings .ar-media-picker-import-input .input-group input,
+.rte-video-settings .ar-media-picker-import-input .input-group-full input,
+.rte-video-settings .ar-media-picker-import-input .wizard-input-group input,
 .rte-video-settings .ar-media-picker-search-input .input-group input,
 .rte-video-settings .ar-media-picker-search-input .input-group-full input,
 .rte-video-settings .ar-media-picker-search-input .wizard-input-group input,
@@ -30862,6 +31080,7 @@ button.formatter-text-style > div > blockquote {
     margin-top: 0;
 }
 .rte-video-settings .ar-color-select-input .input-group-full,
+.rte-video-settings .ar-media-picker-import-input .input-group-full,
 .rte-video-settings .ar-media-picker-search-input .input-group-full,
 .rte-video-settings .editor-taxonomy-checklist-search .input-group-full,
 .rte-video-settings .editor-urls .input-group-full,
@@ -30870,6 +31089,7 @@ button.formatter-text-style > div > blockquote {
     position: relative;
 }
 .rte-video-settings .ar-color-select-input .input-group-full input,
+.rte-video-settings .ar-media-picker-import-input .input-group-full input,
 .rte-video-settings .ar-media-picker-search-input .input-group-full input,
 .rte-video-settings .editor-taxonomy-checklist-search .input-group-full input,
 .rte-video-settings .editor-urls .input-group-full input,
@@ -30880,6 +31100,10 @@ button.formatter-text-style > div > blockquote {
     padding-right: 44px;
 }
 .rte-video-settings .ar-color-select-input .input-group-full button:last-child,
+.rte-video-settings
+    .ar-media-picker-import-input
+    .input-group-full
+    button:last-child,
 .rte-video-settings
     .ar-media-picker-search-input
     .input-group-full
@@ -32138,6 +32362,8 @@ button svg {
 }
 .ar-color-select-input,
 .ar-color-select-input label,
+.ar-media-picker-import-input,
+.ar-media-picker-import-input label,
 .ar-media-picker-search-input,
 .ar-media-picker-search-input label,
 .editor-taxonomy-checklist-search,
@@ -32156,6 +32382,12 @@ button svg {
 .ar-color-select-input label textarea,
 .ar-color-select-input select,
 .ar-color-select-input textarea,
+.ar-media-picker-import-input input,
+.ar-media-picker-import-input label input,
+.ar-media-picker-import-input label select,
+.ar-media-picker-import-input label textarea,
+.ar-media-picker-import-input select,
+.ar-media-picker-import-input textarea,
 .ar-media-picker-search-input input,
 .ar-media-picker-search-input label input,
 .ar-media-picker-search-input label select,
@@ -32192,6 +32424,8 @@ button svg {
 }
 .ar-color-select-input .input-lg,
 .ar-color-select-input label .input-lg,
+.ar-media-picker-import-input .input-lg,
+.ar-media-picker-import-input label .input-lg,
 .ar-media-picker-search-input .input-lg,
 .ar-media-picker-search-input label .input-lg,
 .editor-taxonomy-checklist-search .input-lg,
@@ -32207,6 +32441,8 @@ button svg {
 }
 .ar-color-select-input .input-sm,
 .ar-color-select-input label .input-sm,
+.ar-media-picker-import-input .input-sm,
+.ar-media-picker-import-input label .input-sm,
 .ar-media-picker-search-input .input-sm,
 .ar-media-picker-search-input label .input-sm,
 .editor-taxonomy-checklist-search .input-sm,
@@ -32221,6 +32457,7 @@ button svg {
     padding: 6px 10px;
 }
 .ar-color-select-input label:first-child:not(:last-child) *,
+.ar-media-picker-import-input label:first-child:not(:last-child) *,
 .ar-media-picker-search-input label:first-child:not(:last-child) *,
 .editor-taxonomy-checklist-search label:first-child:not(:last-child) *,
 .editor-urls label:first-child:not(:last-child) *,
@@ -32398,6 +32635,7 @@ body {
     border-radius: 0 2px 2px 0;
 }
 .ar-color-select-input:empty,
+.ar-media-picker-import-input:empty,
 .ar-media-picker-search-input:empty,
 .editor-taxonomy-checklist-search:empty,
 .editor-urls:empty,
@@ -32490,11 +32728,13 @@ body {
     border-right: 1px solid #4f82ba;
 }
 .ar-color-select-input.wizard-input-group *,
+.ar-media-picker-import-input.wizard-input-group *,
 .ar-media-picker-search-input.wizard-input-group *,
 .editor-taxonomy-checklist-search.wizard-input-group *,
 .editor-urls.wizard-input-group *,
 .form-group.input-group *,
 .input-group.ar-color-select-input *,
+.input-group.ar-media-picker-import-input *,
 .input-group.ar-media-picker-search-input *,
 .input-group.editor-taxonomy-checklist-search *,
 .input-group.editor-urls *,
@@ -34338,6 +34578,7 @@ body.fullscreen .admin-content-list {
     align-items: center;
 }
 .field-type-url .ar-color-select-input input,
+.field-type-url .ar-media-picker-import-input input,
 .field-type-url .ar-media-picker-search-input input,
 .field-type-url .editor-taxonomy-checklist-search input,
 .field-type-url .editor-urls input,
@@ -36695,7 +36936,8 @@ body.fullscreen .admin-content-list {
     bottom: 0;
     z-index: 0;
 }
-.ar-media-picker .grid .block .check {
+.ar-media-picker .grid .block .check,
+.ar-media-picker .grid .block .upload {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -36704,6 +36946,9 @@ body.fullscreen .admin-content-list {
     height: 40px;
     padding: 0;
     overflow: hidden;
+}
+.ar-media-picker .grid .block .upload {
+    opacity: 1;
 }
 .ar-media-picker .grid .block .label,
 .ar-media-picker .grid .block .title {
@@ -36747,6 +36992,60 @@ body.fullscreen .admin-content-list {
 .ar-media-picker .grid .block:hover .title {
     opacity: 1;
     z-index: auto !important;
+}
+.ar-media-picker .grid .placeholder {
+    position: relative;
+}
+.ar-media-picker .grid .placeholder .ar-spinner {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    -webkit-transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.5);
+}
+.ar-media-picker .grid .placeholder .title {
+    opacity: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ar-media-picker .grid .dz-btn {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    background-color: transparent;
+    padding: 0;
+}
+.ar-media-picker .grid .dz-btn > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 5px dashed #cfcfcf;
+    border-radius: 2px;
+    color: #999;
+    background-color: transparent;
+    padding: 20px;
+}
+.ar-media-picker .grid .dz-btn > div svg.ar-icon {
+    width: 50vw;
+    height: 50vw;
+    max-width: 80px;
+    max-height: 80px;
+    min-width: 24px;
+    min-height: 24px;
+    fill: #cfcfcf;
+    margin-bottom: 16px;
+}
+@media only screen and (min-width: 991px) {
+    .ar-media-picker .grid .dz-btn > div svg.ar-icon {
+        width: 10vw;
+        height: 10vw;
+    }
 }
 .ar-media-picker-selection {
     flex-shrink: 0;
@@ -36887,13 +37186,19 @@ body.fullscreen .admin-content-list {
     z-index: 0;
     white-space: nowrap;
 }
+.ar-media-picker-import-input,
 .ar-media-picker-search-input {
     position: relative;
     color: #999;
-    padding-right: 5px;
     margin: 0 !important;
+    padding: 0;
 }
-.ar-media-picker-search-input svg {
+.ar-media-picker-import-input:last-child,
+.ar-media-picker-search-input:last-child {
+    padding-right: 5px;
+}
+.ar-media-picker-import-input > span.sib > svg.ico,
+.ar-media-picker-search-input > span.sib > svg.ico {
     position: absolute;
     width: 16px;
     height: 16px;
@@ -36903,6 +37208,25 @@ body.fullscreen .admin-content-list {
     transform: translateY(-50%);
     pointer-events: none;
 }
+.ar-media-picker-import-input > span.sib > button.submit,
+.ar-media-picker-search-input > span.sib > button.submit {
+    padding: 0;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    pointer-events: none;
+}
+.ar-media-picker-import-input > span.sib > button.submit svg,
+.ar-media-picker-search-input > span.sib > button.submit svg {
+    width: 14px;
+    height: 14px;
+}
+.ar-media-picker-import-input input,
 .ar-media-picker-search-input input {
     color: #999;
     width: 30px;
@@ -36914,35 +37238,57 @@ body.fullscreen .admin-content-list {
     border: 1px solid transparent;
     background-color: transparent;
     overflow: hidden;
+    font-size: 14px;
 }
+.ar-media-picker-import-input input:hover,
 .ar-media-picker-search-input input:hover {
     cursor: pointer;
 }
+.ar-media-picker-import-input input.active,
 .ar-media-picker-search-input input.active {
     border: 1px solid #f3f3f3;
 }
+.ar-media-picker-import-input input.active:focus,
 .ar-media-picker-search-input input.active:focus {
     border-color: #4f82ba;
 }
-.ar-media-picker-search-input input.active + svg {
+.ar-media-picker-import-input input.active + span.sib > svg.ico,
+.ar-media-picker-import-input input:focus + span.sib > svg.ico,
+.ar-media-picker-import-input input:hover + span.sib > svg.ico,
+.ar-media-picker-search-input input.active + span.sib > svg.ico,
+.ar-media-picker-search-input input:focus + span.sib > svg.ico,
+.ar-media-picker-search-input input:hover + span.sib > svg.ico {
     fill: #4f82ba;
 }
+.ar-media-picker-import-input input:focus + span.sib > button.submit,
+.ar-media-picker-search-input input:focus + span.sib > button.submit {
+    transition: opacity 1s ease-in-out;
+    opacity: 1;
+    pointer-events: all;
+}
+.ar-media-picker-import-input input.active,
+.ar-media-picker-import-input input:focus,
 .ar-media-picker-search-input input.active,
 .ar-media-picker-search-input input:focus {
     width: 33vw;
     outline: 0;
     border-radius: 40px;
+    color: #000;
     background-color: #fff;
     cursor: text;
     transition: width 125ms ease-in-out;
     padding-right: 10px;
-    margin-right: 5px;
 }
 @media only screen and (min-width: 641px) {
+    .ar-media-picker-import-input input.active,
+    .ar-media-picker-import-input input:focus,
     .ar-media-picker-search-input input.active,
     .ar-media-picker-search-input input:focus {
         width: calc(260px - 10px);
     }
+}
+.ar-media-picker-import-input input:focus {
+    padding-right: 28px;
 }
 .ar-media-picker-directory-select .ar-dropdown-menu {
     min-width: 180px;
@@ -36982,6 +37328,10 @@ body.fullscreen .admin-content-list {
 .ar-media-picker-directory-button .icon.active,
 .ar-media-picker-type-button .icon.active {
     color: #4f82ba;
+}
+.ar-media-picker-directory-button:hover svg,
+.ar-media-picker-type-button:hover svg {
+    fill: #4f82ba;
 }
 .ar-media-picker-type-select .ar-dropdown-menu {
     width: 40px;
@@ -38342,6 +38692,7 @@ body.fullscreen .admin-content-list {
     color: #e09797;
 }
 .field-type-taxonomy .ar-color-select-input,
+.field-type-taxonomy .ar-media-picker-import-input,
 .field-type-taxonomy .ar-media-picker-search-input,
 .field-type-taxonomy .editor-taxonomy-checklist-search,
 .field-type-taxonomy .editor-urls,
@@ -38350,6 +38701,7 @@ body.fullscreen .admin-content-list {
     margin-bottom: 0;
 }
 .field-type-taxonomy .ar-color-select-input input,
+.field-type-taxonomy .ar-media-picker-import-input input,
 .field-type-taxonomy .ar-media-picker-search-input input,
 .field-type-taxonomy .editor-taxonomy-checklist-search input,
 .field-type-taxonomy .editor-urls input,
@@ -38389,6 +38741,9 @@ body.fullscreen .admin-content-list {
 .editor-taxonomy .editor .ar-color-select-input input,
 .editor-taxonomy .editor .ar-color-select-input select,
 .editor-taxonomy .editor .ar-color-select-input textarea,
+.editor-taxonomy .editor .ar-media-picker-import-input input,
+.editor-taxonomy .editor .ar-media-picker-import-input select,
+.editor-taxonomy .editor .ar-media-picker-import-input textarea,
 .editor-taxonomy .editor .ar-media-picker-search-input input,
 .editor-taxonomy .editor .ar-media-picker-search-input select,
 .editor-taxonomy .editor .ar-media-picker-search-input textarea,
@@ -38612,6 +38967,7 @@ body.fullscreen .admin-content-list {
     border-bottom: 1px solid #f7f7f7;
 }
 .blocks-rte-search .ar-color-select-input,
+.blocks-rte-search .ar-media-picker-import-input,
 .blocks-rte-search .ar-media-picker-search-input,
 .blocks-rte-search .editor-taxonomy-checklist-search,
 .blocks-rte-search .editor-urls,
@@ -38620,6 +38976,7 @@ body.fullscreen .admin-content-list {
     background-color: #fff;
 }
 .blocks-rte-search .ar-color-select-input input,
+.blocks-rte-search .ar-media-picker-import-input input,
 .blocks-rte-search .ar-media-picker-search-input input,
 .blocks-rte-search .editor-taxonomy-checklist-search input,
 .blocks-rte-search .editor-urls input,
@@ -38632,6 +38989,7 @@ body.fullscreen .admin-content-list {
     border: 1px solid #f3f3f3;
 }
 .blocks-rte-search .ar-color-select-input input:focus,
+.blocks-rte-search .ar-media-picker-import-input input:focus,
 .blocks-rte-search .ar-media-picker-search-input input:focus,
 .blocks-rte-search .editor-taxonomy-checklist-search input:focus,
 .blocks-rte-search .editor-urls input:focus,
@@ -38656,6 +39014,7 @@ body.fullscreen .admin-content-list {
     z-index: 1;
 }
 .blocks-rte-form-fields .fieldset .ar-color-select-input,
+.blocks-rte-form-fields .fieldset .ar-media-picker-import-input,
 .blocks-rte-form-fields .fieldset .ar-media-picker-search-input,
 .blocks-rte-form-fields .fieldset .editor-taxonomy-checklist-search,
 .blocks-rte-form-fields .fieldset .editor-urls,
@@ -38713,6 +39072,7 @@ body.fullscreen .admin-content-list {
     overflow: hidden;
 }
 .admin-components .ar-color-select-input input,
+.admin-components .ar-media-picker-import-input input,
 .admin-components .ar-media-picker-search-input input,
 .admin-components .editor-taxonomy-checklist-search input,
 .admin-components .editor-urls input,
@@ -38790,18 +39150,21 @@ body.fullscreen .admin-content-list {
     padding-right: 45px;
 }
 .admin-components-type-content form .ar-color-select-input,
+.admin-components-type-content form .ar-media-picker-import-input,
 .admin-components-type-content form .ar-media-picker-search-input,
 .admin-components-type-content form .editor-taxonomy-checklist-search,
 .admin-components-type-content form .editor-urls,
 .admin-components-type-content form .form-group,
 .admin-components-type-content form .wizard-input-group,
 .admin-components-type-hook form .ar-color-select-input,
+.admin-components-type-hook form .ar-media-picker-import-input,
 .admin-components-type-hook form .ar-media-picker-search-input,
 .admin-components-type-hook form .editor-taxonomy-checklist-search,
 .admin-components-type-hook form .editor-urls,
 .admin-components-type-hook form .form-group,
 .admin-components-type-hook form .wizard-input-group,
 .admin-components-type-jsx form .ar-color-select-input,
+.admin-components-type-jsx form .ar-media-picker-import-input,
 .admin-components-type-jsx form .ar-media-picker-search-input,
 .admin-components-type-jsx form .editor-taxonomy-checklist-search,
 .admin-components-type-jsx form .editor-urls,
@@ -38810,18 +39173,21 @@ body.fullscreen .admin-content-list {
     margin: 0;
 }
 .admin-components-type-content form .ar-color-select-input input,
+.admin-components-type-content form .ar-media-picker-import-input input,
 .admin-components-type-content form .ar-media-picker-search-input input,
 .admin-components-type-content form .editor-taxonomy-checklist-search input,
 .admin-components-type-content form .editor-urls input,
 .admin-components-type-content form .form-group input,
 .admin-components-type-content form .wizard-input-group input,
 .admin-components-type-hook form .ar-color-select-input input,
+.admin-components-type-hook form .ar-media-picker-import-input input,
 .admin-components-type-hook form .ar-media-picker-search-input input,
 .admin-components-type-hook form .editor-taxonomy-checklist-search input,
 .admin-components-type-hook form .editor-urls input,
 .admin-components-type-hook form .form-group input,
 .admin-components-type-hook form .wizard-input-group input,
 .admin-components-type-jsx form .ar-color-select-input input,
+.admin-components-type-jsx form .ar-media-picker-import-input input,
 .admin-components-type-jsx form .ar-media-picker-search-input input,
 .admin-components-type-jsx form .editor-taxonomy-checklist-search input,
 .admin-components-type-jsx form .editor-urls input,
@@ -39067,6 +39433,7 @@ body.fullscreen .admin-content-list {
     transition: width 0.2s ease-in-out;
 }
 .admin-components-creator .ar-color-select-input input,
+.admin-components-creator .ar-media-picker-import-input input,
 .admin-components-creator .ar-media-picker-search-input input,
 .admin-components-creator .editor-taxonomy-checklist-search input,
 .admin-components-creator .editor-urls input,
@@ -39449,6 +39816,7 @@ body.fullscreen .admin-content-list {
     border-bottom: 1px solid #f7f7f7;
 }
 .shortcodes-rte-search .ar-color-select-input,
+.shortcodes-rte-search .ar-media-picker-import-input,
 .shortcodes-rte-search .ar-media-picker-search-input,
 .shortcodes-rte-search .editor-taxonomy-checklist-search,
 .shortcodes-rte-search .editor-urls,
@@ -39457,6 +39825,7 @@ body.fullscreen .admin-content-list {
     background-color: #fff;
 }
 .shortcodes-rte-search .ar-color-select-input input,
+.shortcodes-rte-search .ar-media-picker-import-input input,
 .shortcodes-rte-search .ar-media-picker-search-input input,
 .shortcodes-rte-search .editor-taxonomy-checklist-search input,
 .shortcodes-rte-search .editor-urls input,
@@ -39469,6 +39838,7 @@ body.fullscreen .admin-content-list {
     border: 1px solid #f3f3f3;
 }
 .shortcodes-rte-search .ar-color-select-input input:focus,
+.shortcodes-rte-search .ar-media-picker-import-input input:focus,
 .shortcodes-rte-search .ar-media-picker-search-input input:focus,
 .shortcodes-rte-search .editor-taxonomy-checklist-search input:focus,
 .shortcodes-rte-search .editor-urls input:focus,
