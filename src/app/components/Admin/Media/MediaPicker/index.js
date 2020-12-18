@@ -4,43 +4,39 @@ import cn from 'classnames';
 import op from 'object-path';
 import ENUMS from '../enums';
 import camelcase from 'camelcase';
-import PropTypes from 'prop-types';
 import useData from '../_utils/useData';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import Reactium, {
-    __,
-    ComponentEvent,
-    useAsyncEffect,
-    useEventHandle,
-    useHookComponent,
-    useRefs,
-    useStatus,
-    Zone,
-} from 'reactium-core/sdk';
+import Item from './Item';
+import propTypes from './propTypes';
+import Placeholder from './Placeholder';
+import defaultProps from './defaultProps';
 
 import React, {
+    useState,
+    useEffect,
     forwardRef,
     useImperativeHandle,
-    useEffect,
-    useState,
 } from 'react';
 
-import File from './File';
-import Audio from './Audio';
-import Image from './Image';
-import Video from './Video';
-
-const noop = () => {};
+import Reactium, {
+    __,
+    Zone,
+    useRefs,
+    useStatus,
+    ComponentEvent,
+    useEventHandle,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 const fetchMedia = () =>
     Reactium.Media.fetch({ page: -1 }).then(results => ({
-        data: results.files,
-        directories: results.directories,
         error: null,
         fetched: true,
-        status: ENUMS.STATUS.READY,
         update: Date.now(),
+        data: results.files,
+        status: ENUMS.STATUS.READY,
+        directories: results.directories,
     }));
 
 /**
@@ -74,7 +70,7 @@ let MediaPicker = (initialProps, ref) => {
     // -------------------------------------------------------------------------
     // Components
     // -------------------------------------------------------------------------
-    const { Icon, Spinner } = useHookComponent('ReactiumUI');
+    const { Button, Icon, Spinner } = useHookComponent('ReactiumUI');
 
     // -------------------------------------------------------------------------
     // Refs
@@ -86,6 +82,7 @@ let MediaPicker = (initialProps, ref) => {
     // -------------------------------------------------------------------------
     const [state, updateState] = useState({
         ...props,
+        uploads: {},
         filters: _.isString(op.get(props, 'filters', []))
             ? [props.filters]
             : props.filters,
@@ -106,10 +103,10 @@ let MediaPicker = (initialProps, ref) => {
         initialData,
     );
 
-    const setData = newData => {
+    const setData = (newData, silent) => {
         if (unMounted()) return;
-        updateData(newData);
-        setState({ updated: Date.now() });
+        updateData(newData, silent);
+        setState({ updated: Date.now() }, silent);
     };
 
     const setHandle = newHandle => {
@@ -306,8 +303,10 @@ let MediaPicker = (initialProps, ref) => {
         const item = op.get(files, objectId);
         if (!item) return;
 
-        const selection =
+        let selection =
             maxSelect === 1 ? [] : Array.from(op.get(state, 'selection', []));
+
+        selection = Array.isArray(selection) ? selection : [selection];
 
         if (maxSelect && maxSelect > 1 && selection.length >= maxSelect) {
             const message = __(
@@ -348,9 +347,11 @@ let MediaPicker = (initialProps, ref) => {
     };
 
     const submit = selection => {
-        selection = _.isArray(selection)
+        selection = Array.isArray(selection)
             ? selection
             : op.get(state, 'selection', []);
+
+        selection = !Array.isArray(selection) ? [selection] : selection;
 
         dispatch('submit', { selection }, onSubmit);
     };
@@ -524,72 +525,6 @@ let MediaPicker = (initialProps, ref) => {
         }
     }, [data]);
 
-    // Zone components
-    useAsyncEffect(async () => {
-        const components = await Promise.all([
-            Reactium.Zone.addComponent({
-                id: cx('dismiss-button'),
-                component: DismissButton,
-                order: Reactium.Enums.priority.neutral,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('title'),
-                component: Title,
-                order: Reactium.Enums.priority.neutral + 2,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('remaining'),
-                component: Remaining,
-                order: Reactium.Enums.priority.neutral + 4,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('directory-select'),
-                component: DirectorySelect,
-                order: Reactium.Enums.priority.neutral + 6,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('type-select'),
-                component: TypeSelect,
-                order: Reactium.Enums.priority.neutral + 8,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('search'),
-                component: SearchInput,
-                order: Reactium.Enums.priority.neutral + 10,
-                zone: cx('toolbar'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('pagination'),
-                component: PageNav,
-                order: Reactium.Enums.priority.neutral + 12,
-                zone: cx('footer'),
-            }),
-
-            Reactium.Zone.addComponent({
-                id: cx('submit-button'),
-                component: SubmitButton,
-                order: Reactium.Enums.priority.neutral + 14,
-                zone: cx('footer'),
-            }),
-        ]);
-
-        return () => {
-            // clean up on unmount
-            components.forEach(id => Reactium.Zone.removeComponent(id));
-        };
-    }, []);
-
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
@@ -609,6 +544,27 @@ let MediaPicker = (initialProps, ref) => {
                     <Scrollbars
                         ref={elm => refs.set('media.picker.library', elm)}>
                         <div className='grid'>
+                            <div className={cn('block', cx('item'), 'dz-btn')}>
+                                <div>
+                                    <Icon name='Feather.UploadCloud' />
+                                    <Button
+                                        readOnly
+                                        style={{ width: '50%', maxWidth: 150 }}
+                                        size={Button.ENUMS.SIZE.SM}
+                                        appearance={
+                                            Button.ENUMS.APPEARANCE.PILL
+                                        }>
+                                        {__('Upload')}
+                                    </Button>
+                                </div>
+                            </div>
+                            {Object.values(state.uploads).map(upload => (
+                                <Placeholder
+                                    {...upload}
+                                    picker={handle}
+                                    key={`upload-${upload.uuid}`}
+                                />
+                            ))}
                             {getPage().map(file => (
                                 <Item
                                     key={`mpi-${file.objectId}`}
@@ -664,347 +620,9 @@ let MediaPicker = (initialProps, ref) => {
 };
 
 MediaPicker = forwardRef(MediaPicker);
-
 MediaPicker.ENUMS = ENUMS;
+MediaPicker.propTypes = propTypes;
+MediaPicker.defaultProps = defaultProps;
 
-MediaPicker.propTypes = {
-    ID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    className: PropTypes.string,
-    namespace: PropTypes.string,
-    confirm: PropTypes.bool,
-    data: PropTypes.object,
-    debug: PropTypes.bool,
-    delayFetch: PropTypes.number,
-    directory: PropTypes.string,
-    dismissable: PropTypes.bool,
-    filter: PropTypes.func,
-    filters: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string),
-    ]),
-    itemsPerPage: PropTypes.number,
-    maxSelect: PropTypes.number,
-    minSelect: PropTypes.number,
-    namespace: PropTypes.string,
-    onCancel: PropTypes.func,
-    onChange: PropTypes.func,
-    onDismiss: PropTypes.func,
-    onError: PropTypes.func,
-    onInit: PropTypes.func,
-    onItemSelect: PropTypes.func,
-    onItemUnselect: PropTypes.func,
-    onLoad: PropTypes.func,
-    onMount: PropTypes.func,
-    onStatus: PropTypes.func,
-    onSubmit: PropTypes.func,
-    onUnMount: PropTypes.func,
-    page: PropTypes.number,
-    pages: PropTypes.number,
-    search: PropTypes.string,
-    searchFields: PropTypes.arrayOf(PropTypes.string),
-    selection: PropTypes.array,
-    submitLabel: PropTypes.node,
-    title: PropTypes.node,
-    type: PropTypes.string,
-};
-
-MediaPicker.defaultProps = {
-    ID: 'MediaPicker',
-    confirm: false,
-    debug: false,
-    directory: 'all',
-    dismissible: false,
-    filters: Object.keys(ENUMS.TYPE),
-    itemsPerPage: 25,
-    maxSelect: 1,
-    minSelect: 0,
-    namespace: 'ar-media-picker',
-    page: 1,
-    pages: 1,
-    onCancel: noop,
-    onChange: noop,
-    onDismiss: noop,
-    onError: noop,
-    onInit: noop,
-    onItemSelect: noop,
-    onItemUnselect: noop,
-    onLoad: noop,
-    onMount: noop,
-    onStatus: noop,
-    onSubmit: noop,
-    onUnMount: noop,
-    searchFields: [
-        'directory',
-        'ext',
-        'filename',
-        'meta.description',
-        'meta.tags',
-        'meta.title',
-        'type',
-        'url',
-    ],
-    selection: [],
-    submitLabel: __('Done'),
-    title: __('Select Media'),
-    type: 'all',
-};
-
+export * from './TypeSelect';
 export { MediaPicker, MediaPicker as default };
-
-const Item = ({ handle, ...item }) => {
-    const type = String(op.get(item, 'type', 'FILE')).toUpperCase();
-
-    switch (type) {
-        case 'AUDIO':
-            return <Audio {...handle} {...item} />;
-
-        case 'IMAGE':
-            return <Image {...handle} {...item} />;
-
-        case 'VIDEO':
-            return <Video {...handle} {...item} />;
-
-        case 'FILE':
-            return <File {...handle} {...item} />;
-
-        default:
-            return null;
-    }
-};
-
-const Title = ({ picker }) => {
-    const { cx, state } = picker;
-    return <h4 className={cx('title')}>{state.title}</h4>;
-};
-
-const DismissButton = ({ picker }) => {
-    const { cx, dismiss, state } = picker;
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    return state.dismissable ? (
-        <Button
-            className={cx('toolbar-dismiss-button')}
-            color={Button.ENUMS.COLOR.CLEAR}
-            onClick={dismiss}>
-            <Icon name='Feather.X' size={18} />
-        </Button>
-    ) : null;
-};
-
-const SubmitButton = ({ picker }) => {
-    const { cx, submit, state } = picker;
-    const selection = op.get(state, 'selection', []);
-    const { Button } = useHookComponent('ReactiumUI');
-
-    return selection.length > 0 && state.confirm === true ? (
-        <div className={cx('footer-submit-container')}>
-            <Button
-                className={cx('footer-submit-button')}
-                color={Button.ENUMS.COLOR.PRIMARY}
-                onClick={() => submit()}
-                size={Button.ENUMS.SIZE.SM}>
-                {state.submitLabel}
-            </Button>
-        </div>
-    ) : null;
-};
-
-const SearchInput = ({ picker }) => {
-    const { cx, search, state } = picker;
-    const { Icon } = useHookComponent('ReactiumUI');
-
-    return (
-        <div className={cx('search-input')}>
-            <input
-                className={cn({ active: !!state.search })}
-                defaultValue={state.search || ''}
-                placeholder={__('Search')}
-                type='input'
-                onChange={e => search(e.target.value)}
-            />
-            <Icon name='Feather.Search' />
-        </div>
-    );
-};
-
-const DirectorySelect = ({ picker }) => {
-    const { directories = [], cx, setState, state } = picker;
-    const { directory = 'all', directoryLabel = ENUMS.TEXT.FOLDER_ALL } = state;
-
-    const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
-
-    const data = () => {
-        const dirs = Array.isArray(directories) ? directories : [];
-
-        return _.chain([
-            [
-                {
-                    value: 'all',
-                    label: ENUMS.TEXT.FOLDER_ALL,
-                },
-            ],
-            dirs.map(item => ({
-                value: item,
-                label: item,
-            })),
-        ])
-            .flatten()
-            .sortBy('label')
-            .value();
-    };
-
-    const onItemClick = ({ item }) =>
-        setState({
-            page: 1,
-            directory: item.value,
-            directoryLabel: item.label,
-        });
-
-    const active = directory !== 'all';
-
-    return directories.length > 0 ? (
-        <div className={cx('directory-select')}>
-            <Dropdown
-                align={Dropdown.ENUMS.ALIGN.RIGHT}
-                checkbox={false}
-                data={data()}
-                onItemClick={onItemClick}
-                selection={[directory]}
-                size={Button.ENUMS.SIZE.SM}
-                verticalAlign={Dropdown.ENUMS.VALIGN.BOTTOM}>
-                <Button
-                    className={cx('directory-button')}
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    data-dropdown-element>
-                    {directory !== 'all' && (
-                        <span className='label'>{directoryLabel}</span>
-                    )}
-                    <span className={cn('icon', { active })}>
-                        <Icon name='Feather.Folder' />
-                    </span>
-                </Button>
-            </Dropdown>
-        </div>
-    ) : null;
-};
-
-export const TypeIcon = ({ type, ...props }) => {
-    type = String(type).toLowerCase();
-
-    const { Icon } = useHookComponent('ReactiumUI');
-
-    const icons = {
-        all: <Icon name='Feather.Filter' {...props} />,
-        audio: <Icon name='Feather.Mic' {...props} />,
-        clear: <Icon name='Feather.X' {...props} />,
-        image: <Icon name='Feather.Camera' {...props} />,
-        file: <Icon name='Feather.File' {...props} />,
-        video: <Icon name='Feather.Video' {...props} />,
-    };
-
-    Reactium.Hook.runSync('media-picker-filter-icons', icons, type, props);
-
-    return op.get(icons, type, null);
-};
-
-const TypeSelect = ({ picker }) => {
-    const { cx, setState, state } = picker;
-    let { filters = [], type = 'all' } = state;
-
-    const { Button, Dropdown } = useHookComponent('ReactiumUI');
-
-    filters.sort();
-
-    const data = () => {
-        return _.chain([
-            type !== 'all'
-                ? [
-                      {
-                          value: 'all',
-                          label: <TypeIcon type='clear' />,
-                      },
-                  ]
-                : null,
-            filters.map(item => ({
-                value: item,
-                label: <TypeIcon type={item} />,
-            })),
-        ])
-            .flatten()
-            .compact()
-            .value();
-    };
-
-    const onItemClick = ({ item }) => setState({ page: 1, type: item.value });
-
-    const active = type !== 'all';
-
-    return filters.length > 1 ? (
-        <div className={cx('type-select')}>
-            <Dropdown
-                align={Dropdown.ENUMS.ALIGN.CENTER}
-                checkbox={false}
-                data={data()}
-                onItemClick={onItemClick}
-                selection={[type]}
-                size={Button.ENUMS.SIZE.SM}>
-                <Button
-                    className={cx('type-button')}
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    data-dropdown-element>
-                    <span className={cn('icon', { active })}>
-                        <TypeIcon type={type} />
-                    </span>
-                </Button>
-            </Dropdown>
-        </div>
-    ) : null;
-};
-
-const PageNav = ({ picker }) => {
-    const { cx, setState, state } = picker;
-    const { page, pages } = state;
-
-    const { Pagination } = useHookComponent('ReactiumUI');
-
-    const onChange = (e, p) => {
-        setState({ page: p });
-    };
-
-    return pages > 1 ? (
-        <div className={cx('pagination')}>
-            <Pagination
-                page={page}
-                pages={pages}
-                numbers={3}
-                onChange={onChange}
-            />
-        </div>
-    ) : null;
-};
-
-const Remaining = ({ picker }) => {
-    const { cx, state, unselectAll } = picker;
-    const { remaining, maxSelect, selection = [] } = state;
-
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    const isVisible = selection.length > 0 && maxSelect && maxSelect !== 1;
-    const msg = __('%count of %max')
-        .replace(/\%count/gi, selection.length)
-        .replace(/\%max/gi, maxSelect);
-
-    return isVisible ? (
-        <div className={cx('remaining')}>
-            <div className={cx('remaining-label')}>{msg}</div>
-            {remaining !== maxSelect && (
-                <Button
-                    className={cx('remaining-clear-button')}
-                    color={Button.ENUMS.COLOR.CLEAR}
-                    onClick={unselectAll}>
-                    <Icon name='Feather.XSquare' />
-                </Button>
-            )}
-        </div>
-    ) : null;
-};

@@ -10,6 +10,7 @@ const ENUMS = {
         COMPLETE: 'complete',
         DISMISS: 'DISMISS',
         DONE: 'DONE',
+        IMPORTING: 'importing',
         INIT: 'INIT',
         PENDING: 'pending',
         PROCESSING: 'processing',

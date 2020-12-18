@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
@@ -11,10 +11,15 @@ export default props => {
     const MediaPicker = useHookComponent('MediaPicker');
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
+    const [selection, setSelection] = useState(props.editor.selection);
+
     const Modal = op.get(tools, 'Modal');
 
     const _onMediaSelect = e => {
-        const item = _.last(e.selection);
+        let sel = e.selection;
+        sel = Array.isArray(sel) ? sel : [sel];
+        const item = _.last(sel);
+
         if (!item) return;
 
         const { objectId, url } = item;
@@ -37,7 +42,7 @@ export default props => {
             type: 'image',
         };
 
-        Reactium.RTE.insertBlock(editor, node, { id });
+        Reactium.RTE.insertBlock(editor, node, { id, at: selection });
     };
 
     const showPicker = () =>
@@ -52,12 +57,19 @@ export default props => {
             />,
         );
 
+    useEffect(() => {
+        if (!props.editor.selection) return;
+        if (_.isEqual(props.editor.selection, selection)) return;
+
+        setSelection(props.editor.selection);
+    }, [props.editor.selection]);
+
     return (
         <Button
-            {...Reactium.RTE.ENUMS.PROPS.BUTTON}
-            onClick={() => showPicker()}
+            {...props}
+            onClick={showPicker}
             data-tooltip={__('Add Image')}
-            {...props}>
+            {...Reactium.RTE.ENUMS.PROPS.BUTTON}>
             <Icon name='Feather.Camera' size={20} />
         </Button>
     );

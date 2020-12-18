@@ -1,4 +1,4 @@
-import Reactium, { __ } from 'reactium-core/sdk';
+import { __ } from 'reactium-core/sdk';
 import MediaENUMS from './_utils/sdk/enums';
 
 const ENUMS = {

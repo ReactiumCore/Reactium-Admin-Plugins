@@ -1,3 +1,4 @@
+import React from 'react';
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
@@ -5,7 +6,6 @@ import PropTypes from 'prop-types';
 import { Editor, Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import React, { useEffect } from 'react';
 
 import Reactium, {
     __,

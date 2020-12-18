@@ -85,7 +85,8 @@ $ar-media-picker-selection-width: 260px !default;
                 z-index: 0;
             }
 
-            .check {
+            .check,
+            .upload {
                 position: absolute;
                 top: 8px;
                 right: 8px;
@@ -94,6 +95,10 @@ $ar-media-picker-selection-width: 260px !default;
                 height: 40px;
                 padding: 0;
                 overflow: hidden;
+            }
+
+            .upload {
+                opacity: 1;
             }
 
             .title,
@@ -143,6 +148,65 @@ $ar-media-picker-selection-width: 260px !default;
                 }
             }
         }
+
+        .placeholder {
+            position: relative;
+
+            .ar-spinner {
+                top: 50%;
+                left: 50%;
+                position: absolute;
+                transform: translate(-50%, -50%) scale(.5);
+            }
+
+            .title {
+                opacity: 1;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+        }
+
+        .dz-btn {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            background-color: transparent;
+            padding: 0;
+
+            > div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                border: 5px dashed $color-grey;
+                border-radius: 2px;
+                color: $color-gray;
+                background-color: transparent;
+                padding: 20px;
+
+                svg.ar-icon {
+                    width: 50vw;
+                    height: 50vw;
+                    max-width: 80px;
+                    max-height: 80px;
+                    min-width: 24px;
+                    min-height: 24px;
+                    fill: $color-grey;
+                    margin-bottom: 16px;
+
+                    @include breakpoint(md) {
+                        width: 10vw;
+                        height: 10vw;
+                    }
+                }
+            }
+        }
+
     }
 
     &-selection {
@@ -284,15 +348,20 @@ $ar-media-picker-selection-width: 260px !default;
         white-space: nowrap;
     }
 
-    &-search-input {
+    &-search-input,
+    &-import-input {
         @extend .form-group;
 
         position: relative;
         color: $color-gray;
-        padding-right: 5px;
         margin: 0 !important;
+        padding: 0;
 
-        svg {
+        &:last-child {
+            padding-right: 5px;
+        }
+
+        > span.sib > svg.ico {
             position: absolute;
             width: 16px;
             height: 16px;
@@ -300,6 +369,23 @@ $ar-media-picker-selection-width: 260px !default;
             top: 50%;
             transform: translateY(-50%);
             pointer-events: none;
+        }
+
+        > span.sib > button.submit {
+            padding: 0;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            pointer-events: none;
+
+            svg {
+                width: 14px;
+                height: 14px;
+            }
         }
 
         input {
@@ -313,6 +399,7 @@ $ar-media-picker-selection-width: 260px !default;
             border: 1px solid transparent;
             background-color: transparent;
             overflow: hidden;
+            font-size: 14px;
 
             &:hover {
                 cursor: pointer;
@@ -326,8 +413,16 @@ $ar-media-picker-selection-width: 260px !default;
                 }
             }
 
-            &.active + svg {
+            &:focus + span.sib > svg.ico,
+            &:hover + span.sib > svg.ico,
+            &.active + span.sib > svg.ico {
                 fill: $color-primary;
+            }
+
+            &:focus + span.sib > button.submit {
+                transition: opacity 1s ease-in-out;
+                opacity: 1;
+                pointer-events: all;
             }
 
             &:focus,
@@ -335,16 +430,22 @@ $ar-media-picker-selection-width: 260px !default;
                 width: 33vw;
                 outline: none;
                 border-radius: 40px;
+                color: $color-black;
                 background-color: $color-white;
                 cursor: text;
                 transition: width 0.125s ease-in-out;
                 padding-right: 10px;
-                margin-right: 5px;
 
                 @include breakpoint(sm) {
                     width: calc(#{$ar-media-picker-selection-width} - 10px);
                 }
             }
+        }
+    }
+
+    &-import-input {
+        input:focus {
+            padding-right: 28px;
         }
     }
 
@@ -386,6 +487,12 @@ $ar-media-picker-selection-width: 260px !default;
 
             &.active {
                 color: $color-primary;
+            }
+        }
+
+        &:hover {
+            svg {
+                fill: $color-primary;
             }
         }
     }

@@ -1,20 +1,22 @@
 import _ from 'underscore';
 import ENUMS from '../enums';
-import { useEffect, useState } from 'react';
-import Reactium, { __, useAsyncEffect, useStatus } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useDerivedState,
+    useStatus,
+} from 'reactium-core/sdk';
 
-const useData = (callback, hookID, delay, initialData) => {
+const useData = (callback, hookID = 'useData', delay, initialData = {}) => {
     if (!_.isFunction(callback)) {
         throw new Error(__('useData() callback must be a [Function]'));
     }
 
-    const [data, setData] = useState(initialData);
-    const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.INIT);
+    const [data, setData] = useDerivedState(initialData);
+    const [, setStatus, isStatus] = useStatus(ENUMS.STATUS.INIT);
 
     const fetch = async mounted => {
-        if (!isStatus(ENUMS.STATUS.INIT)) return;
-
-        setStatus(ENUMS.STATUS.PENDING);
+        setStatus(ENUMS.STATUS.PENDING, true);
 
         const results = await callback();
 
@@ -22,22 +24,17 @@ const useData = (callback, hookID, delay, initialData) => {
 
         if (!results) throw new Error(__('unable to fetch data'));
 
-        if (hookID) {
-            await Reactium.Hook.run(hookID, results);
-        }
+        if (hookID) Reactium.Hook.runSync(hookID, results);
+
+        setStatus(ENUMS.STATUS.READY);
 
         setData(results);
 
         if (!mounted) return results;
     };
 
-    const refresh = () => {
-        setStatus(ENUMS.STATUS.INIT);
-        return fetch();
-    };
-
     useAsyncEffect(async mounted => {
-        if (data) return;
+        if (!isStatus(ENUMS.STATUS.INIT)) return;
 
         if (delay) {
             _.delay(fetch, delay, mounted);
@@ -46,11 +43,7 @@ const useData = (callback, hookID, delay, initialData) => {
         }
     }, []);
 
-    useEffect(() => {
-        if (data) setStatus(ENUMS.STATUS.READY, true);
-    }, [data]);
-
-    return status === ENUMS.STATUS.READY ? [data, setData, refresh] : [];
+    return isStatus(ENUMS.STATUS.READY) ? [data, setData, fetch] : [];
 };
 
 export { useData, useData as default };
