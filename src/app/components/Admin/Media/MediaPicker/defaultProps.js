@@ -9,6 +9,14 @@ export default {
     debug: false,
     directory: 'all',
     dismissible: false,
+    dropzoneProps: {
+        config: {
+            chunking: false,
+            clickable: '[data-browse]',
+            previewTemplate: '<span />',
+        },
+        debug: false,
+    },
     filters: Object.keys(ENUMS.TYPE),
     itemsPerPage: 25,
     maxSelect: 1,

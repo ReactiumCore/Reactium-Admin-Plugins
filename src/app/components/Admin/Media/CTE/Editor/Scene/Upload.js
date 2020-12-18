@@ -27,6 +27,7 @@ export default forwardRef((props, ref) => {
         isActive,
         back,
         nav,
+        refs,
     } = props.handle;
 
     const Uploads = useHookComponent('MediaUploads');
@@ -75,9 +76,16 @@ export default forwardRef((props, ref) => {
         if (type !== 'status') return;
 
         const status = op.get(e.params, 'status');
+        const MediaPicker = refs.get('library.picker');
+
+        if (!MediaPicker) return;
+
+        const UPLOADER = op.get(e.params, 'UPLOADER');
+        if (UPLOADER !== MediaPicker.ID) return;
 
         if (status === 'complete') {
             const ID = op.get(e.params, 'ID');
+
             const { directory, objectId, url } = e.params.result;
 
             const media = Reactium.Cache.get('editor.media');
@@ -172,7 +180,7 @@ export default forwardRef((props, ref) => {
 
     // Regsiter media-worker hook
     useEffect(() => {
-        const mw = Reactium.Hook.register('media-worker', onWorkerMessage);
+        const mw = Reactium.Hook.registerSync('media-worker', onWorkerMessage);
         return () => {
             Reactium.Hook.unregister(mw);
         };

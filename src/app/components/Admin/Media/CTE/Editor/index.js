@@ -377,8 +377,8 @@ export const Editor = props => {
                     <External handle={handle} id='external' />
                     <Library handle={handle} id='library' />
                     <Upload
-                        handle={handle}
                         id='upload'
+                        handle={handle}
                         ref={elm => refs.set('upload', elm)}
                     />
                 </Scene>

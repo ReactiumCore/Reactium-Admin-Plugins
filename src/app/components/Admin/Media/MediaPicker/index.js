@@ -1,5 +1,6 @@
 import lunr from 'lunr';
 import _ from 'underscore';
+import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import ENUMS from '../enums';
@@ -8,6 +9,7 @@ import useData from '../_utils/useData';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import Item from './Item';
+import Uploader from './Uploader';
 import propTypes from './propTypes';
 import Placeholder from './Placeholder';
 import defaultProps from './defaultProps';
@@ -49,6 +51,7 @@ let MediaPicker = (initialProps, ref) => {
         children,
         className,
         delayFetch,
+        dropzoneProps,
         namespace,
         onCancel,
         onChange,
@@ -135,6 +138,14 @@ let MediaPicker = (initialProps, ref) => {
 
     // cx(suffix:String);
     const cx = Reactium.Utils.cxFactory(className || namespace);
+
+    const browseFiles = e => {
+        if (e) e.preventDefault();
+        const dz = refs.get('media.picker.dropzone');
+        if (!dz) return;
+
+        dz.browseFiles();
+    };
 
     const dismiss = () => {
         if (!state.dismissable) return;
@@ -294,7 +305,9 @@ let MediaPicker = (initialProps, ref) => {
         return !!_.findWhere(selection, { objectId });
     };
 
-    const search = text => setState({ search: text });
+    const _search = text => setState({ search: text });
+
+    const search = _.throttle(_search, 100);
 
     const select = objectId => {
         const { data: files = {} } = data;
@@ -357,7 +370,7 @@ let MediaPicker = (initialProps, ref) => {
     };
 
     // unmount();
-    const unMounted = () => !refs.get('media.picker.container');
+    const unMounted = () => !refs.get('media.picker.dropzone');
 
     const unselect = objectId => {
         const { maxSelect, selection = [] } = state;
@@ -388,6 +401,7 @@ let MediaPicker = (initialProps, ref) => {
     // Handle
     // -------------------------------------------------------------------------
     const _handle = () => ({
+        browseFiles,
         children,
         className,
         cx,
@@ -397,6 +411,7 @@ let MediaPicker = (initialProps, ref) => {
         dispatch,
         ENUMS,
         files: getFiles(),
+        ID: uuid(),
         isStatus,
         namespace,
         onStatus,
@@ -520,8 +535,10 @@ let MediaPicker = (initialProps, ref) => {
             itemsPerPage = Math.max(1, itemsPerPage);
             const count = getFiles().length;
             const pages = Math.ceil(count / itemsPerPage);
+            handle.data = data;
+            setStatus(ENUMS.STATUS.LOADED);
             setState({ pages }, true);
-            setStatus(ENUMS.STATUS.LOADED, true);
+            setHandle(handle);
         }
     }, [data]);
 
@@ -533,9 +550,11 @@ let MediaPicker = (initialProps, ref) => {
             <Spinner />
         </div>
     ) : (
-        <div
-            ref={elm => refs.set('media.picker.container', elm)}
-            className={cx()}>
+        <Uploader
+            picker={handle}
+            className={cx()}
+            {...dropzoneProps}
+            ref={elm => refs.set('media.picker.dropzone', elm)}>
             <div className={cx('toolbar')}>
                 <Zone zone={cx('toolbar')} picker={handle} />
             </div>
@@ -545,7 +564,7 @@ let MediaPicker = (initialProps, ref) => {
                         ref={elm => refs.set('media.picker.library', elm)}>
                         <div className='grid'>
                             <div className={cn('block', cx('item'), 'dz-btn')}>
-                                <div>
+                                <div data-browse>
                                     <Icon name='Feather.UploadCloud' />
                                     <Button
                                         readOnly
@@ -615,7 +634,7 @@ let MediaPicker = (initialProps, ref) => {
             <div className={cx('footer')}>
                 <Zone zone={cx('footer')} picker={handle} />
             </div>
-        </div>
+        </Uploader>
     );
 };
 

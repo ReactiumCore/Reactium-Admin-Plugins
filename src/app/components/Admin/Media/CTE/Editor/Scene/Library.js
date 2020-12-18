@@ -39,28 +39,24 @@ export default ({ handle, ...props }) => {
         setReady(true);
     }, [active]);
 
-    const render = () => {
-        return (
-            <div className={cx('library')}>
-                {ready ? (
-                    <MediaPicker
-                        confirm={max !== 1}
-                        data={Reactium.Cache.get('editor.media')}
-                        debug={false}
-                        delayFetch={1000}
-                        dismissable
-                        filters={type}
-                        maxSelect={max}
-                        onLoad={_onLoad}
-                        onSubmit={_onSubmit}
-                        onDismiss={_onDismiss}
-                        ref={elm => refs.set('library.picker', elm)}
-                        title={__('Media Library')}
-                    />
-                ) : null}
-            </div>
-        );
-    };
-
-    return render();
+    return (
+        <div className={cx('library')}>
+            {ready ? (
+                <MediaPicker
+                    confirm={max !== 1}
+                    data={Reactium.Cache.get('editor.media')}
+                    debug={false}
+                    delayFetch={1000}
+                    dismissable
+                    filters={type}
+                    maxSelect={max}
+                    onLoad={_onLoad}
+                    onSubmit={_onSubmit}
+                    onDismiss={_onDismiss}
+                    ref={elm => refs.set('library.picker', elm)}
+                    title={__('Media Library')}
+                />
+            ) : null}
+        </div>
+    );
 };

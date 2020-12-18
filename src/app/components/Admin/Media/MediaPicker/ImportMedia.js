@@ -1,8 +1,9 @@
 import React from 'react';
 import uuid from 'uuid/v4';
-import _ from 'underscore';
 import op from 'object-path';
 import ENUMS from '../enums';
+import ToastMessage from './ToastMessage';
+
 import Reactium, {
     __,
     useHookComponent,
@@ -12,25 +13,12 @@ import Reactium, {
 
 const { STATUS } = ENUMS;
 
-const ToastMessage = ({ icon = 'Feather.DownloadCloud', children }) => {
-    const { Icon } = useHookComponent('ReactiumUI');
-    return (
-        <div className='flex'>
-            <span className='blue mr-xs-4 mt-xs-2'>
-                <Icon name={icon} size={22} />
-            </span>
-            {children}
-        </div>
-    );
-};
-
 export default ({ picker }) => {
     const refs = useRefs();
     const [, setStatus, isStatus] = useStatus(STATUS.READY);
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const { cx, data, select, setData, setState, state } = picker;
-    let { uploads = {} } = state;
 
     const _onEnter = e => {
         if (e.keyCode !== 13) return;
@@ -42,6 +30,9 @@ export default ({ picker }) => {
         if (isStatus(STATUS.IMPORTING)) return;
 
         setStatus(STATUS.IMPORTING, true);
+
+        let { directory = 'uploads', uploads = {} } = state;
+        directory = directory === 'all' ? 'uploads' : directory;
 
         const input = refs.get('url');
         if (!input) return;
@@ -60,10 +51,8 @@ export default ({ picker }) => {
         const toastId = uuid();
         Toast.info(
             <ToastMessage>
-                <div>
-                    {__('Importing')}...
-                    <div className='small'>{filename}</div>
-                </div>
+                {__('Importing')}...
+                <div className='small'>{filename}</div>
             </ToastMessage>,
             {
                 toastId,
@@ -79,7 +68,10 @@ export default ({ picker }) => {
         setState({ uploads });
 
         // 3.0 - Import the file using Reactium.Media.createFromURL()
-        const { result: obj } = await Reactium.Media.createFromURL({ url });
+        const { result: obj } = await Reactium.Media.createFromURL({
+            url,
+            directory,
+        });
 
         // 3.1 - Handle error
         if (op.get(obj, 'error')) {
@@ -91,11 +83,9 @@ export default ({ picker }) => {
                 autoClose: 3000,
                 type: Toast.TYPE.SUCCESS,
                 render: () => (
-                    <ToastMessage icon='Feather.AlertOctagon'>
-                        <div>
-                            {__('Error: unable to import')}
-                            <div className='small'>{filename}</div>
-                        </div>
+                    <ToastMessage icon='Feather.AlertOctagon' color='red'>
+                        {__('Error: unable to import')}
+                        <div className='small'>{filename}</div>
                     </ToastMessage>
                 ),
             });
@@ -110,11 +100,9 @@ export default ({ picker }) => {
             autoClose: 3000,
             type: Toast.TYPE.SUCCESS,
             render: () => (
-                <ToastMessage icon='Feather.CheckCircle'>
-                    <div>
-                        {__('Imported')}
-                        <div className='small'>{filename}</div>
-                    </div>
+                <ToastMessage icon='Feather.CheckCircle' color='green'>
+                    {__('Imported')}
+                    <div className='small'>{filename}</div>
                 </ToastMessage>
             ),
         });

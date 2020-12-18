@@ -2,6 +2,7 @@ import MediaPicker from './index';
 import Reactium from 'reactium-core/sdk';
 
 import Title from './Title';
+import Uploader from './Uploader';
 import Remaining from './Remaining';
 import TypeSelect from './TypeSelect';
 import Pagination from './Pagination';
@@ -15,6 +16,8 @@ const cx = Reactium.Utils.cxFactory('ar-media-picker');
 
 Reactium.Plugin.register('MediaPicker').then(() => {
     Reactium.Component.register('MediaPicker', MediaPicker);
+
+    Reactium.Hook.registerSync('media-worker', Uploader.watch);
 
     Reactium.Zone.addComponent({
         id: cx('dismiss-button'),

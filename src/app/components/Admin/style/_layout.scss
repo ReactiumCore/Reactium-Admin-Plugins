@@ -362,3 +362,24 @@ body {
         }
     }
 }
+
+.Toastify {
+    &__toast {
+        padding: 0;
+
+        &-body {
+            padding-left: 12px;
+            padding-right: 8px;
+        }
+    }
+
+    &__progress-bar {
+        left: auto;
+        right: 0;
+        transform-origin: right;
+
+        &--info {
+            background-color: $color-primary;
+        }
+    }
+}

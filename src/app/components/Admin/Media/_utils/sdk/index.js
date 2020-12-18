@@ -14,6 +14,7 @@ const paramToArray = value => _.compact(Array.isArray(value) ? value : [value]);
 const mapFileToUpload = file => {
     const {
         ID,
+        mapped = false,
         name: filename,
         progress = 0,
         size: total,
@@ -21,9 +22,12 @@ const mapFileToUpload = file => {
         statusAt,
     } = file;
 
+    if (mapped === true) return file;
+
     return {
         ID,
         action,
+        mapped: true,
         file,
         filename,
         progress,
@@ -103,19 +107,18 @@ class Media {
     async __onWorkerMessage(e) {
         const { type, ...data } = e.data;
         const params = op.get(e.data, 'params');
+        const hook = { data, params, type };
 
-        await Reactium.Hook.run('media-worker', { data, params, type });
+        Reactium.Hook.runSync('media-worker', hook);
+        await Reactium.Hook.run('media-worker', hook);
 
         switch (type) {
             case 'status':
                 this.__onStatus(params);
 
                 if (op.get(params, 'status' === 'complete')) {
-                    await Reactium.Hook.run('media-complete', {
-                        data,
-                        params,
-                        type,
-                    });
+                    Reactium.Hook.runSync('media-complete', hook);
+                    await Reactium.Hook.run('media-complete', hook);
                 }
                 break;
         }
@@ -279,6 +282,26 @@ class Media {
         );
 
         return op.get(library, objectId);
+    }
+
+    fileType(filename) {
+        let ext = String(filename)
+            .split('.')
+            .pop();
+        ext = String(ext).toUpperCase();
+
+        let type = _.chain(
+            Object.entries(ENUMS.TYPE).map(([type, values]) => {
+                if (values.includes(ext)) return type;
+                return null;
+            }),
+        )
+            .compact()
+            .uniq()
+            .value()[0];
+
+        type = type || 'FILE';
+        return type;
     }
 
     filter(params, dataArray) {

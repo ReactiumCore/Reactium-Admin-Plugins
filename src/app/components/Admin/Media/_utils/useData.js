@@ -7,7 +7,7 @@ import Reactium, {
     useStatus,
 } from 'reactium-core/sdk';
 
-const useData = (callback, hookID = 'useData', delay, initialData = {}) => {
+const useData = (callback, hookID = 'useData', delay, initialData) => {
     if (!_.isFunction(callback)) {
         throw new Error(__('useData() callback must be a [Function]'));
     }
@@ -26,8 +26,6 @@ const useData = (callback, hookID = 'useData', delay, initialData = {}) => {
 
         if (hookID) Reactium.Hook.runSync(hookID, results);
 
-        setStatus(ENUMS.STATUS.READY);
-
         setData(results);
 
         if (!mounted) return results;
@@ -43,7 +41,7 @@ const useData = (callback, hookID = 'useData', delay, initialData = {}) => {
         }
     }, []);
 
-    return isStatus(ENUMS.STATUS.READY) ? [data, setData, fetch] : [];
+    return [data, setData, fetch];
 };
 
 export { useData, useData as default };
