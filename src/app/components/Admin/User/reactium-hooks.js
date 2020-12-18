@@ -163,7 +163,7 @@ Reactium.Plugin.register(
     Reactium.Hook.register(
         'user.auth',
         async u => {
-            const prefs = op.get(u, 'prefs', {}) || {};
+            const prefs = op.get(u, 'pref', {}) || {};
             localStorage.setItem('ar-prefs', JSON.stringify(prefs));
         },
         Reactium.Enums.priority.lowest,

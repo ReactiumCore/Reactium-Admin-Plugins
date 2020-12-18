@@ -1,5 +1,4 @@
 import Reactium from 'reactium-core/sdk';
-import ENUMS from '../enums';
 import op from 'object-path';
 
 Reactium.Enums.cache.types = 10000;
@@ -67,6 +66,7 @@ ContentType.save = async (id, type = {}) => {
     });
 
     Reactium.Cache.del('content-types');
+    Reactium.Cache.del('contentTypeRetrieve');
     return response;
 };
 
@@ -87,15 +87,27 @@ ContentType.retrieve = async options => {
     if (typeof options === 'string') requestOptions.uuid = options;
     if (typeof options === 'object') requestOptions = options;
 
+    const { refresh } = requestOptions;
+    const cacheKey = `contentTypeRetrieve.${btoa(requestOptions)}`;
+
+    if (refresh === true) Reactium.Cache.del(cacheKey);
+
+    const cached = Reactium.Cache.get(cacheKey);
+    if (cached) return cached;
+
     const contentType = await Reactium.Cloud.run(
         'type-retrieve',
         requestOptions,
     );
 
-    return {
+    const response = {
         ...contentType,
         fields: op.get(contentType, 'fields', {}),
     };
+
+    Reactium.Cache.set(cacheKey, response, 30000);
+
+    return response;
 };
 
 /**
@@ -117,8 +129,9 @@ ContentType.delete = async options => {
     if (typeof options === 'object') requestOptions = options;
 
     const response = await Reactium.Cloud.run('type-delete', requestOptions);
-    Reactium.Cache.del('content-types');
 
+    Reactium.Cache.del('content-types');
+    Reactium.Cache.del('contentTypeRetrieve');
     return response;
 };
 

@@ -238,7 +238,11 @@ let UserEditor = (
             ? {}
             : Reactium.User.selected
             ? Reactium.User.selected
-            : await Reactium.User.retrieve({ objectId, refresh: true });
+            : await Reactium.User.retrieve({
+                  objectId,
+                  refresh: true,
+                  verbose: true,
+              });
 
         Reactium.User.selected = null;
 

@@ -67,8 +67,8 @@ let ContentList = ({ className, id, namespace }, ref) => {
     const SearchBar = useHandle('SearchBar');
     const Helmet = useHookComponent('Helmet');
     const ListItem = useHookComponent(`${id}Item`);
-    const { Spinner } = useHookComponent('ReactiumUI');
     const ConfirmBox = useHookComponent('ConfirmBox');
+    const { Spinner } = useHookComponent('ReactiumUI');
 
     // Status
     const [status, setStatus, isStatus] = useStatus(STATUS.PENDING);
@@ -122,6 +122,9 @@ let ContentList = ({ className, id, namespace }, ref) => {
         return content;
     };
 
+    const count = () =>
+        op.get(state, 'pagination.count', Object.keys(state.content).length);
+
     const cx = Reactium.Utils.cxFactory(namespace);
 
     const deleteContent = objectId => {
@@ -173,29 +176,28 @@ let ContentList = ({ className, id, namespace }, ref) => {
     };
 
     const fetch = () => {
-        const cacheReq =
-            Reactium.Cache.get(cacheKey(state.page)) ||
+        const ck = cacheKey(state.page);
+        const req =
+            Reactium.Cache.get(ck) ||
             Promise.all([
                 Reactium.Content.list({
                     limit: 20,
                     optimize: false,
                     page: state.page,
                     status: state.filter ? state.filter : '!TRASH',
-                    refresh: true,
-                    resolveRelations: true,
+                    refresh: false,
+                    resolveRelations: false,
                     title: state.search,
                     type: { machineName: state.type },
                 }),
                 Reactium.ContentType.retrieve({
-                    refresh: true,
+                    refresh: false,
                     machineName: state.type,
                 }),
             ]).then(results => {
                 const [list, contentType] = results;
-
                 const { results: content, ...pagination } = list;
 
-                Reactium.Cache.del(cacheKey(state.page));
                 return {
                     content: _.indexBy(content, 'objectId'),
                     contentType,
@@ -203,9 +205,9 @@ let ContentList = ({ className, id, namespace }, ref) => {
                 };
             });
 
-        Reactium.Cache.set(cacheKey(state.page), cacheReq, 30000);
+        Reactium.Cache.set(ck, req, 30000);
 
-        return cacheReq;
+        return req;
     };
 
     const _search = async str => {
@@ -213,15 +215,15 @@ let ContentList = ({ className, id, namespace }, ref) => {
 
         if (state.search === str) return;
 
-        setState({ search: str });
+        setState({ search: str }, true);
 
         const { content, pagination } = await Reactium.Content.list({
-            limit: 20,
+            limit: str === null ? 20 : 100,
             optimize: false,
-            page: state.page,
+            page: 1,
             status: state.filter ? state.filter : '!TRASH',
             refresh: true,
-            resolveRelations: true,
+            resolveRelations: false,
             title: str,
             type: { machineName: state.type },
         }).then(response => {
@@ -232,7 +234,14 @@ let ContentList = ({ className, id, namespace }, ref) => {
             };
         });
 
-        if (str === state.search) setState({ content, pagination });
+        if (str === state.search) {
+            if (str !== null) {
+                op.set(pagination, 'page', 1);
+                op.set(pagination, 'pages', 1);
+                op.set(pagination, 'count', content.length);
+            }
+            setState({ content, pagination, page: 1 });
+        }
     };
 
     const search = _.throttle(_search, 250, { leading: false });
@@ -344,11 +353,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
                 <div className={cx('heading')}>
                     <h2 className='flex-grow'>
                         <span className={cx('heading-count')}>
-                            {pluralize(
-                                state.type,
-                                Object.keys(state.content).length,
-                                true,
-                            )}
+                            {pluralize(state.type, count(), true)}
                         </span>
                     </h2>
                     <div className={cx('toolbar')} style={{ flexGrow: 0 }}>
