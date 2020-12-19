@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
+import PropTypes from 'prop-types';
 import { useEditor } from 'slate-react';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import { useEditorSelection } from './_utils';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
-export default props => {
+const MediaInsert = ({ icon, title, tooltip, type, ...props }) => {
     const editor = useEditor();
     const tools = useHandle('AdminTools');
     const MediaPicker = useHookComponent('MediaPicker');
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
-    const [selection, setSelection] = useState(props.editor.selection);
-
     const Modal = op.get(tools, 'Modal');
 
-    const _onMediaSelect = e => {
-        let sel = e.selection;
-        sel = Array.isArray(sel) ? sel : [sel];
-        const item = _.last(sel);
+    const [selection] = useEditorSelection();
 
+    const _onMediaSelect = e => {
+        const item = _.last(e.selection);
         if (!item) return;
 
         const { objectId, url } = item;
@@ -32,14 +31,13 @@ export default props => {
     const insertNode = (url, objectId) => {
         const id = uuid();
         const node = {
-            blockID: `block-${id}`,
-            blocked: true,
-            children: [{ text: '' }],
-            ext: url.split('.').pop(),
+            type,
             id: id,
             objectId,
             src: url,
-            type: 'image',
+            blocked: true,
+            blockID: `block-${id}`,
+            children: [{ text: '' }],
         };
 
         Reactium.RTE.insertBlock(editor, node, { id, at: selection });
@@ -48,29 +46,31 @@ export default props => {
     const showPicker = () =>
         Modal.show(
             <MediaPicker
-                confirm={false}
                 dismissable
-                filters='IMAGE'
-                onDismiss={() => Modal.hide()}
+                title={title}
+                confirm={false}
                 onSubmit={_onMediaSelect}
-                title={__('Select Image')}
+                onDismiss={() => Modal.hide()}
+                filters={String(type).toUpperCase()}
             />,
         );
-
-    useEffect(() => {
-        if (!props.editor.selection) return;
-        if (_.isEqual(props.editor.selection, selection)) return;
-
-        setSelection(props.editor.selection);
-    }, [props.editor.selection]);
 
     return (
         <Button
             {...props}
-            onClick={showPicker}
-            data-tooltip={__('Add Image')}
+            data-tooltip={tooltip}
+            onClick={() => showPicker()}
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}>
-            <Icon name='Feather.Camera' size={20} />
+            <Icon name={icon} size={20} />
         </Button>
     );
 };
+
+MediaInsert.propTypes = {
+    icon: PropTypes.string,
+    title: PropTypes.node,
+    tooltip: PropTypes.string,
+    type: PropTypes.string,
+};
+
+export default MediaInsert;

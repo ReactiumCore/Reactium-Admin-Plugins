@@ -1,7 +1,7 @@
 import Element from './Element';
-import ToolbarButton from './ToolbarButton';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
+import ToolbarButton from './ToolbarButton';
 
 const Plugin = new RTEPlugin({ type: 'tabs', order: 50 });
 

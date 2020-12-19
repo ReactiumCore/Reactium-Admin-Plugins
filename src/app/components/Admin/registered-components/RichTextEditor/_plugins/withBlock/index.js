@@ -5,7 +5,10 @@ import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
 import { Editor, Node, Transforms } from 'slate';
-const Plugin = new RTEPlugin({ type: 'block', order: -1 });
+const Plugin = new RTEPlugin({
+    type: 'block',
+    order: Reactium.Enums.priority.lowest,
+});
 
 const isColumn = (editor, path) => {
     const nodes = Array.from(Node.ancestors(editor, path, { reverse: true }));

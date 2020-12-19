@@ -1,11 +1,14 @@
 import React from 'react';
 import uuid from 'uuid/v4';
 import { useEditor } from 'slate-react';
+import { useEditorSelection } from '../../_utils';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const [selection] = useEditorSelection();
 
     const insertNode = e => {
         e.preventDefault();
@@ -27,14 +30,14 @@ export default props => {
             vertical: false,
         };
 
-        Reactium.RTE.insertBlock(editor, node, { id });
+        Reactium.RTE.insertBlock(editor, node, { id, at: selection });
     };
 
     return (
         <Button
             {...Reactium.RTE.ENUMS.PROPS.BUTTON}
             data-tooltip={__('Add Tabs')}
-            onClick={e => insertNode(e)}
+            onClick={insertNode}
             {...props}>
             <Icon
                 {...Reactium.RTE.ENUMS.PROPS.ICON}

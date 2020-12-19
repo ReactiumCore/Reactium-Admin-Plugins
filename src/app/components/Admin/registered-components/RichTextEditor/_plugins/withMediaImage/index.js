@@ -1,7 +1,7 @@
 import Element from './Element';
 import RTEPlugin from '../../RTEPlugin';
-import Reactium from 'reactium-core/sdk';
-import ToolbarButton from './ToolbarButton';
+import MediaInsert from '../../MediaInsert';
+import Reactium, { __ } from 'reactium-core/sdk';
 
 const Plugin = new RTEPlugin({ type: 'image', order: 50 });
 
@@ -13,11 +13,21 @@ Plugin.callback = editor => {
     Reactium.RTE.Button.register(Plugin.type, {
         order: 51,
         sidebar: true,
-        button: ToolbarButton,
+        button: props => (
+            <MediaInsert
+                {...props}
+                type='image'
+                icon='Feather.Camera'
+                tooltip={__('Add Image')}
+                title={__('Select Image')}
+            />
+        ),
     });
 
     // Editor overrides
-    const { isInline } = editor;
+    const { isInline, isVoid } = editor;
+
+    editor.isVoid = n => (n.type === Plugin.type ? true : isVoid(n));
     editor.isInline = n => (n.type === Plugin.type ? false : isInline(n));
 
     return editor;

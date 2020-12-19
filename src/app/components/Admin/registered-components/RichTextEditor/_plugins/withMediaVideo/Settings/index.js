@@ -46,11 +46,11 @@ const Panel = ({
 
     const getValue = (key, def = '') => op.get(value, key, def) || def;
 
-    const setValue = (key, newValue = null) => {
+    const setValue = (key, newValue, silent) => {
         if (unMounted()) return;
 
         if (!_.isString(key)) {
-            updateValue(cloneObj(key));
+            updateValue(cloneObj(key), newValue);
         } else {
             if (_.isNumber(newValue)) {
                 newValue = Number(newValue);
@@ -60,7 +60,7 @@ const Panel = ({
                 newValue = null;
             }
 
-            updateValue({ [key]: newValue });
+            updateValue({ [key]: newValue }, silent);
         }
     };
 
@@ -88,7 +88,8 @@ const Panel = ({
         );
     };
 
-    const submit = () => Transforms.setNodes(editor, value, { at: path });
+    const submit = (newValue = {}) =>
+        Transforms.setNodes(editor, { ...value, ...newValue }, { at: path });
 
     const unMounted = () => !refs.get('container');
 
@@ -119,22 +120,25 @@ const Panel = ({
 
         const { Modal } = Reactium.Handle.get('AdminTools').current;
 
+        let newValue;
+
         if (TYPE === 'VIDEO') {
             const { objectId, url: src, ext } = item;
-            setValue({ objectId, src, ext });
+            newValue = { objectId, src, ext };
         }
 
         if (TYPE === 'IMAGE') {
             const { url: thumbnail } = item;
-            setValue({ thumbnail, autoplay: !!thumbnail });
+            newValue = { thumbnail, autoplay: !!thumbnail };
         }
-        submit();
+        submit(newValue);
         Modal.hide();
     };
 
     const _onSubmit = e => {
         if (e) e.preventDefault();
         submit();
+        hide();
     };
 
     const _onToggle = KEY => e => setValue(KEY, e.target.checked);

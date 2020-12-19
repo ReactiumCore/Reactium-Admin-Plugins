@@ -1,18 +1,21 @@
-import _ from 'underscore';
+import ENUMS from '../enums';
 import op from 'object-path';
-import { Editor, Transforms, Text } from 'slate';
-import React, { useEffect, useState } from 'react';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import { useEffect } from 'react';
+import { Editor, Transforms } from 'slate';
+import useSelectProps from './useSelectProps';
 import useEditorPlugins from './useEditorPlugins';
 import useRegistryFilter from './useRegistryFilter';
-import useSelectProps from './useSelectProps';
-
-import ENUMS from '../enums';
+import { useDerivedState } from 'reactium-core/sdk';
+import useEditorSelection from './useEditorSelection';
 
 const { LIST_TYPES } = ENUMS;
 
-export { useEditorPlugins, useRegistryFilter, useSelectProps };
+export {
+    useEditorPlugins,
+    useEditorSelection,
+    useRegistryFilter,
+    useSelectProps,
+};
 
 export const getRange = (index = 0) => {
     try {
