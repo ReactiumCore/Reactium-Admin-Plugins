@@ -8,7 +8,7 @@ let Uploader = ({ picker, ...props }, ref) => {
 
     const { Dropzone } = useHookComponent('ReactiumUI');
 
-    const _onComplete = e => {
+    const _onComplete = async e => {
         const { ID, status, objectId, result } = e.params;
         if (status !== 'complete') return;
 

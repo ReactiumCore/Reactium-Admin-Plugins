@@ -93,13 +93,16 @@ export default ({ children, ...props }) => {
         Modal.hide();
     };
 
+    const onLoad = url => () => {
+        setStatus(COMPLETE);
+        setState({ src: url });
+    };
+
     const loadImage = url => {
         setStatus(LOADING, true);
         const img = new Image();
-        img.addEventListener('load', () => {
-            setStatus(COMPLETE);
-            setState({ src: url });
-        });
+        img.addEventListener('load', onLoad(url));
+        img.crossOrigin = 'anonymous';
         img.src = url;
     };
 

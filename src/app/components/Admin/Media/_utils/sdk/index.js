@@ -5,10 +5,9 @@ import moment from 'moment';
 import op from 'object-path';
 import slugify from 'slugify';
 import Reactium from 'reactium-core/sdk';
+
 const api = Reactium.ActiniumConfig;
-
 const SCRIPT = '/assets/js/umd/media-uploader/media-uploader.js';
-
 const paramToArray = value => _.compact(Array.isArray(value) ? value : [value]);
 
 const mapFileToUpload = file => {
@@ -104,26 +103,6 @@ class Media {
         this.setState({ uploads });
     }
 
-    async __onWorkerMessage(e) {
-        const { type, ...data } = e.data;
-        const params = op.get(e.data, 'params');
-        const hook = { data, params, type };
-
-        Reactium.Hook.runSync('media-worker', hook);
-        await Reactium.Hook.run('media-worker', hook);
-
-        switch (type) {
-            case 'status':
-                this.__onStatus(params);
-
-                if (op.get(params, 'status' === 'complete')) {
-                    Reactium.Hook.runSync('media-complete', hook);
-                    await Reactium.Hook.run('media-complete', hook);
-                }
-                break;
-        }
-    }
-
     get completed() {
         const expired = 5;
         return _.where(Object.values(op.get(this.state, 'uploads', {})), {
@@ -191,6 +170,10 @@ class Media {
         }
     }
 
+    createFromURL(params) {
+        return Reactium.Cloud.run('media-create-from-url', params);
+    }
+
     crop({ field = 'thumbnail', objectId, options, url }) {
         return Reactium.Cloud.run('media-image-crop', {
             field,
@@ -198,22 +181,6 @@ class Media {
             options,
             url,
         });
-    }
-
-    async delete(objectId) {
-        const library = _.indexBy(
-            op.get(this.state, 'library', []),
-            'objectId',
-        );
-
-        if (op.has(library, objectId)) {
-            op.del(library, objectId);
-            this.setState({ library: Object.values(library) });
-        }
-
-        const result = await Reactium.Cloud.run('media-delete', { objectId });
-        await Reactium.Hook.run('media-delete', { objectId });
-        return result;
     }
 
     download(objectId) {
@@ -233,46 +200,6 @@ class Media {
             elm.click();
             elm.remove();
         });
-    }
-
-    async fetch(params = {}) {
-        const limit = op.get(params, 'limit', 50);
-        const page = Number(op.get(params, 'page', this.page));
-        const directory = op.get(params, 'directory');
-        const search = op.get(params, 'search');
-
-        const media = await Reactium.Cloud.run('media', {
-            directory,
-            limit,
-            page,
-            search,
-        });
-
-        const files = Object.values(op.get(media, 'files', {}));
-        const index = limit * page - limit;
-        const pages = Math.ceil(files.length / limit);
-        const next = page < pages ? page + 1 : undefined;
-        const prev = page > 1 ? page - 1 : undefined;
-        const pagination = {
-            empty: files.length < 1,
-            count: files.length,
-            page,
-            pages,
-            index,
-            limit,
-            next,
-            prev,
-        };
-
-        const newState = {
-            library: files,
-            pagination,
-            fetched: Date.now(),
-        };
-
-        this.setState(newState, true);
-
-        return media;
     }
 
     file(objectId) {
@@ -451,8 +378,80 @@ class Media {
         return url;
     }
 
-    createFromURL(params) {
-        return Reactium.Cloud.run('media-create-from-url', params);
+    async __onWorkerMessage(e) {
+        const { type, ...data } = e.data;
+        const params = op.get(e.data, 'params');
+        const hook = { data, params, type };
+
+        Reactium.Hook.runSync('media-worker', hook);
+        await Reactium.Hook.run('media-worker', hook);
+
+        switch (type) {
+            case 'status':
+                this.__onStatus(params);
+
+                if (op.get(params, 'status' === 'complete')) {
+                    Reactium.Hook.runSync('media-complete', hook);
+                    await Reactium.Hook.run('media-complete', hook);
+                }
+                break;
+        }
+    }
+
+    async delete(objectId) {
+        const library = _.indexBy(
+            op.get(this.state, 'library', []),
+            'objectId',
+        );
+
+        if (op.has(library, objectId)) {
+            op.del(library, objectId);
+            this.setState({ library: Object.values(library) });
+        }
+
+        const result = await Reactium.Cloud.run('media-delete', { objectId });
+        await Reactium.Hook.run('media-delete', { objectId });
+        return result;
+    }
+
+    async fetch(params = {}) {
+        const limit = op.get(params, 'limit', 50);
+        const page = Number(op.get(params, 'page', this.page));
+        const directory = op.get(params, 'directory');
+        const search = op.get(params, 'search');
+
+        const media = await Reactium.Cloud.run('media', {
+            directory,
+            limit,
+            page,
+            search,
+        });
+
+        const files = Object.values(op.get(media, 'files', {}));
+        const index = limit * page - limit;
+        const pages = Math.ceil(files.length / limit);
+        const next = page < pages ? page + 1 : undefined;
+        const prev = page > 1 ? page - 1 : undefined;
+        const pagination = {
+            empty: files.length < 1,
+            count: files.length,
+            page,
+            pages,
+            index,
+            limit,
+            next,
+            prev,
+        };
+
+        const newState = {
+            library: files,
+            pagination,
+            fetched: Date.now(),
+        };
+
+        this.setState(newState, true);
+
+        return media;
     }
 }
 
