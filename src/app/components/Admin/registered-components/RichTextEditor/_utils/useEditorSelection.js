@@ -13,7 +13,7 @@ export default () => {
         updateSelection(newSelection);
     };
 
-    useEffect(setSelection, [editor.selection]);
+    useEffect(() => setSelection(editor.selection), [editor.selection]);
 
     return [selection, setSelection];
 };
