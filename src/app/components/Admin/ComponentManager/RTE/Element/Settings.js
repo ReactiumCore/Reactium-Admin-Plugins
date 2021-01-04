@@ -32,11 +32,11 @@ const CloseButton = props => {
 const Settings = ({ children, editor, ...props }) => {
     const refs = useRefs();
 
-    const attributes = Object.entries(
-        JSON.parse(
-            JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
-        ),
+    const attributes = JSON.parse(
+        JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
     );
+
+    const keys = op.get(children, 'props.node.block.attributes', []);
 
     const { Button, Dialog } = useHookComponent('ReactiumUI');
 
@@ -98,15 +98,19 @@ const Settings = ({ children, editor, ...props }) => {
                         autoHeightMin={324}
                         autoHeightMax='80vh'>
                         <div className='fieldset'>
-                            {attributes.map(([name, value]) => (
+                            {keys.map(key => (
                                 <div
                                     className='form-group'
-                                    key={`attribute-${name}`}>
+                                    key={`attribute-${key}`}>
                                     <AttributeInput
-                                        name={cc(name)}
+                                        name={cc(key)}
                                         handle={handle}
-                                        placeholder={name}
-                                        defaultValue={value}
+                                        placeholder={key}
+                                        defaultValue={op.get(
+                                            attributes,
+                                            key,
+                                            '',
+                                        )}
                                     />
                                 </div>
                             ))}

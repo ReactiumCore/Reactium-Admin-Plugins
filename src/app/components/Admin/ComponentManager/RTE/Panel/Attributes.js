@@ -61,6 +61,7 @@ let Attributes = (props, ref) => {
         const evt = new ComponentEvent('submit', {
             block: {
                 ...state.block,
+                attributes: state.attributes,
                 attribute: state.value,
             },
         });

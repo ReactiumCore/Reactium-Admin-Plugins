@@ -3,7 +3,6 @@ import _ from 'underscore';
 import uuid from 'uuid/v4';
 import SDK from '../../sdk';
 import op from 'object-path';
-import { Transforms } from 'slate';
 import PropTypes from 'prop-types';
 import Attributes from './Attributes';
 import { useEditor } from 'slate-react';

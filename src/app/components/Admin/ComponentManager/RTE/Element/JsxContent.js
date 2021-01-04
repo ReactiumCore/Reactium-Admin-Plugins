@@ -47,14 +47,7 @@ const JsxContent = ({ children, ...props }) => {
         Transforms.insertNodes(editor, content, { at: start });
     };
 
-    const _blur = () => {
-        const blur = refs.get('blur');
-        blur.focus();
-    };
-
     const showEditor = () => {
-        _blur();
-
         const { node } = getNode();
 
         const content = {
@@ -86,14 +79,9 @@ const JsxContent = ({ children, ...props }) => {
                 })}>
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
-                    onMouseDown={_blur}
                     onMouseUp={showEditor}>
                     {isEmpty ? __('Content') : __('Edit Content')}
                 </Button>
-                <input
-                    className='blur-target'
-                    ref={elm => refs.set('blur', elm)}
-                />
             </div>
         </div>
     );
