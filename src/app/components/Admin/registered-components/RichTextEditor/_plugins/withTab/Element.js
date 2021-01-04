@@ -10,8 +10,6 @@ import { ReactEditor, useEditor } from 'slate-react';
 import Reactium, { __, useDerivedState, useRefs } from 'reactium-core/sdk';
 
 const Element = props => {
-    console.log('tab', props);
-
     const refs = useRefs();
     const editor = useEditor();
     let node = op.get(props, 'children.props.node');

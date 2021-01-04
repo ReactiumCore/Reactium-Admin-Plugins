@@ -74,6 +74,7 @@ const TabsHorizontal = ({ children, ...props }) => {
                                 />
                             ))}
                             <div className='spacer' />
+                            {provided.placeholder}
                         </div>
                     )}
                 </Droppable>

@@ -1,8 +1,8 @@
 import cc from 'camelcase';
 import _ from 'underscore';
 import op from 'object-path';
+import AttributeInput from './AttributeInput';
 import { Scrollbars } from 'react-custom-scrollbars';
-
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 
 import {
@@ -28,7 +28,7 @@ let Attributes = (props, ref) => {
         value: defaultValue = {},
     } = props;
 
-    const { Button, EventForm } = useHookComponent('ReactiumUI');
+    const { Button } = useHookComponent('ReactiumUI');
 
     const [state, update] = useDerivedState({
         attributes: defaultAttributes,
@@ -45,37 +45,35 @@ let Attributes = (props, ref) => {
 
     const setBlock = block => setState({ block });
 
-    const setValue = value => {
-        const form = refs.get('attribute-form');
-        if (form) form.setValue(value);
+    const setValue = (key, val) => {
+        let value = JSON.parse(JSON.stringify(state.value));
+
+        if (!_.isObject(key)) {
+            op.set(value, key, val);
+        } else {
+            value = key;
+        }
+
         setState({ value });
     };
 
-    const _onChange = e => {
-        if (unMounted()) return;
-        const newValue = e.currentTarget.getValue();
-        if (_.isEqual(newValue, state.value)) return;
-
-        handle.value = newValue;
-        setValue(newValue);
-        setHandle(handle);
-    };
-
-    const _onSubmit = e => {
+    const _onSubmit = () => {
         const evt = new ComponentEvent('submit', {
             block: {
                 ...state.block,
-                attribute: e.currentTarget.getValue(),
+                attribute: state.value,
             },
         });
         handle.dispatchEvent(evt);
     };
 
     const _handle = () => ({
+        refs,
         attributes: op.get(state, 'attributes'),
         setAttributes,
         setBlock,
         setValue,
+        submit: _onSubmit,
         value: op.get(state, 'value'),
     });
 
@@ -88,32 +86,37 @@ let Attributes = (props, ref) => {
     }, [op.get(props, 'attributes')]);
 
     return (
-        <EventForm
+        <div
             className={cx('form')}
-            onChange={_onChange}
-            onSubmit={_onSubmit}
-            ref={elm => refs.set('attribute-form', elm)}
-            value={state.value}>
+            ref={elm => refs.set('attribute-form', elm)}>
             <h4 className={cx('form-header')}>{__('Attributes')}</h4>
             <div className={cx('form-fields')}>
-                <Scrollbars>
+                <Scrollbars autoHeight autoHeightMin={324} autoHeightMax='80vh'>
                     <div className='fieldset'>
                         {state.attributes.map((field, key) => (
                             <div
                                 className='form-group'
                                 key={`attribute-${key}`}>
-                                <input name={cc(field)} placeholder={field} />
+                                <AttributeInput
+                                    handle={handle}
+                                    name={cc(field)}
+                                    placeholder={field}
+                                    defaultValue={op.get(state, [
+                                        'value',
+                                        cc(field),
+                                    ])}
+                                />
                             </div>
                         ))}
                     </div>
                 </Scrollbars>
             </div>
             <div className={cx('form-footer')}>
-                <Button block type='submit'>
-                    {__('Insert Block')}
+                <Button block type='button' onClick={_onSubmit}>
+                    {__('Insert Component')}
                 </Button>
             </div>
-        </EventForm>
+        </div>
     );
 };
 

@@ -48,13 +48,15 @@ let IconSelect = (props, ref) => {
     const [, setStatus, isStatus] = useStatus();
 
     const [state, setState] = useDerivedState({
+        autohide: op.get(props, 'autohide'),
         dataset: {},
         form: ancestor(refs.get('container'), 'form'),
         value: initialValue,
         visible: props.visible,
     });
 
-    const autoHide = e => {
+    const _autoHide = e => {
+        if (state.autohide === false) return;
         if (state.visible !== true) return;
         const container = refs.get('container');
         if (!container || isContainer(e.target, container)) return;
@@ -65,12 +67,10 @@ let IconSelect = (props, ref) => {
     const show = () => setState({ visible: true });
     const toggle = () => setState({ visible: !state.visible });
 
-    const _search = value => {
+    const search = value => {
         refs.get('picker').setSearch(value);
         dispatch('search', { search: value });
     };
-
-    const search = _.throttle(_search, 100);
 
     const dispatch = (eventType, data = {}) => {
         const evt = new ComponentEvent(eventType, data);
@@ -129,12 +129,12 @@ let IconSelect = (props, ref) => {
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        window.addEventListener('mousedown', autoHide);
-        window.addEventListener('touchstart', autoHide);
+        window.addEventListener('mousedown', _autoHide);
+        window.addEventListener('touchstart', _autoHide);
 
         return () => {
-            window.removeEventListener('mousedown', autoHide);
-            window.removeEventListener('touchstart', autoHide);
+            window.removeEventListener('mousedown', _autoHide);
+            window.removeEventListener('touchstart', _autoHide);
         };
     });
 
@@ -217,6 +217,7 @@ let IconSelect = (props, ref) => {
 IconSelect = forwardRef(IconSelect);
 
 IconSelect.propTypes = {
+    autohide: PropTypes.bool,
     className: PropTypes.string,
     name: PropTypes.string,
     style: PropTypes.object,

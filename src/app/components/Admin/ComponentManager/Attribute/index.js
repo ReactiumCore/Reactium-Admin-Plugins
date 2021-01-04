@@ -1,11 +1,52 @@
 import React from 'react';
 import op from 'object-path';
+import { Draggable } from 'react-beautiful-dnd';
 import { __, useHookComponent, useRefs } from 'reactium-core/sdk';
 
 const noop = () => {};
 
+const buttonStyle = {
+    width: 41,
+    height: 41,
+    padding: 0,
+};
+
+const Wrap = ({ list, children, index, ...props }) =>
+    list === true ? (
+        <Draggable
+            key={`attribute-${index}`}
+            draggableId={`attribute-${index}`}
+            index={index}>
+            {provided => (
+                <li {...provided.draggableProps} ref={provided.innerRef}>
+                    <div className='attribute'>
+                        {children}
+                        <div
+                            className='attribute-handle'
+                            {...provided.dragHandleProps}
+                            tabIndex={-1}
+                        />
+                    </div>
+                </li>
+            )}
+        </Draggable>
+    ) : (
+        <div className='attribute' {...props}>
+            {children}
+        </div>
+    );
+
 export default props => {
-    let { color, icon, label, name, onClick = noop, readOnly = false } = props;
+    let {
+        color,
+        icon,
+        index,
+        label,
+        name,
+        onClick = noop,
+        readOnly = false,
+        type = null,
+    } = props;
 
     const refs = useRefs();
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -23,34 +64,30 @@ export default props => {
     };
 
     return (
-        <div className='attribute'>
+        <Wrap index={index} list={type === 'list-item' || type === 'li'}>
             {label && <h3>{label}</h3>}
             <div className='input-group'>
                 <input
-                    ref={elm => refs.set('input', elm)}
-                    type='text'
-                    placeholder={__('Attribute')}
-                    name={name}
                     data-index={op.get(props, 'index', 0) || 0}
-                    onKeyDown={_onEnter}
                     defaultValue={op.get(props, 'value')}
+                    ref={elm => refs.set('input', elm)}
+                    placeholder={__('Attribute')}
+                    onKeyDown={_onEnter}
                     readOnly={readOnly}
+                    name={name}
+                    type='text'
                 />
                 {readOnly !== true && (
                     <Button
+                        type='button'
                         color={color}
                         onClick={submit}
                         readOnly={readOnly}
-                        type='button'
-                        style={{
-                            width: 41,
-                            height: 41,
-                            padding: 0,
-                        }}>
+                        style={buttonStyle}>
                         <Icon name={icon} />
                     </Button>
                 )}
             </div>
-        </div>
+        </Wrap>
     );
 };

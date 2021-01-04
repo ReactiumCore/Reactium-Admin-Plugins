@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import Attribute from '../Attribute';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import {
     __,
@@ -198,6 +199,24 @@ export default forwardRef((props, ref) => {
         _.defer(() => updateValue());
     };
 
+    const _onReorder = e => {
+        const end = op.get(e, 'destination.index');
+        const start = op.get(e, 'source.index');
+
+        if (typeof end === 'undefined') return;
+
+        const attribute = JSON.parse(
+            JSON.stringify(op.get(value, 'attribute', [])),
+        );
+
+        const [citem] = attribute.splice(start, 1);
+        attribute.splice(end, 0, citem);
+
+        setValue({ attribute });
+
+        editor.form.setValue(value);
+    };
+
     // -------------------------------------------------------------------------
     // Handle
     // -------------------------------------------------------------------------
@@ -278,15 +297,15 @@ export default forwardRef((props, ref) => {
                     <div className='attribute-add'>
                         <Attribute
                             color={Button.ENUMS.COLOR.TERTIARY}
-                            icon='Feather.Plus'
                             label={__('Attributes')}
+                            icon='Feather.Plus'
+                            stateKey={stateKey}
                             onClick={_onAdd}
                             readOnly={!edit}
-                            stateKey={stateKey}
                         />
                     </div>
                 )}
-                {!edit && attribute.length > 0 && (
+                {!edit && value.attribute.length > 0 && (
                     <div className='attribute-add'>
                         <div className='attribute'>
                             <h3>{__('Attributes')}</h3>
@@ -294,22 +313,35 @@ export default forwardRef((props, ref) => {
                     </div>
                 )}
                 <div className='attributes'>
-                    <ul>
-                        {attribute.map((item, i) => (
-                            <li key={item}>
-                                <Attribute
-                                    color={Button.ENUMS.COLOR.DANGER}
-                                    icon='Feather.X'
-                                    index={i}
-                                    name='attribute'
-                                    onClick={_onRemove}
-                                    readOnly={!edit}
-                                    stateKey={stateKey}
-                                    value={item}
-                                />
-                            </li>
-                        ))}
-                    </ul>
+                    <DragDropContext onDragEnd={_onReorder}>
+                        <Droppable
+                            droppableId={value.uuid}
+                            direction='vertical'>
+                            {provided => (
+                                <ul
+                                    key='attributes'
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}>
+                                    {value.attribute.map((item, i) => (
+                                        <Attribute
+                                            key={`attribute-${
+                                                value.uuid
+                                            }-${btoa(item)}`}
+                                            stateKey={stateKey}
+                                            onClick={_onRemove}
+                                            readOnly={!edit}
+                                            icon='Feather.X'
+                                            name='attribute'
+                                            type='list-item'
+                                            color='danger'
+                                            value={item}
+                                            index={i}
+                                        />
+                                    ))}
+                                </ul>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                 </div>
             </Dialog>
         </EventForm>

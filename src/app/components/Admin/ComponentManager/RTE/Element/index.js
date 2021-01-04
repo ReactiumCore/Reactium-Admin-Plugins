@@ -1,9 +1,11 @@
-import React from 'react';
 import op from 'object-path';
+import Settings from './Settings';
+import JsxContent from './JsxContent';
 import JsxParser from 'react-jsx-parser';
+import React, { useEffect } from 'react';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
-const DefaultHookComponent = name => attributes => {
+const DefaultHookComponent = name => ({ children, ...attributes }) => {
     const attrToString = () => {
         return Object.keys(attributes).length < 1
             ? ''
@@ -16,8 +18,11 @@ const DefaultHookComponent = name => attributes => {
     };
 
     return (
-        <pre>
-            <code>{`<${name} ${attrToString()}/>`}</code>
+        <pre contentEditable={false}>
+            <code>
+                {`<${name} ${attrToString()}/>`}
+                {children}
+            </code>
         </pre>
     );
 };
@@ -34,47 +39,74 @@ const HookComponent = ({ name, attributes = {} }) => {
     return <Component {...attributes} />;
 };
 
-const JsxComponent = ({ jsx, attributes = {} }) => {
+const JsxComponent = ({ jsx, attributes = {}, ...props }) => {
+    op.set(
+        attributes,
+        'content',
+        <JsxContent {...props} attributes={attributes} />,
+    );
+
     return (
-        <JsxParser
-            bindings={attributes}
-            blacklistedAttrs={[]}
-            blacklistedTags={[]}
-            components={components()}
-            renderInWrapper={false}
-            jsx={jsx}
-        />
+        <>
+            <JsxParser
+                jsx={jsx}
+                blacklistedTags={[]}
+                bindings={attributes}
+                blacklistedAttrs={[]}
+                renderInWrapper={false}
+                components={components()}
+            />
+        </>
     );
 };
 
 const Element = initialProps => {
     const { children, className = 'component', ...props } = initialProps;
+
     const id = op.get(children, 'props.node.ID');
+
     const type = op.get(children, 'props.node.block.type');
-    const attr = op.get(children, 'props.node.block.attribute', {});
+    const attr = JSON.parse(
+        JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
+    );
+
+    useEffect(() => {
+        const cid = Reactium.Zone.addComponent({
+            component: () => <Settings {...initialProps} />,
+            order: Reactium.Enums.priority.highest,
+            zone: `type-block-${props.id}-toolbar`,
+        });
+
+        return () => {
+            Reactium.Zone.removeComponent(cid);
+        };
+    }, [initialProps]);
 
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
     return (
-        <div className={className} id={id} contentEditable={false}>
+        <div contentEditable={false} className={className} id={id}>
             {type === 'hook' && (
-                <HookComponent
-                    {...props}
-                    attributes={attr}
-                    node={op.get(children, 'props.node')}
-                    name={op.get(children, 'props.node.block.component')}
-                />
+                <>
+                    <HookComponent
+                        {...props}
+                        attributes={attr}
+                        node={op.get(children, 'props.node')}
+                        name={op.get(children, 'props.node.block.component')}
+                    />
+                    {children}
+                </>
             )}
             {type === 'jsx' && (
                 <JsxComponent
                     {...props}
                     attributes={attr}
+                    children={children}
                     node={op.get(children, 'props.node')}
                     jsx={op.get(children, 'props.node.block.component')}
                 />
             )}
-            {children}
         </div>
     );
 };

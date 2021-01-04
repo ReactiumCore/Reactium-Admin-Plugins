@@ -3,9 +3,12 @@ import _ from 'underscore';
 import uuid from 'uuid/v4';
 import SDK from '../../sdk';
 import op from 'object-path';
+import { Transforms } from 'slate';
 import PropTypes from 'prop-types';
 import Attributes from './Attributes';
+import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
+import { useEditorSelection } from '../../../registered-components/RichTextEditor/_utils';
 
 import Reactium, {
     __,
@@ -45,7 +48,10 @@ const CloseButton = props => {
  * Hook Component: Panel
  * -----------------------------------------------------------------------------
  */
-let Panel = ({ editor, namespace, title, ...props }) => {
+let Panel = ({ namespace, title, ...props }) => {
+    const editor = useEditor();
+    const [selection] = useEditorSelection(editor);
+
     // -------------------------------------------------------------------------
     // Refs
     // -------------------------------------------------------------------------
@@ -159,7 +165,10 @@ let Panel = ({ editor, namespace, title, ...props }) => {
             },
         ];
 
-        Reactium.RTE.insertBlock(editor, node, { at: props.selection, id });
+        Reactium.RTE.insertBlock(editor, node, {
+            at: selection,
+            id: `block-${id}`,
+        });
     };
 
     const listeners = () => {
@@ -253,7 +262,7 @@ Panel.propTypes = {
 Panel.defaultProps = {
     namespace: 'blocks-rte',
     onStatus: noop,
-    title: __('Blocks'),
+    title: __('Components'),
 };
 
 export { Panel, Panel as default };

@@ -36,7 +36,7 @@ const List = ({
                 />
             </div>
         </div>
-        <Scrollbars>
+        <Scrollbars autoHeight autoHeightMin={324} autoHeightMax='80vh'>
             <ul>
                 {blocks.map((block, i) => (
                     <ListItem

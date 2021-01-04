@@ -83,6 +83,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     const editor = useMemo(() => {
         let editor = createEditor();
         // Panel UI ref
+        editor.lastSelection = null;
         editor.panel = panelRef.current;
         editor.sidebar = sidebarRef.current;
         editor.toolbar = toolbarRef.current;
@@ -163,6 +164,10 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     const [value, setValue] = useState(op.get(initialProps, 'value'));
 
     // 6.0 - Handlers
+    const _onBlur = () => {
+        editor.selection = editor.lastSelection;
+    };
+
     const _onChange = newValue => {
         const equal = _.isEqual(value, { children: newValue });
         if (equal === true) return;
@@ -307,6 +312,19 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
         tabs,
     ]);
 
+    useEffect(() => {
+        if (!editor.selection) {
+            if (editor.lastSelection) {
+                editor.selection = editor.lastSelection;
+            }
+            return;
+        }
+
+        if (!_.isEqual(editor.selection, editor.lastSelection)) {
+            editor.lastSelection = editor.selection;
+        }
+    }, [editor.selection]);
+
     // 10.5 - Focus
     // TODO: Figure out a better way to apply focus to the editor
     // useEffect(() => {
@@ -329,6 +347,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
                 value={op.get(value, 'children') || defaultValue}>
                 <Editable
                     {...props}
+                    onBlur={_onBlur}
                     onKeyDown={_onKeyDown}
                     renderElement={_renderElement}
                     renderLeaf={_renderLeaf}

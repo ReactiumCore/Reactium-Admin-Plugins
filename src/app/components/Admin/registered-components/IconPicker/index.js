@@ -10,7 +10,6 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useCallback,
     useRef,
     useState,
 } from 'react';
@@ -52,15 +51,13 @@ class PickerEvent extends Event {
 const IconGroup = ({
     chunksize = 50,
     color,
-    icons = [],
     group,
     onClick = noop,
-    onMouseOut = noop,
-    onMouseOver = noop,
-    onTouchStart = noop,
     size: initialSize,
     value = [],
+    ...props
 }) => {
+    const [icons, setIcons] = useState(props.icons || []);
     const size = initialSize + 24 - 8;
     const [index, setIndex] = useState(0);
     const count = Math.ceil(icons.length / chunksize);
@@ -76,12 +73,17 @@ const IconGroup = ({
 
     useEffect(next, [index]);
 
-    const render = useCallback(() => {
-        return icons.length < 1 ? null : (
+    useEffect(() => {
+        if (_.isEqual(icons, props.icons)) return;
+        setIcons(props.icons);
+    }, [props.icons]);
+
+    const render = () =>
+        icons.length < 1 ? null : (
             <section>
                 <h3>{group}</h3>
                 <div className='container'>
-                    {chunks.map((icon, i) => (
+                    {chunks.map(icon => (
                         <div
                             className={cn({
                                 active: value.includes(`${group}.${icon}`),
@@ -90,9 +92,7 @@ const IconGroup = ({
                             data-icon={icon}
                             key={`${group}.${icon}`}
                             onClick={onClick}
-                            onMouseOut={onMouseOut}
-                            onMouseOver={onMouseOver}
-                            onTouchStart={onTouchStart}
+                            title={`${group}.${icon}`}
                             style={{
                                 width: size,
                                 height: size,
@@ -108,7 +108,6 @@ const IconGroup = ({
                 </div>
             </section>
         );
-    });
 
     return render();
 };
@@ -126,7 +125,6 @@ let IconPicker = (initialProps, ref) => {
         onSelect,
         onTouchStart,
         onUnselect,
-        title,
         ...props
     } = initialProps;
 
@@ -134,15 +132,13 @@ let IconPicker = (initialProps, ref) => {
 
     const [color, setColor] = useState(op.get(props, 'color', '#666666'));
     const [icons, setIcons] = useState(getIcons(op.get(props, 'search', '')));
-    const [mouseout, setMouseout] = useState();
-    const [mouseover, setMouseouver] = useState();
     const [multiselect, setMultiselect] = useState(
         op.get(props, 'multiselect', false),
     );
     const [search, setSearch] = useState(op.get(props, 'search', ''));
-    const [selected, setSelected] = useState();
+    const [selected] = useState();
     const [size, setSize] = useState(op.get(props, 'size', 24));
-    const [unselected, setUnselected] = useState();
+    const [unselected] = useState();
     const [value, setValue] = useState(op.get(props, 'value', []));
 
     const [state, setState] = useDerivedState({
@@ -189,8 +185,6 @@ let IconPicker = (initialProps, ref) => {
             setValue(newValue);
         }
     };
-
-    const _onScroll = e => {};
 
     const _onTouchStart = e => {
         e.stopPropagation();
@@ -240,14 +234,10 @@ let IconPicker = (initialProps, ref) => {
     useEffect(() => {
         const results = getIcons(search);
         setIcons(results);
+
+        handle.icons = results;
         handle.dispatchEvent(new PickerEvent('search', { results, search }));
-        const timeout = setTimeout(
-            () => onSearch({ type: 'search', target: handle, results, search }),
-            1,
-        );
-        return () => {
-            clearTimeout(timeout);
-        };
+        onSearch({ type: 'search', target: handle, results, search });
     }, [search]);
 
     // update size & dispatch - resize
@@ -269,14 +259,9 @@ let IconPicker = (initialProps, ref) => {
 
     // dispatch - change
     useEffect(() => {
+        handle.value = value;
         handle.dispatchEvent(new PickerEvent('change'));
-        const timeout = setTimeout(
-            () => onChange({ type: 'change', target: handle }),
-            1,
-        );
-        return () => {
-            clearTimeout(timeout);
-        };
+        onChange({ type: 'change', target: handle });
     }, [value]);
 
     // dispatch - mouseout
@@ -382,7 +367,11 @@ let IconPicker = (initialProps, ref) => {
 
     // update handle
     useEffect(() => {
-        setHandle(_handle());
+        const newHandle = _handle();
+        Object.entries(newHandle).forEach(([key, val]) =>
+            op.set(handle, key, val),
+        );
+        setHandle(handle);
     }, [
         color,
         container.current,
@@ -395,7 +384,7 @@ let IconPicker = (initialProps, ref) => {
         value,
     ]);
 
-    const render = useCallback(() => {
+    const render = () => {
         return !icons ? null : (
             <Scrollbars autoHeight autoHeightMin={height}>
                 <div className={cx()} ref={container}>
@@ -417,7 +406,7 @@ let IconPicker = (initialProps, ref) => {
                 </div>
             </Scrollbars>
         );
-    }, [search, size]);
+    };
 
     return render();
 };

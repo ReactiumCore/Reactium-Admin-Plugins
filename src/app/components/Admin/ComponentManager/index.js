@@ -10,6 +10,7 @@ import camelcase from 'camelcase';
 import PropTypes from 'prop-types';
 import Attribute from './Attribute';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import Reactium, {
     __,
@@ -108,6 +109,7 @@ let ComponentManager = (
         scrollbar: {},
         search: null,
         sidebar: Date.now(),
+        dndID: uuid(),
     });
 
     const setState = newState => {
@@ -343,6 +345,22 @@ let ComponentManager = (
         });
     };
 
+    const _onReorder = e => {
+        const end = op.get(e, 'destination.index');
+        const start = op.get(e, 'source.index');
+
+        if (typeof end === 'undefined') return;
+
+        const attributes = JSON.parse(
+            JSON.stringify(op.get(state, 'attributes', [])),
+        );
+
+        const [citem] = attributes.splice(start, 1);
+        attributes.splice(end, 0, citem);
+
+        setState({ attributes });
+    };
+
     const _onResize = e => {
         switch (breakpoint) {
             case 'sm':
@@ -551,20 +569,36 @@ let ComponentManager = (
 
                 <div className='attributes'>
                     <Scrollbars {...state.scrollbar}>
-                        <ul>
-                            {Object.values(state.attributes).map((item, i) => (
-                                <li key={item}>
-                                    <Attribute
-                                        color={Button.ENUMS.COLOR.DANGER}
-                                        icon='Feather.X'
-                                        name='attribute'
-                                        onClick={attr.remove}
-                                        value={item}
-                                        index={i}
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                        <DragDropContext onDragEnd={_onReorder}>
+                            <Droppable
+                                droppableId={state.dndID}
+                                direction='vertical'>
+                                {provided => (
+                                    <ul
+                                        key='attributes'
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}>
+                                        {Object.values(state.attributes).map(
+                                            (item, i) => (
+                                                <Attribute
+                                                    key={`attribute-${
+                                                        state.dndID
+                                                    }-${btoa(item)}`}
+                                                    onClick={attr.remove}
+                                                    icon='Feather.X'
+                                                    name='attribute'
+                                                    type='list-item'
+                                                    color='danger'
+                                                    value={item}
+                                                    index={i}
+                                                />
+                                            ),
+                                        )}
+                                        {provided.placeholder}
+                                    </ul>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
                     </Scrollbars>
                 </div>
 
@@ -578,8 +612,8 @@ let ComponentManager = (
                 {filter().map((item, i) => (
                     <Editor
                         {...item}
-                        key={item.uuid}
                         index={i}
+                        key={item.uuid}
                         ref={elm => refs.set(`editor.${item.uuid}`, elm)}
                     />
                 ))}

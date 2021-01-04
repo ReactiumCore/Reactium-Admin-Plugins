@@ -29365,6 +29365,7 @@ input[type='object'] {
 }
 .ar-rte * {
     line-height: 1;
+    white-space: normal;
 }
 .ar-rte h1,
 .ar-rte h2,
@@ -38948,18 +38949,21 @@ body.fullscreen .admin-content-list {
 .admin-taxonomy-list-item ul li .trash {
     fill: #e09797;
 }
+#rte-components {
+    width: 300px;
+}
 .blocks-rte {
     position: relative;
-    height: 324px;
+    width: 300px;
+    min-height: 324px;
 }
 .blocks-rte-attributes {
     width: calc(100vh - 40px);
-    max-width: 400px;
+    max-width: 300px;
     padding: 20px;
 }
 .blocks-rte-list {
     width: 100%;
-    height: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -39089,6 +39093,76 @@ body.fullscreen .admin-content-list {
     top: 50%;
     -webkit-transform: translateY(-50%);
     transform: translateY(-50%);
+}
+.rte-jsx-component {
+    z-index: 9999 !important;
+}
+.rte-jsx-component-content-editor {
+    position: relative;
+    overflow: auto;
+    display: flex;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 92px);
+}
+.rte-jsx-component-content-editor > .ar-dialog {
+    display: flex;
+    flex-direction: column;
+}
+.rte-jsx-component-content-editor > .ar-dialog .ar-dialog-content {
+    flex-grow: 1;
+}
+.rte-jsx-component-content-editor .ar-rte {
+    overflow-y: auto;
+    height: calc(100% - 100px);
+}
+.rte-jsx-component-content-editor .ar-rte [data-slate-editor] {
+    height: 100%;
+    padding: 40px 40px 120px 70px;
+}
+.rte-jsx-component-content-editor .ar-rte-sidebar {
+    -webkit-transform: translate(70px, 0);
+    transform: translate(70px, 0);
+}
+.rte-jsx-component-content-editor-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.rte-jsx-component-content-editor-submit {
+    left: 50%;
+    bottom: 40px;
+    position: absolute;
+    text-align: center;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+.rte-jsx-component-blocker {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(247, 247, 247, 0.5);
+}
+.admin-thumbnail-select .rte-jsx-component-blocker.delete-scene,
+.rte-jsx-component-blocker.empty {
+    background-color: transparent;
+    opacity: 1;
+}
+.rte-jsx-component-blocker:hover {
+    opacity: 1;
+}
+.rte-jsx-component-blocker .blur-target {
+    position: absolute;
+    top: -100vh;
+    left: -100vw;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 .admin-components {
     padding-top: 60px;

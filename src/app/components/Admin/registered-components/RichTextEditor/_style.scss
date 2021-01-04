@@ -24,6 +24,11 @@ input[type='object'] {
 
     * {
         line-height: 1;
+        white-space: normal;
+    }
+
+    [data-slate-string] {
+        white-space: pre;
     }
 
     p,

@@ -1,16 +1,80 @@
+#rte-components {
+    width: 300px;
+}
+
 .blocks-rte {
     position: relative;
-    height: 324px;
+    width: 300px;
+    min-height: 324px;
+
+    .icons {
+        border: 1px solid $color-grey-light;
+        margin-top: -1px;
+
+        .ar-icon {
+            pointer-events: none;
+        }
+    }
+
+    .ar-icon-picker {
+
+        h3 {
+            padding-left: 12px;
+        }
+
+        .container {
+            padding-left: 0;
+        }
+    }
+
+    .rte-icons-search {
+        display: none;
+    }
+
+    .form-group {
+        .input-group {
+            input {
+                margin-top: 0;
+            }
+        }
+    }
+
+    .form-group {
+        .input-button {
+            .fieldset {
+                padding: 0;
+                position: relative;
+
+                input {
+                    margin-top: 0;
+                    width: 100%;
+                    min-width: 100%;
+                    flex-shrink: 0;
+                    padding-right: 49px;
+                }
+
+                span,
+                button {
+                    position: absolute;
+                    right: 1px;
+                    top: 1px;
+                    width: 39px;
+                    height: 39px;
+                    padding: 0;
+                    border-radius: 0 !important;
+                }
+            }
+        }
+    }
 
     &-attributes {
         width: calc(100vh - 40px);
-        max-width: 400px;
+        max-width: 300px;
         padding: 20px;
     }
 
     &-list {
         width: 100%;
-        height: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
@@ -147,6 +211,90 @@
         .actions {
             top: 50%;
             transform: translateY(-50%);
+        }
+    }
+}
+
+.rte-jsx-component {
+    z-index: 9999 !important;
+
+    &-content-editor {
+        position: relative;
+        overflow: auto;
+        display: flex;
+        width: calc(100vw - 40px);
+        height: calc(100vh - 92px);
+
+        > .ar-dialog {
+            display: flex;
+            flex-direction: column;
+
+            .ar-dialog-content {
+                flex-grow: 1;
+            }
+        }
+
+        .ar-rte {
+            overflow-y: auto;
+            height: calc(100% - 100px);
+
+            [data-slate-editor] {
+                height: 100%;
+                padding: 40px 40px 120px 70px;
+            }
+        }
+
+        .ar-rte-sidebar {
+            transform: translate(70px, 0px);
+        }
+
+        &-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        &-submit {
+            left: 50%;
+            bottom: 40px;
+            position: absolute;
+            text-align: center;
+            transform: translateX(-50%);
+        }
+    }
+
+    &-blocker {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        display: flex;
+        position: absolute;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba($color-grey-light, 0.5);
+
+        &.empty {
+            background-color: transparent;
+            opacity: 1;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+
+        button {
+            position: relative;
+        }
+
+        .blur-target {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
     }
 }

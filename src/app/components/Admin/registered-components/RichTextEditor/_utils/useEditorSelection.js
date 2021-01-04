@@ -7,7 +7,7 @@ export default (editor, nullable) => {
     editor = editor || useEditor();
 
     // 2.0 - Selection state
-    const [selection, update] = useState();
+    const [selection, update] = useState(editor.selection);
 
     // 3.0 - setSelection()
     const setSelection = newSelection => {
