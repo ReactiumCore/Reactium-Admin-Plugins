@@ -32,11 +32,11 @@ const CloseButton = props => {
 const Settings = ({ children, editor, ...props }) => {
     const refs = useRefs();
 
+    const keys = op.get(children, 'props.node.block.attributes', []);
+
     const attributes = JSON.parse(
         JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
     );
-
-    const keys = op.get(children, 'props.node.block.attributes', []);
 
     const { Button, Dialog } = useHookComponent('ReactiumUI');
 
@@ -66,8 +66,8 @@ const Settings = ({ children, editor, ...props }) => {
             return obj;
         }, {});
 
-    const _submit = () => {
-        const value = _value();
+    const _submit = (val = {}) => {
+        const value = { ...val, ..._value() };
         const { node, path } = getNode();
 
         if (!node) return;
@@ -81,6 +81,7 @@ const Settings = ({ children, editor, ...props }) => {
     const _handle = () => ({
         refs,
         setValue: noop,
+        submit: _submit,
     });
 
     const [handle] = useEventHandle(_handle());

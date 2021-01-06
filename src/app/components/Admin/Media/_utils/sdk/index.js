@@ -428,6 +428,7 @@ class Media {
         });
 
         const files = Object.values(op.get(media, 'files', {}));
+        const directories = op.get(media, 'directories', []);
         const index = limit * page - limit;
         const pages = Math.ceil(files.length / limit);
         const next = page < pages ? page + 1 : undefined;
@@ -446,6 +447,7 @@ class Media {
         const newState = {
             library: files,
             pagination,
+            directories,
             fetched: Date.now(),
         };
 

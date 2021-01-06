@@ -3,7 +3,6 @@ import cn from 'classnames';
 import op from 'object-path';
 import { isLight } from './utils';
 import PropTypes from 'prop-types';
-import { useEditor } from 'slate-react';
 import React, { forwardRef, useImperativeHandle, useEffect } from 'react';
 
 import Reactium, {
@@ -53,10 +52,8 @@ let ColorSelect = (
 ) => {
     const refs = useRefs();
 
-    const editor = useEditor();
-
     const [state, update] = useDerivedState({
-        colors: editor.colors,
+        colors: Reactium.RTE.colors,
         value: initialValue,
     });
 
@@ -89,10 +86,9 @@ let ColorSelect = (
     const unMounted = () => !refs.get('container');
 
     const colors = () => {
-        let colors = Array.from(editor.colors);
-        Reactium.Hook.runSync('rte-colors', colors);
-
-        return colors;
+        let clr = state.colors;
+        Reactium.Hook.runSync('rte-colors', clr);
+        return clr;
     };
 
     const _handle = () => ({

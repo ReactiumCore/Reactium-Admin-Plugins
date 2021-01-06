@@ -1,4 +1,6 @@
 export const isLight = color => {
+    if (!String(color).startsWith('#')) return true;
+
     // Variables for red, green, blue values
     let r, g, b, hsp;
 

@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHookComponent, useIsContainer, useStatus } from 'reactium-core/sdk';
 
 const IconInput = ({ handle, ...props }) => {
@@ -60,14 +60,25 @@ const IconInput = ({ handle, ...props }) => {
 
     const _onFocus = () => setVisible(true);
 
-    const _onBlur = () => {
+    const _onBlur = e => {
         const container = handle.refs.get(`picker.container${name}`);
-        if (container && isContainer(container)) {
+        if (container && isContainer(e.target, container)) {
             return;
         } else {
             setVisible(false);
         }
     };
+
+    useEffect(() => {
+        if (!window) return;
+        window.addEventListener('mousedown', _onBlur);
+        window.addEventListener('touchstart', _onBlur);
+
+        return () => {
+            window.removeEventListener('mousedown', _onBlur);
+            window.removeEventListener('touchstart', _onBlur);
+        };
+    }, []);
 
     return (
         <div
@@ -77,7 +88,6 @@ const IconInput = ({ handle, ...props }) => {
                 <input
                     {...props}
                     type='text'
-                    onBlur={_onBlur}
                     onFocus={_onFocus}
                     onChange={e => search(e.target.value)}
                     ref={elm => handle.refs.set(`input.${name}`, elm)}

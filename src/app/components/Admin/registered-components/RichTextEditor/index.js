@@ -293,7 +293,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     useEffect(() => {
         editor.blocks = blocks;
         editor.buttons = buttons;
-        editor.colors = colors;
+        editor.colors = _.isObject(colors) ? Object.values(colors) : colors;
         editor.fonts = fonts;
         editor.formats = formats;
         editor.hotkeys = hotkeys;

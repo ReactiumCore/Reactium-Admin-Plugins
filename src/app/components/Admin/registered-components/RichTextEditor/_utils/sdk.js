@@ -5,6 +5,8 @@ import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
 import RTEPlugin from '../RTEPlugin';
+import Reactium from 'reactium-core/sdk';
+import { isDark, isLight } from '../Settings/utils';
 import { Editor, Node, Path, Transforms } from 'slate';
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '.';
 
@@ -49,6 +51,9 @@ class RTE {
     constructor() {
         this.ENUMS = ENUMS;
         this.pluginFactory = options => new RTEPlugin(options);
+
+        this.isLight = isLight;
+        this.isDark = isDark;
 
         this.isBlockActive = isBlockActive;
         this.isHotkey = isHotkey;
@@ -121,7 +126,9 @@ class RTE {
     }
 
     get colors() {
-        return this.list.colors;
+        let clrs = Object.values(this.list.colors);
+        Reactium.Hook.runSync('colors', clrs);
+        return clrs;
     }
 
     get fonts() {
