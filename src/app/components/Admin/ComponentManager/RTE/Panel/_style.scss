@@ -134,6 +134,7 @@
                 justify-content: center;
                 align-items: center;
                 position: relative;
+                opacity: 0.95;
 
                 * {
                     pointer-events: none;
@@ -151,10 +152,12 @@
                     background-color: $color-grey-light;
                     border-radius: 2px;
                     overflow: hidden;
+                    opacity: 0.5;
                 }
 
                 &.active,
                 &:hover {
+                    opacity: 1;
                     cursor: pointer;
                     border: 1px solid $color-primary;
                     box-shadow: 0 0 0 2px rgba($color-primary, 0.25);

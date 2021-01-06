@@ -13,6 +13,7 @@ import Reactium, {
     useHookComponent,
     useIsContainer,
     useRefs,
+    useSelect,
     useStatus,
 } from 'reactium-core/sdk';
 
@@ -26,9 +27,11 @@ const STATUS = {
 
 let ImageInput = (
     {
+        chunk,
         maxHeight,
         minHeight,
         namespace,
+        page,
         onBlur = noop,
         onFocus = noop,
         onChange = noop,
@@ -41,7 +44,7 @@ let ImageInput = (
 ) => {
     const refs = useRefs();
 
-    const redux = Reactium.Redux.store;
+    const media = useSelect(state => op.get(state, 'Media.library', []));
 
     const isContainer = useIsContainer();
 
@@ -50,8 +53,8 @@ let ImageInput = (
     const [status, setStatus, isStatus] = useStatus(STATUS.PENDING);
 
     const [state, update] = useDerivedState({
-        chunk: 20,
-        page: 1,
+        chunk,
+        page,
         pages: 1,
         value: props.defaultValue || initialValue,
         visible: initialVisible,
@@ -75,9 +78,38 @@ let ImageInput = (
 
     const hide = () => setVisible(false);
 
+    const scrollToTop = (val = 0) => {
+        let scroll = refs.get('scroll');
+        if (!scroll) return;
+        let cont = scroll.container.firstChild;
+        cont.scrollTop = val;
+    };
+
     const show = () => setVisible(true);
 
     const toggle = () => setVisible(!state.visible);
+
+    const _data = (pg = 1) => {
+        let images = _.chain(
+            Array.from(media).filter(file => op.get(file, 'type') === 'IMAGE'),
+        )
+            .pluck('url')
+            .sortBy('updatedAt')
+            .value();
+
+        images.reverse();
+        images = _.chain(images)
+            .compact()
+            .uniq()
+            .without(state.value)
+            .value();
+
+        Reactium.Hook.runSync('rte-image-picker', images);
+
+        return pg >= 1 ? images.slice(0, pg * state.chunk) : images;
+    };
+
+    const _next = () => setState('page', state.page + 1);
 
     const _onBlur = e => {
         const container = refs.get('container');
@@ -113,39 +145,17 @@ let ImageInput = (
     };
 
     const _onSelect = v => () => {
+        scrollToTop();
         setValue(v);
         hide();
     };
-
-    const _value = () => state.value || '';
 
     const _pages = () => {
         const images = _data(-1).length;
         return Math.ceil(images / state.chunk);
     };
 
-    const _data = (pg = 1) => {
-        let { library = [] } = redux.getState().Media;
-        library = _.chain(
-            library.filter(file => op.get(file, 'type') === 'IMAGE'),
-        )
-            .pluck('url')
-            .sortBy('updatedAt')
-            .value();
-
-        library.reverse();
-
-        let images = JSON.parse(JSON.stringify(library));
-        images = _.chain(images)
-            .compact()
-            .uniq()
-            .without(state.value)
-            .value();
-
-        Reactium.Hook.runSync('rte-image-picker', images);
-
-        return pg >= 1 ? images.slice(0, pg * state.chunk) : images;
-    };
+    const _value = () => state.value || '';
 
     const unMounted = () => !refs.get('container');
 
@@ -158,6 +168,7 @@ let ImageInput = (
         isStatus,
         props,
         refs,
+        scrollToTop,
         show,
         setState,
         setStatus,
@@ -201,7 +212,7 @@ let ImageInput = (
 
         switch (status) {
             case STATUS.UPDATED:
-                setStatus('ready', true);
+                setStatus(STATUS.READY, true);
                 break;
         }
     }, [status]);
@@ -209,7 +220,7 @@ let ImageInput = (
     useEffect(() => {
         setStatus(STATUS.UPDATED);
         setState('pages', _pages());
-    }, [redux.getState().Media.library]);
+    }, [media]);
 
     useEffect(() => {
         if (!window) return;
@@ -247,7 +258,8 @@ let ImageInput = (
                 <Scrollbars
                     autoHeight
                     autoHeightMax={maxHeight}
-                    autoHeightMin={minHeight}>
+                    autoHeightMin={minHeight}
+                    ref={elm => refs.set('scroll', elm)}>
                     <div className='ar-image-select-thumbs'>
                         {state.value && (
                             <button
@@ -264,15 +276,9 @@ let ImageInput = (
                         )}
                         {_data(state.page).map((url, i) => (
                             <button
-                                className={cn(
-                                    'ar-image-select-thumb',
-                                    'transparent',
-                                    {
-                                        active: state.value === url,
-                                    },
-                                )}
                                 key={btoa([url, i])}
-                                onClick={_onSelect(url)}>
+                                onClick={_onSelect(url)}
+                                className='ar-image-select-thumb transparent'>
                                 <img
                                     src={url}
                                     className='loading'
@@ -284,10 +290,8 @@ let ImageInput = (
                             <div className='more'>
                                 <Button
                                     block
-                                    color={Button.ENUMS.TERTIARY}
-                                    onClick={() =>
-                                        setState('page', state.page + 1)
-                                    }>
+                                    onClick={_next}
+                                    color={Button.ENUMS.COLOR.TERTIARY}>
                                     {__('Load More')}
                                 </Button>
                             </div>
@@ -302,9 +306,11 @@ let ImageInput = (
 ImageInput = forwardRef(ImageInput);
 
 ImageInput.defaultProps = {
+    chunk: 20,
     maxHeight: 400,
     minHeight: 48,
     namespace: 'input-button',
+    page: 1,
     value: null,
     visible: false,
 };
