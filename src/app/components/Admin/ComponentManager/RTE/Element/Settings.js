@@ -87,7 +87,7 @@ const Settings = ({ children, editor, ...props }) => {
         hide();
     };
 
-    const _value = field => op.get(state, ['value', cc(field)]);
+    const _value = field => op.get(value, cc(field));
 
     const _handle = () => ({
         refs,
