@@ -87,6 +87,8 @@ const Settings = ({ children, editor, ...props }) => {
         hide();
     };
 
+    const _value = field => op.get(state, ['value', cc(field)]);
+
     const _handle = () => ({
         refs,
         setValue,
@@ -117,7 +119,7 @@ const Settings = ({ children, editor, ...props }) => {
                                         handle={handle}
                                         placeholder={key}
                                         onChange={_onChange}
-                                        defaultValue={op.get(value, key, '')}
+                                        defaultValue={_value(key)}
                                     />
                                 </div>
                             ))}

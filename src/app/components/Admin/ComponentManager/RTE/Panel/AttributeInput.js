@@ -7,9 +7,9 @@ import Reactium, { useHookComponent } from 'reactium-core/sdk';
 const noop = () => {};
 
 const typeFromName = (name, defaultType = 'text') => {
-    let type = defaultType;
-
     name = String(name).toLowerCase();
+
+    let type = defaultType;
 
     if (name.endsWith('color')) {
         type = 'color';
@@ -27,17 +27,60 @@ const typeFromName = (name, defaultType = 'text') => {
         type = 'video';
     }
 
+    if (name.endsWith('text')) {
+        type = 'textarea';
+    }
+
+    if (name.endsWith('toggle')) {
+        type = 'toggle';
+    }
+
+    if (name.endsWith('check') || name.endsWith('checkbox')) {
+        type = 'checkbox';
+    }
+
     return type;
 };
 
 const AttributeInput = ({ onChange = noop, ...props }) => {
+    const checked = props.defaultValue === true;
+
     const type = typeFromName(props.name, props.type);
 
     const ColorInput = useHookComponent('ColorPicker');
 
+    const { Checkbox, Toggle } = useHookComponent('ReactiumUI');
+
+    const onToggle = e =>
+        onChange({ target: { name: e.target.name, value: e.target.checked } });
+
     let element = <input {...props} onChange={onChange} type={type} />;
 
     switch (type) {
+        case 'checkbox':
+            element = (
+                <Checkbox
+                    {...props}
+                    onChange={onToggle}
+                    defaultValue={true}
+                    defaultChecked={checked}
+                    label={props.placeholder}
+                />
+            );
+            break;
+
+        case 'toggle':
+            element = (
+                <Toggle
+                    {...props}
+                    onChange={onToggle}
+                    defaultValue={true}
+                    defaultChecked={checked}
+                    label={props.placeholder}
+                />
+            );
+            break;
+
         case 'color':
             element = <ColorInput {...props} onChange={onChange} />;
             break;
@@ -50,12 +93,19 @@ const AttributeInput = ({ onChange = noop, ...props }) => {
             element = <ImageInput {...props} onChange={onChange} />;
             break;
 
+        case 'textarea':
+            element = <textarea {...props} onChange={onChange} rows={3} />;
+
         case 'video':
             element = <VideoInput {...props} onChange={onChange} />;
             break;
     }
 
-    Reactium.Hook.runSync('rte-attribute-input', element);
+    Reactium.Hook.runSync('rte-attribute-input', element, {
+        ...props,
+        onChange,
+        type,
+    });
 
     return element;
 };

@@ -70,6 +70,8 @@ let Attributes = (props, ref) => {
         handle.dispatchEvent(evt);
     };
 
+    const _value = field => op.get(state, ['value', cc(field)]);
+
     const _handle = () => ({
         refs,
         attributes: op.get(state, 'attributes'),
@@ -105,10 +107,7 @@ let Attributes = (props, ref) => {
                                     name={cc(field)}
                                     placeholder={field}
                                     onChange={_onChange}
-                                    defaultValue={op.get(state, [
-                                        'value',
-                                        cc(field),
-                                    ])}
+                                    defaultValue={_value(field)}
                                 />
                             </div>
                         ))}
