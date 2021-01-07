@@ -1,13 +1,22 @@
 import _ from 'underscore';
 import op from 'object-path';
 import React, { useEffect, useState } from 'react';
-import { useHookComponent, useIsContainer, useStatus } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useIsContainer,
+    useRefs,
+    useStatus,
+} from 'reactium-core/sdk';
 
-const IconInput = ({ handle, ...props }) => {
+const noop = () => {};
+
+const IconInput = ({ onChange = noop, ...props }) => {
     const name = op.get(props, 'name');
     let ico = op.get(props, 'defaultValue');
     ico = !ico ? 'Feather.Star' : ico;
     ico = String(ico).includes('.') ? ico : 'Feather.Star';
+
+    const refs = useRefs();
 
     const [, setStatus, isStatus] = useStatus();
 
@@ -19,10 +28,14 @@ const IconInput = ({ handle, ...props }) => {
     const [visible, updateVisible] = useState(false);
 
     const _search = s => {
-        const picker = handle.refs.get(`picker.${name}`);
+        const picker = refs.get('picker');
         if (!picker) return;
         picker.setSearch(s);
         setVisible(true);
+
+        if (String(s).length < 1) {
+            onChange({ target: { name, value: null } });
+        }
     };
 
     const search = _.throttle(_search, 100);
@@ -50,18 +63,18 @@ const IconInput = ({ handle, ...props }) => {
 
         if (!ico) return;
 
-        handle.setValue(name, ico);
-
-        const input = handle.refs.get(`input.${name}`);
+        const input = refs.get('input');
         if (input) input.value = ico;
 
         setVisible(false);
+
+        onChange({ target: { name, value: ico } });
     };
 
     const _onFocus = () => setVisible(true);
 
     const _onBlur = e => {
-        const container = handle.refs.get(`picker.container${name}`);
+        const container = refs.get('container');
         if (container && isContainer(e.target, container)) {
             return;
         } else {
@@ -81,16 +94,14 @@ const IconInput = ({ handle, ...props }) => {
     }, []);
 
     return (
-        <div
-            className='input-button'
-            ref={elm => handle.refs.set(`picker.container${name}`, elm)}>
+        <div className='input-button' ref={elm => refs.set('container', elm)}>
             <div className='fieldset'>
                 <input
                     {...props}
                     type='text'
                     onFocus={_onFocus}
+                    ref={elm => refs.set('input', elm)}
                     onChange={e => search(e.target.value)}
-                    ref={elm => handle.refs.set(`input.${name}`, elm)}
                 />
                 <Button
                     readOnly
@@ -102,7 +113,7 @@ const IconInput = ({ handle, ...props }) => {
             <div className='icons' style={{ display: visible ? null : 'none' }}>
                 <Picker
                     onChange={_onChange}
-                    ref={elm => handle.refs.set(`picker.${name}`, elm)}
+                    ref={elm => refs.set('picker', elm)}
                 />
             </div>
         </div>

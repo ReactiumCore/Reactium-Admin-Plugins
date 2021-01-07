@@ -1,15 +1,15 @@
 import React from 'react';
-import op from 'object-path';
 import IconInput from './IconInput';
 import ImageInput from './ImageInput';
-import { useHookComponent } from 'reactium-core/sdk';
+import VideoInput from './VideoInput';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
-const AttributeInput = ({ handle, ...props }) => {
-    let type = 'text';
+const noop = () => {};
 
-    const name = String(op.get(props, 'name')).toLowerCase();
+const typeFromName = (name, defaultType = 'text') => {
+    let type = defaultType;
 
-    const ColorInput = useHookComponent('ColorPicker');
+    name = String(name).toLowerCase();
 
     if (name.endsWith('color')) {
         type = 'color';
@@ -23,41 +23,41 @@ const AttributeInput = ({ handle, ...props }) => {
         type = 'image';
     }
 
-    const setRef = key => elm => {
-        if (!handle.refs) return;
-        return handle.refs.set(`input.${key}`, elm);
-    };
+    if (name.endsWith('video')) {
+        type = 'video';
+    }
+
+    return type;
+};
+
+const AttributeInput = ({ onChange = noop, ...props }) => {
+    const type = typeFromName(props.name, props.type);
+
+    const ColorInput = useHookComponent('ColorPicker');
+
+    let element = <input {...props} onChange={onChange} type={type} />;
 
     switch (type) {
         case 'color':
-            return (
-                <ColorInput
-                    {...props}
-                    onChange={e => handle.setValue(props.name, e.target.value)}
-                />
-            );
+            element = <ColorInput {...props} onChange={onChange} />;
+            break;
 
         case 'icon':
-            return <IconInput handle={handle} {...props} />;
+            element = <IconInput {...props} onChange={onChange} />;
+            break;
 
         case 'image':
-            return (
-                <ImageInput
-                    {...props}
-                    onChange={e => handle.setValue(props.name, e.target.value)}
-                />
-            );
+            element = <ImageInput {...props} onChange={onChange} />;
+            break;
 
-        default:
-            return (
-                <input
-                    {...props}
-                    type={type}
-                    ref={setRef(name)}
-                    onChange={e => handle.setValue(props.name, e.target.value)}
-                />
-            );
+        case 'video':
+            element = <VideoInput {...props} onChange={onChange} />;
+            break;
     }
+
+    Reactium.Hook.runSync('rte-attribute-input', element);
+
+    return element;
 };
 
 export { AttributeInput, AttributeInput as default };

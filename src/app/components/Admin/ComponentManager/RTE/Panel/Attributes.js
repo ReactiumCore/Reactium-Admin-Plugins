@@ -57,6 +57,8 @@ let Attributes = (props, ref) => {
         setState({ value });
     };
 
+    const _onChange = e => setValue(e.target.name, e.target.value);
+
     const _onSubmit = () => {
         const evt = new ComponentEvent('submit', {
             block: {
@@ -102,6 +104,7 @@ let Attributes = (props, ref) => {
                                     handle={handle}
                                     name={cc(field)}
                                     placeholder={field}
+                                    onChange={_onChange}
                                     defaultValue={op.get(state, [
                                         'value',
                                         cc(field),

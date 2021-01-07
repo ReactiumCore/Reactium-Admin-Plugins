@@ -106,6 +106,8 @@ let ColorPicker = (
             ? state.value
             : ColorPicker.defaultProps.value;
 
+        if (!val) return;
+
         val = String(val).startsWith('#') ? String(val).toUpperCase() : val;
 
         return val;
@@ -116,13 +118,13 @@ let ColorPicker = (
     const unMounted = () => !refs.get('container');
 
     const _handle = () => ({
+        ...props,
         blur: hide,
         colors: colors(),
         dispatch,
         focus: show,
         hide,
         isStatus,
-        props,
         refs,
         show,
         setState,
@@ -154,7 +156,7 @@ let ColorPicker = (
             }
 
             const input = refs.get('input');
-            if (input && input.value !== handle.value) {
+            if (input && handle.value && input.value !== handle.value) {
                 input.value = handle.value;
             }
 
@@ -226,7 +228,7 @@ ColorPicker.defaultProps = {
     maxHeight: 256,
     minHeight: 48,
     namespace: 'input-button',
-    value: '#000000',
+    value: null,
     visible: false,
 };
 
@@ -253,4 +255,3 @@ const Swatch = ({
 );
 
 export { ColorPicker, ColorPicker as default };
-// <div style={{display: !state.visible ? 'none' : null }}>

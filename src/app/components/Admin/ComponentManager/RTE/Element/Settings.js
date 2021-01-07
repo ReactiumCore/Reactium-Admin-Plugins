@@ -74,6 +74,8 @@ const Settings = ({ children, editor, ...props }) => {
         update(newValue);
     };
 
+    const _onChange = e => setValue(e.target.name, e.target.value);
+
     const _submit = () => {
         const { node, path } = getNode();
 
@@ -114,6 +116,7 @@ const Settings = ({ children, editor, ...props }) => {
                                         name={cc(key)}
                                         handle={handle}
                                         placeholder={key}
+                                        onChange={_onChange}
                                         defaultValue={op.get(value, key, '')}
                                     />
                                 </div>

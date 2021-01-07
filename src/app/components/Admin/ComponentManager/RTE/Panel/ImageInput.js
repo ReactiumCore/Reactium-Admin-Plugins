@@ -98,23 +98,23 @@ let ImageInput = (
     const toggle = () => setVisible(!state.visible);
 
     const _data = (pg = 1) => {
-        let images = _.chain(
+        let items = _.chain(
             Array.from(media).filter(file => op.get(file, 'type') === 'IMAGE'),
         )
             .pluck('url')
             .sortBy('updatedAt')
             .value();
 
-        images.reverse();
-        images = _.chain(images)
+        items.reverse();
+        items = _.chain(items)
             .compact()
             .uniq()
             .without(state.value)
             .value();
 
-        Reactium.Hook.runSync('rte-image-picker', images);
+        Reactium.Hook.runSync('rte-image-input', items);
 
-        return pg >= 1 ? images.slice(0, pg * state.chunk) : images;
+        return pg >= 1 ? items.slice(0, pg * state.chunk) : items;
     };
 
     const _maxHeight = () => {
@@ -212,13 +212,12 @@ let ImageInput = (
     const unMounted = () => !refs.get('container');
 
     const _handle = () => ({
+        ...props,
         blur: hide,
         dispatch,
         focus: show,
         hide,
-        images: _data,
         isStatus,
-        props,
         refs,
         scrollToTop,
         show,
