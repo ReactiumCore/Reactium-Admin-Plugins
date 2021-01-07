@@ -67,7 +67,7 @@ const JsxContent = ({ children, ...props }) => {
     };
 
     return (
-        <div className='p-12' style={{ width: '100%', position: 'relative' }}>
+        <div style={{ width: '100%', position: 'relative' }}>
             <JsxContentRTE
                 onSubmit={setContent}
                 ref={elm => refs.set('rte', elm)}

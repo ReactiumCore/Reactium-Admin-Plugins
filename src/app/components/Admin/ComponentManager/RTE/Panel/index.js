@@ -153,8 +153,6 @@ let Panel = ({ namespace, title, ...props }) => {
     };
 
     const insertNode = ({ children, ...block }) => {
-        console.log(block);
-
         children = children || [{ text: '' }];
         const id = uuid();
         const node = [

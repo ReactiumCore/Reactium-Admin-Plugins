@@ -9,6 +9,7 @@ import AttributeInput from '../Panel/AttributeInput';
 
 import Reactium, {
     __,
+    useDerivedState,
     useEventHandle,
     useHookComponent,
     useRefs,
@@ -34,13 +35,15 @@ const Settings = ({ children, editor, ...props }) => {
 
     const keys = op.get(children, 'props.node.block.attributes', []);
 
-    const attributes = JSON.parse(
-        JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
-    );
+    const attributes = {
+        ...op.get(children, 'props.node.block.attribute', {}),
+    };
 
     const { Button, Dialog } = useHookComponent('ReactiumUI');
 
     const cx = Reactium.Utils.cxFactory('blocks-rte');
+
+    const [value, update] = useDerivedState(attributes);
 
     const getNode = () => {
         const nodes = Editor.nodes(editor, {
@@ -59,15 +62,19 @@ const Settings = ({ children, editor, ...props }) => {
         title: __('Attributes'),
     });
 
-    const _value = () =>
-        Object.entries(refs.get('input')).reduce((obj, [field, elm]) => {
-            if (!elm) return obj;
-            op.set(obj, field, elm.value);
-            return obj;
-        }, {});
+    const setValue = (key, val) => {
+        let newValue = JSON.parse(JSON.stringify(value));
 
-    const _submit = (val = {}) => {
-        const value = { ...val, ..._value() };
+        if (!_.isObject(key)) {
+            op.set(newValue, key, val);
+        } else {
+            newValue = key;
+        }
+
+        update(newValue);
+    };
+
+    const _submit = () => {
         const { node, path } = getNode();
 
         if (!node) return;
@@ -80,7 +87,7 @@ const Settings = ({ children, editor, ...props }) => {
 
     const _handle = () => ({
         refs,
-        setValue: noop,
+        setValue,
         submit: _submit,
     });
 
@@ -107,11 +114,7 @@ const Settings = ({ children, editor, ...props }) => {
                                         name={cc(key)}
                                         handle={handle}
                                         placeholder={key}
-                                        defaultValue={op.get(
-                                            attributes,
-                                            key,
-                                            '',
-                                        )}
+                                        defaultValue={op.get(value, key, '')}
                                     />
                                 </div>
                             ))}

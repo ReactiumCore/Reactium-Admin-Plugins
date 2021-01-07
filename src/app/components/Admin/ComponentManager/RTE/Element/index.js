@@ -82,9 +82,7 @@ const Element = initialProps => {
     const id = op.get(children, 'props.node.ID');
 
     const type = op.get(children, 'props.node.block.type');
-    const attr = JSON.parse(
-        JSON.stringify(op.get(children, 'props.node.block.attribute', {})),
-    );
+    const attr = { ...op.get(children, 'props.node.block.attribute', {}) };
 
     useEffect(() => {
         const cid = Reactium.Zone.addComponent({
