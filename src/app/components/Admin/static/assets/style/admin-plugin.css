@@ -29367,6 +29367,9 @@ input[type='object'] {
     line-height: 1;
     white-space: normal;
 }
+.ar-rte [data-slate-string] {
+    white-space: pre-wrap;
+}
 .ar-rte h1,
 .ar-rte h2,
 .ar-rte h3,
@@ -32728,6 +32731,22 @@ body {
 .wizard-input-group textarea:first-child:last-child:focus {
     border-right: 1px solid #4f82ba;
 }
+.input-group input:first-child:last-child:-moz-read-only:focus,
+.input-group select:first-child:last-child:-moz-read-only:focus,
+.input-group textarea:first-child:last-child:-moz-read-only:focus,
+.wizard-input-group input:first-child:last-child:-moz-read-only:focus,
+.wizard-input-group select:first-child:last-child:-moz-read-only:focus,
+.wizard-input-group textarea:first-child:last-child:-moz-read-only:focus {
+    border-right: 1px solid #f3f3f3;
+}
+.input-group input:first-child:last-child:read-only:focus,
+.input-group select:first-child:last-child:read-only:focus,
+.input-group textarea:first-child:last-child:read-only:focus,
+.wizard-input-group input:first-child:last-child:read-only:focus,
+.wizard-input-group select:first-child:last-child:read-only:focus,
+.wizard-input-group textarea:first-child:last-child:read-only:focus {
+    border-right: 1px solid #f3f3f3;
+}
 .ar-color-select-input.wizard-input-group *,
 .ar-media-picker-import-input.wizard-input-group *,
 .ar-media-picker-search-input.wizard-input-group *,
@@ -32809,6 +32828,18 @@ body {
 }
 .Toastify__progress-bar--info {
     background-color: #4f82ba;
+}
+.hover .mouseover {
+    display: none;
+}
+.hover .mouseout {
+    display: block;
+}
+.hover:hover .mouseover {
+    display: block;
+}
+.hover:hover .mouseout {
+    display: none;
 }
 .admin-page .zone-admin-header {
     z-index: 7000;
@@ -38957,6 +38988,903 @@ body.fullscreen .admin-content-list {
     width: 300px;
     min-height: 324px;
 }
+.blocks-rte .icons {
+    border: 1px solid #f7f7f7;
+    margin-top: -1px;
+}
+.blocks-rte .icons .ar-icon {
+    pointer-events: none;
+}
+.blocks-rte .ar-icon-picker h3 {
+    padding-left: 12px;
+}
+.blocks-rte .ar-icon-picker .container {
+    padding-left: 0;
+}
+.blocks-rte .rte-icons-search {
+    display: none;
+}
+.blocks-rte .ar-color-select-input .input-group input,
+.blocks-rte .ar-color-select-input .wizard-input-group input,
+.blocks-rte .ar-media-picker-import-input .input-group input,
+.blocks-rte .ar-media-picker-import-input .wizard-input-group input,
+.blocks-rte .ar-media-picker-search-input .input-group input,
+.blocks-rte .ar-media-picker-search-input .wizard-input-group input,
+.blocks-rte .editor-taxonomy-checklist-search .input-group input,
+.blocks-rte .editor-taxonomy-checklist-search .wizard-input-group input,
+.blocks-rte .editor-urls .input-group input,
+.blocks-rte .editor-urls .wizard-input-group input,
+.blocks-rte .form-group .input-group input,
+.blocks-rte .form-group .wizard-input-group input,
+.blocks-rte .wizard-input-group .input-group input,
+.blocks-rte .wizard-input-group .wizard-input-group input {
+    margin-top: 0;
+}
+.blocks-rte .ar-color-select-input .input-button .upload,
+.blocks-rte .ar-color-select-input .input-button .uploader,
+.blocks-rte .ar-media-picker-import-input .input-button .upload,
+.blocks-rte .ar-media-picker-import-input .input-button .uploader,
+.blocks-rte .ar-media-picker-search-input .input-button .upload,
+.blocks-rte .ar-media-picker-search-input .input-button .uploader,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .upload,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploader,
+.blocks-rte .editor-urls .input-button .upload,
+.blocks-rte .editor-urls .input-button .uploader,
+.blocks-rte .form-group .input-button .upload,
+.blocks-rte .form-group .input-button .uploader,
+.blocks-rte .wizard-input-group .input-button .upload,
+.blocks-rte .wizard-input-group .input-button .uploader {
+    margin-bottom: 12px;
+    border: 4px dashed #cfcfcf;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+.blocks-rte .ar-color-select-input .input-button .upload button,
+.blocks-rte .ar-color-select-input .input-button .uploader button,
+.blocks-rte .ar-media-picker-import-input .input-button .upload button,
+.blocks-rte .ar-media-picker-import-input .input-button .uploader button,
+.blocks-rte .ar-media-picker-search-input .input-button .upload button,
+.blocks-rte .ar-media-picker-search-input .input-button .uploader button,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .upload button,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploader button,
+.blocks-rte .editor-urls .input-button .upload button,
+.blocks-rte .editor-urls .input-button .uploader button,
+.blocks-rte .form-group .input-button .upload button,
+.blocks-rte .form-group .input-button .uploader button,
+.blocks-rte .wizard-input-group .input-button .upload button,
+.blocks-rte .wizard-input-group .input-button .uploader button {
+    margin-top: 8px;
+    width: 75%;
+}
+.blocks-rte .ar-color-select-input .input-button .delete,
+.blocks-rte .ar-media-picker-import-input .input-button .delete,
+.blocks-rte .ar-media-picker-search-input .input-button .delete,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .delete,
+.blocks-rte .editor-urls .input-button .delete,
+.blocks-rte .form-group .input-button .delete,
+.blocks-rte .wizard-input-group .input-button .delete {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 100;
+    border-radius: 0;
+}
+.blocks-rte .ar-color-select-input .input-button .delete svg,
+.blocks-rte .ar-media-picker-import-input .input-button .delete svg,
+.blocks-rte .ar-media-picker-search-input .input-button .delete svg,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .delete svg,
+.blocks-rte .editor-urls .input-button .delete svg,
+.blocks-rte .form-group .input-button .delete svg,
+.blocks-rte .wizard-input-group .input-button .delete svg {
+    width: 20px;
+    height: 20px;
+}
+.blocks-rte .ar-color-select-input .input-button .fieldset,
+.blocks-rte .ar-media-picker-import-input .input-button .fieldset,
+.blocks-rte .ar-media-picker-search-input .input-button .fieldset,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .fieldset,
+.blocks-rte .editor-urls .input-button .fieldset,
+.blocks-rte .form-group .input-button .fieldset,
+.blocks-rte .wizard-input-group .input-button .fieldset {
+    padding: 0;
+    position: relative;
+}
+.blocks-rte .ar-color-select-input .input-button .fieldset input,
+.blocks-rte .ar-media-picker-import-input .input-button .fieldset input,
+.blocks-rte .ar-media-picker-search-input .input-button .fieldset input,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .fieldset input,
+.blocks-rte .editor-urls .input-button .fieldset input,
+.blocks-rte .form-group .input-button .fieldset input,
+.blocks-rte .wizard-input-group .input-button .fieldset input {
+    margin-top: 0;
+    width: 100%;
+    min-width: 100%;
+    flex-shrink: 0;
+    padding-right: 49px;
+}
+.blocks-rte .ar-color-select-input .input-button .fieldset button,
+.blocks-rte .ar-color-select-input .input-button .fieldset span,
+.blocks-rte .ar-media-picker-import-input .input-button .fieldset button,
+.blocks-rte .ar-media-picker-import-input .input-button .fieldset span,
+.blocks-rte .ar-media-picker-search-input .input-button .fieldset button,
+.blocks-rte .ar-media-picker-search-input .input-button .fieldset span,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .fieldset button,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .fieldset span,
+.blocks-rte .editor-urls .input-button .fieldset button,
+.blocks-rte .editor-urls .input-button .fieldset span,
+.blocks-rte .form-group .input-button .fieldset button,
+.blocks-rte .form-group .input-button .fieldset span,
+.blocks-rte .wizard-input-group .input-button .fieldset button,
+.blocks-rte .wizard-input-group .input-button .fieldset span {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    width: 39px;
+    height: 39px;
+    padding: 0;
+    border-radius: 0 !important;
+}
+.blocks-rte .ar-color-select-input .input-button .fieldset .swatch,
+.blocks-rte .ar-media-picker-import-input .input-button .fieldset .swatch,
+.blocks-rte .ar-media-picker-search-input .input-button .fieldset .swatch,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .fieldset .swatch,
+.blocks-rte .editor-urls .input-button .fieldset .swatch,
+.blocks-rte .form-group .input-button .fieldset .swatch,
+.blocks-rte .wizard-input-group .input-button .fieldset .swatch {
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    width: 23px;
+    height: 23px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+.blocks-rte .ar-color-select-input .input-button .fieldset .swatch.light:after,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .fieldset
+    .swatch.light:after,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .fieldset
+    .swatch.light:after,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .fieldset
+    .swatch.light:after,
+.blocks-rte .editor-urls .input-button .fieldset .swatch.light:after,
+.blocks-rte .form-group .input-button .fieldset .swatch.light:after,
+.blocks-rte .wizard-input-group .input-button .fieldset .swatch.light:after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    border: 2px solid #333;
+    opacity: 0.1;
+    content: '';
+}
+.blocks-rte .ar-color-select-input .input-button .ar-color-select,
+.blocks-rte .ar-media-picker-import-input .input-button .ar-color-select,
+.blocks-rte .ar-media-picker-search-input .input-button .ar-color-select,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .ar-color-select,
+.blocks-rte .editor-urls .input-button .ar-color-select,
+.blocks-rte .form-group .input-button .ar-color-select,
+.blocks-rte .wizard-input-group .input-button .ar-color-select {
+    border: 1px solid #f7f7f7;
+    padding-bottom: 0;
+    margin-top: -1px;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-color-select-swatches,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-color-select-swatches,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-color-select-swatches,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-color-select-swatches,
+.blocks-rte .editor-urls .input-button .ar-color-select-swatches,
+.blocks-rte .form-group .input-button .ar-color-select-swatches,
+.blocks-rte .wizard-input-group .input-button .ar-color-select-swatches {
+    border-top: none;
+    padding-bottom: 12px;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select,
+.blocks-rte .ar-media-picker-import-input .input-button .ar-image-select,
+.blocks-rte .ar-media-picker-search-input .input-button .ar-image-select,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .ar-image-select,
+.blocks-rte .editor-urls .input-button .ar-image-select,
+.blocks-rte .form-group .input-button .ar-image-select,
+.blocks-rte .wizard-input-group .input-button .ar-image-select {
+    border: 1px solid #f7f7f7;
+    margin-top: -1px;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumbs,
+.blocks-rte .ar-media-picker-import-input .input-button .ar-image-select-thumbs,
+.blocks-rte .ar-media-picker-search-input .input-button .ar-image-select-thumbs,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumbs,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumbs,
+.blocks-rte .form-group .input-button .ar-image-select-thumbs,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumbs {
+    padding: 12px 12px 0 12px;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumbs .more,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumbs
+    .more,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumbs
+    .more,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumbs
+    .more,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumbs .more,
+.blocks-rte .form-group .input-button .ar-image-select-thumbs .more,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumbs .more {
+    width: 100%;
+    padding-bottom: 12px;
+}
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumbs .more button,
+.blocks-rte .form-group .input-button .ar-image-select-thumbs .more button,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button
+    *,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button
+    *,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button
+    *,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button
+    *,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumbs .more button *,
+.blocks-rte .form-group .input-button .ar-image-select-thumbs .more button *,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-thumbs
+    .more
+    button
+    * {
+    pointer-events: none;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumb,
+.blocks-rte .ar-color-select-input .input-button .uploads,
+.blocks-rte .ar-media-picker-import-input .input-button .ar-image-select-thumb,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads,
+.blocks-rte .ar-media-picker-search-input .input-button .ar-image-select-thumb,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb,
+.blocks-rte .editor-urls .input-button .uploads,
+.blocks-rte .form-group .input-button .ar-image-select-thumb,
+.blocks-rte .form-group .input-button .uploads,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumb,
+.blocks-rte .wizard-input-group .input-button .uploads {
+    margin-bottom: 12px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #f7f7f7;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    opacity: 0.95;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumb *,
+.blocks-rte .ar-color-select-input .input-button .uploads *,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb
+    *,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads *,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb
+    *,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads *,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb
+    *,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads *,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb *,
+.blocks-rte .editor-urls .input-button .uploads *,
+.blocks-rte .form-group .input-button .ar-image-select-thumb *,
+.blocks-rte .form-group .input-button .uploads *,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumb *,
+.blocks-rte .wizard-input-group .input-button .uploads * {
+    pointer-events: none;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumb img,
+.blocks-rte .ar-color-select-input .input-button .uploads img,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb
+    img,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads img,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb
+    img,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads img,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb
+    img,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads img,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb img,
+.blocks-rte .editor-urls .input-button .uploads img,
+.blocks-rte .form-group .input-button .ar-image-select-thumb img,
+.blocks-rte .form-group .input-button .uploads img,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumb img,
+.blocks-rte .wizard-input-group .input-button .uploads img {
+    max-width: 100%;
+    height: auto;
+    z-index: 2;
+}
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-thumb
+    img.loading,
+.blocks-rte .ar-color-select-input .input-button .uploads img.loading,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb
+    img.loading,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads img.loading,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb
+    img.loading,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads img.loading,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb
+    img.loading,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .uploads
+    img.loading,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb img.loading,
+.blocks-rte .editor-urls .input-button .uploads img.loading,
+.blocks-rte .form-group .input-button .ar-image-select-thumb img.loading,
+.blocks-rte .form-group .input-button .uploads img.loading,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-thumb
+    img.loading,
+.blocks-rte .wizard-input-group .input-button .uploads img.loading {
+    width: 100%;
+    height: 100px;
+    background-color: #f7f7f7;
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0.5;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumb:hover,
+.blocks-rte .ar-color-select-input .input-button .uploads:hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb:hover,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads:hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb:hover,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads:hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb:hover,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads:hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb:hover,
+.blocks-rte .editor-urls .input-button .uploads:hover,
+.blocks-rte .form-group .input-button .ar-image-select-thumb:hover,
+.blocks-rte .form-group .input-button .uploads:hover,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumb:hover,
+.blocks-rte .wizard-input-group .input-button .uploads:hover {
+    opacity: 1;
+    cursor: pointer;
+    border: 1px solid #999;
+    box-shadow: 0 0 0 2px rgba(153, 153, 153, 0.25);
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-thumb.active,
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-thumb.active:hover,
+.blocks-rte .ar-color-select-input .input-button .uploads.active,
+.blocks-rte .ar-color-select-input .input-button .uploads.active:hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb.active,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-thumb.active:hover,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads.active,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads.active:hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb.active,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-thumb.active:hover,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads.active,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads.active:hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb.active,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-thumb.active:hover,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads.active,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .uploads.active:hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb.active,
+.blocks-rte .editor-urls .input-button .ar-image-select-thumb.active:hover,
+.blocks-rte .editor-urls .input-button .uploads.active,
+.blocks-rte .editor-urls .input-button .uploads.active:hover,
+.blocks-rte .form-group .input-button .ar-image-select-thumb.active,
+.blocks-rte .form-group .input-button .ar-image-select-thumb.active:hover,
+.blocks-rte .form-group .input-button .uploads.active,
+.blocks-rte .form-group .input-button .uploads.active:hover,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-thumb.active,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-thumb.active:hover,
+.blocks-rte .wizard-input-group .input-button .uploads.active,
+.blocks-rte .wizard-input-group .input-button .uploads.active:hover {
+    opacity: 1;
+    cursor: default;
+    border: 1px solid #4f82ba;
+    box-shadow: 0 0 0 2px rgba(79, 130, 186, 0.25);
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video,
+.blocks-rte .ar-media-picker-import-input .input-button .ar-image-select-video,
+.blocks-rte .ar-media-picker-search-input .input-button .ar-image-select-video,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video,
+.blocks-rte .editor-urls .input-button .ar-image-select-video,
+.blocks-rte .form-group .input-button .ar-image-select-video,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video {
+    position: relative;
+    margin-bottom: 12px;
+    background-color: #000;
+    line-height: 1;
+    border: 1px solid #fff;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video video,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    video,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    video,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    video,
+.blocks-rte .editor-urls .input-button .ar-image-select-video video,
+.blocks-rte .form-group .input-button .ar-image-select-video video,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video video {
+    outline: 0;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video .delete,
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video .hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    .hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    .hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    .hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-video .delete,
+.blocks-rte .editor-urls .input-button .ar-image-select-video .hover,
+.blocks-rte .form-group .input-button .ar-image-select-video .delete,
+.blocks-rte .form-group .input-button .ar-image-select-video .hover,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video .delete,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video .hover {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 100;
+}
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-video
+    .delete
+    svg,
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-video
+    .hover
+    svg,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    .delete
+    svg,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    .hover
+    svg,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    .delete
+    svg,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    .hover
+    svg,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    .delete
+    svg,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    .hover
+    svg,
+.blocks-rte .editor-urls .input-button .ar-image-select-video .delete svg,
+.blocks-rte .editor-urls .input-button .ar-image-select-video .hover svg,
+.blocks-rte .form-group .input-button .ar-image-select-video .delete svg,
+.blocks-rte .form-group .input-button .ar-image-select-video .hover svg,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-video
+    .delete
+    svg,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-video
+    .hover
+    svg {
+    width: 20px;
+    height: 20px;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video .delete,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video
+    .delete,
+.blocks-rte .editor-urls .input-button .ar-image-select-video .delete,
+.blocks-rte .form-group .input-button .ar-image-select-video .delete,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video .delete {
+    opacity: 1;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video:hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video:hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video:hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video:hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-video:hover,
+.blocks-rte .form-group .input-button .ar-image-select-video:hover,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video:hover {
+    border: 1px solid #999;
+    box-shadow: 0 0 0 2px rgba(153, 153, 153, 0.25);
+}
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-video:hover
+    .hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video:hover
+    .hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video:hover
+    .hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video:hover
+    .hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-video:hover .hover,
+.blocks-rte .form-group .input-button .ar-image-select-video:hover .hover,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-video:hover
+    .hover {
+    opacity: 1;
+}
+.blocks-rte .ar-color-select-input .input-button .ar-image-select-video.active,
+.blocks-rte
+    .ar-color-select-input
+    .input-button
+    .ar-image-select-video.active:hover,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video.active,
+.blocks-rte
+    .ar-media-picker-import-input
+    .input-button
+    .ar-image-select-video.active:hover,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video.active,
+.blocks-rte
+    .ar-media-picker-search-input
+    .input-button
+    .ar-image-select-video.active:hover,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video.active,
+.blocks-rte
+    .editor-taxonomy-checklist-search
+    .input-button
+    .ar-image-select-video.active:hover,
+.blocks-rte .editor-urls .input-button .ar-image-select-video.active,
+.blocks-rte .editor-urls .input-button .ar-image-select-video.active:hover,
+.blocks-rte .form-group .input-button .ar-image-select-video.active,
+.blocks-rte .form-group .input-button .ar-image-select-video.active:hover,
+.blocks-rte .wizard-input-group .input-button .ar-image-select-video.active,
+.blocks-rte
+    .wizard-input-group
+    .input-button
+    .ar-image-select-video.active:hover {
+    border: 1px solid #4f82ba;
+    box-shadow: 0 0 0 2px rgba(79, 130, 186, 0.25);
+}
+.blocks-rte .ar-color-select-input .input-button .uploads:hover,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads:hover,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads:hover,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads:hover,
+.blocks-rte .editor-urls .input-button .uploads:hover,
+.blocks-rte .form-group .input-button .uploads:hover,
+.blocks-rte .wizard-input-group .input-button .uploads:hover {
+    cursor: pointer;
+}
+.blocks-rte .ar-color-select-input .input-button .uploads .progress,
+.blocks-rte .ar-media-picker-import-input .input-button .uploads .progress,
+.blocks-rte .ar-media-picker-search-input .input-button .uploads .progress,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .uploads .progress,
+.blocks-rte .editor-urls .input-button .uploads .progress,
+.blocks-rte .form-group .input-button .uploads .progress,
+.blocks-rte .wizard-input-group .input-button .uploads .progress {
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    z-index: 3;
+    background-color: transparent;
+    position: absolute;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.blocks-rte .ar-color-select-input .input-button .transparent,
+.blocks-rte .ar-media-picker-import-input .input-button .transparent,
+.blocks-rte .ar-media-picker-search-input .input-button .transparent,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .transparent,
+.blocks-rte .editor-urls .input-button .transparent,
+.blocks-rte .form-group .input-button .transparent,
+.blocks-rte .wizard-input-group .input-button .transparent {
+    position: relative;
+    background-color: transparent !important;
+}
+.blocks-rte .ar-color-select-input .input-button .transparent:before,
+.blocks-rte .ar-media-picker-import-input .input-button .transparent:before,
+.blocks-rte .ar-media-picker-search-input .input-button .transparent:before,
+.blocks-rte .editor-taxonomy-checklist-search .input-button .transparent:before,
+.blocks-rte .editor-urls .input-button .transparent:before,
+.blocks-rte .form-group .input-button .transparent:before,
+.blocks-rte .wizard-input-group .input-button .transparent:before {
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1;
+    background-position: 0 0, 10px 10px;
+    background-size: 20px 20px;
+    background-image: linear-gradient(
+            45deg,
+            #fff 25%,
+            transparent 25%,
+            transparent 75%,
+            #fff 75%,
+            #fff 100%
+        ),
+        linear-gradient(
+            45deg,
+            #fff 25%,
+            #f7f7f7 25%,
+            #f7f7f7 75%,
+            #fff 75%,
+            #fff 100%
+        );
+}
 .blocks-rte-attributes {
     width: calc(100vh - 40px);
     max-width: 300px;
@@ -39156,13 +40084,8 @@ body.fullscreen .admin-content-list {
 .rte-jsx-component-blocker:hover {
     opacity: 1;
 }
-.rte-jsx-component-blocker .blur-target {
-    position: absolute;
-    top: -100vh;
-    left: -100vw;
-    opacity: 0;
-    width: 0;
-    height: 0;
+.rte-jsx-component-blocker button {
+    position: relative;
 }
 .admin-components {
     padding-top: 60px;
@@ -39561,8 +40484,11 @@ body.fullscreen .admin-content-list {
     padding: 20px;
 }
 .admin-components-creator .attribute {
+    position: relative;
     padding: 16px 20px;
-    border-bottom: 1px solid #f7f7f7;
+    border: 1px solid #f7f7f7;
+    margin: -1px -1px 0 -1px;
+    background-color: #fff;
 }
 .admin-components-creator .attributes {
     position: relative;
@@ -39632,8 +40558,11 @@ body.fullscreen .admin-content-list {
     list-style: none;
 }
 .admin-components-list .attributes .attribute {
+    position: relative;
     padding: 16px 20px;
-    border-bottom: 1px solid #f7f7f7;
+    border: 1px solid #f7f7f7;
+    margin: -1px -1px 0 -1px;
+    background-color: #fff;
 }
 .admin-components-list h3 {
     font-weight: 500;
@@ -39672,6 +40601,31 @@ body.fullscreen .admin-content-list {
     .admin-sidebar-expanded .admin-components-list {
         overflow: visible;
     }
+}
+.attribute-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    opacity: 0;
+}
+.attribute-handle:hover {
+    opacity: 1;
+}
+.attribute-handle:after {
+    width: 4px;
+    height: 16px;
+    content: '';
+    border-left: 1px solid #cfcfcf;
+    border-right: 1px solid #cfcfcf;
 }
 .ar-data-table-heading-user {
     text-align: center !important;
