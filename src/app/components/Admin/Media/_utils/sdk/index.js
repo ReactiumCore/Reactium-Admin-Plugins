@@ -81,7 +81,7 @@ class Media {
         ]).protected.forEach(id => this.ScrubEvent.register(id));
     }
 
-    __onStatus(params) {
+    async __onStatus(params) {
         const { uploads = {} } = this.state;
         const { ID, progress, status } = params;
 
@@ -94,7 +94,9 @@ class Media {
             op.set(uploads, [ID, 'progress'], Number(progress));
         }
 
-        if (progress === 1) this.fetch();
+        if (progress === 1) {
+            await this.fetch({ page: -1 });
+        }
 
         if (op.has(params, 'url')) {
             op.set(uploads, [ID, 'url'], params.url);

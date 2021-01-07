@@ -20,6 +20,7 @@ import Reactium, {
 const noop = () => {};
 
 const STATUS = {
+    COMPLETE: 'complete',
     PENDING: 'pending',
     READY: 'ready',
     UPDATED: 'updated',
@@ -27,6 +28,7 @@ const STATUS = {
 
 let ImageInput = (
     {
+        dropzoneProps,
         chunk,
         maxHeight,
         minHeight,
@@ -48,22 +50,28 @@ let ImageInput = (
 
     const isContainer = useIsContainer();
 
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Dropzone, Icon, Progress } = useHookComponent('ReactiumUI');
 
     const [status, setStatus, isStatus] = useStatus(STATUS.PENDING);
 
     const [state, update] = useDerivedState({
         chunk,
+        directory: 'uploads',
+        maxHeight,
+        minHeight,
         page,
         pages: 1,
+        progress: 0,
+        upload: null,
         value: props.defaultValue || initialValue,
         visible: initialVisible,
     });
 
-    const setState = (k, v) => {
+    const setState = (k, v, silent) => {
         if (unMounted()) return;
         const newState = _.isString(k) ? { [k]: v } : k;
-        update(newState);
+        silent = !_.isString(k) ? v : silent;
+        update(newState, silent);
     };
 
     const setValue = v => setState('value', v);
@@ -109,6 +117,14 @@ let ImageInput = (
         return pg >= 1 ? images.slice(0, pg * state.chunk) : images;
     };
 
+    const _maxHeight = () => {
+        if (!window) {
+            return state.maxHeight || 300;
+        } else {
+            return state.maxHeight || window.innerHeight * 0.8 - 125;
+        }
+    };
+
     const _next = () => setState('page', state.page + 1);
 
     const _onBlur = e => {
@@ -122,6 +138,42 @@ let ImageInput = (
     };
 
     const _onChange = e => setValue(e.target.value);
+
+    const _onFileAdded = e => {
+        if (state.upload) return;
+        const upload = _.first(e.added);
+        Reactium.Media.upload([upload], state.directory);
+        setState({ value: null, upload: { ...upload, progress: 0 } });
+    };
+
+    const _onFileComplete = e => {
+        if (!isStatus(STATUS.COMPLETE)) {
+            setStatus(STATUS.COMPLETE);
+            return;
+        }
+
+        if (!state.upload) return;
+
+        const { ID, url } = e.params;
+        if (state.upload.ID !== ID) return;
+
+        setState({ upload: null }, true);
+        setValue(url);
+    };
+
+    const _onFileProgress = e => {
+        if (e.type !== 'status' || unMounted()) return;
+        if (!state.upload) return;
+
+        let { upload } = state;
+        const { ID, progress } = e.params;
+
+        if (upload.ID !== ID || progress === 1) return;
+
+        op.set(upload, 'progress', progress);
+
+        setState({ upload });
+    };
 
     const _onFocus = e => {
         setVisible(true);
@@ -192,26 +244,27 @@ let ImageInput = (
     useEffect(() => {
         const newValue = _value();
 
+        const input = refs.get('input');
+        if (input && input.value !== newValue) {
+            input.value = newValue;
+        }
+
         if (handle.value !== newValue) {
             handle.value = newValue;
             if (!isStatus(STATUS.PENDING)) {
                 onChange(dispatch('change', { value: handle.value }));
             }
 
-            const input = refs.get('input');
-            if (input && input.value !== handle.value) {
-                input.value = handle.value;
-            }
-
             setHandle(handle);
         }
-    }, [status, state.value]);
+    });
 
     useEffect(() => {
         dispatch('status', { status, isStatus, setStatus });
 
         switch (status) {
             case STATUS.UPDATED:
+            case STATUS.COMPLETE:
                 setStatus(STATUS.READY, true);
                 break;
         }
@@ -233,82 +286,138 @@ let ImageInput = (
         };
     }, []);
 
+    useEffect(() => {
+        const hooks = [
+            Reactium.Hook.registerSync('media-worker', _onFileProgress),
+            Reactium.Hook.registerSync('media-complete', _onFileComplete),
+        ];
+        return () => {
+            hooks.forEach(hook => Reactium.Hook.unregister(hook));
+        };
+    }, []);
+
     return (
-        <div className={cn(namespace)} ref={elm => refs.set('container', elm)}>
-            <div className='fieldset'>
-                <input
-                    {...props}
-                    type='text'
-                    onFocus={_onFocus}
-                    onKeyUp={_onKeyUp}
-                    onChange={_onChange}
-                    defaultValue={state.value}
-                    ref={elm => refs.set('input', elm)}
-                />
-                <Button
-                    readOnly
-                    color='tertiary'
-                    style={{ pointerEvents: 'none' }}>
-                    <Icon name='Feather.ChevronDown' size={20} />
-                </Button>
-            </div>
+        <Dropzone
+            {...dropzoneProps}
+            onFileAdded={_onFileAdded}
+            ref={elm => refs.set('dropzone', elm)}>
+            <div data-file />
             <div
-                className='ar-image-select'
-                style={{ display: !state.visible ? 'none' : null }}>
-                <Scrollbars
-                    autoHeight
-                    autoHeightMax={maxHeight}
-                    autoHeightMin={minHeight}
-                    ref={elm => refs.set('scroll', elm)}>
-                    <div className='ar-image-select-thumbs'>
-                        {state.value && (
-                            <button
-                                className={cn(
-                                    'ar-image-select-thumb',
-                                    'transparent',
-                                    {
-                                        active: state.value === state.value,
-                                    },
-                                )}
-                                onClick={_onSelect(state.value)}>
-                                <img src={state.value} />
-                            </button>
-                        )}
-                        {_data(state.page).map((url, i) => (
-                            <button
-                                key={btoa([url, i])}
-                                onClick={_onSelect(url)}
-                                className='ar-image-select-thumb transparent'>
-                                <img
-                                    src={url}
-                                    className='loading'
-                                    onLoad={_onImageLoad}
-                                />
-                            </button>
-                        ))}
-                        {state.page < state.pages && (
-                            <div className='more'>
-                                <Button
-                                    block
-                                    onClick={_next}
-                                    color={Button.ENUMS.COLOR.TERTIARY}>
-                                    {__('Load More')}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </Scrollbars>
+                className={cn(namespace)}
+                ref={elm => refs.set('container', elm)}>
+                <div className='fieldset'>
+                    <input
+                        {...props}
+                        type='text'
+                        onFocus={_onFocus}
+                        onKeyUp={_onKeyUp}
+                        onChange={_onChange}
+                        disabled={!!state.upload}
+                        defaultValue={state.value}
+                        ref={elm => refs.set('input', elm)}
+                    />
+                    <Button
+                        readOnly
+                        color='tertiary'
+                        style={{ pointerEvents: 'none' }}>
+                        <Icon name='Feather.ChevronDown' size={20} />
+                    </Button>
+                </div>
+                <div
+                    className='ar-image-select'
+                    style={{ display: !state.visible ? 'none' : null }}>
+                    <Scrollbars
+                        autoHeight
+                        autoHeightMax={_maxHeight()}
+                        autoHeightMin={state.minHeight}
+                        ref={elm => refs.set('scroll', elm)}>
+                        <div className='ar-image-select-thumbs'>
+                            {state.value && !state.uploads && (
+                                <>
+                                    <div className='active transparent ar-image-select-thumb'>
+                                        <img src={state.value} />
+                                    </div>
+                                    <Button
+                                        className='delete'
+                                        size={Button.ENUMS.SIZE.XS}
+                                        onClick={() => setValue(null)}
+                                        color={Button.ENUMS.COLOR.DANGER}>
+                                        <Icon name='Feather.X' />
+                                    </Button>
+                                </>
+                            )}
+                            {!state.value && !state.upload && (
+                                <div className='uploader'>
+                                    {__('Drag & Drop')}
+                                    <div>{__('or')}</div>
+                                    <Button
+                                        outline
+                                        data-file
+                                        appearance={
+                                            Button.ENUMS.APPEARANCE.PILL
+                                        }>
+                                        {__('Upload')}
+                                    </Button>
+                                </div>
+                            )}
+                            {state.upload && (
+                                <div className='uploads'>
+                                    <img src={state.upload.dataURL} />
+                                    <div className='progress'>
+                                        <Progress
+                                            value={state.upload.progress}
+                                            size={Progress.ENUMS.SIZE.XS}
+                                            appearance={
+                                                Progress.ENUMS.APPEARANCE.PILL
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {_data(state.page).map((url, i) => (
+                                <button
+                                    key={btoa([url, i])}
+                                    onClick={_onSelect(url)}
+                                    className='transparent ar-image-select-thumb'>
+                                    <img
+                                        src={url}
+                                        className='loading'
+                                        onLoad={_onImageLoad}
+                                    />
+                                </button>
+                            ))}
+                            {state.page < state.pages && (
+                                <div className='more'>
+                                    <Button
+                                        block
+                                        onClick={_next}
+                                        color={Button.ENUMS.COLOR.TERTIARY}>
+                                        {__('Load More')}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </Scrollbars>
+                </div>
             </div>
-        </div>
+        </Dropzone>
     );
 };
 
 ImageInput = forwardRef(ImageInput);
 
 ImageInput.defaultProps = {
-    chunk: 20,
-    maxHeight: 400,
-    minHeight: 48,
+    chunk: 10,
+    dropzoneProps: {
+        config: {
+            chunking: false,
+            maxFiles: 1,
+            clickable: '[data-file]',
+            previewTemplate: '<span />',
+        },
+        debug: false,
+    },
+    minHeight: 125,
     namespace: 'input-button',
     page: 1,
     value: null,

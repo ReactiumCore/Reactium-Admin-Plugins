@@ -33,7 +33,7 @@ const AttributeInput = ({ handle, ...props }) => {
             return (
                 <ColorInput
                     {...props}
-                    onChange={e => handle.setValue(name, e.target.value)}
+                    onChange={e => handle.setValue(props.name, e.target.value)}
                 />
             );
 
@@ -44,7 +44,7 @@ const AttributeInput = ({ handle, ...props }) => {
             return (
                 <ImageInput
                     {...props}
-                    onChange={e => handle.setValue(name, e.target.value)}
+                    onChange={e => handle.setValue(props.name, e.target.value)}
                 />
             );
 
@@ -54,7 +54,7 @@ const AttributeInput = ({ handle, ...props }) => {
                     {...props}
                     type={type}
                     ref={setRef(name)}
-                    onChange={e => handle.setValue(name, e.target.value)}
+                    onChange={e => handle.setValue(props.name, e.target.value)}
                 />
             );
     }

@@ -1,9 +1,10 @@
+import _ from 'underscore';
 import op from 'object-path';
 import Settings from './Settings';
 import JsxContent from './JsxContent';
 import JsxParser from 'react-jsx-parser';
-import React, { useEffect } from 'react';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import React, { useEffect, useState } from 'react';
+import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
 
 const DefaultHookComponent = name => ({ children, ...attributes }) => {
     const attrToString = () => {
@@ -39,24 +40,39 @@ const HookComponent = ({ name, attributes = {} }) => {
     return <Component {...attributes} />;
 };
 
-const JsxComponent = ({ jsx, attributes = {}, ...props }) => {
+const JsxComponent = ({ attributes = {}, ...props }) => {
     op.set(
         attributes,
         'content',
         <JsxContent {...props} attributes={attributes} />,
     );
 
+    const [jsx, setJSX] = useState(props.jsx);
+
+    useAsyncEffect(async mounted => {
+        let comps = await Reactium.Setting.get('components');
+        if (!mounted()) return;
+
+        comps = Object.values(comps);
+        const name = op.get(props, 'node.block.name');
+        const newjsx = _.findWhere(comps, { name });
+
+        if (!newjsx) return;
+
+        if (jsx === newjsx.component) return;
+
+        setJSX(newjsx.component);
+    }, []);
+
     return (
-        <>
-            <JsxParser
-                jsx={jsx}
-                blacklistedTags={[]}
-                bindings={attributes}
-                blacklistedAttrs={[]}
-                renderInWrapper={false}
-                components={components()}
-            />
-        </>
+        <JsxParser
+            jsx={jsx}
+            blacklistedTags={[]}
+            bindings={attributes}
+            blacklistedAttrs={[]}
+            renderInWrapper={false}
+            components={components()}
+        />
     );
 };
 
