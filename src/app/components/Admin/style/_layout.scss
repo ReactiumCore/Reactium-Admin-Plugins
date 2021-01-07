@@ -383,3 +383,23 @@ body {
         }
     }
 }
+
+.hover {
+    .mouseover {
+        display: none;
+    }
+
+    .mouseout {
+        display: block;
+    }
+
+    &:hover {
+        .mouseover {
+            display: block;
+        }
+
+        .mouseout {
+            display: none;
+        }
+    }
+}

@@ -58,17 +58,18 @@
             }
 
             .delete {
-                width: 24px;
-                height: 24px;
+                width: 40px;
+                height: 40px;
                 padding: 0;
                 position: absolute;
-                top: 16px;
-                right: 16px;
+                top: 12px;
+                right: 12px;
                 z-index: 100;
+                border-radius: 0;
 
                 svg {
-                    width: 16px;
-                    height: 16px;
+                    width: 20px;
+                    height: 20px;
                 }
             }
 
@@ -199,6 +200,56 @@
                 &.active:hover {
                     opacity: 1;
                     cursor: default;
+                    border: 1px solid $color-primary;
+                    box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
+                }
+            }
+
+            .ar-image-select-video {
+                position: relative;
+                margin-bottom: 12px;
+                background-color: $color-black;
+                line-height: 1;
+                border: 1px solid $color-white;
+
+                video {
+                    outline: none;
+                }
+
+                .hover,
+                .delete {
+                    padding: 0;
+                    width: 40px;
+                    height: 40px;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    border-radius: 0;
+                    opacity: 0;
+                    transition: opacity 0.2s ease-in-out;
+                    z-index: 100;
+
+                    svg {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+
+                .delete {
+                    opacity: 1;
+                }
+
+                &:hover {
+                    border: 1px solid $color-gray;
+                    box-shadow: 0 0 0 2px rgba($color-gray, 0.25);
+
+                    .hover {
+                        opacity: 1;
+                    }
+                }
+
+                &.active,
+                &.active:hover {
                     border: 1px solid $color-primary;
                     box-shadow: 0 0 0 2px rgba($color-primary, 0.25);
                 }
