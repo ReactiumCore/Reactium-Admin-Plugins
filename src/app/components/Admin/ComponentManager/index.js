@@ -166,17 +166,15 @@ let ComponentManager = (
         parse: parseAttribute,
 
         remove: e => {
-            const { input, stateKey = 'attributes' } = e;
-            const idx = input.dataset.index;
+            const { stateKey = 'attributes' } = e;
+            const idx = Number(e.index || e.input.dataset.index);
 
-            const attribute = parseAttribute(input.value);
+            const attribute = parseAttribute(e.input.value);
 
             const attributes = op.get(state, stateKey, []) || [];
             attributes.splice(idx, 1);
 
-            const newState = { ...state };
-            op.set(newState, stateKey, attributes);
-            setState(state, newState);
+            setState({ [stateKey]: attributes });
 
             dispatch('attribute-remove', {
                 ...e,
@@ -567,7 +565,7 @@ let ComponentManager = (
                     onClick={attr.add}
                 />
 
-                <div className='attributes'>
+                <div className='attributes' id='attributes-1'>
                     <Scrollbars {...state.scrollbar}>
                         <DragDropContext onDragEnd={_onReorder}>
                             <Droppable

@@ -177,15 +177,10 @@ export default forwardRef((props, ref) => {
         }
     };
 
-    const updateValue = () => setValue(editor.form.getValue());
-
-    const _onChange = () => {
-        _.defer(() => updateValue());
-    };
-
-    const _onRemove = e => {
-        handle.attribute.remove(e);
-        _.defer(() => updateValue());
+    const updateValue = () => {
+        const form = handle.refs.get(`component.${uuid}.form`);
+        const newValue = form.getValue();
+        setValue(newValue);
     };
 
     const _onAdd = e => {
@@ -195,8 +190,17 @@ export default forwardRef((props, ref) => {
             return;
         }
 
-        handle.attribute.add(e);
-        _.defer(() => updateValue());
+        const attribute = handle.attribute.add(e);
+        setValue({ attribute });
+        editor.form.setValue(value);
+    };
+
+    const _onChange = () => _.defer(() => updateValue());
+
+    const _onRemove = e => {
+        const attribute = handle.attribute.remove(e);
+        setValue({ attribute });
+        editor.form.setValue(value);
     };
 
     const _onReorder = e => {
@@ -260,6 +264,7 @@ export default forwardRef((props, ref) => {
     // -------------------------------------------------------------------------
     return (
         <EventForm
+            id={`attributes-2-${uuid}`}
             name={`component-${uuid}`}
             onChange={_onChange}
             ref={elm => {

@@ -281,6 +281,12 @@ body {
                 &:focus {
                     border-right: 1px solid $color-primary;
                 }
+
+                &:read-only {
+                    &:focus {
+                        border-right: 1px solid #f3f3f3;
+                    }
+                }
             }
         }
     }
