@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import { __ } from 'reactium-core/sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -36,14 +37,14 @@ const List = ({
                 />
             </div>
         </div>
-        <Scrollbars>
+        <Scrollbars autoHeight autoHeightMin={324} autoHeightMax='80vh'>
             <ul>
-                {blocks.map((block, i) => (
+                {_.sortBy(blocks, 'title').map((block, i) => (
                     <ListItem
                         block={block}
+                        onClick={onClick}
                         className={cx('list-item')}
                         key={`block-list-item-${i}`}
-                        onClick={onClick}
                     />
                 ))}
             </ul>

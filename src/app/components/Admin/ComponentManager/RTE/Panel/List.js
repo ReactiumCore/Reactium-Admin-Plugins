@@ -42,9 +42,9 @@ const List = ({
                 {_.sortBy(blocks, 'label').map((block, i) => (
                     <ListItem
                         block={block}
+                        onClick={onClick}
                         className={cx('list-item')}
                         key={`block-list-item-${i}`}
-                        onClick={onClick}
                     />
                 ))}
             </ul>
