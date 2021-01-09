@@ -80,7 +80,6 @@ const Element = initialProps => {
     const { children, className = 'component', ...props } = initialProps;
 
     const id = op.get(children, 'props.node.ID');
-
     const type = op.get(children, 'props.node.block.type');
     const attr = { ...op.get(children, 'props.node.block.attribute', {}) };
 

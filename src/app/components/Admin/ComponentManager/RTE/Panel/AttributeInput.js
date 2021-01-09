@@ -11,6 +11,34 @@ const typeFromName = (name, defaultType = 'text') => {
 
     let type = defaultType;
 
+    if (name.startsWith('color')) {
+        type = 'color';
+    }
+
+    if (name.startsWith('icon')) {
+        type = 'icon';
+    }
+
+    if (name.startsWith('image')) {
+        type = 'image';
+    }
+
+    if (name.startsWith('video')) {
+        type = 'video';
+    }
+
+    if (name.startsWith('text')) {
+        type = 'textarea';
+    }
+
+    if (name.endsWith('toggle')) {
+        type = 'toggle';
+    }
+
+    if (name.endsWith('check') || name.endsWith('checkbox')) {
+        type = 'checkbox';
+    }
+
     if (name.endsWith('color')) {
         type = 'color';
     }
@@ -95,6 +123,7 @@ const AttributeInput = ({ onChange = noop, ...props }) => {
 
         case 'textarea':
             element = <textarea {...props} onChange={onChange} rows={3} />;
+            break;
 
         case 'video':
             element = <VideoInput {...props} onChange={onChange} />;

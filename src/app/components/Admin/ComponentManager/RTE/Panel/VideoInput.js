@@ -238,6 +238,10 @@ let VideoInput = (
         };
     }, []);
 
+    useEffect(() => {
+        Reactium.Media.fetch({ page: -1 });
+    }, []);
+
     return (
         <div className={cn(namespace)} ref={elm => refs.set('container', elm)}>
             <div className='fieldset'>

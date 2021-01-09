@@ -295,6 +295,10 @@ let ImageInput = (
         };
     }, []);
 
+    useEffect(() => {
+        Reactium.Media.fetch({ page: -1 });
+    }, []);
+
     return (
         <Dropzone
             {...dropzoneProps}
