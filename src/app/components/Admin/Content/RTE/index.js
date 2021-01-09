@@ -2,8 +2,9 @@ import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
 import { List } from './List';
-import { Editor } from 'slate';
 import { useEditor } from 'slate-react';
+import { Editor, Transforms } from 'slate';
+import { useEditorSelection } from '../../registered-components/RichTextEditor/_utils';
 
 import Reactium, {
     __,
@@ -56,6 +57,8 @@ const Panel = () => {
 
     const editor = useEditor();
 
+    const [selection] = useEditorSelection(editor);
+
     const { Dialog, Spinner } = useHookComponent('ReactiumUI');
 
     const [status, setStatus, isStatus] = useStatus(ENUMS.STATUS.PENDING);
@@ -85,7 +88,7 @@ const Panel = () => {
         qry = new Reactium.Query('Content_block');
         qry.equalTo('status', 'PUBLISHED');
         qry.ascending('title');
-        qry.limit(100);
+        qry.limit(5000);
 
         if (search) qry.matches('title', new RegExp(search, 'gi'));
         Reactium.Cache.set('rte-block-list', qry, 5000);
@@ -106,12 +109,18 @@ const Panel = () => {
         const last = _.last(nodes);
         if (Editor.isEmpty(editor, last)) nodes.pop();
         if (nodes.length < 1) return;
-        Reactium.RTE.insertBlock(editor, nodes);
+
+        Transforms.insertNodes(editor, nodes, { at: selection });
+    };
+
+    const unMounted = () => !refs.get('container');
+
+    const _search = value => {
+        value = _.isEmpty([value]) ? null : value;
+        setState({ search: value });
     };
 
     const search = _.throttle(_search, 100);
-
-    const unMounted = () => !refs.get('container');
 
     const _onSelect = value => {
         insertNodes(op.get(value, 'content.children', []));
@@ -120,9 +129,17 @@ const Panel = () => {
 
     const _onSearch = e => search(e.target.value);
 
-    const _search = value => {
-        value = _.isEmpty([value]) ? null : value;
-        setState({ search: value });
+    const _data = () => {
+        const data = state.data;
+        const search = state.search;
+
+        if (!search || String(search).length < 1) return data;
+
+        return data.filter(({ label }) =>
+            String(label)
+                .toLowerCase()
+                .includes(String(search).toLowerCase()),
+        );
     };
 
     useAsyncEffect(async () => {
@@ -132,12 +149,6 @@ const Panel = () => {
         setStatus(ENUMS.STATUS.READY);
         setState({ data });
     }, [status]);
-
-    useAsyncEffect(async () => {
-        if (!isStatus(ENUMS.STATUS.READY)) return;
-        const data = await fetch({ refresh: true, search: state.search });
-        setState({ data });
-    }, [op.get(state, 'search')]);
 
     return (
         <Dialog
@@ -149,7 +160,7 @@ const Panel = () => {
             <div className={cx()}>
                 <List
                     cx={cx}
-                    blocks={state.data}
+                    blocks={_data()}
                     onClick={_onSelect}
                     onSearch={_onSearch}
                 />

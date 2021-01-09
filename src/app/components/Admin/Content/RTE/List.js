@@ -39,7 +39,7 @@ const List = ({
         </div>
         <Scrollbars autoHeight autoHeightMin={324} autoHeightMax='80vh'>
             <ul>
-                {_.sortBy(blocks, 'title').map((block, i) => (
+                {_.sortBy(blocks, 'label').map((block, i) => (
                     <ListItem
                         block={block}
                         onClick={onClick}
