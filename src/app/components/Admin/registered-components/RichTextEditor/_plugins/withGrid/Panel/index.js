@@ -83,6 +83,7 @@ const Panel = ({ submitButtonLabel, namespace, title, ...props }) => {
             column: col,
             deletable: false,
             id: `block-${id}-${i}`,
+            inspector: false,
             type: 'block',
         }));
 

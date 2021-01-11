@@ -4,17 +4,11 @@ import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 const noop = () => {};
 
-const BackgroundColor = ({ onChange, styles }) => {
+const TextColor = ({ onChange, styles }) => {
     const { ColorSelect } = useHookComponent('RichTextEditorSettings');
 
     const colors = () => {
         let clrs = JSON.parse(JSON.stringify(Reactium.RTE.colors));
-
-        clrs.splice(0, 0, {
-            className: 'transparent light',
-            label: __('transparent'),
-            value: 'transparent',
-        });
 
         clrs.splice(0, 0, {
             className: 'remove',
@@ -22,7 +16,7 @@ const BackgroundColor = ({ onChange, styles }) => {
             value: null,
         });
 
-        Reactium.Hook.runSync('rte-background-colors', clrs);
+        Reactium.Hook.runSync('rte-text-colors', clrs);
 
         return clrs;
     };
@@ -32,15 +26,15 @@ const BackgroundColor = ({ onChange, styles }) => {
             editable
             colors={colors()}
             onChange={onChange}
-            name='style.backgroundColor'
-            value={op.get(styles, 'backgroundColor')}
+            name='style.color'
+            value={op.get(styles, 'color')}
         />
     );
 };
 
-BackgroundColor.defaultProps = {
+TextColor.defaultProps = {
     onChange: noop,
     styles: {},
 };
 
-export { BackgroundColor, BackgroundColor as default };
+export { TextColor, TextColor as default };

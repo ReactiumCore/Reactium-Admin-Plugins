@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
@@ -58,27 +58,24 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
             _.defer(() => resolve({ ...state, ...newState }));
         });
 
-    const extendColors = () => {
-        const newColors = colors => {
-            colors.splice(0, 0, {
-                className: 'transparent light',
-                label: __('transparent'),
-                value: 'transparent',
-            });
+    const colors = () => {
+        let clrs = JSON.parse(JSON.stringify(Reactium.RTE.colors));
 
-            colors.splice(0, 0, {
-                className: 'remove',
-                label: __('none'),
-                value: null,
-            });
-        };
+        clrs.splice(0, 0, {
+            className: 'transparent light',
+            label: __('transparent'),
+            value: 'transparent',
+        });
 
-        const hook = String('rte-colors').toLowerCase();
-        const HID = Reactium.Hook.registerSync(hook, newColors);
+        clrs.splice(0, 0, {
+            className: 'remove',
+            label: __('none'),
+            value: null,
+        });
 
-        return () => {
-            Reactium.Hook.unregister(HID);
-        };
+        Reactium.Hook.runSync('rte-border-colors', clrs);
+
+        return clrs;
     };
 
     const onCollapse = () => {
@@ -124,8 +121,6 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
         );
     };
 
-    useEffect(extendColors, []);
-
     return (
         <>
             <div {...props} className={cn('borderColors', className)}>
@@ -149,6 +144,7 @@ const BorderColors = ({ className, onChange, styles, ...props }) => {
                     ref={elm => refs.set('collapsible', elm)}>
                     <ColorSelect
                         name={`style.${state.active}`}
+                        colors={colors()}
                         onChange={onClick}
                         value={
                             state.active

@@ -4,6 +4,7 @@ import op from 'object-path';
 import ENUMS from '../enums';
 import isHotkey from 'is-hotkey';
 import { plural } from 'pluralize';
+import cb from 'copy-to-clipboard';
 import RTEPlugin from '../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import { isDark, isLight } from '../Settings/utils';
@@ -61,6 +62,7 @@ class RTE {
         this.toggleBlock = toggleBlock;
         this.toggleMark = toggleMark;
 
+        this.Action = new Registry();
         this.Block = new Registry();
         this.Button = new Registry();
         this.Color = new Registry();
@@ -71,6 +73,7 @@ class RTE {
         this.Tab = new Registry();
 
         this.Ext = {
+            Action: this.Action,
             Block: this.Block,
             Button: this.Button,
             Color: this.Color,
@@ -88,8 +91,10 @@ class RTE {
                 .charAt(0)
                 .toUpperCase() + String(id).slice(1);
 
-        if (op.get(this.Ext, id) || op.get(this, id))
-            throw new Error('RTE registry "' + id + '" already exists');
+        if (op.get(this.Ext, id) || op.get(this, id)) {
+            console.log('RTE registry "' + id + '" already exists');
+            return this[id];
+        }
 
         this.Ext[id] = new Registry();
         this[id] = this.Ext[id];
@@ -117,6 +122,10 @@ class RTE {
         }, {});
     }
 
+    get actions() {
+        return this.list.actions;
+    }
+
     get blocks() {
         return this.list.blocks;
     }
@@ -126,9 +135,15 @@ class RTE {
     }
 
     get colors() {
-        let clrs = Object.values(this.list.colors);
-        Reactium.Hook.runSync('colors', clrs);
-        return clrs;
+        let clrObj = this.Color.list();
+
+        Reactium.Hook.runSync('rte-colors', clrObj);
+
+        let clrArr = Object.values(clrObj);
+
+        Reactium.Hook.runSync('colors', clrArr);
+
+        return clrArr;
     }
 
     get fonts() {
@@ -201,10 +216,11 @@ class RTE {
     getNodeByID(editor, id) {
         const nodes = Editor.nodes(editor, {
             at: [],
-            match: node => op.get(node, 'id') === id,
+            match: node =>
+                op.get(node, 'id') === id || op.get(node, 'ID') === id,
         });
 
-        let node = _.first(Array.from(nodes));
+        const node = _.first(Array.from(nodes));
         return node ? _.object(['node', 'path'], node) : { node: {}, path: [] };
     }
 
@@ -340,6 +356,52 @@ class RTE {
             Transforms.insertNodes(editor, node, { at: next, split: true });
             if (isEmpty) Transforms.delete(editor, { at: path });
         }
+    }
+
+    clone(editor, node, selection) {
+        const dupe = this.reassign(node);
+        Transforms.insertNodes(editor, dupe, { at: Path.next(selection) });
+        return dupe;
+    }
+
+    copy(node) {
+        const newNode = JSON.stringify(node);
+        cb(newNode);
+        return newNode;
+    }
+
+    reassign(node) {
+        if (_.isObject(node) || _.isArray(node)) {
+            node = JSON.stringify(node);
+        }
+
+        node = _.isString(node)
+            ? JSON.stringify(JSON.parse(node), null, 2)
+            : node;
+
+        const ids = [];
+        const regexes = [/\"id\": \"(.*)\"\,/gim, /\"id\": \"block-(.*)\"\,/gm];
+
+        // Get ids
+        regexes.forEach(regex => {
+            let m;
+            while ((m = regex.exec(node)) !== null) {
+                if (m.index === regex.lastIndex) regex.lastIndex++;
+                m.forEach(match =>
+                    ids.push(
+                        String(match)
+                            .replace(/block-/gm, '')
+                            .replace(/\"ID": /gim, '')
+                            .replace(/\"/gm, '')
+                            .replace(/\,/gm, '')
+                            .replace(/ /gm, ''),
+                    ),
+                );
+            }
+        });
+
+        node = ids.reduce((n, id) => n.split(id).join(uuid()), node);
+        return JSON.parse(node);
     }
 }
 

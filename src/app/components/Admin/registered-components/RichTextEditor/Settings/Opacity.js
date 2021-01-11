@@ -31,9 +31,9 @@ const Opacity = ({ className, onChange, styles, ...props }) => {
             <Slider
                 min={0}
                 max={100}
-                value={isFloat(state.value) ? state.value * 100 : state.value}
                 labelFormat={label}
                 onChange={__onChange}
+                value={isFloat(state.value) ? state.value * 100 : state.value}
             />
         </div>
     );

@@ -1,13 +1,12 @@
 import _ from 'underscore';
 import op from 'object-path';
+import { Transforms } from 'slate';
 import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
-import { Editor, Transforms } from 'slate';
 import Settings from '../withBlock/Settings';
 
 import Reactium, {
     __,
-    useAsyncEffect,
     useDerivedState,
     useHandle,
     useHookComponent,
@@ -52,6 +51,8 @@ export default ({ children, ...props }) => {
         nodeProps: getNodeProps(props),
     });
 
+    const getNode = () => Reactium.RTE.getNodeByID(editor, props.id);
+
     const showPicker = () => {
         const Modal = op.get(tools, 'Modal');
         Modal.show(
@@ -67,26 +68,10 @@ export default ({ children, ...props }) => {
     };
 
     const _onMediaSelect = e => {
+        const node = getNode();
         const Modal = op.get(tools, 'Modal');
 
-        const nodes = Editor.nodes(editor, {
-            at: [],
-            match: ({ id }) => id === props.id,
-        });
-
-        let node = _.first(Array.from(nodes));
-        if (!node) {
-            Modal.hide();
-            return;
-        }
-        node = _.object(['node', 'path'], node);
-
         const item = _.last(e.selection);
-        if (!item) {
-            Modal.hide();
-            return;
-        }
-
         const { objectId, url } = item;
 
         Transforms.setNodes(editor, { objectId, src: url }, { at: node.path });
@@ -116,38 +101,70 @@ export default ({ children, ...props }) => {
         setState({ nodeProps: getNodeProps(props) });
     }, [props.nodeProps]);
 
-    useAsyncEffect(async () => {
-        const zid = await Reactium.Zone.addComponent({
-            component: () => (
-                <Settings
-                    {...props}
-                    linkable
-                    nodeProps={getNodeProps(props)}
-                    icon='Feather.Camera'
-                />
-            ),
+    useEffect(() => {
+        const zid = Reactium.Zone.addComponent({
+            component: otherProps => {
+                const { node, path } = getNode();
+                const newNode = {
+                    ...node,
+                    linkable: true,
+                    nodeProps: getNodeProps(props),
+                };
+                return (
+                    <SettingsButton
+                        {...otherProps}
+                        node={newNode}
+                        path={path}
+                    />
+                );
+            },
             order: Reactium.Enums.priority.highest,
-            zone: `type-${props.blockID}-toolbar`,
+            zone: 'block-actions-left',
         });
 
         return () => {
             Reactium.Zone.removeComponent(zid);
         };
-    }, [props]);
+    }, []);
 
     return (
-        <div contentEditable={false} className='ar-rte-image'>
-            {children}
+        <div className='ar-rte-image'>
             {isStatus(COMPLETE) ? (
                 <img
-                    {...state.nodeProps}
                     src={state.src}
-                    contentEditable={false}
+                    {...state.nodeProps}
                     onClick={showPicker}
+                    contentEditable={false}
                 />
             ) : (
                 <Spinner className='flex flex-center' />
             )}
+            {children}
         </div>
+    );
+};
+
+const SettingsButton = ({ editor, handle, node, path }) => {
+    const { id, blockID } = node;
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const visible = blockID === handle.id;
+
+    const _onClick = () =>
+        handle.showDialog(
+            { editor, id },
+            <Settings
+                id={id}
+                node={node}
+                path={path}
+                selection={editor.selection}
+            />,
+        );
+
+    return !visible ? null : (
+        <Button onClick={_onClick} title={__('Image Properties')}>
+            <Icon name='Feather.Camera' size={14} />
+        </Button>
     );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
 import { __, useHookComponent } from 'reactium-core/sdk';
@@ -38,14 +39,26 @@ const data = [
     },
 ];
 
-const BorderRadius = ({ styles, ...props }) => {
+const noop = () => {};
+
+const BorderRadius = ({ onChange = noop, styles, ...props }) => {
     const { Icon } = useHookComponent('ReactiumUI');
+
+    const _onChange = e => {
+        let value = e.target.value;
+        value = _.compact([value]).length < 1 ? null : value;
+        value = value && _.isNumber(Number(value)) ? `${value}px` : value;
+        value = _.isNull(value) ? '' : value;
+        onChange({ target: { name: e.target.name, value } });
+    };
+
     return (
         <div {...props}>
             <div className='col-xs-12 form-group input-group qt'>
                 {data.map(({ key, input: params }) => (
                     <input
                         defaultValue={op.get(styles, key, '')}
+                        onChange={_onChange}
                         key={`ms-${key}`}
                         className='ico'
                         placeholder='0'

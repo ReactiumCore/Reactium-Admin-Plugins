@@ -2,8 +2,11 @@ import _ from 'underscore';
 import op from 'object-path';
 import Settings from './Settings';
 import ReactPlayer from 'react-player';
+import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
+
 import Reactium, {
+    __,
     useDerivedState,
     useHookComponent,
     useStatus,
@@ -23,12 +26,14 @@ const propsToState = props => ({
     autoplay: op.get(props, 'autoplay'),
     width: op.get(props, 'width', '640px'),
     height: op.get(props, 'height', '360px'),
-    thumbnail: op.get(props, 'thumbnail', false),
     controls: op.get(props, 'controls', false),
+    thumbnail: op.get(props, 'thumbnail', false),
     volume: Number(op.get(props, 'volume', 0)) / 100,
 });
 
 export default ({ children, ...props }) => {
+    const editor = useEditor();
+
     const { Spinner } = useHookComponent('ReactiumUI');
 
     const initialState = propsToState(props);
@@ -51,19 +56,24 @@ export default ({ children, ...props }) => {
 
     const isBusy = () => !isStatus(STATUS.READY);
 
+    const getNode = () => Reactium.RTE.getNodeByID(editor, props.id);
+
     useEffect(() => {
-        const comps = [
-            Reactium.Zone.addComponent({
-                component: () => <Settings {...props} node={state} />,
-                order: Reactium.Enums.priority.highest,
-                zone: `type-${props.blockID}-toolbar`,
-            }),
-        ];
+        const zid = Reactium.Zone.addComponent({
+            component: otherProps => {
+                const { node, path } = getNode();
+                return (
+                    <SettingsButton {...otherProps} node={node} path={path} />
+                );
+            },
+            order: Reactium.Enums.priority.highest,
+            zone: 'block-actions-left',
+        });
 
         return () => {
-            comps.forEach(zid => Reactium.Zone.removeComponent(zid));
+            Reactium.Zone.removeComponent(zid);
         };
-    }, [state]);
+    }, []);
 
     useEffect(() => {
         if (isStatus(STATUS.LOADING)) return;
@@ -102,7 +112,32 @@ export default ({ children, ...props }) => {
                 volume={Number(op.get(state, 'volume', 0)) / 100}
             />
             {children}
-            {isBusy() && <Spinner style={spinnerStyle} />}
+            {isBusy() && <Spinner style={spinnerStyle} />}}
         </div>
+    );
+};
+
+const SettingsButton = ({ editor, handle, node, path }) => {
+    const { id, blockID } = node;
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const visible = blockID === handle.id;
+
+    const _onClick = () =>
+        handle.showDialog(
+            { editor, id },
+            <Settings
+                id={id}
+                node={node}
+                path={path}
+                selection={editor.selection}
+            />,
+        );
+
+    return !visible ? null : (
+        <Button onClick={_onClick} title={__('Image Properties')}>
+            <Icon name='Feather.Film' size={14} />
+        </Button>
     );
 };

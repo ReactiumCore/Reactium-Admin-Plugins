@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import { isLight } from './utils';
@@ -53,7 +52,7 @@ let ColorSelect = (
     const refs = useRefs();
 
     const [state, update] = useDerivedState({
-        colors: Reactium.RTE.colors,
+        colors: initialColors || Reactium.RTE.colors,
         value: initialValue,
     });
 
@@ -87,7 +86,7 @@ let ColorSelect = (
 
     const colors = () => {
         let clr = state.colors;
-        Reactium.Hook.runSync('rte-colors', clr);
+        Reactium.Hook.runSync('rte-color-select', clr);
         return clr;
     };
 
@@ -111,12 +110,6 @@ let ColorSelect = (
         setState({ value: initialValue });
     }, [initialValue]);
 
-    useEffect(() => {
-        if (!Array.isArray(initialColors)) return;
-        if (_.isEqual(state.colors, initialColors)) return;
-        setState({ colors: initialColors });
-    }, [initialColors]);
-
     return (
         <div
             className={cn(namespace, className, { editable })}
@@ -139,11 +132,11 @@ let ColorSelect = (
                 </div>
             )}
             <div className='ar-color-select-swatches'>
-                {colors().map(item => (
+                {colors().map((item, i) => (
                     <Swatch
                         onClick={() => setValue(item.value)}
                         active={state.value === item.value}
-                        key={`color-${item.value}`}
+                        key={`color-${item.value}-${i}`}
                         {...item}
                     />
                 ))}

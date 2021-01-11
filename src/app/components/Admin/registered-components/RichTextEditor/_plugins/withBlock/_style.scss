@@ -12,6 +12,7 @@ $rte-block-ns: block !default;
             border: 2px dashed lighten($color-grey, 5%);
             flex-grow: 1;
             max-width: 100%;
+            z-index: 1;
 
             &:first-child {
                 margin-top: 0;
@@ -27,10 +28,12 @@ $rte-block-ns: block !default;
 
             &:hover {
                 > div > .add,
-                > div > .#{$rte-block-ns}-actions,
-                > div > .#{$rte-block-ns}-type-actions {
+                > div > .#{$rte-block-ns}-actions-left,
+                > div > .#{$rte-block-ns}-actions-right {
                     opacity: 1;
                 }
+
+                border: 2px dashed lighten($color-primary, 5%);
             }
 
             .add {
@@ -85,6 +88,12 @@ $rte-block-ns: block !default;
                         > div {
                             width: 100%;
                         }
+
+                        &.column {
+                            padding: 0;
+                            border: none;
+                            &:hover { z-index: 5; }
+                        }
                     }
                 }
             }
@@ -94,38 +103,31 @@ $rte-block-ns: block !default;
             }
         }
 
-        .#{$rte-block-ns}-actions {
+        .#{$rte-block-ns}-actions-left,
+        .#{$rte-block-ns}-actions-right {
             @extend .btn-group;
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            z-index: 50;
+
+            top: 0;
             opacity: 0;
+            position: absolute;
+            transform: translateY(-100%);
             transition: opacity 0.2s ease-in-out;
 
             > button {
                 padding: 0;
-                width: 24px;
+                z-index: 50;
                 height: 24px;
+                min-width: 32px;
                 flex-shrink: 0;
             }
         }
 
-        .#{$rte-block-ns}-type-actions {
-            @extend .btn-group;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            z-index: 50;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
+        .#{$rte-block-ns}-actions-left {
+            left: -2px;
+        }
 
-            > button {
-                padding: 0;
-                width: 24px;
-                height: 24px;
-                flex-shrink: 0;
-            }
+        .#{$rte-block-ns}-actions-right {
+            right: -2px;
         }
 
         .#{$rte-block-ns}-content {

@@ -1,7 +1,13 @@
 import React from 'react';
+import _ from 'underscore';
 import uuid from 'uuid/v4';
 import op from 'object-path';
-import { __, useDerivedState, useHookComponent } from 'reactium-core/sdk';
+import {
+    __,
+    useDerivedState,
+    useHookComponent,
+    useRefs,
+} from 'reactium-core/sdk';
 
 const noop = () => {};
 
@@ -39,7 +45,9 @@ const data = [
     },
 ];
 
-const Position = ({ onChange, styles }) => {
+const Position = ({ onChange = noop, onInputChange = noop, styles }) => {
+    const refs = useRefs();
+
     const { Icon } = useHookComponent('ReactiumUI');
 
     const initialFloat = op.get(styles, 'float');
@@ -53,6 +61,16 @@ const Position = ({ onChange, styles }) => {
 
     const _onChange = e => {
         let value = e.target.value;
+
+        if (!canPosition(value)) {
+            data.forEach(({ key, input }) => {
+                const elm = refs.get(key);
+                if (elm) elm.value = '';
+                _onInputChange({ target: { name: input.name, value: null } });
+            });
+        }
+
+        value = value === 'none' ? null : value;
 
         const float = String(value).startsWith('float-')
             ? String(value).replace('float-', '')
@@ -73,9 +91,17 @@ const Position = ({ onChange, styles }) => {
         });
     };
 
-    const canPosition = () => {
+    const _onInputChange = e => {
+        let value = e.target.value;
+        value = _.compact([value]).length < 1 ? null : value;
+        value = value && _.isNumber(Number(value)) ? `${value}px` : value;
+        value = _.isNull(value) ? '' : value;
+        onInputChange({ target: { name: e.target.name, value } });
+    };
+
+    const canPosition = value => {
         const pos = ['absolute', 'fixed', 'relative', 'sticky'];
-        return pos.includes(state.value);
+        return pos.includes(value);
     };
 
     return (
@@ -100,16 +126,18 @@ const Position = ({ onChange, styles }) => {
                     ))}
                 </select>
             </div>
-            {canPosition() && (
+            {canPosition(state.value) && (
                 <div className='col-xs-12 mb-xs-12'>
                     <div className='form-group input-group qt'>
                         {data.map(({ key, input: params }) => (
                             <input
                                 defaultValue={op.get(styles, key, '')}
+                                ref={elm => refs.set(key, elm)}
                                 key={`ps-${key}`}
                                 className='ico'
                                 placeholder='0'
                                 {...params}
+                                onChange={_onInputChange}
                             />
                         ))}
                     </div>

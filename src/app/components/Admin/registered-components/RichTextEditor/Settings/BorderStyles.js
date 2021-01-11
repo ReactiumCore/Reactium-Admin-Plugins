@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'underscore';
+import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
 import { __, useDerivedState, useHookComponent } from 'reactium-core/sdk';
@@ -86,21 +87,22 @@ const BorderStyles = ({
 
         setState({ [key]: value }).then(() => onChange({ key, value }));
     };
+
     return (
         <div {...props} className={cn('borderStyles btn-group', className)}>
-            {KEYS.map((prop, i) => {
+            {KEYS.map(prop => {
                 // prettier-ignore
                 const borderColor = op.get(state, String(prop).replace(/Style/g, 'Color'));
                 const borderStyle = op.get(state, prop, 'none');
 
                 return (
                     <BorderStyleButton
-                        borderColor={borderColor}
                         prop={prop}
-                        key={`bs-${i}`}
                         onClick={onClick}
-                        title={__('border style')}
                         value={borderStyle}
+                        key={`bs-${uuid()}`}
+                        borderColor={borderColor}
+                        title={__('border style')}
                     />
                 );
             })}

@@ -159,6 +159,7 @@ let Panel = ({ namespace, title, ...props }) => {
             {
                 children,
                 ID: id,
+                id,
                 block,
                 type: 'component',
             },

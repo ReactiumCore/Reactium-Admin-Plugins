@@ -3,7 +3,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { Editor, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -23,7 +23,7 @@ import Reactium, {
 
 const cloneObj = obj => JSON.parse(JSON.stringify(obj));
 
-const Panel = ({
+const Settings = ({
     namespace,
     node = {},
     path = [],
@@ -283,14 +283,14 @@ const Panel = ({
     );
 };
 
-Panel.propTypes = {
+Settings.propTypes = {
     title: PropTypes.string,
     namespace: PropTypes.string,
     updateButtonLabel: PropTypes.node,
 };
 
-Panel.defaultProps = {
-    title: __('Video Inspector'),
+Settings.defaultProps = {
+    title: __('Video Properties'),
     namespace: 'rte-video-settings',
     updateButtonLabel: __('Apply Settings'),
 };
@@ -309,49 +309,4 @@ const Container = ({ children, id, title }) => {
     );
 };
 
-export default props => {
-    const { id } = props;
-    const editor = useEditor();
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    const getNode = () => {
-        const nodes = Array.from(Editor.nodes(editor, { at: [] }));
-        if (nodes.length < 1) return;
-
-        const result = nodes.reduce((output, [node, selection]) => {
-            if (!op.get(node, 'id')) return output;
-            if (op.get(node, 'id') === id && !output) {
-                output = { node, selection };
-            }
-
-            return output;
-        }, null);
-
-        return result ? result : { node: null, selection: [] };
-    };
-
-    const showPanel = () => {
-        const { node, selection: path } = getNode();
-        const x = window.innerWidth / 2 - 150;
-        const y = 50;
-
-        editor.panel
-            .setID('grid')
-            .setContent(
-                <Panel
-                    selection={editor.selection}
-                    node={node}
-                    path={path}
-                    id={id}
-                />,
-            )
-            .moveTo(x, y)
-            .show();
-    };
-
-    return (
-        <Button color={Button.ENUMS.COLOR.SECONDARY} onClick={showPanel}>
-            <Icon name='Feather.Film' size={16} />
-        </Button>
-    );
-};
+export default Settings;

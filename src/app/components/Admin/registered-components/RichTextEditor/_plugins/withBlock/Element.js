@@ -1,15 +1,13 @@
 import React from 'react';
+import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
 import op from 'object-path';
-import Settings from './Settings';
-import GridSettings from '../withGrid/Panel';
 import { ReactEditor, useEditor } from 'slate-react';
 import { Editor, Node, Path, Transforms } from 'slate';
 
 import Reactium, {
     __,
-    useAsyncEffect,
     useDerivedState,
     useEventHandle,
     useHookComponent,
@@ -17,14 +15,26 @@ import Reactium, {
     Zone,
 } from 'reactium-core/sdk';
 
+const showDialog = ({ editor, id }, Component) => {
+    const x = window.innerWidth / 2 - 150;
+    const y = 50;
+    editor.panel
+        .setID(id)
+        .setContent(Component)
+        .moveTo(x, y)
+        .show();
+};
+
 const Element = ({ children, ...initialProps }) => {
     const node = op.get(children, 'props.node', {});
+
     const {
         id,
         addAfter = true,
         addBefore = true,
         blocked,
         className,
+        column = false,
         deletable = true,
         type = 'block',
         nodeProps,
@@ -36,7 +46,7 @@ const Element = ({ children, ...initialProps }) => {
 
     const refs = useRefs({});
 
-    const { Alert, Button, Icon } = useHookComponent('ReactiumUI');
+    const { Alert, Button, Icon, Toast } = useHookComponent('ReactiumUI');
 
     const [state, updateState] = useDerivedState({
         blocked,
@@ -82,6 +92,25 @@ const Element = ({ children, ...initialProps }) => {
 
     const _cancel = () => setState({ confirm: false });
 
+    const _copy = (silent = false) => {
+        const { node } = getNode();
+
+        if (silent !== true) {
+            Toast.show({
+                type: Toast.TYPE.INFO,
+                message: __('Copied to clipboard!'),
+                icon: (
+                    <Icon
+                        name='Feather.Clipboard'
+                        style={{ marginRight: 12 }}
+                    />
+                ),
+            });
+        }
+
+        return Reactium.RTE.copy(node);
+    };
+
     const _delete = confirmed => {
         Transforms.collapse(editor, { edge: 'end' });
 
@@ -107,6 +136,23 @@ const Element = ({ children, ...initialProps }) => {
             Transforms.delete(editor, { at: selection });
         }
     };
+
+    const _duplicate = () => {
+        const { node, selection } = getNode();
+        Reactium.RTE.clone(editor, node, selection);
+        ReactEditor.focus(editor);
+    };
+
+    const _zoneInclude = zone =>
+        _.sortBy(
+            Object.values(Reactium.RTE.actions).filter(item => {
+                if (!zone) return true;
+                const zones = op.get(item, 'zones', []);
+                if (zones.length < 1) return true;
+                return zones.includes(zone);
+            }),
+            'order',
+        );
 
     const getNode = () => {
         const { type } = state;
@@ -136,33 +182,15 @@ const Element = ({ children, ...initialProps }) => {
         return !node ? true : String(Node.string(node)).length < 1;
     };
 
-    const showGridPanel = () => {
-        const { node, selection: path } = getNode();
-        const x = window.innerWidth / 2 - 150;
-        const y = 50;
-
-        editor.panel
-            .setID('grid')
-            .setContent(
-                <GridSettings
-                    selection={editor.selection}
-                    columns={node.row}
-                    node={node}
-                    path={path}
-                    id={id}
-                />,
-            )
-            .moveTo(x, y)
-            .show();
-    };
-
     const unMounted = () => !refs.get('block.container');
 
     const _handle = () => ({
         cancel: _cancel,
         className,
+        copy: _copy,
         cx,
         delete: _delete,
+        duplicate: _duplicate,
         id,
         isEmpty,
         node: getNode,
@@ -170,6 +198,7 @@ const Element = ({ children, ...initialProps }) => {
         refs,
         setHandle,
         setState,
+        showDialog,
         state,
         type,
         unMounted,
@@ -178,61 +207,16 @@ const Element = ({ children, ...initialProps }) => {
 
     const [handle, setHandle] = useEventHandle(_handle());
 
-    useAsyncEffect(async () => {
-        const settingID = await Reactium.Zone.addComponent({
-            component: () => (
-                <Settings {...props} id={id} nodeProps={nodeProps} />
-            ),
-            order: Reactium.Enums.priority.lowest,
-            zone: `${id}-toolbar`,
-        });
-
-        const gridSettingsID = op.get(node, 'row')
-            ? await Reactium.Zone.addComponent({
-                  component: () => (
-                      <Button
-                          color={Button.ENUMS.COLOR.SECONDARY}
-                          onClick={showGridPanel}>
-                          <Icon name='Feather.Layout' size={16} />
-                      </Button>
-                  ),
-                  order: Reactium.Enums.priority.highest,
-                  zone: `type-${id}-toolbar`,
-              })
-            : null;
-
-        return () => {
-            Reactium.Zone.removeComponent(settingID);
-            if (gridSettingsID) {
-                Reactium.Zone.removeComponent(gridSettingsID);
-            }
-        };
-    }, [props]);
+    let elmProps = { ...props };
+    op.del(elmProps, 'node');
 
     return (
         <div
-            className={cn(cx(), className)}
-            ref={elm => refs.set('block.container', elm)}
+            {...elmProps}
             type={state.type}
-            {...props}>
+            ref={elm => refs.set('block.container', elm)}
+            className={cn(cx(), className, { column: !!column })}>
             <div contentEditable={false}>
-                {!state.confirm && (
-                    <>
-                        <div className={cx('actions')}>
-                            <Zone zone={handle.zone} />
-                            {deletable && (
-                                <Button
-                                    color={Button.ENUMS.COLOR.SECONDARY}
-                                    onClick={() => _delete()}>
-                                    <Icon name='Feather.X' size={16} />
-                                </Button>
-                            )}
-                        </div>
-                        <div className={cx('type-actions')}>
-                            <Zone zone={`type-${handle.zone}`} />
-                        </div>
-                    </>
-                )}
                 {state.confirm && deletable && (
                     <Alert
                         dismissable={false}
@@ -277,6 +261,48 @@ const Element = ({ children, ...initialProps }) => {
                             <Icon name='Feather.Plus' />
                         </Button>
                     </div>
+                )}
+                {!state.confirm && (
+                    <>
+                        <div className={cx('actions-left')}>
+                            <Zone
+                                node={node}
+                                editor={editor}
+                                handle={handle}
+                                zone='block-actions-left'
+                            />
+                            {_zoneInclude('block-actions-left').map(
+                                ({ Component, id }) => (
+                                    <Component
+                                        node={node}
+                                        editor={editor}
+                                        handle={handle}
+                                        zone='block-actions'
+                                        key={`block-actions-${id}`}
+                                    />
+                                ),
+                            )}
+                        </div>
+                        <div className={cx('actions-right')}>
+                            <Zone
+                                node={node}
+                                editor={editor}
+                                handle={handle}
+                                zone='block-actions-right'
+                            />
+                            {_zoneInclude('block-actions-right').map(
+                                ({ Component, id }) => (
+                                    <Component
+                                        node={node}
+                                        editor={editor}
+                                        handle={handle}
+                                        zone='block-actions'
+                                        key={`block-actions-${id}`}
+                                    />
+                                ),
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
             <div className={cx('content')} {...nodeProps}>

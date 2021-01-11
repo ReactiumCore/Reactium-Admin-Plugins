@@ -2,9 +2,15 @@ import _ from 'underscore';
 import op from 'object-path';
 import Settings from './Settings';
 import JsxContent from './JsxContent';
+import { useEditor } from 'slate-react';
 import JsxParser from 'react-jsx-parser';
 import React, { useEffect, useState } from 'react';
-import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
+
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useHookComponent,
+} from 'reactium-core/sdk';
 
 const DefaultHookComponent = name => ({ children, ...attributes }) => {
     const attrToString = () => {
@@ -77,23 +83,36 @@ const JsxComponent = ({ attributes = {}, ...props }) => {
 };
 
 const Element = initialProps => {
-    const { children, className = 'component', ...props } = initialProps;
+    const editor = useEditor();
 
-    const id = op.get(children, 'props.node.ID');
+    const { id, children, className = 'component', ...props } = initialProps;
+
     const type = op.get(children, 'props.node.block.type');
     const attr = { ...op.get(children, 'props.node.block.attribute', {}) };
 
+    const getNode = () => Reactium.RTE.getNodeByID(editor, id);
+
     useEffect(() => {
-        const cid = Reactium.Zone.addComponent({
-            component: () => <Settings {...initialProps} />,
+        const zid = Reactium.Zone.addComponent({
+            component: otherProps => {
+                const { node, path } = getNode();
+                return (
+                    <SettingsButton
+                        {...otherProps}
+                        {...initialProps}
+                        node={node}
+                        path={path}
+                    />
+                );
+            },
             order: Reactium.Enums.priority.highest,
-            zone: `type-block-${props.id}-toolbar`,
+            zone: 'block-actions-left',
         });
 
         return () => {
-            Reactium.Zone.removeComponent(cid);
+            Reactium.Zone.removeComponent(zid);
         };
-    }, [initialProps]);
+    }, []);
 
     // -------------------------------------------------------------------------
     // Render
@@ -121,6 +140,37 @@ const Element = initialProps => {
                 />
             )}
         </div>
+    );
+};
+
+const SettingsButton = initialProps => {
+    let { id, editor, handle, node = {}, ...props } = initialProps;
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const attributes = op.get(node, 'block.attributes', []);
+
+    const visible = `block-${id}` === handle.id && attributes.length > 0;
+
+    const _onClick = () => {
+        const { node, path } = Reactium.RTE.getNodeByID(editor, id);
+
+        handle.showDialog(
+            { editor, id },
+            <Settings
+                {...props}
+                id={id}
+                node={node}
+                path={path}
+                editor={editor}
+            />,
+        );
+    };
+
+    return !visible ? null : (
+        <Button onClick={_onClick} title={__('Image Properties')}>
+            <Icon name='Linear.Beaker' size={14} />
+        </Button>
     );
 };
 

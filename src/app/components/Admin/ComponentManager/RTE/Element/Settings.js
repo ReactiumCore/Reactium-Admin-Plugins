@@ -2,8 +2,7 @@ import React from 'react';
 import cc from 'camelcase';
 import _ from 'underscore';
 import op from 'object-path';
-import { useEditor } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Transforms } from 'slate';
 import { Scrollbars } from 'react-custom-scrollbars';
 import AttributeInput from '../Panel/AttributeInput';
 
@@ -14,8 +13,6 @@ import Reactium, {
     useHookComponent,
     useRefs,
 } from 'reactium-core/sdk';
-
-const noop = () => {};
 
 const CloseButton = props => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -30,14 +27,14 @@ const CloseButton = props => {
     );
 };
 
-const Settings = ({ children, editor, ...props }) => {
+const Settings = ({ editor, node, ...props }) => {
     const refs = useRefs();
 
-    const keys = op.get(children, 'props.node.block.attributes', []);
+    const keys = op.get(node, 'block.attributes', []);
 
-    const attributes = {
-        ...op.get(children, 'props.node.block.attribute', {}),
-    };
+    const attributes = JSON.parse(
+        JSON.stringify(op.get(node, 'block.attribute', {})),
+    );
 
     const { Button, Dialog } = useHookComponent('ReactiumUI');
 
@@ -45,15 +42,7 @@ const Settings = ({ children, editor, ...props }) => {
 
     const [value, update] = useDerivedState(attributes);
 
-    const getNode = () => {
-        const nodes = Editor.nodes(editor, {
-            at: [],
-            match: ({ ID }) => ID === props.id,
-        });
-
-        let node = _.first(Array.from(nodes));
-        return node ? _.object(['node', 'path'], node) : null;
-    };
+    const getNode = () => Reactium.RTE.getNodeByID(editor, props.id);
 
     const hide = () => editor.panel.hide(false, true).setID('rte-panel');
 
@@ -136,23 +125,4 @@ const Settings = ({ children, editor, ...props }) => {
     );
 };
 
-export default props => {
-    const editor = useEditor();
-    const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    const showPanel = () => {
-        const x = window.innerWidth / 2 - 150;
-
-        editor.panel
-            .setID('rte-components')
-            .setContent(<Settings {...props} editor={editor} />)
-            .moveTo(x, 50)
-            .show();
-    };
-
-    return (
-        <Button color={Button.ENUMS.COLOR.SECONDARY} onClick={showPanel}>
-            <Icon name='Linear.Beaker' size={props.iconSize || 14} />
-        </Button>
-    );
-};
+export default Settings;
