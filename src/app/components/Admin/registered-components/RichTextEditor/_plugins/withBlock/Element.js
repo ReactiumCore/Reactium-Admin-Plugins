@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import _ from 'underscore';
 import uuid from 'uuid/v4';
 import cn from 'classnames';
@@ -52,6 +52,9 @@ const Element = ({ children, ...initialProps }) => {
         blocked,
         confirm: false,
         type,
+        moveUp: true,
+        moveDown: true,
+        path: null,
     });
 
     const setState = (newState, silent = false) => {
@@ -171,6 +174,17 @@ const Element = ({ children, ...initialProps }) => {
         ReactEditor.focus(editor);
     };
 
+    const _move = (inc = 1) => {
+        const { path } = getNode();
+
+        if (_.isEqual(path, [0]) && inc < 0) {
+            return;
+        }
+
+        const to = inc > 0 ? Path.next(path) : Path.previous(path);
+        Transforms.moveNodes(editor, { at: path, to });
+    };
+
     const _zoneInclude = zone =>
         _.sortBy(
             Object.values(Reactium.RTE.actions).filter(item => {
@@ -219,6 +233,30 @@ const Element = ({ children, ...initialProps }) => {
 
     let elmProps = { ...props };
     op.del(elmProps, 'node');
+
+    useEffect(() => {
+        const { path } = state;
+
+        if (!path) return;
+
+        if (path.length > 1) {
+            setState({ moveUp: false, moveDown: false });
+        } else {
+            if (_.isEqual(path, [0])) {
+                setState({ moveUp: false });
+            }
+
+            if (_.isEqual(path, [editor.children.length - 1])) {
+                setState({ moveDown: false });
+            }
+        }
+    }, [state.path]);
+
+    useEffect(() => {
+        const { path } = getNode();
+        if (_.isEqual(path, state.path)) return;
+        setState({ path });
+    });
 
     return (
         <div
@@ -274,6 +312,21 @@ const Element = ({ children, ...initialProps }) => {
                         </Button>
                     </div>
                 )}
+                {(state.moveUp || state.moveDown) && (
+                    <div className='btn-group block-move'>
+                        {state.moveUp && (
+                            <Button onClick={() => _move(-1)}>
+                                <Icon name='Feather.ChevronUp' />
+                            </Button>
+                        )}
+                        {state.moveDown && (
+                            <Button onClick={() => _move(1)}>
+                                <Icon name='Feather.ChevronDown' />
+                            </Button>
+                        )}
+                    </div>
+                )}
+
                 {!state.confirm && (
                     <>
                         <div className={cx('actions-left')}>

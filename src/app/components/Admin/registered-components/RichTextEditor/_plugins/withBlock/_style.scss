@@ -28,6 +28,7 @@ $rte-block-ns: block !default;
 
             &:hover {
                 > div > .add,
+                > div > .block-move,
                 > div > .#{$rte-block-ns}-actions-left,
                 > div > .#{$rte-block-ns}-actions-right {
                     opacity: 1;
@@ -70,6 +71,38 @@ $rte-block-ns: block !default;
                 }
             }
 
+            .block-move {
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translate(-100%, -50%);
+                flex-direction: column;
+                opacity: 0;
+
+                button {
+                    padding: 0;
+                    width: 24px;
+                    height: 24px;
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+
+                *:last-child {
+                    border-radius: 0 0 0 2px;
+                }
+
+                *:first-child {
+                    border-radius: 2px 0 0 0;
+
+                    &:last-child {
+                        border-radius: 2px 0 0 2px;
+                    }
+                }
+            }
+
             &.row {
                 > .block-content {
                     @extend .row;
@@ -93,7 +126,10 @@ $rte-block-ns: block !default;
                         &.column {
                             padding: 0;
                             border: none;
-                            &:hover { z-index: 5; }
+
+                            &:hover {
+                                z-index: 5;
+                            }
                         }
                     }
                 }
