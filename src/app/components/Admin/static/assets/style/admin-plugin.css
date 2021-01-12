@@ -30589,6 +30589,26 @@ input[type='object'] {
 .ar-rte
     .admin-content-list-item-quick-editor
     > div[type='block'].block
+    > .block-content,
+.ar-rte .admin-dashboard[type='block'].block > .block-content,
+.ar-rte .blueprint-editor[type='block'].block > .block-content,
+.ar-rte .media[type='block'].block > .block-content,
+.ar-rte .object-editor[type='block'].block > .block-content,
+.ar-rte .rte-settings-row[type='block'].block > .block-content,
+.ar-rte [type='block'].block.row > .block-content,
+.ar-rte
+    [type='block'].block.row
+    > .block-content[type='block'].block
+    > .block-content,
+.ar-rte main.login .links[type='block'].block > .block-content,
+.ar-rte main.password .links[type='block'].block > .block-content,
+main.login .ar-rte .links[type='block'].block > .block-content,
+main.password .ar-rte .links[type='block'].block > .block-content {
+    padding-left: 1px;
+}
+.ar-rte
+    .admin-content-list-item-quick-editor
+    > div[type='block'].block
     > .block-content
     > .block,
 .ar-rte .admin-dashboard[type='block'].block > .block-content > .block,
@@ -30786,7 +30806,7 @@ main.password
 }
 .ar-rte [type='block'] .block-actions-left > button,
 .ar-rte [type='block'] .block-actions-right > button {
-    padding: 0;
+    padding: 0 8px;
     z-index: 50;
     height: 24px;
     min-width: 32px;
