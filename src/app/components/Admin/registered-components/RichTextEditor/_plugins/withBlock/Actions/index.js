@@ -18,7 +18,7 @@ export const BlockCopyButton = ({ handle, node }) => {
 };
 
 export const BlockDeleteButton = ({ handle, node }) => {
-    const { deletable } = node;
+    let { deletable } = node;
 
     const { Button, Icon } = useHookComponent('ReactiumUI');
 

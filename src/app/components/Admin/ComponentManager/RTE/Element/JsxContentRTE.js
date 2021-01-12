@@ -104,7 +104,7 @@ export default forwardRef(
                             <RichTextEditor
                                 value={value}
                                 exclude={excludes}
-                                placeholder={__('Tab Content')}
+                                placeholder={__('Content')}
                                 ref={elm => refs.set('rte', elm)}
                                 onChange={e => setValue(e.target.value)}
                             />

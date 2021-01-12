@@ -1,10 +1,11 @@
 import _ from 'underscore';
 import op from 'object-path';
 import Element from './Element';
+import normalize from './normalizeNode';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
-import { Editor, Node, Transforms } from 'slate';
+import { Editor, Node, Path, Transforms } from 'slate';
 const Plugin = new RTEPlugin({
     type: 'block',
     order: Reactium.Enums.priority.lowest,
@@ -90,36 +91,7 @@ Plugin.callback = editor => {
     editor.isInline = element =>
         element.type === Plugin.type ? false : isInline(element);
 
-    editor.normalizeNode = entry => {
-        const next = [editor.children.length];
-        const blankNode = { type: 'p', children: [{ text: '' }] };
-
-        // Fix for if last node isn't a p
-        let last = _.object(['node', 'path'], Editor.last(editor, []));
-
-        last =
-            last.path.length > 1
-                ? _.object(['node', 'path'], Editor.parent(editor, last.path))
-                : last;
-
-        if (op.get(last.node, 'type') !== 'p') {
-            Transforms.insertNodes(editor, blankNode, { at: next });
-        }
-
-        // Fix for if first node isn't a p
-        let first = _.object(['node', 'path'], Editor.first(editor, []));
-
-        first =
-            first.path.length > 1
-                ? _.object(['node', 'path'], Editor.parent(editor, first.path))
-                : first;
-
-        if (op.get(first.node, 'type') !== 'p') {
-            Transforms.insertNodes(editor, blankNode, { at: [0] });
-        }
-
-        normalizeNode(entry);
-    };
+    editor.normalizeNode = entry => normalize(editor, entry, normalizeNode);
 
     return editor;
 };

@@ -177,6 +177,13 @@ class RTE {
         return this.list.tabs;
     }
 
+    get emptyNode() {
+        return {
+            type: 'p',
+            children: [{ text: '' }],
+        };
+    }
+
     onKeyDown(editor, event, hotkeys) {
         if (!editor || !event) return;
 
@@ -233,7 +240,8 @@ class RTE {
             p = op.get(n, 'path');
             root = p.length === 1;
         } else {
-            path = path || editor.selection.anchor.path;
+            const s = editor.selection || editor.lastSelection || {};
+            path = path || op.get(s, 'anchor.path') || [0];
 
             root = path.length === 1;
             p = Array.from(path);
@@ -252,7 +260,8 @@ class RTE {
 
     siblings(editor, path) {
         let children = [];
-        path = path || editor.selection.anchor.path;
+        const s = editor.selection || editor.lastSelection || {};
+        path = path || op.get(s, 'anchor.path') || [0];
         path = Array.from(path);
 
         path.pop();
@@ -266,7 +275,8 @@ class RTE {
     }
 
     sibling(editor, path, offset = -1) {
-        path = path || editor.selection.anchor.path;
+        const s = editor.selection || editor.lastSelection || {};
+        path = path || op.get(s, 'anchor.path') || [0];
         path = Array.from(path);
 
         let node;
@@ -295,15 +305,21 @@ class RTE {
     }
 
     getBlock(editor, path) {
-        const nodes = Array.from(
-            Node.ancestors(editor, path, { reverse: true }),
-        );
-        const blocks = nodes.filter(([node]) => {
-            if (Editor.isEditor(node)) return false;
-            return op.get(node, 'type') === 'block';
+        // const nodes = Array.from(
+        //     Node.ancestors(editor, path, { reverse: true }),
+        // );
+        // const blocks = nodes.filter(([node]) => {
+        //     if (Editor.isEditor(node)) return false;
+        //     return op.get(node, 'type') === 'block';
+        // });
+        //
+        // let block = _.first(blocks);
+        // block = block ? _.object(['node', 'path'], block) : null;
+        let block = Editor.above(editor, {
+            at: path,
+            match: ({ type }) => type === 'block',
         });
 
-        let block = _.first(blocks);
         block = block ? _.object(['node', 'path'], block) : null;
 
         if (block) {
@@ -320,6 +336,32 @@ class RTE {
         id = id || uuid();
         id = String(id).startsWith('block-') ? id : `block-${id}`;
 
+        const current = _.object(
+            ['node', 'path'],
+            Editor.above(editor, { at }),
+        );
+
+        const blockNode = {
+            ...props,
+            blocked: true,
+            children,
+            id,
+            type: 'block',
+        };
+
+        const replace = ['p'];
+        const type = op.get(current, 'node.type');
+        const isEmpty = Editor.isEmpty(editor, current.node);
+
+        Transforms.insertNodes(editor, blockNode, {
+            at: Path.next(current.path),
+        });
+
+        if (replace.includes(type) && isEmpty) {
+            Transforms.delete(editor, { at: current.path });
+        }
+
+        /*
         const args = [editor];
         if (at) args.push({ at });
 
@@ -356,6 +398,7 @@ class RTE {
             Transforms.insertNodes(editor, node, { at: next, split: true });
             if (isEmpty) Transforms.delete(editor, { at: path });
         }
+        */
     }
 
     clone(editor, node, selection) {
@@ -380,7 +423,11 @@ class RTE {
             : node;
 
         const ids = [];
-        const regexes = [/\"id\": \"(.*)\"\,/gim, /\"id\": \"block-(.*)\"\,/gm];
+        const regexes = [
+            /\"id\": \"(.*)\"\,/gim,
+            /\"id\": \"block-inner-(.*)\"\,/gm,
+            /\"id\": \"block-(.*)\"\,/gm,
+        ];
 
         // Get ids
         regexes.forEach(regex => {
@@ -390,6 +437,7 @@ class RTE {
                 m.forEach(match =>
                     ids.push(
                         String(match)
+                            .replace(/block-inner/gm, '')
                             .replace(/block-/gm, '')
                             .replace(/\"ID": /gim, '')
                             .replace(/\"/gm, '')

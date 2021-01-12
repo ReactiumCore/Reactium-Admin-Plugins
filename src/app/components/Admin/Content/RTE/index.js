@@ -105,10 +105,15 @@ const Panel = () => {
     const hide = () => editor.panel.hide(false, true).setID('rte-panel');
 
     const insertNodes = (children = []) => {
-        const nodes = JSON.parse(JSON.stringify(children));
+        let nodes = JSON.parse(JSON.stringify(children));
         const last = _.last(nodes);
+        const first = _.first(nodes);
+
         if (Editor.isEmpty(editor, last)) nodes.pop();
+        if (Editor.isEmpty(editor, first)) nodes.shift();
         if (nodes.length < 1) return;
+
+        nodes = Reactium.RTE.reassign(nodes);
 
         Transforms.insertNodes(editor, nodes, { at: selection });
     };

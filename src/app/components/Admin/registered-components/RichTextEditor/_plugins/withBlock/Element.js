@@ -54,9 +54,9 @@ const Element = ({ children, ...initialProps }) => {
         type,
     });
 
-    const setState = newState => {
+    const setState = (newState, silent = false) => {
         if (unMounted()) return;
-        updateState(newState);
+        updateState(newState, silent);
     };
 
     const cx = Reactium.Utils.cxFactory(type);
@@ -112,28 +112,56 @@ const Element = ({ children, ...initialProps }) => {
     };
 
     const _delete = confirmed => {
-        Transforms.collapse(editor, { edge: 'end' });
+        let { node, path } = getNode();
 
-        const { node, selection } = getNode();
+        const empty = isEmpty(node);
 
-        if (node && !isEmpty(node) && confirmed !== true) {
+        if (node && confirmed !== true && !empty) {
             setState({ confirm: true });
             return;
         }
 
-        if (selection.length === 1 && editor.children.length === 1) {
-            Transforms.insertNodes(
-                editor,
-                {
-                    type: 'p',
-                    children: [{ text: '' }],
-                },
-                { at: Path.next(selection) },
-            );
+        if (state.confirm === true) setState({ confirm: false }, true);
+
+        const last = _.last(editor.children);
+        const isLast = last && node && last.id === node.id;
+
+        // Deleting top level last node?
+        if (isLast) {
+            Transforms.insertNodes(editor, Reactium.RTE.emptyNode, {
+                at: Path.next(path),
+            });
         }
 
-        if (node && selection.length > 0) {
-            Transforms.delete(editor, { at: selection });
+        let column = Editor.above(editor, {
+            at: path,
+            match: ({ type, ...node }) =>
+                Boolean(type === 'block' && !!op.get(node, 'column')),
+        });
+
+        if (!column || !_.isArray(column)) {
+            Transforms.delete(editor, { at: path });
+        } else {
+            const parent = _.object(
+                ['node', 'path'],
+                Editor.above(editor, { at: path }),
+            );
+
+            const firstChild = _.first(op.get(parent, 'node.children', []));
+            const lastChild = _.last(op.get(parent, 'node.children', []));
+
+            if (
+                node.id === op.get(lastChild, 'id') &&
+                node.id === op.get(firstChild, 'id')
+            ) {
+                Transforms.insertNodes(editor, Reactium.RTE.emptyNode, {
+                    at: Path.next(path),
+                });
+            }
+
+            Transforms.delete(editor, { at: path });
+
+            return;
         }
     };
 
@@ -155,26 +183,8 @@ const Element = ({ children, ...initialProps }) => {
         );
 
     const getNode = () => {
-        const { type } = state;
-        const nodes = Array.from(Editor.nodes(editor, { at: [] }));
-        nodes.reverse();
-
-        if (nodes.length < 1) return;
-
-        const result = nodes.reduce((output, [node, selection]) => {
-            if (!op.get(node, 'id') || !op.get(node, 'type')) return output;
-            if (
-                op.get(node, 'id') === id &&
-                op.get(node, 'type') === type &&
-                !output
-            ) {
-                output = { node, selection };
-            }
-
-            return output;
-        }, null);
-
-        return result ? result : { node: null, selection: [] };
+        const n = Reactium.RTE.getNodeByID(editor, id);
+        return { ...n, selection: op.get(n, 'path', []) };
     };
 
     const isEmpty = node => {
@@ -224,7 +234,9 @@ const Element = ({ children, ...initialProps }) => {
                         className='mb-xs-16'
                         icon={<Icon name='Feather.AlertOctagon' />}>
                         <div className='text-center'>
-                            {__('The current section is not empty')}
+                            {__(
+                                'Are you sure you want to delete this section?',
+                            )}
                             <br />
                             <Button
                                 size='sm'

@@ -1,14 +1,14 @@
 import React from 'react';
 import uuid from 'uuid/v4';
 import { useEditor } from 'slate-react';
-import { useEditorSelection } from '../../_utils';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 export default props => {
     const editor = useEditor();
     const { Button, Icon } = useHookComponent('ReactiumUI');
 
-    const [selection] = useEditorSelection();
+    const selection = editor.selection ||
+        editor.lastSelection || [Math.max(editor.children.length - 1, 0)];
 
     const insertNode = e => {
         e.preventDefault();
@@ -17,10 +17,10 @@ export default props => {
         const node = {
             blockID: `block-${id}`,
             blocked: true,
-            children: [{ type: 'p', children: [{ text: '' }] }],
+            children: [Reactium.RTE.emptyNode],
             content: [
                 {
-                    children: [{ type: 'p', children: [{ text: '' }] }],
+                    children: [Reactium.RTE.emptyNode],
                     type: 'empty',
                 },
             ],

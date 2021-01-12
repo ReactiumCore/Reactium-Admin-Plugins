@@ -73,6 +73,7 @@ $rte-block-ns: block !default;
             &.row {
                 > .block-content {
                     @extend .row;
+                    padding-left: 1px;
 
                     > .block {
                         max-width: none;
@@ -114,7 +115,7 @@ $rte-block-ns: block !default;
             transition: opacity 0.2s ease-in-out;
 
             > button {
-                padding: 0;
+                padding: 0 8px;
                 z-index: 50;
                 height: 24px;
                 min-width: 32px;

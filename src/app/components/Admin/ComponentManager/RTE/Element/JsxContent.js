@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
 import JsxContentRTE from './JsxContentRTE';
-import { __, useHookComponent, useRefs } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent, useRefs } from 'reactium-core/sdk';
 
 const JsxContent = ({ children, ...props }) => {
     const refs = useRefs();
@@ -13,15 +13,7 @@ const JsxContent = ({ children, ...props }) => {
 
     const { Button } = useHookComponent('ReactiumUI');
 
-    const getNode = () => {
-        const nodes = Editor.nodes(editor, {
-            at: [],
-            match: ({ ID }) => ID === props.id,
-        });
-
-        let node = _.first(Array.from(nodes));
-        return node ? _.object(['node', 'path'], node) : null;
-    };
+    const getNode = () => Reactium.RTE.getNodeByID(editor, props.node.ID);
 
     const isEmpty = Editor.isEmpty(editor, getNode().node);
 
@@ -52,28 +44,26 @@ const JsxContent = ({ children, ...props }) => {
 
         const content = {
             type: 'div',
-            children: isEmpty
-                ? [{ type: 'p', children: [{ text: '' }] }]
-                : node.children,
+            children: isEmpty ? [Reactium.RTE.emptyNode] : node.children,
         };
 
-        const ival = setInterval(() => {
-            const rte = refs.get('rte');
-            if (!rte) return;
-            rte.setValue(content);
-            rte.show();
-            clearInterval(ival);
-        }, 100);
+        const rte = refs.get('rte');
+        if (!rte) return;
+        rte.setValue(content);
+        rte.show();
     };
 
     return (
-        <div style={{ width: '100%', position: 'relative' }}>
+        <div
+            style={{ width: '100%', position: 'relative' }}
+            contentEditable={false}>
             <JsxContentRTE
                 onSubmit={setContent}
                 ref={elm => refs.set('rte', elm)}
             />
             {children}
             <div
+                contentEditable={false}
                 className={cn('rte-jsx-component-blocker', {
                     empty: isEmpty,
                 })}>

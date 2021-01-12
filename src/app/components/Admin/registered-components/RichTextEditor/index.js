@@ -41,7 +41,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
     // 0.0 - Get props
     const {
         className,
-        id,
+        id = uuid(),
         name,
         namespace,
         onChange,
@@ -243,7 +243,7 @@ const RichTextEditor = forwardRef((initialProps, ref) => {
             op.set(handle, key, newHandle[key]),
         );
 
-        setState({ updated: Date.now() });
+        setState({ updated: Date.now() }, true);
         setHandle(handle);
         editor.handle = handle;
     }, [
@@ -431,7 +431,6 @@ RichTextEditor.defaultProps = {
         formats: [],
     },
     filter: {},
-    id: uuid(),
     include: {
         blocks: [],
         buttons: [],

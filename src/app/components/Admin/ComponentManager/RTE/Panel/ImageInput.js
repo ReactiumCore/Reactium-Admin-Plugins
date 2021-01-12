@@ -62,6 +62,7 @@ let ImageInput = (
         page,
         pages: 1,
         progress: 0,
+        search: null,
         upload: null,
         value: props.defaultValue || initialValue,
         visible: initialVisible,
@@ -98,12 +99,26 @@ let ImageInput = (
     const toggle = () => setVisible(!state.visible);
 
     const _data = (pg = 1) => {
+        let { chunk } = state;
+
         let items = _.chain(
             Array.from(media).filter(file => op.get(file, 'type') === 'IMAGE'),
         )
             .pluck('url')
             .sortBy('updatedAt')
             .value();
+
+        let { search } = state;
+        if (search) {
+            pg = 1;
+            chunk = 100;
+            search = String(search).toLowerCase();
+            items = items.filter(item =>
+                String(item)
+                    .toLowerCase()
+                    .includes(search),
+            );
+        }
 
         items.reverse();
         items = _.chain(items)
@@ -114,7 +129,7 @@ let ImageInput = (
 
         Reactium.Hook.runSync('rte-image-input', items);
 
-        return pg >= 1 ? items.slice(0, pg * state.chunk) : items;
+        return pg >= 1 ? items.slice(0, pg * chunk) : items;
     };
 
     const _maxHeight = () => {
@@ -186,17 +201,16 @@ let ImageInput = (
     };
 
     const _onKeyUp = e => {
-        let v = e.target.value;
-        if (String(v).startsWith('#')) {
-            v = String(v).toUpperCase();
-        }
+        let v = String(e.target.value);
+        v = v.length < 1 ? null : v;
 
-        e.target.value = v;
+        setState('search', v);
 
         onKeyUp(e);
     };
 
     const _onSelect = v => () => {
+        setState('search', null, true);
         scrollToTop();
         setValue(v);
         hide();
@@ -389,7 +403,7 @@ let ImageInput = (
                                     />
                                 </button>
                             ))}
-                            {state.page < state.pages && (
+                            {state.page < state.pages && !state.search && (
                                 <div className='more'>
                                     <Button
                                         block
