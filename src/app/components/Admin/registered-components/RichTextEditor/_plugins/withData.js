@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import RTEPlugin from '../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import { Editor, Path, Transforms } from 'slate';
@@ -10,25 +9,21 @@ Plugin.callback = editor => {
     editor.insertData = data => {
         const text = data.getData('text/plain');
 
-        let nodeData;
+        let isBlock, nodeData;
+
         try {
             nodeData = JSON.parse(text);
-        } catch (err) {}
+            isBlock = Editor.isBlock(editor, nodeData);
+        } catch (err) {
+            isBlock = false;
+        }
 
-        if (_.isArray(nodeData) || _.isObject(nodeData)) {
+        if (isBlock) {
             nodeData = Reactium.RTE.reassign(nodeData);
 
-            const sel = editor.selection || editor.lastSelection || [0, 0];
+            const sel = Editor.path(editor, editor.selection);
 
-            Transforms.select(editor, sel);
-
-            const [parent, parentSel] = Editor.parent(editor, sel) || [];
-
-            const isEmpty = Editor.isEmpty(editor, parent);
-
-            const at = isEmpty === true ? parentSel : Path.next(parentSel);
-
-            Transforms.insertNodes(editor, nodeData, { at });
+            Transforms.insertNodes(editor, nodeData, { at: Path.parent(sel) });
 
             return;
         } else if (text) {

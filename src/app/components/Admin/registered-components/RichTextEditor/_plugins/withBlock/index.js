@@ -40,7 +40,7 @@ Plugin.callback = editor => {
         keys: ['backspace'],
         callback: ({ editor, event }) => {
             const offset = op.get(editor, 'selection.anchor.offset', 0);
-            const path = Array.from(editor.selection.anchor.path);
+            const path = Editor.path(editor, editor.selection);
             const node = Reactium.RTE.getNode(editor, path);
             const parent = Reactium.RTE.getNode(editor, node.path);
             const block = Reactium.RTE.getBlock(editor, node.path);
