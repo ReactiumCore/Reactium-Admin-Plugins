@@ -30553,7 +30553,8 @@ input[type='object'] {
 }
 .ar-rte [type='block'].block:hover > div > .add,
 .ar-rte [type='block'].block:hover > div > .block-actions-left,
-.ar-rte [type='block'].block:hover > div > .block-actions-right {
+.ar-rte [type='block'].block:hover > div > .block-actions-right,
+.ar-rte [type='block'].block:hover > div > .block-move {
     opacity: 1;
 }
 .ar-rte [type='block'].block .add {
@@ -30585,6 +30586,33 @@ input[type='object'] {
 }
 .ar-rte [type='block'].block .add.before {
     top: -1px;
+}
+.ar-rte [type='block'].block .block-move {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    -webkit-transform: translate(-100%, -50%);
+    transform: translate(-100%, -50%);
+    flex-direction: column;
+    opacity: 0;
+}
+.ar-rte [type='block'].block .block-move button {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+}
+.ar-rte [type='block'].block .block-move button svg {
+    width: 16px;
+    height: 16px;
+}
+.ar-rte [type='block'].block .block-move :last-child {
+    border-radius: 0 0 0 2px;
+}
+.ar-rte [type='block'].block .block-move :first-child {
+    border-radius: 2px 0 0 0;
+}
+.ar-rte [type='block'].block .block-move :first-child:last-child {
+    border-radius: 2px 0 0 2px;
 }
 .ar-rte
     .admin-content-list-item-quick-editor
