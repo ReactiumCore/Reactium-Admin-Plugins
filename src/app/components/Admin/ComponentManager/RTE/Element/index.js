@@ -168,7 +168,7 @@ const SettingsButton = initialProps => {
     };
 
     return !visible ? null : (
-        <Button onClick={_onClick} title={__('Image Properties')}>
+        <Button onClick={_onClick} title={__('Component Properties')}>
             <Icon name='Linear.Beaker' size={14} />
             <span className='ml-8' style={{ fontSize: 10 }}>
                 {node.block.label}

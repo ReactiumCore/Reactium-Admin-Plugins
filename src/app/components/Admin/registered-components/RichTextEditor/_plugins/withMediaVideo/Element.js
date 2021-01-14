@@ -136,7 +136,7 @@ const SettingsButton = ({ editor, handle, node, path }) => {
         );
 
     return !visible ? null : (
-        <Button onClick={_onClick} title={__('Image Properties')}>
+        <Button onClick={_onClick} title={__('Video Properties')}>
             <Icon name='Feather.Film' size={14} />
         </Button>
     );

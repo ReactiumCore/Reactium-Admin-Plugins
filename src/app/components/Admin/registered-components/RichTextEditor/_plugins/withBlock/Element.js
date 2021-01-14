@@ -236,20 +236,8 @@ const Element = ({ children, ...initialProps }) => {
 
     useEffect(() => {
         const { path } = state;
-
         if (!path) return;
-
-        if (path.length > 1) {
-            setState({ moveUp: false, moveDown: false });
-        } else {
-            if (_.isEqual(path, [0])) {
-                setState({ moveUp: false });
-            }
-
-            if (_.isEqual(path, [editor.children.length - 1])) {
-                setState({ moveDown: false });
-            }
-        }
+        if (path.length > 1) setState({ moveUp: false, moveDown: false });
     }, [state.path]);
 
     useEffect(() => {

@@ -82,11 +82,13 @@ const AttributeInput = ({ onChange = noop, ...props }) => {
     const onToggle = e =>
         onChange({ target: { name: e.target.name, value: e.target.checked } });
 
-    let element = <input {...props} onChange={onChange} type={type} />;
+    let context = {
+        element: <input {...props} onChange={onChange} type={type} />,
+    };
 
     switch (type) {
         case 'checkbox':
-            element = (
+            context.element = (
                 <Checkbox
                     {...props}
                     onChange={onToggle}
@@ -98,7 +100,7 @@ const AttributeInput = ({ onChange = noop, ...props }) => {
             break;
 
         case 'toggle':
-            element = (
+            context.element = (
                 <Toggle
                     {...props}
                     onChange={onToggle}
@@ -110,33 +112,35 @@ const AttributeInput = ({ onChange = noop, ...props }) => {
             break;
 
         case 'color':
-            element = <ColorInput {...props} onChange={onChange} />;
+            context.element = <ColorInput {...props} onChange={onChange} />;
             break;
 
         case 'icon':
-            element = <IconInput {...props} onChange={onChange} />;
+            context.element = <IconInput {...props} onChange={onChange} />;
             break;
 
         case 'image':
-            element = <ImageInput {...props} onChange={onChange} />;
+            context.element = <ImageInput {...props} onChange={onChange} />;
             break;
 
         case 'textarea':
-            element = <textarea {...props} onChange={onChange} rows={3} />;
+            context.element = (
+                <textarea {...props} onChange={onChange} rows={3} />
+            );
             break;
 
         case 'video':
-            element = <VideoInput {...props} onChange={onChange} />;
+            context.element = <VideoInput {...props} onChange={onChange} />;
             break;
     }
 
-    Reactium.Hook.runSync('rte-attribute-input', element, {
+    Reactium.Hook.runSync('rte-attribute-input', context, {
         ...props,
         onChange,
         type,
     });
 
-    return element;
+    return context.element;
 };
 
 export { AttributeInput, AttributeInput as default };
