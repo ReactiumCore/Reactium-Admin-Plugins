@@ -17,12 +17,19 @@ const isSrc = () => {
 
 Reactium.Server.Middleware.register('media-proxy', {
     name: 'media-proxy',
-    use: proxy('/media', {
-        target: restAPI.replace(/\/api$/, ''),
-        changeOrigin: true,
-        logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
-        ws: false,
-    }),
+    use: (req, res, next) => {
+        if (!global.restAPI) {
+            next();
+            return;
+        }
+
+        return proxy('/media', {
+            target: restAPI.replace(/\/api$/, ''),
+            changeOrigin: true,
+            logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
+            ws: false,
+        })(req, res, next);
+    },
     order: Enums.priority.highest,
 });
 
