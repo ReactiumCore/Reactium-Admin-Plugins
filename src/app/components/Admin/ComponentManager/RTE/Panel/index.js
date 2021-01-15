@@ -145,6 +145,8 @@ let Panel = ({ namespace, title, ...props }) => {
             form.setBlock(block);
             form.setValue(null);
 
+            setState({ block });
+
             carousel.next();
         } else {
             insertNode(block);

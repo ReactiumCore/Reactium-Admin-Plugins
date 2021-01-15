@@ -109,6 +109,7 @@ const Settings = ({ editor, node, ...props }) => {
                                         placeholder={key}
                                         onChange={_onChange}
                                         defaultValue={_value(key)}
+                                        block={node.block}
                                     />
                                 </div>
                             ))}

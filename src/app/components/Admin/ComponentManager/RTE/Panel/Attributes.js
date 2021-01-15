@@ -108,6 +108,7 @@ let Attributes = (props, ref) => {
                                     placeholder={field}
                                     onChange={_onChange}
                                     defaultValue={_value(field)}
+                                    state={state}
                                 />
                             </div>
                         ))}
