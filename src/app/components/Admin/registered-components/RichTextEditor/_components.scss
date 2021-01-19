@@ -61,6 +61,7 @@
 
         .rte-jsx-component-blocker {
             background-color: transparent;
+            z-index: 1000;
         }
 
         @include breakpoint(xs) {

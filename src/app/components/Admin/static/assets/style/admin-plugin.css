@@ -29097,7 +29097,7 @@ body.fullscreen [data-fullscreen='flex'] {
     height: 14px;
 }
 .setting-editor {
-    padding: 20px;
+    padding: 20px 20px 0 20px;
 }
 .setting-editor .webform-error {
     margin: 20px 0;
@@ -29660,6 +29660,7 @@ input[type='object'] {
 .block-image-info .rte-jsx-component-blocker,
 .resource-block-info .rte-jsx-component-blocker {
     background-color: transparent;
+    z-index: 1000;
 }
 @media only screen {
     .block-image-info,
@@ -40476,7 +40477,11 @@ body.fullscreen .admin-content-list {
     transform: translateY(-50%);
 }
 .rte-jsx-component {
+    position: relative;
     z-index: 9999 !important;
+}
+.rte-jsx-component-modal {
+    position: fixed;
 }
 .rte-jsx-component-content-editor {
     position: relative;
@@ -40524,6 +40529,7 @@ body.fullscreen .admin-content-list {
     bottom: 0;
     opacity: 0;
     display: flex;
+    z-index: 1000000;
     position: absolute;
     align-items: center;
     justify-content: center;

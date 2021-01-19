@@ -18,25 +18,13 @@ const JsxContent = ({ children, ...props }) => {
     const isEmpty = Editor.isEmpty(editor, getNode().node);
 
     const setContent = content => {
-        const { node, path } = getNode();
-        const start = _.flatten([path, 0]);
-        const end = _.flatten([path, node.children.length - 1]);
+        let { node, path } = getNode();
 
-        if (!isEmpty) {
-            const r = Editor.range(
-                editor,
-                Editor.start(editor, start),
-                Editor.end(editor, end),
-            );
-            Transforms.delete(editor, {
-                at: r,
-                unit: 'line',
-                voids: true,
-                hanging: true,
-            });
-        }
+        node = JSON.parse(JSON.stringify(node));
+        node.children = Reactium.RTE.removeEmptyNodes(content);
 
-        Transforms.insertNodes(editor, content, { at: start });
+        Transforms.delete(editor, { at: path, unit: 'line' });
+        Transforms.insertNodes(editor, node, { at: path });
     };
 
     const showEditor = () => {
@@ -44,11 +32,12 @@ const JsxContent = ({ children, ...props }) => {
 
         const content = {
             type: 'div',
-            children: isEmpty ? [Reactium.RTE.emptyNode] : node.children,
+            children: isEmpty
+                ? [Reactium.RTE.emptyNode]
+                : Reactium.RTE.removeEmptyNodes(node.children),
         };
 
         const rte = refs.get('rte');
-        if (!rte) return;
         rte.setValue(content);
         rte.show();
     };
@@ -69,7 +58,7 @@ const JsxContent = ({ children, ...props }) => {
                 })}>
                 <Button
                     appearance={Button.ENUMS.APPEARANCE.PILL}
-                    onMouseUp={showEditor}>
+                    onClick={showEditor}>
                     {isEmpty ? __('Content') : __('Edit Content')}
                 </Button>
             </div>

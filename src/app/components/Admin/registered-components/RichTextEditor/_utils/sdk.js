@@ -451,6 +451,18 @@ class RTE {
         node = ids.reduce((n, id) => n.split(id).join(uuid()), node);
         return JSON.parse(node);
     }
+
+    removeEmptyNodes(content) {
+        let newContent = _.compact(JSON.parse(JSON.stringify(content)));
+        let i = newContent.length - 1;
+
+        for (i; i >= 0; i--) {
+            const text = Node.string(newContent[i]);
+            if (String(text).length < 1) newContent.splice(i, 1);
+        }
+
+        return newContent;
+    }
 }
 
 export default new RTE();

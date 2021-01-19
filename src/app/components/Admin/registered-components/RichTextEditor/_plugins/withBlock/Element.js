@@ -282,7 +282,7 @@ const Element = ({ children, ...initialProps }) => {
                         </div>
                     </Alert>
                 )}
-                {addBefore && (
+                {deletable && addBefore && (
                     <div className='add before'>
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}
@@ -291,7 +291,7 @@ const Element = ({ children, ...initialProps }) => {
                         </Button>
                     </div>
                 )}
-                {addAfter && (
+                {deletable && addAfter && (
                     <div className='add after'>
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}

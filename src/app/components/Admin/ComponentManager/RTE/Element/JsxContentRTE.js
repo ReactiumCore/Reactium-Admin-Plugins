@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { ReactEditor } from 'slate-react';
+import uuid from 'uuid/v4';
 
 import React, {
     forwardRef,
@@ -25,6 +25,7 @@ const defaultValue = {
 export default forwardRef(
     ({ onSubmit = noop, title = __('Component Content'), ...props }, ref) => {
         const refs = useRefs();
+        const idx = uuid();
 
         const [value, update] = useState(props.value || defaultValue);
         const setValue = newValue => {
@@ -49,25 +50,33 @@ export default forwardRef(
 
         const unMounted = () => !refs.get('modal');
 
-        const _dismiss = () => {
-            const modal = refs.get('modal');
-            modal.hide();
-        };
+        const hasClass = (target, className) =>
+            new RegExp('(\\s|^)' + className + '(\\s|$)').test(
+                target.className,
+            );
+
+        const _dismiss = () =>
+            new Promise(resolve => {
+                const modal = refs.get('modal');
+                modal.hide();
+
+                const ival = setInterval(() => {
+                    if (!hasClass(modal.container, 'visible')) {
+                        clearInterval(ival);
+                        resolve();
+                    }
+                }, 1);
+            });
 
         const _onSubmit = () => {
             const rte = refs.get('rte');
             const value = rte.value.children;
-            _dismiss();
-            _.delay(() => onSubmit(value), 300);
+            _dismiss().then(() => onSubmit(value));
         };
 
         const _show = () => {
             const modal = refs.get('modal');
             modal.show();
-            _.delay(() => {
-                const rte = refs.get('rte');
-                ReactEditor.focus(rte.editor);
-            }, 300);
         };
 
         const _handle = () => ({
@@ -76,6 +85,7 @@ export default forwardRef(
             show: _show,
             setValue,
             value,
+            refs,
         });
 
         const [handle, updateHandle] = useEventHandle(_handle());
@@ -93,7 +103,7 @@ export default forwardRef(
         }, [value]);
 
         return (
-            <Modal className={cx()} ref={elm => refs.set('modal', elm)}>
+            <Modal className={cx('modal')} ref={elm => refs.set('modal', elm)}>
                 <Dialog
                     dismissable
                     header={header}
@@ -102,6 +112,7 @@ export default forwardRef(
                     <div className={cx('content-editor')}>
                         <div className={cx('content-editor-container')}>
                             <RichTextEditor
+                                id={idx}
                                 value={value}
                                 exclude={excludes}
                                 placeholder={__('Content')}

@@ -456,7 +456,12 @@
 }
 
 .rte-jsx-component {
+    position: relative;
     z-index: 9999 !important;
+
+    &-modal {
+        position: fixed;
+    }
 
     &-content-editor {
         position: relative;
@@ -510,6 +515,7 @@
         bottom: 0;
         opacity: 0;
         display: flex;
+        z-index: 1000000;
         position: absolute;
         align-items: center;
         justify-content: center;

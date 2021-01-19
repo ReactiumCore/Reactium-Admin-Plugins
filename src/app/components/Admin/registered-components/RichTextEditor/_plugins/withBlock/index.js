@@ -1,11 +1,10 @@
-import _ from 'underscore';
 import op from 'object-path';
 import Element from './Element';
+import { Editor, Node } from 'slate';
 import normalize from './normalizeNode';
 import RTEPlugin from '../../RTEPlugin';
 import Reactium from 'reactium-core/sdk';
 import ToolbarButton from './ToolbarButton';
-import { Editor, Node, Path, Transforms } from 'slate';
 const Plugin = new RTEPlugin({
     type: 'block',
     order: Reactium.Enums.priority.lowest,
