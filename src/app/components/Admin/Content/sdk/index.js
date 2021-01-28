@@ -843,77 +843,67 @@ Reactium.Hook.register('changelog-created', async logEntry => {
 });
  */
 Content.changelogSubscribe = async (contentId, advancedQuery = [], handle) => {
-    const qry = new Reactium.Query('Changelog');
-    if (contentId) qry.equalTo('contentId', contentId);
+    if (!Reactium.IO) return () => {};
 
-    // allow special queries
-    if (advancedQuery.length) {
-        advancedQuery.forEach(({ operator, params }) => {
-            if (operator in qry) {
-                qry[operator](...params);
-            }
+    try {
+        Reactium.IO.connect();
+
+        Reactium.IO.emit('changelog.subscribe', {
+            contentId,
+            advancedQuery,
+            sessionToken: Reactium.User.getSessionToken(),
         });
-    }
 
-    const subscription = await qry.subscribe();
+        const onCreated = logObj => {
+            Reactium.Hook.run('changelog-created', logObj, handle);
+            Reactium.Hook.run(`changelog-created-${contentId}`, logObj, handle);
+        };
+        Reactium.IO.on('changelog-created', onCreated);
 
-    subscription.on('create', logEntry => {
-        const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-created', logObj, handle);
-        Reactium.Hook.run(
-            `changelog-created-${logEntry.contentId}`,
-            logObj,
-            handle,
+        const onUpdated = logObj => {
+            Reactium.Hook.run('changelog-updated', logObj, handle);
+            Reactium.Hook.run(`changelog-updated-${contentId}`, logObj, handle);
+        };
+
+        Reactium.IO.on('changelog-updated', onUpdated);
+
+        const onEntered = logObj => {
+            Reactium.Hook.run('changelog-entered', logObj, handle);
+            Reactium.Hook.run(`changelog-entered-${contentId}`, logObj, handle);
+        };
+        Reactium.IO.on('changelog-entered', onEntered);
+
+        const onLeft = logObj => {
+            Reactium.Hook.run('changelog-left', logObj, handle);
+            Reactium.Hook.run(`changelog-left-${contentId}`, logObj, handle);
+        };
+        Reactium.IO.on('changelog-left', onLeft);
+
+        const onDeleted = logObj => {
+            Reactium.Hook.run('changelog-deleted', logObj, handle);
+            Reactium.Hook.run(`changelog-deleted-${contentId}`, logObj, handle);
+        };
+        Reactium.IO.on('changelog-deleted', onDeleted);
+
+        const unsubscribe = () => {
+            Reactium.IO.off('changelog-created', onCreated);
+            Reactium.IO.off('changelog-updated', onUpdated);
+            Reactium.IO.off('changelog-entered', onEntered);
+            Reactium.IO.off('changelog-left', onLeft);
+            Reactium.IO.off('changelog-deleted', onDeleted);
+            Reactium.IO.emit('changelog.unsubscribe', { contentId });
+        };
+
+        // auto-unsubscribe on logout
+        const logoutId = Reactium.Hook.register(
+            'user.before.logout',
+            unsubscribe,
         );
-    });
 
-    subscription.on('update', logEntry => {
-        const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-updated', logObj, handle);
-        Reactium.Hook.run(
-            `changelog-updated-${logEntry.contentId}`,
-            logObj,
-            handle,
-        );
-    });
+        return unsubscribe;
+    } catch (error) {}
 
-    subscription.on('enter', logEntry => {
-        const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-entered', logObj, handle);
-        Reactium.Hook.run(
-            `changelog-entered-${logEntry.contentId}`,
-            logObj,
-            handle,
-        );
-    });
-
-    subscription.on('leave', logEntry => {
-        const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-left', logObj, handle);
-        Reactium.Hook.run(
-            `changelog-left-${logEntry.contentId}`,
-            logObj,
-            handle,
-        );
-    });
-
-    subscription.on('delete', logEntry => {
-        const logObj = serialize(logEntry);
-        Reactium.Hook.run('changelog-deleted', logObj, handle);
-        Reactium.Hook.run(
-            `changelog-deleted-${logEntry.contentId}`,
-            logObj,
-            handle,
-        );
-    });
-
-    // auto-unsubscribe on logout
-    const logoutId = Reactium.Hook.register('user.before.logout', async () => {
-        subscription.unsubscribe();
-    });
-    subscription.on('close', () => Reactium.Hook.unregister(logoutId));
-
-    return subscription.unsubscribe;
+    return () => {};
 };
 
 /**
