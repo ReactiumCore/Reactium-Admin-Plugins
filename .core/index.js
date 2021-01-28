@@ -24,8 +24,43 @@ const { Enums } = SDK;
 global.defines = {};
 global.rootPath = path.resolve(__dirname, '..');
 global.isSSR = 'SSR_MODE' in process.env && process.env.SSR_MODE === 'on';
+global.useJSDOM =
+    global.isSSR &&
+    (!('SSR_MODE_JSDOM' in process.env) ||
+        process.env.SSR_MODE_JSDOM !== 'off');
+
+global.actiniumAPIEnabled = process.env.ACTINIUM_API !== 'off';
+global.actiniumProxyEnabled = process.env.PROXY_ACTINIUM_API !== 'off';
+
+if (global.isSSR && global.useJSDOM) {
+    // react-side-effect/lib/index.js:85:17 does the opposite of normal
+    // it tries to check to see if the DOM is available, and blows up if it
+    // does on static render
+    // Fixes "You may only call rewind() on the server. Call peek() to read the current state." throw.
+    //
+    // The condition used for this error is set at file scope of this loaded early, so
+    // let's get this in early, before creating global.window with JSDOM.
+    require('react-side-effect');
+
+    const jsdom = require('jsdom');
+    const { JSDOM } = jsdom;
+    const { window } = new JSDOM('<!DOCTYPE html>');
+    const { document, navigator, location } = window;
+
+    // build a soft cushy server-side window environment to catch server-unsafe code
+    global.window = window;
+    global.JSDOM = window;
+    global.document = document;
+    global.navigator = navigator;
+    global.location = location;
+
+    // Important: We'll use this to differential the JSDOM "window" from others.
+    global.window.isJSDOM = true;
+    console.log('SSR: creating JSDOM object as global.window.');
+}
 
 const apiConfig = SDK.API.ActiniumConfig;
+
 global.parseAppId = apiConfig.parseAppId;
 global.actiniumAppId = apiConfig.actiniumAppId;
 global.restAPI = apiConfig.restAPI;
@@ -101,18 +136,45 @@ const bootup = async () => {
         order: Enums.priority.highest,
     });
 
-    if (restAPI) {
+    if (process.env.PROXY_ACTINIUM_API !== 'off') {
         SDK.Server.Middleware.register('api', {
             name: 'api',
-            use: proxy('/api', {
-                target: restAPI,
-                changeOrigin: true,
-                pathRewrite: {
-                    '^/api': '',
-                },
-                logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
-                ws: true,
-            }),
+            use: (req, res, next) => {
+                if (!global.restAPI) {
+                    next();
+                    return;
+                }
+
+                return proxy('/api', {
+                    target: global.restAPI,
+                    changeOrigin: true,
+                    pathRewrite: {
+                        '^/api': '',
+                    },
+                    logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
+                    ws: true,
+                })(req, res, next);
+            },
+            order: Enums.priority.highest,
+        });
+    }
+
+    if (process.env.PROXY_ACTINIUM_API !== 'off') {
+        SDK.Server.Middleware.register('api-socket-io', {
+            name: 'api-socket-io',
+            use: (req, res, next) => {
+                if (!global.restAPI) {
+                    next();
+                    return;
+                }
+
+                return proxy('/actinium.io', {
+                    target: global.restAPI.replace('/api', '') + '/actinium.io',
+                    changeOrigin: true,
+                    logLevel: process.env.DEBUG === 'on' ? 'debug' : 'error',
+                    ws: true,
+                })(req, res, next);
+            },
             order: Enums.priority.highest,
         });
     }
@@ -227,6 +289,51 @@ const bootup = async () => {
     });
 
     // default route handler
+    SDK.Server.Middleware.register('service-worker-allowed', {
+        name: 'service-worker-allowed',
+        use: async (req, res, next) => {
+            const responseHeaders = {
+                'Service-Worker-Allowed': '/',
+            };
+
+            /**
+             * @api {Hook} Server.ServiceWorkerAllowed Server.ServiceWorkerAllowed
+             * @apiDescription Called on server-side during service-worker-allowed middleware.
+             Used to define the HTTP response header "Service-Worker-Allowed".
+             By default, this header will allow the document root, "/".
+             Both sync and async version called.
+             * @apiParam {Object} responseHeader with property 'Service-Worker-Allowed' (case sensitive) and its value.
+             * @apiParam {Object} req Node/Express request object
+             * @apiParam {Object} res Node/Express response object
+             * @apiName Server.ServiceWorkerAllowed
+             * @apiGroup Hooks
+             */
+            SDK.Hook.runSync(
+                'Server.ServiceWorkerAllowed',
+                responseHeaders,
+                req,
+                res,
+            );
+            await SDK.Hook.run(
+                'Server.ServiceWorkerAllowed',
+                responseHeaders,
+                req,
+                res,
+            );
+
+            if (op.has(responseHeaders, 'Service-Worker-Allowed')) {
+                res.set(
+                    'Service-Worker-Allowed',
+                    op.get(responseHeaders, 'Service-Worker-Allowed'),
+                );
+            }
+
+            next();
+        },
+        order: Enums.priority.high,
+    });
+
+    // default route handler
     SDK.Server.Middleware.register('router', {
         name: 'router',
         use: router,
@@ -291,7 +398,7 @@ const bootup = async () => {
             order: SDK.Enums.priority.highest,
         })
      });
-     * @apiGroup BootHook
+     * @apiGroup Hooks
      */
     SDK.Hook.runSync('Server.Middleware', SDK.Server.Middleware);
     await SDK.Hook.run('Server.Middleware', SDK.Server.Middleware);

@@ -68,7 +68,7 @@ Capability.cache = 60000;
  * @api {Function} Capability.register(id) Capability.register()
  * @apiVersion 3.1.2
  * @apiGroup Capability
- * @apiName Capability.register()
+ * @apiName Capability.register
  * @apiDescription Register a new capability.
  * @apiParam {String} id String value used when checking for the capability.
     This function is limited in scope and regularly shouldn't be used. Server-side capability registration is preferred.
@@ -91,7 +91,7 @@ Capability.register = id => {
  * @api {Async} Capability.propagate(force) Capability.propagate()
  * @apiVersion 3.1.2
  * @apiGroup Capability
- * @apiName Capability.propagate()
+ * @apiName Capability.propagate
  * @apiDescription Propagate registered capabilities to an Actinium server.
  * @apiParam {Boolean} [force=false] Execute the propagation regardless of if a current propagation operation is under way.
     The resolution of the previous propagation operation will be cancelled.
@@ -356,7 +356,7 @@ Capability.checkAll = async (checks, userID) => {
  * @api {Function} Capability.clearCache() Capability.clearCache()
  * @apiVersion 3.1.2
  * @apiGroup Capability
- * @apiName Capability.clearCache()
+ * @apiName Capability.clearCache
  * @apiDescription Clear Capability related Cache keys.
  */
 Capability.clearCache = () =>
@@ -370,7 +370,7 @@ Capability.clearCache = () =>
  * @api {Async} Capability.User.get(userID,refresh) Capability.User.get()
  * @apiVersion 3.1.2
  * @apiGroup Capability
- * @apiName Capability.User.get()
+ * @apiName Capability.User.get
  * @apiDescription Return an Array of capability names granted to the user.
  * @apiParam {String} [userID] The Reactium.User id. If empty the User.current id is used.
  * @apiParam {Boolean} [refres=false] Fetch capabilities from the server instead of cache.

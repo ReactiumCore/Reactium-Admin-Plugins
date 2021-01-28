@@ -1,9 +1,10 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium, { isBrowserWindow } from 'reactium-core/sdk';
 import React, { forwardRef } from 'react';
 import op from 'object-path';
 import _ from 'underscore';
 import getComponents from 'dependencies/getComponents';
 import RoutedContent from './RoutedContent';
+import manifestLoader from 'manifest';
 
 const lookupRouteComponent = async route => {
     let Found;
@@ -24,14 +25,14 @@ const lookupRouteComponent = async route => {
 Reactium.Hook.register(
     'routes-init',
     async Routing => {
-        const allRoutes = op.get(require('manifest').get(), 'allRoutes', {});
+        const allRoutes = op.get(manifestLoader.get(), 'allRoutes', {});
 
         if (!Object.values(allRoutes || {}).length) {
             return [];
         }
 
         let globalRoutes = [];
-        if (typeof window !== 'undefined') {
+        if (isBrowserWindow()) {
             if ('routes' in window && Array.isArray(window.routes)) {
                 globalRoutes = window.routes;
             }

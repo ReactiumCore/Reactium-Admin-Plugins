@@ -13,7 +13,7 @@ const prefix = require('gulp-autoprefixer');
 const sass = require('gulp-sass');
 const gzip = require('gulp-gzip');
 const jsonFunctions = require('node-sass-functions-json').default;
-const tildeImporter = require('node-sass-tilde-importer');
+const reactiumImporter = require('@atomic-reactor/node-sass-reactium-importer');
 const less = require('gulp-less');
 const cleanCSS = require('gulp-clean-css');
 const sourcemaps = require('gulp-sourcemaps');
@@ -285,6 +285,8 @@ const reactium = (gulp, config, webpackConfig) => {
 
     const umd = gulp.series(task('umdManifest'), task('umdLibraries'));
 
+    const sw = gulp.series(task('umd'), task('serviceWorker'));
+
     const mainManifest = done => {
         // Generate manifest.js file
         regenManifest({
@@ -553,7 +555,7 @@ $assets: (
                         functions: {
                             ...jsonFunctions,
                         },
-                        importer: tildeImporter,
+                        importer: reactiumImporter,
                         includePaths: config.src.includes,
                     }).on('error', sass.logError),
                 ),
@@ -619,6 +621,7 @@ $assets: (
         serve: serve(),
         'serve-restart': serve({ open: false }),
         serviceWorker,
+        sw,
         static: staticTask,
         'static:copy': staticCopy,
         'styles:pluginAssets': pluginAssets,
