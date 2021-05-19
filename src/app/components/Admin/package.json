@@ -1,11 +1,10 @@
 {
   "name": "@atomic-reactor/admin",
-  "version": "0.0.211",
+  "version": "0.0.213",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "node ../patch-react-spring.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -41,7 +40,7 @@
     "react-jsx-parser": "^1.21.0",
     "react-live": "^2.2.2",
     "react-player": "^2.7.2",
-    "react-spring": "9.0.0-rc.3",
+    "react-spring": "^9.1.2",
     "react-use-gesture": "^7.0.11",
     "slate": "^0.57.1",
     "slate-history": "^0.57.1",
@@ -51,5 +50,8 @@
   },
   "reactium": {
     "version": "3.2.6"
+  },
+  "actinium": {
+    "version": "3.6.6"
   }
 }
