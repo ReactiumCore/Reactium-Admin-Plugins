@@ -9,6 +9,8 @@ module.exports = spinner => {
         if (spinner) spinner.text = text.join(' ');
     };
 
+    const globbyPath = pathString =>
+        pathString.split(/[\\\/]/g).join(path.posix.sep);
     const normalize = (...args) => path.normalize(path.join(...args));
 
     let cwd, append, insert, pluginDirectory, prompt, scss, stylePaths, styles;
@@ -24,7 +26,7 @@ module.exports = spinner => {
 
             prompt = op.get(props, 'prompt');
             scss = normalize(pluginDirectory, 'style', '_admin.scss');
-            styles = await globby([`${cwd}/src/**/*.scss`]);
+            styles = await globby([`${globbyPath(cwd)}/src/**/*.scss`]);
             styles = styles.filter(
                 file => String(path.basename(file)).substr(0, 1) !== '_',
             );
