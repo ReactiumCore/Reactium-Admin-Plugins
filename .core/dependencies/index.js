@@ -5,80 +5,131 @@ import manifestLoader from 'manifest';
 class ReactiumDependencies {
     constructor() {
         this.loaded = false;
+        this.loadedModules = {};
         this.actions = {};
-        this.actionTypes = {};
+        this.actionTypes = {
+            DOMAIN_UPDATE: 'DOMAIN_UPDATE',
+        };
         this.services = {};
         this.reducers = {};
         this.plugins = {};
         this.plugableConfig = {};
+
+        // Just used to determine if is a custom type
         this.coreTypes = [
-            'allActions',
             'allActionTypes',
+            'allActions',
             'allReducers',
             'allInitialStates',
             'allServices',
             'allMiddleware',
             'allEnhancers',
             'allPlugins',
+            'allHooks',
         ];
+
+        // Things to be mapped on deps now
+        this.coreTypeMap = {
+            allActionTypes: 'actionTypes',
+            allActions: 'actions',
+            allServices: 'services',
+            allPlugins: 'plugins',
+        };
     }
 
-    _init() {
-        if (this.loaded) return;
+    async loadAllMerged(type) {
+        const all = await this.loadAll(type);
 
-        this.loaded = true;
-        this.reducers = op.get(this.manifest, 'allReducers', {});
-        this.actions = op.get(this.manifest, 'allActions', {});
-        this.actionTypes = Object.keys(
-            op.get(this.manifest, 'allActionTypes', {}),
-        ).reduce(
-            (types, key) => ({
-                ...types,
-                ...this.manifest.allActionTypes[key],
+        return all.reduce(
+            (merged, current) => ({
+                ...merged,
+                [current.domain]: current.module.default,
             }),
             {},
         );
-        this.actionTypes.DOMAIN_UPDATE = 'DOMAIN_UPDATE';
+    }
 
-        this.services = op.get(this.manifest, 'allServices', {});
-
-        this.plugins = op.get(this.manifest, 'allPlugins', {});
-
-        try {
-            let plugableConfig = require('appdir/plugable');
-            if ('default' in plugableConfig) {
-                plugableConfig = plugableConfig.default;
-            }
-            this.plugableConfig = plugableConfig;
-        } catch (error) {}
-
-        // Resolve non-core types as dependencies
-        Object.keys(this.manifest).forEach(type => {
-            if (
-                !this.coreTypes.find(
-                    coreType => coreType === type || type === 'allHooks',
-                )
-            ) {
-                this[type] = op.get(this.manifest, [type], {});
-            }
+    async loadAllDefaults(type) {
+        return (await this.loadAll(type)).map(dep => {
+            return dep.module.default;
         });
+    }
 
-        console.log('Dependencies loaded.');
+    async loadAll(type) {
+        return Promise.all(
+            op.get(this.manifest, [type], []).map(dep => {
+                const { name, domain, loader } = dep;
+                if (op.has(this, ['loadedModules', name, domain])) {
+                    const loadedModule = op.get(this, [
+                        'loadedModules',
+                        name,
+                        domain,
+                    ]);
+                    return Promise.resolve(loadedModule);
+                } else {
+                    return dep.loader().then(loadedModule => {
+                        const { name, domain, module } = loadedModule;
+
+                        op.set(
+                            this,
+                            ['loadedModules', name, domain],
+                            loadedModule,
+                        );
+                        return loadedModule;
+                    });
+                }
+            }),
+        );
+    }
+
+    async load() {
+        if (!this.loaded) {
+            console.log('Loading core dependencies.');
+            for (const depType of Object.keys(this.manifest)) {
+                if (
+                    depType in this.coreTypeMap ||
+                    !this.coreTypes.includes(depType)
+                ) {
+                    const binding = op.get(
+                        this.coreTypeMap,
+                        [depType],
+                        depType,
+                    );
+                    for (const { name, domain, module } of await this.loadAll(
+                        depType,
+                    )) {
+                        op.set(this, [binding, domain], module.default);
+                        if (binding === 'actionTypes') {
+                            for (const [key, value] of Object.entries(
+                                module.default,
+                            )) {
+                                op.set(this, [binding, key], value);
+                            }
+                        } else {
+                            op.set(this, [binding, domain], module.default);
+                        }
+                    }
+                }
+            }
+
+            try {
+                let plugableConfig = await import('appdir/plugable');
+                if ('default' in plugableConfig) {
+                    plugableConfig = plugableConfig.default;
+                }
+                this.plugableConfig = plugableConfig;
+            } catch (error) {}
+
+            this.loaded = true;
+        }
+
+        return Promise.resolve(this);
     }
 }
 
 const dependencies = new ReactiumDependencies();
 
-export default () => {
-    if (!dependencies.loaded) {
-        console.warn(
-            new Error('Use of dependencies before dependencies-loaded.'),
-        );
-        throw dependencyError;
-    }
-
-    return dependencies;
-};
+export default () => dependencies;
 
 export const restHeaders = () => {
     return {};
@@ -102,26 +153,6 @@ export const manifest = dependencies.manifest;
 
 Reactium.Hook.register(
     'dependencies-load',
-    () =>
-        new Promise(resolve => {
-            if (dependencies.loaded) resolve();
-
-            const interval = setInterval(() => {
-                const loaded =
-                    isBrowserWindow() ||
-                    Object.entries(dependencies.manifest)
-                        .filter(([type]) => type !== 'allHooks')
-                        .reduce(
-                            (loaded, [, dependency]) => loaded && !!dependency,
-                            true,
-                        );
-
-                if (loaded) {
-                    clearInterval(interval);
-                    dependencies._init();
-                    resolve();
-                }
-            }, 10);
-        }),
+    dependencies.load.bind(dependencies),
     Reactium.Enums.priority.highest,
 );
