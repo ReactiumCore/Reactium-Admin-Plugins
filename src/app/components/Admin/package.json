@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "gulp-sass": "^4.1.0",
+    "node-sass": "^5.0.0",
     "node-sass-functions-json": "^1.0.0"
   }
 }
