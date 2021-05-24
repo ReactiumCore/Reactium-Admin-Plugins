@@ -1,6 +1,6 @@
 define({
   "name": "Actinium-Admin",
-  "version": "3.4.1",
+  "version": "3.6.0",
   "description": "Reactium SDK",
   "title": "Reactium SDK",
   "sampleUrl": false,
@@ -8,8 +8,8 @@ define({
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2021-01-19T16:04:38.135Z",
-    "url": "http://apidocjs.com",
-    "version": "0.24.0"
+    "time": "2021-05-24T03:02:20.479Z",
+    "url": "https://apidocjs.com",
+    "version": "0.25.0"
   }
 });

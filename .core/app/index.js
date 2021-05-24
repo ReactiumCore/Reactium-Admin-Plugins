@@ -1,19 +1,13 @@
-'use strict';
-
 /**
  * -----------------------------------------------------------------------------
  * Includes
  * -----------------------------------------------------------------------------
  */
-import Reactium, { useHookComponent, isBrowserWindow } from 'reactium-core/sdk';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'dependencies';
-
-const hookableComponent = name => props => {
-    const Component = useHookComponent(name);
-    return <Component {...props} />;
-};
+import _ from 'underscore';
+import op from 'object-path';
+import deps from 'dependencies';
 
 /**
  * -----------------------------------------------------------------------------
@@ -23,6 +17,22 @@ const hookableComponent = name => props => {
  * -----------------------------------------------------------------------------
  */
 export const App = async () => {
+    console.log('Loading Core SDK');
+    const {
+        default: Reactium,
+        useHookComponent,
+        isBrowserWindow,
+    } = await import('reactium-core/sdk');
+
+    console.log('Initializing Application Hooks');
+
+    await deps().loadAll('allHooks');
+
+    const hookableComponent = name => props => {
+        const Component = useHookComponent(name);
+        return <Component {...props} />;
+    };
+
     const context = {};
 
     /**
@@ -92,6 +102,14 @@ export const App = async () => {
      */
     await Reactium.Hook.run('plugin-dependencies');
     await Reactium.Routing.load();
+
+    /**
+     * @api {Hook} plugin-ready plugin-ready
+     * @apiName plugin-ready
+     * @apiDescription Called after all plugin registration callbacks have completed and routes have loaded.
+     * @apiGroup Hooks
+     */
+    await Reactium.Hook.run('plugin-ready');
 
     if (isBrowserWindow()) {
         /**
@@ -182,19 +200,19 @@ export const App = async () => {
              * @apiDescription The final hook run after the front-end application has bee bound or hydrated. After this point,
              the all hooks are runtime hooks.
              * @apiName app-ready
-             * @apiGroup Reactium.Hooks
+             * @apiGroup Hooks
              * @apiParam {Boolean} ssr If the app is in server-side rendering mode (SSR) `true` is passed to the hook.
              */
-            await Reactium.Hook.run('app-ready', ssr);
+            _.defer(() => Reactium.Hook.run('app-ready', ssr));
         }
     }
 };
 
 export const AppError = async error => {
-    const RedBox = require('redbox-react');
-    const { appElement } = await Reactium.Hook.run('app-bindpoint');
-
-    if (appElement) {
-        ReactDOM.render(<RedBox error={error} />, appElement);
-    }
+    // const RedBox = require('redbox-react');
+    // const { appElement } = await Reactium.Hook.run('app-bindpoint');
+    //
+    // if (appElement) {
+    //     ReactDOM.render(<RedBox error={error} />, appElement);
+    // }
 };

@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const globby = require('globby');
+const globby = require('./globby-patch');
 const rootPath = path.resolve(__dirname, '..');
 
 const defaultConfig = {
@@ -126,6 +126,20 @@ const defaultConfig = {
         dest: ['public/docs', 'docs'],
         verbose: false,
     },
+    buildTasks: [
+        'preBuild',
+        'ensureReactiumModules',
+        'clean',
+        'manifest',
+        ['markup', 'json'],
+        ['assets', 'styles'],
+        'scripts',
+        'umdLibraries',
+        'serviceWorker',
+        'compress',
+        'apidocs',
+        'postBuild',
+    ],
 };
 
 const overrides = config => {

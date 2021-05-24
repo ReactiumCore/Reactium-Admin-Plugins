@@ -4,13 +4,13 @@ const del = require('del');
 const fs = require('fs-extra');
 const op = require('object-path');
 const path = require('path');
-const globby = require('globby');
+const globby = require('./globby-patch');
 const webpack = require('webpack');
 const browserSync = require('browser-sync');
 const gulpif = require('gulp-if');
 const gulpwatch = require('@atomic-reactor/gulp-watch');
 const prefix = require('gulp-autoprefixer');
-const sass = require('gulp-sass');
+const sass = require('gulp-dart-sass');
 const gzip = require('gulp-gzip');
 const jsonFunctions = require('node-sass-functions-json').default;
 const reactiumImporter = require('@atomic-reactor/node-sass-reactium-importer');
@@ -19,7 +19,6 @@ const cleanCSS = require('gulp-clean-css');
 const sourcemaps = require('gulp-sourcemaps');
 const rename = require('gulp-rename');
 const chalk = require('chalk');
-const moment = require('moment');
 const reactiumConfig = require('./reactium-config');
 const regenManifest = require('./manifest/manifest-tools');
 const umdWebpackGenerator = require('./umd.webpack.config');
@@ -28,6 +27,11 @@ const { fork, spawn } = require('child_process');
 const workbox = require('workbox-build');
 const { File, FileReader } = require('file-api');
 const handlebars = require('handlebars');
+const timestamp = () => {
+    const now = new Date();
+    const ts = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+    return `[${chalk.blue(ts)}]`;
+};
 
 // For backward compatibility with gulp override tasks using run-sequence module
 // make compatible with gulp4
@@ -50,15 +54,19 @@ const reactium = (gulp, config, webpackConfig) => {
 
     // PORT setup:
     let port = config.port.proxy;
-    let pvar = op.get(process.env, 'PORT_VAR', false);
 
-    if (pvar) {
-        port = op.get(process.env, pvar, port);
+    let node_env = process.env.hasOwnProperty('NODE_ENV')
+        ? process.env.NODE_ENV
+        : 'development';
+
+    const PORT_VAR = op.get(process.env, 'PORT_VAR', 'APP_PORT');
+    if (PORT_VAR && op.has(process.env, [PORT_VAR])) {
+        port = op.get(process.env, [PORT_VAR], port);
     } else {
-        port = op.get(process.env, 'APP_PORT', port);
-        port = op.get(process.env, 'PORT', port);
+        port = op.get(process.env, ['PORT'], port);
     }
-    port = Number(port);
+
+    port = parseInt(port);
 
     // Update config from environment variables
     config.port.proxy = port;
@@ -69,11 +77,6 @@ const reactium = (gulp, config, webpackConfig) => {
     );
 
     const noop = done => done();
-
-    const timestamp = () => {
-        let now = moment().format('HH:mm:ss');
-        return `[${chalk.blue(now)}]`;
-    };
 
     const watcher = e => {
         let src = path.relative(path.resolve(__dirname), e.path);
@@ -140,12 +143,12 @@ const reactium = (gulp, config, webpackConfig) => {
         watchProcess.on('message', message => {
             switch (message) {
                 case 'build-started': {
-                    console.log("[00:00:00] Starting 'build'...");
+                    console.log(timestamp() + " Starting 'build'...");
                     done();
                     return;
                 }
                 case 'restart-watches': {
-                    console.log("[00:00:00] Restarting 'watch'...");
+                    console.log(timestamp() + " Restarting 'watch'...");
                     watchProcess.kill();
                     watch(_ => _, true);
                     return;
@@ -162,7 +165,7 @@ const reactium = (gulp, config, webpackConfig) => {
     ) => {
         const ps = spawn(cmd, args, { stdio: [stdin, stdout, stderr] });
         ps.on('close', code => {
-            if (code !== 0) console.log(`Error executing ${cmd}`);
+            if (code !== 0) console.log(timestamp() + `Error executing ${cmd}`);
             done();
         });
     };
@@ -227,7 +230,7 @@ const reactium = (gulp, config, webpackConfig) => {
             .pipe(rename(assetPath))
             .pipe(gulp.dest(config.dest.assets));
 
-    const build = gulp.series(
+    const defaultBuildTasks = gulp.series(
         task('preBuild'),
         task('ensureReactiumModules'),
         task('clean'),
@@ -241,6 +244,19 @@ const reactium = (gulp, config, webpackConfig) => {
         task('apidocs'),
         task('postBuild'),
     );
+
+    const build = cfg =>
+        !cfg.buildTasks
+            ? defaultBuildTasks
+            : gulp.series(
+                  ...cfg.buildTasks.map(t => {
+                      if (typeof t === 'string') {
+                          return task(t);
+                      } else if (Array.isArray(t)) {
+                          return gulp.parallel(...t.map(task));
+                      }
+                  }),
+              );
 
     const apidocs = done => {
         if (!isDev) done();
@@ -323,7 +339,7 @@ const reactium = (gulp, config, webpackConfig) => {
 
     const scripts = done => {
         // Compile js
-        if (!isDev) {
+        if (!isDev || process.env.MANUAL_DEV_BUILD === 'true') {
             webpack(webpackConfig, (err, stats) => {
                 if (err) {
                     console.log(err());
@@ -361,11 +377,13 @@ const reactium = (gulp, config, webpackConfig) => {
 
         for (let umd of umdConfigs) {
             try {
-                console.log(`Generating UMD library ${umd.libraryName}`);
+                console.log(
+                    timestamp() + ` Generating UMD library ${umd.libraryName}`,
+                );
                 await new Promise((resolve, reject) => {
                     webpack(umdWebpackGenerator(umd), (err, stats) => {
                         if (err) {
-                            reject(err());
+                            reject(err);
                             return;
                         }
 
@@ -383,7 +401,7 @@ const reactium = (gulp, config, webpackConfig) => {
                     });
                 });
             } catch (error) {
-                console.log(error);
+                console.log('error', error);
             }
         }
 
@@ -396,12 +414,15 @@ const reactium = (gulp, config, webpackConfig) => {
             ...config.sw,
         };
 
-        if (fs.existsSync(config.umd.defaultWorker)) {
-            method = 'injectManifest';
-            swConfig.swSrc = config.umd.defaultWorker;
-            delete swConfig.clientsClaim;
-            delete swConfig.skipWaiting;
+        if (!fs.existsSync(config.umd.defaultWorker)) {
+            console.info(timestamp() + ' Skipping service worker generation.');
+            return Promise.resolve();
         }
+
+        method = 'injectManifest';
+        swConfig.swSrc = config.umd.defaultWorker;
+        delete swConfig.clientsClaim;
+        delete swConfig.skipWaiting;
 
         return workbox[method](swConfig)
             .then(({ warnings }) => {
@@ -409,10 +430,15 @@ const reactium = (gulp, config, webpackConfig) => {
                 for (const warning of warnings) {
                     console.warn(warning);
                 }
-                console.info('Service worker generation completed.');
+                console.info(
+                    timestamp() + ' Service worker generation completed.',
+                );
             })
             .catch(error => {
-                console.warn('Service worker generation failed:', error);
+                console.warn(
+                    timestamp() + ' Service worker generation failed:',
+                    error,
+                );
             });
     };
 
@@ -603,7 +629,7 @@ $assets: (
         'local:ssr': local({ ssr: true }),
         assets,
         preBuild: noop,
-        build,
+        build: build(config),
         compress,
         postBuild: noop,
         postServe: noop,
