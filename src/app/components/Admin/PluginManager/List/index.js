@@ -18,7 +18,9 @@ const PluginList = ({
     canActivate = false,
 }) => {
     const SearchBar = useHandle('SearchBar');
-    useEffect(() => SearchBar.setState({ visible: true }));
+    useEffect(() => {
+        SearchBar.setState({ visible: true });
+    });
 
     const pluginsById = _.indexBy(plugins, 'ID');
     const results = _.compact(

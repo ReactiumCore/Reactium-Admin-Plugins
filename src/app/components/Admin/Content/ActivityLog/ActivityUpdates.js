@@ -3,7 +3,7 @@ import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
 import { Scrollbars } from 'react-custom-scrollbars';
-
+import moment from 'moment';
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 
 import Reactium, {

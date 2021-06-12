@@ -5,6 +5,7 @@ import Reactium, {
     useReduxState,
     useRegisterHandle,
     useCapabilityCheck,
+    isBrowserWindow,
 } from 'reactium-core/sdk';
 import PluginList from './List';
 import PluginSettings from './Settings';
@@ -13,8 +14,13 @@ import lunr from 'lunr';
 import _ from 'underscore';
 
 const getPlugins = async () => {
-    const { plugins } = await Reactium.Cloud.run('plugins');
-    return plugins;
+    try {
+        const { plugins = [] } = await Reactium.Cloud.run('plugins');
+        return plugins;
+    } catch (error) {
+        console.log(error);
+    }
+    return [];
 };
 
 /**
@@ -29,7 +35,10 @@ const PluginManager = memo(props => {
     const pluginId = op.get(props, 'params.id');
     const [plugins, setState] = useReduxState(state => {
         const { plugins } = op.get(state, domain.name, []);
-        return plugins;
+        const defaultPlugins = isBrowserWindow()
+            ? window.plugins
+            : global.plugins;
+        return plugins || defaultPlugins;
     }, domain.name);
 
     const refreshPlugins = async () => {

@@ -8,7 +8,9 @@ import { useHandle, Zone } from 'reactium-core/sdk';
  */
 const PluginSettings = ({ plugin }) => {
     const SearchBar = useHandle('SearchBar');
-    useEffect(() => SearchBar.setState({ visible: false }));
+    useEffect(() => {
+        SearchBar.setState({ visible: false });
+    });
 
     return (
         <div className={'plugin-manager-settings'}>
