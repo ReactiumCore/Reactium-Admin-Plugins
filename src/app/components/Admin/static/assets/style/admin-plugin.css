@@ -33700,9 +33700,31 @@ main.password .links a:hover {
     height: 140px;
     overflow: scroll;
 }
+.plugin-card--core {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+}
+.plugin-card--core .plugin-card__details,
+.plugin-card--core .plugin-card__graphic {
+    flex: 0 0 auto;
+}
+.plugin-card--core .plugin-card__graphic {
+    height: 50px;
+    width: 50px;
+    margin: 0 20px 0 0;
+}
 .plugin-card--core .plugin-card__graphic img {
-    flex: 0 1 50%;
+    width: 100%;
     height: auto;
+}
+.plugin-card--core .plugin-card__details {
+    height: 50px;
+    width: 80%;
+}
+.plugin-card--core .plugin-card__actions {
+    display: none;
 }
 .plugins-group {
     margin-top: 16px;
