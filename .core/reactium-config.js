@@ -269,7 +269,6 @@ module.exports = {
             },
             devDependencies: {
                 remove: [
-                    'node-sass-tilde-importer',
                     '@atomic-reactor/cli',
                     'atomic-reactor-cli',
                     'babel-cli',
@@ -380,12 +379,6 @@ module.exports = {
                     version: '>=3.2.1',
                     destination: '/.flowconfig',
                     source: '/tmp/update/.flowconfig',
-                },
-                {
-                    overwrite: false,
-                    version: '>=3.2.1',
-                    destination: '/flow-typed',
-                    source: '/tmp/update/flow-typed',
                 },
                 {
                     overwrite: false,

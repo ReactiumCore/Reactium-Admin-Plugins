@@ -10,9 +10,10 @@ const browserSync = require('browser-sync');
 const gulpif = require('gulp-if');
 const gulpwatch = require('@atomic-reactor/gulp-watch');
 const prefix = require('gulp-autoprefixer');
-const sass = require('gulp-dart-sass');
+const sass = require('gulp-sass');
+sass.compiler = require('sass');
+const fiber = require('fibers');
 const gzip = require('gulp-gzip');
-const jsonFunctions = require('node-sass-functions-json').default;
 const reactiumImporter = require('@atomic-reactor/node-sass-reactium-importer');
 const less = require('gulp-less');
 const cleanCSS = require('gulp-clean-css');
@@ -241,7 +242,6 @@ const reactium = (gulp, config, webpackConfig) => {
         task('umdLibraries'),
         task('serviceWorker'),
         task('compress'),
-        task('apidocs'),
         task('postBuild'),
     );
 
@@ -296,7 +296,11 @@ const reactium = (gulp, config, webpackConfig) => {
         gulp.src(config.src.json).pipe(gulp.dest(config.dest.build));
 
     const manifest = gulp.series(
-        gulp.parallel(task('mainManifest'), task('umdManifest')),
+        gulp.parallel(
+            task('mainManifest'),
+            task('externalsManifest'),
+            task('umdManifest'),
+        ),
     );
 
     const umd = gulp.series(task('umdManifest'), task('umdLibraries'));
@@ -313,6 +317,20 @@ const reactium = (gulp, config, webpackConfig) => {
                 'manifest/templates/manifest.hbs',
             ),
             manifestProcessor: require('./manifest/processors/manifest'),
+        });
+        done();
+    };
+
+    const externalsManifest = done => {
+        // Generate manifest.js file
+        regenManifest({
+            manifestFilePath: config.src.externalsManifest,
+            manifestConfig: reactiumConfig.manifest,
+            manifestTemplateFilePath: path.resolve(
+                __dirname,
+                'manifest/templates/externals.hbs',
+            ),
+            manifestProcessor: require('./manifest/processors/externals'),
         });
         done();
     };
@@ -578,11 +596,9 @@ $assets: (
                 gulpif(
                     isSass,
                     sass({
-                        functions: {
-                            ...jsonFunctions,
-                        },
                         importer: reactiumImporter,
                         includePaths: config.src.includes,
+                        fiber,
                     }).on('error', sass.logError),
                 ),
             )
@@ -639,6 +655,7 @@ $assets: (
         json,
         manifest,
         mainManifest,
+        externalsManifest,
         umd,
         umdManifest,
         umdLibraries,

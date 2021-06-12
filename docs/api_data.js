@@ -485,6 +485,17 @@ define({ "api": [
   },
   {
     "type": "Hook",
+    "url": "Hooks",
+    "title": "Hooks",
+    "name": "Hooks",
+    "description": "<p>Here are the standard hooks that fire (in order) on the bootstrap of your Reactium application.</p> <table> <thead> <tr> <th style=\"text-align:left\">Hook</th> <th style=\"text-align:left\">Description</th> </tr> </thead> <tbody> <tr> <td style=\"text-align:left\">init</td> <td style=\"text-align:left\">Called before all other hooks on startup.</td> </tr> <tr> <td style=\"text-align:left\">dependencies-load</td> <td style=\"text-align:left\">Called while application dependencies are loaded.</td> </tr> <tr> <td style=\"text-align:left\">service-worker-init</td> <td style=\"text-align:left\">Called while service worker is loaded.</td> </tr> <tr> <td style=\"text-align:left\">zone-defaults</td> <td style=\"text-align:left\">Called while rendering zone default components are loaded.</td> </tr> <tr> <td style=\"text-align:left\">store-create</td> <td style=\"text-align:left\">Called while Redux store is being created.</td> </tr> <tr> <td style=\"text-align:left\">store-created</td> <td style=\"text-align:left\">Called after Redux store is created.</td> </tr> <tr> <td style=\"text-align:left\">plugin-dependencies</td> <td style=\"text-align:left\">Called before loading runtime plugins.</td> </tr> <tr> <td style=\"text-align:left\">plugin-init</td> <td style=\"text-align:left\">Called to initiate plugin registration.</td> </tr> <tr> <td style=\"text-align:left\">routes-init</td> <td style=\"text-align:left\">Called to initiaze React router</td> </tr> <tr> <td style=\"text-align:left\">register-route</td> <td style=\"text-align:left\">Called for each route that is registered</td> </tr> <tr> <td style=\"text-align:left\">data-loaded</td> <td style=\"text-align:left\">Called on route load to pre-load data</td> </tr> <tr> <td style=\"text-align:left\">plugin-ready</td> <td style=\"text-align:left\">Called after all plugins registration callbacks have completed</td> </tr> <tr> <td style=\"text-align:left\">component-bindings</td> <td style=\"text-align:left\">Called to sibling React components and their DOM element bindings</td> </tr> <tr> <td style=\"text-align:left\">app-bindpoint</td> <td style=\"text-align:left\">Called to define the main application bind point.</td> </tr> <tr> <td style=\"text-align:left\">app-redux-provider</td> <td style=\"text-align:left\">Called to define the Redux provider component</td> </tr> <tr> <td style=\"text-align:left\">app-router</td> <td style=\"text-align:left\">Called to provide the React router component</td> </tr> <tr> <td style=\"text-align:left\">app-ssr-mode</td> <td style=\"text-align:left\">Called to make the application aware of server-side rendering mode</td> </tr> <tr> <td style=\"text-align:left\">app-boot-message</td> <td style=\"text-align:left\">Called to define the javascript console boot message</td> </tr> <tr> <td style=\"text-align:left\">app-ready</td> <td style=\"text-align:left\">Called when the application is being bound or hydrated by ReactDOM</td> </tr> </tbody> </table>",
+    "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/reactium-hooks.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
     "url": "Server.AppBindings",
     "title": "Server.AppBindings",
     "name": "Server.AppBindings",
@@ -528,7 +539,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "import SDK from '@atomic-reactor/reactium-sdk-core';\nSDK.Hook.registerSync(\n    'Server.AppBindings',\n    (req, AppBindings) => {\n        // Find the registered component \"DevTools\" and bind it\n        AppBindings.register('DevTools', {\n            component: 'DevTools',\n        });\n\n        // Add ordinary markup for React to bind to\n        AppBindings.register('router', {\n            markup: '<div id=\"router\"></div>',\n        });\n    },\n    SDK.Enums.priority.highest,\n    'SERVER-APP-BINDINGS-CORE',\n);",
+        "content": "ReactiumBoot.Hook.registerSync(\n    'Server.AppBindings',\n    (req, AppBindings) => {\n        // Find the registered component \"DevTools\" and bind it\n        AppBindings.register('DevTools', {\n            component: 'DevTools',\n        });\n\n        // Add ordinary markup for React to bind to\n        AppBindings.register('router', {\n            markup: '<div id=\"router\"></div>',\n        });\n    },\n    ReactiumBoot.Enums.priority.highest,\n    'SERVER-APP-BINDINGS-CORE',\n);",
         "type": "json"
       }
     ],
@@ -589,7 +600,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "import SDK from '@atomic-reactor/reactium-sdk-core';\n// will result in window.environment = 'local' in browser and global.environment = 'local' on nodejs\nSDK.Hook.registerSync(\n    'Server.AppGlobals',\n    (req, AppGlobals) => {\n        // Find the registered component \"DevTools\" and bind it\n        AppGlobals.register('environment', {\n            name: 'environment',\n            value: 'local',\n        });\n    });",
+        "content": "// will result in window.environment = 'local' in browser and global.environment = 'local' on nodejs\nReactiumBoot.Hook.registerSync(\n    'Server.AppGlobals',\n    (req, AppGlobals) => {\n        // Find the registered component \"DevTools\" and bind it\n        AppGlobals.register('environment', {\n            name: 'environment',\n            value: 'local',\n        });\n    });",
         "type": "json"
       }
     ],
@@ -627,7 +638,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "import SDK from '@atomic-reactor/reactium-sdk-core';\nSDK.Hook.register('Server.AppHeaders', async (req, AppHeaders) => {\n   // given some data was added to req by express middleware\n   const seo = req.seo;\n   if (seo) {\n       if (seo.canonicalURL) {\n           AppHeaders.register('canonical-url', {\n               header: `<link rel=\"canonical\" href=\"${seo.canonicalURL}\" />`\n           });\n       }\n       if (seo.description) {\n           AppHeaders.register('meta-description', {\n               header: `<meta name=\"description\" content=\"${seo.description}\"/>`\n           });\n       }\n   }\n});",
+        "content": "ReactiumBoot.Hook.register('Server.AppHeaders', async (req, AppHeaders) => {\n   // given some data was added to req by express middleware\n   const seo = req.seo;\n   if (seo) {\n       if (seo.canonicalURL) {\n           AppHeaders.register('canonical-url', {\n               header: `<link rel=\"canonical\" href=\"${seo.canonicalURL}\" />`\n           });\n       }\n       if (seo.description) {\n           AppHeaders.register('meta-description', {\n               header: `<meta name=\"description\" content=\"${seo.description}\"/>`\n           });\n       }\n   }\n});",
         "type": "json"
       }
     ],
@@ -736,7 +747,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "import SDK from '@atomic-reactor/reactium-sdk-core';\nSDK.Hook.register('Server.AppScripts', async (req, AppScripts) => {\n    AppScripts.register('my-onsite-script', {\n        path: '/assets/js/some-additional.js'\n        footer: true, // load in footer (optional)\n        header: false, // don't load in header (optional)\n        order: 1, // scripts will be ordered by this\n    });\n\n    AppScripts.register('my-csn-script', {\n        path: 'https://cdn.example.com/cdn.loaded.js'\n        header: true, // maybe for an external\n        order: 1, // scripts will be ordered by this\n    });\n});",
+        "content": "ReactiumBoot.Hook.register('Server.AppScripts', async (req, AppScripts) => {\n    AppScripts.register('my-onsite-script', {\n        path: '/assets/js/some-additional.js'\n        footer: true, // load in footer (optional)\n        header: false, // don't load in header (optional)\n        order: 1, // scripts will be ordered by this\n    });\n\n    AppScripts.register('my-csn-script', {\n        path: 'https://cdn.example.com/cdn.loaded.js'\n        header: true, // maybe for an external\n        order: 1, // scripts will be ordered by this\n    });\n});",
         "type": "json"
       }
     ],
@@ -774,7 +785,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "     import SDK from '@atomic-reactor/reactium-sdk-core';\n     SDK.Hook.register('Server.AppSnippets', async (req, AppSnippets) => {\n        AppSnippets.register('ga-tracking', {\n            snippet: `<script>\n(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\nm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');\n\nga('create', '', 'auto');\nga('send', 'pageview');\n</script>`,\n          order: 1,\n        })\n     });",
+        "content": "     ReactiumBoot.Hook.register('Server.AppSnippets', async (req, AppSnippets) => {\n        AppSnippets.register('ga-tracking', {\n            snippet: `<script>\n(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\nm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');\n\nga('create', '', 'auto');\nga('send', 'pageview');\n</script>`,\n          order: 1,\n        })\n     });",
         "type": "json"
       }
     ],
@@ -879,7 +890,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "import SDK from '@atomic-reactor/reactium-sdk-core';\nSDK.Hook.register('Server.AppStyleSheets', async (req, AppStyleSheets) => {\n    AppStyleSheets.register('my-stylesheet', {\n        path: '/assets/css/some-additional.css'\n    });\n\n    AppStyleSheets.register('my-csn-script', {\n        path: 'https://cdn.example.com/cdn.loaded.css'\n        order: 1, // scripts will be ordered by this\n    });\n});",
+        "content": "ReactiumBoot.Hook.register('Server.AppStyleSheets', async (req, AppStyleSheets) => {\n    AppStyleSheets.register('my-stylesheet', {\n        path: '/assets/css/some-additional.css'\n    });\n\n    AppStyleSheets.register('my-csn-script', {\n        path: 'https://cdn.example.com/cdn.loaded.css'\n        order: 1, // scripts will be ordered by this\n    });\n});",
         "type": "json"
       }
     ],
@@ -935,7 +946,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "const SDK = require('@atomic-reactor/sdk').default;\nconst express = require('express');\nconst router = express.Router();\nconst axios = require('axios');\n\n// register a new backend route /foo with express\nrouter.get('/', (req, res) => {\n   res.send('Foo!!')\n});\n\nSDK.Hook.registerSync('Server.Middleware', Middleware => {\n   Middleware.register('foo-page', {\n       name: 'foo-page',\n       use: router,\n       order: SDK.Enums.priority.highest,\n   })\n});\n\nSDK.Hook.registerSync('Server.Middleware', Middleware => {\n   const intercept = express.Router();\n   intercept.post('/api*', (req, res) => {\n       res.json({\n           foo: 'bar'\n       });\n   });\n\n   // check api health every 90 seconds and intercept api if it goes down\n   Middleware.register('downapi', {\n       name: 'downapi',\n       use: async (res, req, next) => {\n           try {\n               let healthy = SDK.Cache.get('health-check');\n               if (healthy === undefined) {\n                   const response = await axios.get(process.env.REST_API_URI + '/healthcheck');\n                   healthy = response.data;\n                   SDK.Cache.set('health-check', healthy, 1000 * 90);\n               }\n           } catch (error) {\n               console.error(error);\n               SDK.Cache.set('health-check', false, 1000 * 90);\n               healthy = false;\n           }\n\n           if (healthy === true) next();\n           return intercept(req, req, next);\n       },\n       order: SDK.Enums.priority.highest,\n   })\n});",
+        "content": "const express = require('express');\nconst router = express.Router();\nconst axios = require('axios');\n\n// register a new backend route /foo with express\nrouter.get('/', (req, res) => {\n   res.send('Foo!!')\n});\n\nReactiumBoot.Hook.registerSync('Server.Middleware', Middleware => {\n   Middleware.register('foo-page', {\n       name: 'foo-page',\n       use: router,\n       order: ReactiumBoot.Enums.priority.highest,\n   })\n});\n\nReactiumBoot.Hook.registerSync('Server.Middleware', Middleware => {\n   const intercept = express.Router();\n   intercept.post('/api*', (req, res) => {\n       res.json({\n           foo: 'bar'\n       });\n   });\n\n   // check api health every 90 seconds and intercept api if it goes down\n   Middleware.register('downapi', {\n       name: 'downapi',\n       use: async (res, req, next) => {\n           try {\n               let healthy = ReactiumBoot.Cache.get('health-check');\n               if (healthy === undefined) {\n                   const response = await axios.get(process.env.REST_API_URI + '/healthcheck');\n                   healthy = response.data;\n                   ReactiumBoot.Cache.set('health-check', healthy, 1000 * 90);\n               }\n           } catch (error) {\n               console.error(error);\n               ReactiumBoot.Cache.set('health-check', false, 1000 * 90);\n               healthy = false;\n           }\n\n           if (healthy === true) next();\n           return intercept(req, req, next);\n       },\n       order: ReactiumBoot.Enums.priority.highest,\n   })\n});",
         "type": "json"
       }
     ],
@@ -1041,7 +1052,7 @@ define({ "api": [
             "type": "Object",
             "optional": false,
             "field": "Server",
-            "description": "<p>SDK Server object.</p>"
+            "description": "<p>ReactiumBoot Server object.</p>"
           }
         ]
       }
@@ -1072,7 +1083,7 @@ define({ "api": [
             "type": "Object",
             "optional": false,
             "field": "Server",
-            "description": "<p>SDK Server object.</p>"
+            "description": "<p>ReactiumBoot Server object.</p>"
           }
         ]
       }
@@ -1122,6 +1133,30 @@ define({ "api": [
     "name": "app-boot-message",
     "description": "<p>Called during application binding, this minor hook will allow you to change the format of the of the front-end Javascript console message indicating application start. async only - used in front-end application only</p>",
     "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/index.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
+    "url": "app-ready",
+    "title": "app-ready",
+    "description": "<p>The final hook run after the front-end application has bee bound or hydrated. After this point, the all hooks are runtime hooks.</p>",
+    "name": "app-ready",
+    "group": "Hooks",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": false,
+            "field": "ssr",
+            "description": "<p>If the app is in server-side rendering mode (SSR) <code>true</code> is passed to the hook.</p>"
+          }
+        ]
+      }
+    },
     "version": "0.0.0",
     "filename": ".core/app/index.js",
     "groupTitle": "Hooks"
@@ -1201,6 +1236,17 @@ define({ "api": [
   },
   {
     "type": "Hook",
+    "url": "dependencies-load",
+    "title": "dependencies-load",
+    "name": "dependencies-load",
+    "description": "<p>Called after init to give an application a change to load async dependencies. Many Domain Driven Design (DDD) artifacts from generated src/manifest.js are loaded on this hook async only - used in front-end or isomorphically when running server-side rendering mode (SSR)</p>",
+    "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/reactium-hooks.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
     "url": "init",
     "title": "init",
     "name": "init",
@@ -1229,6 +1275,17 @@ define({ "api": [
         ]
       }
     },
+    "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/index.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
+    "url": "plugin-ready",
+    "title": "plugin-ready",
+    "name": "plugin-ready",
+    "description": "<p>Called after all plugin registration callbacks have completed and routes have loaded.</p>",
     "group": "Hooks",
     "version": "0.0.0",
     "filename": ".core/app/index.js",
@@ -2257,6 +2314,47 @@ define({ "api": [
     ],
     "version": "0.0.0",
     "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/named-exports/redux.js",
+    "groupTitle": "ReactHook"
+  },
+  {
+    "type": "ReactHook",
+    "url": "useSyncState(initialState)",
+    "title": "useSyncState()",
+    "description": "<p>Intended to provide an object to get and set state synchrounously, while providing a EventTarget object that can dispatch a 'set' event when the state is updated.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Mixed",
+            "optional": false,
+            "field": "initialState",
+            "description": "<p>The initial state.</p>"
+          }
+        ]
+      }
+    },
+    "name": "useSyncState",
+    "group": "ReactHook",
+    "examples": [
+      {
+        "title": "SimpleExample",
+        "content": "import React from 'react';\nimport { useSyncState } from 'reactium-core/sdk';\nexport const SimpleExample = () => {\n    const clickState = useSyncState({ clicks: 1 });\n    const clicks = clickState.get('clicks');\n    return (\n        <div>Clicked {clicks} times <button\n            onClick={() => clickState.set('clicks', clicks + 1)}>Click Me</button>\n        </div>\n    );\n };",
+        "type": "json"
+      },
+      {
+        "title": "EventTarget",
+        "content": "import React from 'react';\nimport { useSyncState, useRegisterHandle } from 'reactium-core/sdk';\nexport const Clicker = () => {\n    const clickState = useSyncState({ clicks: 1 });\n    const clicks = clickState.get('clicks');\n    useRegisterHandle('ClickState', () => clickState);\n\n    return (\n        <div>Clicked {clicks} times <button\n            onClick={() => clickState.set('clicks', clicks + 1)}>Click Me</button>\n        </div>\n    );\n };",
+        "type": "json"
+      },
+      {
+        "title": "Consumer",
+        "content": "import React, { useState, useEventEffect } from 'react';\nimport { useHandle } from 'reactium-core/sdk';\n// communicate state with other components\nexport const Listener = () => {\n    const [clicked, setClicked] = useState(false);\n    const handle = useHandle('ClickState')\n    const numClicks = handle.get('clicks');\n\n    const remoteClicked = e => {\n        if (numClicks < e.get('clicks')) {\n            setClicked(true);\n        }\n    };\n\n    useEventEffect(handle, { set: remoteClicked }, []);\n\n    return (\n        <div>Clicker {clicked ? 'unclicked' : 'clicked'}</div>\n    );\n };",
+        "type": "json"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/named-exports/useSyncState.js",
     "groupTitle": "ReactHook"
   },
   {
@@ -5449,30 +5547,6 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/hook/index.js",
     "groupTitle": "Reactium.Hook"
-  },
-  {
-    "type": "Hook",
-    "url": "app-ready",
-    "title": "app-ready",
-    "description": "<p>The final hook run after the front-end application has bee bound or hydrated. After this point, the all hooks are runtime hooks.</p>",
-    "name": "app-ready",
-    "group": "Reactium.Hooks",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Boolean",
-            "optional": false,
-            "field": "ssr",
-            "description": "<p>If the app is in server-side rendering mode (SSR) <code>true</code> is passed to the hook.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": ".core/app/index.js",
-    "groupTitle": "Reactium.Hooks"
   },
   {
     "type": "Hook",
