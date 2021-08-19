@@ -1,6 +1,5 @@
 const gulp = require('gulp');
-const sass = require('gulp-sass');
-sass.compiler = require('node-sass');
+const sass = require('gulp-sass')(require('node-sass'));
 const reactiumImporter = require('@atomic-reactor/node-sass-reactium-importer');
 const jsonFunctions = require('node-sass-functions-json').default;
 const sourcemaps = require('gulp-sourcemaps');

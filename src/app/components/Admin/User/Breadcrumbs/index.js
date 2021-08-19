@@ -1,5 +1,5 @@
 import React from 'react';
-import { __, useSelect } from 'reactium-core/sdk';
+import { __ } from 'reactium-core/sdk';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import useRouteParams from 'components/Admin/Tools/useRouteParams';
 

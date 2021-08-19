@@ -2,11 +2,11 @@ import React, { memo, useEffect } from 'react';
 import op from 'object-path';
 import Reactium, {
     __,
-    useReduxState,
     useRegisterHandle,
     useCapabilityCheck,
     isBrowserWindow,
 } from 'reactium-core/sdk';
+import { useReduxState } from '@atomic-reactor/use-select';
 import PluginList from './List';
 import PluginSettings from './Settings';
 import domain from './domain';

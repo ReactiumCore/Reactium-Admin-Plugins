@@ -11,9 +11,9 @@ import Reactium, {
     useEventHandle,
     useHandle,
     useHookComponent,
-    useReduxState,
     useStatus,
 } from 'reactium-core/sdk';
+import { useReduxState } from '@atomic-reactor/use-select';
 
 const noop = () => {};
 

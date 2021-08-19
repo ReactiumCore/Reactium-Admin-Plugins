@@ -7,14 +7,12 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import useProperCase from 'components/Admin/Tools/useProperCase';
-import useRouteParams from 'components/Admin/Tools/useRouteParams';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
     useRef,
-    useState,
 } from 'react';
 
 import Reactium, {
@@ -24,10 +22,11 @@ import Reactium, {
     useEventHandle,
     useHandle,
     useRegisterHandle,
-    useSelect,
     useHookComponent,
     Zone,
 } from 'reactium-core/sdk';
+
+import { useSelect } from '@atomic-reactor/use-select';
 
 const Card = ({ handle, Ico, label, id }) => (
     <Link

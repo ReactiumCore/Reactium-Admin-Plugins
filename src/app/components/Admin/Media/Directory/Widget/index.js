@@ -5,8 +5,8 @@ import domain from '../../domain';
 import Editor from '../../Directory/Editor';
 import useDirectories from '../../Directory/useDirectories';
 import React, { useEffect, useRef, useState } from 'react';
-import { __, useHandle, useHookComponent, useStore } from 'reactium-core/sdk';
-
+import { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import { useStore } from '@atomic-reactor/use-select';
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: DirectoryWidget

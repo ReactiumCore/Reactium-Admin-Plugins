@@ -2,7 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import ENUMS from './enums';
 import op from 'object-path';
-import { useSelect } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, WebForm } from '@atomic-reactor/reactium-ui';

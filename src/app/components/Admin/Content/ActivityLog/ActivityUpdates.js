@@ -10,8 +10,9 @@ import Reactium, {
     __,
     useEventHandle,
     useHookComponent,
-    useReduxState,
 } from 'reactium-core/sdk';
+
+import { useReduxState } from '@atomic-reactor/use-select';
 
 /**
  * -----------------------------------------------------------------------------

@@ -4,18 +4,7 @@ const globby = require('./globby-patch');
 const rootPath = path.resolve(__dirname, '..');
 const gulpConfig = require('./gulp.config');
 
-const version = '3.6.5';
-
-const contextMode = () => {
-    if (
-        process.env.NODE_ENV !== 'development' &&
-        process.env.LAZY_GET_COMPONENTS !== 'off'
-    ) {
-        return 'lazy-once';
-    }
-
-    return 'sync';
-};
+const version = '4.1.4';
 
 const defaultLibraryExternals = {
     axios: {
@@ -30,11 +19,6 @@ const defaultLibraryExternals = {
         externalName: 'copy-to-clipboard',
         requirePath: 'copy-to-clipboard',
     },
-
-    // 'gsap/umd/TweenMax': {
-    //     externalName: '/^gsap.*$/',
-    //     requirePath: 'gsap/umd/TweenMax',
-    // },
 
     moment: {
         externalName: 'moment',
@@ -63,14 +47,6 @@ const defaultLibraryExternals = {
     'react-router-dom': {
         externalName: 'react-router-dom',
         requirePath: 'react-router-dom',
-    },
-    redux: {
-        externalName: 'redux',
-        requirePath: 'redux',
-    },
-    'redux-super-thunk': {
-        externalName: 'redux-super-thunk',
-        requirePath: 'redux-super-thunk',
     },
     ReactDOM: {
         externalName: 'react-dom',
@@ -110,27 +86,6 @@ const defaultLibraryExternals = {
 const defaultManifestConfig = {
     patterns: [
         {
-            name: 'allActions',
-            type: 'actions',
-            pattern: /actions.jsx?$/,
-            ignore: /\.cli/,
-        },
-        {
-            name: 'allActionTypes',
-            type: 'actionTypes',
-            pattern: /actionTypes.jsx?$/,
-        },
-        {
-            name: 'allReducers',
-            type: 'reducers',
-            pattern: /reducers.jsx?$/,
-        },
-        {
-            name: 'allInitialStates',
-            type: 'state',
-            pattern: /state.jsx?$/,
-        },
-        {
             name: 'allRoutes',
             type: 'route',
             pattern: /route.jsx?$/,
@@ -139,17 +94,6 @@ const defaultManifestConfig = {
             name: 'allServices',
             type: 'services',
             pattern: /services.jsx?$/,
-        },
-        {
-            name: 'allMiddleware',
-            type: 'middleware',
-            pattern: /middleware.jsx?$/,
-            ignore: /server\/middleware/,
-        },
-        {
-            name: 'allEnhancers',
-            type: 'enhancer',
-            pattern: /enhancer.jsx?$/,
         },
         {
             name: 'allPlugins',
@@ -181,23 +125,6 @@ const defaultManifestConfig = {
         },
     ],
     pluginExternals: defaultLibraryExternals,
-    contexts: {
-        components: {
-            modulePath: 'components',
-            filePattern: '.js?$',
-            mode: contextMode(),
-        },
-        common: {
-            modulePath: 'components/common-ui/',
-            filePattern: '.js?$',
-            mode: contextMode(),
-        },
-        core: {
-            modulePath: 'reactium-core/components',
-            filePattern: '.js?$',
-            mode: contextMode(),
-        },
-    },
     umd: {
         defaultLibraryExternals,
         patterns: [

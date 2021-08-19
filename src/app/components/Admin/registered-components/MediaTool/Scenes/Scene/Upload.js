@@ -13,9 +13,9 @@ import Reactium, {
     __,
     useEventHandle,
     useHookComponent,
-    useStore,
     useAsyncEffect,
 } from 'reactium-core/sdk';
+import { useStore } from '@atomic-reactor/use-select';
 
 const Upload = forwardRef((props, ref) => {
     const store = useStore();

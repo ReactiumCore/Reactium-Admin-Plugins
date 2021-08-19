@@ -1,7 +1,8 @@
 import React from 'react';
 import ENUMS from '../enums';
 import op from 'object-path';
-import { useSelect, Zone } from 'reactium-core/sdk';
+import { Zone } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 
 /**

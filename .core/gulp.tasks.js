@@ -10,8 +10,7 @@ const browserSync = require('browser-sync');
 const gulpif = require('gulp-if');
 const gulpwatch = require('@atomic-reactor/gulp-watch');
 const prefix = require('gulp-autoprefixer');
-const sass = require('gulp-sass');
-sass.compiler = require('sass');
+const sass = require('gulp-sass')(require('sass'));
 const fiber = require('fibers');
 const gzip = require('gulp-gzip');
 const reactiumImporter = require('@atomic-reactor/node-sass-reactium-importer');
@@ -24,21 +23,27 @@ const reactiumConfig = require('./reactium-config');
 const regenManifest = require('./manifest/manifest-tools');
 const umdWebpackGenerator = require('./umd.webpack.config');
 const rootPath = path.resolve(__dirname, '..');
-const { fork, spawn } = require('child_process');
+const { fork, spawn, execSync } = require('child_process');
 const workbox = require('workbox-build');
 const { File, FileReader } = require('file-api');
 const handlebars = require('handlebars');
-const timestamp = () => {
-    const now = new Date();
-    const ts = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
-    return `[${chalk.blue(ts)}]`;
-};
+const { resolve } = require('path');
+const axios = require('axios');
+const axiosRetry = require('axios-retry');
 
 // For backward compatibility with gulp override tasks using run-sequence module
 // make compatible with gulp4
 require('module-alias').addAlias('run-sequence', 'gulp4-run-sequence');
 
 const reactium = (gulp, config, webpackConfig) => {
+    axiosRetry(axios, {
+        retries: config.serverRetries,
+        retryDelay: retryCount => {
+            console.log(`retry attempt: ${retryCount}`);
+            return retryCount * config.serverRetryDelay; // time interval between retries
+        },
+    });
+
     const task = require('./get-task')(gulp);
 
     const env = process.env.NODE_ENV || 'development';
@@ -105,34 +110,29 @@ const reactium = (gulp, config, webpackConfig) => {
 
             fs.createReadStream(e.path)
                 .pipe(fs.createWriteStream(fpath))
-                .on('error', error => console.error(timestamp(), error));
+                .on('error', error => console.error(error));
         }
 
-        console.log(
-            `${timestamp()} File ${e.event}: ${displaySrc} -> ${displayDest}`,
-        );
+        console.log(`File ${e.event}: ${displaySrc} -> ${displayDest}`);
     };
 
     const serve = ({ open } = { open: config.open }) => done => {
         const proxy = `localhost:${config.port.proxy}`;
-        require('axios')
-            .get(`http://${proxy}`)
-            .then(() => {
-                browserSync({
-                    notify: false,
-                    timestamps: true,
-                    logPrefix: '00:00:00',
-                    port: config.port.browsersync,
-                    ui: { port: config.port.browsersync + 1 },
-                    proxy,
-                    open: open,
-                    ghostMode: false,
-                    startPath: config.dest.startPath,
-                    ws: true,
-                });
-
-                done();
+        axios.get(`http://${proxy}`).then(() => {
+            browserSync({
+                notify: false,
+                timestamps: false,
+                port: config.port.browsersync,
+                ui: { port: config.port.browsersync + 1 },
+                proxy,
+                open: open,
+                ghostMode: false,
+                startPath: config.dest.startPath,
+                ws: true,
             });
+
+            done();
+        });
     };
 
     const watch = (done, restart = false) => {
@@ -144,14 +144,25 @@ const reactium = (gulp, config, webpackConfig) => {
         watchProcess.on('message', message => {
             switch (message) {
                 case 'build-started': {
-                    console.log(timestamp() + " Starting 'build'...");
+                    console.log("Starting 'build'...");
                     done();
                     return;
                 }
                 case 'restart-watches': {
-                    console.log(timestamp() + " Restarting 'watch'...");
-                    watchProcess.kill();
-                    watch(_ => _, true);
+                    console.log('Waiting for server...');
+                    new Promise(resolve =>
+                        setTimeout(resolve, config.serverRetryDelay),
+                    )
+                        .then(() => {
+                            const proxy = `localhost:${config.port.proxy}`;
+                            return axios.get(`http://${proxy}`);
+                        })
+                        .then(() => {
+                            console.log("Restarting 'watch'...");
+                            watchProcess.kill();
+                            watch(_ => _, true);
+                        })
+                        .catch(error => console.error(error));
                     return;
                 }
             }
@@ -166,12 +177,14 @@ const reactium = (gulp, config, webpackConfig) => {
     ) => {
         const ps = spawn(cmd, args, { stdio: [stdin, stdout, stderr] });
         ps.on('close', code => {
-            if (code !== 0) console.log(timestamp() + `Error executing ${cmd}`);
+            if (code !== 0) console.log(`Error executing ${cmd}`);
             done();
         });
+
+        return ps;
     };
 
-    const local = ({ ssr = false } = {}) => done => {
+    const local = ({ ssr = false } = {}) => async done => {
         const SSR_MODE = ssr ? 'on' : 'off';
         const crossEnvModulePath = path.resolve(
             path.dirname(require.resolve('cross-env')),
@@ -186,17 +199,7 @@ const reactium = (gulp, config, webpackConfig) => {
             crossEnvPackage.bin['cross-env'],
         );
 
-        // warnings here
-        // TODO: convert to useHookComponent
-        if (!fs.existsSync(rootPath, 'src/app/components/Fallback/index.js')) {
-            console.log('');
-            console.log(
-                chalk.magenta(
-                    'Create a `src/app/components/Fallback` component with default export to support lazy loaded components and remove the webpack warning you see below.',
-                ),
-            );
-            console.log('');
-        }
+        await gulp.task('mainManifest')(() => Promise.resolve());
 
         command(
             'node',
@@ -318,6 +321,7 @@ const reactium = (gulp, config, webpackConfig) => {
             ),
             manifestProcessor: require('./manifest/processors/manifest'),
         });
+
         done();
     };
 
@@ -395,9 +399,7 @@ const reactium = (gulp, config, webpackConfig) => {
 
         for (let umd of umdConfigs) {
             try {
-                console.log(
-                    timestamp() + ` Generating UMD library ${umd.libraryName}`,
-                );
+                console.log(`Generating UMD library ${umd.libraryName}`);
                 await new Promise((resolve, reject) => {
                     webpack(umdWebpackGenerator(umd), (err, stats) => {
                         if (err) {
@@ -433,7 +435,7 @@ const reactium = (gulp, config, webpackConfig) => {
         };
 
         if (!fs.existsSync(config.umd.defaultWorker)) {
-            console.info(timestamp() + ' Skipping service worker generation.');
+            console.log('Skipping service worker generation.');
             return Promise.resolve();
         }
 
@@ -448,15 +450,10 @@ const reactium = (gulp, config, webpackConfig) => {
                 for (const warning of warnings) {
                     console.warn(warning);
                 }
-                console.info(
-                    timestamp() + ' Service worker generation completed.',
-                );
+                console.log('Service worker generation completed.');
             })
             .catch(error => {
-                console.warn(
-                    timestamp() + ' Service worker generation failed:',
-                    error,
-                );
+                console.warn('Service worker generation failed:', error);
             });
     };
 

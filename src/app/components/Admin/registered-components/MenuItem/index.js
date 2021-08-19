@@ -385,5 +385,5 @@ import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-componen
  * @apiExample Dependencies
 import { NavLink } from 'react-router-dom';
 import { Collapsible, Icon, Prefs } from '@atomic-reactor/reactium-ui';
-import Reactium, { useHandle, useSelect, useWindowSize } from 'reactium-core/sdk';
+import Reactium, { useHandle, useSelect, useWindowSize } from '@atomic-reactor/use-select';
  */

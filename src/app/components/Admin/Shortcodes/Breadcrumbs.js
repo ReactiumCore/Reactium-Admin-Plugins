@@ -1,6 +1,7 @@
 import React from 'react';
 import op from 'object-path';
-import { __, useHookComponent, useSelect } from 'reactium-core/sdk';
+import { __, useHookComponent } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 
 export default () => {
     const path = useSelect(state => op.get(state, 'Router.match.path'));

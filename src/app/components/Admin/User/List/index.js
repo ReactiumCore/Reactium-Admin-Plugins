@@ -14,10 +14,10 @@ import Reactium, {
     useHookComponent,
     useRegisterHandle,
     useRoles,
-    useSelect,
     Zone,
 } from 'reactium-core/sdk';
 
+import { useSelect } from '@atomic-reactor/use-select';
 import { useProfileRole } from 'components/Admin/registered-components/ProfileWidget/hooks';
 
 import useAvatar from '../useAvatar';

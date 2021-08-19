@@ -13,11 +13,11 @@ import Reactium, {
     useEventHandle,
     useHandle,
     useHookComponent,
-    useReduxState,
     useRegisterHandle,
     useStatus,
-    useStore,
 } from 'reactium-core/sdk';
+
+import { useStore, useReduxState } from '@atomic-reactor/use-select';
 
 /**
  * -----------------------------------------------------------------------------

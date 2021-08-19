@@ -35,6 +35,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+reactium_modules/
 
 # Typescript v1 declaration files
 typings/
@@ -62,7 +63,6 @@ dist
 public
 build
 lib
-_colors.scss
 
 # OS generated files
 .DS_Store
@@ -80,17 +80,9 @@ Thumbs.db
 
 # CLI
 .cli-cache
-.cli/config.json
 
 # Manifest
 src/manifest.js
 
-# Feather Icons
-src/app/components/common-ui/Icon/Feather/
-src/app/toolkit/icons
-
-# Library Local Development
-src/app/components/Reactium-UI/
-
-# Flow
-flow-typed
+# Translation .mo
+*.mo

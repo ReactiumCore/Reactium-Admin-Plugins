@@ -1,6 +1,7 @@
 import React from 'react';
 import op from 'object-path';
-import { __, useHandle, useHookComponent, useSelect } from 'reactium-core/sdk';
+import { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 
 export default () => {
     const Shortcodes = useHandle('Shortcodes');

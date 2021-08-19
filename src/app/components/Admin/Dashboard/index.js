@@ -4,12 +4,9 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import domain from './domain';
 
-import Reactium, {
-    __,
-    Zone,
-    useHookComponent,
-    useReduxState,
-} from 'reactium-core/sdk';
+import Reactium, { __, Zone, useHookComponent } from 'reactium-core/sdk';
+
+import { useReduxState } from '@atomic-reactor/use-select';
 
 import React, { useEffect, useRef, useState } from 'react';
 

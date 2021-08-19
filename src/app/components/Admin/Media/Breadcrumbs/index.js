@@ -4,10 +4,10 @@ import ENUMS from 'components/Admin/Media/enums';
 import Reactium, {
     __,
     useHandle,
-    useSelect,
     useWindow,
     useHookComponent,
 } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 
 export default () => {
     const { Button, Icon } = useHookComponent('ReactiumUI');

@@ -77,22 +77,6 @@ module.exports = config => {
 
     sdk.addPlugin('defines', new webpack.DefinePlugin(config.defines));
 
-    sdk.addContext('common-ui-context', {
-        from: /^components\/common-ui/,
-        to: path.resolve('./src/app/components/common-ui'),
-    });
-    sdk.addContext('components-context', {
-        from: /^components/,
-        to: path.resolve('./src/app/components'),
-    });
-    sdk.addContext('core-context', {
-        from: /^reactium-core\/components/,
-        to: path.resolve('./.core/components'),
-    });
-    sdk.addContext('reactium-modules-context', {
-        from: /^reactium_modules/,
-        to: path.resolve('./reactium_modules'),
-    });
     sdk.addContext('reactium-modules-context', {
         from: /reactium-translations$/,
         to: path.resolve('./src/reactium-translations'),
@@ -156,6 +140,7 @@ module.exports = config => {
     sdk.addIgnore('reactium-boot', /reactium-boot.js$/);
     sdk.addIgnore('reactium-gulp', /reactium-gulp.js$/);
     sdk.addIgnore('reactium-webpack', /reactium-webpack.js$/);
+    sdk.addIgnore('parse-node', /parse\/node/);
 
     if (env === 'production') {
         sdk.addIgnore('redux-devtools', /redux-devtools/);

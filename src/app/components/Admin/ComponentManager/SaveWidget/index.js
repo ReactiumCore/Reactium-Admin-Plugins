@@ -1,11 +1,7 @@
 import op from 'object-path';
 import React, { useEffect, useState } from 'react';
-import Reactium, {
-    __,
-    useHandle,
-    useHookComponent,
-    useStore,
-} from 'reactium-core/sdk';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import { useStore } from '@atomic-reactor/use-select';
 
 export default () => {
     const store = useStore();

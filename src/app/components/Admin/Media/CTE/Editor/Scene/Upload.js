@@ -13,8 +13,8 @@ import Reactium, {
     __,
     useEventHandle,
     useHookComponent,
-    useStore,
 } from 'reactium-core/sdk';
+import { useStore } from '@atomic-reactor/use-select';
 
 export default forwardRef((props, ref) => {
     const store = useStore();

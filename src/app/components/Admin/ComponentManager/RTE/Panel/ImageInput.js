@@ -13,9 +13,9 @@ import Reactium, {
     useHookComponent,
     useIsContainer,
     useRefs,
-    useSelect,
     useStatus,
 } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 
 const noop = () => {};
 

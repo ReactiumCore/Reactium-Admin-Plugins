@@ -9,9 +9,9 @@ import { Button, Icon, Progress } from '@atomic-reactor/reactium-ui';
 import Reactium, {
     useDerivedState,
     useDocument,
-    useStore,
     useAsyncEffect,
 } from 'reactium-core/sdk';
+import { useStore } from '@atomic-reactor/use-select';
 
 export default ({ delay = 250, onRemoveFile, uploads }) => {
     const iDoc = useDocument();

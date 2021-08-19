@@ -2,7 +2,7 @@ import _ from 'underscore';
 import op from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { useDerivedState, useSelect } from 'reactium-core/sdk';
+import { useSelect } from '@atomic-reactor/use-select';
 
 export default (keys = ['type', 'slug', 'page'], deps = []) => {
     const timestamp = Date.now();

@@ -11,8 +11,9 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useRegisterHandle,
-    useSelect,
 } from 'reactium-core/sdk';
+
+import { useSelect } from '@atomic-reactor/use-select';
 
 import React, {
     forwardRef,

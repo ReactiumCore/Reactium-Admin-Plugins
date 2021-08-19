@@ -6,7 +6,8 @@ import domain from './domain';
 import deps from 'dependencies';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import React, { forwardRef, useEffect, useRef } from 'react';
-import { useHandle, useRegisterHandle, useReduxState } from 'reactium-core/sdk';
+import { useHandle, useRegisterHandle } from 'reactium-core/sdk';
+import { useReduxState } from '@atomic-reactor/use-select';
 
 /**
  * -----------------------------------------------------------------------------

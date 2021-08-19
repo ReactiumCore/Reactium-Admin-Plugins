@@ -19,8 +19,9 @@ import Reactium, {
     useDerivedState,
     useHandle,
     useHookComponent,
-    useReduxState,
 } from 'reactium-core/sdk';
+
+import { useReduxState } from '@atomic-reactor/use-select';
 
 import {
     Alert,
