@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const op = require('object-path');
 
 const gulp = require('gulp');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('node-sass'));
 const rename = require('gulp-rename');
 const cleanCSS = require('gulp-clean-css');
 const prefix = require('gulp-autoprefixer');
