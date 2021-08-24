@@ -35,7 +35,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-reactium_modules/
+# reactium_modules/
 
 # Typescript v1 declaration files
 typings/
@@ -90,3 +90,14 @@ src/manifest.js
 # rui components for testing
 ReactiumUI
 Reactium-UI
+
+# Ignore All but @atomic-reactor reactium-admin modules in this directory
+reactium_modules/*
+reactium_modules/@atomic-reactor/reactium-api
+reactium_modules/@atomic-reactor/reactium-capability
+reactium_modules/@atomic-reactor/reactium-redux
+reactium_modules/@atomic-reactor/reactium-role
+reactium_modules/@atomic-reactor/reactium-setting
+reactium_modules/@atomic-reactor/reactium-user
+!reactium_modules/@atomic-reactor
+!reactium_modules/@atomic-reactor/reactium-admin*

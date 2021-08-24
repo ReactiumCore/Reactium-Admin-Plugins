@@ -6,7 +6,7 @@
 
 import Component from './index';
 import Reactium from 'reactium-core/sdk';
-import Blueprint from 'components/Admin/Blueprint';
+import Blueprint from 'reactium_modules/@atomic-reactor/reactium-admin-core/Blueprint';
 import op from 'object-path';
 
 // Manually create blueprint and route with Blueprint component
