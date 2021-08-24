@@ -86,3 +86,7 @@ src/manifest.js
 
 # Translation .mo
 *.mo
+
+# rui components for testing
+ReactiumUI
+Reactium-UI
