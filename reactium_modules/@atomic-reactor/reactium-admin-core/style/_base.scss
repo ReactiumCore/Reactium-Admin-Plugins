@@ -24,7 +24,7 @@ button {
 
 .input-group {
     &.error {
-        @extend .form-group.error;
+        @extend .error;
     }
 }
 

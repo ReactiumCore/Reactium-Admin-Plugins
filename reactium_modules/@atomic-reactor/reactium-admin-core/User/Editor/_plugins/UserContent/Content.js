@@ -3,7 +3,7 @@ import cn from 'classnames';
 import op from 'object-path';
 import pluralize from 'pluralize';
 import { Link } from 'react-router-dom';
-import { statusToColor } from 'reactium_modules/@atomic-reactor/reactium-admin-core/Content/List/ListItem';
+import { statusToColor } from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/List/ListItem';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Reactium, {

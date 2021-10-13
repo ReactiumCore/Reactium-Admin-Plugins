@@ -1,6 +1,6 @@
 {
-  "name": "@atomic-reactor/admin",
-  "version": "0.0.218",
+  "name": "@atomic-reactor/reactium-admin-core",
+  "version": "0.1.0",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Atomic-Reactor/Actinium-Admin.git"
+    "url": "git+https://github.com/Atomic-Reactor/Reactium-Admin-Plugins.git"
   },
   "keywords": [
     "reactium",
@@ -19,9 +19,9 @@
   "author": "Reactium LLC",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Atomic-Reactor/Actinium-Admin/issues"
+    "url": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins/issues"
   },
-  "homepage": "https://github.com/Atomic-Reactor/Actinium-Admin#readme",
+  "homepage": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins#readme",
   "dependencies": {
     "@atomic-reactor/actinium-auth": "^1.0.2",
     "@atomic-reactor/reactium-ui": "latest",

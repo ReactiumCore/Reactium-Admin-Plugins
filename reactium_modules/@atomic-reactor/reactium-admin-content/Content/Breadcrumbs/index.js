@@ -2,7 +2,7 @@ import _ from 'underscore';
 import op from 'object-path';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/Content/enums';
+import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useAsyncEffect } from 'reactium-core/sdk';

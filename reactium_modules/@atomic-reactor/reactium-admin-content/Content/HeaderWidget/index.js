@@ -1,5 +1,5 @@
 import op from 'object-path';
-import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/Content/enums';
+import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 import { Button, Icon, Dropdown } from '@atomic-reactor/reactium-ui';
 import React, { useCallback, useEffect, useRef, useState } from 'react';

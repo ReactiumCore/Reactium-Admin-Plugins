@@ -5,7 +5,7 @@ import op from 'object-path';
 import Region from './Region';
 import PropTypes from 'prop-types';
 import ContentEvent from '../_utils/ContentEvent';
-import DEFAULT_ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/Content/enums';
+import DEFAULT_ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
 import useProperCase from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useProperCase';
 
 import React, {

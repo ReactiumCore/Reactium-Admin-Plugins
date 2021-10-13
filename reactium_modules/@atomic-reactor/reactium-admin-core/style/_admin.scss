@@ -54,9 +54,10 @@
 @import '../Password/style';
 @import '../SearchBar/style';
 @import '../PluginManager/style';
-@import '../Content/Editor/style';
-@import '../Content/List/style';
-@import '../Content/ActivityLog/style';
+
+// Import all style partials from other reactium modules
+@import '../../../../src/assets/style/_scss/reactium-modules';
+
 @import '../ContentType/style';
 @import '../ContentType/List/style';
 @import '../ContentType/FieldType/Dialog/style';
@@ -94,7 +95,6 @@
 @import '../User/Editor/_plugins/UserInputs/style';
 @import '../User/Editor/_plugins/Notice/style';
 @import '../User/List/style';
-@import '../Content/Revisions/style';
 @import '../Taxonomy/style';
 @import '../ComponentManager/style';
 @import '../Shortcodes/style';

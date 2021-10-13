@@ -1,3 +1,4 @@
+@use 'sass:math';
 @mixin admin-header-zone() {
     z-index: map-get($z-indexes, 'header');
     position: fixed;
@@ -35,7 +36,7 @@
     flex-shrink: 0;
     position: absolute;
     z-index: map-get($z-indexes, 'actions');
-    top: $height-admin-header/2;
+    top: math.div($height-admin-header, 2);;
     transform: translateY(-50%);
     padding-left: $padding-default;
 

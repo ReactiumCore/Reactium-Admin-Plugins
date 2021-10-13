@@ -4,7 +4,7 @@ import op from 'object-path';
 import { List } from './List';
 import { useEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
-import { useEditorSelection } from '../../registered-components/RichTextEditor/_utils';
+import { useEditorSelection } from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/RichTextEditor/_utils';
 
 import Reactium, {
     __,

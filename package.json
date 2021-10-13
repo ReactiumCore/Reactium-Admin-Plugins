@@ -49,7 +49,7 @@
     "@atomic-reactor/reactium-role": "file:reactium_modules/@atomic-reactor/reactium-role/_npm",
     "@atomic-reactor/reactium-sdk-core": "^1.1.2",
     "@atomic-reactor/reactium-setting": "file:reactium_modules/@atomic-reactor/reactium-setting/_npm",
-    "@atomic-reactor/reactium-ui": "^0.2.7",
+    "@atomic-reactor/reactium-ui": "^0.3.5",
     "@atomic-reactor/reactium-user": "file:reactium_modules/@atomic-reactor/reactium-user/_npm",
     "@babel/cli": "^7.13.14",
     "@babel/node": "^7.13.13",

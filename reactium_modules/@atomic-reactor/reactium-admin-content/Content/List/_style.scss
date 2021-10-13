@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .#{$admin-content-list-ns} {
     padding-top: $height-admin-header;
     padding-bottom: $padding-admin-content-zone;
@@ -14,7 +16,7 @@
 
     &-item-container {
         position: relative;
-        padding: $padding-admin-content-zone/2 $padding-admin-content-zone;
+        padding: math.div($padding-admin-content-zone, 2) $padding-admin-content-zone;
         padding-bottom: 0;
     }
 
@@ -143,7 +145,7 @@
 
         padding: $padding-admin-content-zone;
         padding-left: 40px;
-        margin-bottom: $padding-admin-content-zone/2;
+        margin-bottom: math.div($padding-admin-content-zone, 2);
         border-bottom: 1px solid darken($color-admin-header-border, 2%);
         background-color: $color-text-light;
 

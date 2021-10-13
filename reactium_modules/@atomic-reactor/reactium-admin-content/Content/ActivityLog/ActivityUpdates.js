@@ -12,8 +12,6 @@ import Reactium, {
     useHookComponent,
 } from 'reactium-core/sdk';
 
-import { useReduxState } from '@atomic-reactor/use-select';
-
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: ActivityUpdates

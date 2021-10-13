@@ -28,7 +28,7 @@ $height-min-arp: 500px !default;
 
     &[data-color='inherit']
     &[data-color='transparent'],
-    &[data-color='#{$color-white}'],
+    &[data-color='#{"" + $color-white}'],
     &[data-color='#{$color-white-dark}'] {
         &:after {
             content: '';
