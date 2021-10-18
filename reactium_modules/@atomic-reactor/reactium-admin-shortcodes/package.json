@@ -1,0 +1,33 @@
+{
+  "name": "@atomic-reactor/reactium-admin-shortcodes",
+  "version": "0.1.0",
+  "description": "Add Shortcodes support to reactium admin.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atomic-Reactor/Reactium-Admin-Plugins.git"
+  },
+  "keywords": [
+    "reactium",
+    "actinium",
+    "atomic",
+    "reactor"
+  ],
+  "author": "Reactium LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins/issues"
+  },
+  "homepage": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins#readme",
+  "dependencies": {
+  },
+  "reactium": {
+    "version": "4.1.4"
+  },
+  "actinium": {
+    "version": "3.6.6"
+  }
+}

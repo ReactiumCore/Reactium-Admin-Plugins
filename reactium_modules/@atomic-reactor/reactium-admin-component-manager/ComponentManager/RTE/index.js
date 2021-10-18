@@ -2,7 +2,7 @@ import React from 'react';
 import Panel from './Panel';
 import FormatElement from './Element';
 import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
-import RTEPlugin from '../../registered-components/RichTextEditor/RTEPlugin';
+import RTEPlugin from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/RichTextEditor/RTEPlugin';
 
 const SidebarButton = props => {
     const { Button, Icon } = useHookComponent('ReactiumUI');

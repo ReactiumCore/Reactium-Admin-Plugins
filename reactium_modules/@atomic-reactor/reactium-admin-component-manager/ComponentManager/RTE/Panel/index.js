@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Attributes from './Attributes';
 import { useEditor } from 'slate-react';
 import React, { useEffect } from 'react';
-import { useEditorSelection } from '../../../registered-components/RichTextEditor/_utils';
+import { useEditorSelection } from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/RichTextEditor/_utils';
 
 import Reactium, {
     __,
