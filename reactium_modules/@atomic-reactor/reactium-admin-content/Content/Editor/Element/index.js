@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'underscore';
 import op from 'object-path';
-import { slugify } from 'reactium_modules/@atomic-reactor/reactium-admin-core/ContentType';
+import { slugify } from 'reactium_modules/@atomic-reactor/reactium-admin-content/ContentType';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 export default ({ editor, region, ...props }) => {
