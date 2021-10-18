@@ -1,6 +1,5 @@
 const Reactium = require('reactium-core/sdk').default;
 const Enums = Reactium.Enums;
-const { forceSSL } = require('./middlewares/forceSSL');
 const proxy = require('http-proxy-middleware');
 const op = require('object-path');
 const _ = require('underscore');
@@ -30,12 +29,6 @@ Reactium.Server.Middleware.register('media-proxy', {
             ws: false,
         })(req, res, next);
     },
-    order: Enums.priority.highest,
-});
-
-Reactium.Server.Middleware.register('forceSSL', {
-    name: 'forceSSL',
-    use: forceSSL,
     order: Enums.priority.highest,
 });
 
