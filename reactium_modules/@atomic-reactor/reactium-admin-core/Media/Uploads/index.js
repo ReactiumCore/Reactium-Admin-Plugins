@@ -114,7 +114,7 @@ export default ({ delay = 250, onRemoveFile, uploads }) => {
     }, []);
 
     const render = () => {
-        const currentUploads = op.get(state, 'uploads');
+        const currentUploads = op.get(state, 'uploads', {});
 
         return Object.values(currentUploads).length < 1 ? null : (
             <div className={cx('uploads')}>
