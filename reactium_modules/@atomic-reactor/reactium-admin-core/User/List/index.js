@@ -167,7 +167,9 @@ const UserList = ({
     useRegisterHandle(id, () => handle, [handle]);
 
     // SearchBar show
-    useEffect(() => SearchBar.setState({ visible: true }), [SearchBar]);
+    useEffect(() => {
+        SearchBar.setState({ visible: true });
+    }, [SearchBar]);
 
     // Search changed
     useEffect(() => {
