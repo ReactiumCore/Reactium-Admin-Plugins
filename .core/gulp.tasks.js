@@ -539,14 +539,147 @@ $assets: (
         done();
     };
 
-    const dddStylesPartial = done => {
-        const stylePartials = globby.sync(config.src.styleDDD).map(partial => {
-            if (/^reactium_modules\//.test(partial)) {
-                return partial.replace('reactium_modules/', '+');
-            }
+    const sassPartialPreRegistrations = SassPartial => {
+        SassPartial.register('mixins-dir', {
+            pattern: /mixins\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.MIXINS,
+        });
 
-            return path.relative(path.dirname(config.dest.modulesPartial), path.resolve(rootPath, partial));
-        }).map(partial => partial.replace(/\.scss$/,''));
+        SassPartial.register('mixins-ddd', {
+            pattern: /_reactium-style-mixins/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.MIXINS,
+        });
+
+        SassPartial.register('variables-dir', {
+            pattern: /variables\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.VARIABLES,
+        });
+
+        SassPartial.register('variables-ddd', {
+            pattern: /_reactium-style-variables/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.VARIABLES,
+        });
+
+        SassPartial.register('base-dir', {
+            pattern: /base\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.BASE,
+        });
+
+        SassPartial.register('base-ddd', {
+            pattern: /_reactium-style-base/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.BASE,
+        });
+
+        SassPartial.register('atoms-dir', {
+            pattern: /atoms\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.ATOMS,
+        });
+
+        SassPartial.register('atoms-ddd', {
+            pattern: /_reactium-style-atoms/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.ATOMS,
+        });
+
+        SassPartial.register('molecules-dir', {
+            pattern: /molecules\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.MOLECULES,
+        });
+
+        SassPartial.register('molecules-ddd', {
+            pattern: /_reactium-style-molecules/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.MOLECULES,
+        });
+
+        SassPartial.register('organisms-dir', {
+            pattern: /organisms\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.ORGANISMS,
+        });
+
+        SassPartial.register('organisms-ddd', {
+            pattern: /_reactium-style-organisms/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.ORGANISMS,
+        });
+
+        SassPartial.register('overrides-dir', {
+            pattern: /overrides\/_reactium-style/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.OVERRIDES,
+        });
+
+        SassPartial.register('overrides-ddd', {
+            pattern: /_reactium-style-overrides/,
+            exclude: false,
+            priority: ReactiumGulp.Enums.style.OVERRIDES,
+        });
+    };
+
+    const dddStylesPartial = done => {
+        const SassPartialRegistry = ReactiumGulp.Utils.registryFactory(
+            'SassPartialRegistry',
+            'id',
+            ReactiumGulp.Utils.Registry.MODES.CLEAN,
+        );
+
+        sassPartialPreRegistrations(SassPartialRegistry);
+        ReactiumGulp.Hook.runSync('ddd-styles-partial', SassPartialRegistry);
+
+        const stylePartials = globby
+            .sync(config.src.styleDDD)
+            .map(partial => {
+                if (/^reactium_modules\//.test(partial)) {
+                    return partial.replace('reactium_modules/', '+');
+                }
+
+                return path.relative(
+                    path.dirname(config.dest.modulesPartial),
+                    path.resolve(rootPath, partial),
+                );
+            })
+            .map(partial => partial.replace(/\.scss$/, ''))
+            .sort((a, b) => {
+                const aMatch =
+                    SassPartialRegistry.list.find(({ pattern }) =>
+                        pattern.test(a),
+                    ) || {};
+                const bMatch =
+                    SassPartialRegistry.list.find(({ pattern }) =>
+                        pattern.test(b),
+                    ) || {};
+
+                const aPriority = op.get(
+                    aMatch,
+                    'priority',
+                    ReactiumGulp.Enums.style.ORGANISMS,
+                );
+                const bPriority = op.get(
+                    bMatch,
+                    'priority',
+                    ReactiumGulp.Enums.style.ORGANISMS,
+                );
+
+                if (aPriority > bPriority) return 1;
+                else if (bPriority > aPriority) return -1;
+                return 0;
+            })
+            .filter(partial => {
+                const match =
+                    SassPartialRegistry.list.find(({ pattern }) =>
+                        pattern.test(partial),
+                    ) || {};
+                return !match || op.get(match, 'exclude', false) !== true;
+            });
 
         const template = handlebars.compile(`
 // WARNING: Do not directly edit this file !!!!
@@ -556,10 +689,13 @@ $assets: (
 @import '{{ this }}';
 {{/each}}
 `);
-        
 
         fs.ensureFileSync(config.dest.modulesPartial);
-        fs.writeFileSync(config.dest.modulesPartial, template(stylePartials), 'utf8');
+        fs.writeFileSync(
+            config.dest.modulesPartial,
+            template(stylePartials),
+            'utf8',
+        );
         done();
     };
 
@@ -640,6 +776,7 @@ $assets: (
         gulp.watch(config.watch.colors, gulp.task('styles:colors'));
         gulp.watch(config.watch.pluginAssets, gulp.task('styles:pluginAssets'));
         gulp.watch(config.watch.style, gulp.task('styles:compile'));
+        gulp.watch(config.src.styleDDD, gulp.task('styles:partials'));
         gulpwatch(config.watch.markup, watcher);
         gulpwatch(config.watch.assets, watcher);
         const scriptWatcher = gulp.watch(

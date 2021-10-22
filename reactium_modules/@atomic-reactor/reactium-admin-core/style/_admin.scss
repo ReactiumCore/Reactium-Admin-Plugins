@@ -54,10 +54,6 @@
 @import '../Password/style';
 @import '../SearchBar/style';
 @import '../PluginManager/style';
-
-// Import all style partials from other reactium modules
-@import '../../../../src/assets/style/_scss/reactium-modules';
-
 @import '../Media/style';
 @import '../Media/CTE/style';
 @import '../Media/List/style';

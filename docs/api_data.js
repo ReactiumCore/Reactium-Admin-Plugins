@@ -844,6 +844,17 @@ define({ "api": [
   },
   {
     "type": "Hook",
+    "url": "sdk-init",
+    "title": "sdk-init",
+    "name": "sdk-init",
+    "description": "<p>Called after reactium-hooks.js DDD artifacts are loaded, to allow the Reactium SDK singleton to be extended before the init hook.</p>",
+    "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/index.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
     "url": "store-create",
     "title": "store-create",
     "name": "store-create",
