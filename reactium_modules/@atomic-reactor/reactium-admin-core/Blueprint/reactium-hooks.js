@@ -148,7 +148,7 @@ Reactium.Hook.register('plugin-init', async () => {
         'helmet-props',
         async context => {
             context.props = {
-                titleTemplate: __('%s - Reactium CMS'),
+                titleTemplate: __('%s - Reactium Admin'),
             };
         },
         Reactium.Enums.priority.highest,
