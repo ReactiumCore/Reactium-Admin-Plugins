@@ -201,10 +201,10 @@ let Media = ({ dropzoneProps, namespace, zone, title, ...props }) => {
     // Watch for library updates
     useEffect(() => {
         const unsub = store.subscribe(() => {
-            const data = op.get(store.getState(), 'Media.library');
+            const data = op.get(store.getState(), 'Media.library', {});
             if (!data) return;
 
-            const currentData = Object.values(state.data);
+            const currentData = Object.values(op.get(state, 'data', {}));
             const equal = _.isEqual(
                 _.pluck(data, 'objectId').sort(),
                 _.pluck(currentData, 'objectId').sort(),
