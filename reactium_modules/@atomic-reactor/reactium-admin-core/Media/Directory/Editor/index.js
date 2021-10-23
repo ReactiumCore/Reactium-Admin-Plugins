@@ -11,11 +11,10 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHandle,
-    useReduxState,
     useRegisterHandle,
 } from 'reactium-core/sdk';
 
-import { useSelect } from '@atomic-reactor/use-select';
+import { useReduxState } from '@atomic-reactor/use-select';
 
 import React, { forwardRef, useEffect, useRef } from 'react';
 
@@ -30,18 +29,12 @@ import {
 
 import { Column, Row, SearchBar } from '@atomic-reactor/reactium-ui/DataTable';
 
-const noop = forwardRef((props, ref) => null);
-
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: DirectoryEditor
  * -----------------------------------------------------------------------------
  */
-let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
-    const page = Number(
-        useSelect(state => op.get(state, 'Router.params.page', 1)),
-    );
-
+let DirectoryEditor = ({ className, namespace }) => {
     const [getState, dispatch] = useReduxState(domain.name);
 
     const tools = useHandle('AdminTools');
@@ -59,32 +52,9 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     const sceneRef = useRef();
 
-    // const stateRef = useRef({
-    //     active: 'list',
-    //     deleteFiles: false,
-    //     objectId: null,
-    //     search: null,
-    //     selection: [],
-    //     status: ENUMS.STATUS.INIT,
-    // });
-
     const tableRef = useRef();
 
     // State
-    // const [, forceRender] = useState(stateRef.current);
-    //
-    // // Internal Interface
-    // const setState = newState => {
-    //     // Update the stateRef
-    //     stateRef.current = {
-    //         ...stateRef.current,
-    //         ...newState,
-    //     };
-    //
-    //     // Trigger render()
-    //     forceRender({ updated: Date.now(), keys: Object.keys(newState) });
-    // };
-
     const [state, setState] = useDerivedState({
         active: 'list',
         deleteFiles: false,
@@ -96,8 +66,6 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     const cname = () =>
         cn({ [className]: !!className, [namespace]: !!namespace });
-
-    const cx = cls => _.compact([namespace, cls]).join('-');
 
     const columns = () => {
         return {
@@ -138,7 +106,7 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
             const { library = {} } = getState;
 
-            Object.entries(library).forEach(([p, files]) => {
+            Object.entries(library).forEach(([, files]) => {
                 Object.entries(files).forEach(([id, file]) => {
                     if (file.directory !== directory) return;
                     delete files[id];
@@ -204,7 +172,6 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
     };
 
     const footer = () => {
-        const { state: sceneState } = sceneRef.current || {};
         const { active, deleteFiles, selection = [] } = state;
 
         const elements = [];
@@ -299,15 +266,13 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
         state.deleteFiles = deleteFiles;
     };
 
-    const onItemSelect = e => {
+    const onItemSelect = () => {
         const { data = [] } = tableRef.current;
         const selection = data.filter(item => item.selected === true);
         setState({ selection });
     };
 
-    const onSaveClick = e => {
-        editorRef.current.save();
-    };
+    const onSaveClick = () => editorRef.current.save();
 
     const onSceneBeforeChange = e => {
         const { staged } = e;
@@ -447,7 +412,7 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     const TableHeader = () => {
         const { directories = [] } = state;
-        const { data = [], search } = tableRef.current || {};
+        const { search } = tableRef.current || {};
         return (
             <Row className='bg-white-dark'>
                 <Column verticalAlign='middle'>
@@ -514,13 +479,7 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     // Renderer
     const render = () => {
-        const {
-            active,
-            deleteFiles,
-            directories = [],
-            edit = {},
-            status,
-        } = state;
+        const { active, deleteFiles, edit = {} } = state;
 
         return (
             <div className={cname()}>
@@ -553,8 +512,6 @@ let DirectoryEditor = ({ className, namespace, ...props }, ref) => {
 
     return render();
 };
-
-DirectoryEditor = forwardRef(DirectoryEditor);
 
 DirectoryEditor.ENUMS = ENUMS;
 

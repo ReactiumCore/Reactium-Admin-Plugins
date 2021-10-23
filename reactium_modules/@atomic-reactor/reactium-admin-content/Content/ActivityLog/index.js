@@ -5,22 +5,22 @@ import domain from './domain';
 import ActivityChart from './ActivityChart';
 import ActivityUpdates from './ActivityUpdates';
 
-import Reactium, {
+import {
     __,
     useDerivedState,
     useEventHandle,
     useHandle,
     useHookComponent,
-    useReduxState,
-    useWindowSize,
 } from 'reactium-core/sdk';
+
+import { useReduxState } from '@atomic-reactor/use-select';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: Activity
  * -----------------------------------------------------------------------------
  */
-const Activity = props => {
+const Activity = () => {
     const chartRef = useRef();
     const containerRef = useRef();
     const updatesRef = useRef();
