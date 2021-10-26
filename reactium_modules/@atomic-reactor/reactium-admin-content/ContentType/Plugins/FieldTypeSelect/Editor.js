@@ -11,9 +11,11 @@ export const Editor = props => {
         placeholder,
         required,
         options = [],
+        multiple,
     } = props;
 
     const inputRef = useRef();
+    const { Toggle } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
 
     const inputProps = {
@@ -66,18 +68,36 @@ export const Editor = props => {
         <ElementDialog {...props}>
             <div className='p-xs-20'>
                 <div className={className}>
-                    <label>
-                        <select {...inputProps}>
-                            <option value='null'>
-                                {placeholder || 'Select'}
-                            </option>
-                            {options.map(({ label, value }, i) => (
-                                <option key={`option-${i}`} value={value}>
-                                    {label}
+                    {!multiple ? (
+                        <label>
+                            <select {...inputProps}>
+                                <option value='null'>
+                                    {placeholder || 'Select'}
                                 </option>
+                                {options.map(({ label, value }, i) => (
+                                    <option key={`option-${i}`} value={value}>
+                                        {label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    ) : (
+                        <div className='row' style={{ width: '100%' }}>
+                            {options.map(({ label, value }, i) => (
+                                <div
+                                    key={`${inputProps.name}-checkbox-${i}`}
+                                    className='col-xs-12 py-xs-8'>
+                                    <Toggle
+                                        name={inputProps.name}
+                                        labelAlign='left'
+                                        value={value}
+                                        label={label}
+                                    />
+                                </div>
                             ))}
-                        </select>
-                    </label>
+                        </div>
+                    )}
+
                     {errorText && <small>{errorText}</small>}
                 </div>
             </div>
