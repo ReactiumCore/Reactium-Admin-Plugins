@@ -1,18 +1,17 @@
 import op from 'object-path';
+import React, { useCallback, useEffect } from 'react';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
-import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
-import { Button, Icon, Dropdown } from '@atomic-reactor/reactium-ui';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Reactium, {
-    useAsyncEffect,
     useDerivedState,
     useFulfilledObject,
     useHandle,
+    useHookComponent,
     __,
 } from 'reactium-core/sdk';
 
 const AddButton = ({ type }) => {
+    const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
         <Button
             appearance='pill'
@@ -35,6 +34,8 @@ const SaveButton = ({ type }) => {
         init: false,
         status: null,
     });
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const Editor = useHandle('AdminContentEditor');
     const [ready] = useFulfilledObject(Editor, ['EventForm']);
@@ -85,7 +86,7 @@ const SaveButton = ({ type }) => {
     return ready !== true ? null : render();
 };
 
-const BranchSelector = ({ type }) => {
+const BranchSelector = () => {
     const [state, setState] = useDerivedState({
         init: false,
         status: null,
@@ -93,9 +94,7 @@ const BranchSelector = ({ type }) => {
 
     const Editor = useHandle('AdminContentEditor');
     const [ready] = useFulfilledObject(Editor, ['EventForm']);
-
-    const isBusy = stat =>
-        ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(stat);
+    const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
 
     const onStatus = e => {
         const status = e.event;
@@ -112,7 +111,6 @@ const BranchSelector = ({ type }) => {
     }, [ready]);
 
     const render = () => {
-        const busy = isBusy(status);
         const tooltip = __('Select version');
         const branches = op.get(Editor, 'value.branches', {});
         const branch = op.get(Editor, 'value.history.branch');
@@ -158,15 +156,19 @@ const BranchSelector = ({ type }) => {
 };
 
 export default () => {
-    const { path, slug, type } = useRouteParams(['path', 'type', 'slug']);
-    const visible = String(path).startsWith('/admin/content/:type');
+    const path = op.get(Reactium.Routing.currentRoute, 'match.route.path');
+    const { slug, type } = op.get(Reactium.Routing.currentRoute, 'params', {});
 
-    if (!visible) return null;
-    return !slug ? (
+    const isVisible = useCallback(
+        () => String(path).startsWith('/admin/content/:type'),
+        [path],
+    );
+
+    return !isVisible() ? null : !slug ? (
         <AddButton type={type} />
     ) : (
         <>
-            <BranchSelector type={type} /> <SaveButton type={type} />
+            <BranchSelector /> <SaveButton type={type} />
         </>
     );
 };
