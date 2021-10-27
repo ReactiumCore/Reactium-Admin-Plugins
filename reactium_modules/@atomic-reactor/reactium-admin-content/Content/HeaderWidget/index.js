@@ -3,10 +3,10 @@ import React, { useCallback, useEffect } from 'react';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
 
 import Reactium, {
-    useDerivedState,
     useFulfilledObject,
     useHandle,
     useHookComponent,
+    useSyncState,
     __,
 } from 'reactium-core/sdk';
 
@@ -30,28 +30,29 @@ const AddButton = ({ type }) => {
 };
 
 const SaveButton = ({ type }) => {
-    const [state, setState] = useDerivedState({
+    const Editor = useHandle('AdminContentEditor');
+    const [ready] = useFulfilledObject(Editor, ['EventForm']);
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
+    const state = useSyncState({
         init: false,
         status: null,
     });
 
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+    const setState = useCallback((...args) => state.set(...args), []);
 
-    const Editor = useHandle('AdminContentEditor');
-    const [ready] = useFulfilledObject(Editor, ['EventForm']);
+    // prettier-ignore
+    const isBusy = useCallback(() => ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(state.get('status')));
 
-    const isBusy = stat =>
-        ['BEFORE-SAVE', 'SAVE', 'SAVE-SUCCESS'].includes(stat);
+    const isInit = useCallback(() => Boolean(state.get('init') === true), []);
 
-    const isLoading = stat => Boolean(String(stat).search(/^load/gi) > -1);
+    // prettier-ignore
+    const isLoading = useCallback(() => Boolean(String(state.get('status')).search(/^load/gi) > -1), []);
 
-    const onStatus = e => {
-        const status = e.event;
-        setState({ status });
-    };
+    const onStatus = useCallback(e => setState({ status: e.event }), []);
 
     useEffect(() => {
-        if (state.init === true || !ready) return;
+        if (isInit() || !ready) return;
         setState({ init: true });
         Editor.addEventListener('status', onStatus);
         return () => {
@@ -59,9 +60,9 @@ const SaveButton = ({ type }) => {
         };
     }, [ready]);
 
-    const render = () => {
-        const loading = isLoading(state.status);
-        const busy = isBusy(state.status);
+    const render = useCallback(() => {
+        const loading = isLoading();
+        const busy = isBusy();
         const label = busy ? ENUMS.TEXT.SAVING : ENUMS.TEXT.SAVE;
         let icon = busy ? 'Feather.UploadCloud' : 'Feather.Check';
         icon = loading ? 'Feather.DownloadCloud' : icon;
@@ -81,28 +82,29 @@ const SaveButton = ({ type }) => {
                 </span>
             </Button>
         );
-    };
+    }, [ready]);
 
     return ready !== true ? null : render();
 };
 
 const BranchSelector = () => {
-    const [state, setState] = useDerivedState({
-        init: false,
-        status: null,
-    });
-
     const Editor = useHandle('AdminContentEditor');
     const [ready] = useFulfilledObject(Editor, ['EventForm']);
     const { Button, Dropdown, Icon } = useHookComponent('ReactiumUI');
 
-    const onStatus = e => {
-        const status = e.event;
-        if (status !== state.status) setState({ status });
-    };
+    const state = useSyncState({
+        init: false,
+        status: null,
+    });
+
+    const setState = useCallback((...args) => state.set(...args), []);
+
+    const isInit = useCallback(() => Boolean(state.get('init') === true), []);
+
+    const onStatus = useCallback(e => setState({ status: e.event }), []);
 
     useEffect(() => {
-        if (state.init === true || !ready) return;
+        if (isInit() || !ready) return;
         setState({ init: true });
         Editor.addEventListener('status', onStatus);
         return () => {
@@ -110,14 +112,14 @@ const BranchSelector = () => {
         };
     }, [ready]);
 
-    const render = () => {
+    const render = useCallback(() => {
         const tooltip = __('Select version');
         const branches = op.get(Editor, 'value.branches', {});
         const branch = op.get(Editor, 'value.history.branch');
         const currentLabel = op.get(branches, [branch, 'label'], branch);
         const showDropdown = branch && Object.values(branches).length > 1;
-        if (!showDropdown) return null;
-        return (
+
+        return !showDropdown ? null : (
             <Dropdown
                 className='header-branch-selector mr-xs-8'
                 data={Object.entries(branches).map(([branchId, value]) => ({
@@ -150,7 +152,7 @@ const BranchSelector = () => {
                 </div>
             </Dropdown>
         );
-    };
+    }, [ready]);
 
     return ready !== true ? null : render();
 };
