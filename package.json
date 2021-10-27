@@ -43,8 +43,14 @@
   },
   "dependencies": {
     "@atomic-reactor/actinium-auth": "^1.0.2",
+    "@atomic-reactor/reactium-api": "file:reactium_modules/@atomic-reactor/reactium-api/_npm",
+    "@atomic-reactor/reactium-capability": "file:reactium_modules/@atomic-reactor/reactium-capability/_npm",
+    "@atomic-reactor/reactium-redux": "file:reactium_modules/@atomic-reactor/reactium-redux/_npm",
+    "@atomic-reactor/reactium-role": "file:reactium_modules/@atomic-reactor/reactium-role/_npm",
     "@atomic-reactor/reactium-sdk-core": "^1.1.4",
+    "@atomic-reactor/reactium-setting": "file:reactium_modules/@atomic-reactor/reactium-setting/_npm",
     "@atomic-reactor/reactium-ui": "^0.3.5",
+    "@atomic-reactor/reactium-user": "file:reactium_modules/@atomic-reactor/reactium-user/_npm",
     "@babel/cli": "^7.13.14",
     "@babel/node": "^7.13.13",
     "@loadable/component": "^5.14.1",
@@ -120,13 +126,7 @@
     "tree-flatten": "^1.0.0",
     "underscore": "*",
     "uuid": "^3.4.0",
-    "xss": "^1.0.10",
-    "@atomic-reactor/reactium-api": "file:reactium_modules/@atomic-reactor/reactium-api/_npm",
-    "@atomic-reactor/reactium-capability": "file:reactium_modules/@atomic-reactor/reactium-capability/_npm",
-    "@atomic-reactor/reactium-redux": "file:reactium_modules/@atomic-reactor/reactium-redux/_npm",
-    "@atomic-reactor/reactium-role": "file:reactium_modules/@atomic-reactor/reactium-role/_npm",
-    "@atomic-reactor/reactium-setting": "file:reactium_modules/@atomic-reactor/reactium-setting/_npm",
-    "@atomic-reactor/reactium-user": "file:reactium_modules/@atomic-reactor/reactium-user/_npm"
+    "xss": "^1.0.10"
   },
   "devDependencies": {
     "@atomic-reactor/cli": "^2.2.62",

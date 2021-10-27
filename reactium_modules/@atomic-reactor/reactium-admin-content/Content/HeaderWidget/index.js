@@ -1,4 +1,5 @@
 import op from 'object-path';
+import pluralize from 'pluralize';
 import React, { useCallback, useEffect } from 'react';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
 
@@ -159,7 +160,9 @@ const BranchSelector = () => {
 
 export default () => {
     const path = op.get(Reactium.Routing.currentRoute, 'match.route.path');
-    const { slug, type } = op.get(Reactium.Routing.currentRoute, 'params', {});
+    let { slug, type } = op.get(Reactium.Routing.currentRoute, 'params', {});
+
+    type = type ? pluralize.singular(type) : type;
 
     const isVisible = useCallback(
         () => String(path).startsWith('/admin/content/:type'),
