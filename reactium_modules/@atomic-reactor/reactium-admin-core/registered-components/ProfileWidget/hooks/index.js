@@ -19,10 +19,6 @@ const getRole = user => {
     return op.get(role, 'role', 'anonymous');
 };
 
-const noop = () => {
-    return true;
-};
-
 /**
  * @api {ReactHook} useProfileAvatar(user) useProfileAvatar()
  * @apiDescription React Hook that gets the avatar or default avatar of the supplied user.
@@ -76,7 +72,7 @@ const useProfileAvatar = (initialUser = {}) => {
 const useProfileGreeting = user => {
     user = user || Reactium.User.current() || {};
     const defaultGreeting = __('Hello %name%');
-    const ref = useRef(defaultGreeting);
+    const ref = useRef('');
 
     const [, updateRef] = useState(ref.current);
 

@@ -1,11 +1,8 @@
 import cn from 'classnames';
-import op from 'object-path';
-import { Link } from 'react-router-dom';
-import { Icon } from '@atomic-reactor/reactium-ui';
-import useAvatar from 'reactium_modules/@atomic-reactor/reactium-admin-core/User/useAvatar';
-import React, { useEffect, useRef, useState } from 'react';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import React, { useEffect, useRef } from 'react';
 import { useProfileGreeting, useProfileRole } from './hooks';
+import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import useAvatar from 'reactium_modules/@atomic-reactor/reactium-admin-core/User/useAvatar';
 
 /**
  * -----------------------------------------------------------------------------
@@ -37,8 +34,6 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
     const cname = () =>
         cn({ [className]: !!className, [namespace]: !!namespace });
 
-    const isMounted = () => !unMounted();
-
     const nav = () =>
         Reactium.Routing.history.push(
             `/admin/user/${Reactium.User.current().objectId}/content`,
@@ -55,7 +50,6 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
         if (!Reactium.User.isCurrent(value)) return;
 
         const { avatar } = value;
-        const { avatar: currentAvatar } = state;
         if (avatar && avatar !== state.avatar) setState({ avatar });
     };
 

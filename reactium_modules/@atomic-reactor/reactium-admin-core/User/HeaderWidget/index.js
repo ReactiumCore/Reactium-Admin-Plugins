@@ -1,10 +1,10 @@
 import op from 'object-path';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
-import React, { useCallback, useEffect, useState } from 'react';
-import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
+import React, { useEffect, useState } from 'react';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const AddButton = () => {
+    const { Button, Icon } = useHookComponent('ReactiumUI');
+
     return (
         <Button
             appearance='pill'
@@ -20,13 +20,15 @@ const AddButton = () => {
     );
 };
 
-const SaveButton = ({ type }) => {
+const SaveButton = () => {
     const editor = useHandle('AdminUserEditor');
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const [busy, setBusy] = useState(false);
     const [editing, setEditing] = useState(false);
 
-    const onStatus = e => {
+    const onStatus = () => {
         setBusy(editor.isBusy());
         setEditing(editor.state.editing);
     };
@@ -64,9 +66,8 @@ const SaveButton = ({ type }) => {
 };
 
 export default () => {
-    const { path, id } = useRouteParams(['path', 'id']);
-    const visible = String(path).startsWith('/admin/user');
-
-    if (!visible) return null;
-    return !id ? <AddButton /> : <SaveButton />;
+    const path = op.get(Reactium.Routing.currentRoute, 'match.route.path');
+    const { id } = op.get(Reactium.Routing.currentRoute, 'params', {});
+    const isVisible = () => String(path).startsWith('/admin/user');
+    return !isVisible() ? null : !id ? <AddButton /> : <SaveButton />;
 };
