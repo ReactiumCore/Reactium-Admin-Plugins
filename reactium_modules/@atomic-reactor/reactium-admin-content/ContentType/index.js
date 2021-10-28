@@ -1,30 +1,29 @@
-import React, { useRef, useState, useEffect, useReducer, memo } from 'react';
+import React, { useRef, useState, useEffect, useReducer } from 'react';
 import TypeName from './TypeName';
 import Fields from './Fields';
 import Tools from './Tools';
-import Reactium, {
-    __,
-    useAsyncEffect,
-    useRegisterHandle,
-    useHandle,
-} from 'reactium-core/sdk';
-import { EventForm, Icon, Spinner } from '@atomic-reactor/reactium-ui';
 import cn from 'classnames';
 import op from 'object-path';
 import { DragDropContext } from 'react-beautiful-dnd';
 import uuid from 'uuid/v4';
 import _ from 'underscore';
 import CTCapabilityEditor from './Capabilities';
+import Reactium, {
+    __,
+    useAsyncEffect,
+    useHandle,
+    useHookComponent,
+    useRegisterHandle,
+} from 'reactium-core/sdk';
 
-export const slugify = name => {
-    if (!name) return '';
-
-    return require('slugify')(name, {
-        replacement: '_', // replace spaces with replacement
-        remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
-        lower: true, // result in lower case
-    });
-};
+export const slugify = name =>
+    !name
+        ? ''
+        : require('slugify')(name, {
+              replacement: '_', // replace spaces with replacement
+              remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
+              lower: true, // result in lower case
+          });
 
 const Loading = () => {
     const style = {
@@ -34,7 +33,7 @@ const Loading = () => {
         width: '100%',
         height: 'calc(100vh - 60px)',
     };
-
+    const { Spinner } = useHookComponent('ReactiumUI');
     return (
         <div style={{ position: 'relative' }}>
             <div style={style} className='flex center middle'>
@@ -273,6 +272,8 @@ const sanitizingUIReducer = (state = {}, action) => {
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), setValue: noop });
 const ContentType = props => {
+    const { EventForm, Icon } = useHookComponent('ReactiumUI');
+
     const fieldTypes = _.indexBy(
         Object.values(Reactium.ContentType.FieldType.list),
         'type',

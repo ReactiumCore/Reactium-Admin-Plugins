@@ -4,7 +4,6 @@ import op from 'object-path';
 import cn from 'classnames';
 import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
-import { EventForm } from '@atomic-reactor/reactium-ui';
 import PropTypes from 'prop-types';
 
 const DragHandle = props => (
@@ -28,6 +27,7 @@ const FieldType = props => {
     );
 
     const formRef = useRef();
+    const { EventForm } = useHookComponent('ReactiumUI');
     const Type = useHookComponent(fieldTypeComponent, false);
     const CTE = useHandle('ContentTypeEditor');
 

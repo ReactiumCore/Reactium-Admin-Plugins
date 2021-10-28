@@ -110,6 +110,7 @@ let ContentEditor = (
     const Loading = useHookComponent(`${id}Loading`);
     const Sidebar = useHookComponent(`${id}Sidebar`);
     const SlugInput = useHookComponent('SlugInput');
+
     const { Alert, EventForm, Icon, Toast } = useHookComponent('ReactiumUI');
 
     const alertDefault = {
