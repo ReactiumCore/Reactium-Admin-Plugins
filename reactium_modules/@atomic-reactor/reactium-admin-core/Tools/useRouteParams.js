@@ -1,13 +1,13 @@
-import _ from 'underscore';
 import op from 'object-path';
 import pluralize from 'pluralize';
+import Reactium from 'reactium-core/sdk';
 import { useEffect, useState } from 'react';
-import { useSelect } from '@atomic-reactor/use-select';
 
 export default (keys = ['type', 'slug', 'page'], deps = []) => {
     const timestamp = Date.now();
-    const path = useSelect(state => op.get(state, 'Router.match.path'));
-    const params = useSelect(state => op.get(state, 'Router.params'));
+    const params = op.get(Reactium.Routing.currentRoute, 'params');
+    const path = op.get(Reactium.Routing.currentRoute, 'match.route.path');
+
     const [value, setValue] = useState({
         type: null,
         slug: null,
@@ -17,7 +17,8 @@ export default (keys = ['type', 'slug', 'page'], deps = []) => {
         timestamp,
     });
 
-    deps.push(params, path);
+    deps.push(params);
+    deps.push(path);
 
     useEffect(() => {
         if (!params || !path) return;

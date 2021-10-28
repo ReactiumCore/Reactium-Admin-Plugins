@@ -2,10 +2,9 @@ import _ from 'underscore';
 import op from 'object-path';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-content/Content/enums';
-import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
+import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 
 export default () => {
     const { group, page, path, slug, type } = useRouteParams([
@@ -14,45 +13,36 @@ export default () => {
         'page',
         'group',
     ]);
-    const visible = String(path).startsWith('/admin/content/:type');
+
+    const isVisible = () => String(path).startsWith('/admin/content/:type');
 
     const [icon, setIcon] = useState();
     const [types, setTypes] = useState([]);
-    const [updated, update] = useState();
 
-    const isSlug = () => {
-        return String(path).includes('/:slug');
-    };
+    const isSlug = () => String(path).includes('/:slug');
 
-    const isNew = () => {
-        return isSlug() && slug === 'new';
-    };
+    const isNew = () => Boolean(isSlug() && slug === 'new');
 
     const getTypes = () => Reactium.ContentType.types();
 
     useAsyncEffect(
         async mounted => {
-            if (!visible) return;
+            if (!isVisible()) return;
             const results = await getTypes();
             if (mounted()) setTypes(results);
-            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true) {
-                    update(Date.now());
-                }
-            });
         },
-        [updated, visible],
+        [path],
     );
 
     useEffect(() => {
-        if (!visible || !type) return;
+        if (!isVisible() || !type) return;
         const t = _.findWhere(types, { type }) || {};
         const i = op.get(t, 'meta.icon');
         if (i === icon) return;
         setIcon(i);
-    }, [type, types, visible]);
+    }, [type, types, isVisible()]);
 
-    return visible && icon ? (
+    return isVisible() && icon ? (
         <ul className='ar-breadcrumbs'>
             <li>
                 <Button
