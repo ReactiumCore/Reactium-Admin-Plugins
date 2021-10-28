@@ -279,7 +279,7 @@ let EventForm = (initialProps, ref) => {
         const elms = getElements();
         const count = Object.keys(elms).length;
 
-        if (count !== state.count) {
+        if (count !== state.get('count')) {
             setCount(count);
 
             const evt = new FormEvent('element-change', {
@@ -542,7 +542,7 @@ let EventForm = (initialProps, ref) => {
         ENUMS,
         defaultValue,
         elements: getElements(),
-        error: op.get(state, 'error'),
+        error: state.get('error'),
         focus,
         form: formRef.current,
         getValue,
@@ -567,30 +567,38 @@ let EventForm = (initialProps, ref) => {
 
     // Apply value
     useLayoutEffect(() => {
-        if (!isEmpty() && state.ready !== true) {
+        if (!isEmpty() && state.get('ready') !== true) {
             setState({ ready: true });
         }
     });
 
     useEffect(() => {
-        if (state.ready === true && state.count > 0)
+        if (state.get('ready') === true && state.get('count') > 0)
             applyValue(state.get('value'));
-    }, [state.count]);
+    }, [state.get('count')]);
 
     // Update handle on change
     useEffect(() => {
         const newHandle = { ...handle };
         op.set(newHandle, 'value', getValue());
         op.set(newHandle, 'elements', getElements());
-        op.set(newHandle, 'error', op.get(state, 'error'));
+        op.set(newHandle, 'error', state.get('error'));
         op.set(newHandle, 'form', formRef.current);
         setHandle(newHandle);
-    }, [formRef.current, state.count, state.errors, Object.values(value)]);
+    }, [
+        formRef.current,
+        state.get('count'),
+        state.get('errors'),
+        Object.values(state.get('value')),
+    ]);
 
     // update value from props
     useEffect(() => {
         // ignore when would result in no change or when undefined
-        if (initialValue === undefined || _.isEqual(value, initialValue))
+        if (
+            initialValue === undefined ||
+            _.isEqual(state.get('value'), initialValue)
+        )
             return;
 
         setValue(initialValue);
@@ -603,13 +611,13 @@ let EventForm = (initialProps, ref) => {
 
         handle.dispatchEvent(
             new FormEvent('status', {
-                detail: op.get(state, 'status'),
+                detail: state.get('status'),
                 element: formRef.current,
                 target: handle,
                 value,
             }),
         );
-    }, [state.status]);
+    }, [state.get('status')]);
 
     // change flush
     useEffect(() => {
