@@ -19,16 +19,18 @@ class Uploader {
         return Object.keys(this.active).length >= this.maxUploads;
     }
 
-    async initialize({ parseAppId, restAPI, sessionToken }) {
+    async initialize({ actiniumAppId, parseAppId, restAPI, sessionToken }) {
+        const appId = actiniumAppId || parseAppId;
+
         this.req = axios.create({
             baseURL: restAPI,
             headers: {
-                'X-Parse-Application-Id': parseAppId,
+                'X-Parse-Application-Id': appId,
                 'X-Parse-Session-Token': sessionToken,
             },
         });
 
-        return Boolean(parseAppId && restAPI);
+        return Boolean(appId && restAPI);
     }
 
     async onMessage(e) {

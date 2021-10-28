@@ -6,7 +6,6 @@ import op from 'object-path';
 import slugify from 'slugify';
 import Reactium from 'reactium-core/sdk';
 
-const api = Reactium.ActiniumConfig;
 const SCRIPT = '/assets/js/umd/media-uploader/media-uploader.js';
 const paramToArray = value => _.compact(Array.isArray(value) ? value : [value]);
 
@@ -38,6 +37,8 @@ const mapFileToUpload = file => {
 
 class Media {
     constructor() {
+        const api = Reactium.ActiniumConfig;
+
         this.ENUMS = ENUMS;
         this.selected = null;
         this.worker = null;
