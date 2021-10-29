@@ -25,7 +25,14 @@
         top: $height-admin-header;
         height: calc(100vh - #{$height-admin-header});
         outline: none;
-        z-index: map-get($z-indexes, 'sidebar');
+        z-index: map-get($z-indexes, 'header') - 1;
+
+        @include breakpoint(md) {
+            position: relative;
+            top: auto;
+            right: auto;
+            z-index: auto;
+        }
 
         &-toggle {
             position: absolute;
@@ -82,6 +89,10 @@
             .#{$admin-content-ns}-toolbar {
                 box-shadow: $shadow-image;
 
+                @include breakpoint(md) {
+                    box-shadow: none;
+                }
+
                 &-scroll {
                     display: flex;
                 }
@@ -127,7 +138,7 @@
             position: relative;
             background-color: $color-grey-light;
 
-            @include breakpoint(md) {
+            @include breakpoint(sm) {
                 display: flex;
             }
         }

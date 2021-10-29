@@ -1,29 +1,59 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import op from 'object-path';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
+
 import React, {
     forwardRef,
     useImperativeHandle,
     useEffect,
     useRef,
-    useState,
 } from 'react';
-import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
 
-import Reactium, { useIsContainer, Zone } from 'reactium-core/sdk';
+import Reactium, {
+    useEventEffect,
+    useIsContainer,
+    useRegisterSyncHandle,
+    useWindowSize,
+    Zone,
+} from 'reactium-core/sdk';
 
 let Sidebar = ({ children, editor }, ref) => {
-    const hash = op.get(Reactium.Routing, 'history.location.hash', '');
-
     const collapsibleRef = useRef();
     const containerRef = useRef();
+    const prefKey = 'contentSidebarExpanded';
 
     const { cx, type } = editor;
 
     const className = cx('sidebar');
 
-    const [expanded, setExpanded] = useState(String(hash).endsWith('sidebar'));
+    const { breakpoint } = useWindowSize();
+
+    const state = useRegisterSyncHandle('CTESidebar', {
+        breaks: ['md', 'lg', 'xl'],
+        breakpoint,
+        expanded: Reactium.Prefs.get(prefKey, false),
+        icon: 'Feather.ChevronLeft',
+    });
+
+    const setBreakpoint = value => {
+        state.set('breakpoint', _.isString(value) ? value : breakpoint);
+    };
+
+    const setExpanded = value => {
+        state.set('expanded', value);
+        Reactium.Prefs.set(prefKey, value);
+    };
+
+    const setIcon = value => {
+        const ico = _.isString(value)
+            ? value
+            : state.get('expanded') === true
+            ? 'Feather.ChevronRight'
+            : 'Feather.ChevronLeft';
+
+        state.set('icon', ico);
+    };
 
     const isContainer = useIsContainer();
 
@@ -36,6 +66,8 @@ let Sidebar = ({ children, editor }, ref) => {
         .shift();
 
     const dismiss = e => {
+        const { breaks = [], expanded, breakpoint } = state.get();
+        if (breaks.includes(breakpoint)) return;
         if (!containerRef.current || !expanded) return;
         if (isContainer(e.target, containerRef.current)) return;
         collapsibleRef.current.collapse();
@@ -61,6 +93,16 @@ let Sidebar = ({ children, editor }, ref) => {
         containerRef.current.focus();
     };
 
+    state.extend('collapse', collapse);
+    state.extend('dismiss', dismiss);
+    state.extend('expand', expand);
+    state.extend('setExpanded', setExpanded);
+    state.extend('setIcon', setIcon);
+    state.extend('setBreakpoint', setBreakpoint);
+    state.extend('toggle', toggle);
+
+    useImperativeHandle(ref, () => state);
+
     useEffect(() => {
         if (!collapsibleRef.current) return;
         Reactium.Hotkeys.register('content-sidebar-toggle', {
@@ -73,94 +115,67 @@ let Sidebar = ({ children, editor }, ref) => {
         return () => {
             Reactium.Hotkeys.unregister('content-sidebar-toggle');
         };
-    }, []);
+    }, [collapsibleRef.current]);
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
+    useEffect(setBreakpoint, [breakpoint]);
 
-        window.addEventListener('mousedown', dismiss);
-        window.addEventListener('touchstart', dismiss);
+    useEffect(setIcon, [state.get('expanded')]);
 
-        return () => {
-            window.removeEventListener('mousedown', dismiss);
-            window.removeEventListener('touchstart', dismiss);
-        };
-    }, [containerRef.current, expanded]);
-
-    useEffect(() => {
-        handle.expanded = expanded;
-    }, [expanded]);
-
-    // handle
-    const _handle = () => ({
-        collapse,
-        dismiss,
-        expand,
-        expanded,
-        setExpanded,
-        setHandle,
-        toggle,
+    useEventEffect(window, {
+        mousedown: dismiss,
+        touchstart: dismiss,
     });
 
-    const [handle, setHandle] = useState(_handle());
-
-    useImperativeHandle(ref, () => handle, [handle, expanded]);
-
-    const render = () => {
-        const icon = expanded ? 'Feather.ChevronRight' : 'Feather.ChevronLeft';
-        return (
-            <div
-                tabIndex={0}
-                className={cn(className, { expanded })}
-                ref={containerRef}>
-                <div className={cx('toolbar')}>
-                    <Scrollbars>
-                        <div className={cx('toolbar-scroll')}>
-                            <div className={cx('toolbar-top')}>
-                                <Zone
-                                    zone={`${zoneToolbarID}-top`}
-                                    editor={editor}
-                                />
-                                <Zone
-                                    zone={`${zoneToolbarTypeID}-top`}
-                                    editor={editor}
-                                />
-                            </div>
-                            <div className={cx('toolbar-bottom')}>
-                                <Zone
-                                    zone={`${zoneToolbarID}-bottom`}
-                                    editor={editor}
-                                />
-                                <Zone
-                                    zone={`${zoneToolbarTypeID}-bottom`}
-                                    editor={editor}
-                                />
-                            </div>
+    return (
+        <div
+            tabIndex={0}
+            className={cn(className, { expanded: state.get('expanded') })}
+            ref={containerRef}>
+            <div className={cx('toolbar')}>
+                <Scrollbars>
+                    <div className={cx('toolbar-scroll')}>
+                        <div className={cx('toolbar-top')}>
+                            <Zone
+                                zone={`${zoneToolbarID}-top`}
+                                editor={editor}
+                            />
+                            <Zone
+                                zone={`${zoneToolbarTypeID}-top`}
+                                editor={editor}
+                            />
                         </div>
-                    </Scrollbars>
-                    <div className={cx('sidebar-toggle')}>
-                        <Button color='clear' onClick={toggle}>
-                            <Icon name={icon} size={20} />
-                        </Button>
-                        <div className='bg' />
+                        <div className={cx('toolbar-bottom')}>
+                            <Zone
+                                zone={`${zoneToolbarID}-bottom`}
+                                editor={editor}
+                            />
+                            <Zone
+                                zone={`${zoneToolbarTypeID}-bottom`}
+                                editor={editor}
+                            />
+                        </div>
                     </div>
+                </Scrollbars>
+                <div className={cx('sidebar-toggle')}>
+                    <Button color='clear' onClick={toggle}>
+                        <Icon name={state.get('icon')} size={20} />
+                    </Button>
+                    <div className='bg' />
                 </div>
-                <Collapsible
-                    className={cx('collapsible')}
-                    direction='horizontal'
-                    expanded={expanded}
-                    onCollapse={_onCollapse}
-                    onExpand={_onExpand}
-                    ref={collapsibleRef}>
-                    <Scrollbars autoHeight autoHeightMin='calc(100vh - 60px)'>
-                        {children}
-                    </Scrollbars>
-                </Collapsible>
             </div>
-        );
-    };
-
-    return render();
+            <Collapsible
+                className={cx('collapsible')}
+                direction='horizontal'
+                expanded={state.get('expanded')}
+                onCollapse={_onCollapse}
+                onExpand={_onExpand}
+                ref={collapsibleRef}>
+                <Scrollbars autoHeight autoHeightMin='calc(100vh - 60px)'>
+                    {children}
+                </Scrollbars>
+            </Collapsible>
+        </div>
+    );
 };
 
 Sidebar = forwardRef(Sidebar);

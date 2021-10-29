@@ -1,13 +1,8 @@
-import _ from 'underscore';
 import op from 'object-path';
 import pluralize from 'pluralize';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import Reactium, {
-    __,
-    useAsyncEffect,
-    useHookComponent,
-} from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
 
 export default () => {
     const MenuItem = useHookComponent('MenuItem');
