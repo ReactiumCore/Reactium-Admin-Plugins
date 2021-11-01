@@ -1,6 +1,6 @@
 {
   "name": "@atomic-reactor/reactium-forcessl",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Force SSL for Reactium SPA.",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,7 @@
     "url": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins/issues"
   },
   "homepage": "https://github.com/Atomic-Reactor/Reactium-Admin-Plugins#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "reactium": {
     "version": "4.1.4"
   },
