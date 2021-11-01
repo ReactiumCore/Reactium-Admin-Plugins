@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import cc from 'camelcase';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
 
@@ -29,7 +30,7 @@ let Sidebar = ({ children, editor }, ref) => {
 
     const { breakpoint } = useWindowSize();
 
-    const state = useRegisterSyncHandle('CTESidebar', {
+    const state = useRegisterSyncHandle(cc(`content-editor-sidebar-${type}`), {
         breaks: ['md', 'lg', 'xl'],
         breakpoint,
         expanded: Reactium.Prefs.get(prefKey, false),

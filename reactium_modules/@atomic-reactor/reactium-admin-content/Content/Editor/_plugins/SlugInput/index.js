@@ -1,32 +1,24 @@
-import _ from 'underscore';
 import cn from 'classnames';
-import React, { useRef, useState, useEffect } from 'react';
-import { __, useFocusEffect, useHookComponent } from 'reactium-core/sdk';
-import _slugify from 'slugify';
-import { Button, Icon } from '@atomic-reactor/reactium-ui';
+import React, { useState } from 'react';
+import { __, useHookComponent, useRefs } from 'reactium-core/sdk';
 
-export const slugify = str => {
-    if (!str) return '';
-    str = String(str).replace(/\s/g, '-');
-    str = _slugify(str, {
-        replacement: '-', // replace spaces with replacement
-        remove: /[^\w-+]/g, // regex to remove characters
-        lower: true, // result in lower case
-    });
-
-    return str;
-};
+export const slugify = str =>
+    !str
+        ? ''
+        : String(str)
+              .replace(/[^a-z0-9]/gi, '-')
+              .toLowerCase();
 
 export default props => {
-    const containerRef = useRef();
-    const slugRef = useRef();
+    const refs = useRefs();
+
+    const { Button, Icon } = useHookComponent('ReactiumUI');
 
     const { editor, errorText } = props;
     const { cx, isNew, properCase, type } = editor;
     const className = cn('form-group', { error: !!errorText });
 
     const [autoGen, setAuthGen] = useState(isNew());
-    const [focused] = useFocusEffect(containerRef);
     const [readOnly, setReadOnly] = useState(true);
 
     const titlePlaceholder = String(__('%type Title')).replace('%type', type);
@@ -44,15 +36,17 @@ export default props => {
     };
 
     const genSlug = e => {
-        if (!autoGen || !slugRef.current) return;
+        const elm = refs.get('slug');
+        if (!autoGen || !elm) return;
         const { value } = e.target;
-        slugRef.current.value = slugify(value);
+        elm.value = slugify(value);
     };
 
-    const onBlur = e => {
-        if (!slugRef.current) return;
-        let currentSlug = slugRef.current.value;
-        slugRef.current.value = String(currentSlug).replace(/-$/g, '');
+    const onBlur = () => {
+        const elm = refs.get('slug');
+        if (!elm) return;
+        let currentSlug = slugify(elm.value);
+        elm.value = currentSlug;
         setReadOnly(true);
         if (String(currentSlug).length > 0 && autoGen !== false) {
             setAuthGen(false);
@@ -69,8 +63,10 @@ export default props => {
     };
 
     const enable = () => {
+        const elm = refs.get('slug');
+        if (!elm) return;
         setReadOnly(false);
-        slugRef.current.select();
+        elm.select();
     };
 
     const buttonStyle = {
@@ -83,9 +79,7 @@ export default props => {
     };
 
     return (
-        <div
-            ref={containerRef}
-            className={cx('editor-region', 'editor-region-slug')}>
+        <div className={cx('editor-region', 'editor-region-slug')}>
             <div className={cx('element', 'element-slug')}>
                 <div className={className}>
                     <label>
@@ -104,11 +98,11 @@ export default props => {
                         <span className='sr-only'>{slugProps.placeholder}</span>
                         <input
                             {...slugProps}
-                            className='input-sm'
-                            ref={slugRef}
-                            onKeyUp={onSlugChange}
                             onBlur={onBlur}
+                            className='input-sm'
+                            onKeyUp={onSlugChange}
                             style={{ paddingRight: 32 }}
+                            ref={elm => refs.set('slug', elm)}
                         />
                         <Button
                             size='xs'
