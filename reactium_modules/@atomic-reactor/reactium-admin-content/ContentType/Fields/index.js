@@ -1,10 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import op from 'object-path';
-import Enums from '../enums';
 import _ from 'underscore';
 
 /**
@@ -16,6 +15,7 @@ const noop = () => {};
 const Fields = props => {
     const CTE = useHandle('ContentTypeEditor');
     const ui = op.get(CTE, 'ui', {});
+
     const FieldType = useHookComponent('FieldType');
 
     const region = op.get(props, 'region.id', 'default');
@@ -24,9 +24,9 @@ const Fields = props => {
 
     const regions = op.get(ui, 'regions', {});
     const fields = _.compact(
-        op
-            .get(ui, ['regionFields', region], [])
-            .map(fieldId => op.get(ui, ['fields', fieldId])),
+        op.get(ui, ['regionFields', region], []).map(fieldId => {
+            return op.get(ui, ['fields', fieldId]);
+        }),
     );
 
     const isEmpty = fields.length < 1;
@@ -40,6 +40,8 @@ const Fields = props => {
         Object.values(Reactium.ContentType.FieldType.list),
         'type',
     );
+
+    Reactium.Hook.runSync('content-type-field-type-list', fieldTypes);
 
     const renderRegion = () => {
         if (region === 'default' && isEmpty) {
@@ -134,3 +136,95 @@ const Fields = props => {
 };
 
 export default Fields;
+
+/*
+{
+  "b018bed7-ac03-4ad6-a1d4-19f9ed6f8ec0": {
+    "fieldName": "Price",
+    "defaultValue": null,
+    "min": null,
+    "max": null,
+    "slider": null,
+    "required": true,
+    "helpText": null,
+    "fieldId": "b018bed7-ac03-4ad6-a1d4-19f9ed6f8ec0",
+    "fieldType": "Number",
+    "region": "default"
+  },
+  "5778df1e-9242-46f1-bbeb-b7eea5dd17b0": {
+    "fieldName": "Previous Price",
+    "defaultValue": null,
+    "min": null,
+    "max": null,
+    "slider": null,
+    "required": null,
+    "helpText": null,
+    "fieldId": "5778df1e-9242-46f1-bbeb-b7eea5dd17b0",
+    "fieldType": "Number",
+    "region": "default"
+  },
+  "cf109851-631e-48be-b1ca-e366c34a1d88": {
+    "fieldName": "Stock",
+    "defaultValue": null,
+    "min": null,
+    "max": null,
+    "slider": null,
+    "required": null,
+    "helpText": null,
+    "fieldId": "cf109851-631e-48be-b1ca-e366c34a1d88",
+    "fieldType": "Number",
+    "region": "default"
+  },
+  "a8e66091-ffd2-49c8-864c-93f3c7651004": {
+    "fieldName": "Sizes",
+    "placeholder": null,
+    "multiple": true,
+    "options": [
+      {
+        "label": "xs",
+        "value": "xs"
+      },
+      {
+        "label": "sm",
+        "value": "sm"
+      },
+      {
+        "label": "md",
+        "value": "md"
+      },
+      {
+        "label": "lg",
+        "value": "lg"
+      },
+      {
+        "label": "xl",
+        "value": "xl"
+      },
+      {
+        "label": "xxl",
+        "value": "xxl"
+      }
+    ],
+    "fieldId": "a8e66091-ffd2-49c8-864c-93f3c7651004",
+    "fieldType": "Select",
+    "region": "default"
+  },
+  "df9b64cb-5e33-43ff-91e8-6972fc599525": {
+    "fieldName": "Images",
+    "max": null,
+    "type": "IMAGE",
+    "required": null,
+    "fieldId": "df9b64cb-5e33-43ff-91e8-6972fc599525",
+    "fieldType": "Media",
+    "region": "default"
+  },
+  "publisher": {
+    "fieldName": "Publish",
+    "statuses": "DRAFT,PUBLISHED",
+    "simple": true,
+    "fieldId": "publisher",
+    "fieldType": "Publisher",
+    "region": "sidebar"
+  }
+}
+*/

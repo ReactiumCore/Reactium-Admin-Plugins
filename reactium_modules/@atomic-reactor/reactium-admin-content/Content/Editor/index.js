@@ -120,7 +120,9 @@ let ContentEditor = (
 
     const [contentType, setContentType] = useState();
     const [alert, setNewAlert] = useState(alertDefault);
-    const [fieldTypes] = useState(Reactium.ContentType.FieldType.list);
+    const [fieldTypes, setFieldTypes] = useState(
+        Reactium.ContentType.FieldType.list,
+    );
     const [propState] = useDerivedState(props, [
         'params.type',
         'params.slug',
@@ -1009,6 +1011,13 @@ let ContentEditor = (
         if (typeof window === 'undefined') return;
         document.body.scrollTop = 0;
     }, [isLoading(), isNew()]);
+
+    // Field types
+    useEffect(() => {
+        const updated = { ...fieldTypes };
+        Reactium.Hook.runSync('content-type-field-type-list', updated);
+        setFieldTypes(updated);
+    }, []);
 
     const render = () => {
         if (isLoading()) return <Loading ref={loadingRef} />;

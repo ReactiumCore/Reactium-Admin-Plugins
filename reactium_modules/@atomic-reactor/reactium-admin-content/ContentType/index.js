@@ -243,6 +243,8 @@ const sanitizingUIReducer = (state = {}, action) => {
         'type',
     );
 
+    Reactium.Hook.runSync('content-type-field-type-list', fieldTypes);
+
     // Clean up fields
     const fields = op.get(ui, 'fields', {});
     Object.entries(fields).forEach(([fieldId, field]) => {
@@ -278,6 +280,9 @@ const ContentType = props => {
         Object.values(Reactium.ContentType.FieldType.list),
         'type',
     );
+
+    Reactium.Hook.runSync('content-type-field-type-list', fieldTypes);
+
     const id = op.get(props, 'params.id', 'new');
     const Enums = op.get(props, 'Enums', {});
 
@@ -655,21 +660,34 @@ const ContentType = props => {
                     const fieldName = op.get(fieldValue, 'fieldName');
                     const fieldType = op.get(def, 'fieldType');
 
-                    Reactium.Hook.runSync('content-type-form-save', {
+                    const params = {
                         fieldValue,
                         fieldId,
                         fieldName,
                         fieldType,
                         region,
-                    });
+                    };
+
+                    if (String(fieldType).startsWith('Sel')) {
+                        console.log('initial fieldType', params.fieldType);
+                    }
+
+                    Reactium.Hook.runSync('content-type-form-save', params);
 
                     op.set(value, ['fields', fieldId], {
-                        ...fieldValue,
-                        fieldId,
-                        fieldName,
-                        fieldType,
-                        region,
+                        ...params.fieldValue,
+                        fieldId: params.fieldId,
+                        fieldName: params.fieldName,
+                        fieldType: params.fieldType,
+                        region: params.region,
                     });
+
+                    if (String(params.fieldType).startsWith('Sel')) {
+                        console.log(
+                            'updated fieldType',
+                            op.get(value, ['fields', fieldId]),
+                        );
+                    }
                 }
             });
         });

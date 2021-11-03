@@ -86,7 +86,7 @@ const defaultConfig = {
             '!public/assets/js/*.js',
             '!public/assets/**/*.gz',
         ],
-        includes: ['./node_modules'],
+        includes: ['./node_modules', '!{node_modules/**/test/**}'],
         appdir: path.resolve(__dirname, 'src/app'),
         rootdir: path.resolve(__dirname),
         manifest: path.normalize(`${rootPath}/src/manifest.js`),

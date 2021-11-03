@@ -26,7 +26,7 @@ export const FieldType = props => {
     const { Button, Checkbox, Icon } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
-    const cx = Reactium.Utils.cxFactory('template-cte');
+    const cx = Reactium.Utils.cxFactory('selection-cte');
 
     const onAddClick = () => {
         const label = op.get(refs.current, 'label').value;
@@ -67,8 +67,15 @@ export const FieldType = props => {
         }
     };
 
-    const beforeSave = ({ fieldId, fieldValue }) => {
-        if (fieldId === id) op.set(fieldValue, 'options', state.options);
+    const beforeSave = params => {
+        const { fieldId, fieldType } = params;
+
+        if (fieldId === id) {
+            op.set(params, 'fieldValue.options', state.options);
+            if (op.get(params, 'fieldValue.multiple') === true) {
+                params.fieldType = `${fieldType}Array`;
+            }
+        }
     };
 
     const formChange = ({ value }) => {

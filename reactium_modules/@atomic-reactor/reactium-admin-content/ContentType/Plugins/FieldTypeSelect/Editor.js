@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
@@ -57,10 +58,25 @@ export const Editor = props => {
         return context;
     };
 
+    const onSave = e => {
+        const val = op.get(e.value, fieldName);
+        const formatted =
+            multiple === true
+                ? _.chain([val])
+                      .flatten()
+                      .compact()
+                      .value()
+                : val;
+
+        op.set(e.value, fieldName, formatted);
+    };
+
     useEffect(() => {
         editor.addEventListener('validate', validate);
+        editor.addEventListener('before-save', onSave);
         return () => {
             editor.removeEventListener('validate', validate);
+            editor.removeEventListener('before-save', onSave);
         };
     }, [editor]);
 

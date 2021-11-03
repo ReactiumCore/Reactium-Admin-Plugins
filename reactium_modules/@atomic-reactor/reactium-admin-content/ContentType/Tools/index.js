@@ -38,10 +38,15 @@ const Tools = () => {
         y: 0,
     });
 
-    const tools = _.chain(Reactium.ContentType.FieldType.list)
+    const fieldTypes = Reactium.ContentType.FieldType.list;
+
+    Reactium.Hook.runSync('content-type-field-type-tools', fieldTypes);
+
+    const tools = _.chain(fieldTypes)
         .sortBy('order')
         .chunk(PAGE_LENGTH)
         .value();
+
     const [page, _setPage] = useState(
         Reactium.Prefs.get('types-tools-drag-handle.page', 1),
     );
