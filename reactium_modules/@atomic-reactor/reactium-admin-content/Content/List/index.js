@@ -22,26 +22,24 @@ import Reactium, {
 
 const { STATUS } = ENUMS;
 
-const getColumns = type => {
+export const getColumns = type => {
+    type = type || op.get(Reactium.Routing, 'currentRoute.params.type');
+
     if (!type) return [];
+    type = pluralize.singular(type);
 
     const cx = Reactium.Utils.cxFactory(ContentList.defaultProps.namespace);
 
     return Reactium.Content.ListColumn.list
         .filter(col => op.get(col, 'types', [type]).includes(type))
         .map(col => {
-            const { className, id } = col;
+            const { id } = col;
 
-            const newClassName = !className
-                ? cn(
-                      cx(`column-${id}-${type}`),
-                      cx(`column-${id}`),
-                      cx('column'),
-                  )
-                : String(className)
-                      .replace(/\%prefix/gi, cx())
-                      .replace(/\%column/gi, id)
-                      .replace(/\%type/gi, type);
+            const newClassName = cn(
+                cx(`column-${id}-${type}`),
+                cx(`column-${id}`),
+                cx('column'),
+            );
 
             op.set(col, 'className', newClassName);
             op.set(col, 'zones', [cx(id), cx(`${id}-${type}`)]);
@@ -186,7 +184,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
                     page: state.page,
                     status: state.filter ? state.filter : '!TRASH',
                     refresh: false,
-                    resolveRelations: false,
+                    resolveRelations: true,
                     title: state.search,
                     type: { machineName: state.type },
                 }),
@@ -223,7 +221,7 @@ let ContentList = ({ className, id, namespace }, ref) => {
             page: 1,
             status: state.filter ? state.filter : '!TRASH',
             refresh: true,
-            resolveRelations: false,
+            resolveRelations: true,
             title: str,
             type: { machineName: state.type },
         }).then(response => {

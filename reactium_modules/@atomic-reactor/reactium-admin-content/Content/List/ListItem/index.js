@@ -2,6 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import ENUMS from '../../enums';
+import { getColumns } from '../index';
 
 import Reactium, {
     __,
@@ -28,7 +29,9 @@ export const ListItem = forwardRef(({ list, ...props }, ref) => {
 
     const { slug } = props;
     const { state = {}, cx, id } = list;
-    const { columns, type } = state;
+    const { type } = state;
+
+    const columns = getColumns();
 
     const url = `/admin/content/${type}/${slug}`;
 
@@ -196,7 +199,7 @@ const QuickEditor = ({ list, row, ...props }) => {
 };
 
 export const ListColumn = ({ column, list, row, ...props }) => {
-    const { className, zones } = column;
+    let { className, zones } = column;
     const item = JSON.parse(JSON.stringify(props));
 
     op.del(item, 'column');
@@ -204,6 +207,8 @@ export const ListColumn = ({ column, list, row, ...props }) => {
     op.del(item, 'zone');
     op.del(item, 'url');
     op.del(item, 'id');
+
+    zones = Array.from(zones).reverse();
 
     return (
         <div className={className}>
