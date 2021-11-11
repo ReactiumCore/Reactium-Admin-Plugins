@@ -55,7 +55,9 @@ const PROMPT = {
                     prefix: props.prefix,
                     message: 'Exclude:  ',
                     when: () => !exclusive,
-                    choices: props.plugins,
+                    choices: props.plugins.filter(
+                        p => !String(p).startsWith('.'),
+                    ),
                     askAnswered: !exclusive,
                 },
             ],
