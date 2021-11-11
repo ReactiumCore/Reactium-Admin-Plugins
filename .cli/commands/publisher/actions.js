@@ -41,14 +41,21 @@ module.exports = () => ({
     },
     publish: async ({ params }) => {
         const ver = op.get(params, 'ver', 'patch');
-        const dirs = Array.from(mem.directories);
+        const dirs = Array.from(mem.directories).filter(dir => {
+            return !String(path.basename(dir)).startsWith('.');
+        });
+
         while (dirs.length > 0) {
             const dir = dirs.shift();
-            await arcli.runCommand(
-                'arcli',
-                ['publish', '-p', 'n', '--ver', ver],
-                { cwd: dir },
-            );
+            try {
+                await arcli.runCommand(
+                    'arcli',
+                    ['publish', '-p', 'n', '--ver', ver],
+                    { cwd: dir },
+                );
+            } catch (err) {
+                console.log(err);
+            }
         }
     },
 });
