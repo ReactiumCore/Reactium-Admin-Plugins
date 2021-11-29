@@ -8,7 +8,7 @@ const fieldType = {
     icon: () => <small style={{ whiteSpace: 'nowrap' }}>1 2 3</small>,
     tooltip: __('Adds a number field to your content type.'),
     component: 'FieldTypeNumber',
-    order: Reactium.Enums.priority.neutral - 1,
+    order: Reactium.Enums.priority.neutral - 3,
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
