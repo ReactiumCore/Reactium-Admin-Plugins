@@ -14,9 +14,10 @@
     font-weight: normal;
 
     @include breakpoint(md) {
+        flex-wrap: nowrap;
         flex-direction: row;
-        justify-content: flex-start;
         align-items: stretch;
+        justify-content: flex-start;
     }
 
     &-editor {

@@ -73,12 +73,25 @@ const Label = ({ cname, expanded, state }) => {
 };
 
 const Heading = ({ state, hideTooltip, cname, expanded }) => {
+    const handle = useHandle('AdminContentEditor');
+
     const { active = false, add, onClick } = state;
     const classname = cn({ [cname('link')]: true, active });
     const _onClick = e => {
         hideTooltip(e);
         onClick(e);
     };
+
+    const _onAddClick = e => {
+        e.preventDefault();
+
+        if (Object.keys(handle).length > 0) {
+            handle.setValue(null);
+        }
+
+        Reactium.Routing.history.push(add);
+    };
+
     return (
         <div className={classname}>
             {onClick && (
@@ -92,9 +105,9 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
                 </div>
             )}
             {add && (
-                <NavLink to={add} className={cname('add')}>
+                <a href={add} className={cname('add')} onClick={_onAddClick}>
                     <Icon name='Feather.Plus' />
-                </NavLink>
+                </a>
             )}
         </div>
     );
@@ -104,15 +117,27 @@ const Link = ({ state, cname, onClick, expanded }) => {
     const { active, add, route } = state;
     const classname = cn({ [cname('link')]: true, active });
 
+    const handle = useHandle('AdminContentEditor');
+
+    const _onAddClick = e => {
+        e.preventDefault();
+
+        if (Object.keys(handle).length > 0) {
+            handle.setValue(null);
+        }
+
+        Reactium.Routing.history.push(add);
+    };
+
     return (
         <div className={classname}>
             <NavLink to={route} onClick={onClick}>
                 <Label cname={cname} expanded={expanded} state={state} />
             </NavLink>
             {add && (
-                <NavLink to={add} className={cname('add')}>
+                <a href={add} className={cname('add')} onClick={_onAddClick}>
                     <Icon name='Feather.Plus' />
-                </NavLink>
+                </a>
             )}
         </div>
     );

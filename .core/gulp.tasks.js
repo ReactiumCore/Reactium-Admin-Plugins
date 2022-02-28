@@ -23,12 +23,12 @@ const regenManifest = require('./manifest/manifest-tools');
 const umdWebpackGenerator = require('./umd.webpack.config');
 const rootPath = path.resolve(__dirname, '..');
 const { fork, spawn, execSync } = require('child_process');
-const workbox = require('workbox-build');
 const { File, FileReader } = require('file-api');
 const handlebars = require('handlebars');
 const { resolve } = require('path');
 const axios = require('axios');
 const axiosRetry = require('axios-retry');
+const _ = require('underscore');
 
 // For backward compatibility with gulp override tasks using run-sequence module
 // make compatible with gulp4
@@ -115,8 +115,29 @@ const reactium = (gulp, config, webpackConfig) => {
         console.log(`File ${e.event}: ${displaySrc} -> ${displayDest}`);
     };
 
+    const _opnWrapperMonkeyPatch = open =>
+        function(url, name, bs) {
+            const app = op.get(
+                process.env,
+                'BROWERSYNC_OPEN_BROWSER',
+                'chrome',
+            );
+            let browser = open.apps.chrome;
+            if (app in open.apps) browser = open.apps[app];
+
+            open(url, { app: { name: browser } }).catch(function(error) {
+                bs.events.emit('browser:error');
+            });
+        };
+
     const serve = ({ open } = { open: config.open }) => done => {
         const proxy = `localhost:${config.port.proxy}`;
+
+        // monkey-path opnWrapper for linux support
+        const open = require('open');
+        const utils = require('browser-sync/dist/utils');
+        utils.opnWrapper = _opnWrapperMonkeyPatch(open);
+
         axios.get(`http://${proxy}`).then(() => {
             browserSync({
                 notify: false,
@@ -427,33 +448,54 @@ const reactium = (gulp, config, webpackConfig) => {
         done();
     };
 
-    const serviceWorker = () => {
-        let method = 'generateSW';
-        let swConfig = {
-            ...config.sw,
-        };
+    // Stub serviceWorker task. Implementation moved to @atomic-reactor/reactium-service-worker plugin
+    const serviceWorker = () => Promise.resolve();
 
-        if (!fs.existsSync(config.umd.defaultWorker)) {
-            console.log('Skipping service worker generation.');
-            return Promise.resolve();
+    const ssg = gulp.series(task('ssg:flush'), task('ssg:warm'));
+
+    const ssgFlush = () => {
+        console.log(chalk.yellow('Flushing Server Side Generated HTML'));
+        del.sync([config.dest.dist + '/static-html']);
+        return Promise.resolve();
+    };
+
+    const ssgWarm = async () => {
+        console.log(chalk.green('Warming Server Side Generated HTML'));
+        const serverUrl = `http://localhost:${port}`;
+
+        let paths = [];
+        try {
+            const { data = [] } = await axios.get(serverUrl + '/ssg-paths');
+            paths = data;
+        } catch ({ response = {} }) {
+            const { status, statusText, data } = response;
+            const error = op.get(data, 'error', { status, statusText, data });
+            throw new Error(
+                `Getting generation paths: ${JSON.stringify(error)}`,
+            );
         }
 
-        method = 'injectManifest';
-        swConfig.swSrc = config.umd.defaultWorker;
-        delete swConfig.clientsClaim;
-        delete swConfig.skipWaiting;
-
-        return workbox[method](swConfig)
-            .then(({ warnings }) => {
-                // In case there are any warnings from workbox-build, log them.
-                for (const warning of warnings) {
-                    console.warn(warning);
-                }
-                console.log('Service worker generation completed.');
-            })
-            .catch(error => {
-                console.warn('Service worker generation failed:', error);
-            });
+        for (let chunk of _.chunk(paths, 5)) {
+            try {
+                await Promise.all(
+                    chunk.map(warmPath => {
+                        console.log(
+                            chalk.green('Warming URL:'),
+                            chalk.blueBright(serverUrl + warmPath),
+                        );
+                        return axios
+                            .get(serverUrl + warmPath)
+                            .catch(error =>
+                                console.error(
+                                    `Error warming ${serverUrl + warmPath}`,
+                                ),
+                            );
+                    }),
+                );
+            } catch (error) {
+                console.error(error);
+            }
+        }
     };
 
     const staticTask = task('static:copy');
@@ -461,18 +503,6 @@ const reactium = (gulp, config, webpackConfig) => {
     const staticCopy = done => {
         // Copy static files
         fs.copySync(config.dest.dist, config.dest.static);
-
-        let mainPage = path.normalize(
-            `${config.dest.static}/index-static.html`,
-        );
-
-        if (fs.existsSync(mainPage)) {
-            let newName = mainPage
-                .split('index-static.html')
-                .join('index.html');
-            fs.renameSync(mainPage, newName);
-        }
-
         done();
     };
 
@@ -642,12 +672,36 @@ $assets: (
                     return partial.replace('reactium_modules/', '+');
                 }
 
-                return path.relative(
-                    path.dirname(config.dest.modulesPartial),
-                    path.resolve(rootPath, partial),
-                );
+                return path
+                    .relative(
+                        path.dirname(config.dest.modulesPartial),
+                        path.resolve(rootPath, partial),
+                    )
+                    .split(/[\\\/]/g)
+                    .join(path.posix.sep);
             })
             .map(partial => partial.replace(/\.scss$/, ''))
+            // sort by directory basename
+            .sort((a, b) => {
+                const aBase = path
+                    .basename(path.dirname(a))
+                    .toLocaleLowerCase();
+                const bBase = path
+                    .basename(path.dirname(b))
+                    .toLocaleLowerCase();
+                if (aBase > bBase) return 1;
+                if (aBase < bBase) return -1;
+                return 0;
+            })
+            // sort by file basename
+            .sort((a, b) => {
+                const aBase = path.basename(a).toLocaleLowerCase();
+                const bBase = path.basename(b).toLocaleLowerCase();
+                if (aBase > bBase) return 1;
+                if (aBase < bBase) return -1;
+                return 0;
+            })
+            // sort by priority
             .sort((a, b) => {
                 const aMatch =
                     SassPartialRegistry.list.find(({ pattern }) =>
@@ -812,6 +866,9 @@ $assets: (
         'serve-restart': serve({ open: false }),
         serviceWorker,
         sw,
+        ssg,
+        'ssg:flush': ssgFlush,
+        'ssg:warm': ssgWarm,
         static: staticTask,
         'static:copy': staticCopy,
         'styles:partials': dddStylesPartial,

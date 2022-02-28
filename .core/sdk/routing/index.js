@@ -1,4 +1,6 @@
 import SDK, {
+    Handle,
+    ReactiumSyncState,
     useHookComponent,
     isServerWindow,
     isBrowserWindow,
@@ -84,6 +86,87 @@ class Routing {
         );
     }
 
+    handleFrontEndDataLoading = async updates => {
+        if (
+            Boolean(
+                [
+                    'changes.pathChanged',
+                    'changes.routeChanged',
+                    'changes.searchChanged',
+                ].filter(path => Boolean(op.get(updates, path, false))).length,
+            )
+        ) {
+            // remove any handles from previous routes
+            Object.entries(Handle.handles)
+                .filter(([, handle]) => {
+                    return (
+                        op.get(handle, 'routeId') ===
+                        op.get(updates, 'previous.match.route.id', false)
+                    );
+                })
+                .filter(
+                    ([id]) =>
+                        Handle.get(id) &&
+                        op.get(Handle.get(id), 'persistHandle', false) !== true,
+                )
+                .forEach(([id]) => {
+                    Handle.unregister(id);
+                });
+
+            const loadState = op.get(
+                updates,
+                'active.match.route.component.loadState',
+                op.get(updates, 'active.match.route.loadState'),
+            );
+
+            const handleId = op.get(
+                updates,
+                'active.match.route.component.handleId',
+                op.get(updates, 'active.match.route.handleId', uuid()),
+            );
+
+            if (typeof loadState === 'function') {
+                try {
+                    const persistHandle = op.get(
+                        updates,
+                        'active.match.route.persistHandle',
+                        false,
+                    );
+                    if (!persistHandle || !Handle.get(handleId)) {
+                        Handle.register(handleId, {
+                            routeId: op.get(updates, 'active.match.route.id'),
+                            persistHandle,
+                            current: new ReactiumSyncState({}),
+                        });
+                    }
+
+                    const route = op.get(updates, 'active.match.route', {});
+
+                    // for consistency
+                    op.set(route, 'handleId', handleId);
+                    if (route.component)
+                        op.set(route, 'component.handleId', handleId);
+
+                    const params = op.get(updates, 'active.params', {});
+                    const search = op.get(updates, 'active.search', {});
+                    const content = await loadState({ route, params, search });
+                    const handle = op.get(Handle.handles, [
+                        handleId,
+                        'current',
+                    ]);
+                    if (handle) handle.set(content);
+                } catch (error) {
+                    const handle = op.get(Handle.handles, [
+                        handleId,
+                        'current',
+                    ]);
+                    if (handle) handle.set({ error });
+                    console.error('Error loading content for component', error);
+                }
+            }
+        }
+    };
+
     setCurrentRoute = async location => {
         const previous = this.currentRoute;
         const current = {
@@ -98,15 +181,6 @@ class Routing {
             .filter(({ match }) => match);
 
         let [match] = matches;
-
-        const routeChanged =
-            op.get(previous, 'match.route.id') !== op.get(match, 'route.id');
-        const pathChanged =
-            op.get(previous, 'location.pathname') !==
-            op.get(current, 'location.pathname');
-        const searchChanged =
-            op.get(previous, 'location.search', '') !==
-            op.get(current, 'location.search', '');
 
         const notFound = !match;
 
@@ -125,12 +199,19 @@ class Routing {
                 op.get(current, 'location.search', '').replace(/^\?/, ''),
             ),
         );
-        this.changeReasons = {
-            routeChanged,
-            pathChanged,
-            searchChanged,
+        const changes = {
+            routeChanged:
+                op.get(previous, 'match.route.id') !==
+                op.get(match, 'route.id'),
+            pathChanged:
+                op.get(previous, 'location.pathname') !==
+                op.get(current, 'location.pathname'),
+            searchChanged:
+                op.get(previous, 'location.search', '') !==
+                op.get(current, 'location.search', ''),
             notFound,
             transitionStateChanged: false,
+            setCurrentRoute: 'setCurrentRoute',
         };
 
         this.currentRoute = current;
@@ -139,14 +220,26 @@ class Routing {
 
         const active =
             this.active === 'current' ? this.currentRoute : this.previousRoute;
+
         const updates = {
             previous: this.previousRoute,
             current: this.currentRoute,
             active,
-            changes: this.changeReasons,
+            changes,
             transitionState: this.transitionState,
             transitionStates: this.transitionStates,
+            setCurrentRoute: 'setCurrentRoute',
         };
+
+        // Automatic Content Loading
+        this.routeListeners.register('loadState', {
+            handler: () => this.handleFrontEndDataLoading(updates),
+        });
+
+        this.updateListeners(updates);
+    };
+
+    updateListeners = updates => {
         this.routeListeners.list.forEach(sub => {
             const cb = op.get(sub, 'handler', () => {});
             cb(updates);
@@ -180,7 +273,7 @@ class Routing {
 
         const [transition, ...transitionStates] = this.transitionStates;
         this.transitionStates = transitionStates;
-        this.setTransitionState(transition, false);
+        this.setTransitionState(transition);
     };
 
     jumpCurrent = () => {
@@ -199,7 +292,7 @@ class Routing {
     setTransitionState = (transition, update = true) => {
         this.active = op.get(transition, 'active', 'current') || 'current';
         this.transitionState = op.get(transition, 'state', 'READY') || 'READY';
-        this.changeReasons = {
+        const changes = {
             routeChanged: false,
             pathChanged: false,
             searchChanged: false,
@@ -213,15 +306,13 @@ class Routing {
             previous: this.previousRoute,
             current: this.currentRoute,
             active,
-            changes: this.changeReasons,
+            changes,
             transitionState: this.transitionState,
             transitionStates: this.transitionStates,
+            setTransitionState: 'setTransitionState',
         };
         if (update) {
-            this.routeListeners.list.forEach(sub => {
-                const cb = op.get(sub, 'handler', () => {});
-                cb(updates);
-            });
+            this.updateListeners(updates);
         }
     };
 

@@ -4,7 +4,7 @@ define({ "api": [
     "url": "Hooks",
     "title": "Hooks",
     "name": "Hooks",
-    "description": "<p>Here are the standard hooks that fire (in order) on the bootstrap of your Reactium application.</p> <table> <thead> <tr> <th style=\"text-align:left\">Hook</th> <th style=\"text-align:left\">Description</th> </tr> </thead> <tbody> <tr> <td style=\"text-align:left\">init</td> <td style=\"text-align:left\">Called before all other hooks on startup.</td> </tr> <tr> <td style=\"text-align:left\">dependencies-load</td> <td style=\"text-align:left\">Called while application dependencies are loaded.</td> </tr> <tr> <td style=\"text-align:left\">service-worker-init</td> <td style=\"text-align:left\">Called while service worker is loaded.</td> </tr> <tr> <td style=\"text-align:left\">zone-defaults</td> <td style=\"text-align:left\">Called while rendering zone default components are loaded.</td> </tr> <tr> <td style=\"text-align:left\">store-create</td> <td style=\"text-align:left\">Called while Redux store is being created.</td> </tr> <tr> <td style=\"text-align:left\">store-created</td> <td style=\"text-align:left\">Called after Redux store is created.</td> </tr> <tr> <td style=\"text-align:left\">plugin-dependencies</td> <td style=\"text-align:left\">Called before loading runtime plugins.</td> </tr> <tr> <td style=\"text-align:left\">plugin-init</td> <td style=\"text-align:left\">Called to initiate plugin registration.</td> </tr> <tr> <td style=\"text-align:left\">routes-init</td> <td style=\"text-align:left\">Called to initiaze React router</td> </tr> <tr> <td style=\"text-align:left\">register-route</td> <td style=\"text-align:left\">Called for each route that is registered</td> </tr> <tr> <td style=\"text-align:left\">data-loaded</td> <td style=\"text-align:left\">Called on route load to pre-load data</td> </tr> <tr> <td style=\"text-align:left\">plugin-ready</td> <td style=\"text-align:left\">Called after all plugins registration callbacks have completed</td> </tr> <tr> <td style=\"text-align:left\">component-bindings</td> <td style=\"text-align:left\">Called to sibling React components and their DOM element bindings</td> </tr> <tr> <td style=\"text-align:left\">app-bindpoint</td> <td style=\"text-align:left\">Called to define the main application bind point.</td> </tr> <tr> <td style=\"text-align:left\">app-redux-provider</td> <td style=\"text-align:left\">Called to define the Redux provider component</td> </tr> <tr> <td style=\"text-align:left\">app-router</td> <td style=\"text-align:left\">Called to provide the React router component</td> </tr> <tr> <td style=\"text-align:left\">app-ssr-mode</td> <td style=\"text-align:left\">Called to make the application aware of server-side rendering mode</td> </tr> <tr> <td style=\"text-align:left\">app-boot-message</td> <td style=\"text-align:left\">Called to define the javascript console boot message</td> </tr> <tr> <td style=\"text-align:left\">app-ready</td> <td style=\"text-align:left\">Called when the application is being bound or hydrated by ReactDOM</td> </tr> </tbody> </table>",
+    "description": "<p>Here are the standard hooks that fire (in order) on the bootstrap of your Reactium application.</p> <table> <thead> <tr> <th style=\"text-align:left\">Hook</th> <th style=\"text-align:left\">Description</th> </tr> </thead> <tbody> <tr> <td style=\"text-align:left\">init</td> <td style=\"text-align:left\">Called before all other hooks on startup.</td> </tr> <tr> <td style=\"text-align:left\">dependencies-load</td> <td style=\"text-align:left\">Called while application dependencies are loaded.</td> </tr> <tr> <td style=\"text-align:left\">service-worker-init</td> <td style=\"text-align:left\">Called while service worker is loaded.</td> </tr> <tr> <td style=\"text-align:left\">zone-defaults</td> <td style=\"text-align:left\">Called while rendering zone default components are loaded.</td> </tr> <tr> <td style=\"text-align:left\">store-create</td> <td style=\"text-align:left\">Called while Redux store is being created.</td> </tr> <tr> <td style=\"text-align:left\">store-created</td> <td style=\"text-align:left\">Called after Redux store is created.</td> </tr> <tr> <td style=\"text-align:left\">plugin-dependencies</td> <td style=\"text-align:left\">Called before loading runtime plugins.</td> </tr> <tr> <td style=\"text-align:left\">plugin-init</td> <td style=\"text-align:left\">Called to initiate plugin registration.</td> </tr> <tr> <td style=\"text-align:left\">routes-init</td> <td style=\"text-align:left\">Called to initiaze React router</td> </tr> <tr> <td style=\"text-align:left\">register-route</td> <td style=\"text-align:left\">Called for each route that is registered</td> </tr> <tr> <td style=\"text-align:left\">data-loaded</td> <td style=\"text-align:left\">Called on route load to pre-load data</td> </tr> <tr> <td style=\"text-align:left\">plugin-ready</td> <td style=\"text-align:left\">Called after all plugins registration callbacks have completed</td> </tr> <tr> <td style=\"text-align:left\">component-bindings</td> <td style=\"text-align:left\">Called to sibling React components and their DOM element bindings</td> </tr> <tr> <td style=\"text-align:left\">app-bindpoint</td> <td style=\"text-align:left\">Called to define the main application bind point.</td> </tr> <tr> <td style=\"text-align:left\">app-context-provider</td> <td style=\"text-align:left\">Called to define React application-wrapping context providers, such as Redux / Theme, etc.</td> </tr> <tr> <td style=\"text-align:left\">app-router</td> <td style=\"text-align:left\">Called to provide the React router component</td> </tr> <tr> <td style=\"text-align:left\">app-ssr-mode</td> <td style=\"text-align:left\">Called to make the application aware of server-side rendering mode</td> </tr> <tr> <td style=\"text-align:left\">app-boot-message</td> <td style=\"text-align:left\">Called to define the javascript console boot message</td> </tr> <tr> <td style=\"text-align:left\">app-ready</td> <td style=\"text-align:left\">Called when the application is being bound or hydrated by ReactDOM</td> </tr> </tbody> </table>",
     "group": "Hooks",
     "version": "0.0.0",
     "filename": ".core/app/reactium-hooks.js",
@@ -339,8 +339,8 @@ define({ "api": [
             "group": "stylesheet",
             "type": "String",
             "optional": true,
-            "field": "path",
-            "description": "<p>the src of the javascript</p>"
+            "field": "href",
+            "description": "<p>the src of the stylesheet or resource</p>"
           },
           {
             "group": "stylesheet",
@@ -348,7 +348,7 @@ define({ "api": [
             "optional": true,
             "field": "order",
             "defaultValue": "0",
-            "description": "<p>loading order of script</p>"
+            "description": "<p>loading order of stylesheet or resource</p>"
           },
           {
             "group": "stylesheet",
@@ -406,7 +406,7 @@ define({ "api": [
     "examples": [
       {
         "title": "reactium-boot.js",
-        "content": "ReactiumBoot.Hook.register('Server.AppStyleSheets', async (req, AppStyleSheets) => {\n    AppStyleSheets.register('my-stylesheet', {\n        path: '/assets/css/some-additional.css'\n    });\n\n    AppStyleSheets.register('my-csn-script', {\n        path: 'https://cdn.example.com/cdn.loaded.css'\n        order: 1, // scripts will be ordered by this\n    });\n});",
+        "content": "ReactiumBoot.Hook.register('Server.AppStyleSheets', async (req, AppStyleSheets) => {\n    AppStyleSheets.register('my-stylesheet', {\n        href: '/assets/css/some-additional.css'\n    });\n\n    AppStyleSheets.register('my-csn-script', {\n        href: 'https://cdn.example.com/cdn.loaded.css'\n        order: 1, // scripts will be ordered by this\n    });\n});",
         "type": "json"
       }
     ],
@@ -655,6 +655,17 @@ define({ "api": [
   },
   {
     "type": "Hook",
+    "url": "app-context-provider",
+    "title": "app-context-provider",
+    "name": "app-context-provider",
+    "description": "<p>Called after app-bindpoint to define any React context providers, using the <a href=\"#api-Reactium-Reactium.AppContext\">Reactium.AppContext</a> registry.</p>",
+    "group": "Hooks",
+    "version": "0.0.0",
+    "filename": ".core/app/index.js",
+    "groupTitle": "Hooks"
+  },
+  {
+    "type": "Hook",
     "url": "app-ready",
     "title": "app-ready",
     "description": "<p>The final hook run after the front-end application has bee bound or hydrated. After this point, the all hooks are runtime hooks.</p>",
@@ -679,21 +690,10 @@ define({ "api": [
   },
   {
     "type": "Hook",
-    "url": "app-redux-provider",
-    "title": "app-redux-provider",
-    "name": "app-redux-provider",
-    "description": "<p>Called after app-bindpoint to define the registered Redux Provider component (i.e. <code>Reactium.Component.register('ReduxProvider'...)</code>) for all bind points and the SPA. async only - used in front-end application only</p>",
-    "group": "Hooks",
-    "version": "0.0.0",
-    "filename": ".core/app/index.js",
-    "groupTitle": "Hooks"
-  },
-  {
-    "type": "Hook",
     "url": "app-router",
     "title": "app-router",
     "name": "app-router",
-    "description": "<p>Called after app-redux-provider to define the registered Router component (i.e. <code>Reactium.Component.register('Router'...)</code>). After this hook, the ReactDOM bindings will actually take place. async only - used in front-end application only</p>",
+    "description": "<p>Called after app-context-provider to define the registered Router component (i.e. <code>Reactium.Component.register('Router'...)</code>). After this hook, the ReactDOM bindings will actually take place. async only - used in front-end application only</p>",
     "group": "Hooks",
     "version": "0.0.0",
     "filename": ".core/app/index.js",
@@ -881,7 +881,7 @@ define({ "api": [
     },
     "group": "Hooks",
     "version": "0.0.0",
-    "filename": ".core/app/index.js",
+    "filename": ".core/app/reactium-hooks.js",
     "groupTitle": "Hooks"
   },
   {
@@ -1596,6 +1596,39 @@ define({ "api": [
   },
   {
     "type": "ReactHook",
+    "url": "useScrollToggle()",
+    "title": "useScrollToggle()",
+    "description": "<p>React hook to that returns a control allowing you to <code>enable</code>, <code>disable</code>, or <code>toggle</code> scroll locking on the body element. Also registers the returned handle as <code>BodyScroll</code>. To use the BodyScroll handle, you need only apply useSelectHandle() in one global component. See useSelectHandle() for information on using registered handles.</p>",
+    "name": "useScrollToggle",
+    "group": "ReactHook",
+    "version": "1.2.7",
+    "examples": [
+      {
+        "title": "NPM Usage",
+        "content": "import { useScrollToggle } from '@atomic-reactor/reactium-sdk-core';",
+        "type": "json"
+      },
+      {
+        "title": "Reactium Usage",
+        "content": "import { useScrollToggle } from 'reactium-core/sdk';",
+        "type": "json"
+      },
+      {
+        "title": "Modal.js",
+        "content": "import React, { useRef } from 'react';\nimport ReactDOM from 'react-dom';\nimport {\n    cxFactory,\n    useScrollToggle,\n    useIsContainer,\n    useEventEffect,\n    useRegister\n    HookComponent,\n} from '@atomic-reactor/reactium-sdk-core';\n\n const Modal = () => {\n    const bodyScroll = useScrollToggle();\n    const handle = useRegisterSyncHandle('Modal', {\n        open: false,\n        Contents: {\n            Component: () => null,\n        },\n    });\n\n    // Close modal and disable scroll lock on body\n    handle.extend('close', () => {\n        handle.set('open', false);\n        bodyScroll.enable();\n    });\n\n    // Open modal, showing component, and stop scroll on body\n    handle.extend('open', Component => {\n        handle.set('Contents', { Component });\n        handle.set('open', true);\n        bodyScroll.disable();\n    });\n\n    const isContainer = useIsContainer();\n    const container = useRef();\n    const content = useRef();\n    const dismiss = e => {\n        if (\n            isContainer(e.target, container.current) &&\n            !isContainer(e.target, content.current)\n        ) {\n            handle.close();\n        }\n    };\n\n    useEventEffect(\n        window,\n        {\n            mousedown: dismiss,\n            touchstart: dismiss,\n        },\n        [container.current],\n    );\n\n    const cn = cxFactory('modal');\n    const Component = handle.get('Contents.Component', () => null);\n\n    return ReactDOM.createPortal(\n        <div\n            ref={container}\n            className={`${cn()} ${cn({ open: handle.get('open', false) })}`}>\n            <div ref={content} className={cn('contents')}>\n                <Component modal={handle} />\n            </div>\n        </div>,\n        document.querySelector('body'),\n    );\n};",
+        "type": "json"
+      },
+      {
+        "title": "LockToggle.js",
+        "content": "import React from 'react';\nimport {\n    useSelectHandle,\n} from '@atomic-reactor/reactium-sdk-core';\n\n// Somewhere else in the app, useScrollToggle() has been invoked.\nconst LockToggle = () => {\n    const { handle: BodyScroll } = useSelectHandle('BodyScroll');\n    return (\n        <button onClick={BodyScroll.toggle}>\n        {\n            BodyScroll.get('enabled') ? 'Lock Scrolling' : 'Unlock Scrolling'\n        }\n        </button>\n    );\n};",
+        "type": "json"
+      }
+    ],
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/named-exports/useScrollToggle.js",
+    "groupTitle": "ReactHook"
+  },
+  {
+    "type": "ReactHook",
     "url": "useSelect(params)",
     "title": "useSelect()",
     "description": "<p>React hook for subscribing to only the updates from Redux store that you care about, and no more. This is superior to <code>react-redux</code> connect, in that your component will not update on every dispatch, only those state changes you have specifically targeted.</p>",
@@ -1771,9 +1804,33 @@ define({ "api": [
   },
   {
     "type": "ReactHook",
-    "url": "useSyncState(initialState)",
+    "url": "useSyncHandle(id)",
+    "title": "useSyncHandle()",
+    "description": "<p>React hook to subscribe to updates for a registered sync handle.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Mixed",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Array of properties, or <code>.</code> separated object path. e.g. ['path','to','handle'] or 'path.to.handle'. Identifies the full path to an imperative handle.</p>"
+          }
+        ]
+      }
+    },
+    "name": "useSyncHandle",
+    "group": "ReactHook",
+    "version": "0.0.0",
+    "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/named-exports/sync-handle.js",
+    "groupTitle": "ReactHook"
+  },
+  {
+    "type": "ReactHook",
+    "url": "useSyncState(initialState,updateEvent)",
     "title": "useSyncState()",
-    "description": "<p>Intended to provide an object to get and set state synchrounously, while providing a EventTarget object that can dispatch a 'set' event when the state is updated.</p>",
+    "description": "<p>Intended to provide an object to get and set state synchrounously, while providing a EventTarget object that can dispatch a 'set' event when the state is updated. Dispatches 'before-set' before changing the state, and 'change' event if any shallow changes are detected.</p>",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -1783,6 +1840,14 @@ define({ "api": [
             "optional": false,
             "field": "initialState",
             "description": "<p>The initial state.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "updateEvent",
+            "defaultValue": "set",
+            "description": "<p>Trigger update of the consuming component when EventTarget event of this type is dispatched. Defaults tot 'set'.</p>"
           }
         ]
       }
@@ -4290,6 +4355,76 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "node_modules/@atomic-reactor/reactium-sdk-core/lib/sdks/zone/index.js",
     "groupTitle": "Reactium.Zone"
+  },
+  {
+    "type": "Object",
+    "url": "Reactium.AppContext",
+    "title": "Reactium.AppContext",
+    "group": "Reactium",
+    "name": "Reactium.AppContext",
+    "description": "<p>A Registry used for top-level React wrapping context provider, such as Redux or Theme. See <a href=\"#api-Reactium-Registry\">Registry</a> for full details on Registry methods / properties. Use this to register a React context provider, as well as any properties that are passed to the context.</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Getter",
+            "optional": false,
+            "field": "list",
+            "description": "<p>get list of most recent (or highest order) registered objects, filtering out unregistered or banned objects.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Method",
+            "optional": false,
+            "field": "register",
+            "description": "<p><code>reg.register(id,data)</code> pass an identifier and a data object to register the object. The identifier will be added if it is not already registered (but protected) and not banned.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Method",
+            "optional": false,
+            "field": "unregister",
+            "description": "<p><code>reg.unregister(id)</code> pass an identifier to unregister an object. When in HISTORY mode (default), previous registration will be retained, but the object will not be listed. In CLEAN mode, the previous registrations will be removed, unless protected.</p>"
+          }
+        ],
+        "register": [
+          {
+            "group": "register",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>the id of the data object to be registered</p>"
+          },
+          {
+            "group": "register",
+            "type": "Provider",
+            "optional": false,
+            "field": "data",
+            "description": "<p>the object to be registered</p>"
+          }
+        ],
+        "Provider": [
+          {
+            "group": "Provider",
+            "type": "ContextProvider",
+            "optional": false,
+            "field": "provider",
+            "description": "<p>the context provider. This provider must be a React component that will render children.</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "reactium-hooks.js",
+        "content": "// Example of Registering Material UI Theme\nimport Reactium from 'reactium-core/sdk';\nimport { createTheme, ThemeProvider } from '@mui/material/styles';\nimport { purple } from '@mui/material/colors';\n\n(async () => {\n    await Reactium.Plugin.register('MUI-Theme');\n\n    await Reactium.Hook.register('app-context-provider', async () => {\n        const theme = createTheme({\n            palette: {\n                primary: {\n                    // Purple and green play nicely together.\n                    main: purple[500],\n                },\n                secondary: {\n                    // This is green.A700 as hex.\n                    main: '#11cb5f',\n                },\n            },\n        });\n\n        Reactium.AppContext.register('ThemeProvider', {\n            // provider required\n            provider: ThemeProvider,\n\n            // remainder are optional props passed to your provider, in this case the theme\n            theme,\n        });\n    })\n})();",
+        "type": "json"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": ".core/sdk/named-exports/app-context.js",
+    "groupTitle": "Reactium"
   },
   {
     "type": "Object",

@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import Reactium, {
@@ -30,6 +30,8 @@ let AdminSidebar = ({ namespace, zone, ...props }) => {
     const refs = useRefs();
 
     const { breakpoint } = useWindowSize();
+
+    const [, update] = useState(Date.now());
 
     const [status, setStatus, isStatus] = useStatus(
         Reactium.Prefs.get('admin.sidebar.status', ENUMS.STATUS.EXPANDED),
@@ -87,6 +89,7 @@ let AdminSidebar = ({ namespace, zone, ...props }) => {
         setStatus,
         status,
         toggle,
+        render: () => update(Date.now()),
     });
 
     const [handle, setHandle] = useEventHandle(_handle());
@@ -133,47 +136,39 @@ let AdminSidebar = ({ namespace, zone, ...props }) => {
     });
 
     // Renderer
-    const render = () => {
-        const cname = cn(cx(), status);
-        const sname = cn(cx('spacer'), status);
-
-        return (
-            <>
-                <div className={sname}>.</div>
-                <div
-                    className={cname}
-                    ref={elm => refs.set('sidebar.container', elm)}>
-                    <Scrollbars>
-                        <div className={cx('container')}>
-                            <div className={cx('header')}>
-                                <Zone
-                                    zone={[zone, 'header'].join('-')}
-                                    {...props}
-                                />
-                            </div>
-                            <div className={cx('menu')}>
-                                <nav className={[zone, 'menu-items'].join('-')}>
-                                    <Zone
-                                        zone={[zone, 'menu'].join('-')}
-                                        {...props}
-                                    />
-                                </nav>
-                            </div>
-                            <div className={cx('footer')}>
-                                <Zone
-                                    zone={[zone, 'footer'].join('-')}
-                                    {...props}
-                                />
-                            </div>
+    return (
+        <>
+            <div className={cn(cx('spacer'), status)}>.</div>
+            <div
+                className={cn(cx(), status)}
+                ref={elm => refs.set('sidebar.container', elm)}>
+                <Scrollbars>
+                    <div className={cx('container')}>
+                        <div className={cx('header')}>
+                            <Zone
+                                zone={[zone, 'header'].join('-')}
+                                {...props}
+                            />
                         </div>
-                    </Scrollbars>
-                </div>
-            </>
-        );
-    };
-
-    // Render
-    return render();
+                        <div className={cx('menu')}>
+                            <nav className={[zone, 'menu-items'].join('-')}>
+                                <Zone
+                                    zone={[zone, 'menu'].join('-')}
+                                    {...props}
+                                />
+                            </nav>
+                        </div>
+                        <div className={cx('footer')}>
+                            <Zone
+                                zone={[zone, 'footer'].join('-')}
+                                {...props}
+                            />
+                        </div>
+                    </div>
+                </Scrollbars>
+            </div>
+        </>
+    );
 };
 
 AdminSidebar.ENUMS = ENUMS;

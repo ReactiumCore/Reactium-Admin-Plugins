@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
@@ -63,6 +64,14 @@ export const FieldType = props => {
                             placeholder={__('Max Characters')}
                         />
                     </label>
+                    <label className='min-max'>
+                        <span className='sr-only'>{__('Rows')}</span>
+                        <input
+                            type='number'
+                            name='rows'
+                            placeholder={__('Rows')}
+                        />
+                    </label>
                     <div className='checks pl-xs-0 pl-md-20'>
                         <Checkbox
                             name='multiline'
@@ -95,6 +104,7 @@ export const Editor = props => {
         pattern,
         placeholder,
         required,
+        rows = 2,
     } = props;
 
     const inputRef = useRef();
@@ -110,7 +120,7 @@ export const Editor = props => {
         ref: inputRef,
     };
 
-    if (multiline === true) op.set(inputProps, 'rows', 5);
+    if (multiline === true) op.set(inputProps, 'rows', rows);
 
     const { errors } = editor;
     const errorText = op.get(errors, [fieldName, 'message']);
@@ -156,10 +166,23 @@ export const Editor = props => {
         return context;
     };
 
+    const onSave = e => {
+        let val = e.value[fieldName];
+
+        val = _.isString(val) ? val : String(val);
+
+        op.set(e.value, fieldName, val);
+
+        console.log(e.value);
+    };
+
     useEffect(() => {
         editor.addEventListener('validate', validate);
+        editor.addEventListener('before-save', onSave);
+
         return () => {
             editor.removeEventListener('validate', validate);
+            editor.removeEventListener('before-save', onSave);
         };
     }, [editor]);
 

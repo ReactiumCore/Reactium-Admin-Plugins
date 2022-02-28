@@ -1,12 +1,13 @@
 import _ from 'underscore';
 import op from 'object-path';
-import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from '@atomic-reactor/reactium-ui';
-import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect, useHandle } from 'reactium-core/sdk';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 
 export default () => {
+    const handle = useHandle('AdminContentEditor');
+
     const { group, page, path, slug, type } = useRouteParams([
         'type',
         'slug',
@@ -24,6 +25,11 @@ export default () => {
     const isNew = () => Boolean(isSlug() && slug === 'new');
 
     const getTypes = () => Reactium.ContentType.types();
+
+    const onNewClick = () => {
+        handle.setValue(null);
+        Reactium.Routing.history.push(`/admin/content/${type}/new`);
+    };
 
     useAsyncEffect(
         async mounted => {
@@ -59,9 +65,14 @@ export default () => {
             {isSlug() && <li className='uppercase'>{slug}</li>}
             {!isNew() && !page && (
                 <li className='hide-xs-only'>
-                    <Link to={`/admin/content/${type}/new`}>
-                        <Icon name='Feather.Plus' size={14} />
-                    </Link>
+                    <Button
+                        size='xs'
+                        color='tertiary'
+                        appearance='circle'
+                        onClick={onNewClick}
+                        style={{ width: 16, height: 16, padding: 0 }}>
+                        <Icon name='Feather.Plus' size={12} />
+                    </Button>
                 </li>
             )}
         </ul>

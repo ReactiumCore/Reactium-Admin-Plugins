@@ -19,7 +19,7 @@ const Wrap = ({ children, zone }) => {
 export default ({ list, zone: zones }) => {
     const { Pagination } = useHookComponent('ReactiumUI');
 
-    const zone = zones[0];
+    const zone = Array.isArray(zones) ? zones[0] : zones;
 
     const { state = {} } = list;
 
