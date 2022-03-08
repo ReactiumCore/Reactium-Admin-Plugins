@@ -1,35 +1,30 @@
-import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import { Scrollbars } from 'react-custom-scrollbars';
+import Reactium, { useIsContainer } from 'reactium-core/sdk';
+import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
+
 import React, {
     forwardRef,
-    memo,
     useImperativeHandle,
     useEffect,
     useRef,
     useState,
 } from 'react';
-import { Button, Icon, Collapsible } from '@atomic-reactor/reactium-ui';
 
-import Reactium, {
-    useIsContainer,
-    useRegisterHandle,
-    Zone,
-} from 'reactium-core/sdk';
-
-let Sidebar = ({ children, editor, ...props }, ref) => {
-    const hash = op.get(Reactium.Routing, 'history.location.hash', '');
-
-    const collapsibleRef = useRef();
-    const containerRef = useRef();
-
+let Sidebar = ({ children, editor }, ref) => {
     const { cx } = editor;
 
-    const [className, setClassName] = useState(cx('sidebar'));
-    const [expanded, setExpanded] = useState(String(hash).endsWith('sidebar'));
+    const containerRef = useRef();
+    const collapsibleRef = useRef();
+
+    const className = cx('sidebar');
 
     const isContainer = useIsContainer();
+
+    const hash = op.get(Reactium.Routing, 'history.location.hash', '');
+
+    const [expanded, setExpanded] = useState(String(hash).endsWith('sidebar'));
 
     const dismiss = e => {
         if (!containerRef.current || !expanded) return;
@@ -85,7 +80,7 @@ let Sidebar = ({ children, editor, ...props }, ref) => {
 
     useEffect(() => {
         handle.expanded = expanded;
-        editor.dispatch(`sidebar-toggled`, { expanded });
+        editor.dispatch('sidebar-toggled', { expanded });
         editor.dispatch(`sidebar-${expanded ? 'expanded' : 'collapsed'}`, {
             expanded,
         });

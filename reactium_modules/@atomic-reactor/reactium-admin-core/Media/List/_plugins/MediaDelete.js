@@ -3,8 +3,8 @@ import React, { useCallback } from 'react';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/Media/enums';
 import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
-const MediaDelete = ({ className, handle, objectId, url, zone: zones }) => {
-    const zone = zones[0];
+const MediaDelete = ({ className, handle, objectId, url, id }) => {
+    const isEditor = id === 'ADMIN-MEDIA-DELETE';
 
     const tools = useHandle('AdminTools');
 
@@ -42,8 +42,6 @@ const MediaDelete = ({ className, handle, objectId, url, zone: zones }) => {
             />,
         );
     });
-
-    const isEditor = String(zone).includes('admin-media-editor');
 
     return (
         <Button

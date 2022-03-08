@@ -1,6 +1,12 @@
 {
+  "actinium": {
+    "version": "3.6.6"
+  },
+  "reactium": {
+    "version": "4.1.4"
+  },
   "name": "@atomic-reactor/reactium-admin-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Reactium based Admin UI for the Actinium Application Management System.",
   "main": "index.js",
   "scripts": {
@@ -51,11 +57,5 @@
     "slate-react": "^0.57.1",
     "underscore": "*",
     "uuid": "^3.4.0"
-  },
-  "reactium": {
-    "version": "4.1.4"
-  },
-  "actinium": {
-    "version": "3.6.6"
   }
 }

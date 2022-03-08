@@ -172,8 +172,6 @@ export const Editor = props => {
         val = _.isString(val) ? val : String(val);
 
         op.set(e.value, fieldName, val);
-
-        console.log(e.value);
     };
 
     useEffect(() => {

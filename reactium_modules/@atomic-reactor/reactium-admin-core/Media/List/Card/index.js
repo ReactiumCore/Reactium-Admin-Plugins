@@ -10,7 +10,6 @@ import Reactium, {
     useDerivedState,
     useEventHandle,
     useHookComponent,
-    useZoneComponents,
     Zone,
 } from 'reactium-core/sdk';
 
@@ -21,7 +20,7 @@ const CardActions = props => {
 
     const containerRef = useRef();
 
-    const components = useZoneComponents('media-actions');
+    const components = Reactium.Zone.getZoneComponents('media-actions');
 
     const [state, setNewState] = useDerivedState({
         components,

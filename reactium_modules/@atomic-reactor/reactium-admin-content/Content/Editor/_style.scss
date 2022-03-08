@@ -7,10 +7,10 @@
     height: 100vh;
     padding-top: $height-admin-header;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
     justify-content: stretch;
     align-items: flex-start;
-    flex-wrap: wrap;
     font-weight: normal;
 
     @include breakpoint(md) {
@@ -24,9 +24,9 @@
         position: relative;
         flex-grow: 1;
         height: 100%;
-        width: 100%;
         padding-right: 0;
         overflow-y: auto;
+        overflow-x: hidden;
 
         @include breakpoint(sm) {
             padding-right: 50px;

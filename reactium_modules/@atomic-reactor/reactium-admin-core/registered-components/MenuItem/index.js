@@ -86,10 +86,14 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
         e.preventDefault();
 
         if (Object.keys(handle).length > 0) {
-            handle.setValue(null);
+            handle.setClean({ value: null, content: null });
+            _.defer(() => {
+                handle.reset();
+                Reactium.Routing.history.push(add);
+            });
+        } else {
+            Reactium.Routing.history.push(add);
         }
-
-        Reactium.Routing.history.push(add);
     };
 
     return (
@@ -164,13 +168,10 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
 
     const { breakpoint } = useWindowSize({ delay: 0 });
 
-    const isActive = (match, location) => {
-        if (op.has(props, 'isActive')) {
-            return props.isActive(match, location);
-        } else {
-            return defaultIsActive(match, location);
-        }
-    };
+    const isActive = (match, location) =>
+        op.has(props, 'isActive')
+            ? props.isActive(match, location)
+            : defaultIsActive(match, location);
 
     // Refs
     const containerRef = useRef();
@@ -204,10 +205,10 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
 
     const expanded = () => Sidebar.isExpanded();
 
-    const cname = name => {
-        const { namespace } = state;
-        return String(_.compact([namespace, name]).join('-')).toLowerCase();
-    };
+    const cname = name =>
+        String(
+            _.compact([op.get(state, 'namespace'), name]).join('-'),
+        ).toLowerCase();
 
     const collapseSidebar = e => {
         hideTooltip(e);

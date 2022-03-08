@@ -843,6 +843,7 @@ let ContentEditor = (
         properCase,
         ready,
         regions,
+        reset,
         save,
         slug,
         state,

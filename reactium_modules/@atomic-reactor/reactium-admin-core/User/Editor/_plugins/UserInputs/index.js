@@ -191,26 +191,28 @@ const RoleSelect = ({ editor }) => {
     };
 
     return isHidden() ? null : (
-        <Dropdown
-            align={Dropdown.ENUMS.ALIGN.RIGHT}
-            checkbox
-            data={Object.values(roles)}
-            maxHeight='calc(100vh - 150px)'
-            multiSelect
-            onItemSelect={onItemSelect}
-            onItemUnselect={onItemUnselect}
-            ref={ref}
-            valueField='name'>
-            <div className='flex middle'>
-                <Button
-                    type='button'
-                    color={Button.ENUMS.COLOR.TERTIARY}
-                    data-dropdown-element
-                    style={{ height: 41, width: 41, padding: 0 }}>
-                    <Icon name='Feather.Award' size={18} />
-                </Button>
-            </div>
-        </Dropdown>
+        <div>
+            <Dropdown
+                align={Dropdown.ENUMS.ALIGN.RIGHT}
+                checkbox
+                data={Object.values(roles)}
+                maxHeight='calc(100vh - 150px)'
+                multiSelect
+                onItemSelect={onItemSelect}
+                onItemUnselect={onItemUnselect}
+                ref={ref}
+                valueField='name'>
+                <div className='flex middle'>
+                    <Button
+                        type='button'
+                        color={Button.ENUMS.COLOR.TERTIARY}
+                        data-dropdown-element
+                        style={{ height: 41, width: 41, padding: 0 }}>
+                        <Icon name='Feather.Award' size={18} />
+                    </Button>
+                </div>
+            </Dropdown>
+        </div>
     );
 };
 

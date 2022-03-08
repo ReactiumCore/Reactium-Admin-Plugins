@@ -2,8 +2,10 @@
 
 .#{$admin-content-ns} {
     &-meta {
+        flex-shrink: 0;
         background-color: $color-text-light;
         width: $width-ace-sidebar;
+        min-width: $width-ace-sidebar;
         height: calc(100vh - #{$height-admin-header});
         border-left: 1px solid $color-admin-header-border;
 
@@ -26,6 +28,7 @@
         height: calc(100vh - #{$height-admin-header});
         outline: none;
         z-index: map-get($z-indexes, 'header') - 1;
+        flex-shrink: 0;
 
         @include breakpoint(md) {
             position: relative;
@@ -87,6 +90,7 @@
 
         &.expanded {
             .#{$admin-content-ns}-toolbar {
+                flex-shrink: 0;
                 box-shadow: $shadow-image;
 
                 @include breakpoint(md) {

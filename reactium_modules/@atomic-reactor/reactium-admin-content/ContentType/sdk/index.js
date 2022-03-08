@@ -22,9 +22,9 @@ ContentType.types = async (params = {}, debug) => {
 
     if (request) return request;
 
-    request = Reactium.Cloud.run('types', params).then(response => {
-        return op.get(response, 'types', []);
-    });
+    request = Reactium.Cloud.run('types', params).then(response =>
+        op.get(response, 'types', []),
+    );
 
     Reactium.Cache.set(
         'content-types',

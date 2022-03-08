@@ -34,7 +34,9 @@ const SaveButton = () => {
     };
 
     useEffect(() => {
+        if (!editor || Object.keys(editor).length < 1) return;
         editor.addEventListener('STATUS', onStatus);
+
         return () => {
             editor.removeEventListener('STATUS', onStatus);
         };

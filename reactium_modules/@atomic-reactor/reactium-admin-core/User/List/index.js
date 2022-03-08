@@ -13,7 +13,6 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useRegisterHandle,
-    useRoles,
     Zone,
 } from 'reactium-core/sdk';
 
@@ -30,13 +29,7 @@ const ENUMS = {
     },
 };
 
-const UserList = ({
-    className,
-    id,
-    namespace,
-    page: initialPage,
-    ...props
-}) => {
+const UserList = ({ className, id, namespace, page: initialPage }) => {
     const Helmet = useHookComponent('Helmet');
 
     // SearchBar
@@ -180,35 +173,32 @@ const UserList = ({
     }, [search]);
 
     // Fetch users on search, page, role, order change
-    useAsyncEffect(
-        async mounted => {
-            if (isBusy()) return;
+    useAsyncEffect(async () => {
+        if (isBusy()) return;
 
-            const oldFetchParams = {};
-            const newFetchParams = {};
-            const fields = ['page', 'role', 'search', 'order'];
+        const oldFetchParams = {};
+        const newFetchParams = {};
+        const fields = ['page', 'role', 'search', 'order'];
 
-            fields.forEach(fld => {
-                let curr = op.get(state, fld);
-                let prev = op.get(prevState, fld);
+        fields.forEach(fld => {
+            let curr = op.get(state, fld);
+            let prev = op.get(prevState, fld);
 
-                oldFetchParams[fld] = prev;
+            oldFetchParams[fld] = prev;
 
-                if (_.isNumber(curr)) prev = Number(prev);
+            if (_.isNumber(curr)) prev = Number(prev);
 
-                if (curr === prev) return;
-                newFetchParams[fld] = op.get(state, fld);
-            });
+            if (curr === prev) return;
+            newFetchParams[fld] = op.get(state, fld);
+        });
 
-            if (Object.keys(newFetchParams).length > 0) {
-                const fetchParams = { ...oldFetchParams, ...newFetchParams };
-                getData(fetchParams);
-            }
+        if (Object.keys(newFetchParams).length > 0) {
+            const fetchParams = { ...oldFetchParams, ...newFetchParams };
+            getData(fetchParams);
+        }
 
-            return () => {};
-        },
-        [Object.values(state)],
-    );
+        return () => {};
+    }, [Object.values(state)]);
 
     // Update handle
     useEffect(() => {

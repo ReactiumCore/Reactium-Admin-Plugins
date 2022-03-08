@@ -1,3 +1,5 @@
+// @flow
+
 import _ from 'underscore';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
@@ -10,7 +12,7 @@ export default class Hotkeys extends Registry {
         this.isContainer = isContainer();
     }
 
-    onKeyboardEvent(event) {
+    onKeyboardEvent(event: Object) {
         let next = true;
         this.list.forEach(item => {
             if (next === false) return;

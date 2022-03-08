@@ -1,44 +1,40 @@
 import op from 'object-path';
 import pluralize from 'pluralize';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
-export default () => {
-    const MenuItem = useHookComponent('MenuItem');
+const useTypes = () => {
+    const Sidebar = useHandle('AdminSidebar');
 
     const [types, setTypes] = useState([]);
-    const [updated, update] = useState();
 
-    const getTypes = () => Reactium.ContentType.types();
+    const getTypes = async () => {
+        const _types = await Reactium.ContentType.types();
+        setTypes(_types);
+        Sidebar.render();
+    };
 
-    useAsyncEffect(
-        async mounted => {
-            const results = await getTypes();
-            if (mounted()) setTypes(results);
-            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true) {
-                    update(Date.now());
-                }
-            });
-        },
-        [updated],
-        true,
-    );
+    useEffect(() => {
+        getTypes();
+    }, []);
 
-    return types.map(item => {
-        const { uuid, type, machineName, meta } = item;
-        const icon = op.get(meta, 'icon', 'Linear.Document2');
+    return [types, setTypes];
+};
 
-        return (
-            <MenuItem
-                key={`content-${uuid}`}
-                add={`/admin/content/${machineName}/new`}
-                exact={false}
-                label={pluralize(meta.label)}
-                icon={icon}
-                route={`/admin/content/${pluralize(type)}/page/1`}
-            />
-        );
-    });
+export default () => {
+    const [types] = useTypes();
+
+    const MenuItem = useHookComponent('MenuItem');
+
+    return types.map(item => (
+        <MenuItem
+            exact={false}
+            key={`content-${item.uuid}`}
+            label={pluralize(item.meta.label)}
+            add={`/admin/content/${item.machineName}/new`}
+            route={`/admin/content/${pluralize(item.type)}/page/1`}
+            icon={op.get(item.meta, 'icon', 'Linear.Document2')}
+        />
+    ));
 };

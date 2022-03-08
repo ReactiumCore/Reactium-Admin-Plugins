@@ -27,8 +27,11 @@ export default () => {
     const getTypes = () => Reactium.ContentType.types();
 
     const onNewClick = () => {
-        handle.setValue(null);
-        Reactium.Routing.history.push(`/admin/content/${type}/new`);
+        handle.setClean({ value: null, content: null });
+        _.defer(() => {
+            handle.reset();
+            Reactium.Routing.history.push(`/admin/content/${type}/new`);
+        });
     };
 
     useAsyncEffect(
