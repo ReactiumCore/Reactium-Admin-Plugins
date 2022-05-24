@@ -941,7 +941,7 @@ Reactium.Content.list({
 Content.list = async (params, handle) => {
     const request = { ...params, type: setType(params.type) };
     const contentObj = await Reactium.Cloud.run('content-list', request);
-    await Reactium.Hook.run('', contentObj, request, handle);
+    await Reactium.Hook.run('content-list', contentObj, request, handle);
 
     return contentObj;
 };

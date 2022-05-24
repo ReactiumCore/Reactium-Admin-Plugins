@@ -51,6 +51,21 @@ export default () => {
         setIcon(i);
     }, [type, types, isVisible()]);
 
+    // new hotkey
+    useEffect(() => {
+        if (!handle) return;
+        Reactium.Hotkeys.register('content-new', {
+            callback: onNewClick,
+            key: 'Control+n',
+            order: Reactium.Enums.priority.highest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('content-new');
+        };
+    }, [handle]);
+
     return isVisible() && icon ? (
         <ul className='ar-breadcrumbs'>
             <li>

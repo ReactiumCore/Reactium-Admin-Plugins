@@ -81,6 +81,8 @@ let ContentList = ({ className, id, namespace }, ref) => {
         group: op.get(route, 'params.type'),
         page: Number(op.get(route, 'params.page', 1)),
         pagination: null,
+        params: op.get(route, 'params'),
+        query: op.get(route, 'search'),
         search: null,
         type: op.get(route, 'params.type')
             ? pluralize.singular(route.params.type)
@@ -187,29 +189,35 @@ let ContentList = ({ className, id, namespace }, ref) => {
             status: state.filter ? state.filter : '!TRASH',
         };
 
-        Reactium.Hook.runSync('content-list-fetch', params);
-        Reactium.Hook.runSync(`content-list-fetch-${state.type}`, params);
+        Reactium.Hook.runSync('content-list-fetch', params, handle);
+        Reactium.Hook.runSync(
+            `content-list-fetch-${state.type}`,
+            params,
+            handle,
+        );
 
-        const req =
-            Reactium.Cache.get(ck) ||
-            Promise.all([
-                Reactium.Content.list(params),
-                Reactium.ContentType.retrieve({
-                    refresh: false,
-                    machineName: state.type,
-                }),
-            ]).then(results => {
-                const [list, contentType] = results;
-                const { results: content, ...pagination } = list;
+        const cached = Reactium.Cache.get(ck);
 
-                return {
-                    content: _.indexBy(content, 'objectId'),
-                    contentType,
-                    pagination,
-                };
-            });
+        const req = !!cached
+            ? cached
+            : Promise.all([
+                  Reactium.Content.list(params),
+                  Reactium.ContentType.retrieve({
+                      refresh: false,
+                      machineName: state.type,
+                  }),
+              ]).then(results => {
+                  const [list, contentType] = results;
+                  const { results: content, ...pagination } = list;
 
-        Reactium.Cache.set(ck, req, 30000);
+                  return {
+                      content: _.indexBy(content, 'objectId'),
+                      contentType,
+                      pagination,
+                  };
+              });
+
+        Reactium.Cache.set(ck, req, 10000);
 
         return req;
     };
@@ -230,8 +238,12 @@ let ContentList = ({ className, id, namespace }, ref) => {
             type: { machineName: state.type },
         };
 
-        Reactium.Hook.runSync('content-list-fetch', params);
-        Reactium.Hook.runSync(`content-list-fetch-${state.type}`, params);
+        Reactium.Hook.runSync('content-list-fetch', params, handle);
+        Reactium.Hook.runSync(
+            `content-list-fetch-${state.type}`,
+            params,
+            handle,
+        );
 
         const { content, pagination } = await Reactium.Content.list(
             params,

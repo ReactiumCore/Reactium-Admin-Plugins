@@ -16,7 +16,8 @@
 
     &-item-container {
         position: relative;
-        padding: math.div($padding-admin-content-zone, 2) $padding-admin-content-zone;
+        padding: math.div($padding-admin-content-zone, 2)
+            $padding-admin-content-zone;
         padding-bottom: 0;
     }
 
@@ -73,14 +74,16 @@
         padding: 20px;
         border-top: 1px solid $color-grey-light;
 
-        > div { @extend .row; }
+        > div {
+            @extend .row;
+        }
     }
 
     &-column-title {
         flex-grow: 1;
         display: flex;
         align-items: stretch;
-        padding: 0 20px;
+        padding: 0 24px 0 20px;
         position: relative;
         min-height: $admin-content-list-height;
         user-select: none;
@@ -95,24 +98,24 @@
             margin-bottom: 2px;
             font-weight: 600;
             color: $color-text-dark;
+            font-size: 14px;
         }
 
         .slug {
-            font-size: 14px;
+            font-size: 12px;
             color: $color-gray;
             font-family: monospace;
         }
     }
 
     &-column-status {
-        display: flex;
-        width: 120px;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 20px;
-
-        @include breakpoint(xs-only) {
-            display: none;
+        display: none;
+        @include breakpoint(lg) {
+            display: flex;
+            min-width: 120px;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
         }
     }
 

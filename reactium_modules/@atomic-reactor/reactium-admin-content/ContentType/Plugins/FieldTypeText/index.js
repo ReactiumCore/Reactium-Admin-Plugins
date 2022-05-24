@@ -94,7 +94,7 @@ export const FieldType = props => {
 };
 
 export const Editor = props => {
-    const {
+    let {
         defaultValue,
         editor,
         fieldName,
@@ -106,6 +106,8 @@ export const Editor = props => {
         required,
         rows = 2,
     } = props;
+
+    defaultValue = [null, 'null'].includes(defaultValue) ? '' : defaultValue;
 
     const inputRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
@@ -169,7 +171,8 @@ export const Editor = props => {
     const onSave = e => {
         let val = e.value[fieldName];
 
-        val = _.isString(val) ? val : String(val);
+        val = _.isString(val) ? val : String(val).trim();
+        val = val === 'null' ? null : val;
 
         op.set(e.value, fieldName, val);
     };

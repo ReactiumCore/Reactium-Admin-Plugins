@@ -30,7 +30,7 @@ import Pagination from './List/Pagination';
 const registerAdminContent = async () => {
     await Reactium.Plugin.register(
         'AdminContent',
-        Reactium.Enums.priority.highest,
+        Reactium.Enums.priority.high,
     );
 
     // Extend SDK
@@ -75,76 +75,77 @@ const registerAdminContent = async () => {
     Reactium.Zone.addComponent({
         id: 'AdminContent',
         component: ContentEditor,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-editor'],
     });
 
     Reactium.Zone.addComponent({
         id: 'AdminContentList',
         component: ContentList,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-ACTIVITY-WIDGET',
         component: ActivityLogWidget,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-toolbar-top'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-REVISIONS-WIDGET',
         component: RevisionsWidget,
-        order: Reactium.Enums.priority.lowest + 10,
+        order: Reactium.Enums.priority.neutral + 10,
         zone: ['admin-content-toolbar-top'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-LIST-ACTIONS',
         component: ListItemActions,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list-actions'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-LIST-STATUS',
         component: ListItemStatus,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list-status'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-LIST-TITLE',
         component: ListItemTitle,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list-title'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-PAGINATION',
         component: Pagination,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list-bottom'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-PAGINATION-TOOLBAR',
         component: Pagination,
-        order: Reactium.Enums.priority.highest,
+        order: Reactium.Enums.priority.high,
         zone: ['admin-content-list-toolbar'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-LIST-TOOLBAR',
         component: Filters,
-        order: Reactium.Enums.priority.lowest,
+        order: Reactium.Enums.priority.neutral,
         zone: ['admin-content-list-toolbar'],
     });
 
     Reactium.Zone.addComponent({
         id: 'ADMIN-CONTENT-LIST-QUICKEDITOR',
         component: QuickEditor,
-        order: Reactium.Enums.priority.highest,
+        order: Reactium.Enums.priority.high,
         zone: ['admin-content-list-item-quick-editor'],
     });
 };
