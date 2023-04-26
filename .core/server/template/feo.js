@@ -1,4 +1,4 @@
-import serialize from 'serialize-javascript';
+const serialize = require('serialize-javascript');
 
 module.exports = {
     version: '%TEMPLATE_VERSION%',
@@ -14,7 +14,6 @@ module.exports = {
                 ${req.appBindings}
 
                 <script>
-                    window.ssr = false;
                     window.defines = ${serialize(defines)};
                     ${req.appGlobals}
                 </script>

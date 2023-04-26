@@ -5,8 +5,8 @@ const _ = require('underscore');
 const path = require('path');
 const globby = require('./globby-patch');
 const webpack = require('webpack');
-const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const env = process.env.NODE_ENV || 'development';
 const rootPath = path.resolve(__dirname, '..');
 const chalk = require('chalk');
@@ -27,7 +27,7 @@ const overrides = config => {
         ])
         .forEach(file => {
             try {
-                require(path.resolve(file))(config);
+                config = require(path.resolve(file))(config);
             } catch (error) {
                 console.error(chalk.red(`Error loading ${file}:`));
                 console.error(error);
@@ -49,8 +49,11 @@ module.exports = config => {
         publicPath: '/assets/js/',
         path: path.resolve(__dirname, dest),
         filename,
+        asyncChunks: true,
     };
-    sdk.devtool = env === 'development' ? 'source-map' : '';
+    if (env === 'development') {
+        sdk.devtool = 'source-map';
+    }
 
     sdk.setCodeSplittingOptimize(env);
     if (process.env.DISABLE_CODE_SPLITTING === 'true') {
@@ -76,18 +79,16 @@ module.exports = config => {
     }
 
     sdk.addPlugin('defines', new webpack.DefinePlugin(config.defines));
-
+    sdk.addPlugin(
+        'node-polyfills',
+        new NodePolyfillPlugin({
+            excludeAliases: ['console'],
+        }),
+    );
     sdk.addContext('reactium-modules-context', {
         from: /reactium-translations$/,
         to: path.resolve('./src/reactium-translations'),
     });
-
-    sdk.addPlugin(
-        'suppress-critical-dep-warning',
-        new FilterWarningsPlugin({
-            exclude: /Critical dependency: the request of a dependency is an expression/i,
-        }),
-    );
 
     if (env === 'production') {
         sdk.addPlugin('asset-compression', new CompressionPlugin());

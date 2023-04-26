@@ -4,7 +4,7 @@ const globby = require('./globby-patch');
 const rootPath = path.resolve(__dirname, '..');
 const gulpConfig = require('./gulp.config');
 
-const version = '4.1.12';
+const version = '5.0.0-alpha-2';
 
 const defaultLibraryExternals = {
     axios: {
@@ -157,6 +157,33 @@ const defaultManifestConfig = {
             exclude: [/\.ds_store/i, /\.core/i, /\.cli\//i, /src\/assets/],
         },
     },
+    domains: {
+        patterns: [
+            {
+                name: 'allDomains',
+                type: 'domain',
+                pattern: /domain.js$/,
+            },
+        ],
+        sourceMappings: [
+            {
+                from: 'src/app/',
+                to: '../src/app/',
+            },
+            {
+                from: '.core/',
+                to: '../.core/',
+            },
+            {
+                from: 'reactium_modules/',
+                to: '../reactium_modules/',
+            },
+            {
+                node_modules: true,
+                ignore: /^((?!reactium-plugin).)*$/,
+            },
+        ],
+    },
 };
 
 const overrides = config => {
@@ -179,7 +206,7 @@ const manifestConfig = overrides(defaultManifestConfig);
  */
 module.exports = {
     version,
-    semver: '^3.0.0',
+    semver: '^5.0.0',
     build: gulpConfig,
     update: {
         package: {
@@ -213,17 +240,9 @@ module.exports = {
             },
             scripts: {
                 add: {
+                    start: 'node .core/index.mjs',
                     build: 'npm-run-all build:*',
-                    'build:gulp': 'cross-env NODE_ENV=production gulp',
-                    'build:babel-core':
-                        'cross-env NODE_ENV=production babel .core --out-dir build/.core',
-                    'build:babel-reactium_modules':
-                        'cross-env NODE_ENV=production babel reactium_modules --out-dir build/reactium_modules',
-                    'build:babel-src':
-                        'cross-env NODE_ENV=production babel src --out-dir build/src',
-                    static: 'npm-run-all build:* && gulp static',
                     local: 'gulp local',
-                    'local:ssr': 'gulp local:ssr',
                 },
                 remove: [
                     'build',
@@ -234,11 +253,14 @@ module.exports = {
                     'local-fe-start',
                     'local-fe:gulp',
                     'local-fe:babel-node',
+                    'local-ssr',
                     'local-ssr-start',
                     'local-ssr:gulp',
                     'local-ssr:babel-node',
                     'react-redux',
+                    'start',
                     'static:build',
+                    'static',
                 ],
             },
             husky: {
