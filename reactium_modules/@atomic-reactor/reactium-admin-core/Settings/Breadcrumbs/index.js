@@ -1,28 +1,10 @@
-import op from 'object-path';
 import React, { useState, useEffect } from 'react';
 import { __, useHookComponent } from 'reactium-core/sdk';
-// import { useStore } from '@atomic-reactor/use-select';
+import { useDoesMatchPath } from 'reactium-admin-core';
 
 export default () => {
-    // Store
-    // TODO: Fix me
-    // const store = useStore();
-
-    const isPath = () => false;
-    // op.get(store.getState(), 'Router.match.path') === '/admin/settings';
-
-    const [visible, setVisible] = useState(isPath());
-
+    const visible = useDoesMatchPath('/admin/settings');
     const { Button, Icon } = useHookComponent('ReactiumUI');
-
-    // Watch for route updates
-    // useEffect(
-    //     () =>
-    //         store.subscribe(() => {
-    //             setVisible(isPath());
-    //         }),
-    //     [],
-    // );
 
     return !visible ? null : (
         <ul className='ar-breadcrumbs'>
