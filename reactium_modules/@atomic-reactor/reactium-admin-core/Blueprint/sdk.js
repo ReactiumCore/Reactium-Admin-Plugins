@@ -11,21 +11,6 @@ const routingApp =
 export const DEFAULTS = [
     {
         sections: {
-            main: {
-                zones: ['content'],
-                meta: {},
-            },
-        },
-        meta: {
-            builtIn: true,
-            admin: true,
-        },
-        ID: 'Simple',
-        description: 'Blueprint with one simple content section',
-        className: 'Blueprint',
-    },
-    {
-        sections: {
             sidebar: {
                 zones: ['admin-sidebar'],
                 meta: {},
@@ -42,6 +27,21 @@ export const DEFAULTS = [
         },
         ID: 'Admin',
         description: 'Admin blueprint',
+        className: 'Blueprint',
+    },
+    {
+        sections: {
+            main: {
+                zones: ['content'],
+                meta: {},
+            },
+        },
+        meta: {
+            builtIn: true,
+            admin: true,
+        },
+        ID: 'Simple',
+        description: 'Blueprint with one simple content section',
         className: 'Blueprint',
     },
     {
@@ -66,27 +66,6 @@ export const DEFAULTS = [
     },
 ];
 
-const defaultBlueprint = {
-    sections: {
-        sidebar: {
-            zones: ['admin-sidebar'],
-            meta: {},
-        },
-        main: {
-            zones: ['admin-header', 'admin-dashboard', 'admin-actions'],
-            meta: {},
-        },
-    },
-    meta: {
-        builtIn: true,
-        admin: true,
-        namespace: 'admin-page',
-    },
-    ID: 'Admin',
-    description: 'Admin blueprint',
-    className: 'Blueprint',
-};
-
 // Build Blueprint Registry
 const SDK = (Reactium.Blueprint = Reactium.Utils.registryFactory(
     'Blueprint',
@@ -94,17 +73,33 @@ const SDK = (Reactium.Blueprint = Reactium.Utils.registryFactory(
     Reactium.Utils.Registry.MODES.CLEAN,
 ));
 
+// TODO: Portal Tools to page with or without the section
+const sanitizeBP = bp => {
+    const sanitized = { ...bp };
+
+    if (!op.has(sanitized, 'sections.tools')) {
+        op.set(sanitized, 'sections.tools', {
+            zones: ['admin-tools'],
+        });
+    }
+    if (
+        !op.get(sanitized, 'sections.tools.zones', []).includes('admin-tools')
+    ) {
+        op.set(
+            sanitized,
+            'sections.tools.zones',
+            op.get(sanitized, 'sections.tools.zones', []).concat('admin-tools'),
+        );
+    }
+    return sanitized;
+};
+
 Reactium.Hook.register(
     'blueprints',
     async () => {
         for (const bp of DEFAULTS) {
-            if (!op.has(bp, 'sections.tools')) {
-                op.set(bp, 'sections.tools', {
-                    zones: ['admin-tools'],
-                });
-
-                Reactium.Blueprint.register(bp.ID, bp);
-            }
+            const blueprint = sanitizeBP(bp);
+            Reactium.Blueprint.register(blueprint.ID, blueprint);
         }
     },
     Reactium.Enums.priority.highest,
@@ -115,15 +110,6 @@ const CACHE_DURATION = 10000;
 const CACHE_KEY = 'BLUEPRINT_ROUTES';
 
 Reactium.Blueprint.initRoutes = async () => {
-    /**
-     * @api {Hook} default-blueprint default-blueprint
-     * @apiDescription Hook defining default blueprint configuration if none has been provided that matches the current routes' blueprint id.
-     * @apiName default-blueprint
-     * @apiGroup Actinium-Admin.Hooks
-     * @apiParam {Object} defaultBlueprint The default blueprint object.
-     */
-    await Reactium.Hook.run('default-blueprint', defaultBlueprint);
-    Reactium.Blueprint.register(defaultBlueprint.ID, defaultBlueprint);
     await Reactium.Hook.run('blueprints', Reactium.Blueprint);
 
     let routes = Reactium.Cache.get(CACHE_KEY);
@@ -203,8 +189,9 @@ Reactium.Blueprint.initRoutes = async () => {
         } = r;
 
         const blueprint =
-            Reactium.Blueprint.get(blueprintId) || defaultBlueprint;
-
+            Reactium.Blueprint.get(blueprintId) ||
+            Reactium.Blueprint.get('Admin');
+        console.log({ blueprintId, blueprint });
         const route = {
             id,
             path,
