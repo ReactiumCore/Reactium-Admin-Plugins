@@ -6,12 +6,14 @@
 @import '+@atomic-reactor/reactium-admin-core/Theme/_reactium-style-variables-admin';
 @import '+@atomic-reactor/reactium-admin-core/reactium-ui/_reactium-style-variables-colors';
 @import '+@atomic-reactor/reactium-admin-core/Theme/_reactium-style-base-admin';
+@import '+@atomic-reactor/reactium-admin-core/registered-components/Fullscreen/_reactium-style-base-admin-fullscreen';
 @import '+@atomic-reactor/reactium-admin-core/Theme/_reactium-style-base-admin-theme';
 @import '+@atomic-reactor/reactium-admin-core/AdminLogo/_reactium-style-atoms-admin-logo';
 @import '_reactium-style-molecules-loader';
 @import '+@atomic-reactor/reactium-admin-core/registered-components/MenuItem/_reactium-style-molecules-menu-item';
 @import '+@atomic-reactor/reactium-admin-core/Sidebar/_reactium-style-organism-admin-menu-toggle';
 @import '+@atomic-reactor/reactium-admin-core/registered-components/CapabilityEditor/_reactium-style-organisms-admin-cap-editor';
+@import '+@atomic-reactor/reactium-admin-core/registered-components/ConfirmBox/_reactium-style-organisms-admin-confirm-box';
 @import '+@atomic-reactor/reactium-admin-core/Dashboard/_reactium-style-organisms-admin-dashboard';
 @import '+@atomic-reactor/reactium-admin-core/Theme/_reactium-style-organisms-admin-layout';
 @import '+@atomic-reactor/reactium-admin-core/registered-components/ProfileWidget/_reactium-style-organisms-admin-profile-widget';

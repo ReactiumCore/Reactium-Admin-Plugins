@@ -1,11 +1,7 @@
 import _ from 'underscore';
 import React, { useEffect, useState } from 'react';
 import op from 'object-path';
-import Reactium, {
-    useDerivedState,
-    useHandle,
-    useHookComponent,
-} from 'reactium-core/sdk';
+import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const noop = {
     dismiss: () => {},
@@ -18,6 +14,7 @@ const Widget = () => {
 
     const tools = useHandle('AdminTools');
     const Modal = op.get(tools, 'Modal');
+    console.log({ Modal });
 
     const confirm = () => {
         Reactium.Routing.history.replace('/logout');
@@ -46,7 +43,7 @@ const Widget = () => {
         </>
     );
 
-    return !Modal ? null : render();
+    return render();
 };
 
 export default Widget;
