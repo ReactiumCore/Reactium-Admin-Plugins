@@ -1,0 +1,70 @@
+$ar-progress-color-background: $color-grey-light !default;
+$ar-progress-color-bar: $color-blue !default;
+$ar-progress-height: 32px !default;
+$ar-progress-radius: 2px !default;
+$ar-progress-radius-pill: 32px !default;
+$ar-progress-shadow: 0 0 1px 1px rgba($color-black, 0.25) !default;
+$ar-progress-shadow-inner: inset 0 0 5px 1px rgba($color-black, 0.05) !default;
+
+.ar-progress {
+    overflow: hidden;
+    width: 100%;
+    height: $ar-progress-height;
+    background-color: $ar-progress-color-background;
+    display: flex;
+    align-items: stretch;
+    box-shadow: $ar-progress-shadow-inner;
+    border-radius: $ar-progress-radius;
+
+    .bar {
+        background-color: $ar-progress-color-bar;
+        box-shadow: $ar-progress-shadow;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        max-width: 100%;
+    }
+
+    .label {
+        padding-right: 8px;
+        padding-left: 8px;
+        overflow: hidden;
+        line-height: 1;
+        font-size: 12px;
+        font-family: monospace;
+        border: 2px solid transparent;
+        user-select: none;
+    }
+
+    &.pill {
+        border-radius: $ar-progress-radius-pill;
+    }
+
+    @each $clr-name, $clr-codes in $buttons {
+        &.#{$clr-name} {
+            .bar {
+                color: nth($clr-codes, 3);
+                box-shadow: 0 0 1px 1px rgba(nth($clr-codes, 2), 0.5);
+                @include h-gradient(nth($clr-codes, 1), nth($clr-codes, 2));
+            }
+        }
+    }
+
+    @each $size-name, $size-codes in $button-sizes {
+        $ft: nth($size-codes, 1);
+        $pt: nth($size-codes, 2);
+        $pb: nth($size-codes, 4);
+
+        &.#{$size-name} {
+            height: $pt + $pb + $ft;
+
+            .label {
+                margin-top: -1px;
+                margin-bottom: 1px;
+                padding-top: $pt;
+                padding-bottom: $pb;
+                font-size: $ft;
+            }
+        }
+    }
+}

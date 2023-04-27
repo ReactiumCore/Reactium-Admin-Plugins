@@ -1,0 +1,11 @@
+@import "./scss/variables";
+@import "./scss/toastContainer";
+@import "./scss/toast";
+@import "./scss/closeButton";
+@import "./scss/progressBar";
+
+// entrance and exit animations
+@import "./scss/bounce.scss";
+@import "./scss/zoom.scss";
+@import "./scss/flip.scss";
+@import "./scss/slide.scss";

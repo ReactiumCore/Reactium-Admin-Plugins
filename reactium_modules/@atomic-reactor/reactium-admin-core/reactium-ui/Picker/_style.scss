@@ -1,0 +1,56 @@
+$ar-picker-z-button: 100 !default;
+$ar-picker-z-input: 10 !default;
+$ar-picker-z-select: 1000 !default;
+$ar-picker-color-bg: $color-white;
+
+.ar-picker {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+
+    > input {
+        @include inputStyle();
+
+        z-index: $ar-picker-z-input;
+        margin: 0;
+        padding-right: 40px;
+
+        &:read-only {
+            cursor: pointer;
+        }
+    }
+
+    &.focus {
+        > input {
+            @include inputStyleFocus();
+        }
+    }
+
+    > button {
+        @extend .btn-clear;
+
+        background-color: transparent;
+        z-index: $ar-picker-z-button;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40px;
+        height: 41px;
+        padding: 0;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    &-wrapper {
+        z-index: $ar-picker-z-select;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        transform: translateY(100%);
+        box-shadow: $ar-dropdown-shadow;
+        background-color: $ar-picker-color-bg;
+    }
+}

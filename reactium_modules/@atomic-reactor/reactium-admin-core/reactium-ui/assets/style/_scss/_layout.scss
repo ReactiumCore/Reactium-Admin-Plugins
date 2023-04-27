@@ -1,0 +1,38 @@
+
+.flex {
+    @include flex-factory();
+
+    @each $prefix in $breakpoint-all-prefixes {
+        @include breakpoint($prefix) {
+            &-#{$prefix} {
+                @include flex-factory();
+            }
+        }
+    }
+}
+
+.fullwidth {
+    width: 100% !important;
+}
+
+.fullheight {
+    height: 100% !important;
+}
+
+.sr-only {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+hr, .hr {
+    margin: 24px 0;
+    display: block;
+    border: none;
+    border-bottom: 1px solid $color-grey-light;
+}

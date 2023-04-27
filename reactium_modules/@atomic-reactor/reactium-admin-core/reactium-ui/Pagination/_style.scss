@@ -1,0 +1,15 @@
+.ar-pagination {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    &, button, span {
+        user-select: none;
+    }
+
+    .ar-dropdown {
+        button {
+            justify-content: center;
+        }
+    }
+}

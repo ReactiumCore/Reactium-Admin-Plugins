@@ -1,0 +1,25 @@
+.ar-scene {
+    width: 100%;
+    display: flex;
+    position: relative;
+    align-items: stretch;
+    justify-content: center;
+    overflow: hidden;
+
+    &-stage {
+        width: 100%;
+        height: 100%;
+    }
+
+    &-panel {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+}

@@ -2,7 +2,9 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useState } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+// import { Scrollbars } from '@atomic-reactor/react-custom-scrollbars';
+
+const Scrollbars = () => null;
 
 import Reactium, {
     useEventHandle,

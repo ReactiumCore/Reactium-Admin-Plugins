@@ -1,0 +1,11 @@
+$ar-icon-color: currentColor;
+
+.ar-icon {
+    fill: $ar-icon-color;
+
+    @each $clr-name, $clr-codes in $buttons {
+        &.#{$clr-name} {
+            fill: nth($clr-codes, 1);
+        }
+    }
+}

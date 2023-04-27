@@ -1,0 +1,110 @@
+$ar-dialog-color-background: $color-white !default;
+$ar-dialog-color-background-footer: darken($color-white, 1%) !default;
+$ar-dialog-color-background-header: $color-white-dark !default;
+$ar-dialog-color-border: $color-grey-light !default;
+$ar-dialog-color-footer: $color-gray !default;
+$ar-dialog-shadow: 0 0 3px 1px rgba($color-black, 0.05) !default;
+$ar-dialog-botton-shadow: 0 0 0 2px rgba(lighten(nth($color-blue, 1), 5%), 0.25);
+$ar-dialog-transition: 0.25s ease-in-out;
+
+.ar-dialog {
+    width: 100%;
+    box-shadow: $ar-dialog-shadow;
+    border-radius: 2px;
+
+    &-header {
+        background-color: $ar-dialog-color-background-header;
+        padding: 0;
+        display: flex;
+        justify-content: flex-end;
+        align-items: stretch;
+        border-radius: 2px 2px 0 0;
+        flex-wrap: nowrap;
+        min-height: 42px;
+
+        > * {
+            flex-grow: 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-size: 18px;
+            line-height: 1;
+            padding: 12px 0 12px 16px;
+            flex-grow: 1;
+        }
+
+        &-buttons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: stretch;
+
+            &:first-child {
+                flex-grow: 1;
+            }
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        &:empty {
+            display: none;
+        }
+
+        &-btn {
+            width: 42px;
+            padding: 0;
+            border-left: 1px solid $ar-dialog-color-border;
+            transition: opacity $ar-dialog-transition,
+                box-shadow $ar-dialog-transition;
+
+            svg {
+                width: 18px;
+                height: 18px;
+                transition: transform $ar-dialog-transition;
+            }
+
+            &:hover {
+                opacity: 0.7;
+            }
+
+            &:focus {
+                box-shadow: $ar-dialog-botton-shadow;
+                z-index: 1000;
+            }
+        }
+
+        &.expanded button.toggle {
+            svg {
+                transform: rotateX(180deg);
+            }
+        }
+    }
+
+    &-content {
+        border-top: 1px solid $ar-dialog-color-border;
+        border-bottom: 1px solid $ar-dialog-color-border;
+    }
+
+    &-footer {
+        background-color: $ar-dialog-color-background-footer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        border-radius: 0 0 2px 2px;
+        line-height: 1;
+        font-weight: 400;
+        font-size: 16px;
+        font-family: Arial;
+        color: $ar-dialog-color-footer;
+
+        &:empty {
+            display: none;
+        }
+    }
+}

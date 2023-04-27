@@ -1,0 +1,408 @@
+$button-font-family: Arial, sans-serif !default;
+$button-font-weight: 400 !default;
+
+// color-left, color-right, color, text-shadow
+$buttons: (
+    'primary': (
+        lighten($color-blue, 5%),
+        $color-blue,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'secondary': (
+        lighten($color-black, 5%),
+        $color-black,
+        $color-grey-light,
+        rgba($color-white, 0),
+    ),
+    'tertiary': (
+        $color-gray,
+        $color-gray,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'danger': (
+        lighten($color-red, 5%),
+        $color-red,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'clear': (
+        rgba($color-white, 0),
+        rgba($color-white, 0),
+        $color-gray,
+        rgba($color-white, 0),
+    ),
+    'info': (
+        lighten($color-blue, 5%),
+        $color-blue,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'success': (
+        lighten($color-green, 5%),
+        $color-green,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'warning': (
+        lighten($color-orange, 15%),
+        $color-orange,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+    'default': (
+        darken($color-white, 2%),
+        darken($color-white, 2%),
+        $color-gray,
+        rgba($color-white, 0),
+    ),
+    'error': (
+        lighten($color-red, 5%),
+        $color-red,
+        $color-white,
+        rgba($color-white, 0),
+    ),
+) !default;
+
+// font-size, paddingTop, paddingRight, paddingBottom, paddingLeft
+$button-sizes: (
+    'xs': (
+        10px,
+        5px,
+        16px,
+        4px,
+        16px,
+    ),
+    'sm': (
+        12px,
+        8px,
+        24px,
+        8px,
+        24px,
+    ),
+    'md': (
+        14px,
+        12px,
+        56px,
+        12px,
+        56px,
+    ),
+    'lg': (
+        22px,
+        16px,
+        80px,
+        16px,
+        80px,
+    ),
+) !default;
+
+@mixin default-button($size, $pt, $pr, $pb, $pl) {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: $pt $pr $pb $pl;
+    font-family: $button-font-family;
+    font-size: $size;
+    font-weight: $button-font-weight;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    border: 2px solid transparent;
+    line-height: 1;
+    text-decoration: none;
+}
+
+@mixin pill-button($size) {
+    border-radius: $size;
+}
+
+@mixin h-gradient($clr-l, $clr-r) {
+    background: $clr-r;
+}
+
+@mixin button() {
+    @each $clr-name, $clr-codes in $buttons {
+        $shadow: nth($clr-codes, 4);
+
+        &-#{$clr-name} {
+            @extend .btn;
+            color: nth($clr-codes, 3);
+            text-shadow: 0 0 1px $shadow;
+            line-height: 1;
+
+            svg {
+                fill: nth($clr-codes, 3);
+                fill: currentColor;
+                stroke: nth($clr-codes, 3);
+                flex-shrink: 0;
+            }
+
+            @include h-gradient(nth($clr-codes, 1), nth($clr-codes, 2));
+
+            &:focus,
+            &.focus {
+                box-shadow: 0 0 1px 2px rgba(nth($clr-codes, 1), 0.25);
+                z-index: 10000;
+            }
+
+            &:hover,
+            &.hover,
+            &.active {
+                color: nth($clr-codes, 3);
+                text-decoration: none;
+                @include h-gradient(
+                    lighten(nth($clr-codes, 1), 7%),
+                    lighten(nth($clr-codes, 2), 7%)
+                );
+            }
+
+            &.active {
+                font-weight: bold;
+                opacity: 0.95;
+            }
+
+            &:disabled,
+            &.disabled {
+                opacity: 0.5;
+                cursor: default;
+                @include h-gradient(nth($clr-codes, 1), nth($clr-codes, 2));
+                pointer-events: none;
+            }
+
+            @each $size-name, $size-codes in $button-sizes {
+                &-#{$size-name} {
+                    @extend .btn;
+                    @extend .btn-#{$clr-name};
+
+                    @include default-button(
+                        nth($size-codes, 1),
+                        nth($size-codes, 2),
+                        nth($size-codes, 3),
+                        nth($size-codes, 4),
+                        nth($size-codes, 5)
+                    );
+                }
+            }
+        }
+
+        &-#{$clr-name}-outline {
+            @extend .btn;
+            color: nth($clr-codes, 2);
+
+            background: transparent;
+            border: 2px solid nth($clr-codes, 2) !important;
+            position: relative;
+
+            &:hover,
+            &:focus,
+            &.hover,
+            &.active {
+                text-decoration: none;
+                background: nth($clr-codes, 1);
+                color: nth($clr-codes, 3);
+            }
+
+            &.active {
+                background: nth($clr-codes, 1);
+                opacity: 0.95;
+            }
+
+            &:focus,
+            &.focus {
+                box-shadow: 0 0 1px 2px rgba(nth($clr-codes, 1), 0.25);
+            }
+
+            &:disabled,
+            &.disabled {
+                opacity: 0.5;
+                cursor: default;
+                background: transparent;
+                color: nth($clr-codes, 2);
+                pointer-events: none;
+            }
+        }
+
+        @each $size-name, $size-codes in $button-sizes {
+            &-#{$clr-name}-#{$size-name}-outline {
+                @include default-button(
+                    nth($size-codes, 1),
+                    nth($size-codes, 2),
+                    nth($size-codes, 3),
+                    nth($size-codes, 4),
+                    nth($size-codes, 5)
+                );
+
+                @extend .btn-#{$clr-name}-outline;
+            }
+        }
+
+        &-#{$clr-name}-pill {
+            @extend .btn;
+            @extend .btn-#{$clr-name};
+            @include pill-button(60px);
+        }
+
+        &-#{$clr-name}-circle {
+            @extend .btn;
+            @extend .btn-#{$clr-name};
+            @include pill-button(100%);
+        }
+
+        &-#{$clr-name}-outline-pill {
+            @extend .btn;
+            @extend .btn-#{$clr-name}-outline;
+            @include pill-button(60px);
+        }
+
+        &-#{$clr-name}-outline-circle {
+            @extend .btn;
+            @extend .btn-#{$clr-name}-outline;
+            @include pill-button(100%);
+        }
+
+        @each $size-name, $size-codes in $button-sizes {
+            &-#{$clr-name}-#{$size-name} {
+                @extend .btn;
+                @extend .btn-#{$clr-name};
+                @extend .btn-#{$clr-name}-#{$size-name};
+            }
+
+            &-#{$clr-name}-#{$size-name}-pill {
+                @extend .btn;
+                @extend .btn-#{$clr-name};
+                @extend .btn-#{$clr-name}-#{$size-name};
+                @include pill-button(nth($size-codes, 1) * 3);
+            }
+
+            &-#{$clr-name}-#{$size-name}-circle {
+                @extend .btn;
+                @extend .btn-#{$clr-name};
+                @extend .btn-#{$clr-name}-#{$size-name};
+                @include pill-button(100%);
+            }
+
+            &-#{$clr-name}-#{$size-name}-outline-pill {
+                @extend .btn;
+                @extend .btn-#{$clr-name}-#{$size-name};
+                @extend .btn-#{$clr-name}-outline;
+                @include pill-button(nth($size-codes, 1) * 3);
+            }
+
+            &-#{$clr-name}-#{$size-name}-outline-circle {
+                @extend .btn;
+                @extend .btn-#{$clr-name}-#{$size-name};
+                @extend .btn-#{$clr-name}-outline;
+                @include pill-button(100%);
+            }
+        }
+    }
+}
+
+a, button {
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.btn {
+    @include default-button(14px, 8px, 24px, 8px, 24px);
+    outline: none;
+    border-radius: 2px;
+    background: $color-grey;
+    text-transform: uppercase;
+    color: $color-white;
+    font-weight: 400;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    transition: box-shadow 0.4s ease-in-out;
+
+    svg {
+        fill: $color-white;
+        fill: currentColor;
+        stroke: $color-white;
+    }
+
+    @include button();
+
+    &-block {
+        width: 100%;
+    }
+
+    &-icon {
+        @extend .btn-primary;
+        border-radius: 100%;
+        font-size: 22px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 36px !important;
+        width: 36px !important;
+    }
+}
+
+.btn-group {
+    border-radius: 2px;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+
+    [class*='btn-'] {
+        border-radius: 0;
+    }
+
+    > .form-group {
+        margin-top: 0;
+        margin-bottom: 0;
+
+        display: flex;
+
+        input, select {
+            border-radius: 0;
+            &:focus {
+                z-index: 10000;
+            }
+        }
+
+        &:not(:first-child) {
+            margin-left: -1px;
+        }
+    }
+
+    > * {
+        flex-grow: 1;
+
+        &:first-child {
+            border-radius: 2px 0 0 2px;
+
+            select,
+            input {
+                border-radius: 0;
+            }
+        }
+
+        &:last-child {
+            border-radius: 0 2px 2px 0;
+
+            select,
+            input {
+                border-radius: 0;
+            }
+
+            &:first-child {
+                border-radius: 2px;
+
+                select,
+                input {
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+
+    > span {
+        &:hover {
+            cursor: default !important;
+        }
+    }
+}

@@ -1,7 +1,0 @@
-{
-    "babelLoader": false,
-    "globalObject": "this",
-    "externals": {},
-    "libraryName": "media-uploader",
-    "sourcemaps": false
-}

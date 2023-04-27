@@ -1,0 +1,189 @@
+@use 'sass:math';
+
+$ar-checkpoint-border-size: 3px !default;
+$ar-checkpoint-color-active: $color-white !default;
+$ar-checkpoint-color-border: $color-grey !default;
+$ar-checkpoint-color-disabled: $color-grey-light !default;
+$ar-checkpoint-color-icon: $color-white !default;
+$ar-checkpoint-color-icon-disabled: $color-grey-light !default;
+$ar-checkpoint-color-line: $color-grey-light !default;
+$ar-checkpoint-color-progress: $color-grey !default;
+$ar-checkpoint-font-size-icon: 22px !default;
+$ar-checkpoint-font-size-sm: 12px !default;
+$ar-checkpoint-font-size-xs: 10px !default;
+$ar-checkpoint-height-icon: 37px !default;
+$ar-checkpoint-height-line: 4px !default;
+$ar-checkpoint-lbl-margin: 15px !default;
+$ar-checkpoint-shadow-bar: inset 0 0 2px 1px rgba($color-black, 0.1) !default;
+$ar-checkpoint-trans: 0.5s ease-in-out !default;
+$ar-checkponit-trans-bar: .25s ease-in-out !default;
+
+@mixin checkpointsLine() {
+    position: absolute;
+    top: math.div($ar-checkpoint-height-icon, 2);
+    left: 50%;
+    height: $ar-checkpoint-height-line;
+    overflow: hidden;
+    transform: translateX(-50%) translateY(-50%);
+
+    > div {
+        width: 0;
+        height: $ar-checkpoint-height-line;
+        transition: width $ar-checkponit-trans-bar;
+    }
+}
+
+.ar-checkpoints {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    position: relative;
+
+    &-line {
+        @include checkpointsLine();
+        z-index: 1;
+        background-color: $ar-checkpoint-color-line;
+    }
+
+    &-active {
+        @include checkpointsLine();
+        z-index: 2;
+
+        > div {
+            background-color: $ar-checkpoint-color-active;
+            box-shadow: $ar-checkpoint-shadow-bar;
+        }
+    }
+
+    &-progress {
+        @include checkpointsLine();
+        z-index: 3;
+
+        > div {
+            background-color: $ar-checkpoint-color-progress;
+        }
+    }
+}
+
+.ar-checkpoint {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    user-select: none;
+    z-index: 10;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    input {
+        display: none;
+    }
+
+    span.label {
+        width: 66%;
+        font-size: $ar-checkpoint-font-size-xs;
+        text-align: center;
+        line-height: 1.25;
+
+        @include breakpoint(sm) {
+            font-size: $ar-checkpoint-font-size-sm;
+        }
+    }
+
+    span.sr-only {
+        display: none;
+    }
+
+    span.icon {
+        position: relative;
+        width: $ar-checkpoint-height-icon;
+        height: $ar-checkpoint-height-icon;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 100%;
+        color: $ar-checkpoint-color-icon;
+        background-color: $ar-checkpoint-color-icon;
+        border: $ar-checkpoint-border-size solid $ar-checkpoint-color-border;
+        font-size: $ar-checkpoint-font-size-icon;
+        z-index: 100;
+        overflow: hidden;
+
+        transition: background-color $ar-checkpoint-trans,
+            border-color $ar-checkpoint-trans;
+
+        > * {
+            opacity: 0;
+            transition: opacity $ar-checkpoint-trans;
+        }
+
+        svg {
+            fill: $ar-checkpoint-color-icon;
+            flex-shrink: 0;
+        }
+    }
+
+    input:disabled + span.icon {
+        background-color: $ar-checkpoint-color-icon-disabled;
+        border-color: $ar-checkpoint-color-icon-disabled;
+
+        > * {
+            opacity: 0;
+        }
+    }
+
+    input:checked + span.icon {
+        color: $ar-checkpoint-color-icon;
+        background-color: $ar-checkpoint-color-border;
+        border-color: $ar-checkpoint-color-border;
+
+        > * {
+            opacity: 1;
+        }
+    }
+
+    &-label-bottom {
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+
+        span.label {
+            margin-top: $ar-checkpoint-lbl-margin;
+        }
+    }
+
+    &-label-top {
+        justify-content: flex-start;
+
+        span.label {
+            margin-bottom: $ar-checkpoint-lbl-margin;
+        }
+    }
+
+    &.disabled {
+        cursor: default;
+
+        &:before,
+        &:after {
+            background-color: $ar-checkpoint-color-disabled;
+        }
+        z-index: 10;
+    }
+
+    &-label-bottom {
+        &:before,
+        &:after {
+            bottom: auto;
+            top: $ar-checkpoint-lbl-margin;
+            transform: translateY(50%);
+        }
+    }
+}
+
+.readOnly .ar-checkpoint:hover {
+    cursor: default;
+}

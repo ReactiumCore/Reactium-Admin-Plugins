@@ -1,31 +1,26 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { Zone } from 'reactium-core/sdk';
-import { useCapabilityCheck } from 'reactium-core/sdk';
-import React, { useEffect, useRef, useState } from 'react';
-import actions from './actions';
+// import { useContent } from '../Content/helpers';
+import Reactium, { useHookComponent, Zone } from 'reactium-core/sdk';
+import React, { useEffect, useLayoutEffect as useWindowEffect } from 'react';
 
-const ENUMS = {};
+const useLayoutEffect =
+    typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
-const cname = (prefix, name) =>
-    cn(prefix, `${prefix}-${String(name).toLowerCase()}`);
+const cname = (prefix, name, ...className) =>
+    cn(prefix, `${prefix}-${String(name).toLowerCase()}`, ...className);
 
-const cx = (meta, extended) => {
-    const { className, namespace } = meta;
-
-    return cn({
-        [className]: !!className,
-        [namespace]: !!namespace,
-        [extended]: !!extended,
-    });
-};
+const zoneName = zone =>
+    typeof zone === 'string' ? zone : op.get(zone, 'zone');
 
 const blueprintConfig = {};
-
 Reactium.Hook.register(
     'blueprint-load',
     async (params, context) => {
+        Object.entries(params).forEach(([key, value]) =>
+            op.set(context, key, value),
+        );
         op.set(blueprintConfig, 'context', context);
 
         if (op.has(blueprintConfig, 'update')) {
@@ -35,39 +30,44 @@ Reactium.Hook.register(
     Reactium.Enums.priority.lowest,
 );
 
+const defaultWrapper = props => <section {...props} />;
+
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Blueprint
  * -----------------------------------------------------------------------------
  */
-const Blueprint = () => {
-    const [version, setVersion] = useState(new Date());
-    const bpParams = op.get(blueprintConfig, 'context.params.0', {});
+const Blueprint = props => {
     const {
-        params,
-        search,
-        blueprint,
-        route: routeObj = {},
-        config: routeConfig,
-    } = bpParams;
+        active, // The active routing state (might be actually the previous pathname / component)
+        params, // route params
+        search, // route URL params as object
+        transitionState, // e.g. EXITING, LOADING, ENTERING, READY
+        transitionStates = [], // Upcoming state changes if Reactium.Routing.nextState() is called
+    } = props;
 
-    const capabilities = op.get(routeConfig, 'capabilities');
-
-    const { component, load, ...route } = routeObj;
-    const data = op.get(blueprintConfig, 'context.data', {});
-
-    const allowed = useCapabilityCheck(capabilities);
-
-    // Blueprint is a top-level component, so we'll treat module as singleton
+    // TODO: scheme for blueprint zones to handle there own transition states instead of doing here
     useEffect(() => {
-        op.set(blueprintConfig, 'update', () => setVersion(new Date()));
-        return () => op.del(blueprintConfig, 'update');
-    }, []);
+        if (transitionState !== 'LOADING' && transitionStates.length > 0) {
+            Reactium.Routing.nextState();
+        }
+    }, [transitionState]);
+
+    const route = op.get(active, 'match.route');
+    const pathname = op.get(route, 'path', op.get(active, 'location.pathname'));
+
+    const ZoneLoading = useHookComponent('ZoneLoading');
+
+    // const contentRef = useContent(pathname);
+    // const content = contentRef.current;
+    const blueprint = op.get(route, 'blueprint');
+    const settings =
+        typeof window !== 'undefined' ? window.settings : global.settings;
 
     const blueprintMeta = op.get(blueprint, 'meta', {});
     const sections = op.get(blueprint, 'sections', {});
     const zoneMeta = value => op.get(value, 'meta', []);
-    const zones = () =>
+    const allZones = () =>
         _.chain(Object.values(sections))
             .pluck('zones')
             .flatten()
@@ -81,62 +81,94 @@ const Blueprint = () => {
         }, {});
     };
 
+    useLayoutEffect(() => {
+        if (typeof document === 'undefined') return;
+        const body = _.first(document.getElementsByTagName('BODY'));
+        const html = _.first(document.getElementsByTagName('HTML'));
+        if (!body) return;
+
+        const namespace = op.get(blueprint, 'meta.namespace', 'site-page');
+        const theme = op.get(settings, 'theme');
+
+        if (namespace) body.setAttribute('data-namespace', namespace);
+        if (theme) html.setAttribute('data-theme', theme);
+    }, []);
+
+    useLayoutEffect(() => {
+        if (typeof document === 'undefined') return;
+        const preloader = document.getElementById('site-preloader');
+        if (!preloader) return;
+
+        preloader.remove();
+    }, []);
+
+    const blueprintProps = {
+        route,
+        params,
+        search,
+        routeProps: props,
+        // content,
+        settings,
+    };
+
     // Renderer
-    const render = () => (
-        <main
-            className={cx(
-                blueprintMeta,
-                cname('blueprint', op.get(blueprint, 'ID')),
-            )}>
-            {Object.entries(sections).map(([name, value]) => (
-                <section
-                    key={name}
-                    {...metaToDataAttributes(op.get(value, 'meta', {}))}
-                    className={cx(
-                        op.get(value, 'meta', {}),
-                        cname('section', name),
-                    )}>
-                    {op.get(value, 'zones', []).map(zone => {
-                        const meta = op.get(zone, 'meta', {});
-                        zone =
-                            typeof zone === 'string'
-                                ? zone
-                                : op.get(zone, 'zone');
+    return (
+        <div className={cname('blueprint', op.get(blueprint, 'ID'))}>
+            {Object.entries(sections).map(([name, value]) => {
+                const className = op.get(value, 'meta.className');
+                op.del(value, 'meta.className');
 
-                        return !zone ? null : (
-                            <div
-                                key={zone}
-                                className={cname('zone', zone)}
-                                {...metaToDataAttributes(meta)}>
-                                <Zone
-                                    route={route}
-                                    params={params}
-                                    search={search}
-                                    zone={zone}
-                                    zones={zones()}
-                                    section={name}
-                                    sections={Object.keys(sections)}
-                                    meta={{
-                                        blueprint: blueprintMeta,
-                                        zone: zoneMeta(value),
-                                    }}
-                                    {...data}
-                                />
-                            </div>
-                        );
-                    })}
-                </section>
-            ))}
-        </main>
+                const zones = op.get(value, 'zones', []);
+                const Wrap = op.get(value, 'wrapper', defaultWrapper);
+                const wrapAttr = metaToDataAttributes(
+                    op.get(value, 'meta', {}),
+                );
+
+                const refresh = op.get(value, 'meta.refresh', false) === true;
+                const loading = refresh && transitionState !== 'READY';
+
+                return (
+                    <Wrap
+                        key={name}
+                        className={cname('section', name, className, {
+                            loading,
+                        })}
+                        {...wrapAttr}>
+                        {zones.map(zone => {
+                            const meta = op.get(zone, 'meta', {});
+                            zone = zoneName(zone);
+                            if (!zone) return null;
+
+                            const zoneProps = {
+                                ...blueprintProps,
+                                zone: zone,
+                                zones: allZones(),
+                                section: name,
+                                sections: Object.keys(sections),
+                                meta: {
+                                    blueprint: blueprintMeta,
+                                    zone: zoneMeta(value),
+                                },
+                            };
+
+                            return (
+                                <div
+                                    key={zone}
+                                    className={cname('zone', zone)}
+                                    {...metaToDataAttributes(meta)}>
+                                    {loading ? (
+                                        <ZoneLoading {...zoneProps} />
+                                    ) : (
+                                        <Zone {...zoneProps} />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </Wrap>
+                );
+            })}
+        </div>
     );
-
-    if (!routeConfig || !blueprint || !allowed) return null;
-
-    // Render
-    return render();
 };
-
-Blueprint.ENUMS = ENUMS;
-Blueprint.actions = actions;
 
 export { Blueprint as default };

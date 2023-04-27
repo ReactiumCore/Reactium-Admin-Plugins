@@ -1,4 +1,4 @@
-import { Modal, Toast, Tooltip } from '@atomic-reactor/reactium-ui';
+import { Modal, Toast, Tooltip } from 'reactium-ui';
 import Reactium, { useRegisterHandle, useDocument } from 'reactium-core/sdk';
 
 import React, {

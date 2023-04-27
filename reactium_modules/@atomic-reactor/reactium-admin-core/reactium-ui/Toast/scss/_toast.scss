@@ -1,0 +1,51 @@
+.#{$rt-namespace}__toast {
+    position: relative;
+    min-height: $rt-toast-min-height;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    padding: 8px 8px 8px 12px;
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1),
+        0 2px 15px 0 rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    max-height: $rt-toast-max-height;
+    overflow: hidden;
+    font-family: $rt-font-family;
+    font-size: 14px;
+    cursor: pointer;
+    direction: ltr;
+
+    &--rtl {
+        direction: rtl;
+    }
+
+    @each $clr-name, $clr-codes in $buttons {
+        &--#{$clr-name} {
+            border-left: 4px solid nth($clr-codes, 2);
+            background-color: $rt-toast-background;
+            color: $rt-text-color-default;
+
+            svg.icon {
+                fill: nth($clr-codes, 2);
+            }
+        }
+    }
+
+    &-body {
+        margin: auto 0;
+        flex: 1;
+    }
+
+    .icon {
+        margin-right: 10px;
+        margin-bottom: 2px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@media #{$rt-mobile} {
+    .#{$rt-namespace}__toast {
+        margin-bottom: 0;
+    }
+}

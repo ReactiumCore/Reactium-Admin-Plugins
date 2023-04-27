@@ -1,0 +1,104 @@
+$ar-toggle-bg-color: $color-grey !default;
+$ar-toggle-bg-active-color: $color-blue !default;
+$ar-toggle-handle-color: $color-white !default;
+
+label.ar-toggle {
+    position: relative;
+    display: flex;
+    min-width: 38px;
+    height: 24px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+
+    * {
+        pointer-events: none;
+    }
+
+    input {
+        opacity: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    span:last-child {
+        position: relative;
+        width: 38px;
+        height: 100%;
+        top: 0;
+        right: 0;
+        border-radius: 24px;
+        display: block;
+        background-color: $ar-toggle-bg-color;
+        transition: all 0.25s ease-in-out;
+
+        &:after {
+            position: absolute;
+            content: '';
+            height: 18px;
+            width: 18px;
+            right: 35px;
+            bottom: 3px;
+            background-color: $ar-toggle-handle-color;
+            transition: all 0.25s ease-in-out;
+            border-radius: 100%;
+            transform: translateX(100%);
+        }
+    }
+
+    span:first-child {
+        flex-grow: 1;
+    }
+
+    &.ar-toggle-label-left {
+        span:first-child {
+            margin-right: 10px;
+            text-align: left;
+        }
+    }
+
+    &.ar-toggle-label-right {
+        flex-direction: row-reverse;
+
+        span:first-child {
+            margin-left: 10px;
+            text-align: right;
+        }
+    }
+
+    input:focus + span:last-child {
+        box-shadow: 0 0 1px 2px rgba($ar-toggle-bg-active-color, 0.25);
+    }
+
+    input:checked + span:last-child {
+        background-color: $ar-toggle-bg-active-color;
+
+        &:after {
+            left: auto;
+            right: 3px;
+            transform: translateX(0%);
+        }
+    }
+
+    @each $clr-name, $clr-codes in $buttons {
+        &-#{$clr-name} {
+            input:focus + span:last-child {
+                box-shadow: 0 0 1px 2px rgba(nth($clr-codes, 1), 0.25);
+            }
+
+            input:checked + span:last-child {
+                background-color: nth($clr-codes, 1);
+            }
+        }
+    }
+
+    &:hover {
+        input:focus + span:last-child {
+            box-shadow: none;
+        }
+    }
+}

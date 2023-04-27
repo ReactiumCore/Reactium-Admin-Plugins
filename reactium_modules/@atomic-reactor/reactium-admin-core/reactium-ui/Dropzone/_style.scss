@@ -1,0 +1,13 @@
+.ar-dropzone {
+    &.fullwidth {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        width: 100%;
+        min-height: calc(100vh - 97px);
+    }
+
+    &-preview {
+        display: none;
+    }
+}

@@ -1,0 +1,88 @@
+$ar-timepicker-color-highlight: $color-blue;
+$ar-timepicker-color-text: $color-gray-dark;
+
+.ar-timepicker {
+    @extend .ar-picker-wrapper;
+    width: 100%;
+
+    &-nav {
+        width: 100%;
+
+        button {
+            @extend .btn-clear;
+
+            width: 100%;
+            padding: 5px 0;
+
+            &:hover {
+                svg {
+                    fill: $ar-timepicker-color-highlight;
+                }
+            }
+        }
+    }
+
+    &-input {
+        width: 100%;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+        justify-content: center;
+
+        input {
+            padding: 10px 0;
+            border: none;
+            background-color: transparent;
+            font-size: 22px;
+            font-family: $font-family-monospace;
+            text-align: center;
+            text-shadow: 0 0 0 $ar-timepicker-color-highlight;
+            text-transform: uppercase;
+            width: 100%;
+            color: $ar-timepicker-color-text;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            &.active,
+            &:focus {
+                outline: none;
+                color: transparent;
+            }
+        }
+
+        span {
+            position: relative;
+            width: 40px;
+
+            &.colon {
+                &:before {
+                    content: ':';
+                    position: absolute;
+                    top: 50%;
+                    right: -3px;
+                    transform: translateY(-50%);
+                    font-family: $font-family-base;
+                    font-size: 22px;
+                    margin-top: -2px;
+                    padding: 0;
+                }
+            }
+
+            &.dot {
+                &:before {
+                    content: '.';
+                    position: absolute;
+                    top: 50%;
+                    right: -3px;
+                    transform: translateY(-50%);
+                    font-family: $font-family-base;
+                    font-size: 22px;
+                    margin-top: -2px;
+                    padding: 0;
+                }
+            }
+        }
+    }
+}

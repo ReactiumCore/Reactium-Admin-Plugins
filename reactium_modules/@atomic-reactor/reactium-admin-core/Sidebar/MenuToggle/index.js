@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import { Icon } from '@atomic-reactor/reactium-ui';
+// import { Icon } from '@atomic-reactor/reactium-ui';
 import Reactium, { useHandle } from 'reactium-core/sdk';
+
+const Icon = () => null;
 
 /**
  * -----------------------------------------------------------------------------

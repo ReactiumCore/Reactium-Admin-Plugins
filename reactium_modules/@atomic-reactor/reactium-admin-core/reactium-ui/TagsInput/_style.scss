@@ -1,0 +1,157 @@
+$ar-tags-input-color: $color-white !default;
+$ar-tags-input-color-bg: $color-blue !default;
+$ar-tags-input-color-border: $color-grey !default;
+$ar-tags-input-color-border-focus: $color-blue !default;
+
+.ar-tags-input {
+    display: block;
+    border: 1px solid $ar-tags-input-color-border;
+    font-size: 14px;
+    border-radius: $input-radius;
+    position: relative;
+
+    &.focus {
+        box-shadow: 0 0 0 2px
+            rgba(lighten($ar-tags-input-color-border-focus, 5%), 0.25);
+        border: 1px solid $ar-tags-input-color-border-focus;
+    }
+
+    .dropping {
+        cursor: grabbing;
+
+        input {
+            opacity: 0;
+            transition: none;
+        }
+    }
+
+    &-tags {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
+        line-height: 1;
+        padding: 5px;
+        z-index: 1;
+    }
+
+    input {
+        font-size: 14px;
+        line-height: 1;
+        border: none;
+        background-color: transparent;
+        outline: none;
+        width: 100%;
+        transition: opacity 0.5s ease-in-out;
+        height: 44px;
+        margin: -5px;
+        padding: 5px 10px;
+        z-index: 1000;
+    }
+
+    &-tag {
+        color: $ar-tags-input-color;
+        background-color: $ar-tags-input-color-bg;
+        display: flex;
+        align-items: center;
+        border-radius: 2px;
+        font-size: inherit;
+        flex-shrink: 0;
+        user-select: none;
+        margin: 5px;
+        padding: 0 10px;
+        outline: none;
+        min-height: 24px;
+
+        &:hover {
+            cursor: grab;
+        }
+
+        &.dragging {
+            &,
+            &:hover {
+                cursor: grabbing;
+            }
+        }
+
+        button {
+            padding: 0 8px;
+            margin: 0 -10px 0 0;
+            background-color: transparent;
+            border: none;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &:hover {
+                opacity: 0.5;
+            }
+        }
+
+        .icon {
+            fill: $ar-tags-input-color;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+    }
+
+    &-suggest {
+        position: absolute;
+        bottom: 0;
+        transform: translateY(100%);
+        z-index: 1;
+        box-shadow: $ar-dropdown-shadow;
+        border-radius: 0px 0px $ar-dropdown-border-radius
+            $ar-dropdown-border-radius;
+
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        ul {
+            li {
+                min-width: 200px;
+
+                button {
+                    padding: 10px 20px;
+                    border: none;
+                    border-bottom: 1px solid darken($ar-dropdown-menu-color, 1%);
+                    border-top: 1px solid darken($ar-dropdown-menu-color, 1%);
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    color: $ar-dropdown-item-color;
+                    background-color: $ar-dropdown-menu-color;
+                    transition: background-color 0.25s ease-in-out,
+                        color 0.25s ease-in-out;
+
+                    &:focus {
+                        border-top: 1px solid $ar-dropdown-border-color;
+                        border-bottom: 1px solid $ar-dropdown-border-color;
+                        background-color: darken($ar-dropdown-border-color, 2%);
+                    }
+
+                    &:hover {
+                        z-index: 3;
+                        color: $ar-dropdown-item-hover;
+                        background-color: $ar-dropdown-item-hover-bg;
+
+                        svg {
+                            fill: $ar-dropdown-item-hover;
+                        }
+                    }
+                }
+            }
+        }
+
+        &:empty {
+            display: none;
+        }
+    }
+}

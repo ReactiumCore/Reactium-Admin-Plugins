@@ -1,0 +1,92 @@
+$ar-alert-color: $color-gray-dark !default;
+$ar-alert-color-background: $color-white !default;
+$ar-alert-color-border: $color-gray !default;
+$ar-alert-color-dismiss: $color-gray !default;
+$ar-alert-color-icon: $color-gray !default;
+$ar-alert-shadow: 0 0 3px 1px rgba($color-black, 0.05) !default;
+$ar-alert-shadow-focus: 0 0 0 4px rgba(lighten(nth($color-gray, 1), 25%), 0.25) !default;
+$ar-alert-size-border: 4px !default;
+
+.ar-alert {
+    color: $ar-alert-color;
+    border-left: $ar-alert-size-border solid $ar-alert-color-border;
+    padding: 20px;
+    background: $ar-alert-color-background;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: $ar-alert-shadow;
+
+    > * {
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+
+    &, &:empty {
+        display: none;
+    }
+
+    &.visible {
+        display: flex;
+    }
+
+    .content {
+        flex-grow: 1;
+        padding: 3px 10px 5px 5px;
+        flex-shrink: 1;
+        flex-grow: 1;
+    }
+
+    .ico:first-child {
+        margin-right: 8px;
+
+        svg {
+            fill: $ar-alert-color-icon;
+        }
+    }
+
+    .dismiss {
+        border: none;
+        background-color: transparent;
+        color: $ar-alert-color-dismiss;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        margin-right: -4px;
+        border-radius: 4px;
+
+        svg {
+            fill: $ar-alert-color-dismiss;
+        }
+
+        &:hover {
+            svg { opacity: .5; }
+        }
+
+        &:focus {
+            box-shadow: $ar-alert-shadow-focus;
+        }
+    }
+
+    @each $clr-name, $clr-codes in $buttons {
+        &.#{$clr-name} {
+            border-left: $ar-alert-size-border solid nth($clr-codes, 2);
+
+            .ico:first-child {
+                margin-right: 8px;
+
+                svg {
+                    fill: nth($clr-codes, 1);
+                }
+            }
+        }
+    }
+}
+
+.ar-dismissable {
+    .ar-alert {
+        display: flex;
+    }
+}
