@@ -67,35 +67,24 @@ export const DEFAULTS = [
 ];
 
 const defaultBlueprint = {
-    ID: 'default',
     sections: {
-        header: {
-            zones: ['site-header'],
+        sidebar: {
+            zones: ['admin-sidebar'],
             meta: {},
-            wrapper: props => <header {...props} />,
         },
         main: {
-            zones: ['site-page-content'],
-            meta: {
-                refresh: true,
-            },
-            wrapper: props => <main {...props} />,
-        },
-        footer: {
-            zones: ['site-footer'],
+            zones: ['admin-header', 'admin-dashboard', 'admin-actions'],
             meta: {},
-            wrapper: props => <footer {...props} />,
-        },
-        tools: {
-            zones: ['site-tools'],
         },
     },
     meta: {
         builtIn: true,
         admin: true,
-        namespace: 'site-page',
+        namespace: 'admin-page',
     },
-    description: 'Site default blueprint',
+    ID: 'Admin',
+    description: 'Admin blueprint',
+    className: 'Blueprint',
 };
 
 // Build Blueprint Registry
