@@ -14,6 +14,16 @@ const cname = (prefix, name, ...className) =>
 const zoneName = zone =>
     typeof zone === 'string' ? zone : op.get(zone, 'zone');
 
+const cx = (meta, extended) => {
+    const { className, namespace } = meta;
+
+    return cn({
+        [className]: !!className,
+        [namespace]: !!namespace,
+        [extended]: !!extended,
+    });
+};
+
 const blueprintConfig = {};
 Reactium.Hook.register(
     'blueprint-load',
@@ -113,7 +123,11 @@ const Blueprint = props => {
 
     // Renderer
     return (
-        <div className={cname('blueprint', op.get(blueprint, 'ID'))}>
+        <main
+            className={cx(
+                blueprintMeta,
+                cname('blueprint', op.get(blueprint, 'ID')),
+            )}>
             {Object.entries(sections).map(([name, value]) => {
                 const className = op.get(value, 'meta.className');
                 op.del(value, 'meta.className');
@@ -167,7 +181,7 @@ const Blueprint = props => {
                     </Wrap>
                 );
             })}
-        </div>
+        </main>
     );
 };
 

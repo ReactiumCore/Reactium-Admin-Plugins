@@ -162,7 +162,6 @@ Reactium.Blueprint.initRoutes = async () => {
 
         try {
             routes = (await baseQuery.find()).map(r => r.toJSON());
-            console.log({ routes });
             Reactium.Cache.set(CACHE_KEY, routes, CACHE_DURATION);
         } catch (error) {
             console.error('Unable to load routes!', error);
@@ -239,7 +238,6 @@ Reactium.Blueprint.initRoutes = async () => {
 
         if (op.get(permissions, id, true) === true) {
             op.set(route, 'component', Blueprint);
-            console.log({ route });
             await Reactium.Routing.register(route);
         }
     }

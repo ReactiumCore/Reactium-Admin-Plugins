@@ -1,0 +1,149 @@
+@use 'sass:math';
+
+$admin-user-editor-ns: 'admin-user-editor' !default;
+
+.#{$admin-user-editor-ns} {
+    padding-top: $height-admin-header;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    &-tabs {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex-wrap: wrap;
+        background-color: $color-light;
+        padding: 0;
+
+        @include breakpoint(md) {
+            justify-content: flex-start;
+        }
+    }
+
+    &-tab {
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid $color-border;
+        color: $color-dark-light;
+        background-color: transparent;
+        padding: 0 $padding-admin-content-zone;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 80px;
+        min-height: 40px;
+        position: relative;
+        opacity: 0.5;
+        user-select: none;
+        transition: box-shadow 0.25s ease-in-out;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 20%;
+        font-size: 12px;
+
+        @include breakpoint(sm) {
+            min-width: 120px;
+            flex-grow: 0;
+            font-size: 14px;
+
+            &:first-child {
+                border-left: 1px solid $color-border;
+            }
+        }
+
+        @include breakpoint(md) {
+            flex-basis: 0%;
+        }
+
+        &:after {
+            content: '';
+            height: 2px;
+            width: 0%;
+            background-color: $color-dark-light;
+            position: absolute;
+            bottom: 0;
+            left: auto;
+            right: -1px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        * {
+            pointer-events: none;
+        }
+
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 1px 2px rgba($color-primary, 0.25);
+
+            &:after {
+                content: '';
+                height: 2px;
+                width: 100%;
+                background-color: $color-dark-light;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: auto;
+            }
+        }
+
+        &:hover {
+            opacity: 0.8;
+            color: $color-primary;
+        }
+
+        &.active {
+            opacity: 1;
+
+            &:hover {
+                color: $color-dark;
+                cursor: default;
+            }
+
+            &:after {
+                content: '';
+                height: 2px;
+                width: 100%;
+                background-color: $color-primary;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: auto;
+            }
+        }
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid darken($color-admin-header-border, 5%);
+    }
+
+    .ar-dropdown-menu {
+        //min-width: 200px;
+    }
+
+    .admin-media {
+        &-toolbar {
+            border-top: 1px solid $color-border;
+        }
+
+        &-library {
+            min-height: 400px;
+            height: 400px;
+
+            &.empty {
+                &:before {
+                    content: '';
+                    position: absolute;
+                    top: calc(50% + #{math.div($padding-admin-content-zone, 2)});
+                    left: 50%;
+                    width: calc(100% - #{$padding-admin-content-zone * 2});
+                    height: calc(100% - #{$padding-admin-content-zone});
+                    border: 3px dashed lighten($color-grey, 5%);
+                    transform: translateX(-50%) translateY(-50%);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,31 @@
+.#{$admin-user-editor-ns} {
+    &-alert {
+        padding: $padding-admin-content-zone;
+        padding-bottom: 0;
+
+        &:empty {
+            display: none;
+        }
+
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ico {
+            display: flex;
+            margin-right: 12px !important;
+        }
+
+        .dismiss {
+            margin-top: 2px;
+        }
+
+        .content {
+            padding: 0;
+            line-height: 24px;
+        }
+    }
+}

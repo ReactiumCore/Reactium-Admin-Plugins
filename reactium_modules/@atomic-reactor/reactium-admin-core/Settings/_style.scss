@@ -1,0 +1,5 @@
+.zone {
+    &-settings-groups {
+        @include admin-content-zone;
+    }
+}
