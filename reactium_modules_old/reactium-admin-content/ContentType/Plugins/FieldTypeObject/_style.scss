@@ -1,0 +1,167 @@
+.object {
+    &-cte {
+        .input-group {
+            flex-direction: column;
+
+            .add-btn,
+            .del-btn {
+                min-width: 41px;
+                width: 100%;
+                flex-shrink: 0;
+
+                @include breakpoint(xs-only) {
+                    border-radius: 2px;
+                }
+                @include breakpoint(sm-only) {
+                    border-radius: 2px;
+                }
+            }
+
+            > *:not(:last-child) {
+                margin-bottom: 16px;
+            }
+
+            @include breakpoint(lg) {
+                select {
+                    min-width: 200px;
+                }
+            }
+
+            @include breakpoint(md) {
+                flex-direction: row;
+                flex-wrap: wrap;
+                border-right: 1px solid #F3F3F3;
+                margin-right: -1px;
+
+                .add-btn,
+                .del-btn {
+                    width: 41px;
+                }
+
+                > *:not(:last-child) {
+                    margin-bottom: 0;
+                }
+
+                select {
+                    border: 1px solid #f3f3f3;
+                    height: 41px;
+                    flex-grow: 0;
+                    min-width: 120px;
+
+                    &:not(:last-child) {
+                        margin-right: -1px;
+                    }
+
+                }
+            }
+
+            @include breakpoint(xs-only) {
+                input,
+                select,
+                textarea {
+                    border: 1px solid #f3f3f3;
+                    border-radius: 2px;
+                }
+            }
+
+            @include breakpoint(sm-only) {
+                input,
+                select,
+                textarea {
+                    border: 1px solid #f3f3f3;
+                    border-radius: 2px;
+                }
+            }
+        }
+
+        &-list {
+            border-top: 1px solid $color-grey-light;
+            margin: 16px 0 0 0;
+            padding: 0;
+
+            list-style: none;
+
+            &:empty {
+                display: none;
+            }
+
+            li {
+                list-style: none;
+            }
+
+            li.list-item {
+                position: relative;
+                border: none;
+                margin-top: 16px;
+
+                .drag-handle {
+                    position: absolute;
+                    left: -18px;
+                    top: 50%;
+                    width: 18px;
+                    height: 100%;
+                    opacity: 0;
+                    transform: translateY(-50%);
+                    background-color: $color-light;
+                    transition: background-color 0.2s ease-in-out;
+
+                    &:after {
+                        content: '';
+                        width: 4px;
+                        height: 14px;
+                        left: 50%;
+                        top: 50%;
+                        position: absolute;
+                        transform: translateX(-50%) translateY(-50%);
+                        border-left: 1px solid lighten($color-primary, 20%);
+                        border-right: 1px solid lighten($color-primary, 20%);
+                    }
+                }
+
+                &:hover {
+                    .drag-handle {
+                        opacity: 1;
+                    }
+                }
+
+                &.dragging {
+                    box-shadow: $shadow-image;
+                    background-color: $color-light;
+                    padding: 14px 14px 226px 14px;
+
+                    @include breakpoint(md) {
+                        padding: 4px 4px 45px 4px;
+                    }
+
+                    .drag-handle {
+                        opacity: 1;
+                        background-color: lighten($color-grey-light, 2%);
+                        border-radius: 4px 0px 0px 4px;
+                    }
+                }
+            }
+        }
+    }
+
+    &-editor {
+        @extend .row;
+        color: $color-text-dark;
+        padding: 16px;
+        position: relative;
+
+        * {
+            position: relative;
+        }
+
+        select {
+            color: inherit;
+        }
+
+        .ar-spinner {
+            transform: translateX(-50%) translateY(-50%) scale(0.4);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+    }
+}

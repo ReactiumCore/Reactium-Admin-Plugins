@@ -1,0 +1,137 @@
+.wizard-input-group {
+    @extend .form-group;
+    @extend .input-group;
+
+    position: relative;
+
+    .btn-group {
+        position: absolute;
+        right: 2px;
+        top: 1px;
+
+        button {
+            width: 42px;
+            height: 39px;
+            padding: 0;
+            border-radius: 0;
+        }
+    }
+}
+
+.wizard-input-container {
+    padding: 20px;
+    background-color: lighten($color-grey-light, 2%);
+    border-bottom: 1px solid $color-grey-light;
+    margin-bottom: -1px;
+}
+
+.wizard-rte {
+    .ar-rte {
+        height: 100%;
+
+        [data-slate-editor] {
+            height: 100%;
+            padding: 40px 40px 120px 70px;
+        }
+    }
+
+    .ar-rte-sidebar {
+        transform: translate(70px, 0px);
+    }
+}
+
+.wizard-icon-picker {
+    width: 300px;
+    top: 22px;
+    right: 147px;
+    z-index: map-get($z-indexes, sidebar) - 1;
+    position: absolute;
+    box-shadow: $shadow-image;
+    background-color: $color-light;
+}
+
+.wizard-media {
+    border-bottom: 1px solid $color-grey-light;
+
+    .ar-dropzone {
+        padding: 20px;
+    }
+
+    .media-tool-actions {
+        padding: 40px 20px;
+    }
+}
+
+.wizard-sortable {
+    width: 100vw;
+    height: calc(100vh - 92px);
+    max-width: calc(100vw - 40px);
+    min-height: 300px;
+    position: relative;
+    padding: 20px 20px 10px 20px;
+    margin: 0 auto;
+    background-color: $color-light;
+    border-radius: 2px;
+
+    @include breakpoint(md) {
+        max-width: 600px;
+    }
+
+    &-item {
+        padding: 0 12px;
+        margin: 10px 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        width: 100%;
+        background-color: $color-light;
+        border: 1px solid $color-grey-light;
+        z-index: 1;
+    }
+
+    .info {
+        margin-bottom: 20px;
+        z-index: 1;
+    }
+
+    .handle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+        fill: $color-primary;
+    }
+
+    .title {
+        padding: 12px;
+
+        &:not(:first-child) {
+            margin-left: 12px;
+            border-left: 1px solid $color-grey-light;
+        }
+    }
+
+    &.dragging {
+        background-color: darken($color-light, 1%);
+        transition: color .2s ease-in-out;
+
+        &:after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            height: calc(100% - 16px);
+            width: calc(100% - 16px);
+            z-index: 0;
+            pointer-events: none;
+            border: 2px dashed $color-grey;
+        }
+    }
+}

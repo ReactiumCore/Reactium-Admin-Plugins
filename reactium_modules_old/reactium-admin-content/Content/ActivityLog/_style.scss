@@ -1,0 +1,325 @@
+$color-activity-chart: darken($color-gray-dark, 5%) !default;
+$color-activity-log-bg: $color-light !default;
+$activity-log-max-height: calc(100vh - 40px) !default;
+$activity-log-min-width: 420px !default;
+$activity-log-default-border: $color-gray !default;
+$activity-log-who-color: $color-primary !default;
+$created-color: $color-green !default;
+$revised-color: $color-danger !default;
+$slug-changed-color: $color-orange !default;
+$set-revision-color: $color-orange !default;
+$set-acl-color: $color-purple !default;
+$set-status-color: $color-primary !default;
+$published-color: $color-green !default;
+$unpublished-color: $color-danger !default;
+$schedule-color: $color-green !default;
+$unschedule-color: $color-orange !default;
+$trashed-color: $color-danger !default;
+$deleted-color: $color-danger !default;
+$restored-color: $color-green !default;
+$activity-log-break: md !default;
+
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    background: $color-activity-log-bg;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    @include breakpoint($activity-log-break) {
+        flex-direction: row !important;
+        align-items: stretch;
+    }
+
+    &-chart {
+        width: 100vw;
+        height: 71vw;
+        background: $color-activity-chart;
+        position: relative;
+        overflow: hidden;
+        transition: height .25s ease-in-out;
+
+        .ar-spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+
+        .chart {
+            padding: 0;
+        }
+
+        .toolbar {
+            position: absolute;
+            left: 50%;
+            top: 2.5vw;
+            transform: translateX(-50%);
+        }
+
+        .date-select {
+            width: 100%;
+            margin: 0 auto;
+
+            .ar-datepicker-calendar {
+                position: relative;
+                transform: none;
+                left: 0;
+                right: auto;
+                margin: 0 auto;
+            }
+        }
+
+        &-close-btn,
+        &-collapse-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            z-index: 100;
+        }
+
+        &-close-btn {
+            top: 0;
+            left: 0;
+        }
+
+        &-collapse-btn {
+            right: 0;
+            bottom: 0;
+        }
+
+        &-dismiss-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+
+            &:hover {
+                cursor: default;
+            }
+        }
+
+        &.hidden {
+            height: 0%;
+        }
+
+        @include breakpoint($activity-log-break) {
+            width: calc(100vw - #{$activity-log-min-width});
+            transition: width .25s ease-in-out;
+            height: 100vh;
+
+            .chart {
+                min-width: calc(100vw - #{$activity-log-min-width});
+                padding: 0;
+                transition: width 1s ease-in-out;
+            }
+
+            &-collapse-btn {
+                bottom: auto;
+                top: 0;
+            }
+
+            &.hidden {
+                height: 100vh;
+                width: 0%;
+
+                .chart {
+                    min-width: calc(100vw - #{$activity-log-min-width});
+                }
+            }
+        }
+    }
+
+    &-updates {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+
+        @include breakpoint($activity-log-break) {
+            flex-grow: 1;
+            width: $activity-log-min-width;
+            height: 100vh;
+        }
+    }
+}
+
+.activity-list {
+    list-style: none;
+    margin: 0;
+    padding-bottom: 20px;
+
+    &-container {
+        flex-grow: 1;
+    }
+
+    &-header {
+        display: flex;
+        align-items: center;
+        padding: 20px 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    &-item {
+        position: relative;
+        margin: 0;
+        margin-left: 20px;
+        padding: 10px 10px 10px 20px;
+        border-left: 1px solid $activity-log-default-border;
+        font-size: 12px;
+        line-height: 1.5;
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+
+        &-when {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+
+            svg {
+                height: 14px;
+                width: 14px;
+                margin-right: 8px;
+                margin-bottom: 1px;
+            }
+        }
+
+        &:before {
+            display: block;
+            position: absolute;
+            content: ' ';
+            height: 10px;
+            width: 10px;
+            border: 2px solid $activity-log-default-border;
+            border-radius: 50%;
+            left: -5px;
+            top: 14px;
+            background: $color-activity-log-bg;
+        }
+
+        &-created {
+            border-color: $created-color;
+
+            &:before {
+                border-color: $created-color;
+            }
+        }
+
+        &-revised {
+            border-color: $revised-color;
+
+            &:before {
+                border-color: $revised-color;
+            }
+        }
+
+        &-slug-changed {
+            border-color: $slug-changed-color;
+
+            &:before {
+                border-color: $slug-changed-color;
+            }
+        }
+
+        &-set-revision {
+            border-color: $set-revision-color;
+
+            &:before {
+                border-color: $set-revision-color;
+            }
+        }
+
+        &-set-acl {
+            border-color: $set-acl-color;
+
+            &:before {
+                border-color: $set-acl-color;
+            }
+        }
+
+        &-set-status {
+            border-color: $set-status-color;
+
+            &:before {
+                border-color: $set-status-color;
+            }
+        }
+
+        &-published {
+            border-color: $published-color;
+
+            &:before {
+                border-color: $published-color;
+            }
+        }
+
+        &-unpublished {
+            border-color: $unpublished-color;
+
+            &:before {
+                border-color: $unpublished-color;
+            }
+        }
+
+        &-schedule {
+            border-color: $schedule-color;
+
+            &:before {
+                border-color: $schedule-color;
+            }
+        }
+
+        &-unschedule {
+            border-color: $unschedule-color;
+
+            &:before {
+                border-color: $unschedule-color;
+            }
+        }
+
+        &-trashed {
+            border-color: $trashed-color;
+
+            &:before {
+                border-color: $trashed-color;
+            }
+        }
+
+        &-deleted {
+            border-color: $deleted-color;
+
+            &:before {
+                border-color: $deleted-color;
+            }
+        }
+
+        &-restored {
+            border-color: $restored-color;
+
+            &:before {
+                border-color: $restored-color;
+            }
+        }
+
+        &-part {
+            &.status,
+            &.version,
+            &.deleted {
+                font-weight: 600;
+            }
+
+            &.who {
+                color: $activity-log-who-color;
+            }
+        }
+    }
+}

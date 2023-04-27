@@ -1,0 +1,113 @@
+$size-types-tool: 45px;
+
+.types-tools {
+    display: flex;
+    flex-direction: column;
+    width: $size-types-tool;
+    background: $color-light;
+    z-index: map-get($z-indexes, actions);
+    box-shadow: 0 0 2px 1px rgba($color-black, 0.05);
+
+    button {
+        padding: 0;
+        width: 100%;
+        min-height: $size-types-tool;
+
+        &:focus {
+            outline: 1px solid $color-grey;
+        }
+
+        &:hover {
+            background-color: lighten($color-grey-light, 1%);
+        }
+
+        svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    &-drag-handle {
+        position: relative;
+        background: $color-primary;
+        height: 21px;
+        opacity: .8;
+        padding: 0;
+        cursor: grab;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &:before, &:after {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 18px;
+
+            border-top: 1px solid white;
+        }
+        &:before {
+            height: 2px;
+            transform: translateX(-50%) translateY(-100%);
+        }
+        &:after {
+            transform: translateX(-50%) translateY(50%);
+        }
+    }
+}
+
+.add-region-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 20px;
+
+    &:before {
+        display: block;
+        content: ' ';
+        width: 20px;
+        height: 20px;
+        border: 1px dashed $color-grey;
+    }
+}
+
+.react-draggable-dragging {
+    .types-tools {
+        &-drag-handle {
+            cursor: grabbing;
+        }
+    }
+}
+
+.tools-paging {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    background: $color-primary;
+
+    button {
+        &.tools-paging-left, &.tools-paging-right {
+            min-height: 10px;
+            height: 20px;
+            flex: 0 0 50%;
+            border-radius: 0;
+
+            svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            &:focus, &:hover, &:active {
+                background: $color-white;
+                svg {
+                    fill: $color-primary;
+                }
+            }
+        }
+    }
+}
