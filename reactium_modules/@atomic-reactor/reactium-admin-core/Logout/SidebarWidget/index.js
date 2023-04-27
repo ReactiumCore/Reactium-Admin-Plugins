@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import op from 'object-path';
 import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
 
@@ -14,13 +14,14 @@ const Widget = () => {
 
     const tools = useHandle('AdminTools');
     const Modal = op.get(tools, 'Modal');
+    console.log({ Modal });
 
     const confirm = () => {
         Reactium.Routing.history.replace('/logout');
         Modal.dismiss();
     };
 
-    const showModal = () => {
+    const showModal = useCallback(() => {
         Modal.show(
             <ConfirmBox
                 message='Are you sure?'
@@ -29,17 +30,20 @@ const Widget = () => {
                 title='Sign Out'
             />,
         );
-    };
+    }, [Modal]);
 
-    const render = () => (
-        <>
-            <MenuItem
-                label='Sign Out'
-                onClick={showModal}
-                icon='Linear.PowerSwitch'
-                isActive={() => false}
-            />
-        </>
+    const render = useCallback(
+        () => (
+            <>
+                <MenuItem
+                    label='Sign Out'
+                    onClick={showModal}
+                    icon='Linear.PowerSwitch'
+                    isActive={() => false}
+                />
+            </>
+        ),
+        [showModal],
     );
 
     return render();
