@@ -1,0 +1,27 @@
+body.fullscreen {
+    [data-fullscreen='hide'],
+    [data-fullscreen='none'] {
+        display: none;
+    }
+
+    [data-fullscreen='show'],
+    [data-fullscreen='block'] {
+        display: block;
+    }
+
+    [data-fullscreen='inline-block'] {
+        display: inline-block;
+    }
+
+    [data-fullscreen='inline'] {
+        display: inline;
+    }
+
+    [data-fullscreen='inline-flex'] {
+        display: inline-flex;
+    }
+
+    [data-fullscreen='flex'] {
+        display: flex;
+    }
+}

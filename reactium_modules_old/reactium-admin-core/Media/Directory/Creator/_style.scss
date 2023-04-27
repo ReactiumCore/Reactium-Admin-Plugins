@@ -1,0 +1,40 @@
+.admin-directory-editor {
+    width: 100vw;
+    padding: 0 20px;
+
+    @include breakpoint(md) {
+        max-width: 700px;
+    }
+
+    .input-group {
+        align-items: center;
+
+        span {
+            width: 28px;
+            text-align: center;
+        }
+
+        input {
+            cursor: text;
+        }
+    }
+
+    input {
+        border: none !important;
+        width: 100%;
+    }
+
+    .permission {
+        .ar-dropdown-menu {
+            min-width: 120px;
+        }
+    }
+
+    .ar-tags-input {
+        border: none !important;
+
+        input {
+            display: none;
+        }
+    }
+}

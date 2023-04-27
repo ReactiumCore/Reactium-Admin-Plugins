@@ -1,0 +1,174 @@
+$rte-block-ns: block !default;
+
+.ar-rte {
+    [type='#{$rte-block-ns}'] {
+        &.#{$rte-block-ns} {
+            margin: 15px -4px;
+            position: relative;
+            outline: none;
+            user-select: none;
+            align-items: stretch !important;
+            padding: 16px;
+            border: 2px dashed lighten($color-grey, 5%);
+            flex-grow: 1;
+            max-width: 100%;
+            z-index: 1;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            .#{$rte-block-ns} {
+                margin: 0 -4px 4px 0;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            &:hover {
+                > div > .add,
+                > div > .block-move,
+                > div > .#{$rte-block-ns}-actions-left,
+                > div > .#{$rte-block-ns}-actions-right {
+                    opacity: 1;
+                }
+
+                border: 2px dashed lighten($color-primary, 5%);
+            }
+
+            .add {
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                overflow: visible;
+                left: 0;
+                padding: 0 10px;
+                display: flex;
+                justify-content: center;
+                z-index: 40;
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+
+                button {
+                    width: 20px;
+                    height: 20px;
+                    padding: 0;
+                    transform: translateY(-50%);
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+
+                &.after {
+                    bottom: -1px;
+                }
+
+                &.before {
+                    top: -1px;
+                }
+            }
+
+            .block-move {
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translate(-100%, -50%);
+                flex-direction: column;
+                opacity: 0;
+
+                button {
+                    padding: 0;
+                    width: 24px;
+                    height: 24px;
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+
+                *:last-child {
+                    border-radius: 0 0 0 2px;
+                }
+
+                *:first-child {
+                    border-radius: 2px 0 0 0;
+
+                    &:last-child {
+                        border-radius: 2px 0 0 2px;
+                    }
+                }
+            }
+
+            &.row {
+                > .block-content {
+                    @extend .row;
+                    padding-left: 1px;
+
+                    > .block {
+                        max-width: none;
+                        margin: 0 0 -2px -2px;
+                        padding: 8px;
+                        display: inline-block;
+
+                        ul,
+                        li {
+                            width: 100%;
+                        }
+
+                        > div {
+                            width: 100%;
+                        }
+
+                        &.column {
+                            padding: 0;
+                            border: none;
+
+                            &:hover {
+                                z-index: 5;
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.full {
+                min-width: 100%;
+            }
+        }
+
+        .#{$rte-block-ns}-actions-left,
+        .#{$rte-block-ns}-actions-right {
+            @extend .btn-group;
+
+            top: 0;
+            opacity: 0;
+            position: absolute;
+            transform: translateY(-100%);
+            transition: opacity 0.2s ease-in-out;
+
+            > button {
+                padding: 0 8px;
+                z-index: 50;
+                height: 24px;
+                min-width: 32px;
+                flex-shrink: 0;
+            }
+        }
+
+        .#{$rte-block-ns}-actions-left {
+            left: -2px;
+        }
+
+        .#{$rte-block-ns}-actions-right {
+            right: -2px;
+        }
+
+        .#{$rte-block-ns}-content {
+            position: relative;
+        }
+    }
+}

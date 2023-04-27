@@ -1,0 +1,34 @@
+.permission-selector {
+    .permission {
+        border-bottom: 1px solid $color-admin-header-border;
+        padding-bottom: 12px;
+        .ar-dropdown-menu {
+            min-width: 120px;
+        }
+    }
+
+    .ar-tags-input {
+        border: none !important;
+
+        input {
+            display: none;
+        }
+
+        .ar-tags-input-tag {
+            background-color: $color-gray;
+        }
+    }
+
+    .selections {        
+        display: flex;
+        flex-wrap: nowrap;
+
+        > div {
+            width: 50%;
+        }
+
+        &:empty {
+            display: none;
+        }
+    }
+}

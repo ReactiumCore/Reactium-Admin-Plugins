@@ -1,0 +1,23 @@
+.media-directory-editor {
+    width: 100vw;
+    padding: 0 20px;
+
+    @include breakpoint(md) {
+        max-width: 700px;
+    }
+
+    .ar-dialog-content {
+        z-index: 1;
+        position: relative;
+    }
+
+    .ar-dialog-footer {
+        z-index: map-get($z-indexes, overlay);
+        position: relative;
+    }
+
+    .admin-directory-editor {
+        width: 100%;
+        padding: 16px 0;
+    }
+}

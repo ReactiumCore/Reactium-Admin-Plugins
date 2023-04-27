@@ -1,0 +1,30 @@
+.rte-link-insert {
+    position: relative;
+
+    .ar-spinner {
+        top: 50%;
+        left: 50%;
+    }
+    
+    .form-group {
+        position: relative;
+        color: $color-gray;
+
+        input {
+            padding-left: 36px;
+        }
+
+        svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            margin-top: 2px;
+            transform: translateY(-50%);
+            fill: $color-gray;
+            fill: currentColor;
+            pointer-events: none;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}

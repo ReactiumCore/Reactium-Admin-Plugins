@@ -1,0 +1,57 @@
+.rte-video-settings {
+    position: relative;
+
+    &-btn-inline {
+        padding: 0;
+        width: 34px;
+        height: 34px;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .form-group {
+        .input-group,
+        .input-group-full {
+            input {
+                margin-top: 0;
+            }
+        }
+
+        .input-group-full {
+            position: relative;
+            input {
+                z-index: 1;
+                width: 100% !important;
+                padding-right: 44px;
+            }
+
+            button:last-child {
+                z-index: 10;
+                position: absolute;
+                right: 1px;
+                top: 1px;
+                height: 32px;
+                border-radius: 0 1px 1px 0;
+            }
+        }
+    }
+}
+
+.ar-rte {
+    &-video {
+        margin: 0;
+        width: 100%;
+        display: flex;
+        position: relative;
+        justify-content: center;
+
+        video {
+            padding: 4px;
+            max-width: 100%;
+            outline: none;
+        }
+    }
+}

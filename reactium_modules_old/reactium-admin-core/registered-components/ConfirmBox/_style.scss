@@ -1,0 +1,29 @@
+.admin-confirm-box {
+    width: 100vw;
+    padding: 0 20px;
+    max-width: 400px;
+
+    @include breakpoint(sm) {
+        max-width: 480px;
+    }
+
+    &-message {
+        padding: 40px;
+        text-align: center;
+    }
+
+    &-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 20px 40px 20px;
+
+        > * {
+            margin: 0 12px;
+        }
+
+        > button {
+            min-width: 80px;
+        }
+    }
+}

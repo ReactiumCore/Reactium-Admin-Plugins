@@ -1,0 +1,93 @@
+.zone-admin-plugin-manager-content {
+    @include admin-content-zone;
+}
+
+.plugin-card {
+    position: relative;
+    background-color: $color-text-light;
+    padding: 40px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    margin: 16px;
+
+    h3 {
+        font-weight: 500;
+    }
+
+    &__graphic {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        height: 260px;
+        margin: 20px 0;
+
+        @include breakpoint(md-down) {
+            height: auto;
+        }
+
+        img {
+            flex: 0 0;
+            height: 100%;
+
+            @include breakpoint(md-down) {
+                flex: 1 0;
+                height: auto;
+                width: 100%;
+            }
+        }
+    }
+
+    &__details {
+        font-size: 14px;
+        height: 140px;
+        overflow: scroll;
+    }
+
+    &--core {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 20px;
+
+        .plugin-card {
+            &__graphic, &__details {
+                flex: 0 0 auto;
+            }
+
+            &__graphic {
+                height: 50px;
+                width: 50px;
+                margin: 0 20px 0 0;
+
+                img {
+                    width: 100%;
+                    height: auto;
+                }
+            }
+
+            &__details {
+                height: 50px;
+                width: 80%;
+            }
+
+            &__actions {
+                display: none;
+            }
+        }
+    }
+}
+
+.plugins-group {
+    margin-top: 16px;
+
+    &-items {
+        margin: 0 -16px;
+    }
+}
+
+.plugin-settings-link {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+}

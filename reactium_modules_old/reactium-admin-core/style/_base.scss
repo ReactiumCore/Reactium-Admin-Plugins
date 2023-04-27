@@ -1,0 +1,61 @@
+a.icon-link {
+    &:hover,
+    &:active,
+    &:focus {
+        .icon {
+            fill: $fill-focus-icon-link;
+        }
+    }
+
+    &:focus {
+        outline: none;
+
+        .icon {
+            stroke: $stroke-focus-icon-link;
+        }
+    }
+}
+
+button {
+    svg {
+        fill: currentColor;
+    }
+}
+
+.input-group {
+    &.error {
+        @extend .error;
+    }
+}
+
+.form-group,
+.form-group label {
+    position: relative;
+    input,
+    textarea,
+    select {
+        font-family: #{map-get($fonts, sans-serif)};
+        font-weight: 400;
+        letter-spacing: .5px;
+    }
+
+    .input-lg {
+        font-size: 24px;
+        font-weight: 400;
+    }
+
+    .input-sm {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+}
+
+.form-group label {
+    &:first-child {
+        &:not(:last-child) {
+            * {
+                margin-top: 0;
+            }
+        }
+    }
+}

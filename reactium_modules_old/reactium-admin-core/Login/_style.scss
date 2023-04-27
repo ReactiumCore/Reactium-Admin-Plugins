@@ -1,0 +1,47 @@
+main.login {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: transparent;
+
+    @include breakpoint(sm) {
+        align-items: center;
+        padding: 40px;
+    }
+
+    form {
+        width: 100%;
+        max-width: 400px;
+        background-color: $color-text-light;
+        padding: 40px;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+
+    h1 {
+        @extend .h2;
+        @extend .mb-xs-20;
+        @extend .text-xs-center;
+    }
+
+    .links {
+        @extend .row;
+        width: 100%;
+        max-width: 400px;
+        margin-top: 20px;
+
+        a {
+            font-size: 12px;
+            text-decoration: underline;
+            line-height: 16px;
+            color: $color-gray;
+
+            &:hover {
+                color: $color-text-dark;
+            }
+        }
+    }
+}

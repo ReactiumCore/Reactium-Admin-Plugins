@@ -1,0 +1,92 @@
+@use 'sass:math';
+
+.admin-media {
+    &-dropzone {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding-top: $height-admin-header;
+        color: $color-text-dark;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        .media {
+            flex-grow: 1;
+        }
+    }
+
+    &-spinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    &-library {
+        flex-grow: 1;
+        position: relative;
+        min-height: 500px;
+        z-index: 1;
+
+        &.empty {
+            .admin-media-dir-dropdown {
+                @include breakpoint(md) {
+                    top: 31px;
+                    right: 24px;
+                    transform: translateX(0%);
+                }
+
+            }
+
+            &:before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: calc(100% - #{$padding-admin-content-zone});
+                height: calc(100% - #{$padding-admin-content-zone});
+                border: 3px dashed lighten($color-grey, 5%);
+                transform: translateX(-50%) translateY(-50%);
+            }
+
+            div.label {
+                content: 'Drop your files here';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 0 math.div($padding-admin-content-zone, 2);
+                text-align: center;
+                font-weight: bold;
+                font-size: 16px;
+                color: lighten($color-gray, 10%);
+                transform: translateX(-50%) translateY(-50%);
+
+                @include breakpoint(lg) {
+                    max-width: 33%;
+                    font-size: 1.5vw;
+                    padding: $padding-admin-content-zone;
+                }
+
+                svg {
+                    fill: $color-primary;
+                    opacity: 0.75;
+                }
+            }
+        }
+    }
+
+    &-admin-media-actions {
+        @include admin-actions-zone;
+    }
+}
