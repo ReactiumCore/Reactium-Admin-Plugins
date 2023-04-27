@@ -1,3 +1,5 @@
+@import 'colors';
+
 $color-black: #000000 !default;
 $color-gray-dark: #333333 !default;
 $color-gray: #999999 !default;
@@ -13,7 +15,6 @@ $color-purple: #7A7CEF !default;
 $color-blue: #4F82BA !default;
 $color-green: #659A3F !default;
 $color-green-light: #B2BB50 !default;
-
 
 $color: (
 	"black": $color-black,

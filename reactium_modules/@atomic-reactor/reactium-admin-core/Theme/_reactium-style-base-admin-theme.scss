@@ -1,7 +1,5 @@
 @use 'sass:math';
 
-@import './admin';
-
 @mixin admin-header-zone() {
     z-index: map-get($z-indexes, 'header');
     position: fixed;

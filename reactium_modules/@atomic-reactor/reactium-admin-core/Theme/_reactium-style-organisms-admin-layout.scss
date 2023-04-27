@@ -409,3 +409,15 @@ body {
         }
     }
 }
+
+.admin-page {
+    .zone {
+        &-admin-header {
+            @include admin-header-zone;
+
+            .admin-header-button {
+                @include admin-header-button;
+            }
+        }
+    }
+}

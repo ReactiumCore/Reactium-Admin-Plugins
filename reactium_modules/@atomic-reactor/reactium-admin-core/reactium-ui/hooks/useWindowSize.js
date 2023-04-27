@@ -13,7 +13,7 @@
  * @return {Object} Returns an object with `width` and `height` properties.
  *
  * @example
-    import { useWindowSize } from '@atomic-reactor/reactium-ui/hooks';
+    import { useWindowSize } from 'reactium-ui/hooks';
     import React, { useEffect } from 'react';
 
     const myFunctionalComponent = () => {

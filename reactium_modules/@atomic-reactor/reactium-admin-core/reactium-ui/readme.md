@@ -17,7 +17,7 @@ $ npm run local
 
 ```
 import React from 'react';
-import { PieChart } from '@atomic-reactor/reactium-ui';
+import { PieChart } from 'reactium-ui';
 
 const PieChartDemo = ({ data, style }) => (
     <div style={style.flex}>
