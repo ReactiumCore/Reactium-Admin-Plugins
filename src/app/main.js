@@ -1,29 +1,20 @@
-import { App, AppError } from 'reactium-core/app';
+// Uncomment this if you need corejs polyfills or runtime
+// import 'core-js/stable';
+// import 'regenerator-runtime/runtime';
 
-let render = App;
+import { Shell } from 'reactium-core/app/shell';
 
-/**
- * @description Initialize the app.
- */
-if (module.hot) {
-    render = () => {
-        try {
-            App();
-        } catch (error) {
-            AppError(error);
-        }
-    };
+__webpack_public_path__ = window.resourceBaseUrl || '/assets/js/';
 
-    module.hot.accept(
-        [
-            '../.././.core/dependencies/index.js',
-            '../.././.core/app.js',
-            '../.././.core/sdk/index.js',
-        ],
-        () => {
-            window.location.reload();
-        },
-    );
-}
+(async () => {
+    try {
+        await Shell();
+    } catch (error) {
+        const { AppError } = await import('reactium-core/app');
+        await AppError(error);
+    }
 
-render();
+    if (module.hot) {
+        module.hot.accept(['../../.core/app/shell.js'], window.location.reload);
+    }
+})();

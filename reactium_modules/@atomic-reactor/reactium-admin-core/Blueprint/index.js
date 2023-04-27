@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-// import { useContent } from '../Content/helpers';
+
 import Reactium, { useHookComponent, Zone } from 'reactium-core/sdk';
 import React, { useEffect, useLayoutEffect as useWindowEffect } from 'react';
 
@@ -64,12 +64,9 @@ const Blueprint = props => {
     }, [transitionState]);
 
     const route = op.get(active, 'match.route');
-    const pathname = op.get(route, 'path', op.get(active, 'location.pathname'));
 
     const ZoneLoading = useHookComponent('ZoneLoading');
 
-    // const contentRef = useContent(pathname);
-    // const content = contentRef.current;
     const blueprint = op.get(route, 'blueprint');
     const settings =
         typeof window !== 'undefined' ? window.settings : global.settings;
@@ -117,7 +114,6 @@ const Blueprint = props => {
         params,
         search,
         routeProps: props,
-        // content,
         settings,
     };
 

@@ -1,11 +1,12 @@
 import React from 'react';
 import { __ } from 'reactium-core/sdk';
 import { Button, Icon } from 'reactium-ui';
+import { useDoesMatchPath } from 'reactium-admin-core';
 
-export default ({ route }) => {
-    const path = route.path;
-    const paths = ['', '/', '/admin'];
-    const visible = paths.includes(path);
+export default () => {
+    const visible = useDoesMatchPath(path =>
+        ['', '/', '/admin'].includes(path),
+    );
 
     return (
         visible && (

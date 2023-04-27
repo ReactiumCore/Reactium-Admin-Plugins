@@ -5,28 +5,27 @@ import Blueprint from './index';
 
 const routingStateHandler = async updates => {
     if (op.get(updates, 'transitionState') === 'LOADING') {
-        const route = op.get(updates, 'active.match.route');
-        const meta = op.get(route, 'meta', {});
-
-        // load content
-        if (op.has(meta, 'contentUUID')) {
-            const type = op.get(meta, 'type');
-            const contentUUID = op.get(meta, 'contentUUID');
-
-            try {
-                await Reactium.Content.fetch(type, contentUUID);
-
-                Reactium.Routing.nextState();
-            } catch (error) {
-                // TODO: DO SOMETHING ABOUT IT! Error route?
-                console.log(
-                    `Can't load content of type ${type} and uuid ${contentUUID}`,
-                    error,
-                );
-            }
+        const routeLoader = async () => {};
+        await Reactium.Hook.run('blueprint-route-loader', routeLoader, updates);
+        const setLoading = op.get(
+            window,
+            'LoadingRef.current.setVisible',
+            () => {},
+        );
+        try {
+            setLoading(true);
+            await routeLoader();
+            await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+            // TODO: DO SOMETHING ABOUT IT! Error route?
+            console.log('Error while loading route', error, updates);
         }
+
+        setLoading(false);
+        Reactium.Routing.nextState();
     }
 };
+
 const observer = async () => {
     Reactium.Routing.routeListeners.register('blueprint-routing-observer', {
         handler: routingStateHandler,
