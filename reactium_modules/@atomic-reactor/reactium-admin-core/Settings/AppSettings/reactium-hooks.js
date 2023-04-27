@@ -4,7 +4,7 @@ import op from 'object-path';
 import AppSettings from './index';
 import Reactium, { __ } from 'reactium-core/sdk';
 import useCapabilitySettings from './useCapabilitySettings';
-import MenuItem from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/MenuItem';
+import MenuItem from 'reactium-admin-core/registered-components/MenuItem';
 
 const PLUGIN = 'app-settings';
 
@@ -28,6 +28,31 @@ Reactium.Hook.register('plugin-dependencies', async () => {
             input,
         });
     });
+});
+
+Reactium.Hook.register('blueprints', async Blueprints => {
+    const bp = {
+        sections: {
+            sidebar: {
+                zones: ['admin-sidebar'],
+                meta: {},
+            },
+            main: {
+                zones: ['admin-header', 'settings-groups', 'settings-actions'],
+                meta: {},
+            },
+        },
+        meta: {
+            builtIn: true,
+            admin: true,
+            namespace: 'admin-page',
+        },
+        ID: 'Settings',
+        description: 'Settings blueprint',
+        className: 'Blueprint',
+    };
+
+    Blueprints.register(bp.ID, bp);
 });
 
 const appSettingsPlugin = async () => {

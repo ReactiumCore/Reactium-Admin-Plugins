@@ -6,6 +6,7 @@ Reactium.Plugin.register('AdminTools').then(() => {
     // Extend sdk
     Reactium.Hotkeys = Reactium.Hotkeys || new Hotkeys();
 
+    console.log({ Tools });
     Reactium.Zone.addComponent({
         id: 'ADMIN-TOOLS',
         component: Tools,

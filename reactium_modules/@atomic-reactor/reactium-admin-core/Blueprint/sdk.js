@@ -98,10 +98,7 @@ Reactium.Hook.register(
     'blueprints',
     async () => {
         for (const bp of DEFAULTS) {
-            if (
-                op.get(bp, 'meta.admin', false) === true &&
-                !op.has(bp, 'sections.tools')
-            ) {
+            if (!op.has(bp, 'sections.tools')) {
                 op.set(bp, 'sections.tools', {
                     zones: ['admin-tools'],
                 });
