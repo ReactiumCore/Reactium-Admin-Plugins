@@ -24,10 +24,13 @@ const Tools = () => {
 
     const fixHeader = () => {
         let width = state.get('width', 0) || 0;
-        const header = refs.get('header');
-        const parent = refs.get('parent');
+        const header = iDoc.querySelector('.zone-admin-header');
 
-        if (!header || !parent) return;
+        if (!header) return;
+
+        const parent = header.parentNode;
+
+        if (!parent) return;
 
         if (parent.offsetWidth === width) return;
 
@@ -36,38 +39,6 @@ const Tools = () => {
 
         header.style.width = `${width}px`;
     };
-
-    useEffect(() => {
-        const Modal = refs.get('Modal');
-        const Tooltip = refs.get('Tooltip');
-        Reactium.State.set('Tools', { Modal, Toast, Tooltip });
-    }, [refs.get('Modal'), refs.get('Tooltip')]);
-
-    useLayoutEffect(() => {
-        const headerRef = refs.get('header');
-        const parentRef = refs.get('parent');
-
-        if (!headerRef) {
-            const h = iDoc.querySelector('.zone-admin-header');
-            refs.set('header', h);
-        }
-
-        if (headerRef && !parentRef) {
-            const p = headerRef.parentNode;
-            refs.set('parent', p);
-        }
-
-        fixHeader();
-    });
-
-    useLayoutEffect(() => {
-        const ival = state.get('ival');
-        if (ival) clearInterval(ival);
-        const i = setInterval(fixHeader, 1);
-        state.set('ival', i);
-
-        return () => clearInterval(i);
-    }, []);
 
     useStateEffect(
         {
@@ -84,6 +55,23 @@ const Tools = () => {
         },
         [],
     );
+
+    useLayoutEffect(() => {
+        const ival = state.get('ival');
+        if (ival) clearInterval(ival);
+        const i = setInterval(fixHeader, 1);
+        state.set('ival', i);
+
+        fixHeader();
+
+        return () => clearInterval(i);
+    }, []);
+
+    useEffect(() => {
+        const Modal = refs.get('Modal');
+        const Tooltip = refs.get('Tooltip');
+        Reactium.State.set('Tools', { Modal, Toast, Tooltip });
+    }, [refs.get('Modal'), refs.get('Tooltip')]);
 
     return (
         <>
