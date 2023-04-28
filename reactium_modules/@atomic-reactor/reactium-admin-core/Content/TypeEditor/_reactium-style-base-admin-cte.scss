@@ -1,0 +1,22 @@
+.zone-admin-content-type-editor {
+    padding-top: $height-admin-header;
+    z-index: map-get($z-indexes, 'default');
+    min-height: 120vh;
+}
+
+.type-editor {
+    .types-tools {
+        position: fixed;
+        top: 238px;
+        right: 20px;
+    }
+
+    .input-group > * {
+        z-index: auto;
+    }
+}
+
+.admin-content-region-type {
+    padding-top: 0;
+    padding-right: 90px;
+}

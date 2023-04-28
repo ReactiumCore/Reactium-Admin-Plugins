@@ -5,6 +5,14 @@
 //
 @use "sass:map";
 
+$color-cloud: #F7F7F7 !default;
+$color-coral: #F15F5C !default;
+$color-darkIndigo: #111735 !default;
+$color-indigo: #1D2758 !default;
+$color-sea: #00BAB4 !default;
+$color-sky: #87CEEB !default;
+$color-spring: #79C82E !default;
+$color-tint: #F3F3F3 !default;
 $color-black: #000000 !default;
 $color-gray-dark: #333333 !default;
 $color-gray: #999999 !default;
@@ -23,6 +31,14 @@ $color-green-light: #B2BB50 !default;
 
 $color: () !default;
 
+$color: map.set($color, "color-cloud", $color-cloud);
+$color: map.set($color, "color-coral", $color-coral);
+$color: map.set($color, "color-darkIndigo", $color-darkIndigo);
+$color: map.set($color, "color-indigo", $color-indigo);
+$color: map.set($color, "color-sea", $color-sea);
+$color: map.set($color, "color-sky", $color-sky);
+$color: map.set($color, "color-spring", $color-spring);
+$color: map.set($color, "color-tint", $color-tint);
 $color: map.set($color, "color-black", $color-black);
 $color: map.set($color, "color-gray-dark", $color-gray-dark);
 $color: map.set($color, "color-gray", $color-gray);

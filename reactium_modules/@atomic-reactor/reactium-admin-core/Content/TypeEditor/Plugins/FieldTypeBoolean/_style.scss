@@ -1,0 +1,14 @@
+.field-type-boolean {
+    @extend .ar-dialog;
+
+    justify-content: flex-start;
+
+    .ar-dialog-header {
+        padding: 0 12px 0 16px;
+    }
+
+    label {
+        @extend .h3;
+        width: 100%;
+    }
+}
