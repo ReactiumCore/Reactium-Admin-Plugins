@@ -28,7 +28,8 @@ Reactium.Plugin.register(`CTE-${ID}`).then(() => {
 
     Reactium.Component.register(fieldType.component, FieldType);
 
-    Reactium.Content.Editor.register(ID, { component: Editor });
+    // TODO: Fix Content SDK
+    // Reactium.Content.Editor.register(ID, { component: Editor });
 
     // TODO: Can't compare because this field type in the editor doesn't use the
     // Reactium.Content.Comparison.register(ID, { component: Comparison });
