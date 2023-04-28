@@ -191,7 +191,7 @@ Reactium.Blueprint.initRoutes = async () => {
         const blueprint =
             Reactium.Blueprint.get(blueprintId) ||
             Reactium.Blueprint.get('Admin');
-        console.log({ blueprintId, blueprint });
+
         const route = {
             id,
             path,

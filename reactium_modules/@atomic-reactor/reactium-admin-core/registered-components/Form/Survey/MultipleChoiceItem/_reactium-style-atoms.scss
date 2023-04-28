@@ -1,0 +1,33 @@
+.answer-multi {
+    font-size: px2rem(16);
+
+    input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
+
+    input + label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: px2rem(8) px2rem(16);
+        text-transform: uppercase;
+        border: 1px solid $input-color-border;
+    }
+
+    input:checked + label {
+        color: $light;
+        background: $primary;
+    }
+
+    input:focus + label {
+        border: 1px solid $primary;
+    }
+}

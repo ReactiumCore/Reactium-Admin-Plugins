@@ -14,7 +14,6 @@ const Widget = () => {
 
     const tools = useHandle('AdminTools');
     const Modal = op.get(tools, 'Modal');
-    console.log({ Modal });
 
     const confirm = () => {
         Reactium.Routing.history.replace('/logout');
