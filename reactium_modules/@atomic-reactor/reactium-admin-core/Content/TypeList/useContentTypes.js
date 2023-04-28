@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
 
-export const useContentTypes = () => {
+export const useContentTypes = (defaultValue = []) => {
     const [updated, update] = useState();
-    const [types, setTypes] = useState([]);
+    const [types, setTypes] = useState(defaultValue);
 
     const fetch = (params = {}) => Reactium.ContentType.types(params);
 
