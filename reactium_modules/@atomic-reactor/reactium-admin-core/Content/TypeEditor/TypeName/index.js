@@ -11,24 +11,26 @@ export default props => {
     const isNew = id === 'new';
     const deleteLabel = isNew ? __('Clear') : __('Delete');
     const CTE = useHandle('ContentTypeEditor');
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
+    // const tools = useHandle('AdminTools');
+    // const Modal = op.get(tools, 'Modal');
     const ConfirmBox = useHookComponent('ConfirmBox');
 
     const onConfirm = () => {
         CTE.clearDelete();
-        Modal.hide();
+        Reactium.State.Tools.Modal.hide();
     };
 
-    const showModal = () =>
-        Modal.show(
+    const showModal = () => {
+        console.log('showModal', Reactium.State);
+        Reactium.State.Tools.Modal.show(
             <ConfirmBox
                 message={__('Are you sure? This is a destructive operation.')}
-                onCancel={() => Modal.hide()}
+                onCancel={() => Reactium.State.Tools.Modal.hide()}
                 onConfirm={onConfirm}
                 title={deleteLabel}
             />,
         );
+    };
 
     const renderNameInput = () => {
         return (

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 import { Dialog, Icon, Button } from 'reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
@@ -69,8 +69,8 @@ const Header = props => {
 const FieldTypeDialog = props => {
     const dialogRef = useRef();
     const CTE = useHandle('ContentTypeEditor');
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
+    // const tools = useHandle('AdminTools');
+    // const Modal = op.get(tools, 'Modal');
     const ConfirmBox = useHookComponent('ConfirmBox');
     const removeField = op.get(CTE, 'removeField', () => {});
     const isNew = op.get(CTE, 'isNew', () => true);
@@ -87,18 +87,18 @@ const FieldTypeDialog = props => {
 
     const onConfirm = () => {
         doRemoveField();
-        Modal.hide();
+        Reactium.State.Tools.Modal.hide();
     };
 
     const showModal = () =>
-        Modal.show(
+        Reactium.State.Tools.Modal.show(
             <ConfirmBox
                 message={__(
                     'Are you sure? This may be a destructive operation on save.',
                 )}
                 onCancel={() => {
                     dialogRef.current.show();
-                    Modal.hide();
+                    Reactium.State.Tools.Modal.hide();
                 }}
                 onConfirm={onConfirm}
                 title={__('Delete Field')}

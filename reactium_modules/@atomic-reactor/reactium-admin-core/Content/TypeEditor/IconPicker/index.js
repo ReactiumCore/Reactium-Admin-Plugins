@@ -32,7 +32,7 @@ const CTIconPicker = props => {
         setState(newState);
     };
 
-    const IconPicker = useHookComponent('IconPicker', null);
+    const IconPicker = useHookComponent('IconPicker');
 
     const onButtonClick = () => {
         update({
