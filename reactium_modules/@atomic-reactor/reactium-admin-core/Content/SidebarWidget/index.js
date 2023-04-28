@@ -1,5 +1,6 @@
 import React from 'react';
 import op from 'object-path';
+import pluralize from 'pluralize';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 export default () => {
@@ -13,19 +14,31 @@ export default () => {
             .startsWith('/admin/type');
 
     return (
-        <MenuItem
-            isActive={isActive}
-            route='/admin/types'
-            add='/admin/type/new'
-            icon='Linear.Typewriter'
-            label={__('Content Types')}>
-            {types.map(({ uuid, meta }) => (
+        <>
+            {types.map(item => (
                 <MenuItem
-                    key={uuid}
-                    label={`${meta.label}`}
-                    route={`/admin/type/${uuid}`}
+                    exact={false}
+                    key={`content-${item.uuid}`}
+                    label={pluralize(item.meta.label)}
+                    add={`/admin/content/${item.machineName}/new`}
+                    route={`/admin/content/${pluralize(item.type)}/page/1`}
+                    icon={op.get(item.meta, 'icon', 'Linear.Document2')}
                 />
             ))}
-        </MenuItem>
+            <MenuItem
+                isActive={isActive}
+                route='/admin/types'
+                add='/admin/type/new'
+                icon='Linear.Typewriter'
+                label={__('Content Types')}>
+                {types.map(({ uuid, meta }) => (
+                    <MenuItem
+                        key={uuid}
+                        label={`${meta.label}`}
+                        route={`/admin/type/${uuid}`}
+                    />
+                ))}
+            </MenuItem>
+        </>
     );
 };
