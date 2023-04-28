@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
-import ENUMS from '../enums';
+import ENUMS from './enums';
 import op from 'object-path';
 import IconImg from './IconImg';
 import PropTypes from 'prop-types';
@@ -25,8 +25,6 @@ import Reactium, {
     useHookComponent,
     Zone,
 } from 'reactium-core/sdk';
-
-// import { useSelect } from '@atomic-reactor/use-select';
 
 const Card = ({ handle, Ico, label, id }) => (
     <Link

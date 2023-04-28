@@ -1,12 +1,10 @@
 import Reactium from 'reactium-core/sdk';
 import ContentTypeEditor from './index';
-import SidebarWidget from './SidebarWidget';
 import Enums from './enums';
 import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
 import Breadcrumbs from './Breadcrumbs';
 import HeaderWidget from './HeaderWidget';
-import ConentTypeList from './List';
 
 const registerPlugin = async () => {
     await Reactium.Plugin.register(
@@ -40,23 +38,10 @@ const registerPlugin = async () => {
         });
 
         Reactium.Zone.addComponent({
-            component: SidebarWidget,
-            zone: ['admin-sidebar-menu'],
-            order: 300,
-        });
-
-        Reactium.Zone.addComponent({
             component: ContentTypeEditor,
             zone: ['admin-content-type-editor'],
             order: 0,
             Enums,
-        });
-
-        Reactium.Zone.addComponent({
-            id: 'ADMIN-CONTENT-TYPE-LIST',
-            component: ConentTypeList,
-            order: -1000,
-            zone: ['admin-content-types'],
         });
     }
 };
