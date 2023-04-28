@@ -20,6 +20,7 @@ export * from './Image';
 export * from './Modal';
 export * from './Pagination';
 export * from './Picker';
+export * from './Portal';
 export * from './Prefs';
 export * from './Progress';
 export * from './Radio';

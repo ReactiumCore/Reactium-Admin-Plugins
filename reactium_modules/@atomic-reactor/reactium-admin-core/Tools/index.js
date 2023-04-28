@@ -1,119 +1,97 @@
-import { Modal, Toast, Tooltip } from 'reactium-ui';
-import Reactium, { useRegisterHandle, useDocument } from 'reactium-core/sdk';
+import Reactium, {
+    useDocument,
+    useStateEffect,
+    useSyncState,
+    useRefs,
+} from 'reactium-core/sdk';
 
-import React, {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useLayoutEffect as useWindowEffect,
-    useRef,
-} from 'react';
+import _ from 'underscore';
+import { Modal, Toast, Tooltip } from 'reactium-ui';
+import React, { useEffect, useLayoutEffect as useWindowEffect } from 'react';
 
 const useLayoutEffect =
     typeof window !== 'undefined' ? useWindowEffect : useEffect;
 
-let Tools = (props, ref) => {
-    const ival = useRef();
-    const width = useRef();
-    const headerRef = useRef();
-    const parentRef = useRef();
-    const modalRef = useRef();
-    const tooltipRef = useRef();
+const Tools = () => {
+    const refs = useRefs();
 
     const iDoc = useDocument();
 
-    const handle = () => ({
-        Modal: modalRef.current,
-        Tooltip: tooltipRef.current,
-        Toast,
+    const state = useSyncState({
+        ival: null,
+        width: 0,
     });
 
     const fixHeader = () => {
-        const header = headerRef.current;
-        const parent = parentRef.current;
+        let width = state.get('width', 0) || 0;
+        const header = refs.get('header');
+        const parent = refs.get('parent');
 
-        if (!header || !parent) {
-            return;
-        }
-        if (parent.offsetWidth === width.current) {
-            return;
-        }
+        if (!header || !parent) return;
 
-        width.current = parent.offsetWidth;
+        if (parent.offsetWidth === width) return;
 
-        header.style.width = `${width.current}px`;
+        width = parent.offsetWidth;
+        state.set('width', width, true);
+
+        header.style.width = `${width}px`;
     };
 
-    const onKeyDown = e => Reactium.Hotkeys.onKeyboardEvent(e);
-
-    const dismissModal = e => {
-        if (!modalRef.current) return;
-        e.preventDefault();
-        handle.Modal.hide();
-        return false;
-    };
+    useEffect(() => {
+        const Modal = refs.get('Modal');
+        const Tooltip = refs.get('Tooltip');
+        Reactium.State.set('Tools', { Modal, Toast, Tooltip });
+    }, [refs.get('Modal'), refs.get('Tooltip')]);
 
     useLayoutEffect(() => {
-        if (!headerRef.current) {
-            headerRef.current = iDoc.querySelector('.zone-admin-header');
+        const headerRef = refs.get('header');
+        const parentRef = refs.get('parent');
+
+        if (!headerRef) {
+            const h = iDoc.querySelector('.zone-admin-header');
+            refs.set('header', h);
         }
 
-        if (headerRef.current && !parentRef.current) {
-            parentRef.current = headerRef.current.parentNode;
+        if (headerRef && !parentRef) {
+            const p = headerRef.parentNode;
+            refs.set('parent', p);
         }
 
         fixHeader();
-    }, [headerRef.current, parentRef.current, width]);
+    });
 
     useLayoutEffect(() => {
-        ival.current = setInterval(fixHeader, 1);
-        return () => clearInterval(ival.current);
-    });
+        const ival = state.get('ival');
+        if (ival) clearInterval(ival);
+        const i = setInterval(fixHeader, 1);
+        state.set('ival', i);
 
-    useEffect(() => {
-        handle.Modal = modalRef.current;
-        handle.Tooltip = tooltipRef.current;
-    });
-
-    useEffect(() => {
-        Reactium.Hotkeys.register('modal-esc', {
-            callback: dismissModal,
-            key: 'esc',
-            order: Reactium.Enums.priority.lowest,
-            scope: document,
-        });
-
-        return () => {
-            Reactium.Hotkeys.unregister('modal-esc');
-        };
+        return () => clearInterval(i);
     }, []);
 
-    // Register keyboard hotkey listener
-    useEffect(() => {
-        if (!modalRef.current) return;
-        if (typeof window === 'undefined') return;
+    useStateEffect(
+        {
+            set: e => {
+                const p = _.isString(e.path)
+                    ? e.path
+                    : _.isObject(e.value)
+                    ? _.first(Object.keys(e.value))
+                    : '';
 
-        window.addEventListener('keydown', onKeyDown);
+                if (!String(p).startsWith('Tools')) return;
+                Reactium.State.Tools = Reactium.State.get('Tools');
+            },
+        },
+        [],
+    );
 
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-        };
-    }, [Modal]);
-
-    // External Interface
-    useRegisterHandle('AdminTools', handle);
-    useImperativeHandle(ref, handle);
-
-    // Render
     return (
         <>
-            <Modal ref={modalRef} />
-            <Tooltip ref={tooltipRef} />
+            <Modal ref={elm => refs.set('Modal', elm)} />
+            <Tooltip ref={elm => refs.set('Tooltip', elm)} />
             <Toast />
         </>
     );
 };
-
-Tools = forwardRef(Tools);
 
 export { Tools as default };

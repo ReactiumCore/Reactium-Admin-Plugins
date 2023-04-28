@@ -1,52 +1,35 @@
-import _ from 'underscore';
-import React, { useEffect, useState, useCallback } from 'react';
-import op from 'object-path';
-import Reactium, { useHandle, useHookComponent } from 'reactium-core/sdk';
-
-const noop = {
-    dismiss: () => {},
-    show: () => {},
-};
+import React from 'react';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 const Widget = () => {
-    const ConfirmBox = useHookComponent('ConfirmBox');
     const MenuItem = useHookComponent('MenuItem');
+    const ConfirmBox = useHookComponent('ConfirmBox');
 
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
-    console.log({ Modal });
+    const cancel = () => Reactium.State.Tools.Modal.hide();
 
     const confirm = () => {
+        Reactium.State.Tools.Modal.dismiss();
         Reactium.Routing.history.replace('/logout');
-        Modal.dismiss();
     };
 
-    const showModal = useCallback(() => {
-        Modal.show(
+    const showModal = () =>
+        Reactium.State.Tools.Modal.show(
             <ConfirmBox
-                message='Are you sure?'
-                onCancel={() => Modal.hide()}
-                onConfirm={() => confirm()}
-                title='Sign Out'
+                onCancel={cancel}
+                onConfirm={confirm}
+                title={__('Sign Out')}
+                message={__('Are you sure?')}
             />,
         );
-    }, [Modal]);
 
-    const render = useCallback(
-        () => (
-            <>
-                <MenuItem
-                    label='Sign Out'
-                    onClick={showModal}
-                    icon='Linear.PowerSwitch'
-                    isActive={() => false}
-                />
-            </>
-        ),
-        [showModal],
+    return (
+        <MenuItem
+            onClick={showModal}
+            label={__('Sign Out')}
+            isActive={() => false}
+            icon='Linear.PowerSwitch'
+        />
     );
-
-    return render();
 };
 
 export default Widget;

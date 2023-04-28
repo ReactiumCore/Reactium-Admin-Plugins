@@ -164,7 +164,7 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
 
     const Sidebar = useHandle('AdminSidebar');
 
-    const Tools = useHandle('AdminTools');
+    const Tools = op.get(Reactium.State, 'Tools');
 
     const { breakpoint } = useWindowSize({ delay: 0 });
 

@@ -3,12 +3,7 @@ import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
 import { Button, Icon, Dialog, Checkbox, Spinner } from 'reactium-ui';
 import DataTable from 'reactium-ui/DataTable';
 
-import Reactium, {
-    __,
-    useRoles,
-    useHandle,
-    useWindowSize,
-} from 'reactium-core/sdk';
+import Reactium, { __, useRoles, useWindowSize } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -112,8 +107,8 @@ const CapabilityEditor = ({
         setLoadedCaps(newValue);
     };
 
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
+    // const tools = useHandle('AdminTools');
+    const Toast = op.get(Reactium.State.Tools, 'Toast');
 
     const { breakpoint } = useWindowSize();
 

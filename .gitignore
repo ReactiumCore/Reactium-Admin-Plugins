@@ -88,10 +88,6 @@ src/domains.js
 # Translation .mo
 *.mo
 
-# rui components for testing
-ReactiumUI
-Reactium-UI
-
 # Ignore All but @atomic-reactor reactium-admin modules in this directory
 reactium_modules/*
 reactium_modules/@atomic-reactor/reactium-api

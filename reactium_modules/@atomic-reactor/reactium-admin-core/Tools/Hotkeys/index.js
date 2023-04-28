@@ -2,7 +2,7 @@ import _ from 'underscore';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import Registry from '../Registry';
-import Reactium, { useIsContainer as isContainer } from 'reactium-core/sdk';
+import { useIsContainer as isContainer } from 'reactium-core/sdk';
 
 export default class Hotkeys extends Registry {
     constructor() {
