@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
-import { Button, Icon, Dialog, Checkbox, Spinner } from 'reactium-ui';
-import DataTable from 'reactium-ui/DataTable';
-
-import Reactium, { __, useRoles, useWindowSize } from 'reactium-core/sdk';
-import op from 'object-path';
 import _ from 'underscore';
+import op from 'object-path';
+import React, { useState } from 'react';
+import DataTable from 'reactium-ui/DataTable';
+import { Button, Icon, Dialog, Checkbox, Spinner } from 'reactium-ui';
+import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, { __, useRoles, useWindowSize } from 'reactium-core/sdk';
 
 const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     return (
         <span
-            title={tooltip}
             tabIndex={0}
-            data-tooltip={tooltip}
+            title={tooltip}
             data-align='right'
+            data-tooltip={tooltip}
             data-vertical-align='middle'>
             {title}
         </span>
@@ -107,8 +106,7 @@ const CapabilityEditor = ({
         setLoadedCaps(newValue);
     };
 
-    // const tools = useHandle('AdminTools');
-    const Toast = op.get(Reactium.State.Tools, 'Toast');
+    const Toast = op.get(Reactium.State, 'Tools.Toast');
 
     const { breakpoint } = useWindowSize();
 

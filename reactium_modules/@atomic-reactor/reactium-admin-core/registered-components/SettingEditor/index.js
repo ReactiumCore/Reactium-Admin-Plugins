@@ -4,13 +4,14 @@ import React, {
     useLayoutEffect as useWindowEffect,
     useEffect,
 } from 'react';
+
 import Reactium, {
     __,
     useAsyncEffect,
     useSettingGroup,
-    useHandle,
     Zone,
 } from 'reactium-core/sdk';
+
 import { Dialog, Toggle, Checkbox, Button, Icon, EventForm } from 'reactium-ui';
 // import EventForm from 'components/EventForm';
 import cn from 'classnames';
@@ -28,8 +29,7 @@ const useLayoutEffect =
  * -----------------------------------------------------------------------------
  */
 const SettingEditor = ({ settings = {}, classNames = [] }) => {
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
+    const Toast = op.get(Reactium.State, 'Tools.Toast');
     const formRef = useRef();
     const errorsRef = useRef({});
     const [, setVersion] = useState(new Date());

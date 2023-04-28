@@ -1,12 +1,12 @@
-import React, { memo, useState } from 'react';
 import Reactium, {
-    useHookComponent,
-    useAsyncEffect,
-    useHandle,
     __,
+    useAsyncEffect,
+    useHookComponent,
 } from 'reactium-core/sdk';
+
 import op from 'object-path';
 import shallow from 'shallow-equals';
+import React, { memo, useState } from 'react';
 
 const settings = group => ({
     appId: op.get(group, 'appId'),
@@ -27,8 +27,6 @@ const defaultSyncContext = {
 };
 
 const Sync = memo(({ settingGroup }) => {
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
     const { Icon, Button } = useHookComponent('ReactiumUI');
     const [state, setState] = useState({
         loading: true,

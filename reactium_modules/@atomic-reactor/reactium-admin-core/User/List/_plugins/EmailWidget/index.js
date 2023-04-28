@@ -2,14 +2,12 @@ import React from 'react';
 import op from 'object-path';
 import copy from 'copy-to-clipboard';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
+import Reactium, { __ } from 'reactium-core/sdk';
 
 const EmailWidget = ({ user }) => {
     const { email } = user;
 
-    const tools = useHandle('AdminTools');
-
-    const Toast = op.get(tools, 'Toast');
+    const Toast = op.get(Reactium.State, 'Tools.Toast');
 
     const onClick = () => {
         copy(email);

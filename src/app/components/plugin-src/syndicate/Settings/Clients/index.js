@@ -1,22 +1,14 @@
 import React, { useState } from 'react';
 import Reactium, {
     __,
-    useHandle,
     useHookComponent,
     useAsyncEffect,
 } from 'reactium-core/sdk';
 import op from 'object-path';
 import copy from 'copy-to-clipboard';
 
-const useModal = () => {
-    const tools = useHandle('AdminTools');
-    return op.get(tools, 'Modal');
-};
-
-const useToast = () => {
-    const tools = useHandle('AdminTools');
-    return op.get(tools, 'Toast');
-};
+const useModal = () => op.get(Reactium.State, 'Tools.Modal');
+const useToast = () => op.get(Reactium.State, 'Tools.Toast');
 
 const noop = () => {};
 const NewClient = ({ onSave = noop, onCancel = noop }) => {

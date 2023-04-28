@@ -1,11 +1,11 @@
 import React from 'react';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 import op from 'object-path';
 
-const BigRed = props => {
-    const tools = useHandle('AdminTools');
-    const Modal = op.get(tools, 'Modal');
-    const Toast = op.get(tools, 'Toast');
+const BigRed = () => {
+    const Modal = op.get(Reactium.State, 'Tools.Modal');
+    const Toast = op.get(Reactium.State, 'Tools.Toast');
+
     const ConfirmBox = useHookComponent('ConfirmBox');
     const { Icon, Dialog, Button } = useHookComponent('ReactiumUI');
     const title = __('Actinium Reset');

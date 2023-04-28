@@ -1,15 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useHookComponent, useHandle, __ } from 'reactium-core/sdk';
-import op from 'object-path';
 import _ from 'underscore';
+import op from 'object-path';
+import React, { useEffect, useState, useRef } from 'react';
+import Reactium, { useHookComponent, __ } from 'reactium-core/sdk';
 
 const ContentEditorControl = ({ editor }) => {
-    const Tools = useHandle('AdminTools');
-    const Modal = op.get(Tools, 'Modal');
+    const Modal = op.get(Reactium.State, 'Tools.Modal');
     const revisionManagerRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
     const Revisions = useHookComponent('Revisions');
-    const { Button, Toggle, Alert, Icon } = useHookComponent('ReactiumUI');
+    const { Button, Toggle, Icon } = useHookComponent('ReactiumUI');
     const content = op.get(editor, 'value', {});
     const toggleLabels = {
         on: __('Turn off synchronization'),

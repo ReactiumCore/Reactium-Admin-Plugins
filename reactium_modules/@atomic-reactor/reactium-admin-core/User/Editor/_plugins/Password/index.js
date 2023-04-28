@@ -1,8 +1,8 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/User/enums';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
 
 const Message = () => (
     <>
@@ -16,9 +16,7 @@ const Password = ({ className, disabled = false, user }) => {
 
     const { Button, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
 
-    const tools = useHandle('AdminTools');
-
-    const Modal = op.get(tools, 'Modal');
+    const Modal = op.get(Reactium.State, 'Tools.Modal');
 
     // Kick off reset password routine.
     const resetPassword = async () => {
