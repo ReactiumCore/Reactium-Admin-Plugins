@@ -1,18 +1,9 @@
+import ENUMS from './enums';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
-
-import ENUMS from './enums';
-
-import React, {
-    forwardRef,
-    useImperativeHandle,
-    useRef,
-    useState,
-    useEffect,
-} from 'react';
-
-const noop = () => {};
+import React, { forwardRef, useImperativeHandle } from 'react';
+import { useDispatcher, useRefs, useSyncState } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -20,158 +11,97 @@ const noop = () => {};
  * -----------------------------------------------------------------------------
  */
 let Dismissable = ({ children, ...props }, ref) => {
-    // Refs
-    const stateRef = useRef({
-        prevState: {},
+    const refs = useRefs();
+
+    const state = useSyncState({
         ...props,
     });
 
-    const containerRef = useRef();
+    const dispatch = useDispatcher({ props, state });
 
-    // State
-    const [state, setNewState] = useState(stateRef.current);
-
-    // Internal Interface
-    const setState = newState => {
-        // Get the previous state
-        const prevState = { ...stateRef.current };
-
-        // Update the stateRef
-        stateRef.current = {
-            ...prevState,
-            ...newState,
-            prevState,
-        };
-
-        // Trigger useEffect()
-        setNewState(stateRef.current);
-    };
-
-    const hide = () => {
-        const { animation, visible } = stateRef.current;
-
-        if (visible !== true) {
-            setState({ animation: null });
-            return Promise.resolve();
-        }
-
-        if (animation) {
-            return animation;
-        }
-
-        const {
-            animationEase,
-            animationSpeed,
-            onBeforeHide,
-            onDismiss,
-            onHide,
-        } = stateRef.current;
-
-        const container = containerRef.current;
-
-        container.style.display = 'block';
-
-        onBeforeHide({
-            target: container,
-            type: ENUMS.EVENT.BEFORE_HIDE,
-        });
-
-        const tween = new Promise(resolve =>
-            TweenMax.to(container, animationSpeed, {
-                ease: animationEase,
-                opacity: 0,
-                onComplete: () => {
-                    const evt = {
-                        target: container,
-                        type: ENUMS.EVENT.HIDE,
-                        state,
-                    };
-
-                    container.removeAttribute('style');
-                    setState({ animation: null, visible: false });
-                    onHide(evt);
-                    onDismiss({ ...evt, type: ENUMS.EVENT.DISMISS });
-                    resolve();
-                },
-            }),
-        );
-
-        setState({ animation: tween });
-
-        return tween;
-    };
+    const isVisible = () => state.get('visible') === true;
 
     const show = () => {
-        const { visible, animation } = stateRef.current;
-
-        if (visible === true) {
-            setState({ animation: null });
+        if (isVisible()) {
+            state.set('animation', null);
             return Promise.resolve();
         }
 
-        if (animation) {
-            return animation;
-        }
+        const container = refs.get('container');
 
-        const {
-            animationEase,
-            animationSpeed,
-            onBeforeShow,
-            onShow,
-        } = stateRef.current;
-
-        const container = containerRef.current;
+        TweenMax.killTweensOf(container);
 
         container.style.display = 'block';
         container.classList.remove('visible');
 
-        onBeforeShow({
-            target: container,
-            type: ENUMS.EVENT.BEFORE_SHOW,
+        dispatch('before-show');
+
+        const { animationEase: ease, animationSpeed } = state.get();
+
+        const animation = new Promise(resolve => {
+            TweenMax.to(container, animationSpeed, {
+                ease,
+                opacity: 1,
+                onComplete: () => complete(resolve),
+            });
         });
 
-        const tween = new Promise(resolve =>
+        state.set({ animation });
+
+        return animation;
+    };
+
+    const hide = () => {
+        if (!isVisible()) {
+            state.set('animation', null);
+            return Promise.resolve();
+        }
+
+        const container = refs.get('container');
+
+        TweenMax.killTweensOf(container);
+
+        container.style.display = 'block';
+
+        dispatch('before-hide');
+
+        const { animationEase: ease, animationSpeed } = state.get();
+
+        const animation = new Promise(resolve => {
             TweenMax.to(container, animationSpeed, {
-                ease: animationEase,
-                opacity: 1,
-                onComplete: () => {
-                    const evt = {
-                        target: container,
-                        type: ENUMS.EVENT.SHOW,
-                    };
+                ease,
+                opacity: 0,
+                onComplete: () => complete(resolve),
+            });
+        });
 
-                    container.removeAttribute('style');
-                    setState({ visible: true, animation: null });
-                    onShow(evt);
-                    resolve();
-                },
-            }),
-        );
+        state.set({ animation });
 
-        setState({ animation: tween });
-
-        return tween;
+        return animation;
     };
 
-    const toggle = e => {
-        const { visible } = stateRef.current;
-        return visible !== true ? show(e) : hide(e);
+    const complete = resolve => {
+        if (isVisible()) {
+            state.set({ animation: null, visible: false });
+            dispatch('hide');
+            dispatch('dismiss');
+            dispatch('complete');
+            const container = refs.get('container');
+            container.removeAttribute('style');
+            container.style.display = 'none';
+        } else {
+            state.set({ animation: null, visible: true });
+            dispatch('show');
+            dispatch('complete');
+        }
+
+        resolve();
     };
 
-    // External Interface
-    useImperativeHandle(ref, () => ({
-        hide,
-        container: containerRef.current,
-        show,
-        setState,
-        state: stateRef.current,
-        toggle,
-    }));
-
-    useEffect(() => setState(props), Object.values(props));
+    const toggle = e => (isVisible() ? hide(e) : show(e));
 
     const render = () => {
-        const { className, visible, namespace } = stateRef.current;
+        const { className, visible, namespace } = state.get();
 
         const cname = cn({
             [className]: !!className,
@@ -180,11 +110,17 @@ let Dismissable = ({ children, ...props }, ref) => {
         });
 
         return (
-            <div ref={containerRef} className={cname}>
+            <div ref={elm => refs.set('container', elm)} className={cname}>
                 {children}
             </div>
         );
     };
+
+    state.extend('hide', hide);
+    state.extend('show', show);
+    state.extend('toggle', toggle);
+
+    useImperativeHandle(ref, () => state, []);
 
     return render();
 };
@@ -210,11 +146,6 @@ Dismissable.defaultProps = {
     animationEase: Power2.easeInOut,
     animationSpeed: 0.25,
     namespace: 'ar-dismissable',
-    onBeforeHide: noop,
-    onBeforeShow: noop,
-    onDismiss: noop,
-    onHide: noop,
-    onShow: noop,
     visible: false,
 };
 

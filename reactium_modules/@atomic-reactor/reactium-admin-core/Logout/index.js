@@ -13,7 +13,7 @@ const ENUMS = {
  * Functional Component: Login
  * -----------------------------------------------------------------------------
  */
-const Logout = ({ className, redirect, ...props }) => {
+const Logout = ({ redirect }) => {
     const stateRef = useRef({
         status: ENUMS.STATUS.READY,
     });
