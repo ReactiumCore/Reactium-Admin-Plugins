@@ -271,7 +271,7 @@ let Form = (
                 refs.set(`elements.${narr.join('.')}`, {});
             }
 
-            return React.cloneElement(
+            const cloned = React.cloneElement(
                 child,
                 {
                     'aria-required': op.get(
@@ -305,6 +305,10 @@ let Form = (
                 },
                 childrenMap(child.props.children),
             );
+
+            dispatch('register', { element: cloned });
+
+            return cloned;
         }
 
         return React.cloneElement(
@@ -796,6 +800,7 @@ Form.propTypes = {
     namespace: PropTypes.string,
     onChange: PropTypes.func,
     onError: PropTypes.func,
+    onRegister: PropTypes.func,
     onSubmit: PropTypes.func,
     onValidate: PropTypes.func,
     style: PropTypes.object,
