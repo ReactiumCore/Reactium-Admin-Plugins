@@ -1,7 +1,13 @@
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef, useState } from 'react';
-import { __, useHookComponent, useIsContainer } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+    useIsContainer,
+} from 'reactium-core/sdk';
+
+const getToast = () => Reactium.State.Tools.Toast;
 
 const ListItem = props => {
     const refs = useRef({}).current;
@@ -47,6 +53,7 @@ const ListItem = props => {
         refs.input.setAttribute('readOnly', true);
         refs.carousel.jumpTo(2);
 
+        const Toast = getToast();
         Toast.show({
             type: Toast.TYPE.INFO,
             message: __('%route marked for deletion').replace(

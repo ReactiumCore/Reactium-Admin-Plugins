@@ -13,6 +13,8 @@ import Reactium, {
     useStatus,
 } from 'reactium-core/sdk';
 
+const getToast = () => Reactium.State.Tools.Toast;
+
 export default props => {
     // prettier-ignore
     const { Alert, Button, Dropdown, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
@@ -109,6 +111,7 @@ export default props => {
         }
 
         if (isRoute(route)) {
+            const Toast = getToast();
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: __('%route already exists').replace(

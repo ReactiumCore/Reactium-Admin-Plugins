@@ -16,6 +16,8 @@ import Reactium, {
     useRegisterHandle,
 } from 'reactium-core/sdk';
 
+const getToast = () => Reactium.State.Tools.Toast;
+
 export const slugify = name =>
     !name
         ? ''
@@ -303,8 +305,8 @@ const ContentType = props => {
         meta: {},
     });
 
-    const tools = useHandle('AdminTools');
-    const Toast = op.get(tools, 'Toast');
+    // const tools = useHandle('AdminTools');
+    // const Toast = op.get(tools, 'Toast');
 
     const parentFormRef = useRef();
     const formsRef = useRef({});
@@ -398,6 +400,7 @@ const ContentType = props => {
                 type: UI.LOADED,
             });
         } catch (error) {
+            const Toast = getToast();
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: __('Error loading content type.'),
@@ -471,6 +474,7 @@ const ContentType = props => {
             op.set(error, 'type.field', 'type');
             op.set(error, 'type.message', nameTakenError);
 
+            const Toast = getToast();
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: nameTakenError,
@@ -527,7 +531,7 @@ const ContentType = props => {
                 const errorMessage = __(
                     'Duplicate field name %fieldName',
                 ).replace('%fieldName', fieldName);
-
+                const Toast = getToast();
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: errorMessage,
@@ -559,6 +563,7 @@ const ContentType = props => {
                 const errorMessage = __(
                     'Field name %fieldName type exists.',
                 ).replace('%fieldName', fieldName);
+                const Toast = getToast();
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: errorMessage,
@@ -709,6 +714,7 @@ const ContentType = props => {
                 type: UI.LOADED,
             });
 
+            const Toast = getToast();
             Toast.show({
                 type: Toast.TYPE.SUCCESS,
                 message: __('Content type saved'),
@@ -722,6 +728,7 @@ const ContentType = props => {
                 );
             }
         } catch (error) {
+            const Toast = getToast();
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: __('Error saving content type.'),
@@ -871,7 +878,7 @@ const ContentType = props => {
         if (id !== 'new') {
             try {
                 await Reactium.ContentType.delete(id);
-
+                const Toast = getToast();
                 Toast.show({
                     type: Toast.TYPE.SUCCESS,
                     message: __('Content type deleted.'),
@@ -881,6 +888,8 @@ const ContentType = props => {
 
                 Reactium.Routing.history.push('/admin/type/new');
             } catch (error) {
+                const Toast = getToast();
+
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: __('Error deleting content type.'),

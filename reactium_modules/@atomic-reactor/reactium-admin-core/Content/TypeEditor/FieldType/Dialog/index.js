@@ -6,6 +6,8 @@ import cn from 'classnames';
 import op from 'object-path';
 import Enums from '../../enums';
 
+const getToast = () => Reactium.State.Tools.Toast;
+
 const Header = props => {
     const inputRef = useRef();
     const { id, singular, icon: FieldIcon, DragHandle } = props;

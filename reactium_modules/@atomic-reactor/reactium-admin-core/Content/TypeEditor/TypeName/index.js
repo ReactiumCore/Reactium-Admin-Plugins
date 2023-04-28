@@ -21,7 +21,6 @@ export default props => {
     };
 
     const showModal = () => {
-        console.log('showModal', Reactium.State);
         Reactium.State.Tools.Modal.show(
             <ConfirmBox
                 message={__('Are you sure? This is a destructive operation.')}
