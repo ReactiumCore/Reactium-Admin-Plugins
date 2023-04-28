@@ -2,7 +2,6 @@ import React from 'react';
 import ENUMS from './enums';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { useHandle } from 'reactium-core/sdk';
 import { Button, Dialog } from 'reactium-ui';
 
 /**

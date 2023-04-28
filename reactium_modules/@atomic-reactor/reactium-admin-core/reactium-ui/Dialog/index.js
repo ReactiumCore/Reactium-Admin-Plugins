@@ -109,7 +109,6 @@ let Dialog = ({ children, id, pref, ...props }, ref) => {
     };
 
     const _onHide = e => {
-        e.target = containerRef.current;
         const { onDismiss, onHide } = stateRef.current;
         setState({ visible: false });
         onHide(e);
