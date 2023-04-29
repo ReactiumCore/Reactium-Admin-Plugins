@@ -910,9 +910,11 @@ const ContentType = props => {
         isActiveRegion,
         isNew,
         setActiveRegion,
+        dispatch,
     });
 
     Object.entries(_handle()).forEach(([key, value]) => CTE.extend(key, value));
+    CTE.ACTIONS = ACTIONS;
 
     return (
         <div

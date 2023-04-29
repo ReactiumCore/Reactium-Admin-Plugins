@@ -1,6 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHandle,
+    useHookComponent,
+    useDispatcher,
+    useStateEffect,
+} from 'reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import IconPicker from '../IconPicker';
@@ -12,6 +18,12 @@ export default props => {
     const deleteLabel = isNew ? __('Clear') : __('Delete');
     const CTE = useHandle('CTE');
     const ConfirmBox = useHookComponent('ConfirmBox');
+    const dispatch = useDispatcher({ props });
+    useStateEffect({
+        'content-type-deleted': e => {
+            Reactium.Routing.history.push('/admin/types');
+        },
+    });
 
     const onConfirm = () => {
         CTE.clearDelete();
@@ -19,14 +31,21 @@ export default props => {
     };
 
     const showModal = () => {
-        Reactium.State.Tools.Modal.show(
-            <ConfirmBox
-                message={__('Are you sure? This is a destructive operation.')}
-                onCancel={() => Reactium.State.Tools.Modal.hide()}
-                onConfirm={onConfirm}
-                title={deleteLabel}
-            />,
-        );
+        console.log({ isNew, id });
+        if (isNew) {
+            Reactium.State.Tools.Modal.show(
+                <ConfirmBox
+                    message={__(
+                        'Are you sure? This is a destructive operation.',
+                    )}
+                    onCancel={() => Reactium.State.Tools.Modal.hide()}
+                    onConfirm={onConfirm}
+                    title={deleteLabel}
+                />,
+            );
+        } else {
+            dispatch('content-type-delete', { details: CTE.get('ct') });
+        }
     };
 
     const renderNameInput = () => {
