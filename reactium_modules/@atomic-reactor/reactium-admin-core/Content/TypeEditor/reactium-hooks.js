@@ -5,7 +5,6 @@ import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
 import Breadcrumbs from './Breadcrumbs';
 import HeaderWidget from './HeaderWidget';
-import ContentTypeList from './List';
 
 const CTE = new ReactiumSyncState({
     ct: {
