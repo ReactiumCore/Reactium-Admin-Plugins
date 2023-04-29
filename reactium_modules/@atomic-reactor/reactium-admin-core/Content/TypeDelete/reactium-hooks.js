@@ -13,7 +13,7 @@ import Reactium from 'reactium-core/sdk';
     Reactium.Zone.addComponent({
         order: 1000,
         component: Component,
-        zone: ['admin-content-types'],
+        zone: ['admin-content-types', 'admin-content-type-editor'],
         id: 'ADMIN-CONTENT-TYPE-DELETE-BOX',
     });
 })();
