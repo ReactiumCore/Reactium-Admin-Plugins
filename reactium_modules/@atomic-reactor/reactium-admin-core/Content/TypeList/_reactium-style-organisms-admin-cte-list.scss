@@ -1,5 +1,6 @@
 $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
 
+.admin-content-list,
 .admin-content-type-list {
     padding-top: $height-admin-header;
     min-height: 100vh;
@@ -154,7 +155,6 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
         }
     }
 
-    &-graphic,
     &-icon {
         display: flex;
         align-items: center;
@@ -177,5 +177,46 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
 
     &-label {
         font-weight: 500;
+    }
+
+    &-search {
+        position: relative;
+        color: $color-gray;
+        margin-bottom: 28px;
+
+        input {
+            padding-left: 40px;
+            padding-right: 62px;
+            margin: 0;
+        }
+
+        .ar-icon.search {
+            top: 50%;
+            left: 12px;
+            position: absolute;
+            transform: translateY(-50%);
+        }
+
+        button.go {
+            position: absolute;
+            top: 50%;
+            right: 6px;
+            margin: 0;
+            width: 50px;
+            height: calc(100% - 12px);
+            transform: translateY(-50%);
+        }
+
+        button.clear {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            margin: 0;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
     }
 }

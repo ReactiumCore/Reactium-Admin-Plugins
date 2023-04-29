@@ -1,17 +1,45 @@
 import cn from 'classnames';
 import Empty from './Empty';
+import op from 'object-path';
 import PropTypes from 'prop-types';
 import { ListItem } from './ListItem';
 import { Spinner } from 'reactium-ui';
-import React, { useCallback } from 'react';
-import { __, cxFactory, useHookComponent, Zone } from 'reactium-core/sdk';
+import React, { useCallback, useState } from 'react';
+import {
+    __,
+    cxFactory,
+    useHookComponent,
+    useStateEffect,
+    Zone,
+} from 'reactium-core/sdk';
 
 const ContentTypeList = ({ className, namespace, title }) => {
     const Helmet = useHookComponent('Helmet');
 
     const [types] = useHookComponent('useContentTypes')(false);
 
-    const filter = useCallback(() => types, [types]);
+    const [search, setSearch] = useState('');
+
+    const filter = useCallback(() => {
+        const matcher = item => {
+            let match = String(op.get(item, 'meta.label', ''))
+                .toLowerCase()
+                .startsWith(search);
+
+            match = !match
+                ? String(op.get(item, 'machineName', ''))
+                      .toLowerCase()
+                      .startsWith(search)
+                : match;
+            return match;
+        };
+
+        return types.filter(matcher);
+    }, [types, search]);
+
+    const onSearch = useCallback(e => {
+        setSearch(String(e.value || '').toLowerCase());
+    }, []);
 
     const isEmpty = useCallback(
         () => Boolean(types !== false && types.length < 1),
@@ -19,6 +47,13 @@ const ContentTypeList = ({ className, namespace, title }) => {
     );
 
     const cx = cxFactory(namespace);
+
+    useStateEffect(
+        {
+            'admin-content-type-list-search': onSearch,
+        },
+        [],
+    );
 
     return types === false ? (
         <Spinner className={cx('spinner')} />

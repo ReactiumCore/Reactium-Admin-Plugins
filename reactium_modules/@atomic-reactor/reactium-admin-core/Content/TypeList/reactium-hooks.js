@@ -4,9 +4,6 @@
  * -----------------------------------------------------------------------------
  */
 
-import Component from './index';
-import Reactium from 'reactium-core/sdk';
-import { useContentTypes } from './useContentTypes';
 import {
     ListItemAdd,
     ListItemCount,
@@ -15,6 +12,11 @@ import {
     ListItemMeta,
     ListItemTitle,
 } from './ListItem';
+
+import Component from './index';
+import { SearchBar } from './Searchbar';
+import Reactium from 'reactium-core/sdk';
+import { useContentTypes } from './useContentTypes';
 
 (async () => {
     await Reactium.Plugin.register(
@@ -27,6 +29,13 @@ import {
         component: Component,
         zone: ['admin-content-types'],
         id: 'ADMIN-CONTENT-TYPE-LIST',
+    });
+
+    Reactium.Zone.addComponent({
+        order: 100,
+        component: SearchBar,
+        zone: ['admin-content-type-list-top'],
+        id: 'ADMIN-CONTENT-TYPE-LIST-SEARCH',
     });
 
     Reactium.Component.register('useContentTypes', useContentTypes);
