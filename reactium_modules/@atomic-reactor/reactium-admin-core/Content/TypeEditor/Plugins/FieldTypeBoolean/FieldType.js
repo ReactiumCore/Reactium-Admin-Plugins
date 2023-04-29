@@ -13,7 +13,7 @@ export const FieldType = props => {
 
     const refs = useRefs();
 
-    const Editor = useHandle('ContentTypeEditor');
+    const Editor = useHandle('CTE');
 
     const { Toggle } = useHookComponent('ReactiumUI');
 

@@ -13,8 +13,8 @@ import _ from 'underscore';
  */
 const noop = () => {};
 const Fields = props => {
-    const CTE = useHandle('ContentTypeEditor');
-    const ui = op.get(CTE, 'ui', {});
+    const CTE = useHandle('CTE');
+    const ui = CTE.get('ct', {});
 
     const FieldType = useHookComponent('FieldType');
 

@@ -29,7 +29,7 @@ const FieldType = props => {
     const formRef = useRef();
     const { EventForm } = useHookComponent('ReactiumUI');
     const Type = useHookComponent(fieldTypeComponent, false);
-    const CTE = useHandle('ContentTypeEditor');
+    const CTE = useHandle('CTE');
 
     const validator = (id, type) => async validated => {
         await Reactium.Hook.run('field-type-validator', {
@@ -74,10 +74,7 @@ const FieldType = props => {
                 clearInterval(ival);
                 // allow control from parent
                 CTE.addFormRef(id, () => formRef.current);
-                const value = {
-                    ...op.get(CTE.saved(), ['fields', id], {}),
-                    ...op.get(CTE.getValue(), ['fields', id], {}),
-                };
+                const value = CTE.get(['ct', 'fields', id], {});
 
                 formRef.current.setValue(value);
             }

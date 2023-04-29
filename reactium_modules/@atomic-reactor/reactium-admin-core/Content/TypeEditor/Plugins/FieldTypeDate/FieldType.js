@@ -14,7 +14,7 @@ export const FieldType = props => {
 
     const refs = useRefs();
 
-    const Editor = useHandle('ContentTypeEditor');
+    const Editor = useHandle('CTE');
 
     const val = id
         ? op.get(Editor.getValue(), ['fields', id, 'options'], {})

@@ -1,5 +1,6 @@
 import Reactium, { Registry } from 'reactium-core/sdk';
 import op from 'object-path';
+import _ from 'underscore';
 
 Reactium.Enums.cache.types = 10000;
 
@@ -88,7 +89,9 @@ ContentType.retrieve = async options => {
     if (typeof options === 'object') requestOptions = options;
 
     const { refresh } = requestOptions;
-    const cacheKey = `contentTypeRetrieve.${btoa(requestOptions)}`;
+    const cacheKey = `contentTypeRetrieve.${JSON.stringify(
+        _.sortBy(Object.entries(requestOptions), ([k]) => k),
+    )}`;
 
     if (refresh === true) Reactium.Cache.del(cacheKey);
 

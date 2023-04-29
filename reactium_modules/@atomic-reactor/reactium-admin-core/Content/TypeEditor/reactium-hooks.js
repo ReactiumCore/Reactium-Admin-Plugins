@@ -1,10 +1,38 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium, { ReactiumSyncState } from 'reactium-core/sdk';
 import ContentTypeEditor from './index';
 import Enums from './enums';
 import FieldType from './FieldType';
 import FieldTypeDialog from './FieldType/Dialog';
 import Breadcrumbs from './Breadcrumbs';
 import HeaderWidget from './HeaderWidget';
+import ContentTypeList from './List';
+
+const CTE = new ReactiumSyncState({
+    ct: {
+        fields: {},
+        regions: Enums.REQUIRED_REGIONS,
+        requiredRegions: Enums.REQUIRED_REGIONS,
+        regionFields: {},
+        active: 'default',
+        error: {},
+        updated: new Date(),
+        types: [],
+    },
+});
+
+const noMerge = () => true;
+Reactium.Hook.registerSync(
+    'use-sync-state-merge-conditions',
+    (noMergeConditions, instance) => {
+        if (instance === CTE) {
+            if (noMergeConditions[noMergeConditions.length - 1] !== noMerge) {
+                noMergeConditions.push(noMerge);
+            }
+        }
+    },
+);
+
+Reactium.Handle.register('CTE', { current: CTE });
 
 const registerPlugin = async () => {
     // Add ContentType SDK

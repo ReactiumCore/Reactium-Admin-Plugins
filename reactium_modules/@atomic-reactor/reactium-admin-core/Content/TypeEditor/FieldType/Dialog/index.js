@@ -11,10 +11,10 @@ const getToast = () => Reactium.State.Tools.Toast;
 const Header = props => {
     const inputRef = useRef();
     const { id, singular, icon: FieldIcon, DragHandle } = props;
-    const CTE = useHandle('ContentTypeEditor');
+    const CTE = useHandle('CTE');
     const error = CTE.getFormErrors(id);
 
-    const saved = CTE.saved();
+    const saved = CTE.get('ct');
     const fieldSaved =
         op.has(saved, ['fields', id]) ||
         (singular && op.get(props, 'defaultValues.fieldName'));
@@ -70,7 +70,7 @@ const Header = props => {
  */
 const FieldTypeDialog = props => {
     const dialogRef = useRef();
-    const CTE = useHandle('ContentTypeEditor');
+    const CTE = useHandle('CTE');
     // const tools = useHandle('AdminTools');
     // const Modal = op.get(tools, 'Modal');
     const ConfirmBox = useHookComponent('ConfirmBox');
@@ -107,9 +107,7 @@ const FieldTypeDialog = props => {
             />,
         );
 
-    const onDismiss = op.has(CTE.saved(), ['fields', id])
-        ? showModal
-        : doRemoveField;
+    const onDismiss = CTE.get(['ct', 'fields', id]) ? showModal : doRemoveField;
 
     return (
         <Dialog

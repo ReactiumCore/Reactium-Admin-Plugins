@@ -61,7 +61,7 @@ const Tools = () => {
         Reactium.Prefs.set('types-tools-drag-handle.position', { x, y });
     };
 
-    const { addField, addRegion } = useHandle('ContentTypeEditor');
+    const { addField, addRegion } = useHandle('CTE');
 
     const renderTools = () => {
         return chunk.map(type => {

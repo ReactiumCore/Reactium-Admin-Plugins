@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect, useReducer } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import Enums from './enums';
 import TypeName from './TypeName';
 import Fields from './Fields';
 import Tools from './Tools';
@@ -11,21 +12,26 @@ import CTCapabilityEditor from './Capabilities';
 import Reactium, {
     __,
     useAsyncEffect,
-    useHandle,
     useHookComponent,
-    useRegisterHandle,
+    useDispatcher,
+    useEventEffect,
 } from 'reactium-core/sdk';
+
+import { useRouteParams, useAttachHandle } from 'reactium-admin-core';
+
+const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
 
 const getToast = () => Reactium.State.Tools.Toast;
 
-export const slugify = name =>
-    !name
+export const slugify = name => {
+    return !name
         ? ''
         : require('slugify')(name, {
               replacement: '_', // replace spaces with replacement
               remove: /[^A-Za-z0-9_\s]/g, // regex to remove characters
               lower: true, // result in lower case
           });
+};
 
 const Loading = () => {
     const style = {
@@ -45,10 +51,11 @@ const Loading = () => {
     );
 };
 
-const UI = {
+const ACTIONS = {
     CLEAR: 'CLEAR',
     LOAD: 'LOAD',
     LOADED: 'LOADED',
+    TYPE_CHANGE: 'TYPE_CHANGE',
     ADD_FIELD: 'ADD_FIELD',
     REMOVE_FIELD: 'REMOVE_FIELD',
     MOVE_FIELD: 'MOVE_FIELD',
@@ -60,23 +67,23 @@ const UI = {
     CLEAR_ERROR: 'CLEAR_ERROR',
 };
 
-const uiReducer = (ui = {}, action) => {
+const uiReducer = (ui = {}, { ACTION_TYPE, ...action }) => {
     const fields = { ...op.get(ui, 'fields', {}) };
     const regions = { ...op.get(ui, 'regions', {}) };
     const regionFields = { ...op.get(ui, 'regionFields', {}) };
 
-    switch (action.type) {
-        case UI.CLEAR: {
+    switch (ACTION_TYPE) {
+        case ACTIONS.CLEAR: {
             return {
-                ...ui,
+                regions: { ...REQUIRED_REGIONS },
                 fields: {},
-                regions: { ...op.get(ui, 'requiredRegions', {}) },
+                meta: {},
                 active: 'default',
                 loading: true,
                 error: {},
             };
         }
-        case UI.ADD_FIELD: {
+        case ACTIONS.ADD_FIELD: {
             const { region, field } = action;
             const { fieldId } = field;
 
@@ -93,7 +100,7 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.REMOVE_FIELD: {
+        case ACTIONS.REMOVE_FIELD: {
             const { fieldId } = action;
             const field = op.get(fields, [fieldId], {});
             const region = op.get(field, 'region');
@@ -112,12 +119,7 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.LOAD: {
-            const newRegions = {
-                ...op.get(ui, 'requiredRegions'),
-                ...action.regions,
-            };
-
+        case ACTIONS.LOAD: {
             const newFields = { ...action.fields };
             const regionFields = _.groupBy(Object.values(newFields), 'region');
             Object.entries(regionFields).forEach(([region, fields]) => {
@@ -129,21 +131,35 @@ const uiReducer = (ui = {}, action) => {
             });
 
             return {
-                ...ui,
-                regions: newRegions,
+                ...action,
+                regions: {
+                    ...action.regions,
+                    ...REQUIRED_REGIONS,
+                },
                 fields: newFields,
                 regionFields,
             };
         }
 
-        case UI.LOADED: {
+        case ACTIONS.LOADED: {
             return {
                 ...ui,
                 loading: false,
             };
         }
 
-        case UI.ADD_REGION: {
+        case ACTIONS.TYPE_CHANGE: {
+            return {
+                ...ui,
+                ...action,
+                meta: {
+                    ...ui.meta,
+                    ...action.meta,
+                },
+            };
+        }
+
+        case ACTIONS.ADD_REGION: {
             const { id } = action.region;
             return {
                 ...ui,
@@ -155,7 +171,7 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.ADD_REGION: {
+        case ACTIONS.ADD_REGION: {
             const id = action.region;
             op.del(regions, [id]);
             const rfs = op.get(regionFields, [id], []);
@@ -173,14 +189,14 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.SET_ACTIVE: {
+        case ACTIONS.SET_ACTIVE: {
             return {
                 ...ui,
                 active: action.region,
             };
         }
 
-        case UI.LABEL_REGION: {
+        case ACTIONS.LABEL_REGION: {
             const { id, label } = action;
 
             return {
@@ -196,7 +212,7 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.MOVE_FIELD: {
+        case ACTIONS.MOVE_FIELD: {
             const { fieldId, source, destination } = action;
 
             regionFields[source.region].splice(source.index, 1);
@@ -214,14 +230,14 @@ const uiReducer = (ui = {}, action) => {
             };
         }
 
-        case UI.ERROR: {
+        case ACTIONS.ERROR: {
             return {
                 ...ui,
                 error: action.error,
             };
         }
 
-        case UI.CLEAR_ERROR: {
+        case ACTIONS.CLEAR_ERROR: {
             return {
                 ...ui,
                 error: {},
@@ -273,132 +289,61 @@ const sanitizingUIReducer = (state = {}, action) => {
     return ui;
 };
 
+/*
+ * Replaces useReducer, pass it an object with values that are event types to listen for
+ * Returns the current state from the ReactiumSyncState EventTarget and dispatch function
+ * call dispatch(EVENT_TYPE, ACTION = {}, update = true) to trigger reducer to update new state
+ * By default this will trigger a rerender on any sync state subscribers,
+ */
+const useTargetReducer = (state, reducer, ACTION_TYPES = {}) => {
+    const eventHandlers = Object.values(ACTION_TYPES).reduce(
+        (eventHandlers, ACTION_TYPE) => {
+            eventHandlers[ACTION_TYPE] = e => {
+                console.log(
+                    `Event ACTION_TYPE ${ACTION_TYPE}`,
+                    e.ACTION,
+                    `Rerender: ${e.doUpdate}`,
+                );
+                state.set(
+                    { ct: reducer(state.get('ct'), e.ACTION) },
+                    undefined,
+                    e.doUpdate,
+                );
+            };
+
+            return eventHandlers;
+        },
+        {},
+    );
+
+    useEventEffect(state, eventHandlers, [state]);
+
+    const dispatcher = useDispatcher({ state, props: {} });
+    return (ACTION_TYPE, ACTION = {}, doUpdate = true) => {
+        dispatcher(ACTION_TYPE, {
+            ACTION: { ACTION_TYPE, ...ACTION },
+            doUpdate,
+        });
+    };
+};
+
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), setValue: noop });
 const ContentType = props => {
-    const { EventForm, Icon } = useHookComponent('ReactiumUI');
+    const params = useRouteParams();
+    const id = op.get(params, 'id', 'new');
 
-    const fieldTypes = _.indexBy(
-        Object.values(Reactium.ContentType.FieldType.list),
-        'type',
-    );
+    const CTE = useAttachHandle('CTE');
+    CTE.extend('getValue', CTE.get); // legacy handle
+    const dispatch = useTargetReducer(CTE, sanitizingUIReducer, ACTIONS);
+    const isLoading = () => CTE.get('ct.loading', true);
 
-    Reactium.Hook.runSync('content-type-field-type-list', fieldTypes);
-
-    const id = op.get(props, 'params.id', 'new');
-    const Enums = op.get(props, 'Enums', {});
-
-    const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
-    const [ui, dispatch] = useReducer(sanitizingUIReducer, {
-        fields: {},
-        regions: REQUIRED_REGIONS,
-        requiredRegions: REQUIRED_REGIONS,
-        regionFields: {},
-        active: 'default',
-        error: {},
-    });
-
-    const _empty = () => ({
-        type: undefined,
-        regions: REQUIRED_REGIONS,
-        fields: {},
-        meta: {},
-    });
-
-    // const tools = useHandle('AdminTools');
-    // const Toast = op.get(tools, 'Toast');
-
-    const parentFormRef = useRef();
-    const formsRef = useRef({});
-
-    const [types, setTypes] = useState([]);
-
-    // Generic State Update to cause rerender
-    const [updated, update] = useState(new Date());
-
-    // Content Type Data
-    const savedRef = useRef();
-    const ctRef = useRef(_empty());
-    const getValue = () => ctRef.current;
-    const saved = () => savedRef.current;
-
-    const getTypes = () => Reactium.ContentType.types();
-
-    useEffect(() => {
-        clear();
-        if (id === 'new') {
-            const autoIncludes = Object.values(fieldTypes).filter(fieldType =>
-                op.get(fieldType, 'autoInclude', false),
-            );
-
-            for (const type of autoIncludes) {
-                addField(type.type);
-            }
-
-            dispatch({
-                type: UI.LOADED,
-            });
-        } else {
-            load();
-        }
-    }, [id]);
-
-    useAsyncEffect(
-        async mounted => {
-            const results = await getTypes();
-            if (mounted()) setTypes(results);
-
-            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
-                if (['set', 'del'].includes(op) && mounted() === true) {
-                    update(Date.now());
-                }
-            });
-        },
-        [updated],
-    );
-
-    const clear = () => {
-        savedRef.current = {};
-
-        dispatch({
-            type: UI.CLEAR,
-        });
-
-        ctRef.current = _empty();
-    };
-
-    const _cloneContentType = (contentType = {}) => {
-        return {
-            ...contentType,
-            regions: {
-                ...op.get(contentType, 'regions', {}),
-            },
-            fields: {
-                ...op.get(contentType, 'fields', {}),
-            },
-            meta: {
-                ...op.get(contentType, 'meta', {}),
-            },
-        };
-    };
-
-    const load = async () => {
+    const load = async id => {
         try {
             const contentType = await Reactium.ContentType.retrieve(id);
             const label = op.get(contentType, 'meta.label', contentType.type);
             op.set(contentType, 'type', label);
-
-            dispatch({
-                type: UI.LOAD,
-                fields: op.get(contentType, 'fields', {}),
-                regions: op.get(contentType, 'regions', {}),
-            });
-
-            savedRef.current = _cloneContentType(contentType);
-            ctRef.current = _cloneContentType(contentType);
-            dispatch({
-                type: UI.LOADED,
-            });
+            dispatch(ACTIONS.LOAD, contentType, false);
         } catch (error) {
             const Toast = getToast();
             Toast.show({
@@ -412,15 +357,88 @@ const ContentType = props => {
         }
     };
 
+    useAsyncEffect(async () => {
+        dispatch(ACTIONS.CLEAR, {}, false);
+        if (id !== 'new') {
+            await load(id);
+        }
+
+        dispatch(ACTIONS.LOADED);
+    }, [id]);
+
+    const {
+        Form,
+        FormContext, // New Form Stuff
+        EventForm,
+        Icon,
+    } = useHookComponent('ReactiumUI');
+
+    const fieldTypes = _.indexBy(
+        Object.values(Reactium.ContentType.FieldType.list),
+        'type',
+    );
+
+    Reactium.Hook.runSync('content-type-field-type-list', fieldTypes);
+
+    const _empty = () => ({
+        type: undefined,
+        regions: REQUIRED_REGIONS,
+        fields: {},
+        meta: {},
+    });
+
+    const parentFormRef = useRef();
+    const formsRef = useRef({});
+
+    const types = CTE.get('ct.types');
+    CTE.extend('setTypes', types => CTE.set('ct.types', types));
+    const setTypes = CTE.setTypes;
+
+    // TODO: Destroy me!
+    // Generic State Update to cause rerender
+    const updated = CTE.get('ct.updated');
+    CTE.extend('update', types => CTE.set('ct.updated', new Date()));
+    const update = CTE.update;
+
+    useAsyncEffect(
+        async mounted => {
+            const results = await Reactium.ContentType.types();
+            if (mounted()) setTypes(results);
+
+            return Reactium.Cache.subscribe('content-types', async ({ op }) => {
+                if (['set', 'del'].includes(op) && mounted() === true) {
+                    update(Date.now());
+                }
+            });
+        },
+        [updated],
+    );
+
+    useEffect(() => {
+        if (isLoading()) return;
+
+        Reactium.Hotkeys.register('content-type-save', {
+            callback: saveHotkey,
+            key: 'mod+s',
+            order: Reactium.Enums.priority.lowest,
+            scope: document,
+        });
+
+        return () => {
+            Reactium.Hotkeys.unregister('content-type-save');
+        };
+    }, [isLoading()]);
+
+    if (isLoading()) return <Loading />;
+
     const setRegionLabel = regionId => label => {
-        dispatch({
-            type: UI.LABEL_REGION,
+        dispatch(ACTIONS.LABEL_REGION, {
             id: regionId,
             label,
         });
     };
 
-    const getRegions = () => op.get(ui, 'regions', {});
+    const getRegions = () => CTE.get('ct.regions', {});
 
     const getOrderedRegions = () => {
         const regions = getRegions();
@@ -443,9 +461,7 @@ const ContentType = props => {
 
     const validator = async context => {
         let { valid, error, value } = context;
-        dispatch({
-            type: UI.CLEAR_ERROR,
-        });
+        dispatch(ACTIONS.CLEAR_ERROR);
 
         const responseContext = await Reactium.Hook.run(
             'content-type-validate-fields',
@@ -485,8 +501,8 @@ const ContentType = props => {
 
         const fieldSlugs = {};
         let savedFields = {};
-        if (op.has(saved(), ['fields'])) {
-            savedFields = saved().fields;
+        if (CTE.get('ct.fields')) {
+            savedFields = CTE.get('ct.fields');
             savedFields = _.indexBy(
                 Object.values(savedFields).map(field => ({
                     id: field.id,
@@ -498,7 +514,7 @@ const ContentType = props => {
         }
 
         for (const [fieldId, uiFT] of Object.entries(
-            op.get(ui, 'fields', {}),
+            CTE.get('ct.fields', {}),
         )) {
             const ref = getFormRef(fieldId);
             if (!fieldId || !ref || !ref.setValue) continue;
@@ -601,8 +617,7 @@ const ContentType = props => {
     };
 
     const onError = async e => {
-        dispatch({
-            type: UI.ERROR,
+        dispatch(ACTIONS.ERROR, {
             error: e.error,
         });
     };
@@ -620,8 +635,7 @@ const ContentType = props => {
         )
             return;
 
-        dispatch({
-            type: UI.MOVE_FIELD,
+        dispatch(ACTIONS.MOVE_FIELD, {
             fieldId,
             source: {
                 region: sourceRegion,
@@ -635,20 +649,8 @@ const ContentType = props => {
     };
 
     const onTypeChange = async e => {
-        if (!ui.loading && e.value) {
-            const value = e.value;
-            ctRef.current = {
-                ...ctRef.current,
-                ...value,
-            };
-
-            await Reactium.Hook.run('content-type-form-change', {
-                value,
-                id,
-                handle: _handle(),
-                target: e.target,
-            });
-        }
+        const value = e.value;
+        dispatch(ACTIONS.TYPE_CHANGE, value, false);
     };
 
     const onTypeSubmit = async () => {
@@ -657,8 +659,8 @@ const ContentType = props => {
 
         op.set(value, 'fields', {});
         getOrderedRegions().forEach(({ id: region }) => {
-            op.get(ui.regionFields, [region], []).forEach(fieldId => {
-                const def = op.get(ui.fields, [fieldId], {});
+            CTE.get(['ct', 'regionFields', region], []).forEach(fieldId => {
+                const def = CTE.get(['ct', 'fields', fieldId], {});
                 const ref = getFormRef(fieldId);
                 if (ref) {
                     const fieldValue = ref.getValue();
@@ -673,10 +675,6 @@ const ContentType = props => {
                         region,
                     };
 
-                    if (String(fieldType).startsWith('Sel')) {
-                        console.log('initial fieldType', params.fieldType);
-                    }
-
                     Reactium.Hook.runSync('content-type-form-save', params);
 
                     op.set(value, ['fields', fieldId], {
@@ -686,13 +684,6 @@ const ContentType = props => {
                         fieldType: params.fieldType,
                         region: params.region,
                     });
-
-                    if (String(params.fieldType).startsWith('Sel')) {
-                        console.log(
-                            'updated fieldType',
-                            op.get(value, ['fields', fieldId]),
-                        );
-                    }
                 }
             });
         });
@@ -701,18 +692,11 @@ const ContentType = props => {
             const contentType = await Reactium.ContentType.save(id, value);
             const label = op.get(contentType, 'meta.label', contentType.type);
             op.set(contentType, 'type', label);
+            dispatch(ACTIONS.LOAD, contentType, false);
 
-            dispatch({
-                type: UI.LOAD,
-                fields: op.get(contentType, 'fields', {}),
-                regions: op.get(contentType, 'regions', {}),
-            });
-
-            savedRef.current = _cloneContentType(contentType);
-            ctRef.current = _cloneContentType(contentType);
-            dispatch({
-                type: UI.LOADED,
-            });
+            // savedRef.current = _cloneContentType(contentType);
+            // ctRef.current = _cloneContentType(contentType);
+            dispatch(ACTIONS.LOADED);
 
             const Toast = getToast();
             Toast.show({
@@ -740,17 +724,17 @@ const ContentType = props => {
     };
 
     const renderCapabilityEditor = () => {
-        if (isNew() || ui.loading) return null;
+        if (isNew() || isLoading()) return null;
 
-        const { collection, machineName } = getValue();
-        const label = op.get(getValue(), 'meta.label');
+        const { collection, machineName } = CTE.get('ct', {});
+        const label = CTE.get('ct.meta.label');
         return (
             <CTCapabilityEditor
                 key={`ct-caps-${id}`}
                 type={label}
                 collection={collection}
                 machineName={machineName}
-                ctRef={ctRef}
+                ctRef={CTE.get('ct', {})}
             />
         );
     };
@@ -762,8 +746,7 @@ const ContentType = props => {
         const id = uuid();
         const region = { id, label: id, slug: id, order: 0 };
 
-        dispatch({
-            type: UI.ADD_REGION,
+        dispatch(ACTIONS.ADD_REGION, {
             region,
         });
     };
@@ -771,25 +754,23 @@ const ContentType = props => {
     const removeRegion = region => {
         if (Object.keys(REQUIRED_REGIONS).includes(region)) return;
 
-        dispatch({
-            type: UI.REMOVE_REGION,
+        dispatch(ACTIONS.REMOVE_REGION, {
             region,
         });
     };
 
     const setActiveRegion = region => {
-        if (region !== ui.active) {
-            dispatch({
-                type: UI.SET_ACTIVE,
+        if (region !== CTE.get('ct.active', 'default')) {
+            dispatch(ACTIONS.SET_ACTIVE, {
                 region,
             });
         }
     };
 
     const addField = ft => {
-        const fields = op.get(ui, 'fields', {});
+        const fields = CTE.get('ct.fields', {});
         const fieldsByType = _.groupBy(Object.values(fields), 'fieldType');
-        const activeRegion = op.get(ui, 'active', 'default');
+        const activeRegion = CTE.get('ct.active', 'default');
         const fieldType = fieldTypes[ft];
         const region = op.get(fieldType, 'defaultRegion', activeRegion);
 
@@ -799,35 +780,36 @@ const ContentType = props => {
 
         const fieldId = op.get(fieldType, 'id', uuid());
 
-        const field = { fieldId, fieldType: ft, region };
+        const field = {
+            fieldId,
+            fieldType: ft,
+            region,
+            ...op.has(fieldType, 'defaultValues', {}),
+        };
 
-        if (op.has(fieldType, 'defaultValues'))
-            op.set(ctRef.current, ['fields', fieldId], fieldType.defaultValues);
-
-        dispatch({
-            type: UI.ADD_FIELD,
+        dispatch(ACTIONS.ADD_FIELD, {
             region,
             field,
         });
     };
 
     const removeField = fieldId => {
-        dispatch({
-            type: UI.REMOVE_FIELD,
+        dispatch(ACTIONS.REMOVE_FIELD, {
             fieldId,
         });
     };
 
     const _fieldChangeHandler = id => e => {
-        if (ui.loading) return;
+        if (isLoading()) return;
 
-        if (
-            e.value &&
-            !_.isEqual(e.value, op.get(getValue(), ['fields', id]))
-        ) {
-            const value = { ...getValue() };
-            const field = { ...op.get(value, ['fields', id], {}), ...e.value };
-            op.set(value, ['fields', id], field);
+        if (e.value && !_.isEqual(e.value, CTE.get(['ct', 'fields', id]))) {
+            const fieldPath = ['ct', 'fields', id];
+            const shouldUpdate = false;
+            CTE.set(
+                fieldPath,
+                { ...CTE.get(fieldPath, {}), ...e.value },
+                shouldUpdate,
+            );
         }
     };
 
@@ -842,7 +824,7 @@ const ContentType = props => {
 
         return () => {
             Object.entries(handlers).forEach(([type, cb]) => {
-                ref().removeEventListener(type, cb);
+                op.get(ref(), 'removeEventListener', () => {})(type, cb);
             });
         };
     };
@@ -870,10 +852,10 @@ const ContentType = props => {
     const getFormRef = id =>
         op.get(formsRef.current, [id, 'ref'], getStubRef)();
 
-    const getFormErrors = id => op.get(ui.error, [id]);
+    const getFormErrors = id => CTE.get(['ct', 'error', id]);
 
     const clearDelete = async () => {
-        clear();
+        dispatch(ACTIONS.CLEAR);
 
         if (id !== 'new') {
             try {
@@ -908,7 +890,7 @@ const ContentType = props => {
 
     const isNew = () => id === 'new';
 
-    const isActiveRegion = region => ui.active === region;
+    const isActiveRegion = region => CTE.get('ct.active', 'default') === region;
 
     const saveHotkey = e => {
         if (e) e.preventDefault();
@@ -916,43 +898,21 @@ const ContentType = props => {
     };
 
     const _handle = () => ({
-        ui,
         addRegion,
         removeRegion,
         addField,
         removeField,
         addFormRef,
         removeFormRef,
-        parentFormRef,
         getFormRef,
         getFormErrors,
         clearDelete,
         isActiveRegion,
         isNew,
-        id,
-        getValue,
-        saved,
         setActiveRegion,
     });
 
-    useRegisterHandle('ContentTypeEditor', _handle, [id, ui]);
-
-    // save hotkey
-    useEffect(() => {
-        if (ui.loading) return;
-        Reactium.Hotkeys.register('content-type-save', {
-            callback: saveHotkey,
-            key: 'mod+s',
-            order: Reactium.Enums.priority.lowest,
-            scope: document,
-        });
-
-        return () => {
-            Reactium.Hotkeys.unregister('content-type-save');
-        };
-    }, [ui.loading]);
-
-    if (ui.loading) return <Loading />;
+    Object.entries(_handle()).forEach(([key, value]) => CTE.extend(key, value));
 
     return (
         <div
@@ -965,11 +925,11 @@ const ContentType = props => {
                 onSubmit={onTypeSubmit}
                 onChange={onTypeChange}
                 onError={onError}
-                value={getValue()}
+                value={CTE.get('ct', {})}
                 className={'webform webform-content-type'}
                 required={['type']}
                 validator={validator}>
-                <TypeName id={id} error={ui.error['type']} />
+                <TypeName id={id} error={CTE.get('ct.error.type')} />
             </EventForm>
 
             <DragDropContext onDragEnd={onDragEnd}>

@@ -16,7 +16,7 @@ export default () => {
                 outline
                 size='xs'
                 to='/admin/type/new'
-                type='link'>
+                type={Button.ENUMS.TYPE.LINK}>
                 <Icon name='Feather.Plus' size={18} />
                 <span className='hide-xs show-md ml-sm-12'>
                     {' '}

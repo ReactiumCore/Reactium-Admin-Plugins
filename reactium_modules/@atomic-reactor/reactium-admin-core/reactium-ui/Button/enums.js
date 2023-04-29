@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { Link } from 'react-router-dom';
 
 export default {
     APPEARANCE: {
@@ -22,7 +23,8 @@ export default {
             <button {...props} type='button' ref={ref} />
         )),
         LABEL: forwardRef((props, ref) => <label {...props} ref={ref} />),
-        LINK: forwardRef((props, ref) => <a {...props} ref={ref} />),
+        LINK: forwardRef((props, ref) => <Link {...props} ref={ref} />),
+        ANCHOR: forwardRef((props, ref) => <a {...props} ref={ref} />),
         SUBMIT: forwardRef((props, ref) => (
             <button {...props} type='submit' ref={ref} />
         )),

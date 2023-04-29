@@ -10,9 +10,7 @@ export default props => {
     const error = op.get(props, 'error', false);
     const isNew = id === 'new';
     const deleteLabel = isNew ? __('Clear') : __('Delete');
-    const CTE = useHandle('ContentTypeEditor');
-    // const tools = useHandle('AdminTools');
-    // const Modal = op.get(tools, 'Modal');
+    const CTE = useHandle('CTE');
     const ConfirmBox = useHookComponent('ConfirmBox');
 
     const onConfirm = () => {

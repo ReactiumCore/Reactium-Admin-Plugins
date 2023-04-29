@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Icon, Button } from 'reactium-ui';
-import { useHandle, useHookComponent, useIsContainer } from 'reactium-core/sdk';
+import { useHookComponent, useIsContainer, useHandle } from 'reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Enums from '../enums';
@@ -15,9 +15,9 @@ const CTIconPicker = props => {
 
     const defaultIcon = Enums.DEFAULT_ICON;
     const containerRef = useRef();
-    const CTE = useHandle('ContentTypeEditor');
-    const currentIcon =
-        props.value || op.get(CTE.getValue(), 'meta.icon', defaultIcon);
+    const CTE = useHandle('CTE');
+
+    const currentIcon = props.value || CTE.get('ct.meta.icon', defaultIcon);
     const [state, setState] = useState({
         icon: currentIcon,
         showPicker: false,

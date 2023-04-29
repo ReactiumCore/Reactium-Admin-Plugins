@@ -1,5 +1,6 @@
-import { useRouting } from 'reactium-core/sdk';
+import Reactium, { useRouting } from 'reactium-core/sdk';
 import _ from 'underscore';
+import { useEffect, useState } from 'react';
 
 export const useDoesMatchPath = (
     pattern,
@@ -17,4 +18,24 @@ export const useDoesMatchPath = (
     } else if (_.isFunction(pattern)) {
         return pattern(what);
     }
+};
+
+export const useRouteParams = () => {
+    const routing = useRouting();
+    return routing.get('active.match.match.params');
+};
+
+export const useUpdater = () => {
+    const [, updater] = useState(new Date());
+    return () => updater(new Date());
+};
+
+export const useAttachSyncState = target => {
+    const update = useUpdater();
+    useEffect(() => target.addEventListener('change', update));
+    return target;
+};
+
+export const useAttachHandle = name => {
+    return useAttachSyncState(Reactium.Handle.get(`${name}.current`));
 };
