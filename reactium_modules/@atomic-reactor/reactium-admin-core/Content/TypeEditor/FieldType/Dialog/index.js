@@ -16,7 +16,7 @@ const Header = props => {
 
     const saved = CTE.get('ct');
     const fieldSaved =
-        op.has(saved, ['fields', id]) ||
+        op.get(saved, ['fields', id, 'saved']) ||
         (singular && op.get(props, 'defaultValues.fieldName'));
 
     const savedProps = fieldSaved

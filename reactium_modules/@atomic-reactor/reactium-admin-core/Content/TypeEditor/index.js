@@ -214,19 +214,16 @@ const uiReducer = (ui = {}, { ACTION_TYPE, ...action }) => {
 
         case ACTIONS.MOVE_FIELD: {
             const { fieldId, source, destination } = action;
+            const rf = { ...regionFields };
 
-            regionFields[source.region].splice(source.index, 1);
-            if (op.has(regionFields, [destination.region]))
-                regionFields[destination.region].splice(
-                    destination.index,
-                    0,
-                    fieldId,
-                );
-            else regionFields[destination.region] = [fieldId];
+            rf[source.region].splice(source.index, 1);
+            if (op.has(rf, [destination.region]))
+                rf[destination.region].splice(destination.index, 0, fieldId);
+            else rf[destination.region] = [fieldId];
 
             return {
                 ...ui,
-                regionFields,
+                regionFields: { ...rf },
             };
         }
 
@@ -295,20 +292,19 @@ const sanitizingUIReducer = (state = {}, action) => {
  * call dispatch(EVENT_TYPE, ACTION = {}, update = true) to trigger reducer to update new state
  * By default this will trigger a rerender on any sync state subscribers,
  */
+const debug = false;
 const useTargetReducer = (state, reducer, ACTION_TYPES = {}) => {
     const eventHandlers = Object.values(ACTION_TYPES).reduce(
         (eventHandlers, ACTION_TYPE) => {
             eventHandlers[ACTION_TYPE] = e => {
-                console.log(
-                    `Event ACTION_TYPE ${ACTION_TYPE}`,
-                    e.ACTION,
-                    `Rerender: ${e.doUpdate}`,
-                );
-                state.set(
-                    { ct: reducer(state.get('ct'), e.ACTION) },
-                    undefined,
-                    e.doUpdate,
-                );
+                debug &&
+                    console.log(
+                        `Event ACTION_TYPE ${ACTION_TYPE}`,
+                        e.ACTION,
+                        `Rerender: ${e.doUpdate}`,
+                    );
+                const ct = reducer(state.get('ct'), e.ACTION);
+                state.set({ ...state.get(), ct }, undefined, e.doUpdate);
             };
 
             return eventHandlers;
@@ -390,11 +386,10 @@ const ContentType = props => {
     const parentFormRef = useRef();
     const formsRef = useRef({});
 
-    const types = CTE.get('ct.types');
-    CTE.extend('setTypes', types => CTE.set('ct.types', types));
+    const types = CTE.get('types');
+    CTE.extend('setTypes', types => CTE.set('types', types));
     const setTypes = CTE.setTypes;
 
-    // TODO: Destroy me!
     // Generic State Update to cause rerender
     const updated = CTE.get('ct.updated');
     CTE.extend('update', types => CTE.set('ct.updated', new Date()));
@@ -683,6 +678,7 @@ const ContentType = props => {
                         fieldName: params.fieldName,
                         fieldType: params.fieldType,
                         region: params.region,
+                        saved: true,
                     });
                 }
             });
@@ -782,6 +778,7 @@ const ContentType = props => {
 
         const field = {
             fieldId,
+            saved: false,
             fieldType: ft,
             region,
             ...op.has(fieldType, 'defaultValues', {}),

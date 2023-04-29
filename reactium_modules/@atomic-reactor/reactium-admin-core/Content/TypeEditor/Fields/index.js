@@ -1,6 +1,10 @@
 import React from 'react';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useSyncHandle,
+    useHookComponent,
+} from 'reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import op from 'object-path';
@@ -13,7 +17,7 @@ import _ from 'underscore';
  */
 const noop = () => {};
 const Fields = props => {
-    const CTE = useHandle('CTE');
+    const CTE = useSyncHandle('CTE');
     const ui = CTE.get('ct', {});
 
     const FieldType = useHookComponent('FieldType');

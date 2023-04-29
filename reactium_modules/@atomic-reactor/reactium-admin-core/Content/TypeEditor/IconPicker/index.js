@@ -49,6 +49,7 @@ const CTIconPicker = props => {
                 showPicker: false,
                 icon,
             });
+            CTE.set('ct.meta.icon', icon);
         }
     };
 
