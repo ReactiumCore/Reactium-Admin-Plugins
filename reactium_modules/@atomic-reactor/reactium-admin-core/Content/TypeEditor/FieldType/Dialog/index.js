@@ -14,7 +14,7 @@ const Header = props => {
     const CTE = useHandle('CTE');
     const error = CTE.getFormErrors(id);
 
-    const saved = CTE.get('ct');
+    const saved = CTE.get('contentType');
     const fieldSaved =
         op.get(saved, ['fields', id, 'saved']) ||
         (singular && op.get(props, 'defaultValues.fieldName'));
@@ -107,7 +107,9 @@ const FieldTypeDialog = props => {
             />,
         );
 
-    const onDismiss = CTE.get(['ct', 'fields', id]) ? showModal : doRemoveField;
+    const onDismiss = CTE.get(['contentType', 'fields', id])
+        ? showModal
+        : doRemoveField;
 
     return (
         <Dialog

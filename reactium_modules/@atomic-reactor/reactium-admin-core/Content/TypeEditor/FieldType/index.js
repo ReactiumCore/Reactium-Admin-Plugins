@@ -74,7 +74,7 @@ const FieldType = props => {
                 clearInterval(ival);
                 // allow control from parent
                 CTE.addFormRef(id, () => formRef.current);
-                const value = CTE.get(['ct', 'fields', id], {});
+                const value = CTE.get(['contentType', 'fields', id], {});
 
                 formRef.current.setValue(value);
             }

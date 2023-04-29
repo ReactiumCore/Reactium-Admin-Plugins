@@ -88,7 +88,7 @@ Reactium.Hook.register('blueprints', async Blueprint => {
                     zones: [
                         'admin-header',
                         'admin-content-type-editor',
-                        'admin-actions',
+                        'admin-EVENTS',
                     ],
                     meta: {},
                 },
@@ -111,7 +111,7 @@ Reactium.Hook.register('blueprints', async Blueprint => {
                     zones: [
                         'admin-header',
                         'admin-content-types',
-                        'admin-actions',
+                        'admin-EVENTS',
                     ],
                     meta: {},
                 },

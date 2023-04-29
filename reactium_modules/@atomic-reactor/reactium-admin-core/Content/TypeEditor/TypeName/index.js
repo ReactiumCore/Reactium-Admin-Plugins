@@ -44,7 +44,9 @@ export default props => {
                 />,
             );
         } else {
-            dispatch('content-type-delete', { details: CTE.get('ct') });
+            dispatch('content-type-delete', {
+                details: CTE.get('contentType'),
+            });
         }
     };
 

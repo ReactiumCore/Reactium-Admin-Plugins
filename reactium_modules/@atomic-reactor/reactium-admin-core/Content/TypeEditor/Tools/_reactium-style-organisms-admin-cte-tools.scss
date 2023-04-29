@@ -5,7 +5,7 @@ $size-types-tool: 45px;
     flex-direction: column;
     width: $size-types-tool;
     background: $color-light;
-    z-index: map-get($z-indexes, actions);
+    z-index: map-get($z-indexes, EVENTS);
     box-shadow: 0 0 2px 1px rgba($color-black, 0.05);
 
     button {

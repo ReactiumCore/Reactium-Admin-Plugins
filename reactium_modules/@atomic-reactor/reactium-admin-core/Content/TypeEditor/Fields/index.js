@@ -18,7 +18,7 @@ import _ from 'underscore';
 const noop = () => {};
 const Fields = props => {
     const CTE = useSyncHandle('CTE');
-    const ui = CTE.get('ct', {});
+    const ui = CTE.get('contentType', {});
 
     const FieldType = useHookComponent('FieldType');
 

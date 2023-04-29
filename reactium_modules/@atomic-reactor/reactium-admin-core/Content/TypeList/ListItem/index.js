@@ -124,7 +124,7 @@ export const ListItem = ({ className, zone, ...props }) => {
                 ))}
             </Link>
 
-            <div className={props.cx('item-actions')}>
+            <div className={props.cx('item-EVENTS')}>
                 {filter('right').map(({ Component }, i) => (
                     <Component key={`${zone}-right-${i}`} {...props} />
                 ))}

@@ -17,7 +17,8 @@ const CTIconPicker = props => {
     const containerRef = useRef();
     const CTE = useHandle('CTE');
 
-    const currentIcon = props.value || CTE.get('ct.meta.icon', defaultIcon);
+    const currentIcon =
+        props.value || CTE.get('contentType.meta.icon', defaultIcon);
     const [state, setState] = useState({
         icon: currentIcon,
         showPicker: false,
@@ -49,7 +50,7 @@ const CTIconPicker = props => {
                 showPicker: false,
                 icon,
             });
-            CTE.set('ct.meta.icon', icon);
+            CTE.set('contentType.meta.icon', icon);
         }
     };
 

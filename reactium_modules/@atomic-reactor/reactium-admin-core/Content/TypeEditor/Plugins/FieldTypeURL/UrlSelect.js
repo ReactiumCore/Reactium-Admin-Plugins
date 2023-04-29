@@ -63,7 +63,7 @@ let UrlSelect = (props, ref) => {
                 sortType: DataTable.ENUMS.SORT_TYPE.STRING,
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
             },
-            actions: {
+            EVENTS: {
                 label: null,
                 verticalAlign: DataTable.ENUMS.VERTICAL_ALIGN.MIDDLE,
                 textAlign: DataTable.ENUMS.TEXT_ALIGN.RIGHT,
@@ -137,7 +137,7 @@ let UrlSelect = (props, ref) => {
                 return {
                     ...item,
                     route,
-                    actions: (
+                    EVENTS: (
                         <Button
                             color={Button.ENUMS.COLOR.TERTIARY}
                             onClick={() => select(item)}
