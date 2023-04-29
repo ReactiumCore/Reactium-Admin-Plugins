@@ -1,4 +1,4 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium, { Registry } from 'reactium-core/sdk';
 import op from 'object-path';
 
 Reactium.Enums.cache.types = 10000;
@@ -135,6 +135,9 @@ ContentType.delete = async options => {
     return response;
 };
 
-ContentType.FieldType = Reactium.Utils.registryFactory('FieldType', 'type');
+ContentType.FieldType = new Registry('FieldType', 'type');
+
+ContentType.ListComponents = new Registry('ContentList', 'id');
+ContentType.ListComponents.mode = Registry.MODES.CLEAN;
 
 export default ContentType;

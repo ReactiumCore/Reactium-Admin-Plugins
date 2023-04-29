@@ -7,13 +7,13 @@ import Breadcrumbs from './Breadcrumbs';
 import HeaderWidget from './HeaderWidget';
 
 const registerPlugin = async () => {
+    // Add ContentType SDK
+    Reactium.ContentType = require('./sdk').default;
+
     await Reactium.Plugin.register(
         'ContentType',
         Reactium.Enums.priority.highest,
     );
-
-    // Add ContentType SDK
-    Reactium.ContentType = require('./sdk').default;
 
     // Register FieldType Base Components
     Reactium.Component.register('FieldType', FieldType);

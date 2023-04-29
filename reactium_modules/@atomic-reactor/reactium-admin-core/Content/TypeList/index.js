@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import { ListItem } from './ListItem';
 import React, { useCallback } from 'react';
 
-import Reactium, {
+import {
     __,
+    cxFactory,
     useHookComponent,
     useRefs,
     Zone,
@@ -25,7 +26,7 @@ const ContentTypeList = ({ className, namespace, title }) => {
         [types],
     );
 
-    const cx = Reactium.Utils.cxFactory(namespace);
+    const cx = cxFactory(namespace);
 
     const cname = cn({ [cx()]: true, [className]: !!className });
 

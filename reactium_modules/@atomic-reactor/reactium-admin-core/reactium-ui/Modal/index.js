@@ -62,9 +62,11 @@ let Modal = (props, ref) => {
         const { dismissable } = stateRef.current;
 
         if (dismissable) {
-            dissmissableRef.current
+            return dissmissableRef.current
                 .hide()
                 .then(() => setState({ children: null }));
+        } else {
+            return Promise.resolve();
         }
     };
 
@@ -77,7 +79,7 @@ let Modal = (props, ref) => {
     const show = content => {
         toggleWindow(true);
         update(content);
-        dissmissableRef.current.show();
+        return dissmissableRef.current.show();
     };
 
     // External Interface

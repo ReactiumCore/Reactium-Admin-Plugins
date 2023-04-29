@@ -57,7 +57,7 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
 
         &-title {
             margin-bottom: 4px;
-            transition: all .25s ease-in-out;
+            transition: all 0.25s ease-in-out;
         }
 
         &-info {
@@ -90,7 +90,7 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
                 left: calc(50% + 10px);
                 position: absolute;
                 transform: translate(-50%, -50%);
-                transition: all .25s ease-in-out;
+                transition: all 0.25s ease-in-out;
 
                 &:last-child {
                     left: 100px;
@@ -99,9 +99,37 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
             }
         }
 
+        .delete {
+            display: none;
+            height: 71px;
+            padding-left: 20px;
+
+            button {
+                color: $color-danger;
+                background-color: $color-light;
+                border: none;
+                height: 100%;
+
+                svg {
+                    fill: currentColor;
+                    flex-shrink: 0;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+
         &:hover {
             text-decoration: none;
             color: $color-primary;
+
+            .delete {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
             .ico {
                 svg {

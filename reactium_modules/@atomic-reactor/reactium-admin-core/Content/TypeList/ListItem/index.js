@@ -6,8 +6,8 @@ import IconImg from '../IconImg';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __ } from 'reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
+import Reactium, { __, useDispatcher } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -61,21 +61,39 @@ export const ListItemCount = props => {
     );
 };
 
-export const ListItemAdd = ({ className, uuid }) => (
+export const ListItemAdd = ({ uuid }) => (
     <Button
         style={{ height: 26 }}
         title={__('Create New')}
+        className={cn('px-xs-12')}
         size={Button.ENUMS.SIZE.XS}
         color={Button.ENUMS.COLOR.primary}
-        className={cn('px-xs-12', className)}
         appearance={Button.ENUMS.APPEARANCE.PILL}
         children={<Icon name='Feather.Plus' size={16} />}
         onClick={() => Reactium.Routing.history.push(`/admin/type/${uuid}`)}
     />
 );
 
+export const ListItemDelete = props => {
+    const dispatch = useDispatcher({ props });
+    return (
+        <div className='delete'>
+            <button
+                onClick={() =>
+                    dispatch('content-type-delete', {
+                        details: props,
+                    })
+                }>
+                <Icon name='Feather.Trash2' />
+            </button>
+        </div>
+    );
+};
+
 export const ListItem = ({ className, zone, ...props }) => {
-    const [components, setComponents] = useState(ListItemRegistry.list);
+    const [components, setComponents] = useState(
+        Reactium.ContentType.ListComponents.list,
+    );
 
     const filter = str => {
         const z = String(props.cx(`${zone}-${str}`)).toLowerCase();
@@ -86,8 +104,8 @@ export const ListItem = ({ className, zone, ...props }) => {
     };
 
     useEffect(() => {
-        return ListItemRegistry.subscribe(() => {
-            setComponents(ListItemRegistry.list);
+        return Reactium.ContentType.ListComponents.subscribe(() => {
+            setComponents(Reactium.ContentType.ListComponents.list);
         });
     }, []);
 
@@ -114,13 +132,6 @@ export const ListItem = ({ className, zone, ...props }) => {
         </div>
     );
 };
-
-export const ListItemRegistry = Reactium.Utils.registryFactory(
-    'ContentList',
-    'id',
-);
-
-ListItemRegistry.mode = Reactium.Utils.Registry.MODES.CLEAN;
 
 ListItem.propTypes = {
     className: PropTypes.string,
