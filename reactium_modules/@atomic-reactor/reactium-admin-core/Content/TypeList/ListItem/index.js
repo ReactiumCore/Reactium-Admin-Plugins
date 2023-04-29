@@ -1,4 +1,4 @@
-import React from 'react';
+import _ from 'underscore';
 import cn from 'classnames';
 import moment from 'moment';
 import op from 'object-path';
@@ -7,99 +7,126 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
 import Reactium, { __ } from 'reactium-core/sdk';
+import React, { useEffect, useState } from 'react';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: ListItem
  * -----------------------------------------------------------------------------
  */
-
-const Ico = ({ cx, meta, title, to }) => {
-    const i = op.get(meta, 'icon');
-    return i ? (
-        <Link to={to} className={cn(cx('icon'), 'ico')} title={title}>
-            <Icon name={i} />
+export const ListItemIcon = ({ cx, meta, title, uuid }) =>
+    op.get(meta, 'icon') ? (
+        <Link
+            to={`/admin/type/${uuid}`}
+            className={cn(cx('icon'), 'ico')}
+            title={title}>
+            <Icon name={meta.icon} />
             <Icon name='Linear.Pencil2' />
         </Link>
     ) : (
-        <Link to={to} className={cn(cx('graphic'), 'ico')} title={title}>
+        <Link
+            to={`/admin/type/${uuid}`}
+            className={cn(cx('graphic'), 'ico')}
+            title={title}>
             <IconImg />
             <Icon name='Linear.Pencil2' />
         </Link>
     );
-};
 
-const Indicator = ({ count, ...props }) => (
-    <Button
-        outline
-        readOnly
-        style={{ height: 26 }}
-        size={Button.ENUMS.SIZE.XS}
-        className='px-xs-12 mx-xs-12'
-        color={Button.ENUMS.COLOR.TERTIARY}
-        appearance={Button.ENUMS.APPEARANCE.PILL}
-        title={String(__('%n records')).replace(/%n/gi, count)}
-        {...props}>
-        {count}
-    </Button>
+export const ListItemTitle = props => (
+    <div className={props.cx('item-title')}>{props.meta.label}</div>
 );
 
-const AddButton = ({ children, className, to, ...props }) => (
+export const ListItemMeta = props => (
+    <div className='small'>
+        {props.createdAt === props.updatedAt ? __('created') : __('updated')}{' '}
+        {moment(new Date(props.updatedAt)).fromNow()}
+    </div>
+);
+
+export const ListItemCount = props => {
+    const count = _.compact(op.get(props, 'slugs', [])).length;
+    return (
+        <Button
+            outline
+            readOnly
+            style={{ height: 26 }}
+            size={Button.ENUMS.SIZE.XS}
+            className='px-xs-12 mx-xs-12'
+            color={Button.ENUMS.COLOR.TERTIARY}
+            appearance={Button.ENUMS.APPEARANCE.PILL}
+            title={String(__('%n records')).replace(/%n/gi, count)}>
+            {count}
+        </Button>
+    );
+};
+
+export const ListItemAdd = ({ className, uuid }) => (
     <Button
-        href={to}
         style={{ height: 26 }}
         title={__('Create New')}
         size={Button.ENUMS.SIZE.XS}
         color={Button.ENUMS.COLOR.primary}
         className={cn('px-xs-12', className)}
         appearance={Button.ENUMS.APPEARANCE.PILL}
-        onClick={() => Reactium.Routing.history.push(to)}
-        {...props}>
-        <Icon name='Feather.Plus' size={16} />
-        {children}
-    </Button>
+        children={<Icon name='Feather.Plus' size={16} />}
+        onClick={() => Reactium.Routing.history.push(`/admin/type/${uuid}`)}
+    />
 );
 
-const ListItem = props => {
-    const { cx, className, uuid } = props;
+export const ListItem = ({ className, zone, ...props }) => {
+    const [components, setComponents] = useState(ListItemRegistry.list);
 
-    const msg =
-        props.createdAt === props.updatedAt ? __('created') : __('updated');
+    const filter = str => {
+        const z = String(props.cx(`${zone}-${str}`)).toLowerCase();
+        return _.sortBy(
+            components.filter(item => item.zones.includes(z)),
+            'order',
+        );
+    };
 
-    const when = moment(new Date(props.updatedAt)).fromNow();
-
-    const count = op.get(props, 'slugs', []);
+    useEffect(() => {
+        return ListItemRegistry.subscribe(() => {
+            setComponents(ListItemRegistry.list);
+        });
+    }, []);
 
     return (
-        <div className={cx(className)}>
-            <Ico
-                {...props}
-                to={`/admin/type/${uuid}`}
-                title={__('Edit content type')}
-            />
+        <div className={cn(props.cx(zone), className)}>
+            {filter('left').map(({ Component }, i) => (
+                <Component key={`${zone}-left-${i}`} {...props} />
+            ))}
+
             <Link
-                to={`/admin/type/${uuid}`}
-                className={cx('item-title')}
+                to={`/admin/type/${props.uuid}`}
+                className={props.cx('item-info')}
                 title={__('Edit content type')}>
-                <div className='mb-xs-4'>{props.meta.label}</div>
-                <div className='small'>
-                    {msg} {when}
-                </div>
+                {filter('center').map(({ Component }, i) => (
+                    <Component key={`${zone}-center-${i}`} {...props} />
+                ))}
             </Link>
-            <div className={cx('item-info')}>
-                <Indicator count={count.length} />
-                <AddButton to={`/admin/content/${props.machineName}/new`} />
+
+            <div className={props.cx('item-actions')}>
+                {filter('right').map(({ Component }, i) => (
+                    <Component key={`${zone}-right-${i}`} {...props} />
+                ))}
             </div>
         </div>
     );
 };
 
+export const ListItemRegistry = Reactium.Utils.registryFactory(
+    'ContentList',
+    'id',
+);
+
+ListItemRegistry.mode = Reactium.Utils.Registry.MODES.CLEAN;
+
 ListItem.propTypes = {
     className: PropTypes.string,
+    zone: PropTypes.string,
 };
 
 ListItem.defaultProps = {
-    className: 'item',
+    zone: 'item',
 };
-
-export { ListItem, ListItem as default };

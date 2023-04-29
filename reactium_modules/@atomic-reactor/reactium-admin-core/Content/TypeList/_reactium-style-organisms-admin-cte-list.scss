@@ -56,9 +56,14 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
         }
 
         &-title {
+            margin-bottom: 4px;
+            transition: all .25s ease-in-out;
+        }
+
+        &-info {
             font-size: 16px;
             flex-grow: 1;
-            padding-right: 20px;
+            padding: 20px;
             font-weight: 500;
 
             .small {
@@ -66,22 +71,23 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
             }
         }
 
-        &-info {
+        &-actions {
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: flex-end;
+            padding-right: 20px;
         }
 
         .ico {
-            width: 68px;
-            height: 68px;
+            width: 48px;
+            height: 71px;
             overflow: hidden;
             position: relative;
 
             svg {
                 top: 50%;
-                left: 50%;
+                left: calc(50% + 10px);
                 position: absolute;
                 transform: translate(-50%, -50%);
                 transition: all .25s ease-in-out;
@@ -105,7 +111,7 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
                     }
 
                     &:last-child {
-                        left: 50%;
+                        left: calc(50% + 10px);
                         opacity: 1;
                     }
                 }
