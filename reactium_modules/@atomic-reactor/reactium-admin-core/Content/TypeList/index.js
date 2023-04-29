@@ -2,19 +2,11 @@ import cn from 'classnames';
 import Empty from './Empty';
 import PropTypes from 'prop-types';
 import { ListItem } from './ListItem';
+import { Spinner } from 'reactium-ui';
 import React, { useCallback } from 'react';
-
-import {
-    __,
-    cxFactory,
-    useHookComponent,
-    useRefs,
-    Zone,
-} from 'reactium-core/sdk';
+import { __, cxFactory, useHookComponent, Zone } from 'reactium-core/sdk';
 
 const ContentTypeList = ({ className, namespace, title }) => {
-    const refs = useRefs();
-
     const Helmet = useHookComponent('Helmet');
 
     const [types] = useHookComponent('useContentTypes')(false);
@@ -28,10 +20,10 @@ const ContentTypeList = ({ className, namespace, title }) => {
 
     const cx = cxFactory(namespace);
 
-    const cname = cn({ [cx()]: true, [className]: !!className });
-
-    return types === false ? null : (
-        <div className={cname} ref={elm => refs.set('container', elm)}>
+    return types === false ? (
+        <Spinner className={cx('spinner')} />
+    ) : (
+        <div className={cn({ [cx()]: true, [className]: !!className })}>
             <Helmet>{title}</Helmet>
             <div className={cx('content')}>
                 {isEmpty() ? (

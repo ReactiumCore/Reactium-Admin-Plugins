@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Icon } from 'reactium-ui';
-import React, { forwardRef, useCallback, useEffect } from 'react';
+import React, { forwardRef } from 'react';
 import Reactium, {
     __,
     useDispatcher,
@@ -14,15 +14,16 @@ import Reactium, {
  * Functional Component: TypeDelete
  * -----------------------------------------------------------------------------
  */
+const DEBUG = true;
 
 const Message = forwardRef(({ details, ...props }, ref) => (
     <div className='form-group'>
         <div>{__('enter content type')}</div>
         <input
-            type='text'
             ref={ref}
-            placeholder={details.machineName}
+            type='text'
             className='text-center'
+            placeholder={details.machineName}
             {...props}
         />
         <small>{__('Deleting a content type cannot be undone')}</small>
@@ -56,7 +57,7 @@ let TypeDelete = () => {
 
         Reactium.State.Tools.Modal.dismiss();
 
-        // await Reactium.ContentType.delete(item.uuid);
+        if (DEBUG !== true) await Reactium.ContentType.delete(item.uuid);
 
         dispatch('content-type-deleted', { details: item });
     };

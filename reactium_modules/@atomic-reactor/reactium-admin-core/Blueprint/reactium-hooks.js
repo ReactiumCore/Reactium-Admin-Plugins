@@ -15,7 +15,7 @@ const routingStateHandler = async updates => {
         try {
             setLoading(true);
             await routeLoader();
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 0));
         } catch (error) {
             // TODO: DO SOMETHING ABOUT IT! Error route?
             console.log('Error while loading route', error, updates);

@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import moment from 'moment';
 import op from 'object-path';
-import IconImg from '../IconImg';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
@@ -14,24 +13,15 @@ import Reactium, { __, useDispatcher } from 'reactium-core/sdk';
  * Functional Component: ListItem
  * -----------------------------------------------------------------------------
  */
-export const ListItemIcon = ({ cx, meta, title, uuid }) =>
-    op.get(meta, 'icon') ? (
-        <Link
-            to={`/admin/type/${uuid}`}
-            className={cn(cx('icon'), 'ico')}
-            title={title}>
-            <Icon name={meta.icon} />
-            <Icon name='Linear.Pencil2' />
-        </Link>
-    ) : (
-        <Link
-            to={`/admin/type/${uuid}`}
-            className={cn(cx('graphic'), 'ico')}
-            title={title}>
-            <IconImg />
-            <Icon name='Linear.Pencil2' />
-        </Link>
-    );
+export const ListItemIcon = ({ cx, meta, title, uuid }) => (
+    <Link
+        to={`/admin/type/${uuid}`}
+        className={cn(cx('icon'), 'ico')}
+        title={title}>
+        <Icon name={op.get(meta, 'icon', 'Feather.Typewriter')} />
+        <Icon name='Linear.Pencil2' />
+    </Link>
+);
 
 export const ListItemTitle = props => (
     <div className={props.cx('item-title')}>{props.meta.label}</div>

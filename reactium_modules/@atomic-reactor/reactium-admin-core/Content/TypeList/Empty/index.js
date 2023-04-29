@@ -1,5 +1,5 @@
 import React from 'react';
-import IconImg from '../IconImg';
+import IconImg from './IconImg';
 import { Button } from 'reactium-ui';
 import { __ } from 'reactium-core/sdk';
 
