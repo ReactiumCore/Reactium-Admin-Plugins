@@ -14,7 +14,7 @@ import {
 } from './ListItem';
 
 import Component from './index';
-import { SearchBar } from './Searchbar';
+import { SearchBar } from './SearchBar';
 import Reactium from 'reactium-core/sdk';
 import { useContentTypes } from './useContentTypes';
 
