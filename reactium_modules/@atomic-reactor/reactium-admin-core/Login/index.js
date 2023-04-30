@@ -13,12 +13,12 @@ import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
  */
 const Login = ({ className, forgot, redirect, signup, ...props }) => {
     const Helmet = useHookComponent('Helmet');
-
     const Logo = useHookComponent('Logo');
-
-    const tools = useHandle('AdminTools');
-
-    const Modal = op.get(tools, 'Modal');
+    const setLoading = op.get(
+        window,
+        'LoadingRef.current.setVisible',
+        () => {},
+    );
 
     const stateRef = useRef({
         username: '',
@@ -172,11 +172,6 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                                     {ENUMS.TEXT.LABEL.FORGOT}
                                 </Link>
                             </div>
-                            <div className='col-xs-12 col-sm-6 text-xs-center text-sm-right pl-xs-0 pl-sm-8 mt-xs-16'>
-                                <Link to={signup}>
-                                    {ENUMS.TEXT.LABEL.CREATE}
-                                </Link>
-                            </div>
                         </div>
                     </WebForm>
                 </main>
@@ -187,11 +182,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
     useEffect(() => {
         const { status } = stateRef.current;
         if (status === ENUMS.STATUS.SUCCESS) {
-            Modal.show(
-                <div className='modal-spinner'>
-                    <Spinner />
-                </div>,
-            );
+            setLoading(true);
         }
     }, [op.get(stateRef.current, 'status')]);
 
