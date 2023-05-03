@@ -93,6 +93,31 @@ export const FieldType = props => {
     );
 };
 
+export const Editorx = ({ editor, ...initialProps }) => {
+    const props = { ...initialProps };
+    op.del(props, 'children');
+    op.del(props, 'saved');
+
+    const ElementDialog = useHookComponent('ElementDialog');
+
+    const { fieldId, fieldName, helpText, multiline, region } = props;
+
+    const dialogProps = {
+        helpText,
+        title: fieldName,
+    };
+
+    const type = editor.get('type');
+
+    console.log(props);
+
+    return (
+        <ElementDialog {...dialogProps}>
+            {multiline ? <textarea {...props} /> : <input {...props} />}
+        </ElementDialog>
+    );
+};
+
 export const Editor = props => {
     let {
         defaultValue,

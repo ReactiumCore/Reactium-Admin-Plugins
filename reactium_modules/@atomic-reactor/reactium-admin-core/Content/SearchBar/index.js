@@ -1,14 +1,26 @@
 import cn from 'classnames';
+import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Button, Icon } from 'reactium-ui';
 import React, { useCallback, useState } from 'react';
-import { __, cxFactory, useDispatcher, useRefs } from 'reactium-core/sdk';
+import { __, cxFactory, useDispatcher, useRefs, Zone } from 'reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: Search
  * -----------------------------------------------------------------------------
  */
+
+export const SearchBarSubmitButton = ({ submit }) => (
+    <Button
+        className='go'
+        onClick={submit}
+        children={__('go')}
+        size={Button.ENUMS.SIZE.XS}
+        color={Button.ENUMS.COLOR.TERTIARY}
+    />
+);
+
 export const SearchBar = ({
     className,
     namespace,
@@ -18,7 +30,7 @@ export const SearchBar = ({
 }) => {
     const refs = useRefs();
 
-    const cx = cxFactory(namespace);
+    const cx = cxFactory(`${op.get(props, 'data-zone-ns')}-${namespace}`);
 
     const [value, setValue] = useState(defaultValue);
 
@@ -59,6 +71,18 @@ export const SearchBar = ({
         [value],
     );
 
+    const handle = {
+        'data-parent': props,
+        clear,
+        cx,
+        dispatch,
+        isValue,
+        refs,
+        setValue,
+        submit,
+        value,
+    };
+
     return (
         <div className={cn(cx(), className)}>
             {isValue() ? (
@@ -81,13 +105,9 @@ export const SearchBar = ({
                 defaultValue={value}
                 ref={elm => refs.set('input', elm)}
             />
-            <Button
-                className='go'
-                onClick={submit}
-                size={Button.ENUMS.SIZE.XS}
-                color={Button.ENUMS.COLOR.TERTIARY}>
-                {__('go')}
-            </Button>
+            <div className={cx('actions')}>
+                <Zone zone={cx('actions')} {...handle} />
+            </div>
         </div>
     );
 };
@@ -102,7 +122,7 @@ SearchBar.propTypes = {
 
 SearchBar.defaultProps = {
     className: 'form-group',
-    namespace: 'admin-content-type-list-search',
+    namespace: 'search',
     placeholder: __('search'),
     value: '',
 };

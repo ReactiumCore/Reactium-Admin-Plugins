@@ -1,6 +1,5 @@
 import React from 'react';
 import op from 'object-path';
-import pluralize from 'pluralize';
 import { __, useHookComponent } from 'reactium-core/sdk';
 
 export default () => {
@@ -19,10 +18,10 @@ export default () => {
             {types.map(item => (
                 <MenuItem
                     exact={false}
+                    label={item.meta.label}
                     key={`content-${item.uuid}`}
-                    label={pluralize(item.meta.label)}
+                    route={`/admin/content/${item.type}/page/1`}
                     add={`/admin/content/${item.machineName}/new`}
-                    route={`/admin/content/${pluralize(item.type)}/page/1`}
                     icon={op.get(item.meta, 'icon', 'Linear.Document2')}
                 />
             ))}

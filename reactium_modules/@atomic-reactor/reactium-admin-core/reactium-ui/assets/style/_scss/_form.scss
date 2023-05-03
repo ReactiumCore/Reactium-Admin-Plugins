@@ -24,8 +24,11 @@ $select-color-bg: $color-white !default;
     border: 1px solid $clr-border;
     border-radius: $radius;
     line-height: 1;
-    margin-top: 6px;
     padding: 10px;
+
+    &:not(:last-child) {
+        margin-bottom: 6px;
+    }
 
     &:focus,
     &.focus {
@@ -69,13 +72,6 @@ $select-color-bg: $color-white !default;
         textarea,
         select {
             @include inputStyle();
-
-            &:first-child {
-                &:last-child {
-                    margin-top: 0;
-                    margin-bottom: 0;
-                }
-            }
         }
 
         textarea {
@@ -156,7 +152,6 @@ $select-color-bg: $color-white !default;
 
         &:first-child {
             &:last-child {
-                margin-top: 0;
                 margin-bottom: 0;
             }
         }

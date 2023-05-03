@@ -6,9 +6,11 @@ import React, {
     useImperativeHandle,
     useRef,
 } from 'react';
-import Reactium, { useEventHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 let ElementDialog = props => {
+    console.log(props);
+
     const {
         children,
         className,
@@ -19,11 +21,11 @@ let ElementDialog = props => {
         pref,
         onCollapse,
         onExpand,
-        title,
+        fieldName,
     } = props;
 
     const header = {
-        title,
+        title: fieldName,
         elements,
     };
 
@@ -116,4 +118,4 @@ let ElementDialog = props => {
 
 // ElementDialog = forwardRef(ElementDialog);
 
-export { ElementDialog, ElementDialog as default };
+export { ElementDialog };

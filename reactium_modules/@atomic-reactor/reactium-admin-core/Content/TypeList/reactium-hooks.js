@@ -11,18 +11,48 @@ import {
     ListItemIcon,
     ListItemMeta,
     ListItemTitle,
-} from './ListItem';
+} from '../ListItem';
 
 import Component from './index';
-import { SearchBar } from './Searchbar';
 import Reactium from 'reactium-core/sdk';
 import { useContentTypes } from './useContentTypes';
+import { SearchBar } from '../SearchBar';
 
 (async () => {
     await Reactium.Plugin.register(
         'ContentTypeList',
         Reactium.Enums.priority.lowest,
     );
+
+    Reactium.Component.register('useContentTypes', useContentTypes);
+
+    Reactium.Hook.register('blueprints', async Blueprint => {
+        const bp = {
+            ID: 'ContentTypes',
+            description: 'Content types',
+            sections: {
+                sidebar: {
+                    zones: ['admin-sidebar'],
+                    meta: {},
+                },
+                main: {
+                    zones: [
+                        'admin-header',
+                        'admin-content-types',
+                        'admin-EVENTS',
+                    ],
+                    meta: {},
+                },
+            },
+            meta: {
+                admin: true,
+                builtIn: true,
+                namespace: 'admin-page',
+            },
+        };
+
+        Blueprint.register(bp.ID, bp);
+    });
 
     Reactium.Zone.addComponent({
         order: -1000,
@@ -37,8 +67,6 @@ import { useContentTypes } from './useContentTypes';
         zone: ['admin-content-type-list-top'],
         id: 'ADMIN-CONTENT-TYPE-LIST-SEARCH',
     });
-
-    Reactium.Component.register('useContentTypes', useContentTypes);
 
     Reactium.ContentType.ListComponents.register(
         'ADMIN-CONTENT-TYPE-LIST-ICON',
@@ -99,6 +127,4 @@ import { useContentTypes } from './useContentTypes';
             zones: ['admin-content-type-list-item-right'],
         },
     );
-
-    Reactium.Component.register('useContentTypes', useContentTypes);
 })();

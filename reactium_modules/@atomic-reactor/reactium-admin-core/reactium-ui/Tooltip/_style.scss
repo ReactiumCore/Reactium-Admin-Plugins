@@ -26,9 +26,8 @@ $ar-tooltip-z: 10000000;
         font-size: 14px;
         position: relative;
         box-shadow: $ar-tooltip-shadow;
-        max-width: 200px;
-        text-align: center;
         opacity: 0.8;
+        white-space: nowrap;
     }
 
     &.visible {
