@@ -5,14 +5,28 @@
  */
 
 import './sdk';
-import Component from './index';
 import Reactium from 'reactium-core/sdk';
 import { ElementDialog } from './ElementDialog';
+import { ContentEditor, NewContentButton } from './index';
 
 (async () => {
     await Reactium.Plugin.register('ContentEditor');
-    Reactium.Component.register('ContentEditor', Component);
+    Reactium.Component.register('ContentEditor', ContentEditor);
     Reactium.Component.register('ElementDialog', ElementDialog);
+
+    Reactium.Zone.addComponent({
+        order: -1000,
+        component: ContentEditor,
+        id: 'ADMIN-CONTENT-EDITOR',
+        zone: ['admin-content-editor'],
+    });
+
+    Reactium.Zone.addComponent({
+        id: 'ADMIN-CONTENT-ACTIONS',
+        component: NewContentButton,
+        order: 100, // don't change this - Cam
+        zone: ['admin-logo', 'admin-content-actions'],
+    });
 
     Reactium.Hook.register('blueprints', async Blueprint => {
         [
@@ -25,11 +39,7 @@ import { ElementDialog } from './ElementDialog';
                         meta: {},
                     },
                     main: {
-                        zones: [
-                            'admin-header',
-                            'admin-content-editor',
-                            'admin-EVENTS',
-                        ],
+                        zones: ['admin-header', 'admin-content-editor'],
                         meta: {},
                     },
                 },
@@ -48,11 +58,7 @@ import { ElementDialog } from './ElementDialog';
                         meta: {},
                     },
                     main: {
-                        zones: [
-                            'admin-header',
-                            'admin-content-list',
-                            'admin-EVENTS',
-                        ],
+                        zones: ['admin-header', 'admin-content-list'],
                         meta: {},
                     },
                 },
@@ -63,12 +69,5 @@ import { ElementDialog } from './ElementDialog';
                 },
             },
         ].forEach(bp => Blueprint.register(bp.ID, bp));
-    });
-
-    Reactium.Zone.addComponent({
-        order: -1000,
-        component: Component,
-        id: 'ADMIN-CONTENT-EDITOR',
-        zone: ['admin-content-editor'],
     });
 })();

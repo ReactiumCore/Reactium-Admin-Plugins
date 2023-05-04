@@ -9,8 +9,6 @@ import React, {
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 let ElementDialog = props => {
-    console.log(props);
-
     const {
         children,
         className,

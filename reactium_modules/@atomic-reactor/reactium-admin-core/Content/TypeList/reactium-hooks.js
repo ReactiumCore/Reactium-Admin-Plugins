@@ -36,11 +36,7 @@ import { SearchBar } from '../SearchBar';
                     meta: {},
                 },
                 main: {
-                    zones: [
-                        'admin-header',
-                        'admin-content-types',
-                        'admin-EVENTS',
-                    ],
+                    zones: ['admin-header', 'admin-content-types'],
                     meta: {},
                 },
             },

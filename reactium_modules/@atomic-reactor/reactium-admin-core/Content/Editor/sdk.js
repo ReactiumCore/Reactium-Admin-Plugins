@@ -288,7 +288,8 @@ class SDK {
                 );
             }
 
-            Reactium.Cloud.run('content-retrieve', { uuid });
+            const params = _.isString(uuid) ? { uuid } : uuid;
+            return Reactium.Cloud.run('content-retrieve', params);
         };
     }
 

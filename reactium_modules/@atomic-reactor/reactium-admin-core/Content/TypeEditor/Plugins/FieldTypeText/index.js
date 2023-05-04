@@ -93,31 +93,6 @@ export const FieldType = props => {
     );
 };
 
-export const Editorx = ({ editor, ...initialProps }) => {
-    const props = { ...initialProps };
-    op.del(props, 'children');
-    op.del(props, 'saved');
-
-    const ElementDialog = useHookComponent('ElementDialog');
-
-    const { fieldId, fieldName, helpText, multiline, region } = props;
-
-    const dialogProps = {
-        helpText,
-        title: fieldName,
-    };
-
-    const type = editor.get('type');
-
-    console.log(props);
-
-    return (
-        <ElementDialog {...dialogProps}>
-            {multiline ? <textarea {...props} /> : <input {...props} />}
-        </ElementDialog>
-    );
-};
-
 export const Editor = props => {
     let {
         defaultValue,
@@ -136,6 +111,7 @@ export const Editor = props => {
 
     const inputRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
+    const { FormError, FormRegister } = useHookComponent('ReactiumUI');
 
     const inputProps = {
         defaultValue,
@@ -213,23 +189,25 @@ export const Editor = props => {
     }, [editor]);
 
     return (
-        <ElementDialog {...props}>
-            <div className='p-xs-20'>
-                <div className={className}>
-                    <label>
-                        <span className='sr-only'>
-                            {placeholder || fieldName}
-                        </span>
-                        {multiline === true ? (
-                            <textarea {...inputProps} />
-                        ) : (
-                            <input {...inputProps} type='text' />
-                        )}
-                    </label>
-                    {errorText && <small>{errorText}</small>}
+        <FormRegister>
+            <ElementDialog {...props}>
+                <div className='p-xs-20'>
+                    <div className={className}>
+                        <label>
+                            <span className='sr-only'>
+                                {placeholder || fieldName}
+                            </span>
+                            {multiline === true ? (
+                                <textarea {...inputProps} />
+                            ) : (
+                                <input {...inputProps} type='text' />
+                            )}
+                        </label>
+                        <FormError name={fieldName} />
+                    </div>
                 </div>
-            </div>
-        </ElementDialog>
+            </ElementDialog>
+        </FormRegister>
     );
 };
 

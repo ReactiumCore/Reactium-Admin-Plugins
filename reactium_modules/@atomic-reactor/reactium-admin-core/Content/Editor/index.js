@@ -2,46 +2,191 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { Spinner } from 'reactium-ui';
 import { Resizable } from 're-resizable';
+import { Button, Icon, Spinner } from 'reactium-ui';
+import React, { useEffect, useMemo } from 'react';
 import { useRouteParams } from 'reactium-admin-core';
-import React, { useCallback, useEffect, useMemo } from 'react';
 import { useContentTypes } from '../TypeList/useContentTypes';
 
 import Reactium, {
     __,
     cxFactory,
+    useAsyncEffect,
     useHookComponent,
     useRefs,
     useSyncState,
-    Zone,
 } from 'reactium-core/sdk';
 
-const min = 0;
-const max = '34%';
-const width = () => (_.isUndefined(window) ? min : window.innerWidth * 0.4);
+const min = 50;
+const max = '50%';
+const iwidth = 400;
+const width = () => Math.min(Math.max(window.innerWidth, min), iwidth);
+const initialSidebarWidth = () => {
+    const size = Reactium.Prefs.get('content-editor-sidebar', {
+        width: width(),
+    });
 
-const ContentEditor = ({ className, namespace }) => {
-    const refs = useRefs();
+    op.set(size, 'width', Math.max(size.width, iwidth));
+
+    return size;
+};
+
+export const NewContentButton = () => {
     const params = useRouteParams();
+    const type = op.get(params, 'type');
 
-    const { Form } = useHookComponent('ReactiumUI');
+    return (
+        type && (
+            <Button
+                outline
+                size='xs'
+                type='link'
+                color='primary'
+                appearance='pill'
+                className='mr-xs-24'
+                to={`/admin/content/${type}/new`}>
+                <Icon name='Feather.Plus' size={18} />
+                <span className='hide-xs show-md ml-xs-12'>
+                    {__('New %type').replace(/%type/gi, type)}
+                </span>
+            </Button>
+        )
+    );
+};
+
+export const ContentEditor = ({ className, namespace }) => {
+    const refs = useRefs();
+
+    const params = useRouteParams();
 
     const [types] = useContentTypes(false);
 
+    const { Form } = useHookComponent('ReactiumUI');
+
     const state = useSyncState({
-        updated: null,
-        value: null,
-        sidebarSize: Reactium.Prefs.get('content-editor-sidebar', {
-            width: width(),
-        }),
+        params,
+        obj: false,
+        ready: false,
+        sidebarSize: initialSidebarWidth(),
     });
 
     const cx = cxFactory(namespace);
 
+    const isReady = useMemo(() => state.get('ready'), [state.get('ready')]);
+
     const isType = useMemo(() => !!state.get('type'), [state.get('type')]);
 
-    const unMounted = () => !refs.get('container');
+    const initialValue = () => {
+        if (!isReady) return;
+        if (!state.Form) return;
+
+        const obj = state.get('obj');
+        let value = null;
+
+        if (obj) {
+            const val = obj.toJSON();
+            const data = obj.get('data');
+
+            value = { ...data, ...val };
+            delete value.data;
+        }
+
+        state.Form.setValue(value);
+    };
+
+    const retrieve = async mounted => {
+        if (isReady) return;
+
+        const type = op.get(params, 'type');
+        const uuid = op.get(params, 'slug');
+
+        if (!uuid) return;
+
+        const isNew = uuid === 'new';
+
+        const obj =
+            !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
+
+        if (!mounted()) return;
+
+        state.set(
+            {
+                obj,
+                isNew,
+                params,
+                updated: Date.now(),
+                uuid: isNew ? null : uuid,
+            },
+            true,
+        );
+
+        await Promise.all([
+            Reactium.Hook.run('content-editor-load', {
+                state,
+                params,
+                mounted,
+            }),
+            Reactium.Hook.run(`content-editor-load-${type}`, {
+                state,
+                params,
+                mounted,
+            }),
+        ]);
+
+        if (!mounted()) return;
+
+        state.set('ready', true);
+    };
+
+    const onChange = e => {
+        if (!isReady) return;
+        // console.log(e.target.value);
+    };
+
+    const onChangeUUID = () => {
+        const uuid = state.get('params.uuid');
+
+        if (uuid === op.get(params, 'slug')) return;
+
+        if (state.Form) {
+            state.Form.setValue(null);
+        }
+
+        state.set('ready', false, true);
+        state.set('obj', null, true);
+    };
+
+    const onParamTypeChange = () => {
+        if (!types || !params) return;
+        const { type: machineName } = params;
+
+        const type = _.findWhere(types, { machineName });
+        if (type) state.set({ type });
+    };
+
+    const onReady = async mounted => {
+        if (isReady) return;
+
+        const type = op.get(params, 'type');
+
+        await Promise.all([
+            Reactium.Hook.run('content-editor-ready', {
+                state,
+                params,
+                mounted,
+            }),
+            Reactium.Hook.run(`content-editor-ready-${type}`, {
+                state,
+                params,
+                mounted,
+            }),
+        ]);
+    };
+
+    const onResize = () => {
+        const size = state.get('sidebarSize');
+        Reactium.Prefs.set('content-editor-sidebar', size);
+    };
 
     const setSidebarWidth = value => {
         if (unMounted()) return;
@@ -55,6 +200,8 @@ const ContentEditor = ({ className, namespace }) => {
         state.set('sidebarSize', { ...size, width: w });
     };
 
+    const unMounted = () => !refs.get('container');
+
     const regions = useMemo(() => {
         if (!isType) return [];
 
@@ -64,19 +211,24 @@ const ContentEditor = ({ className, namespace }) => {
     const elements = useMemo(() => {
         if (!isType) return {};
 
-        const type = state.get('type');
+        const type = state.get('type.machineName');
+
         let fields = _.clone(state.get('type.fields'));
         if (!fields) return {};
         op.del(fields, 'publisher');
 
         fields = Array.from(Object.values(fields));
+
+        Reactium.Hook.runSync('content-editor-elements', fields, state);
+
+        Reactium.Hook.runSync(`content-editor-elements-${type}`, fields, state);
+
         fields = fields.map(item => {
             const { component } = Reactium.Content.Editor.get(item.fieldType);
-            if (component) item.Component = component;
-            return item;
+            if (component && !item.Component) item.Component = component;
+            return item.Component ? item : null;
         });
 
-        console.log(fields);
         return _.chain(fields)
             .compact()
             .groupBy('region')
@@ -85,31 +237,26 @@ const ContentEditor = ({ className, namespace }) => {
 
     state.extend('cx', cx);
 
-    useEffect(() => {
-        const uuid = op.get(params, 'slug');
-        const isNew = uuid === 'new';
-        state.set({ isNew, uuid: isNew ? null : uuid });
-    }, [params]);
+    useEffect(onChangeUUID, [params]);
 
-    useEffect(() => {
-        if (!types || !params) return;
-        const { type: machineName } = params;
+    useEffect(onParamTypeChange, [params, types]);
 
-        const type = _.findWhere(types, { machineName });
-        if (type) {
-            state.set({ type });
-        }
-    }, [params, types]);
+    useEffect(onResize, [state.get('sidebarSize')]);
 
-    useEffect(() => {
-        const size = state.get('sidebarSize');
-        Reactium.Prefs.set('content-editor-sidebar', size);
-    }, [state.get('sidebarSize')]);
+    useEffect(initialValue, [isReady, state.get('obj')]);
 
-    return types === false ? (
+    useAsyncEffect(retrieve, [params, isReady]);
+
+    useAsyncEffect(onReady, [isReady]);
+
+    return !isReady ? (
         <Spinner className={cx('spinner')} />
     ) : (
-        <Form>
+        <Form
+            onChange={onChange}
+            ref={elm => {
+                state.Form = elm;
+            }}>
             <div
                 ref={elm => refs.set('container', elm)}
                 className={cn(cx(), cx(state.get('type')), className)}>
@@ -125,11 +272,7 @@ const ContentEditor = ({ className, namespace }) => {
                                 className={cx('sidebar-placeholder')}
                                 ref={elm => refs.set('sidebarContainer', elm)}
                             />
-                            <div
-                                className={cn(
-                                    cx('sidebar'),
-                                    `content-editor-${region.id}`,
-                                )}>
+                            <div className={cx('sidebar')}>
                                 {elements[region.id].map(
                                     ({ Component, ...item }) => (
                                         <Component
@@ -139,10 +282,6 @@ const ContentEditor = ({ className, namespace }) => {
                                         />
                                     ),
                                 )}
-                                <Zone
-                                    editor={state}
-                                    zone={`content-editor-${region.id}`}
-                                />
                             </div>
                         </ResizeWrap>
                     ) : (
@@ -161,10 +300,6 @@ const ContentEditor = ({ className, namespace }) => {
                                         />
                                     ),
                                 )}
-                                <Zone
-                                    editor={state}
-                                    zone={`content-editor-${region.id}`}
-                                />
                             </div>
                         </div>
                     );
@@ -186,7 +321,7 @@ ContentEditor.defaultProps = {
 const ResizeWrap = ({ children, className, size, setSidebarWidth }) => (
     <Resizable
         size={size}
-        minWidth={0}
+        minWidth={min}
         maxWidth={max}
         children={children}
         className={className}
@@ -214,5 +349,3 @@ const ResizeWrap = ({ children, className, size, setSidebarWidth }) => (
         }}
     />
 );
-
-export default ContentEditor;
