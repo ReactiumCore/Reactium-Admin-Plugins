@@ -5,6 +5,7 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 
 import Reactium, {
+    useDispatcher,
     useEventEffect,
     useHookComponent,
     useRefs,
@@ -165,8 +166,6 @@ let Form = (
             'Form component must supply `onChange` prop when specifying `value` prop',
         );
     }
-
-    const { useDispatcher } = useHookComponent('reactium-core/sdk');
 
     const [status, setStatus, isStatus] = useStatus(Form.STATUS.INIT);
 

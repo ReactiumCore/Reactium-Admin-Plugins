@@ -7,6 +7,7 @@ import ENUMS from './enums';
 import React, {
     forwardRef,
     useEffect,
+    useHookComponent,
     useImperativeHandle,
     useRef,
     useState,
@@ -36,6 +37,8 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
     iDocument =
         !iDocument && typeof document !== 'undefined' ? document : iDocument;
     iWindow = !iWindow && typeof window !== 'undefined' ? window : iWindow;
+
+    const { FormRegister } = useHookComponent('ReactiumUI');
 
     // Refs
     const barRef = useRef();
@@ -439,18 +442,20 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
 
         return (
             <div ref={containerRef} className={cname}>
-                <input
-                    name={name}
-                    type='hidden'
-                    defaultValue={value[ENUMS.MIN]}
-                />
-                {range && (
+                <FormRegister>
                     <input
                         name={name}
                         type='hidden'
-                        defaultValue={value[ENUMS.MAX]}
+                        defaultValue={value[ENUMS.MIN]}
                     />
-                )}
+                    {range && (
+                        <input
+                            name={name}
+                            type='hidden'
+                            defaultValue={value[ENUMS.MAX]}
+                        />
+                    )}
+                </FormRegister>
                 <div className={bcname} ref={barRef}>
                     <button
                         type='button'

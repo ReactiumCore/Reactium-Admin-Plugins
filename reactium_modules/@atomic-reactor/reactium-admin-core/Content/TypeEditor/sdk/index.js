@@ -140,7 +140,7 @@ ContentType.delete = async options => {
 
 ContentType.FieldType = new Registry('FieldType', 'type');
 
-ContentType.ListComponents = new Registry('ContentList', 'id');
+ContentType.ListComponents = new Registry('ContentTypeList', 'id');
 ContentType.ListComponents.mode = Registry.MODES.CLEAN;
 
 export default ContentType;

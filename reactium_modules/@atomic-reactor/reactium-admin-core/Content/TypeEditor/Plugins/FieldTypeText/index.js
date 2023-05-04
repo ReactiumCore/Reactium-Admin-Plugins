@@ -111,6 +111,7 @@ export const Editor = props => {
 
     const inputRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
+    const { FormError, FormRegister } = useHookComponent('ReactiumUI');
 
     const inputProps = {
         defaultValue,
@@ -188,23 +189,25 @@ export const Editor = props => {
     }, [editor]);
 
     return (
-        <ElementDialog {...props}>
-            <div className='p-xs-20'>
-                <div className={className}>
-                    <label>
-                        <span className='sr-only'>
-                            {placeholder || fieldName}
-                        </span>
-                        {multiline === true ? (
-                            <textarea {...inputProps} />
-                        ) : (
-                            <input {...inputProps} type='text' />
-                        )}
-                    </label>
-                    {errorText && <small>{errorText}</small>}
+        <FormRegister>
+            <ElementDialog {...props}>
+                <div className='p-xs-20'>
+                    <div className={className}>
+                        <label>
+                            <span className='sr-only'>
+                                {placeholder || fieldName}
+                            </span>
+                            {multiline === true ? (
+                                <textarea {...inputProps} />
+                            ) : (
+                                <input {...inputProps} type='text' />
+                            )}
+                        </label>
+                        <FormError name={fieldName} />
+                    </div>
                 </div>
-            </div>
-        </ElementDialog>
+            </ElementDialog>
+        </FormRegister>
     );
 };
 

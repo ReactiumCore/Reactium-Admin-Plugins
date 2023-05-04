@@ -2,10 +2,10 @@ import cn from 'classnames';
 import Empty from './Empty';
 import op from 'object-path';
 import PropTypes from 'prop-types';
-import { ListItem } from './ListItem';
+import { ListItem } from '../ListItem';
 import { Spinner } from 'reactium-ui';
 import React, { useCallback, useState } from 'react';
-import {
+import Reactium, {
     __,
     cxFactory,
     useHookComponent,
@@ -50,7 +50,7 @@ const ContentTypeList = ({ className, namespace, title }) => {
 
     useStateEffect(
         {
-            'admin-content-type-list-search': onSearch,
+            [cx('search')]: onSearch,
         },
         [],
     );
@@ -65,11 +65,18 @@ const ContentTypeList = ({ className, namespace, title }) => {
                     <Empty />
                 ) : (
                     <>
-                        <Zone zone={cx('top')} />
+                        <Zone zone={cx('top')} data-zone-ns={cx()} />
                         {filter().map(item => (
-                            <ListItem cx={cx} {...item} key={item.uuid} />
+                            <ListItem
+                                cx={cx}
+                                {...item}
+                                key={item.uuid}
+                                path='/admin/type'
+                                data-zone-ns={cx()}
+                                registry={Reactium.ContentType.ListComponents}
+                            />
                         ))}
-                        <Zone zone={cx('bottom')} />
+                        <Zone zone={cx('bottom')} data-zone-ns={cx()} />
                     </>
                 )}
             </div>

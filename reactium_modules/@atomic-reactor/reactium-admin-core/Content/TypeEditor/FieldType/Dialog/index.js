@@ -4,9 +4,6 @@ import { Dialog, Icon, Button } from 'reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
-import Enums from '../../enums';
-
-const getToast = () => Reactium.State.Tools.Toast;
 
 const Header = props => {
     const inputRef = useRef();
@@ -24,8 +21,8 @@ const Header = props => {
               readOnly: true,
           }
         : {
-              onTouchStart: e => inputRef.current.select(),
-              onClick: e => inputRef.current.select(),
+              onTouchStart: () => inputRef.current.select(),
+              onClick: () => inputRef.current.select(),
           };
 
     const render = () => (
@@ -120,9 +117,6 @@ const FieldTypeDialog = props => {
             header={header}
             className={cn('fieldtype', `fieldtype-${type}`)}
             onDismiss={onDismiss}>
-            {
-                // <div>id: {id}</div>
-            }
             {children}
             <div className='form-group'>
                 {op.get(props, 'showHelpText') && (

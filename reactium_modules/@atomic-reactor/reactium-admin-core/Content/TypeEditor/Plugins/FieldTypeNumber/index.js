@@ -110,6 +110,7 @@ export const Editor = props => {
 
     const inputRef = useRef();
     const ElementDialog = useHookComponent('ElementDialog');
+    const { FormError, FormRegister } = useHookComponent('ReactiumUI');
 
     const inputProps = {
         defaultValue,
@@ -178,12 +179,14 @@ export const Editor = props => {
                             <span className='sr-only'>
                                 {placeholder || fieldName}
                             </span>
-                            <input {...inputProps} />
+                            <FormRegister>
+                                <input {...inputProps} />
+                            </FormRegister>
                         </label>
                     ) : (
                         <NumberSlider {...props} />
                     )}
-                    {errorText && <small>{errorText}</small>}
+                    <FormError name={fieldName} />
                 </div>
             </div>
         </ElementDialog>

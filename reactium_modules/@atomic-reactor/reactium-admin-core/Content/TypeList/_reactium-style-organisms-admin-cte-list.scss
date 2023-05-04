@@ -76,15 +76,19 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
 
             .small {
                 font-weight: normal;
+                color: $color-gray !important;
             }
         }
 
-        &-EVENTS {
+        &-actions {
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding-right: 20px;
+
+            &-child {
+                margin-left: 6px;
+            }
         }
 
         .ico {
@@ -197,14 +201,116 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
             transform: translateY(-50%);
         }
 
-        button.go {
+        &-actions {
+            display: flex;
+            align-items: center;
             position: absolute;
             top: 50%;
-            right: 6px;
+            right: 1px;
             margin: 0;
-            width: 50px;
-            height: calc(100% - 12px);
+            padding: 4px 5px 4px 6px;
+            height: calc(100% - 4px);
             transform: translateY(-50%);
+            background-color: $color-white;
+            flex-wrap: nowrap;
+            z-index: 11;
+
+            button.go {
+                width: 30px;
+                height: 100%;
+                padding: 0;
+            }
+
+            button.filter {
+                height: 100%;
+                margin-left: 4px;
+                padding: 0 3px 0 8px;
+
+                .ar-icon {
+                    margin-left: 4px;
+                }
+            }
+        }
+
+        &-filters {
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+            position: relative;
+
+            &-menu {
+                display: none;
+                position: absolute;
+                right: -6px;
+                bottom: -5px;
+                font-size: 10px;
+                padding-top: 1px;
+                margin-top: 4px;
+                line-height: 14px;
+                transform: translateY(100%);
+                background-color: $color-white;
+                border: 1px solid $input-color-border;
+                box-shadow: 0 1px 4px 4px rgba($color-black, 0.05);
+
+                &.visible {
+                    display: block;
+                }
+
+                &-item {
+                    width: 100%;
+                    border: none;
+                    display: flex;
+                    flex-wrap: nowrap;
+                    padding: 8px 20px 8px 12px;
+                    white-space: nowrap;
+                    align-items: center;
+                    font-size: inherit;
+                    background-color: $color-white;
+
+                    &:not(:last-child) {
+                        border-bottom: 1px solid
+                            lighten($input-color-border, 15%);
+                    }
+
+                    &:hover,
+                    &:focus,
+                    &:active,
+                    &.active {
+                        background-color: darken($color-white, 1%);
+                    }
+
+                    .ico {
+                        width: 14px;
+                        height: 14px;
+                        padding: 0;
+                        margin-right: 8px;
+                        border-radius: 100%;
+                        border: 2px solid $color-white;
+
+                        &.btn-danger {
+
+                            svg {
+                                width: 8px;
+                                height: 8px;
+                                margin-right: 0;
+                                margin-left: 0;
+                            }
+                        }
+                    }
+                    
+                    .ar-icon {
+                        margin-left: 2px; 
+                        margin-right: 10px;
+                    }
+                }
+
+                &-group {
+                    &:not(:last-child) {
+                        border-bottom: 2px solid
+                            lighten($input-color-border, 15%);
+                    }
+                }
+            }
         }
 
         button.clear {

@@ -6,7 +6,7 @@ import React, {
     useImperativeHandle,
     useRef,
 } from 'react';
-import Reactium, { useEventHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from 'reactium-core/sdk';
 
 let ElementDialog = props => {
     const {
@@ -19,11 +19,12 @@ let ElementDialog = props => {
         pref,
         onCollapse,
         onExpand,
-        title,
+        fieldId,
+        fieldName,
     } = props;
 
     const header = {
-        title,
+        title: fieldName,
         elements,
     };
 
@@ -99,7 +100,8 @@ let ElementDialog = props => {
             className={className}
             onCollapse={onCollapse}
             onExpand={onExpand}
-            {...props}>
+            {...props}
+            id={String(`ar-dialog-${fieldName}`).toLowerCase()}>
             {helpText && (
                 <Collapsible
                     ref={collapsibleRef}
@@ -116,4 +118,4 @@ let ElementDialog = props => {
 
 // ElementDialog = forwardRef(ElementDialog);
 
-export { ElementDialog, ElementDialog as default };
+export { ElementDialog };

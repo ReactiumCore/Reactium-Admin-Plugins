@@ -12,14 +12,15 @@ const fieldType = {
     order: Reactium.Enums.priority.neutral - 1,
 };
 
-Reactium.Plugin.register(`CTE-${ID}`).then(() => {
-    Reactium.Component.register(fieldType.component, FieldType);
+(() => {
+    Reactium.Plugin.register(`CTE-${ID}`).then(() => {
+        Reactium.Component.register(fieldType.component, FieldType);
+        Reactium.Content.Editor.register(ID, { component: Editor });
 
-    // TODO: Fix Content SDK
-    // Reactium.Content.Editor.register(ID, { component: Editor });
+        // TODO: Fix Content Quickstart and Revisions
+        // Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
+        // Reactium.Content.Comparison.register(ID, { component: Comparison });
 
-    // Reactium.Content.QuickEditor.register(ID, { component: QuickEditor });
-    // Reactium.Content.Comparison.register(ID, { component: Comparison });
-
-    Reactium.ContentType.FieldType.register(ID, fieldType);
-});
+        Reactium.ContentType.FieldType.register(ID, fieldType);
+    });
+})();

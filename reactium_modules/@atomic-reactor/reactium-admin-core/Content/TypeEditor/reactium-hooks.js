@@ -85,34 +85,7 @@ Reactium.Hook.register('blueprints', async Blueprint => {
                     meta: {},
                 },
                 main: {
-                    zones: [
-                        'admin-header',
-                        'admin-content-type-editor',
-                        'admin-EVENTS',
-                    ],
-                    meta: {},
-                },
-            },
-            meta: {
-                admin: true,
-                builtIn: true,
-                namespace: 'admin-page',
-            },
-        },
-        {
-            ID: 'ContentTypes',
-            description: 'Content types',
-            sections: {
-                sidebar: {
-                    zones: ['admin-sidebar'],
-                    meta: {},
-                },
-                main: {
-                    zones: [
-                        'admin-header',
-                        'admin-content-types',
-                        'admin-EVENTS',
-                    ],
+                    zones: ['admin-header', 'admin-content-type-editor'],
                     meta: {},
                 },
             },
