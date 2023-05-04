@@ -5,8 +5,6 @@ import Blueprint from './index';
 
 const routingStateHandler = async updates => {
     if (op.get(updates, 'transitionState') === 'LOADING') {
-        const routeLoader = async () => {};
-        await Reactium.Hook.run('blueprint-route-loader', routeLoader, updates);
         const setLoading = op.get(
             window,
             'LoadingRef.current.setVisible',
@@ -14,8 +12,7 @@ const routingStateHandler = async updates => {
         );
         try {
             setLoading(true);
-            await routeLoader();
-            await new Promise(resolve => setTimeout(resolve, 0));
+            await Reactium.Hook.run('blueprint-route-loader', updates);
         } catch (error) {
             // TODO: DO SOMETHING ABOUT IT! Error route?
             console.log('Error while loading route', error, updates);
