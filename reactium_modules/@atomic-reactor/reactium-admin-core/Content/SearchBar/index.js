@@ -103,6 +103,7 @@ export const SearchBar = ({
                 onKeyUp={onKeyUp}
                 onChange={onChange}
                 defaultValue={value}
+                style={{ marginBottom: 0 }}
                 ref={elm => refs.set('input', elm)}
             />
             <div className={cx('actions')}>

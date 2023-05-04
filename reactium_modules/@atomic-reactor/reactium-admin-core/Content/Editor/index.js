@@ -72,6 +72,8 @@ export const ContentEditor = ({ className, namespace }) => {
 
     const cx = cxFactory(namespace);
 
+    const isNew = useMemo(() => op.get(params, 'slug') === 'new', [params]);
+
     const isReady = useMemo(() => state.get('ready'), [state.get('ready')]);
 
     const isType = useMemo(() => !!state.get('type'), [state.get('type')]);
@@ -101,8 +103,6 @@ export const ContentEditor = ({ className, namespace }) => {
         const uuid = op.get(params, 'slug');
 
         if (!uuid) return;
-
-        const isNew = uuid === 'new';
 
         const obj =
             !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
@@ -150,6 +150,7 @@ export const ContentEditor = ({ className, namespace }) => {
 
         if (state.Form) {
             state.Form.setValue(null);
+            delete state.Form;
         }
 
         state.set('ready', false, true);
@@ -200,6 +201,57 @@ export const ContentEditor = ({ className, namespace }) => {
         state.set('sidebarSize', { ...size, width: w });
     };
 
+    const onSubmit = async e => {
+        let { meta, slug, status, user, uuid, title, ...data } = _.clone(
+            e.value,
+        );
+
+        const cleanseData = [
+            'ACL',
+            'createdAt',
+            'updatedAt',
+            'taxonomy',
+            'objectId',
+            'type',
+            'user',
+        ];
+        cleanseData.forEach(field => op.del(data, field));
+
+        const type = state.get('params.type');
+        user = op.get(user, 'objectId');
+
+        const values = {
+            data,
+            meta,
+            slug,
+            status,
+            title,
+            type,
+            user,
+            uuid,
+        };
+
+        try {
+            const results = await Reactium.Content.save(values, true);
+            console.log(results);
+        } catch (err) {
+            console.log(err);
+            e.target.setError('submit', err.message);
+        }
+
+        console.log('Editor', e.type, values);
+    };
+
+    const onValidate = e => {
+        console.log('Editor', e.type);
+    };
+
+    const setForm = elm => {
+        if (state.Form) return;
+        state.Form = elm;
+        state.update();
+    };
+
     const unMounted = () => !refs.get('container');
 
     const regions = useMemo(() => {
@@ -235,8 +287,6 @@ export const ContentEditor = ({ className, namespace }) => {
             .value();
     }, [state.get('type')]);
 
-    state.extend('cx', cx);
-
     useEffect(onChangeUUID, [params]);
 
     useEffect(onParamTypeChange, [params, types]);
@@ -249,62 +299,108 @@ export const ContentEditor = ({ className, namespace }) => {
 
     useAsyncEffect(onReady, [isReady]);
 
+    state.extend('cx', cx);
+
+    state.extend('unMounted', unMounted);
+
+    state.extend('update', () => state.set('updated', Date.now()));
+
+    state.isNew = isNew;
+
+    state.isReady = isReady;
+
+    state.isType = isType;
+
+    state.elements = elements;
+
+    state.regions = regions;
+
+    state.types = types;
+
+    state.refs = refs;
+
     return !isReady ? (
         <Spinner className={cx('spinner')} />
     ) : (
         <Form
+            ref={setForm}
             onChange={onChange}
-            ref={elm => {
-                state.Form = elm;
-            }}>
-            <div
-                ref={elm => refs.set('container', elm)}
-                className={cn(cx(), cx(state.get('type')), className)}>
-                {regions.map((region, i) => {
-                    const key = `region-${i}`;
-                    return String(region.id).startsWith('sidebar') ? (
-                        <ResizeWrap
-                            key={key}
-                            className={cn(cx('column'), 'p-20')}
-                            size={state.get('sidebarSize')}
-                            setSidebarWidth={setSidebarWidth}>
+            onSubmit={onSubmit}
+            onValidate={onValidate}>
+            {state.Form && (
+                <div
+                    ref={elm => refs.set('container', elm)}
+                    className={cn(cx(), cx(state.get('type')), className)}>
+                    {regions.map((region, i) =>
+                        String(region.id).startsWith('sidebar') ? (
+                            <ResizeWrap
+                                key={`region-${i}`}
+                                className={cn(cx('column'))}
+                                size={state.get('sidebarSize')}
+                                setSidebarWidth={setSidebarWidth}>
+                                <div
+                                    className={cx('sidebar-placeholder')}
+                                    ref={elm =>
+                                        refs.set('sidebarContainer', elm)
+                                    }
+                                />
+                                <div
+                                    className={cn(
+                                        cx('sidebar'),
+                                        cx(`sidebar-${region.id}`),
+                                    )}>
+                                    {elements[region.id].map(
+                                        ({ Component, ...item }) => (
+                                            <div
+                                                key={item.fieldId}
+                                                className={cn(
+                                                    cx('sidebar-element'),
+                                                    cx(
+                                                        `sidebar-element-${item.fieldId}`,
+                                                    ),
+                                                )}>
+                                                <Component
+                                                    {...item}
+                                                    key={item.fieldId}
+                                                    editor={state}
+                                                />
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            </ResizeWrap>
+                        ) : (
                             <div
-                                className={cx('sidebar-placeholder')}
-                                ref={elm => refs.set('sidebarContainer', elm)}
-                            />
-                            <div className={cx('sidebar')}>
-                                {elements[region.id].map(
-                                    ({ Component, ...item }) => (
-                                        <Component
-                                            {...item}
-                                            key={item.fieldId}
-                                            editor={state}
-                                        />
-                                    ),
-                                )}
+                                key={`region-${i}`}
+                                className={cn(cx('column'))}>
+                                <div
+                                    className={cn(
+                                        cx(region.id),
+                                        `content-editor-${region.id}`,
+                                    )}>
+                                    {elements[region.id].map(
+                                        ({ Component, ...item }) => (
+                                            <div
+                                                key={item.fieldId}
+                                                className={cn(
+                                                    cx('element'),
+                                                    cx(
+                                                        `element-${item.fieldId}`,
+                                                    ),
+                                                )}>
+                                                <Component
+                                                    {...item}
+                                                    editor={state}
+                                                />
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
                             </div>
-                        </ResizeWrap>
-                    ) : (
-                        <div key={key} className={cn(cx('column'), 'p-20')}>
-                            <div
-                                className={cn(
-                                    cx(region.id),
-                                    `content-editor-${region.id}`,
-                                )}>
-                                {elements[region.id].map(
-                                    ({ Component, ...item }) => (
-                                        <Component
-                                            {...item}
-                                            key={item.fieldId}
-                                            editor={state}
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        ),
+                    )}
+                </div>
+            )}
         </Form>
     );
 };

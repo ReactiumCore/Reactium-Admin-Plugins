@@ -2,7 +2,6 @@ import _ from 'underscore';
 import cn from 'classnames';
 import moment from 'moment';
 import op from 'object-path';
-import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
@@ -81,7 +80,7 @@ export const ListItemCount = props => {
             title={String(__('%n records')).replace(/%n/gi, count)}
             onClick={() =>
                 Reactium.Routing.history.push(
-                    `/admin/content/${pluralize(props.machineName)}/page/1`,
+                    `/admin/content/${props.machineName}/page/1`,
                 )
             }>
             {count}

@@ -8,6 +8,31 @@
     flex-wrap: nowrap;
     align-items: stretch;
 
+    &-element {
+        position: relative;
+        padding: 20px;
+
+        &:not(:first-child) {
+            margin-bottom: -20px;
+        }
+
+        &:empty {
+            display: none;
+        }
+
+        &-title {
+            border-bottom: 1px solid darken($color-grey-light, 5%);
+
+            button {
+                z-index: 5;
+            }
+
+            .input-sm {
+                margin-top: 4px;
+            }
+        }
+    }
+
     &-spinner {
         height: 100vh;
         display: flex;
@@ -16,8 +41,32 @@
     }
 
     &-sidebar {
-        min-width: 320px;
+        display: flex;
         overflow: auto;
+        flex-direction: column;
+        height: calc(100vh - #{$height-admin-header});
+
+        &-element {
+            position: relative;
+            min-width: 320px;
+
+            &-publish {
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                padding: 20px;
+                position: sticky;
+                background-color: $color-white;
+                margin-top: -1px;
+                border-top: 1px solid darken($color-grey-light, 5%);
+                border-bottom: 1px solid darken($color-grey-light, 5%);
+
+                .error-message {
+                    margin-top: 0;
+                    margin-bottom: 10px;
+                }
+            }
+        }
     }
 
     &-sidebar-placeholder {

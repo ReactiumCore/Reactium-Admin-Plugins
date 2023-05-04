@@ -19,6 +19,7 @@ let ElementDialog = props => {
         pref,
         onCollapse,
         onExpand,
+        fieldId,
         fieldName,
     } = props;
 
@@ -99,7 +100,8 @@ let ElementDialog = props => {
             className={className}
             onCollapse={onCollapse}
             onExpand={onExpand}
-            {...props}>
+            {...props}
+            id={String(`ar-dialog-${fieldName}`).toLowerCase()}>
             {helpText && (
                 <Collapsible
                     ref={collapsibleRef}

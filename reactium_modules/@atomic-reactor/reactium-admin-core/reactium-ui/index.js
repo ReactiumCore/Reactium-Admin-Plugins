@@ -15,6 +15,7 @@ export * from './Dismissable';
 export * from './Dropdown';
 export * from './Dropzone';
 export * from './EventForm';
+export * from './Form';
 export * from './Icon';
 export * from './Image';
 export * from './Modal';

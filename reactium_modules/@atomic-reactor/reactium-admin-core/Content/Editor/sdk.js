@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import { Button } from 'reactium-ui';
-import Reactium, { Registry } from 'reactium-core/sdk';
+import Reactium, { __, Registry } from 'reactium-core/sdk';
 
 Reactium.Cache.set('content', {});
 Reactium.Enums.cache.content = 10000;
@@ -9,9 +9,10 @@ const ENUMS = {
     TITLE_LENGTH: 4,
     REQUIRED: ['title'],
     ERROR: {
-        TITLE_LENGTH: 'title paramater must be 4 characters or more',
-        REQUIRED: 'is a required parameter',
-        UUID: 'uuid is a required parameter',
+        TITLE_LENGTH: __('title paramater must be 4 characters or more'),
+        REQUIRED: __('is a required parameter'),
+        STRING: __('%key must be of type String'),
+        UUID: __('uuid is a required parameter'),
     },
 };
 
@@ -171,15 +172,19 @@ class SDK {
             return msgs.join('.\n');
         };
 
-        const setError = req => msg => {
+        const setError = req => (msg, key) => {
             let msgs = op.get(req.context, 'error.message', []);
             msgs = _.isArray(msgs) ? msgs : [];
             msgs.push(msg);
 
             op.set(req.context, 'error.message', msgs);
+            if (key) op.set(req.context.errors, key, msg);
         };
 
         const validate = async req => {
+            req.context.errors = {};
+            req.context.error.message = null;
+
             let required = op.get(req.context, 'required', []);
 
             if (!required.includes('title')) required.push('title');
@@ -193,54 +198,67 @@ class SDK {
                 if (!val) {
                     req.context.error.set(
                         `[${key}:String] ${ENUMS.ERROR.REQUIRED}`,
-                        {
-                            key: val,
-                            type: 'String',
-                        },
+                        key,
                     );
                 }
             });
 
-            await Reactium.Hook.run('content-validate', req);
+            const type = op.get(req.object, 'type');
+            if (type && !_.isString(type)) {
+                req.context.error.set(
+                    String(ENUMS.ERROR.STRING).replace(/%key/gi, 'type'),
+                );
+            }
+
+            const prom = [Reactium.Hook.run('content-validate', req)];
+
+            if (type) {
+                prom.push(Reactium.Hook.run(`content-validate-${type}`, req));
+            }
+
+            await Promise.all(prom);
         };
 
-        return async obj => {
+        return async (obj, skipValidation = false) => {
             obj = this.utils.serialize(obj);
 
             const req = {
                 object: obj,
-                context: {
-                    error: {
-                        message: null,
-                        set: setError(req),
-                        get: getError(req),
-                    },
-                    isError: isError(req),
-                    required: ENUMS.REQUIRED,
-                },
+                context: {},
             };
 
-            const type = op.get(req.object, 'type.machineName');
+            req.context.errors = {};
+            req.context.isError = isError(req);
+            req.context.required = ENUMS.REQUIRED;
 
-            op.set(req.object, 'type', type);
+            req.context.error = {
+                message: null,
+                set: setError(req),
+                get: getError(req),
+            };
 
-            await Reactium.Hook.run('content-before-save', req);
+            const type = op.get(req.object, 'type');
 
-            await validate(req);
+            await Promise.all([
+                Reactium.Hook.run('content-before-save', req),
+                Reactium.Hook.run(`content-before-save-${type}`, req),
+            ]);
+
+            if (skipValidation !== true) {
+                await validate(req);
+            }
 
             if (req.context.isError()) {
                 throw new Error(req.context.error.get());
             }
 
-            await Reactium.Hook.run('content-save', req);
+            await Promise.all([
+                Reactium.Hook.run('content-save', req),
+                Reactium.Hook.run(`content-save-${type}`, req),
+            ]);
 
             try {
-                const results = await Reactium.Cloud.run(
-                    'content-save',
-                    params,
-                );
-
-                return results;
+                return Reactium.Cloud.run('content-save', req.object);
             } catch (err) {
                 throw new Error(err.message);
             }
