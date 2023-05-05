@@ -60,11 +60,12 @@
     "@atomic-reactor/reactium-user": "5.0.1",
     "@atomic-reactor/reactium-setting": "5.0.1",
     "@atomic-reactor/reactium-svg": "0.0.3",
-    "@atomic-reactor/reactium-core": "5.0.2"
+    "@atomic-reactor/reactium-core": "5.0.4"
   },
   "husky": {},
   "workspaces": [
     "reactium_modules/*",
     "reactium_modules/*/*"
-  ]
+  ],
+  "devDependencies": {}
 }
