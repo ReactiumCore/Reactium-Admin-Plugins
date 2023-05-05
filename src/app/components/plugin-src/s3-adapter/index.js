@@ -1,4 +1,4 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import Settings from './Settings';
 import SidebarWidget from './SidebarWidget';
 

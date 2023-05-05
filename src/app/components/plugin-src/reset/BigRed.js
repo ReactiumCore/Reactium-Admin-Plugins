@@ -1,5 +1,8 @@
 import React from 'react';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 
 const BigRed = () => {

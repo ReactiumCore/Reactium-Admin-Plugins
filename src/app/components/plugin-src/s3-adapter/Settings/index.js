@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHookComponent, Zone, __ } from 'reactium-core/sdk';
+import { useHookComponent, Zone, __ } from '@atomic-reactor/reactium-core/sdk';
 
 const settings = {
     title: __('S3 Adapter Settings'),

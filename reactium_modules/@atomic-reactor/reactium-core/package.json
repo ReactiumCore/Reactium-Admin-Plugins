@@ -1,39 +1,13 @@
 {
-  "name": "actinium-admin",
-  "version": "5.0.0-alpha-1",
-  "description": "Reactium front-end to Actinium.",
-  "main": "index.js",
-  "scripts": {
-    "heroku-prebuild": "npx reactium install",
-    "local": "gulp local",
-    "clean": "gulp clean",
-    "docker": "npm-run-all -s clean docker:*",
-    "docker:build": "cross-env docker image build -t $npm_package_name:$npm_package_version -t $npm_package_name:latest .",
-    "docker:push": "cross-env docker push $npm_package_name:$npm_package_version && cross-env docker push $npm_package_name:$npm_package_version:latest",
-    "precommit": "lint-staged",
-    "start": "node src/index.mjs",
-    "build": "cross-env NODE_ENV=production gulp"
+  "actinium": {
+    "version": "5.0.0"
   },
-  "keywords": [
-    "react",
-    "redux",
-    "framework",
-    "javascript",
-    "ddd"
-  ],
-  "author": "Cam Tullos <cam@tullos.ninja> (http://cam.tullos.ninja) and John Dillick <john@dillick.us>",
-  "license": "MIT",
-  "engines": {
-    "node": "18.x",
-    "npm": "9.x"
+  "reactium": {
+    "version": "5.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Atomic-Reactor/Reactium.git"
-  },
-  "browser": {
-    "parse/node": false
-  },
+  "name": "@atomic-reactor/reactium-core",
+  "version": "5.0.2",
+  "description": "Reactium Core Module",
   "dependencies": {
     "@atomic-reactor/dirname": "^1.0.2",
     "@atomic-reactor/reactium-sdk-core": "^1.2.23",
@@ -71,10 +45,8 @@
     "prettier": "^1.19.1",
     "prop-types": "^15.8.1",
     "querystring-browser": "^1.0.4",
-    "re-resizable": "^6.9.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-dropzone": "^14.2.3",
     "react-helmet": "^6.1.0",
     "react-router-dom": "~5.2.0",
     "regenerator-runtime": "^0.13.11",
@@ -100,6 +72,7 @@
     "@babel/preset-react": "^7.18.6",
     "ajv": "^8.12.0",
     "apidoc": "^0.25.0",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^9.1.2",
@@ -128,13 +101,13 @@
     "gulp4-run-sequence": "^1.0.1",
     "handlebars": "^4.7.7",
     "husky": "^3.1.0",
-    "ignore-loader": "^0.1.2",
     "lint-staged": "^9.4.3",
     "module-alias": "^2.2.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "nodemon": "^2.0.21",
     "open": "^8.4.2",
     "ora": "^5.4.1",
-    "reactium": "^3.0.10",
+    "reactium": "^5.0.0",
     "readdir-recursive": "0.0.4",
     "sass": "^1.59.3",
     "sass-embedded": "^1.62.0",
@@ -144,34 +117,14 @@
     "webpack-dev-middleware": "^5.3.3",
     "webpack-hot-middleware": "^2.25.3"
   },
-  "nodemonConfig": {
-    "quite": true,
-    "watch": [
-      "src/manifest.js"
-    ],
-    "ignore": [
-      "src/app/*",
-      ".tmp/"
-    ]
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "lint-staged": {
-    "*.{js,json,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "reactiumDependencies": {
-    "@atomic-reactor/reactium-api": "5.0.3",
-    "@atomic-reactor/reactium-capability": "5.0.1",
-    "@atomic-reactor/reactium-role": "5.0.1",
-    "@atomic-reactor/reactium-user": "5.0.1",
-    "@atomic-reactor/reactium-setting": "5.0.1",
-    "@atomic-reactor/reactium-svg": "0.0.3",
-    "@atomic-reactor/reactium-core": "5.0.2"
-  },
-  "husky": {},
-  "workspaces": [
-    "reactium_modules/*",
-    "reactium_modules/*/*"
-  ]
+  "keywords": [
+    "react",
+    "reactium"
+  ],
+  "author": "John Dillick and Cam Tullos",
+  "license": "MIT"
 }
