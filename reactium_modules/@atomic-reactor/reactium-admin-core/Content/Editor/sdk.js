@@ -216,7 +216,7 @@ class SDK {
                 prom.push(Reactium.Hook.run(`content-validate-${type}`, req));
             }
 
-            await Promise.all(prom);
+            return Promise.all(prom);
         };
 
         return async (obj, skipValidation = false) => {
@@ -334,6 +334,11 @@ class SDK {
                 return this;
             },
         };
+    }
+
+    newObject(type) {
+        Reactium.Cache.set('reset', `/admin/content/${type}/new`);
+        Reactium.Routing.history.push('/admin/reset');
     }
 }
 

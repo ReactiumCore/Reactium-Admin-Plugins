@@ -130,7 +130,11 @@ const Link = ({ state, cname, onClick, expanded }) => {
             handle.setValue(null);
         }
 
-        Reactium.Routing.history.push(add);
+        if (_.isString(add)) {
+            Reactium.Routing.history.push(add);
+        } else if (_.isFunction(add)) {
+            add();
+        }
     };
 
     return (
@@ -139,7 +143,10 @@ const Link = ({ state, cname, onClick, expanded }) => {
                 <Label cname={cname} expanded={expanded} state={state} />
             </NavLink>
             {add && (
-                <a href={add} className={cname('add')} onClick={_onAddClick}>
+                <a
+                    onClick={_onAddClick}
+                    className={cname('add')}
+                    href={_.isString(add) ? add : 'void(0)'}>
                     <Icon name='Feather.Plus' />
                 </a>
             )}
@@ -312,7 +319,7 @@ MenuItem = forwardRef(MenuItem);
 
 MenuItem.propTypes = {
     active: PropTypes.bool,
-    add: PropTypes.string,
+    add: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     capabilities: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     className: PropTypes.string,
     count: PropTypes.oneOfType([

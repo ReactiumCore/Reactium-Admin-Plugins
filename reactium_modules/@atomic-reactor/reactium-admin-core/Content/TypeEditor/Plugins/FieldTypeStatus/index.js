@@ -1,3 +1,4 @@
+import op from 'object-path';
 import React from 'react';
 import Reactium, { useHookComponent } from 'reactium-core/sdk';
 

@@ -4,7 +4,13 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Resizable } from 're-resizable';
 import { Button, Icon, Spinner } from 'reactium-ui';
-import React, { useEffect, useMemo } from 'react';
+import React, {
+    forwardRef,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import { useRouteParams } from 'reactium-admin-core';
 import { useContentTypes } from '../TypeList/useContentTypes';
 
@@ -17,34 +23,23 @@ import Reactium, {
     useSyncState,
 } from 'reactium-core/sdk';
 
-const min = 50;
-const max = '50%';
-const iwidth = 400;
-const width = () => Math.min(Math.max(window.innerWidth, min), iwidth);
-const initialSidebarWidth = () => {
-    const size = Reactium.Prefs.get('content-editor-sidebar', {
-        width: width(),
-    });
-
-    op.set(size, 'width', Math.max(size.width, iwidth));
-
-    return size;
-};
+const min = 0;
+const iw = 400;
 
 export const NewContentButton = () => {
     const params = useRouteParams();
     const type = op.get(params, 'type');
 
     return (
-        type && (
+        type &&
+        params && (
             <Button
                 outline
                 size='xs'
-                type='link'
                 color='primary'
                 appearance='pill'
                 className='mr-xs-24'
-                to={`/admin/content/${type}/new`}>
+                onClick={() => Reactium.Content.newObject(type)}>
                 <Icon name='Feather.Plus' size={18} />
                 <span className='hide-xs show-md ml-xs-12'>
                     {__('New %type').replace(/%type/gi, type)}
@@ -52,6 +47,23 @@ export const NewContentButton = () => {
             </Button>
         )
     );
+};
+
+const initialSidebarWidth = () => {
+    const size = Reactium.Prefs.get('content-editor-sidebar') || {
+        width: iw,
+    };
+
+    const max =
+        window.innerWidth > 990 ? window.innerWidth / 2 : window.innerWidth;
+
+    let w = op.get(size, 'width', iw);
+    w = w < min ? min : w;
+    w = w > max ? max : w;
+
+    size.width = w;
+
+    return size;
 };
 
 export const ContentEditor = ({ className, namespace }) => {
@@ -78,7 +90,30 @@ export const ContentEditor = ({ className, namespace }) => {
 
     const isType = useMemo(() => !!state.get('type'), [state.get('type')]);
 
-    const initialValue = () => {
+    const hasElements = useCallback(
+        () => _.flatten(Object.values(elements)).length > 0,
+        [elements],
+    );
+
+    const defaultValue = useCallback(() => {
+        if (!isNew) return;
+        if (!hasElements()) return;
+
+        const elms = _.flatten(Object.values(elements));
+
+        const values = elms.reduce((obj, item) => {
+            const k = op.get(item, 'fieldName');
+            const v = op.get(item, 'defaultValue');
+
+            if (k && v) op.set(obj, k, v);
+
+            return obj;
+        }, {});
+
+        state.Form.setValue(values);
+    }, [isNew]);
+
+    const initialValue = useCallback(() => {
         if (!isReady) return;
         if (!state.Form) return;
 
@@ -94,163 +129,220 @@ export const ContentEditor = ({ className, namespace }) => {
         }
 
         state.Form.setValue(value);
-    };
+    }, [isReady]);
 
-    const retrieve = async mounted => {
-        if (isReady) return;
+    const retrieve = useCallback(
+        async mounted => {
+            if (isReady) return;
 
-        const type = op.get(params, 'type');
-        const uuid = op.get(params, 'slug');
+            const type = op.get(params, 'type');
+            const uuid = op.get(params, 'slug');
 
-        if (!uuid) return;
+            if (!uuid) return;
 
-        const obj =
-            !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
+            const obj =
+                !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
 
-        if (!mounted()) return;
+            if (!mounted()) return;
 
-        state.set(
-            {
-                obj,
-                isNew,
-                params,
-                updated: Date.now(),
-                uuid: isNew ? null : uuid,
-            },
-            true,
-        );
+            state.set(
+                {
+                    obj,
+                    isNew,
+                    params,
+                    updated: Date.now(),
+                    uuid: isNew ? null : uuid,
+                },
+                true,
+            );
 
-        await Promise.all([
-            Reactium.Hook.run('content-editor-load', {
-                state,
-                params,
-                mounted,
-            }),
-            Reactium.Hook.run(`content-editor-load-${type}`, {
-                state,
-                params,
-                mounted,
-            }),
-        ]);
+            await Promise.all([
+                Reactium.Hook.run('content-editor-load', {
+                    state,
+                    params,
+                    mounted,
+                }),
+                Reactium.Hook.run(`content-editor-load-${type}`, {
+                    state,
+                    params,
+                    mounted,
+                }),
+            ]);
 
-        if (!mounted()) return;
+            if (!mounted()) return;
 
-        state.set('ready', true);
-    };
+            state.set('ready', true);
+        },
+        [isReady],
+    );
 
     const onChange = e => {
         if (!isReady) return;
         // console.log(e.target.value);
     };
 
-    const onChangeUUID = () => {
+    const onChangeUUID = useCallback(() => {
         const uuid = state.get('params.uuid');
 
         if (uuid === op.get(params, 'slug')) return;
 
-        if (state.Form) {
-            state.Form.setValue(null);
-            delete state.Form;
-        }
+        if (state.Form) state.Form.setValue(null);
 
-        state.set('ready', false, true);
-        state.set('obj', null, true);
-    };
+        state.set({ obj: null, ready: false });
+    }, [params]);
 
-    const onParamTypeChange = () => {
+    const onParamTypeChange = useCallback(() => {
         if (!types || !params) return;
         const { type: machineName } = params;
 
         const type = _.findWhere(types, { machineName });
         if (type) state.set({ type });
-    };
+    }, [types, params]);
 
-    const onReady = async mounted => {
-        if (isReady) return;
+    const onReady = useCallback(
+        async mounted => {
+            if (isReady) return;
 
-        const type = op.get(params, 'type');
+            const type = op.get(params, 'type');
 
-        await Promise.all([
-            Reactium.Hook.run('content-editor-ready', {
-                state,
-                params,
-                mounted,
-            }),
-            Reactium.Hook.run(`content-editor-ready-${type}`, {
-                state,
-                params,
-                mounted,
-            }),
-        ]);
-    };
+            await Promise.all([
+                Reactium.Hook.run('content-editor-ready', {
+                    state,
+                    params,
+                    mounted,
+                }),
+                Reactium.Hook.run(`content-editor-ready-${type}`, {
+                    state,
+                    params,
+                    mounted,
+                }),
+            ]);
+        },
+        [isReady],
+    );
 
-    const onResize = () => {
-        const size = state.get('sidebarSize');
-        Reactium.Prefs.set('content-editor-sidebar', size);
-    };
+    const onSubmit = useCallback(
+        async e => {
+            if (!isReady) return;
 
-    const setSidebarWidth = value => {
-        if (unMounted()) return;
+            let { meta, slug, status, user, uuid, title, ...data } = _.clone(
+                e.value,
+            );
 
-        const size = state.get('sidebarSize');
-        const container = refs.get('sidebarContainer');
-        const w = size.width + value;
+            const cleanseData = [
+                'ACL',
+                'createdAt',
+                'updatedAt',
+                'taxonomy',
+                'objectId',
+                'type',
+                'user',
+            ];
+            cleanseData.forEach(field => op.del(data, field));
 
-        container.style.width = `${w}px`;
+            const type = state.get('params.type');
+            user = op.get(user, 'objectId');
 
-        state.set('sidebarSize', { ...size, width: w });
-    };
+            const values = {
+                data,
+                meta,
+                slug,
+                status,
+                title,
+                type,
+                user,
+                uuid,
+            };
 
-    const onSubmit = async e => {
-        let { meta, slug, status, user, uuid, title, ...data } = _.clone(
-            e.value,
+            try {
+                const results = await Reactium.Content.save(values);
+                e.target.complete(results);
+            } catch (err) {
+                e.target.setError('submit', err.message);
+            }
+        },
+        [isReady],
+    );
+
+    const onComplete = useCallback(async e => {
+        const object = e.results;
+
+        console.log(object.get('uuid'));
+
+        await Reactium.Hook.run('content-after-save', state);
+
+        const { Toast } = Reactium.State.Tools;
+
+        const message = __('Saved %title').replace(
+            /%title/gi,
+            object.get('title'),
         );
 
-        const cleanseData = [
-            'ACL',
-            'createdAt',
-            'updatedAt',
-            'taxonomy',
-            'objectId',
-            'type',
-            'user',
-        ];
-        cleanseData.forEach(field => op.del(data, field));
+        Toast.show({
+            message,
+            autoClose: 2500,
+            type: Toast.TYPE.SUCCESS,
+            icon: <Icon name='Feather.Check' style={{ marginRight: 12 }} />,
+        });
 
-        const type = state.get('params.type');
-        user = op.get(user, 'objectId');
-
-        const values = {
-            data,
-            meta,
-            slug,
-            status,
-            title,
-            type,
-            user,
-            uuid,
-        };
-
-        try {
-            const results = await Reactium.Content.save(values, true);
-            console.log(results);
-        } catch (err) {
-            console.log(err);
-            e.target.setError('submit', err.message);
+        if (isNew) {
+            Reactium.Routing.history.push(
+                `/admin/content/${params.type}/${object.get('uuid')}`,
+            );
         }
+    }, []);
 
-        console.log('Editor', e.type, values);
-    };
-
-    const onValidate = e => {
+    const onValidate = useCallback(e => {
         console.log('Editor', e.type);
-    };
+    }, []);
 
-    const setForm = elm => {
+    const setForm = useCallback(elm => {
         if (state.Form) return;
         state.Form = elm;
         state.update();
-    };
+    }, []);
+
+    const onResize = useCallback((e, d, ref, s) => {
+        if (unMounted()) return;
+
+        ref.classList.remove('resizable');
+
+        const container = refs.get('sidebarContainer');
+        const size = state.get('sidebarSize');
+
+        size.width = container.offsetWidth;
+
+        Reactium.Prefs.set('content-editor-sidebar', size);
+        state.set('sidebarSize', size);
+    }, []);
+
+    const onResized = useCallback((e, d, ref, s) => {
+        if (unMounted()) return;
+
+        ref.classList.add('resizable');
+
+        const container = refs.get('sidebarContainer');
+        let dir = s.width !== 0 && s.width < 0 ? 'right' : 'left';
+        dir = s.width === 0 ? 'reset' : dir;
+
+        let w = container.offsetWidth;
+
+        if (dir !== 'reset') {
+            const max = window.innerWidth / 2;
+            w = w <= iw && dir === 'left' ? iw : w;
+            w = w <= iw && dir === 'right' ? min : w;
+            w = w >= max ? max : w;
+        } else {
+            const v = Math.abs(w - iw);
+            w = v <= 2 ? min : iw;
+        }
+
+        const size = state.get('sidebarSize');
+        size.width = w;
+
+        Reactium.Prefs.set('content-editor-sidebar', size);
+        state.set('sidebarSize', size);
+    }, []);
 
     const unMounted = () => !refs.get('container');
 
@@ -291,15 +383,17 @@ export const ContentEditor = ({ className, namespace }) => {
 
     useEffect(onParamTypeChange, [params, types]);
 
-    useEffect(onResize, [state.get('sidebarSize')]);
-
     useEffect(initialValue, [isReady, state.get('obj')]);
 
     useAsyncEffect(retrieve, [params, isReady]);
 
     useAsyncEffect(onReady, [isReady]);
 
+    useEffect(defaultValue, [elements, isNew, isReady, state.get('obj')]);
+
     state.extend('cx', cx);
+
+    state.extend('hasElements', hasElements);
 
     state.extend('unMounted', unMounted);
 
@@ -325,6 +419,7 @@ export const ContentEditor = ({ className, namespace }) => {
         <Form
             ref={setForm}
             onChange={onChange}
+            onComplete={onComplete}
             onSubmit={onSubmit}
             onValidate={onValidate}>
             {state.Form && (
@@ -335,9 +430,13 @@ export const ContentEditor = ({ className, namespace }) => {
                         String(region.id).startsWith('sidebar') ? (
                             <ResizeWrap
                                 key={`region-${i}`}
-                                className={cn(cx('column'))}
-                                size={state.get('sidebarSize')}
-                                setSidebarWidth={setSidebarWidth}>
+                                className={cn(cx('column'), 'resizable')}
+                                size={
+                                    state.get('sidebarSize') ||
+                                    initialSidebarWidth()
+                                }
+                                onResizeStop={onResized}
+                                onResize={onResize}>
                                 <div
                                     className={cx('sidebar-placeholder')}
                                     ref={elm =>
@@ -414,34 +513,56 @@ ContentEditor.defaultProps = {
     namespace: 'admin-content-editor',
 };
 
-const ResizeWrap = ({ children, className, size, setSidebarWidth }) => (
-    <Resizable
-        size={size}
-        minWidth={min}
-        maxWidth={max}
-        children={children}
-        className={className}
-        handleStyles={{ right: { width: 25 } }}
-        onResizeStop={(e, dir, ref, s) => setSidebarWidth(s.width)}
-        enable={{
-            top: false,
-            right: false,
-            bottom: false,
-            left: true,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false,
-        }}
-        handleClasses={{
-            top: 'handle-top',
-            topRight: 'handle-top-right',
-            topLeft: 'handle-top-left',
-            bottom: 'handle-bottom',
-            bottomRight: 'handle-bottom-right',
-            bottomLeft: 'handle-bottom-left',
-            left: 'handle-left',
-            right: 'handle-right',
-        }}
-    />
+const ResizeWrap = forwardRef(
+    ({ children, className, size, onResizeStop, onResize }, ref) => {
+        const [winSize, setSize] = useState(window ? window.innerWidth : 0);
+
+        const onWindowResize = useCallback(() => {
+            setSize(window.innerWidth);
+        }, [window]);
+
+        useEffect(() => {
+            if (!window) return;
+            window.addEventListener('resize', onWindowResize);
+            return () => {
+                window.removeEventListener('resize', onWindowResize);
+            };
+        }, [window]);
+
+        return winSize <= 990 ? (
+            <div className={className} children={children} ref={ref} />
+        ) : (
+            <Resizable
+                ref={ref}
+                size={size}
+                minWidth={min}
+                maxWidth={window.innerWidth / 2}
+                children={children}
+                className={className}
+                handleStyles={{ right: { width: 25 } }}
+                onResizeStop={onResizeStop}
+                onResize={onResize}
+                enable={{
+                    top: false,
+                    right: false,
+                    bottom: false,
+                    left: true,
+                    topRight: false,
+                    bottomRight: false,
+                    bottomLeft: false,
+                    topLeft: false,
+                }}
+                handleClasses={{
+                    top: 'handle-top',
+                    topRight: 'handle-top-right',
+                    topLeft: 'handle-top-left',
+                    bottom: 'handle-bottom',
+                    bottomRight: 'handle-bottom-right',
+                    bottomLeft: 'handle-bottom-left',
+                    left: 'handle-left',
+                    right: 'handle-right',
+                }}
+            />
+        );
+    },
 );

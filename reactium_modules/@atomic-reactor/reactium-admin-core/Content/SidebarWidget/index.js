@@ -1,6 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
 
 export default () => {
     const MenuItem = useHookComponent('MenuItem');
@@ -21,7 +21,7 @@ export default () => {
                     label={item.meta.label}
                     key={`content-${item.uuid}`}
                     route={`/admin/content/${item.type}/page/1`}
-                    add={`/admin/content/${item.machineName}/new`}
+                    add={() => Reactium.Content.newObject(item.type)}
                     icon={op.get(item.meta, 'icon', 'Linear.Document2')}
                 />
             ))}

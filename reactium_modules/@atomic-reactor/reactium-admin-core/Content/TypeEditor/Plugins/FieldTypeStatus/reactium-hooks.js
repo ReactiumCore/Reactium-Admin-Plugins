@@ -24,6 +24,7 @@ import Reactium from 'reactium-core/sdk';
                 fieldId: 'status',
                 fieldName: 'status',
                 fieldType: 'Status',
+                defaultValue: 'DRAFT',
             });
         },
         Reactium.Enums.priority.highest,

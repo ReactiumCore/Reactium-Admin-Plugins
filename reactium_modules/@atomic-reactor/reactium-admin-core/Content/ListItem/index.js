@@ -88,7 +88,7 @@ export const ListItemCount = props => {
     );
 };
 
-export const ListItemAdd = ({ idField, path, ...props }) => (
+export const ListItemAdd = ({ type }) => (
     <Button
         style={{ height: 26 }}
         title={__('Create New')}
@@ -96,10 +96,8 @@ export const ListItemAdd = ({ idField, path, ...props }) => (
         size={Button.ENUMS.SIZE.XS}
         color={Button.ENUMS.COLOR.primary}
         appearance={Button.ENUMS.APPEARANCE.PILL}
+        onClick={() => Reactium.Content.newObject(type)}
         children={<Icon name='Feather.Plus' size={16} />}
-        onClick={() =>
-            Reactium.Routing.history.push(`${path}/${op.get(props, idField)}`)
-        }
     />
 );
 
