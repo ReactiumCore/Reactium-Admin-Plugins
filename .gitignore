@@ -91,6 +91,7 @@ src/domains.js
 # Ignore All but @atomic-reactor reactium-admin modules in this directory
 reactium_modules/*
 reactium_modules/@atomic-reactor/reactium-api
+reactium_modules/@atomic-reactor/reactium-core
 reactium_modules/@atomic-reactor/reactium-capability
 reactium_modules/@atomic-reactor/reactium-redux
 reactium_modules/@atomic-reactor/reactium-role

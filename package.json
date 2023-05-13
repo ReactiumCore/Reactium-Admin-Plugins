@@ -1,73 +1,73 @@
 {
-    "name": "actinium-admin",
-    "version": "5.0.0-alpha-1",
-    "description": "Reactium front-end to Actinium.",
-    "main": "index.js",
-    "scripts": {
-        "heroku-prebuild": "npx reactium install",
-        "local": "gulp local",
-        "clean": "gulp clean",
-        "docker": "npm-run-all -s clean docker:*",
-        "docker:build": "cross-env docker image build -t $npm_package_name:$npm_package_version -t $npm_package_name:latest .",
-        "docker:push": "cross-env docker push $npm_package_name:$npm_package_version && cross-env docker push $npm_package_name:$npm_package_version:latest",
-        "precommit": "lint-staged",
-        "start": "node src/index.mjs",
-        "build": "cross-env NODE_ENV=production gulp"
-    },
-    "keywords": [
-        "react",
-        "redux",
-        "framework",
-        "javascript",
-        "ddd"
+  "name": "actinium-admin",
+  "version": "5.0.0-alpha-1",
+  "description": "Reactium front-end to Actinium.",
+  "main": "index.js",
+  "scripts": {
+    "heroku-prebuild": "npx reactium install",
+    "local": "gulp local",
+    "clean": "gulp clean",
+    "docker": "npm-run-all -s clean docker:*",
+    "docker:build": "cross-env docker image build -t $npm_package_name:$npm_package_version -t $npm_package_name:latest .",
+    "docker:push": "cross-env docker push $npm_package_name:$npm_package_version && cross-env docker push $npm_package_name:$npm_package_version:latest",
+    "precommit": "lint-staged",
+    "start": "node src/index.mjs",
+    "build": "cross-env NODE_ENV=production gulp"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "framework",
+    "javascript",
+    "ddd"
+  ],
+  "author": "Cam Tullos <cam@tullos.ninja> (http://cam.tullos.ninja) and John Dillick <john@dillick.us>",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Atomic-Reactor/Reactium.git"
+  },
+  "browser": {
+    "parse/node": false
+  },
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  },
+  "nodemonConfig": {
+    "quite": true,
+    "watch": [
+      "src/manifest.js"
     ],
-    "author": "Cam Tullos <cam@tullos.ninja> (http://cam.tullos.ninja) and John Dillick <john@dillick.us>",
-    "license": "MIT",
-    "engines": {
-        "node": "18.x",
-        "npm": "9.x"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Atomic-Reactor/Reactium.git"
-    },
-    "browser": {
-        "parse/node": false
-    },
-    "dependencies": {
-        "react": "^18.2.0"
-    },
-    "devDependencies": {
-        "prettier": "^2.8.8"
-    },
-    "nodemonConfig": {
-        "quite": true,
-        "watch": [
-            "src/manifest.js"
-        ],
-        "ignore": [
-            "src/app/*",
-            ".tmp/"
-        ]
-    },
-    "lint-staged": {
-        "*.{js,json,css,md}": [
-            "prettier --write",
-            "git add"
-        ]
-    },
-    "reactiumDependencies": {
-        "@atomic-reactor/reactium-api": "5.0.3",
-        "@atomic-reactor/reactium-capability": "5.0.1",
-        "@atomic-reactor/reactium-role": "5.0.1",
-        "@atomic-reactor/reactium-user": "5.0.1",
-        "@atomic-reactor/reactium-setting": "5.0.1",
-        "@atomic-reactor/reactium-svg": "0.0.3",
-        "@atomic-reactor/reactium-core": "5.0.5"
-    },
-    "husky": {},
-    "workspaces": [
-        "reactium_modules/*",
-        "reactium_modules/*/*"
+    "ignore": [
+      "src/app/*",
+      ".tmp/"
     ]
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "reactiumDependencies": {
+    "@atomic-reactor/reactium-api": "5.0.3",
+    "@atomic-reactor/reactium-capability": "5.0.1",
+    "@atomic-reactor/reactium-role": "5.0.1",
+    "@atomic-reactor/reactium-user": "5.0.1",
+    "@atomic-reactor/reactium-setting": "5.0.1",
+    "@atomic-reactor/reactium-svg": "0.0.3",
+    "@atomic-reactor/reactium-core": "5.0.7"
+  },
+  "husky": {},
+  "workspaces": [
+    "reactium_modules/*",
+    "reactium_modules/*/*"
+  ]
 }
