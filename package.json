@@ -68,6 +68,6 @@
   "husky": {},
   "workspaces": [
     "reactium_modules/*",
-    "reactium_modules/*/*"
+    "reactium_modules/@*/*"
   ]
 }
