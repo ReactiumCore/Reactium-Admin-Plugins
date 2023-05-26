@@ -1,10 +1,10 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Icon } from 'reactium-ui';
 import { useDoesMatchPath } from 'reactium-admin-core';
 
 export default () => {
-    const visible = useDoesMatchPath(path =>
+    const visible = useDoesMatchPath((path) =>
         ['', '/', '/admin'].includes(path),
     );
 

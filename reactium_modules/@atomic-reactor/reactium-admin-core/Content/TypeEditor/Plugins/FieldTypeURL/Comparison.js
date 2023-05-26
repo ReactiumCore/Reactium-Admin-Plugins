@@ -1,8 +1,8 @@
 import React from 'react';
 import op from 'object-path';
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
-export default props => {
+export default (props) => {
     const field = op.get(props, 'field', {});
     const value = op.get(props, 'value');
     const { fieldName: title } = field;

@@ -1,4 +1,4 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import SidebarWidget from '.';
 
 Reactium.Plugin.register('AdminProfile').then(() => {

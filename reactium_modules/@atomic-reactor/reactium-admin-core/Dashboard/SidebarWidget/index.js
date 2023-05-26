@@ -1,5 +1,5 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import MenuItem from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/MenuItem';
 
 export default () => (

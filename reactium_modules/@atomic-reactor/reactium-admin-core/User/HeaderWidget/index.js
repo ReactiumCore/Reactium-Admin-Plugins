@@ -1,6 +1,10 @@
 import op from 'object-path';
 import React, { useEffect, useState } from 'react';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHandle,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 const AddButton = () => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
@@ -13,7 +17,8 @@ const AddButton = () => {
             outline
             size='xs'
             to='/admin/user/new/edit'
-            type='link'>
+            type='link'
+        >
             <Icon name='Feather.Plus' size={18} />
             <span className='hide-xs show-md ml-xs-12'>{__('New User')}</span>
         </Button>
@@ -51,13 +56,15 @@ const SaveButton = () => {
                 className='mr-xs-24'
                 color='primary'
                 disabled={busy || !editing}
-                onClick={e => editor.submit(e)}
+                onClick={(e) => editor.submit(e)}
                 size='xs'
-                type='button'>
+                type='button'
+            >
                 <Icon name={icon} size={18} />
                 <span
                     className='hide-xs show-md ml-xs-12'
-                    style={{ minWidth: 56, textAlign: 'left' }}>
+                    style={{ minWidth: 56, textAlign: 'left' }}
+                >
                     {label}
                 </span>
             </Button>

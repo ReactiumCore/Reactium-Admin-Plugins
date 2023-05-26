@@ -12,7 +12,7 @@ import {
     useIsContainer,
     useRefs,
     useStatus,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ancestor = (child, selector = 'form') => {
     if (!child || !selector) return null;
@@ -55,7 +55,7 @@ let IconSelect = (props, ref) => {
         visible: props.visible,
     });
 
-    const _autoHide = e => {
+    const _autoHide = (e) => {
         if (state.autohide === false) return;
         if (state.visible !== true) return;
         const container = refs.get('container');
@@ -67,7 +67,7 @@ let IconSelect = (props, ref) => {
     const show = () => setState({ visible: true });
     const toggle = () => setState({ visible: !state.visible });
 
-    const search = value => {
+    const search = (value) => {
         refs.get('picker').setSearch(value);
         dispatch('search', { search: value });
     };
@@ -86,7 +86,7 @@ let IconSelect = (props, ref) => {
         }
     };
 
-    const _onChange = e => {
+    const _onChange = (e) => {
         const { value } = e.target;
         const [icon] = _.flatten([value]);
         if (icon && icon !== state.value && op.has(Icon, icon)) {
@@ -105,7 +105,7 @@ let IconSelect = (props, ref) => {
         hide,
         search,
         setState,
-        setValue: value => setState({ value }),
+        setValue: (value) => setState({ value }),
         show,
         state,
         toggle,
@@ -174,7 +174,7 @@ let IconSelect = (props, ref) => {
 
     useEffect(() => {
         const dataset = Object.keys(props)
-            .filter(k => String(k).startsWith('data-'))
+            .filter((k) => String(k).startsWith('data-'))
             .reduce((obj, k) => {
                 const key = k.split('data-').pop();
                 obj[key] = op.get(props, k);
@@ -190,13 +190,14 @@ let IconSelect = (props, ref) => {
         <div
             style={style}
             className={className}
-            ref={elm => refs.set('container', elm)}>
+            ref={(elm) => refs.set('container', elm)}
+        >
             {name && (
                 <input
                     type='hidden'
                     name={name}
                     defaultValue={state.value}
-                    ref={elm => refs.set('input', elm)}
+                    ref={(elm) => refs.set('input', elm)}
                 />
             )}
             <div className='rte-icons-search'>
@@ -204,12 +205,15 @@ let IconSelect = (props, ref) => {
                     <input
                         type='search'
                         placeholder='search'
-                        onFocus={e => e.target.select()}
-                        onChange={e => search(e.target.value)}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => search(e.target.value)}
                     />
                 </div>
             </div>
-            <Picker onChange={_onChange} ref={elm => refs.set('picker', elm)} />
+            <Picker
+                onChange={_onChange}
+                ref={(elm) => refs.set('picker', elm)}
+            />
         </div>
     );
 };

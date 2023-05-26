@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 
 const enums = {
     capabilities: ({ collection, ctRef, machineName, type }) => {

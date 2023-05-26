@@ -1,7 +1,10 @@
 import React from 'react';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 import ENUMS from 'reactium_modules/@atomic-reactor/reactium-admin-core/User/enums';
 
 const Message = () => (
@@ -36,7 +39,7 @@ const Password = ({ className, disabled = false, user }) => {
             await Reactium.User.logOut();
 
             // Hide modal and show reset screen
-            await new Promise(resolve =>
+            await new Promise((resolve) =>
                 setTimeout(() => {
                     Modal.hide();
                     Reactium.Routing.history.replace(`/reset/${token}`);
@@ -88,7 +91,8 @@ const Password = ({ className, disabled = false, user }) => {
                 color={Button.ENUMS.COLOR.TERTIARY}
                 onClick={resetConfirm}
                 size={Button.ENUMS.SIZE.SM}
-                type={Button.ENUMS.TYPE.BUTTON}>
+                type={Button.ENUMS.TYPE.BUTTON}
+            >
                 {ENUMS.TEXT.PASSWORD.BUTTON}
             </Button>
         </div>

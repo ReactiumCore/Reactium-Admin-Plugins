@@ -1,6 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import { __, useHookComponent, Zone } from 'reactium-core/sdk';
+import { __, useHookComponent, Zone } from '@atomic-reactor/reactium-core/sdk';
 
 const isActive = (match = {}, location) =>
     String(op.get(match, 'url', '/'))
@@ -8,7 +8,7 @@ const isActive = (match = {}, location) =>
         .toLowerCase()
         .startsWith('/admin/settings');
 
-const SidebarWidget = props => {
+const SidebarWidget = (props) => {
     const MenuItem = useHookComponent('MenuItem');
     const id = 'admin-sidebar-settings';
     return (
@@ -17,7 +17,8 @@ const SidebarWidget = props => {
             label={__('Settings')}
             icon='Linear.Equalizer'
             id={id}
-            isActive={isActive}>
+            isActive={isActive}
+        >
             <Zone zone={id} />
         </MenuItem>
     );

@@ -11,7 +11,7 @@ import Reactium, {
     useHookComponent,
     useStateEffect,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ContentTypeList = ({ className, namespace, title }) => {
     const Helmet = useHookComponent('Helmet');
@@ -21,7 +21,7 @@ const ContentTypeList = ({ className, namespace, title }) => {
     const [search, setSearch] = useState('');
 
     const filter = useCallback(() => {
-        const matcher = item => {
+        const matcher = (item) => {
             let match = String(op.get(item, 'meta.label', ''))
                 .toLowerCase()
                 .startsWith(search);
@@ -37,7 +37,7 @@ const ContentTypeList = ({ className, namespace, title }) => {
         return types.filter(matcher);
     }, [types, search]);
 
-    const onSearch = useCallback(e => {
+    const onSearch = useCallback((e) => {
         setSearch(String(e.value || '').toLowerCase());
     }, []);
 
@@ -66,7 +66,7 @@ const ContentTypeList = ({ className, namespace, title }) => {
                 ) : (
                     <>
                         <Zone zone={cx('top')} data-zone-ns={cx()} />
-                        {filter().map(item => (
+                        {filter().map((item) => (
                             <ListItem
                                 cx={cx}
                                 {...item}

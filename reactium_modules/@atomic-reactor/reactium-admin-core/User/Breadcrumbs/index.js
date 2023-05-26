@@ -1,5 +1,5 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Icon } from 'reactium-ui';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 
@@ -15,7 +15,8 @@ export default () => {
                         color='clear'
                         size='sm'
                         to='/admin/users/page/1'
-                        type='link'>
+                        type='link'
+                    >
                         <Icon name='Linear.Users2' className='mr-xs-12' />
                         {__('Users')}
                     </Button>
@@ -28,7 +29,8 @@ export default () => {
                             color='clear'
                             size='sm'
                             to='/admin/user/new'
-                            type='link'>
+                            type='link'
+                        >
                             <Icon
                                 name='Feather.Plus'
                                 className='mr-xs-12'

@@ -1,6 +1,9 @@
 import React from 'react';
 import op from 'object-path';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 export default () => {
     const MenuItem = useHookComponent('MenuItem');
@@ -15,7 +18,7 @@ export default () => {
                 icon='Linear.Typewriter'
                 label={__('Content Types')}
             />
-            {types.map(item => (
+            {types.map((item) => (
                 <MenuItem
                     exact={false}
                     label={item.meta.label}

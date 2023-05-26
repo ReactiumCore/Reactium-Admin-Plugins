@@ -1,5 +1,5 @@
 import React from 'react';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Icon } from 'reactium-ui';
 
 const Enums = {

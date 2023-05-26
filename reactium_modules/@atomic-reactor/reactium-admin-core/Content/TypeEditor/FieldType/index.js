@@ -1,21 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Reactium, { useHookComponent, useHandle } from 'reactium-core/sdk';
+import Reactium, {
+    useHookComponent,
+    useHandle,
+} from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import _ from 'underscore';
 import { Draggable } from 'react-beautiful-dnd';
 import PropTypes from 'prop-types';
 
-const DragHandle = props => (
+const DragHandle = (props) => (
     <div
         className='fieldtype-draggable'
         tabIndex={0}
-        {...props.dragHandleProps}>
+        {...props.dragHandleProps}
+    >
         <span className='sr-only'>Drag handle</span>
     </div>
 );
 
-const FieldType = props => {
+const FieldType = (props) => {
     const id = op.get(props, 'id');
     const index = op.get(props, 'index', 0);
     const type = op.get(props, 'type', 'text');
@@ -31,7 +35,7 @@ const FieldType = props => {
     const Type = useHookComponent(fieldTypeComponent, false);
     const CTE = useHandle('CTE');
 
-    const validator = (id, type) => async validated => {
+    const validator = (id, type) => async (validated) => {
         await Reactium.Hook.run('field-type-validator', {
             id,
             type,
@@ -41,7 +45,7 @@ const FieldType = props => {
         return validated;
     };
 
-    const onChange = (id, type, ref) => async e => {
+    const onChange = (id, type, ref) => async (e) => {
         if (e.value) {
             const value = e.value;
 
@@ -61,7 +65,7 @@ const FieldType = props => {
         const hooks = [
             Reactium.Hook.register(
                 'content-type-validate-fields',
-                async context => {
+                async (context) => {
                     if (formRef.current) {
                         context[id] = await formRef.current.validate();
                     }
@@ -81,7 +85,7 @@ const FieldType = props => {
         }, 1);
 
         return () => {
-            hooks.forEach(id => Reactium.Hook.unregister(id));
+            hooks.forEach((id) => Reactium.Hook.unregister(id));
             CTE.removeFormRef(id);
         };
     }, [id]);
@@ -102,7 +106,8 @@ const FieldType = props => {
                     required={required}
                     throttleChanges={false}
                     validator={validator(id, type)}
-                    onChange={onChange(id, type, formRef)}>
+                    onChange={onChange(id, type, formRef)}
+                >
                     <div
                         ref={innerRef}
                         {...draggableProps}
@@ -111,7 +116,8 @@ const FieldType = props => {
                             `field-type-wrapper-${type
                                 .toLowerCase()
                                 .replace(/\s+/g, '-')}`,
-                        )}>
+                        )}
+                    >
                         <Type
                             {...props}
                             dragHandleProps={dragHandleProps}

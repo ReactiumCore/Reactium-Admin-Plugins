@@ -11,7 +11,7 @@ import Reactium, {
     useRefs,
     useStatus,
     useSyncState,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -22,7 +22,7 @@ import React, {
     useState,
 } from 'react';
 
-const filteredProps = props =>
+const filteredProps = (props) =>
     Object.entries(props).reduce((obj, [key, val]) => {
         if (!String(key).startsWith('on')) {
             obj[key] = val;
@@ -94,7 +94,7 @@ const defaultContext = [
         refs: { get: _.noop, set: _.noop },
         status: 'pending',
         value: {},
-        childrenMap: children => children,
+        childrenMap: (children) => children,
     },
 );
 
@@ -194,7 +194,7 @@ let Form = (
         return arr;
     }, []);
 
-    const applyValues = useCallback(values => {
+    const applyValues = useCallback((values) => {
         state.value = values;
 
         const fields = getElements();
@@ -203,7 +203,7 @@ let Form = (
             return _.defer(() => applyValues(values));
         }
 
-        fields.forEach(item => {
+        fields.forEach((item) => {
             if (!item.ref || item.typeahead) return;
 
             if (!error(item.key)) {
@@ -247,7 +247,7 @@ let Form = (
         return state;
     }, []);
 
-    const childClone = useCallback(child => {
+    const childClone = useCallback((child) => {
         if (!child) return null;
         if (!child.type) return child;
         if (_.isString(child)) return child;
@@ -280,7 +280,7 @@ let Form = (
                         op.get(child.props, 'required'),
                     ),
                     required: undefined,
-                    ref: elm => {
+                    ref: (elm) => {
                         if (!elm) return;
 
                         refs.set(refkey, elm);
@@ -293,7 +293,7 @@ let Form = (
                             }
                         }
                     },
-                    onChange: e => _onInputChange(e, child.props.onChange),
+                    onChange: (e) => _onInputChange(e, child.props.onChange),
                     defaultValue: isControlled()
                         ? undefined
                         : !child.props.value
@@ -319,11 +319,11 @@ let Form = (
     }, []);
 
     const childrenMap = useCallback(
-        carr => React.Children.map(carr, childClone),
+        (carr) => React.Children.map(carr, childClone),
         [],
     );
 
-    const complete = useCallback(results => {
+    const complete = useCallback((results) => {
         _onComplete(results);
         return state;
     }, []);
@@ -335,7 +335,7 @@ let Form = (
         return state;
     };
 
-    const error = useCallback(key => {
+    const error = useCallback((key) => {
         const errors = state.get('errors', {}) || {};
         return key ? errors[key] : errors;
     }, []);
@@ -367,7 +367,7 @@ let Form = (
             if (tag) {
                 keys.push(key);
             } else {
-                Object.keys(elm).forEach(k =>
+                Object.keys(elm).forEach((k) =>
                     elms.push([`${key}.${k}`, elm[k]]),
                 );
             }
@@ -418,7 +418,7 @@ let Form = (
         return output;
     }, []);
 
-    const getValueKeys = v => {
+    const getValueKeys = (v) => {
         const keys = Object.keys(v);
         const karr = [];
         while (keys.length > 0) {
@@ -429,7 +429,7 @@ let Form = (
                 karr.push(key);
             } else {
                 if (_.isObject(val)) {
-                    Object.keys(val).forEach(k => karr.push(`${key}.${k}`));
+                    Object.keys(val).forEach((k) => karr.push(`${key}.${k}`));
                 } else {
                     karr.push(key);
                 }
@@ -444,7 +444,7 @@ let Form = (
         [],
     );
 
-    const register = useCallback(elm => {
+    const register = useCallback((elm) => {
         if (!elm) return;
         if (!elm.name) return;
 
@@ -473,7 +473,7 @@ let Form = (
         return state;
     }, []);
 
-    const runAsyncValidator = useCallback(prom => {
+    const runAsyncValidator = useCallback((prom) => {
         const validators = state.get('asyncValidators', []);
         validators.push(prom);
         state.set('asyncValidators', validators);
@@ -485,7 +485,7 @@ let Form = (
 
         if (!key || !message) {
             state.set('errors', null, false);
-            elms.forEach(item => item.ref.removeAttribute('aria-invalid'));
+            elms.forEach((item) => item.ref.removeAttribute('aria-invalid'));
         } else {
             const errors = error();
             op.set(errors, key, message);
@@ -517,7 +517,7 @@ let Form = (
 
         const value = { ...state.value };
 
-        getValueKeys(value).forEach(k => {
+        getValueKeys(value).forEach((k) => {
             const v = op.get(value, k);
             const val = _.isArray(v) ? _.compact(v) : v;
             op.set(value, k, val);
@@ -539,12 +539,12 @@ let Form = (
         return state;
     }, []);
 
-    const unregister = useCallback(name => {
+    const unregister = useCallback((name) => {
         refs.set(`elements.${name}`, null);
         return state;
     }, []);
 
-    const validate = useCallback(async values => {
+    const validate = useCallback(async (values) => {
         state.set('asyncValidators', [], false);
 
         const elms = getElements();
@@ -552,11 +552,11 @@ let Form = (
         // clear errors
         setError();
 
-        const reqs = elms.filter(item => {
+        const reqs = elms.filter((item) => {
             return item.ref.getAttribute('aria-required') === 'true';
         });
 
-        reqs.forEach(item => {
+        reqs.forEach((item) => {
             if (!op.get(values, item.key)) {
                 const message =
                     item.ref.getAttribute('aria-errormessage') ||
@@ -580,7 +580,7 @@ let Form = (
         return Object.keys(errors).length < 1 || errors;
     }, []);
 
-    const _onChange = useCallback(e => {
+    const _onChange = useCallback((e) => {
         if (e && e.target) {
             const field = e.target.name;
             if (!field) return;
@@ -619,7 +619,7 @@ let Form = (
             .flatten()
             .uniq()
             .value()
-            .forEach(field => {
+            .forEach((field) => {
                 const p = op.get(prev, field);
                 const c = op.get(curr, field);
 
@@ -629,7 +629,7 @@ let Form = (
                 }
             });
 
-    const _onComplete = useCallback(results => {
+    const _onComplete = useCallback((results) => {
         setStatus('complete', true);
         dispatch(Form.STATUS.COMPLETE, { results });
     }, []);
@@ -656,7 +656,7 @@ let Form = (
 
         const earr = [];
 
-        elms.forEach(item => {
+        elms.forEach((item) => {
             if (error(item.key)) {
                 item.ref.setAttribute('aria-invalid', 'true');
                 earr.push(item.ref);
@@ -674,7 +674,7 @@ let Form = (
         reset();
     }, []);
 
-    const _onSubmit = useCallback(e => {
+    const _onSubmit = useCallback((e) => {
         e.preventDefault();
         submit();
     }, []);
@@ -783,7 +783,8 @@ let Form = (
             onSubmit={_onSubmit}
             className={cn(namespace, className)}
             {...filteredProps(props)}
-            ref={elm => refs.set('form', elm)}>
+            ref={(elm) => refs.set('form', elm)}
+        >
             <FormContext.Provider value={state}>
                 {childrenMap(children)}
             </FormContext.Provider>

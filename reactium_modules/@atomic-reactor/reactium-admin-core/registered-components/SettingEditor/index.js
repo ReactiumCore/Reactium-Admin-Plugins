@@ -10,7 +10,7 @@ import Reactium, {
     useAsyncEffect,
     useSettingGroup,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 import { Dialog, Toggle, Checkbox, Button, Icon, EventForm } from 'reactium-ui';
 // import EventForm from 'components/EventForm';
@@ -38,20 +38,22 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
     const valueRef = useRef({});
     const value = valueRef.current;
 
-    const setValue = newValue => {
+    const setValue = (newValue) => {
         valueRef.current = newValue;
         update();
     };
 
-    const updateValue = name => (inputValue, forceRender = false) => {
-        op.set(valueRef.current, name, inputValue);
-        if (forceRender) update();
-    };
+    const updateValue =
+        (name) =>
+        (inputValue, forceRender = false) => {
+            op.set(valueRef.current, name, inputValue);
+            if (forceRender) update();
+        };
 
     useLayoutEffect(() => {
         if (errorsRef.current && formRef.current) {
             const field = Object.values(errorsRef.current || {}).find(
-                f => f.focus,
+                (f) => f.focus,
             );
 
             if (field) {
@@ -111,7 +113,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         return (
                             <div
                                 className={cn(formGroupClasses, 'inline')}
-                                key={key}>
+                                key={key}
+                            >
                                 <label htmlFor={key}>
                                     <span aria-label={config.tooltip}>
                                         {config.label}
@@ -126,7 +129,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         return (
                             <div
                                 className={cn(formGroupClasses, 'inline')}
-                                key={key}>
+                                key={key}
+                            >
                                 <label htmlFor={key}>
                                     <span aria-label={config.tooltip}>
                                         {config.label}
@@ -197,7 +201,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         );
     };
 
-    const saveHotkey = e => {
+    const saveHotkey = (e) => {
         if (e) e.preventDefault();
         formRef.current.submit();
     };
@@ -241,7 +245,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
 
     const sanitizeInput = (value, config) => {
         const type = op.get(config, 'type');
-        const sanitize = op.get(config, 'sanitize', val => val);
+        const sanitize = op.get(config, 'sanitize', (val) => val);
 
         if (type === 'checkbox' || type === 'toggle') {
             return value === true || value === 'true';
@@ -250,7 +254,7 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
         }
     };
 
-    const onError = e => {
+    const onError = (e) => {
         const { error } = e;
 
         errorsRef.current = error;
@@ -316,9 +320,10 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         key='app-settings-save-footer'
                         disabled={!canSet}
                         color={Button.ENUMS.COLOR.PRIMARY}
-                        onClick={e => formRef.current.submit(e)}
+                        onClick={(e) => formRef.current.submit(e)}
                         size={Button.ENUMS.SIZE.SM}
-                        type='button'>
+                        type='button'
+                    >
                         {__('Save Settings')}
                     </Button>,
                 ],
@@ -331,14 +336,16 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         className='ar-dialog-header-btn'
                         color={Button.ENUMS.COLOR.CLEAR}
                         disabled={!canSet}
-                        onClick={e => formRef.current.submit(e)}
+                        onClick={(e) => formRef.current.submit(e)}
                         size={Button.ENUMS.SIZE.XS}
                         title={__('Save Settings')}
-                        type='button'>
+                        type='button'
+                    >
                         <Icon name='Feather.Check' size={18} />
                     </Button>,
                 ],
-            }}>
+            }}
+        >
             <Zone
                 zone={'settings-editor-all'}
                 groupName={groupName}
@@ -368,7 +375,8 @@ const SettingEditor = ({ settings = {}, classNames = [] }) => {
                         )}`.toLowerCase()]: op.has(settings, 'group'),
                     },
                     ...classNames,
-                )}>
+                )}
+            >
                 <Zone
                     zone={`settings-editor-${groupName}-inputs`}
                     groupName={groupName}

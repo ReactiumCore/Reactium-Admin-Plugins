@@ -2,7 +2,7 @@ import _ from 'underscore';
 import op from 'object-path';
 import isHotkey from 'is-hotkey';
 import Registry from '../Registry';
-import { useIsContainer as isContainer } from 'reactium-core/sdk';
+import { useIsContainer as isContainer } from '@atomic-reactor/reactium-core/sdk';
 
 export default class Hotkeys extends Registry {
     constructor() {
@@ -12,7 +12,7 @@ export default class Hotkeys extends Registry {
 
     onKeyboardEvent(event) {
         let next = true;
-        this.list.forEach(item => {
+        this.list.forEach((item) => {
             if (next === false) return;
 
             const { key, callback, scope } = item;

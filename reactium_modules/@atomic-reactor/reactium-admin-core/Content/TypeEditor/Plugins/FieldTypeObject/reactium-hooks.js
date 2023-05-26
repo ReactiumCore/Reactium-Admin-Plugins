@@ -1,7 +1,7 @@
 import React from 'react';
 import { Editor } from './Editor';
 import { FieldType } from './FieldType';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 
 const ID = 'Object';
 

@@ -3,7 +3,10 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 
-import Reactium, { useDerivedState, useEventHandle } from 'reactium-core/sdk';
+import Reactium, {
+    useDerivedState,
+    useEventHandle,
+} from '@atomic-reactor/reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -46,7 +49,7 @@ let WelcomeWidget = (
         status: ENUMS.STATUS.PENDING,
     });
 
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         update(newState);
     };

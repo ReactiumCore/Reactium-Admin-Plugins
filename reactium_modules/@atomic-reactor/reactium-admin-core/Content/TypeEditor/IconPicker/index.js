@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Icon, Button } from 'reactium-ui';
-import { useHookComponent, useIsContainer, useHandle } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useIsContainer,
+    useHandle,
+} from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Enums from '../enums';
@@ -10,7 +14,7 @@ import Enums from '../enums';
  * Functional Component: IconPicker
  * -----------------------------------------------------------------------------
  */
-const CTIconPicker = props => {
+const CTIconPicker = (props) => {
     const pickerRef = useRef();
 
     const defaultIcon = Enums.DEFAULT_ICON;
@@ -24,7 +28,7 @@ const CTIconPicker = props => {
         showPicker: false,
     });
 
-    const update = updates => {
+    const update = (updates) => {
         const newState = {
             ...state,
             ...updates,
@@ -41,7 +45,7 @@ const CTIconPicker = props => {
         });
     };
 
-    const onIconChange = e => {
+    const onIconChange = (e) => {
         const { value } = e.target;
         const [icon] = _.flatten([value]);
 
@@ -56,10 +60,10 @@ const CTIconPicker = props => {
 
     const isContainer = useIsContainer();
 
-    const _search = value => pickerRef.current.setSearch(value);
+    const _search = (value) => pickerRef.current.setSearch(value);
     const search = _.throttle(_search, 100);
 
-    const autoHidePanel = e => {
+    const autoHidePanel = (e) => {
         const container = containerRef.current;
         if (!container || isContainer(e.target, container)) return;
         update({ showPicker: false });
@@ -92,7 +96,8 @@ const CTIconPicker = props => {
                 size={Button.ENUMS.SIZE.SM}
                 color={Button.ENUMS.COLOR.PRIMARY}
                 style={{ width: '40px' }}
-                onClick={onButtonClick}>
+                onClick={onButtonClick}
+            >
                 <Icon name={state.icon} />
             </Button>
             {state.showPicker && (
@@ -102,8 +107,8 @@ const CTIconPicker = props => {
                             <input
                                 type='search'
                                 placeholder='search'
-                                onFocus={e => e.target.select()}
-                                onChange={e => search(e.target.value)}
+                                onFocus={(e) => e.target.select()}
+                                onChange={(e) => search(e.target.value)}
                             />
                         </div>
                     </div>

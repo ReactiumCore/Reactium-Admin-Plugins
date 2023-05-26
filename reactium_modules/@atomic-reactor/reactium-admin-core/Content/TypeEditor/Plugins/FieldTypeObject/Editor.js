@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import _ from 'underscore';
 import op from 'object-path';
-import { useHookComponent, useRefs, __ } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useRefs,
+    __,
+} from '@atomic-reactor/reactium-core/sdk';
 
-export const Editor = props => {
+export const Editor = (props) => {
     const { editor, fieldName } = props;
     const value = op.get(editor.value, fieldName);
     const ElementDialog = useHookComponent('ElementDialog');
@@ -18,7 +22,7 @@ export const Editor = props => {
             refs.set(`media.${key}`, React.createRef());
     });
 
-    const clean = e => {
+    const clean = (e) => {
         const editorValue = op.get(e.value, [fieldName], {});
         _.defer(() => {
             options().forEach(({ key, type }) => {
@@ -37,7 +41,7 @@ export const Editor = props => {
         });
     };
 
-    const beforeSave = e => {
+    const beforeSave = (e) => {
         options().forEach(({ key, type }) => {
             if (type === 'media') {
                 const ref = refs.get(`media.${key}`);
@@ -64,7 +68,7 @@ export const Editor = props => {
     return (
         <ElementDialog {...props}>
             <div className='p-xs-20'>
-                {options().map(item => {
+                {options().map((item) => {
                     const {
                         key,
                         placeholder,
@@ -79,7 +83,8 @@ export const Editor = props => {
                             return (
                                 <div
                                     className='form-group'
-                                    key={`${fieldName}-${key}`}>
+                                    key={`${fieldName}-${key}`}
+                                >
                                     <label>{key}</label>
                                     <textarea
                                         data-key={key}
@@ -94,7 +99,8 @@ export const Editor = props => {
                             return (
                                 <div
                                     className='form-group'
-                                    key={`${fieldName}-${key}`}>
+                                    key={`${fieldName}-${key}`}
+                                >
                                     <label>{key}</label>
                                     <div className='media-input'>
                                         <MediaTool
@@ -117,7 +123,8 @@ export const Editor = props => {
                             return (
                                 <div
                                     className='form-group'
-                                    key={`${fieldName}-${key}`}>
+                                    key={`${fieldName}-${key}`}
+                                >
                                     <label>{key}</label>
                                     <input
                                         data-key={key}

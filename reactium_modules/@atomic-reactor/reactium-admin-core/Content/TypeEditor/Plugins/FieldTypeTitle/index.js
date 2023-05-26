@@ -1,9 +1,9 @@
 import cn from 'classnames';
 import React, { useCallback, useMemo, useState } from 'react';
-import { __, useEventEffect, useRefs } from 'reactium-core/sdk';
+import { __, useEventEffect, useRefs } from '@atomic-reactor/reactium-core/sdk';
 import { Button, FormError, FormRegister, Icon } from 'reactium-ui';
 
-export const slugify = str =>
+export const slugify = (str) =>
     !str
         ? ''
         : String(str)
@@ -50,7 +50,7 @@ export const Editor = ({ editor }) => {
         [],
     );
 
-    const genSlug = useCallback(e => {
+    const genSlug = useCallback((e) => {
         const elm = refs.get('slug');
         if (!autoGen || !elm) return;
         const { value } = e.target;
@@ -68,7 +68,7 @@ export const Editor = ({ editor }) => {
         }
     }, []);
 
-    const onSlugChange = useCallback(e => {
+    const onSlugChange = useCallback((e) => {
         const value = e.target.value;
         e.target.value = slugify(value);
         const len = String(e.target.value).length;
@@ -84,7 +84,7 @@ export const Editor = ({ editor }) => {
         elm.select();
     }, []);
 
-    const onValidate = useCallback(e => {
+    const onValidate = useCallback((e) => {
         const { slug, title } = e.values;
 
         if (!title) e.target.setError('title', __('enter the title'));
@@ -115,7 +115,8 @@ export const Editor = ({ editor }) => {
                         size='xs'
                         color='clear'
                         onClick={enable}
-                        style={buttonStyle}>
+                        style={buttonStyle}
+                    >
                         <Icon name='Feather.Edit2' size={16} />
                     </Button>
                     <input
@@ -124,7 +125,7 @@ export const Editor = ({ editor }) => {
                         className='input-sm'
                         onKeyUp={onSlugChange}
                         style={{ paddingRight: 32 }}
-                        ref={elm => refs.set('slug', elm)}
+                        ref={(elm) => refs.set('slug', elm)}
                     />
                 </label>
                 <FormError name={slugProps.name} />

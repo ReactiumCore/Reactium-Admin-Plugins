@@ -15,7 +15,7 @@ import Reactium, {
     useEventHandle,
     useHookComponent,
     useStatus,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ENUMS = {
     DEFAULT: {
@@ -47,9 +47,8 @@ let UrlSelect = (props, ref) => {
      * Components
      * -------------------------------------------------------------------------
      */
-    const { DataTable, Dialog, Button, Icon, Spinner } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { DataTable, Dialog, Button, Icon, Spinner } =
+        useHookComponent('ReactiumUI');
 
     /**
      * -------------------------------------------------------------------------
@@ -76,7 +75,7 @@ let UrlSelect = (props, ref) => {
         search: op.get(props, 'search'),
         width: op.get(props, 'width'),
     });
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         update(newState);
     };
@@ -125,7 +124,7 @@ let UrlSelect = (props, ref) => {
         let [host, urls] = await Promise.all([fetchHost(), fetchURLS()]);
 
         urls = _.compact(
-            urls.map(item => {
+            urls.map((item) => {
                 let { route } = item;
 
                 if (!op.get(item, 'meta.contentId')) return null;
@@ -142,7 +141,8 @@ let UrlSelect = (props, ref) => {
                             color={Button.ENUMS.COLOR.TERTIARY}
                             onClick={() => select(item)}
                             outline
-                            style={{ padding: 0, width: 35, height: 35 }}>
+                            style={{ padding: 0, width: 35, height: 35 }}
+                        >
                             <Icon name='Feather.Check' size={16} />
                         </Button>
                     ),
@@ -166,13 +166,11 @@ let UrlSelect = (props, ref) => {
 
         const s = String(search).toLowerCase();
         return urls.filter(({ route }) =>
-            String(route)
-                .toLowerCase()
-                .includes(s),
+            String(route).toLowerCase().includes(s),
         );
     };
 
-    const select = item => {
+    const select = (item) => {
         op.set(handle, 'value', item);
         handle.dispatchEvent(new Event('select'));
         handle.dispatchEvent(new Event('change'));
@@ -200,7 +198,7 @@ let UrlSelect = (props, ref) => {
 
     const _onDismiss = () => handle.dispatchEvent(new Event('dismiss'));
 
-    const _onSearch = e => {
+    const _onSearch = (e) => {
         let search = String(e.target.value);
         search = search.length < 1 ? null : search;
         setState({ search });
@@ -220,12 +218,13 @@ let UrlSelect = (props, ref) => {
                 collapsible={false}
                 dismissable
                 onDismiss={() => _onDismiss()}
-                header={header || ENUMS.DEFAULT.HEADER}>
+                header={header || ENUMS.DEFAULT.HEADER}
+            >
                 <div style={{ width: '75vw' }}>
                     {isStatus(ENUMS.STATUS.READY) && (
                         <>
                             <SearchBar
-                                onChange={e => _onSearch(e)}
+                                onChange={(e) => _onSearch(e)}
                                 value={search}
                             />
                             <DataTable

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------

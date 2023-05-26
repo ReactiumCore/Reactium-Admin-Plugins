@@ -1,6 +1,6 @@
 import op from 'object-path';
 import pluralize from 'pluralize';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { useEffect, useState } from 'react';
 
 export default (keys = ['type', 'slug', 'page'], deps = []) => {
@@ -31,7 +31,7 @@ export default (keys = ['type', 'slug', 'page'], deps = []) => {
             keys.push('type');
         }
 
-        keys.forEach(key => {
+        keys.forEach((key) => {
             let val = op.get(paramClone, key);
             if (!val) return;
 

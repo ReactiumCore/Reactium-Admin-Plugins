@@ -3,7 +3,7 @@ import _ from 'underscore';
 import Empty from './Empty';
 import op from 'object-path';
 import Content from './Content';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const UserContent = ({ editor }) => {
     const Helmet = useHookComponent('Helmet');

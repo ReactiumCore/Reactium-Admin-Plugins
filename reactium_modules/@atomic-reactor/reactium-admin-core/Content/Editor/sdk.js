@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import { Button } from 'reactium-ui';
-import Reactium, { __, Registry } from 'reactium-core/sdk';
+import Reactium, { __, Registry } from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Cache.set('content', {});
 Reactium.Enums.cache.content = 10000;
@@ -30,9 +30,9 @@ class SDK {
     filterCleanse() {
         let cleansed = false;
         const filters = this.filters;
-        Object.keys(filters).forEach(ns => {
+        Object.keys(filters).forEach((ns) => {
             const fields = Object.keys(filters[ns]);
-            fields.forEach(field => {
+            fields.forEach((field) => {
                 const value = op.get(filters, [ns, field]);
                 if (_.isArray(value) && value.length < 1) {
                     op.del(filters, [ns, field]);
@@ -86,7 +86,7 @@ class SDK {
     }
 
     get filtersByType() {
-        return type => _.clone(op.get(this.filters, type, {}));
+        return (type) => _.clone(op.get(this.filters, type, {}));
     }
 
     get isFilter() {
@@ -95,15 +95,15 @@ class SDK {
     }
 
     get isFiltered() {
-        return type => {
+        return (type) => {
             let values = false;
 
             const filters = this.filters;
-            Object.keys(filters).forEach(ns => {
+            Object.keys(filters).forEach((ns) => {
                 if (values === true || type !== ns) return;
 
                 const fields = Object.keys(filters[ns]);
-                fields.forEach(field => {
+                fields.forEach((field) => {
                     const value = op.get(filters, [ns, field]);
                     values = _.isArray(value) && value.length > 0;
                 });
@@ -142,7 +142,7 @@ class SDK {
 
             let filters = this.filters;
 
-            values.forEach(v => {
+            values.forEach((v) => {
                 let current = op.get(filters, [type, field], []) || [];
                 current = _.without(current, v);
                 op.set(filters, [type, field], current);
@@ -163,16 +163,16 @@ class SDK {
     }
 
     get save() {
-        const isError = req => () =>
+        const isError = (req) => () =>
             _.isArray(op.get(req.context, 'error.message'));
 
-        const getError = req => () => {
+        const getError = (req) => () => {
             let msgs = op.get(req.context, 'error.message', []);
             msgs = _.isArray(msgs) ? msgs : [];
             return msgs.join('.\n');
         };
 
-        const setError = req => (msg, key) => {
+        const setError = (req) => (msg, key) => {
             let msgs = op.get(req.context, 'error.message', []);
             msgs = _.isArray(msgs) ? msgs : [];
             msgs.push(msg);
@@ -181,7 +181,7 @@ class SDK {
             if (key) op.set(req.context.errors, key, msg);
         };
 
-        const validate = async req => {
+        const validate = async (req) => {
             req.context.errors = {};
             req.context.error.message = null;
 
@@ -192,7 +192,7 @@ class SDK {
 
             required = _.uniq(required);
 
-            required.forEach(key => {
+            required.forEach((key) => {
                 const val = op.get(req.object, key);
 
                 if (!val) {
@@ -287,7 +287,7 @@ class SDK {
                 Reactium.Cloud.run('content-list', params).then(
                     ({ results, ...pagination }) => {
                         op.set(this.__pagination, type, pagination);
-                        results.forEach(item => this.utils.store(type, item));
+                        results.forEach((item) => this.utils.store(type, item));
                         return Object.values(op.get(this.data, type, {}));
                     },
                 );
@@ -299,7 +299,7 @@ class SDK {
     }
 
     get retrieve() {
-        return uuid => {
+        return (uuid) => {
             if (!uuid) {
                 throw new Error(
                     `Reactium.Content.retrive() ${ENUMS.ERROR.UUID}`,
@@ -313,7 +313,7 @@ class SDK {
 
     get utils() {
         return {
-            serialize: obj => (op.get(obj, 'id') ? obj.toJSON() : obj),
+            serialize: (obj) => (op.get(obj, 'id') ? obj.toJSON() : obj),
 
             store: (type, item) => {
                 if (!type) {

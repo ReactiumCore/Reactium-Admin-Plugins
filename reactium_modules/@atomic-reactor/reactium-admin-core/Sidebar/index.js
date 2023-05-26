@@ -11,7 +11,7 @@ import Reactium, {
     useStatus,
     useWindowSize,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ENUMS = {
     STATUS: {
@@ -64,7 +64,7 @@ let AdminSidebar = ({ namespace, zone, ...props }) => {
 
     const isExpanded = () => isStatus(ENUMS.STATUS.EXPANDED);
 
-    const onHotkey = e => {
+    const onHotkey = (e) => {
         if (Reactium.Utils.Fullscreen.isExpanded()) return;
         e.preventDefault();
         toggle();
@@ -141,7 +141,8 @@ let AdminSidebar = ({ namespace, zone, ...props }) => {
             <div className={cn(cx('spacer'), status)}>.</div>
             <div
                 className={cn(cx(), status)}
-                ref={elm => refs.set('sidebar.container', elm)}>
+                ref={(elm) => refs.set('sidebar.container', elm)}
+            >
                 <Scrollbars>
                     <div className={cx('container')}>
                         <div className={cx('header')}>

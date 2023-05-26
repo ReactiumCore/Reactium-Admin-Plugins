@@ -6,9 +6,9 @@ import {
     useHookComponent,
     useRefs,
     useSyncState,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { id } = props;
 
     const refs = useRefs();
@@ -30,13 +30,14 @@ export const FieldType = props => {
 
     const FieldTypeDialog = useHookComponent('FieldTypeDialog');
 
-    const onBeforeSave = params => {
+    const onBeforeSave = (params) => {
         const { fieldId } = params;
         if (fieldId !== id) return;
         op.set(params, 'fieldValue.options', state.get('options'));
     };
 
-    const onChange = e => state.set('options.defaultChecked', e.target.checked);
+    const onChange = (e) =>
+        state.set('options.defaultChecked', e.target.checked);
 
     const onLoad = () => {
         const hooks = [
@@ -44,7 +45,7 @@ export const FieldType = props => {
         ];
 
         return () => {
-            hooks.forEach(hookId => Reactium.Hook.unregister(hookId));
+            hooks.forEach((hookId) => Reactium.Hook.unregister(hookId));
         };
     };
 
@@ -58,7 +59,7 @@ export const FieldType = props => {
                     <input
                         type='text'
                         value={state.get('options.label', '')}
-                        onChange={e =>
+                        onChange={(e) =>
                             state.set('options.label', e.target.value)
                         }
                     />

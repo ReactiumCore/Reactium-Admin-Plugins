@@ -4,7 +4,10 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Icon } from 'reactium-ui';
 import { Scrollbars } from '@atomic-reactor/react-custom-scrollbars';
-import { useEventHandle, useDerivedState } from 'reactium-core/sdk';
+import {
+    useEventHandle,
+    useDerivedState,
+} from '@atomic-reactor/reactium-core/sdk';
 
 import React, {
     forwardRef,
@@ -21,7 +24,7 @@ const getIcons = (search = '') =>
         obj[group] = Object.keys(Icon.icons[group]);
 
         if (String(search).length > 0) {
-            obj[group] = obj[group].filter(name =>
+            obj[group] = obj[group].filter((name) =>
                 String(name)
                     .toLowerCase()
                     .includes(String(search).toLowerCase()),
@@ -83,7 +86,7 @@ const IconGroup = ({
             <section>
                 <h3>{group}</h3>
                 <div className='container'>
-                    {chunks.map(icon => (
+                    {chunks.map((icon) => (
                         <div
                             className={cn({
                                 active: value.includes(`${group}.${icon}`),
@@ -97,7 +100,8 @@ const IconGroup = ({
                                 width: size,
                                 height: size,
                                 maxWidth: size,
-                            }}>
+                            }}
+                        >
                             <Icon
                                 name={`${group}.${icon}`}
                                 size={initialSize}
@@ -149,14 +153,14 @@ let IconPicker = (initialProps, ref) => {
         unselected: null,
     });
 
-    const cx = cls =>
+    const cx = (cls) =>
         _.chain([className || namespace, cls])
             .compact()
             .uniq()
             .value()
             .join('-');
 
-    const _onClick = e => {
+    const _onClick = (e) => {
         e.stopPropagation();
         e.preventDefault();
         const { icon, group } = e.currentTarget.dataset;
@@ -186,21 +190,21 @@ let IconPicker = (initialProps, ref) => {
         }
     };
 
-    const _onTouchStart = e => {
+    const _onTouchStart = (e) => {
         e.stopPropagation();
         e.preventDefault();
         const { icon, group } = e.currentTarget.dataset;
         setState({ touched: `${group}.${icon}` });
     };
 
-    const _onMouseOut = e => {
+    const _onMouseOut = (e) => {
         e.stopPropagation();
         e.preventDefault();
         const { icon, group } = e.currentTarget.dataset;
         setState({ mouseout: `${group}.${icon}`, mouseover: null });
     };
 
-    const _onMouseOver = e => {
+    const _onMouseOver = (e) => {
         e.stopPropagation();
         e.preventDefault();
         const { icon, group } = e.currentTarget.dataset;

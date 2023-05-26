@@ -3,8 +3,15 @@ import op from 'object-path';
 import React, { useState } from 'react';
 import DataTable from 'reactium-ui/DataTable';
 import { Button, Icon, Dialog, Checkbox, Spinner } from 'reactium-ui';
-import { useCapabilityCheck, useAsyncEffect } from 'reactium-core/sdk';
-import Reactium, { __, useRoles, useWindowSize } from 'reactium-core/sdk';
+import {
+    useCapabilityCheck,
+    useAsyncEffect,
+} from '@atomic-reactor/reactium-core/sdk';
+import Reactium, {
+    __,
+    useRoles,
+    useWindowSize,
+} from '@atomic-reactor/reactium-core/sdk';
 
 const CapabilityDescription = ({ title = '', tooltip = '' }) => {
     return (
@@ -13,7 +20,8 @@ const CapabilityDescription = ({ title = '', tooltip = '' }) => {
             title={tooltip}
             data-align='right'
             data-tooltip={tooltip}
-            data-vertical-align='middle'>
+            data-vertical-align='middle'
+        >
             {title}
         </span>
     );
@@ -47,7 +55,7 @@ const RoleControl = ({
 }) => {
     const name = role.name;
 
-    const onChange = e => {
+    const onChange = (e) => {
         const target = e.target;
 
         if (target.checked) {
@@ -89,7 +97,8 @@ const CapabilityEditor = ({
     );
     const currentRoles = useRoles();
     const roles = Object.values(currentRoles).filter(
-        role => !['banned', 'super-admin', 'administrator'].includes(role.name),
+        (role) =>
+            !['banned', 'super-admin', 'administrator'].includes(role.name),
     );
 
     const [loadedCaps, setLoadedCaps] = useState({
@@ -97,7 +106,7 @@ const CapabilityEditor = ({
         caps: {},
     });
 
-    const updateLoadedCaps = update => {
+    const updateLoadedCaps = (update) => {
         const newValue = {
             ...loadedCaps,
             ...update,
@@ -133,7 +142,7 @@ const CapabilityEditor = ({
         String(capability).toLowerCase(),
     );
     useAsyncEffect(
-        async isMounted => {
+        async (isMounted) => {
             if (capNames.length > 0) {
                 const caps = await Reactium.Capability.get(capNames);
                 if (isMounted())
@@ -146,15 +155,16 @@ const CapabilityEditor = ({
         [capNames.sort().join('')],
     );
 
-    const clearCap = capability => {
+    const clearCap = (capability) => {
         capability = String(capability).toLowerCase();
         const role = op.get(loadedCaps, ['caps', capability, 'allowed']);
         return save(capability, role, 'revoke');
     };
 
-    const addRole = capability => role => save(capability, role, 'grant');
+    const addRole = (capability) => (role) => save(capability, role, 'grant');
 
-    const removeRole = capability => role => save(capability, role, 'revoke');
+    const removeRole = (capability) => (role) =>
+        save(capability, role, 'revoke');
 
     const save = (capability, role, action) => {
         capability = String(capability).toLowerCase();
@@ -170,10 +180,7 @@ const CapabilityEditor = ({
                     .value();
                 const idx = _.findIndex(roleArray, { name: role });
                 const related = _.pluck(roleArray.slice(idx), 'name');
-                role = _.chain([role, related])
-                    .flatten()
-                    .uniq()
-                    .value();
+                role = _.chain([role, related]).flatten().uniq().value();
             } else {
                 role = _.flatten([role]);
             }
@@ -189,10 +196,7 @@ const CapabilityEditor = ({
         allowed =
             action === 'grant' ? [allowed, role] : _.without(allowed, ...role);
 
-        allowed = _.chain(allowed)
-            .flatten()
-            .uniq()
-            .value();
+        allowed = _.chain(allowed).flatten().uniq().value();
 
         op.set(caps, [capability, 'allowed'], allowed);
         updateLoadedCaps({ caps });
@@ -208,7 +212,7 @@ const CapabilityEditor = ({
                     icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 Toast.show({
                     autoClose: 1000,
                     type: Toast.TYPE.ERROR,
@@ -273,7 +277,7 @@ const CapabilityEditor = ({
         }, {});
     };
 
-    const data = capabilities.map(cap => ({
+    const data = capabilities.map((cap) => ({
         clear: (
             <Button
                 className='clear-cap'
@@ -281,7 +285,8 @@ const CapabilityEditor = ({
                 data-vertical-align='middle'
                 data-align='left'
                 color={Button.ENUMS.COLOR.DANGER}
-                onClick={() => clearCap(cap.capability)}>
+                onClick={() => clearCap(cap.capability)}
+            >
                 <Icon name={'Feather.X'} />
                 <span className='sr-only'>{clearLabel}</span>
             </Button>
@@ -294,7 +299,8 @@ const CapabilityEditor = ({
         <Dialog
             pref={pref}
             className='capability-editor'
-            header={{ title: __('Capabilities'), dismissable: false }}>
+            header={{ title: __('Capabilities'), dismissable: false }}
+        >
             {loadedCaps.loading ? (
                 <Loading />
             ) : (

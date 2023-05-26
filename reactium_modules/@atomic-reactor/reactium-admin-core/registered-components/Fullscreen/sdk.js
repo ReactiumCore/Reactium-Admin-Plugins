@@ -24,7 +24,7 @@ import fs from 'fullscrn';
 
  // Event: fullscreenchange
 import React, { useEffect, useState } from 'react';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 const MyComponent = () => {
     const [state, setState] = useState(Reactium.Utils.Fullscreen.isExpanded());

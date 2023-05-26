@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { useProfileGreeting, useProfileRole } from './hooks';
-import Reactium, { useDerivedState } from 'reactium-core/sdk';
+import Reactium, { useDerivedState } from '@atomic-reactor/reactium-core/sdk';
 import useAvatar from 'reactium-admin-core/User/useAvatar';
 
 /**
@@ -25,7 +25,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
 
     // State
     const [state, setNewState] = useDerivedState({ avatar: getAvatar });
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         setNewState(newState);
     };
@@ -41,7 +41,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
 
     const unMounted = () => !containerRef.current;
 
-    const _onStatus = e => {
+    const _onStatus = (e) => {
         if (unMounted()) return;
 
         const { event, value = {} } = e;
@@ -61,7 +61,7 @@ const SidebarWidget = ({ className, namespace, zones = [] }) => {
     }, [getAvatar]);
 
     useEffect(() => {
-        const hook = Reactium.Hook.register('USER-STATUS', e => _onStatus(e));
+        const hook = Reactium.Hook.register('USER-STATUS', (e) => _onStatus(e));
         return () => {
             Reactium.Hook.unregister(hook);
         };

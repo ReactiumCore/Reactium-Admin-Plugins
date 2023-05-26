@@ -1,7 +1,10 @@
 import _ from 'underscore';
 import op from 'object-path';
 import React, { useState } from 'react';
-import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useAsyncEffect,
+} from '@atomic-reactor/reactium-core/sdk';
 import { Button, Dropdown, Icon, Spinner } from 'reactium-ui';
 
 export default ({ className = 'media-empty', value = {} }) => {
@@ -21,13 +24,13 @@ export default ({ className = 'media-empty', value = {} }) => {
     const onItemSelect = ({ item }) =>
         Reactium.Routing.history.push(op.get(item, 'value'));
 
-    useAsyncEffect(async mounted => {
+    useAsyncEffect(async (mounted) => {
         if (!types) {
             const response = await getTypes();
             if (mounted()) {
                 setTypes(
                     _.compact(
-                        response.map(item => {
+                        response.map((item) => {
                             const { icon, label } = op.get(item, 'meta');
 
                             if (!icon || !label) return null;
@@ -57,12 +60,14 @@ export default ({ className = 'media-empty', value = {} }) => {
                         color={Button.ENUMS.COLOR.CLEAR}
                         data={types}
                         onItemClick={onItemSelect}
-                        size={Button.ENUMS.SIZE.MD}>
+                        size={Button.ENUMS.SIZE.MD}
+                    >
                         <Button
                             appearance={Button.ENUMS.APPEARANCE.PILL}
                             data-dropdown-element
                             size={Button.ENUMS.SIZE.MD}
-                            type='button'>
+                            type='button'
+                        >
                             {__('Create Content')}
                         </Button>
                     </Dropdown>
@@ -82,7 +87,8 @@ const Svg = ({ color = '#4F82BA', width = '100%', ...props }) => (
                 y1='717.25'
                 x2='397.74'
                 y2='86.11'
-                gradientUnits='userSpaceOnUse'>
+                gradientUnits='userSpaceOnUse'
+            >
                 <stop offset='0' stopColor='gray' stopOpacity='0.25' />
                 <stop offset='0.54' stopColor='gray' stopOpacity='0.12' />
                 <stop offset='1' stopColor='gray' stopOpacity='0.1' />
@@ -105,7 +111,8 @@ const Svg = ({ color = '#4F82BA', width = '100%', ...props }) => (
             />
             <clipPath
                 id='7a4c6aff-0be0-461b-a111-b3ae1b8fbf73'
-                transform='translate(-140.93 -67.23)'>
+                transform='translate(-140.93 -67.23)'
+            >
                 <rect
                     id='8cc91f6d-19b0-43cc-9c18-2faa83ac34ba'
                     data-name='&lt;Rectangle&gt;'
@@ -134,7 +141,8 @@ const Svg = ({ color = '#4F82BA', width = '100%', ...props }) => (
             />
             <clipPath
                 id='79ce363a-d134-40e4-9f82-b96d04a36978'
-                transform='translate(-140.93 -67.23)'>
+                transform='translate(-140.93 -67.23)'
+            >
                 <rect
                     id='5b44e697-61fe-43bd-9a58-5f3e41301748'
                     data-name='&lt;Rectangle&gt;'

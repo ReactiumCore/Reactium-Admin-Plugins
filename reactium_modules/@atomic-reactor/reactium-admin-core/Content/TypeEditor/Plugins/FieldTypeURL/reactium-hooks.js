@@ -1,5 +1,8 @@
 import { Editor, FieldType, UrlSelect } from './index';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ID = 'URLS';
 

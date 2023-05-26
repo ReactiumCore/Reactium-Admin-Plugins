@@ -1,6 +1,6 @@
 import Sidebar from './index';
 import Toggle from './MenuToggle';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Plugin.register('AdminSidebar').then(() => {
     Reactium.Zone.addComponent({

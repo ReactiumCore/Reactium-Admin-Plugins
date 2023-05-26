@@ -10,14 +10,14 @@ import Reactium, {
     useRoles,
     useHookComponent,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const Actions = ({ editor }) => {
     const { Button, Icon } = useHookComponent('ReactiumUI');
     const { cx, isNew, setState, state = {} } = editor;
     const { editing = false } = state;
 
-    const toggleEditMode = e => {
+    const toggleEditMode = (e) => {
         e.currentTarget.blur();
         setState({
             editing: !editing,
@@ -35,10 +35,11 @@ const Actions = ({ editor }) => {
                             ? Button.ENUMS.COLOR.DANGER
                             : Button.ENUMS.COLOR.PRIMARY
                     }
-                    onClick={e => toggleEditMode(e)}
+                    onClick={(e) => toggleEditMode(e)}
                     outline={!editing}
                     size={Button.ENUMS.SIZE.XS}
-                    style={{ width: 32, height: 32, padding: 0 }}>
+                    style={{ width: 32, height: 32, padding: 0 }}
+                >
                     <Icon
                         name={editing ? 'Feather.X' : 'Feather.Edit2'}
                         size={16}
@@ -58,7 +59,7 @@ const Avatar = ({ editor }) => {
     const [avatar] = useAvatar(value);
     const uploadRef = useRef();
 
-    const fileReader = file =>
+    const fileReader = (file) =>
         new Promise((resolve, reject) => {
             const reader = new FileReader();
 
@@ -75,7 +76,7 @@ const Avatar = ({ editor }) => {
         editor.setAvatar();
     };
 
-    const onFileSelected = async e => {
+    const onFileSelected = async (e) => {
         if (e.target.files.length < 1) return;
         const data = await fileReader(_.last(e.target.files));
         uploadRef.current.value = null;
@@ -85,7 +86,8 @@ const Avatar = ({ editor }) => {
     return (
         <div
             className={cx('profile-avatar')}
-            style={{ backgroundImage: `url(${avatar})` }}>
+            style={{ backgroundImage: `url(${avatar})` }}
+        >
             {editing && (
                 <>
                     <input
@@ -97,7 +99,8 @@ const Avatar = ({ editor }) => {
                     <Button
                         appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                         onClick={() => uploadRef.current.click()}
-                        size={Button.ENUMS.SIZE.XS}>
+                        size={Button.ENUMS.SIZE.XS}
+                    >
                         <Icon
                             name={isNew() ? 'Feather.Plus' : 'Feather.Edit2'}
                             size={16}
@@ -108,7 +111,8 @@ const Avatar = ({ editor }) => {
                             appearance={Button.ENUMS.APPEARANCE.CIRCLE}
                             color={Button.ENUMS.COLOR.DANGER}
                             onClick={() => onClearAvatar()}
-                            size={Button.ENUMS.SIZE.XS}>
+                            size={Button.ENUMS.SIZE.XS}
+                        >
                             <Icon name='Feather.X' size={18} />
                         </Button>
                     )}
@@ -131,7 +135,7 @@ const Fullname = ({ className, ...user }) => {
     const [name, setName] = useState(_.compact([fname, lname]).join(' '));
 
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             let currentName = name;
             await Reactium.Hook.run('user-fullname', currentName, user);
             if (!mounted()) return;
@@ -187,7 +191,7 @@ const Roles = ({ className, ...user }) => {
     let names = Object.keys(op.get(user, 'roles', {}));
     names = names.length > 1 ? _.without(names, 'anonymous') : names;
     names.sort();
-    const userRoles = names.map(name => op.get(roles, [name, 'label']));
+    const userRoles = names.map((name) => op.get(roles, [name, 'label']));
 
     return (
         <div className={cn(`${className}s`, 'text-xs-center', 'text-sm-left')}>
@@ -210,7 +214,8 @@ const UserProfile = ({ editor }) => (
     <div
         className={cn(editor.cx('profile'), {
             'edit-mode': op.get(editor, 'state.editing', false),
-        })}>
+        })}
+    >
         <Avatar editor={editor} />
         <Info editor={editor} />
         <Actions editor={editor} />

@@ -14,7 +14,7 @@ import Reactium, {
     useHookComponent,
     useRegisterHandle,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 // import { useSelect } from '@atomic-reactor/use-select';
 import { useProfileRole } from 'reactium_modules/@atomic-reactor/reactium-admin-core/registered-components/ProfileWidget/hooks';
@@ -62,7 +62,7 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
         users: undefined,
     });
 
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         setPrevState(JSON.parse(JSON.stringify(state)));
         setNewState(newState);
@@ -72,14 +72,14 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
 
     const cname = () => cn(cx(), { [className]: !!className });
 
-    const fetch = params => {
+    const fetch = (params) => {
         if (state.req) return state.req;
         const req = Reactium.User.list(params);
         setState({ status: ENUMS.STATUS.FETCHING, users: undefined, req });
         return req;
     };
 
-    const getName = user => {
+    const getName = (user) => {
         const fname = op.get(user, 'fname', op.get(user, 'firstName'));
         const lname = op.get(user, 'lname', op.get(user, 'lastName'));
         const uname = op.get(user, 'username');
@@ -87,7 +87,7 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
         return String(name).length < 1 ? uname : name;
     };
 
-    const getData = fetchParams =>
+    const getData = (fetchParams) =>
         fetch(fetchParams).then(({ results: users, ...params }) => {
             if (unMounted()) return;
 
@@ -117,7 +117,7 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
 
     const unMounted = () => !containerRef.current;
 
-    const onSearch = newSearch => {
+    const onSearch = (newSearch) => {
         if (
             newSearch !== null &&
             String(newSearch).length > 0 &&
@@ -183,7 +183,7 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
         const newFetchParams = {};
         const fields = ['page', 'role', 'search', 'order'];
 
-        fields.forEach(fld => {
+        fields.forEach((fld) => {
             let curr = op.get(state, fld);
             let prev = op.get(prevState, fld);
 
@@ -229,16 +229,18 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
             <Zone list={handle} zone={cx('top')} />
             <div className={cx('row')}>
                 {state.users &&
-                    state.users.map(item => (
+                    state.users.map((item) => (
                         <div
                             key={`user-${item.objectId}`}
                             className={cn(cx('column'), {
                                 current: Reactium.User.isCurrent(item),
-                            })}>
+                            })}
+                        >
                             <Link
                                 onClick={() => (Reactium.User.selected = item)}
                                 to={`/admin/user/${item.objectId}/content`}
-                                className={cn(cx('card'), 'link')}>
+                                className={cn(cx('card'), 'link')}
+                            >
                                 <Avatar
                                     user={item}
                                     className={cx('card-avatar')}
@@ -270,7 +272,8 @@ const UserList = ({ className, id, namespace, page: initialPage }) => {
                                     onClick={() =>
                                         (Reactium.User.selected = item)
                                     }
-                                    to={`/admin/user/${item.objectId}/edit`}>
+                                    to={`/admin/user/${item.objectId}/edit`}
+                                >
                                     <Icon name='Feather.Edit2' size={16} />
                                 </Button>
                                 <Zone
@@ -315,7 +318,7 @@ const Role = ({ className, user }) => {
 
 const PlaceHolder = ({ cx }) => (
     <div className={cx('row')}>
-        {_.times(12, index => (
+        {_.times(12, (index) => (
             <div key={`placeholder-${index}`} className={cx('column')}>
                 <div className={cn(cx('card'), 'placeholder')}>
                     <div className={cn(cx('card-avatar'), 'placeholder')} />

@@ -1,5 +1,8 @@
 import React from 'react';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 const Widget = () => {
     const MenuItem = useHookComponent('MenuItem');

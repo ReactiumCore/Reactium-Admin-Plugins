@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect } from '@atomic-reactor/reactium-core/sdk';
 
 export const useContentTypes = (defaultValue = []) => {
     const [updated, update] = useState();
@@ -10,7 +10,7 @@ export const useContentTypes = (defaultValue = []) => {
     const refresh = () => fetch({ refresh: true });
 
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             const results = await fetch();
 
             if (mounted()) setTypes(results);

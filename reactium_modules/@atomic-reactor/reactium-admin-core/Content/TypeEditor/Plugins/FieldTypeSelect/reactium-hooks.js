@@ -1,7 +1,7 @@
 import op from 'object-path';
 import { Editor } from './Editor';
 import { FieldType } from './FieldType';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Icon } from 'reactium-ui';
 
 const ID = 'Select';
@@ -21,7 +21,7 @@ Reactium.Plugin.register(`CTE-${ID}`).then(() => {
     Reactium.Component.register(fieldType.component, FieldType);
     Reactium.ContentType.FieldType.register(ID, fieldType);
 
-    Reactium.Hook.registerSync('content-type-field-type-list', list => {
+    Reactium.Hook.registerSync('content-type-field-type-list', (list) => {
         const Select = op.get(list, 'Select');
         if (!op.get(list, 'SelectArray') && op.get(list, 'Select')) {
             op.set(list, 'SelectArray', { ...Select, type: 'SelectArray' });

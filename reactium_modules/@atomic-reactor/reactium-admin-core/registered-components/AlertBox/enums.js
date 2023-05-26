@@ -1,4 +1,4 @@
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 
 const ENUMS = {
     TEXT: {

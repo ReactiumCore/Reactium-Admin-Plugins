@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Reactium, { __, useHandle } from 'reactium-core/sdk';
+import Reactium, { __, useHandle } from '@atomic-reactor/reactium-core/sdk';
 import { Icon, Button } from 'reactium-ui';
 import op from 'object-path';
 import Draggable from 'react-draggable';
@@ -16,14 +16,16 @@ const ToolsPage = ({ page = 1, numPages, setPage }) => {
             <Button
                 className='tools-paging-left'
                 disabled={page === 1}
-                onClick={() => setPage(page - 1)}>
+                onClick={() => setPage(page - 1)}
+            >
                 <span className='sr-only'>{__('Previous Tools Page')}</span>
                 <Icon name='Feather.ArrowLeft' />
             </Button>
             <Button
                 className='tools-paging-right'
                 disabled={page === numPages}
-                onClick={() => setPage(page + 1)}>
+                onClick={() => setPage(page + 1)}
+            >
                 <span className='sr-only'>{__('Next Tools Page')}</span>
                 <Icon name='Feather.ArrowRight' />
             </Button>
@@ -64,7 +66,7 @@ const Tools = () => {
     const { addField, addRegion } = useHandle('CTE');
 
     const renderTools = () => {
-        return chunk.map(type => {
+        return chunk.map((type) => {
             const tooltip = op.get(
                 type,
                 'tooltip',
@@ -84,7 +86,8 @@ const Tools = () => {
                     data-tooltip={tooltip}
                     data-align='left'
                     data-vertical-align='middle'
-                    onClick={() => addField(op.get(type, 'type'))}>
+                    onClick={() => addField(op.get(type, 'type'))}
+                >
                     <span className={'sr-only'}>{tooltip}</span>
                     <Icon />
                 </Button>
@@ -97,7 +100,8 @@ const Tools = () => {
         <Draggable
             handle='.types-tools-drag-handle'
             onStop={onStop}
-            defaultPosition={position}>
+            defaultPosition={position}
+        >
             <div className={'types-tools'}>
                 {tools.length > 1 && (
                     <ToolsPage
@@ -111,7 +115,8 @@ const Tools = () => {
                     data-tooltip={addRegionLabel}
                     data-align='left'
                     data-vertical-align='middle'
-                    onClick={() => addRegion()}>
+                    onClick={() => addRegion()}
+                >
                     <span className={'sr-only'}>{addRegionLabel}</span>
                     <div className='add-region-icon'></div>
                 </Button>

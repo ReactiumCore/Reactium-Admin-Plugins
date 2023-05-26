@@ -3,7 +3,10 @@ import uuid from 'uuid/v4';
 import op from 'object-path';
 import React, { useState, useEffect } from 'react';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __, useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useAsyncEffect,
+} from '@atomic-reactor/reactium-core/sdk';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 
 export default () => {
@@ -18,7 +21,7 @@ export default () => {
 
     // Get content types
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             const results = await getTypes();
             if (mounted()) setTypes(results);
             return Reactium.Cache.subscribe('content-types', async ({ op }) => {
@@ -46,7 +49,8 @@ export default () => {
                         color='clear'
                         size='sm'
                         to='/admin/types'
-                        type='link'>
+                        type='link'
+                    >
                         <Icon name='Linear.Typewriter' className='mr-xs-12' />
                         {__('Content Types')}
                     </Button>

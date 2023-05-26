@@ -1,12 +1,12 @@
 import Login from './index';
-import Reactium, { ComponentEvent } from 'reactium-core/sdk';
+import Reactium, { ComponentEvent } from '@atomic-reactor/reactium-core/sdk';
 
 import op from 'object-path';
 
 Reactium.Hook.register(
     'sdk-init',
-    async Reactium => {
-        Reactium.State.addEventListener('LOGIN_NEEDED', e => {
+    async (Reactium) => {
+        Reactium.State.addEventListener('LOGIN_NEEDED', (e) => {
             const route = Reactium.Routing.currentRoute;
             if (op.get(route, 'match.match.path') !== '/login') {
                 Reactium.Routing.history.push('/login');
@@ -58,6 +58,6 @@ Reactium.Hook.register(
     Reactium.Enums.priority.highest - 1,
 );
 
-Reactium.Hook.register('blueprints', async Blueprint => {
+Reactium.Hook.register('blueprints', async (Blueprint) => {
     Blueprint.register('Login', blueprint);
 });

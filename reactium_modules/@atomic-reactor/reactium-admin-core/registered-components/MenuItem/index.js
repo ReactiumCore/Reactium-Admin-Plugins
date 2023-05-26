@@ -17,7 +17,7 @@ import Reactium, {
     useEventHandle,
     useHandle,
     useWindowSize,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const defaultIsActive = (match = {}, location = {}) => {
     const url = op.get(match, 'url');
@@ -77,12 +77,12 @@ const Heading = ({ state, hideTooltip, cname, expanded }) => {
 
     const { active = false, add, onClick } = state;
     const classname = cn({ [cname('link')]: true, active });
-    const _onClick = e => {
+    const _onClick = (e) => {
         hideTooltip(e);
         onClick(e);
     };
 
-    const _onAddClick = e => {
+    const _onAddClick = (e) => {
         e.preventDefault();
 
         if (Object.keys(handle).length > 0) {
@@ -123,7 +123,7 @@ const Link = ({ state, cname, onClick, expanded }) => {
 
     const handle = useHandle('AdminContentEditor');
 
-    const _onAddClick = e => {
+    const _onAddClick = (e) => {
         e.preventDefault();
 
         if (Object.keys(handle).length > 0) {
@@ -146,7 +146,8 @@ const Link = ({ state, cname, onClick, expanded }) => {
                 <a
                     onClick={_onAddClick}
                     className={cname('add')}
-                    href={_.isString(add) ? add : 'void(0)'}>
+                    href={_.isString(add) ? add : 'void(0)'}
+                >
                     <Icon name='Feather.Plus' />
                 </a>
             )}
@@ -189,7 +190,7 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
         permitted: false,
     });
 
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         updateState(newState);
     };
@@ -201,7 +202,7 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
-    const hideTooltip = e => {
+    const hideTooltip = (e) => {
         if (e) {
             const hasTooltip = !!e.target.getAttribute('data-tooltip');
             if (hasTooltip) {
@@ -212,12 +213,12 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
 
     const expanded = () => Sidebar.isExpanded();
 
-    const cname = name =>
+    const cname = (name) =>
         String(
             _.compact([op.get(state, 'namespace'), name]).join('-'),
         ).toLowerCase();
 
-    const collapseSidebar = e => {
+    const collapseSidebar = (e) => {
         hideTooltip(e);
         const breaks = ['xs', 'sm'];
         if (breaks.includes(breakpoint)) {
@@ -245,18 +246,18 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
         () => {
             const newState = {};
 
-            watchProps.forEach(key => {
+            watchProps.forEach((key) => {
                 if (op.get(props, key) === op.get(state, key)) return;
                 op.set(newState, key, op.get(props, key));
             });
 
             if (Object.keys(newState).length > 0) setState(newState);
         },
-        watchProps.map(key => op.get(props, key)),
+        watchProps.map((key) => op.get(props, key)),
     );
 
     // Permitted
-    useAsyncEffect(async mounted => {
+    useAsyncEffect(async (mounted) => {
         if (!capabilities || capabilities.length < 1) {
             updateState({ permitted: true });
             return;
@@ -306,7 +307,8 @@ let MenuItem = ({ children, capabilities = [], ...props }, ref) => {
                         className={cn({
                             [cname('content')]: true,
                             active: state.active,
-                        })}>
+                        })}
+                    >
                         {children}
                     </div>
                 )}
@@ -367,7 +369,7 @@ export { MenuItem as default };
  * @apiParam {String} [title] Tooltip to dislay for the MenuItem. If empty and the `label` is a `{String}` the `label` value is used.
  * @apiExample Simple Usage:
 import React from 'react';
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const SidebarWidget = () => (
     const MenuItem = useHookComponent('MenuItem');
@@ -401,7 +403,7 @@ const SidebarWidget = () => (
 
  * @apiExample Component Zone:
 import MenuItem from 'reactium_modules/@atomic-reactor/admin/registered-components/MenuItem';
-import { Zone } from 'reactium-core/sdk';
+import { Zone } from '@atomic-reactor/reactium-core/sdk';
 
 const SidebarWidget = () => (
   <MenuItem

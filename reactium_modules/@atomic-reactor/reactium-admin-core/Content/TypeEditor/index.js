@@ -15,7 +15,7 @@ import Reactium, {
     useHookComponent,
     useDispatcher,
     useEventEffect,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 import { useRouteParams, useAttachHandle } from 'reactium-admin-core';
 
@@ -23,7 +23,7 @@ const REQUIRED_REGIONS = op.get(Enums, 'REQUIRED_REGIONS', {});
 
 const getToast = () => Reactium.State.Tools.Toast;
 
-export const slugify = name => {
+export const slugify = (name) => {
     return !name
         ? ''
         : require('slugify')(name, {
@@ -67,7 +67,7 @@ const EVENT_TYPES = {
     CLEAR_ERROR: 'CLEAR_ERROR',
 };
 
-const eventHandlers = e => {
+const eventHandlers = (e) => {
     const state = e.target;
     const EVENT_TYPE = e.type;
     const detail = e.detail;
@@ -112,7 +112,9 @@ const eventHandlers = e => {
             op.set(
                 regionFields,
                 region,
-                op.get(regionFields, [region], []).filter(id => id !== fieldId),
+                op
+                    .get(regionFields, [region], [])
+                    .filter((id) => id !== fieldId),
             );
             op.del(fields, [fieldId]);
 
@@ -255,7 +257,7 @@ const eventHandlers = e => {
  * such as undefined or missing field type.
  * Also cleans up regions of any field ids that don't exist.
  */
-const sanitizedEventHandlers = e => {
+const sanitizedEventHandlers = (e) => {
     const ui = eventHandlers(e);
     const fieldTypes = _.indexBy(
         Object.values(Reactium.ContentType.FieldType.list),
@@ -283,7 +285,7 @@ const sanitizedEventHandlers = e => {
         op.set(
             regionFields,
             region,
-            ids.filter(id => id in fields),
+            ids.filter((id) => id in fields),
         );
     });
 
@@ -291,11 +293,11 @@ const sanitizedEventHandlers = e => {
 };
 
 const debug = false;
-const useMapEventHandlers = state => {
+const useMapEventHandlers = (state) => {
     const handler = sanitizedEventHandlers;
     const eventHandlers = Object.values(EVENT_TYPES).reduce(
         (eventHandlers, EVENT_TYPE) => {
-            eventHandlers[EVENT_TYPE] = e => {
+            eventHandlers[EVENT_TYPE] = (e) => {
                 debug &&
                     console.log(
                         `Event EVENT_TYPE ${EVENT_TYPE}`,
@@ -328,7 +330,7 @@ const useMapEventHandlers = state => {
 
 const noop = () => {};
 const getStubRef = () => ({ getValue: () => ({}), setValue: noop });
-const ContentType = props => {
+const ContentType = (props) => {
     const params = useRouteParams();
     const id = op.get(params, 'id', 'new');
 
@@ -337,7 +339,7 @@ const ContentType = props => {
     const dispatch = useMapEventHandlers(CTE);
     const isLoading = () => CTE.get('contentType.loading', true);
 
-    const load = async id => {
+    const load = async (id) => {
         try {
             const contentType = await Reactium.ContentType.retrieve(id);
             const label = op.get(contentType, 'meta.label', contentType.type);
@@ -390,16 +392,16 @@ const ContentType = props => {
     const formsRef = useRef({});
 
     const types = CTE.get('types');
-    CTE.extend('setTypes', types => CTE.set('types', types));
+    CTE.extend('setTypes', (types) => CTE.set('types', types));
     const setTypes = CTE.setTypes;
 
     // Generic State Update to cause rerender
     const updated = CTE.get('contentType.updated');
-    CTE.extend('update', types => CTE.set('contentType.updated', new Date()));
+    CTE.extend('update', (types) => CTE.set('contentType.updated', new Date()));
     const update = CTE.update;
 
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             const results = await Reactium.ContentType.types();
             if (mounted()) setTypes(results);
 
@@ -429,7 +431,7 @@ const ContentType = props => {
 
     if (isLoading()) return <Loading />;
 
-    const setRegionLabel = regionId => label => {
+    const setRegionLabel = (regionId) => (label) => {
         dispatch(EVENT_TYPES.LABEL_REGION, {
             id: regionId,
             label,
@@ -441,7 +443,7 @@ const ContentType = props => {
     const getOrderedRegions = () => {
         const regions = getRegions();
         return _.sortBy(
-            Object.values(regions).map(region => {
+            Object.values(regions).map((region) => {
                 // TODO: Make these rearrangable
                 const order = op.get(
                     REQUIRED_REGIONS,
@@ -457,7 +459,7 @@ const ContentType = props => {
         );
     };
 
-    const validator = async context => {
+    const validator = async (context) => {
         let { valid, error, value } = context;
         dispatch(EVENT_TYPES.CLEAR_ERROR);
 
@@ -502,7 +504,7 @@ const ContentType = props => {
         if (CTE.get('contentType.fields')) {
             savedFields = CTE.get('contentType.fields');
             savedFields = _.indexBy(
-                Object.values(savedFields).map(field => ({
+                Object.values(savedFields).map((field) => ({
                     id: field.id,
                     fieldSlug: slugify(field.fieldName),
                     fieldType: field.fieldType,
@@ -614,13 +616,13 @@ const ContentType = props => {
         return { error, valid, value };
     };
 
-    const onError = async e => {
+    const onError = async (e) => {
         dispatch(EVENT_TYPES.ERROR, {
             error: e.error,
         });
     };
 
-    const onDragEnd = result => {
+    const onDragEnd = (result) => {
         const fieldId = op.get(result, 'draggableId');
         const sourceIndex = op.get(result, 'source.index');
         const sourceRegion = op.get(result, 'source.droppableId');
@@ -646,7 +648,7 @@ const ContentType = props => {
         });
     };
 
-    const onTypeChange = async e => {
+    const onTypeChange = async (e) => {
         const value = e.value;
         dispatch(EVENT_TYPES.TYPE_CHANGE, value, false);
     };
@@ -658,7 +660,7 @@ const ContentType = props => {
         op.set(value, 'fields', {});
         getOrderedRegions().forEach(({ id: region }) => {
             CTE.get(['contentType', 'regionFields', region], []).forEach(
-                fieldId => {
+                (fieldId) => {
                     const def = CTE.get(['contentType', 'fields', fieldId], {});
                     const ref = getFormRef(fieldId);
                     if (ref) {
@@ -752,7 +754,7 @@ const ContentType = props => {
         });
     };
 
-    const removeRegion = region => {
+    const removeRegion = (region) => {
         if (Object.keys(REQUIRED_REGIONS).includes(region)) return;
 
         dispatch(EVENT_TYPES.REMOVE_REGION, {
@@ -760,7 +762,7 @@ const ContentType = props => {
         });
     };
 
-    const setActiveRegion = region => {
+    const setActiveRegion = (region) => {
         if (region !== CTE.get('contentType.active', 'default')) {
             dispatch(EVENT_TYPES.SET_ACTIVE, {
                 region,
@@ -768,7 +770,7 @@ const ContentType = props => {
         }
     };
 
-    const addField = ft => {
+    const addField = (ft) => {
         const fields = CTE.get('contentType.fields', {});
         const fieldsByType = _.groupBy(Object.values(fields), 'fieldType');
         const activeRegion = CTE.get('contentType.active', 'default');
@@ -795,13 +797,13 @@ const ContentType = props => {
         });
     };
 
-    const removeField = fieldId => {
+    const removeField = (fieldId) => {
         dispatch(EVENT_TYPES.REMOVE_FIELD, {
             fieldId,
         });
     };
 
-    const _fieldChangeHandler = id => e => {
+    const _fieldChangeHandler = (id) => (e) => {
         if (isLoading()) return;
 
         if (
@@ -846,7 +848,7 @@ const ContentType = props => {
         };
     };
 
-    const removeFormRef = id => {
+    const removeFormRef = (id) => {
         if (op.has(formsRef.current, [id])) {
             const subForm = formsRef.current[id];
             subForm.unsub();
@@ -854,10 +856,10 @@ const ContentType = props => {
         op.del(formsRef.current, [id]);
     };
 
-    const getFormRef = id =>
+    const getFormRef = (id) =>
         op.get(formsRef.current, [id, 'ref'], getStubRef)();
 
-    const getFormErrors = id => CTE.get(['contentType', 'error', id]);
+    const getFormErrors = (id) => CTE.get(['contentType', 'error', id]);
 
     const clearDelete = async () => {
         dispatch(EVENT_TYPES.CLEAR);
@@ -895,10 +897,10 @@ const ContentType = props => {
 
     const isNew = () => id === 'new';
 
-    const isActiveRegion = region =>
+    const isActiveRegion = (region) =>
         CTE.get('contentType.active', 'default') === region;
 
-    const saveHotkey = e => {
+    const saveHotkey = (e) => {
         if (e) e.preventDefault();
         parentFormRef.current.submit();
     };
@@ -927,7 +929,8 @@ const ContentType = props => {
             className={cn(
                 'type-editor',
                 slugify(`type-editor ${id}`).toLowerCase(),
-            )}>
+            )}
+        >
             <EventForm
                 ref={parentFormRef}
                 onSubmit={onTypeSubmit}
@@ -936,12 +939,13 @@ const ContentType = props => {
                 value={CTE.get('contentType', {})}
                 className={'webform webform-content-type'}
                 required={['type']}
-                validator={validator}>
+                validator={validator}
+            >
                 <TypeName id={id} error={CTE.get('contentType.error.type')} />
             </EventForm>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                {getOrderedRegions().map(region => (
+                {getOrderedRegions().map((region) => (
                     <Fields
                         key={region.id}
                         onRegionLabelChange={setRegionLabel(region.id)}

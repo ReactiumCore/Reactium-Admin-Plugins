@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 import React, { useEffect, useRef } from 'react';
 import { Dialog, Checkbox, Slider } from 'reactium-ui';
 
@@ -10,7 +10,7 @@ import { Dialog, Checkbox, Slider } from 'reactium-ui';
  * Functional Component: FieldTypeNumber
  * -----------------------------------------------------------------------------
  */
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
@@ -62,7 +62,7 @@ export const FieldType = props => {
     );
 };
 
-const NumberSlider = props => {
+const NumberSlider = (props) => {
     const { editor, fieldName } = props;
     const min = Number(op.get(props, 'min', 0));
     const max = Number(op.get(props, 'max', 100));
@@ -71,7 +71,7 @@ const NumberSlider = props => {
     );
     const value = Number(op.get(editor, ['value', fieldName], defaultValue));
 
-    const _onChange = e =>
+    const _onChange = (e) =>
         _.defer(() => editor.setValue({ [fieldName]: Number(e.value) }));
 
     const onChange = _.throttle(_onChange, 250, { trailing: true });
@@ -96,7 +96,7 @@ const NumberSlider = props => {
     );
 };
 
-export const Editor = props => {
+export const Editor = (props) => {
     const {
         defaultValue,
         editor,
@@ -193,7 +193,7 @@ export const Editor = props => {
     );
 };
 
-export const Comparison = props => {
+export const Comparison = (props) => {
     const field = op.get(props, 'field', {});
     const value = op.get(props, 'value');
     const { fieldName: title } = field;

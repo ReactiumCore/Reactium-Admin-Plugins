@@ -8,13 +8,13 @@ import Reactium, {
     useRoles,
     useHookComponent,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const UserInputs = ({ editor }) => {
     const { errors, state = {} } = editor;
     const { value = {} } = state;
 
-    const isError = field => {
+    const isError = (field) => {
         const errs = _.indexBy(errors, 'field');
         return op.get(errs, field, false);
     };
@@ -36,7 +36,8 @@ const UserInputs = ({ editor }) => {
                     <div
                         className={cn('form-group', {
                             error: isError('fname'),
-                        })}>
+                        })}
+                    >
                         <input
                             type='text'
                             name='fname'
@@ -48,7 +49,8 @@ const UserInputs = ({ editor }) => {
                     <div
                         className={cn('form-group', {
                             error: isError('lname'),
-                        })}>
+                        })}
+                    >
                         <input
                             type='text'
                             name='lname'
@@ -70,7 +72,8 @@ const UserInputs = ({ editor }) => {
                             'input-group':
                                 !Reactium.User.isCurrent(value) &&
                                 !editor.isNew(),
-                        })}>
+                        })}
+                    >
                         <input
                             type='email'
                             name='email'
@@ -86,7 +89,8 @@ const UserInputs = ({ editor }) => {
                         <div
                             className={cn('form-group', {
                                 error: isError('username'),
-                            })}>
+                            })}
+                        >
                             <input
                                 type='text'
                                 name='username'
@@ -102,7 +106,8 @@ const UserInputs = ({ editor }) => {
                             <div
                                 className={cn('form-group', {
                                     error: isError('password'),
-                                })}>
+                                })}
+                            >
                                 <input
                                     type='password'
                                     name='password'
@@ -115,7 +120,8 @@ const UserInputs = ({ editor }) => {
                             <div
                                 className={cn('form-group', {
                                     error: isError('confirm'),
-                                })}>
+                                })}
+                            >
                                 <input
                                     type='password'
                                     name='confirm'
@@ -162,7 +168,7 @@ const RoleSelect = ({ editor }) => {
         }
     });
 
-    const onItemSelect = async e => {
+    const onItemSelect = async (e) => {
         if (editor.isDirty()) {
             await Reactium.User.save(editor.state.value);
         }
@@ -176,7 +182,7 @@ const RoleSelect = ({ editor }) => {
         });
     };
 
-    const onItemUnselect = async e => {
+    const onItemUnselect = async (e) => {
         if (editor.isDirty()) {
             await Reactium.User.save(editor.state.value);
         }
@@ -201,13 +207,15 @@ const RoleSelect = ({ editor }) => {
                 onItemSelect={onItemSelect}
                 onItemUnselect={onItemUnselect}
                 ref={ref}
-                valueField='name'>
+                valueField='name'
+            >
                 <div className='flex middle'>
                     <Button
                         type='button'
                         color={Button.ENUMS.COLOR.TERTIARY}
                         data-dropdown-element
-                        style={{ height: 41, width: 41, padding: 0 }}>
+                        style={{ height: 41, width: 41, padding: 0 }}
+                    >
                         <Icon name='Feather.Award' size={18} />
                     </Button>
                 </div>

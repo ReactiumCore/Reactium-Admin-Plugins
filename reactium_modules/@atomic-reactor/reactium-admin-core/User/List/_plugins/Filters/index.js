@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import React, { useRef } from 'react';
-import { useRoles } from 'reactium-core/sdk';
+import { useRoles } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Dropdown, Icon } from 'reactium-ui';
 
 const Filters = ({ list: List }) => {
@@ -33,7 +33,8 @@ const Filters = ({ list: List }) => {
                 maxHeight='calc(100vh - 150px)'
                 ref={ddRef}
                 selection={[op.get(state, 'role', null)]}
-                valueField='name'>
+                valueField='name'
+            >
                 <div className='flex middle'>
                     {op.get(state, 'role') && (
                         <Button
@@ -46,7 +47,8 @@ const Filters = ({ list: List }) => {
                                 padding: '2px 4px 2px 5px',
                                 maxHeight: 20,
                             }}
-                            type={Button.ENUMS.TYPE.BUTTON}>
+                            type={Button.ENUMS.TYPE.BUTTON}
+                        >
                             {state.roleLabel}
                             <Icon
                                 name='Feather.X'

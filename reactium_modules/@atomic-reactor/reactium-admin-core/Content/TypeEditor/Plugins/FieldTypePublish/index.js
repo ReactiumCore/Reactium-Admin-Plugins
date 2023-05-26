@@ -1,5 +1,5 @@
 import React from 'react';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Button, FormError, Icon } from 'reactium-ui';
 
 export const Editor = ({ editor }) => {

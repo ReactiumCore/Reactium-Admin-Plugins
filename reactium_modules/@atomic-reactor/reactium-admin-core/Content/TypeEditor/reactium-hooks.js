@@ -1,4 +1,4 @@
-import Reactium, { ReactiumSyncState } from 'reactium-core/sdk';
+import Reactium, { ReactiumSyncState } from '@atomic-reactor/reactium-core/sdk';
 import ContentTypeEditor from './index';
 import Enums from './enums';
 import FieldType from './FieldType';
@@ -74,7 +74,7 @@ const registerPlugin = async () => {
 };
 registerPlugin();
 
-Reactium.Hook.register('blueprints', async Blueprint => {
+Reactium.Hook.register('blueprints', async (Blueprint) => {
     [
         {
             ID: 'ContentType',
@@ -95,5 +95,5 @@ Reactium.Hook.register('blueprints', async Blueprint => {
                 namespace: 'admin-page',
             },
         },
-    ].forEach(bp => Blueprint.register(bp.ID, bp));
+    ].forEach((bp) => Blueprint.register(bp.ID, bp));
 });

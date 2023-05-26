@@ -1,4 +1,4 @@
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 import Enums from './enums';
@@ -74,7 +74,7 @@ const SDK = (Reactium.Blueprint = Reactium.Utils.registryFactory(
 ));
 
 // TODO: Portal Tools to page with or without the section
-const sanitizeBP = bp => {
+const sanitizeBP = (bp) => {
     const sanitized = { ...bp };
 
     if (!op.has(sanitized, 'sections.tools')) {
@@ -133,7 +133,7 @@ Reactium.Blueprint.initRoutes = async () => {
         // );
 
         try {
-            routes = (await baseQuery.find()).map(r => r.toJSON());
+            routes = (await baseQuery.find()).map((r) => r.toJSON());
             Reactium.Cache.set(CACHE_KEY, routes, CACHE_DURATION);
         } catch (error) {
             console.error('Unable to load routes!', error);
@@ -143,7 +143,7 @@ Reactium.Blueprint.initRoutes = async () => {
     // gather relevant route capabilities ahead of time
     let permissions = {};
     const capChecks = {};
-    routes.forEach(route => {
+    routes.forEach((route) => {
         const isPermitted = op.get(route, 'permitted');
         if (typeof isPermitted === 'boolean') {
             permissions[route.objectId] = isPermitted;
@@ -154,7 +154,7 @@ Reactium.Blueprint.initRoutes = async () => {
             .flatten()
             .compact()
             .value()
-            .filter(cap => typeof cap === 'string');
+            .filter((cap) => typeof cap === 'string');
 
         if (Array.isArray(capabilities) && capabilities.length > 0)
             op.set(capChecks, route.objectId, {

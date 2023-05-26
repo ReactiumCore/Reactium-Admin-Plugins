@@ -1,9 +1,9 @@
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import SDK from './sdk';
 import Blueprint from './index';
 
-const routingStateHandler = async updates => {
+const routingStateHandler = async (updates) => {
     if (op.get(updates, 'transitionState') === 'LOADING') {
         const setLoading = op.get(
             window,

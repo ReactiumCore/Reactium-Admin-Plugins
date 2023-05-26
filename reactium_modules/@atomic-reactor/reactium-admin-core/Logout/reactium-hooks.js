@@ -1,5 +1,5 @@
 import Logout from './index';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
 
 Reactium.Plugin.register('AdminLogout').then(() => {

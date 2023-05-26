@@ -5,7 +5,7 @@
  */
 
 import Component from './index';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { useContent } from './useContent';
 import { SearchBar } from '../SearchBar';
 import { SearchFilters, SearchFilterOptions } from '../SearchBar/SearchFilters';

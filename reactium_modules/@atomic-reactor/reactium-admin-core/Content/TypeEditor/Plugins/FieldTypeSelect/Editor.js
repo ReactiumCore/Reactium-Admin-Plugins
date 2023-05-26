@@ -2,9 +2,9 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
-export const Editor = props => {
+export const Editor = (props) => {
     const {
         defaultValue = null,
         editor,
@@ -58,14 +58,11 @@ export const Editor = props => {
         return context;
     };
 
-    const onSave = e => {
+    const onSave = (e) => {
         const val = op.get(e.value, fieldName);
         const formatted =
             multiple === true
-                ? _.chain([val])
-                      .flatten()
-                      .compact()
-                      .value()
+                ? _.chain([val]).flatten().compact().value()
                 : val;
 
         op.set(e.value, fieldName, formatted);
@@ -102,7 +99,8 @@ export const Editor = props => {
                             {options.map(({ label, value }, i) => (
                                 <div
                                     key={`${inputProps.name}-checkbox-${i}`}
-                                    className='col-xs-12 py-xs-8'>
+                                    className='col-xs-12 py-xs-8'
+                                >
                                     <Toggle
                                         name={inputProps.name}
                                         labelAlign='left'

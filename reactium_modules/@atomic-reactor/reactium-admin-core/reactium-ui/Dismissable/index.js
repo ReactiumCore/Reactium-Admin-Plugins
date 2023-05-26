@@ -3,7 +3,11 @@ import cn from 'classnames';
 import PropTypes from 'prop-types';
 import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { useDispatcher, useRefs, useSyncState } from 'reactium-core/sdk';
+import {
+    useDispatcher,
+    useRefs,
+    useSyncState,
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -38,7 +42,7 @@ let Dismissable = ({ children, ...props }, ref) => {
 
         const { animationEase: ease, animationSpeed } = state.get();
 
-        const animation = new Promise(resolve => {
+        const animation = new Promise((resolve) => {
             TweenMax.to(container, animationSpeed, {
                 ease,
                 opacity: 1,
@@ -67,7 +71,7 @@ let Dismissable = ({ children, ...props }, ref) => {
 
         const { animationEase: ease, animationSpeed } = state.get();
 
-        const animation = new Promise(resolve => {
+        const animation = new Promise((resolve) => {
             TweenMax.to(container, animationSpeed, {
                 ease,
                 opacity: 0,
@@ -80,7 +84,7 @@ let Dismissable = ({ children, ...props }, ref) => {
         return animation;
     };
 
-    const complete = resolve => {
+    const complete = (resolve) => {
         if (isVisible()) {
             state.set({ animation: null, visible: false });
             dispatch('hide');
@@ -98,7 +102,7 @@ let Dismissable = ({ children, ...props }, ref) => {
         resolve();
     };
 
-    const toggle = e => (isVisible() ? hide(e) : show(e));
+    const toggle = (e) => (isVisible() ? hide(e) : show(e));
 
     const render = () => {
         const { className, visible, namespace } = state.get();
@@ -110,7 +114,7 @@ let Dismissable = ({ children, ...props }, ref) => {
         });
 
         return (
-            <div ref={elm => refs.set('container', elm)} className={cname}>
+            <div ref={(elm) => refs.set('container', elm)} className={cname}>
                 {children}
             </div>
         );

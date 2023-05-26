@@ -1,7 +1,7 @@
 import React from 'react';
 import ENUMS from './enums';
 import PropTypes from 'prop-types';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import ConfirmBox from '../ConfirmBox';
 
 const noop = () => {};
@@ -42,7 +42,7 @@ export default AlertBox;
  * @apiParam {String} [title='Alert'] The titlebar content.
  * @apiParam {Object} [style] React style object applied to the AlertBox wrapper div.
  * @apiExample useHookComponent() hook import
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const MyComponent = () => {
     const ConfirmBox = useHookComponent('AlertBox');

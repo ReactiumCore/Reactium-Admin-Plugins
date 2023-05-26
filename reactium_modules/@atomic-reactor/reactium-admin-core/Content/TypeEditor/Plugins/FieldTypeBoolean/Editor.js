@@ -1,13 +1,16 @@
 import op from 'object-path';
 import React, { useCallback, useEffect } from 'react';
-import { useHookComponent, useSyncState } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useSyncState,
+} from '@atomic-reactor/reactium-core/sdk';
 
-const Editor = props => {
+const Editor = (props) => {
     const { editor, fieldName, options } = props;
 
     const { Checkbox } = useHookComponent('ReactiumUI');
 
-    const onChange = e => state.set('value', e.target.checked);
+    const onChange = (e) => state.set('value', e.target.checked);
 
     const onLoad = useCallback(() => {
         editor.addEventListener('before-save', onSave);
@@ -16,7 +19,7 @@ const Editor = props => {
         };
     });
 
-    const onSave = useCallback(e => {
+    const onSave = useCallback((e) => {
         const { value } = state.get();
         op.set(e.value, fieldName, value);
     }, []);

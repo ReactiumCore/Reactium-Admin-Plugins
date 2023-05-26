@@ -1,11 +1,15 @@
 import React, { useRef } from 'react';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHandle,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 import { Dialog, Icon, Button } from 'reactium-ui';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import op from 'object-path';
 
-const Header = props => {
+const Header = (props) => {
     const inputRef = useRef();
     const { id, singular, icon: FieldIcon, DragHandle } = props;
     const CTE = useHandle('CTE');
@@ -33,7 +37,8 @@ const Header = props => {
             <div
                 className={cn('fieldtype-header-name', {
                     error: op.get(error, 'fieldName'),
-                })}>
+                })}
+            >
                 <input
                     ref={inputRef}
                     type={'text'}
@@ -47,7 +52,8 @@ const Header = props => {
                 {!fieldSaved && (
                     <Button
                         className='fieldtype-header-name-icon'
-                        {...savedProps}>
+                        {...savedProps}
+                    >
                         <span className='sr-only'>{__('Edit')}</span>
                         <Icon.Linear.Pencil />
                     </Button>
@@ -65,7 +71,7 @@ const Header = props => {
  * Functional Component: FieldTypeDialog
  * -----------------------------------------------------------------------------
  */
-const FieldTypeDialog = props => {
+const FieldTypeDialog = (props) => {
     const dialogRef = useRef();
     const CTE = useHandle('CTE');
     // const tools = useHandle('AdminTools');
@@ -116,7 +122,8 @@ const FieldTypeDialog = props => {
             dismissable={true}
             header={header}
             className={cn('fieldtype', `fieldtype-${type}`)}
-            onDismiss={onDismiss}>
+            onDismiss={onDismiss}
+        >
             {children}
             <div className='form-group'>
                 {op.get(props, 'showHelpText') && (

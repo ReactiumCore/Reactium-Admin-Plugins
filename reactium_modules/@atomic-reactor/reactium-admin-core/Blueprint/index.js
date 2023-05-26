@@ -2,7 +2,10 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 
-import Reactium, { useHookComponent, Zone } from 'reactium-core/sdk';
+import Reactium, {
+    useHookComponent,
+    Zone,
+} from '@atomic-reactor/reactium-core/sdk';
 import React, { useEffect, useLayoutEffect as useWindowEffect } from 'react';
 
 const useLayoutEffect =
@@ -11,7 +14,7 @@ const useLayoutEffect =
 const cname = (prefix, name, ...className) =>
     cn(prefix, `${prefix}-${String(name).toLowerCase()}`, ...className);
 
-const zoneName = zone =>
+const zoneName = (zone) =>
     typeof zone === 'string' ? zone : op.get(zone, 'zone');
 
 const cx = (meta, extended) => {
@@ -40,14 +43,14 @@ Reactium.Hook.register(
     Reactium.Enums.priority.lowest,
 );
 
-const defaultWrapper = props => <section {...props} />;
+const defaultWrapper = (props) => <section {...props} />;
 
 /**
  * -----------------------------------------------------------------------------
  * Hook Component: Blueprint
  * -----------------------------------------------------------------------------
  */
-const Blueprint = props => {
+const Blueprint = (props) => {
     const {
         active, // The active routing state (might be actually the previous pathname / component)
         params, // route params
@@ -73,14 +76,11 @@ const Blueprint = props => {
 
     const blueprintMeta = op.get(blueprint, 'meta', {});
     const sections = op.get(blueprint, 'sections', {});
-    const zoneMeta = value => op.get(value, 'meta', []);
+    const zoneMeta = (value) => op.get(value, 'meta', []);
     const allZones = () =>
-        _.chain(Object.values(sections))
-            .pluck('zones')
-            .flatten()
-            .value();
+        _.chain(Object.values(sections)).pluck('zones').flatten().value();
 
-    const metaToDataAttributes = meta => {
+    const metaToDataAttributes = (meta) => {
         return Object.keys(meta).reduce((data, key) => {
             const dataKey = `data-${String(key).toLowerCase()}`;
             data[dataKey] = op.get(meta, key);
@@ -123,7 +123,8 @@ const Blueprint = props => {
             className={cx(
                 blueprintMeta,
                 cname('blueprint', op.get(blueprint, 'ID')),
-            )}>
+            )}
+        >
             {Object.entries(sections).map(([name, value]) => {
                 const className = op.get(value, 'meta.className');
                 op.del(value, 'meta.className');
@@ -143,8 +144,9 @@ const Blueprint = props => {
                         className={cname('section', name, className, {
                             loading,
                         })}
-                        {...wrapAttr}>
-                        {zones.map(zone => {
+                        {...wrapAttr}
+                    >
+                        {zones.map((zone) => {
                             const meta = op.get(zone, 'meta', {});
                             zone = zoneName(zone);
                             if (!zone) return null;
@@ -165,7 +167,8 @@ const Blueprint = props => {
                                 <div
                                     key={zone}
                                     className={cname('zone', zone)}
-                                    {...metaToDataAttributes(meta)}>
+                                    {...metaToDataAttributes(meta)}
+                                >
                                     {loading ? (
                                         <ZoneLoading {...zoneProps} />
                                     ) : (

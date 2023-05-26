@@ -5,24 +5,17 @@ import Reactium, {
     __,
     useHookComponent,
     useIsContainer,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const getToast = () => Reactium.State.Tools.Toast;
 
-const ListItem = props => {
+const ListItem = (props) => {
     const refs = useRef({}).current;
-    const {
-        onChange,
-        onDelete,
-        onUnDelete,
-        onKeyUp,
-        placeholder,
-        route,
-    } = props;
+    const { onChange, onDelete, onUnDelete, onKeyUp, placeholder, route } =
+        props;
     const [deleted, setDeleted] = useState(op.get(props, 'delete', false));
-    const { Button, Carousel, Icon, Slide, Toast } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { Button, Carousel, Icon, Slide, Toast } =
+        useHookComponent('ReactiumUI');
 
     const buttonStyle = {
         width: 41,
@@ -89,28 +82,32 @@ const ListItem = props => {
     return (
         <li
             className={cn('input-group', { deleted })}
-            ref={elm => op.set(refs, 'container', elm)}>
+            ref={(elm) => op.set(refs, 'container', elm)}
+        >
             <input
                 type='text'
                 onKeyDown={onKeyUp}
-                onChange={e => onChange(e.target.value, props)}
+                onChange={(e) => onChange(e.target.value, props)}
                 placeholder={placeholder}
-                ref={elm => op.set(refs, 'input', elm)}
+                ref={(elm) => op.set(refs, 'input', elm)}
                 readOnly
                 value={route}
             />
             <div
                 className='edit-toggle'
-                ref={elm => op.set(refs, 'carousel-container', elm)}>
+                ref={(elm) => op.set(refs, 'carousel-container', elm)}
+            >
                 <Carousel
                     active={deleted ? 2 : 0}
-                    ref={elm => op.set(refs, 'carousel', elm)}
-                    animationSpeed={0.25}>
+                    ref={(elm) => op.set(refs, 'carousel', elm)}
+                    animationSpeed={0.25}
+                >
                     <Slide>
                         <Button
                             color={Button.ENUMS.COLOR.TERTIARY}
                             onClick={enable}
-                            style={buttonStyle}>
+                            style={buttonStyle}
+                        >
                             <Icon name='Feather.Edit2' size={18} />
                         </Button>
                     </Slide>
@@ -118,7 +115,8 @@ const ListItem = props => {
                         <Button
                             color={Button.ENUMS.COLOR.DANGER}
                             onClick={remove}
-                            style={buttonStyle}>
+                            style={buttonStyle}
+                        >
                             <Icon name='Feather.X' size={20} />
                         </Button>
                     </Slide>
@@ -126,7 +124,8 @@ const ListItem = props => {
                         <Button
                             color={Button.ENUMS.COLOR.DANGER}
                             onClick={unDelete}
-                            style={buttonStyle}>
+                            style={buttonStyle}
+                        >
                             <Icon name='Feather.RotateCcw' size={20} />
                         </Button>
                     </Slide>

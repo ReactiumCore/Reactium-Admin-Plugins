@@ -1,6 +1,6 @@
 import op from 'object-path';
 import React from 'react';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -21,7 +21,8 @@ export const Editor = ({ className, ...props }) => {
                                 ({ label, value }) => (
                                     <option
                                         value={value}
-                                        key={`status-${value}`}>
+                                        key={`status-${value}`}
+                                    >
                                         {String(label).toLowerCase()}
                                     </option>
                                 ),

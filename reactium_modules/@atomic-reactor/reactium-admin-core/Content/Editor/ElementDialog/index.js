@@ -6,9 +6,9 @@ import React, {
     useImperativeHandle,
     useRef,
 } from 'react';
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
-let ElementDialog = props => {
+let ElementDialog = (props) => {
     const {
         children,
         className,
@@ -31,9 +31,8 @@ let ElementDialog = props => {
     const collapsibleRef = useRef();
     const dialogRef = useRef();
 
-    const { Alert, Button, Collapsible, Dialog, Icon } = useHookComponent(
-        'ReactiumUI',
-    );
+    const { Alert, Button, Collapsible, Dialog, Icon } =
+        useHookComponent('ReactiumUI');
 
     let HelpComponent;
     const helpPrefsKey = String(pref).replace('.dialog.', '.help.');
@@ -58,12 +57,13 @@ let ElementDialog = props => {
                 className='ar-dialog-header-btn'
                 color={Button.ENUMS.COLOR.CLEAR}
                 onClick={toggleHelp}
-                size={Button.ENUMS.SIZE.XS}>
+                size={Button.ENUMS.SIZE.XS}
+            >
                 <Icon name='Feather.HelpCircle' />
             </Button>,
         );
 
-        HelpComponent = useHookComponent(helpText, props => (
+        HelpComponent = useHookComponent(helpText, (props) => (
             <div className={editor.cx('help')}>
                 <Alert
                     {...props}
@@ -101,13 +101,15 @@ let ElementDialog = props => {
             onCollapse={onCollapse}
             onExpand={onExpand}
             {...props}
-            id={String(`ar-dialog-${fieldName}`).toLowerCase()}>
+            id={String(`ar-dialog-${fieldName}`).toLowerCase()}
+        >
             {helpText && (
                 <Collapsible
                     ref={collapsibleRef}
                     expanded={expandedHelp}
                     onCollapse={_onHelpCollapse}
-                    onExpand={_onHelpExpand}>
+                    onExpand={_onHelpExpand}
+                >
                     <HelpComponent>{helpText}</HelpComponent>
                 </Collapsible>
             )}

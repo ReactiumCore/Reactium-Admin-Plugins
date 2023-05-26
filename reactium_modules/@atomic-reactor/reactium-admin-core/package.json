@@ -50,9 +50,6 @@
     "react-toastify": "^5.2.1",
     "react-touch-events": "^2.1.0",
     "react-use-gesture": "^7.0.11",
-    "slate": "^0.57.1",
-    "slate-history": "^0.57.1",
-    "slate-react": "^0.57.1",
     "uuid": "^3.4.0",
     "victory": "^32.3.0"
   }

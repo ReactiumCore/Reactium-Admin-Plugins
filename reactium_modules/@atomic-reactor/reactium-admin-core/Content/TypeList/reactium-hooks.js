@@ -14,7 +14,7 @@ import {
 } from '../ListItem';
 
 import Component from './index';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { useContentTypes } from './useContentTypes';
 import { SearchBar } from '../SearchBar';
 
@@ -26,7 +26,7 @@ import { SearchBar } from '../SearchBar';
 
     Reactium.Component.register('useContentTypes', useContentTypes);
 
-    Reactium.Hook.register('blueprints', async Blueprint => {
+    Reactium.Hook.register('blueprints', async (Blueprint) => {
         const bp = {
             ID: 'ContentTypes',
             description: 'Content types',

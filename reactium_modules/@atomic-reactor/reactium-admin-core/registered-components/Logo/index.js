@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Zone } from 'reactium-core/sdk';
+import { Zone } from '@atomic-reactor/reactium-core/sdk';
 
 const Wrap = ({ href, children }) => {
     return href ? <a href={href}>{children}</a> : children;
@@ -18,7 +18,8 @@ const Logo = ({ width, height, children, className, href, zone, ...props }) => (
                         <path
                             id='b'
                             fill='#4F82BA'
-                            d='M0 70l30-50 10 13L70 0 40 50 30 37 0 70z'></path>
+                            d='M0 70l30-50 10 13L70 0 40 50 30 37 0 70z'
+                        ></path>
                     </g>
                 </mask>
                 <circle
@@ -28,7 +29,8 @@ const Logo = ({ width, height, children, className, href, zone, ...props }) => (
                     strokeWidth='8'
                     cx='35'
                     cy='35'
-                    r='30'></circle>
+                    r='30'
+                ></circle>
                 <use xlinkHref='#b' fill='#4F82BA'></use>
             </svg>
         </Wrap>

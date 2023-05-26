@@ -12,7 +12,7 @@ import Reactium, {
     useHandle,
     useHookComponent,
     useStatus,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 // import { useReduxState } from '@atomic-reactor/use-select';
 
 const noop = () => {};
@@ -72,7 +72,7 @@ const UserMedia = ({ editor }) => {
         if (init !== true) return noop;
 
         const d = op.get(meta, 'media', {});
-        const dataArray = Object.keys(d).map(key => {
+        const dataArray = Object.keys(d).map((key) => {
             const item = { ...d[key] };
             op.set(item, 'objectId', key);
             return item;
@@ -88,23 +88,23 @@ const UserMedia = ({ editor }) => {
         return noop;
     };
 
-    const setData = newData => {
+    const setData = (newData) => {
         if (unMounted()) return;
         if (_.isEqual(data, newData)) return;
         _.defer(() => setNewData(newData));
     };
 
-    const setDirectory = newDirectory => {
+    const setDirectory = (newDirectory) => {
         if (unMounted()) return;
         setNewDirectory(newDirectory);
     };
 
-    const setInit = newInit => {
+    const setInit = (newInit) => {
         if (!spinnerRef.current) return;
         setNewInit(newInit);
     };
 
-    const setType = newType => {
+    const setType = (newType) => {
         if (unMounted()) return;
         setNewType(newType);
     };
@@ -113,29 +113,29 @@ const UserMedia = ({ editor }) => {
         SearchBar.setState({ visible: !isEmpty() });
     };
 
-    const _onError = evt => {
+    const _onError = (evt) => {
         setState({
             error: { message: evt.message },
         });
     };
 
-    const _onFileAdded = e => {
+    const _onFileAdded = (e) => {
         return Reactium.Media.upload(e.added, directory);
     };
 
-    const _onFileRemoved = file => {
+    const _onFileRemoved = (file) => {
         if (dropzoneRef.current) {
             dropzoneRef.current.removeFiles(file);
         }
     };
 
-    const _onMediaChange = e => {
+    const _onMediaChange = (e) => {
         console.log(e);
 
         const library = op.get(redux, 'library');
         const ids = Object.keys(data);
 
-        const add = library.filter(item => {
+        const add = library.filter((item) => {
             const { objectId, user } = item;
             const uid = op.get(user, 'id', op.get(user, 'objectId'));
 
@@ -154,7 +154,7 @@ const UserMedia = ({ editor }) => {
         const newValue = { ...value };
         const newMeta = { ...meta };
 
-        add.forEach(item => {
+        add.forEach((item) => {
             const { objectId } = item;
             op.set(newMeta, ['media', objectId], item);
         });
@@ -163,7 +163,7 @@ const UserMedia = ({ editor }) => {
         setState({ value: newValue });
     };
 
-    const _onMediaDelete = e => {
+    const _onMediaDelete = (e) => {
         if (unMounted()) return;
 
         const { objectId } = e;
@@ -251,9 +251,10 @@ const UserMedia = ({ editor }) => {
                     {...dropzoneProps}
                     className={cx('media')}
                     files={{}}
-                    onError={e => _onError(e)}
-                    onFileAdded={e => _onFileAdded(e)}
-                    ref={dropzoneRef}>
+                    onError={(e) => _onError(e)}
+                    onFileAdded={(e) => _onFileAdded(e)}
+                    ref={dropzoneRef}
+                >
                     <Uploads
                         onRemoveFile={_onFileRemoved}
                         uploads={op.get(redux, 'uploads', {})}

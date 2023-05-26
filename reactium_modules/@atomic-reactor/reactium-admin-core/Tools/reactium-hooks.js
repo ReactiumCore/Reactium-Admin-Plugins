@@ -1,6 +1,6 @@
 import Tools from './index';
 import Hotkeys from './Hotkeys';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Component.register('Tools', Tools);
 Reactium.Plugin.register('AdminTools').then(() => {

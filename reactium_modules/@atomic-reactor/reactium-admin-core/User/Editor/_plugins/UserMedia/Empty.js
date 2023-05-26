@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import React, { useState } from 'react';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Spinner } from 'reactium-ui';
 
 export default ({ className = 'media-empty', value = {} }) => {
@@ -25,7 +25,8 @@ export default ({ className = 'media-empty', value = {} }) => {
                         appearance={Button.ENUMS.APPEARANCE.PILL}
                         size={Button.ENUMS.SIZE.MD}
                         to='/admin/media/1'
-                        type={Button.ENUMS.TYPE.LINK}>
+                        type={Button.ENUMS.TYPE.LINK}
+                    >
                         {__('Get Started')}
                     </Button>
                 )}
@@ -44,7 +45,8 @@ const Svg = ({ color = '#4F82BA', ...props }) => (
                 y1='598.64'
                 x2='819.93'
                 y2='132.32'
-                gradientUnits='userSpaceOnUse'>
+                gradientUnits='userSpaceOnUse'
+            >
                 <stop offset='0' stopColor='gray' stopOpacity='0.25' />
                 <stop offset='0.54' stopColor='gray' stopOpacity='0.12' />
                 <stop offset='1' stopColor='gray' stopOpacity='0.1' />

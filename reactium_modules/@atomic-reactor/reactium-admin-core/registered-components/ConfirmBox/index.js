@@ -47,7 +47,8 @@ const ConfirmBox = ({
                         size='sm'
                         type='button'
                         color={clr}
-                        onClick={onClick}>
+                        onClick={onClick}
+                    >
                         {btn.label}
                     </Button>
                 );
@@ -63,7 +64,8 @@ const ConfirmBox = ({
                 {...props}
                 onDismiss={() => _onCancel()}
                 dismissable={true}
-                collapsible={false}>
+                collapsible={false}
+            >
                 <div className='admin-confirm-box-message'>{message}</div>
                 <div className='admin-confirm-box-buttons'>
                     <Buttons />
@@ -111,7 +113,7 @@ export default ConfirmBox;
  * @apiParam {Object} [style] React style object applied to the ConfirmBox wrapper div.
  * @apiParam {String} [title='Confirm'] The titlebar content.
  * @apiExample useHookComponent() hook import
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const MyComponent = () => {
     const ConfirmBox = useHookComponent('ConfirmBox');
@@ -191,6 +193,6 @@ delete buttons.no;
 
  @apiExample Dependencies
 import op from 'object-path';
-import { useHandle } from 'reactium-core/sdk';
+import { useHandle } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Dialog } from 'reactium-ui';
  */

@@ -1,4 +1,4 @@
-import Reactium, { useHookComponent } from 'reactium-core/sdk';
+import Reactium, { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const Component = () => {
     const Logo = useHookComponent('Logo');

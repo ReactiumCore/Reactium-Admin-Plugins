@@ -1,6 +1,9 @@
 import React from 'react';
 import op from 'object-path';
-import Reactium, { useHookComponent, __ } from 'reactium-core/sdk';
+import Reactium, {
+    useHookComponent,
+    __,
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -31,8 +34,8 @@ const AppSettings = ({
     };
 
     Reactium.Setting.UI.list
-        .filter(item => item.group === settings.group)
-        .forEach(item => {
+        .filter((item) => item.group === settings.group)
+        .forEach((item) => {
             op.set(settings, ['inputs', item.id], { ...item.input });
         });
 

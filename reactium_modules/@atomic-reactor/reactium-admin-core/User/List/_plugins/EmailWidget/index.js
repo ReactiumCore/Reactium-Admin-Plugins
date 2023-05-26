@@ -2,7 +2,7 @@ import React from 'react';
 import op from 'object-path';
 import copy from 'copy-to-clipboard';
 import { Button, Icon } from 'reactium-ui';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 
 const EmailWidget = ({ user }) => {
     const { email } = user;
@@ -28,7 +28,8 @@ const EmailWidget = ({ user }) => {
             block
             color={Button.ENUMS.COLOR.CLEAR}
             onClick={onClick}
-            style={buttonProps}>
+            style={buttonProps}
+        >
             <Icon name='Linear.EnvelopeOpen' size={16} />
         </Button>
     );

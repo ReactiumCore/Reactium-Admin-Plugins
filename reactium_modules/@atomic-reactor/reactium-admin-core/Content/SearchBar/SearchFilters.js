@@ -12,9 +12,9 @@ import Reactium, {
     useRouting,
     useSyncState,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
-export const SearchFilters = props => {
+export const SearchFilters = (props) => {
     const { cx } = props;
 
     const refs = useRefs();
@@ -35,7 +35,7 @@ export const SearchFilters = props => {
 
     const collapse = useCallback(() => state.set('visible', false), []);
 
-    const dismiss = useCallback(e => {
+    const dismiss = useCallback((e) => {
         const container = refs.get('container');
 
         if (!visible()) return;
@@ -47,11 +47,12 @@ export const SearchFilters = props => {
     const expand = useCallback(() => state.set('visible', true), []);
 
     const toggleFilter = useCallback(
-        ({ field, value }) => e => {
-            collapse();
-            const type = state.get('type');
-            Reactium.Content.toggleFilter({ field, type, value });
-        },
+        ({ field, value }) =>
+            (e) => {
+                collapse();
+                const type = state.get('type');
+                Reactium.Content.toggleFilter({ field, type, value });
+            },
         [state.get('type')],
     );
 
@@ -96,19 +97,24 @@ export const SearchFilters = props => {
     state.extend('visible', visible);
 
     return (
-        <div className={cx('filters')} ref={elm => refs.set('container', elm)}>
+        <div
+            className={cx('filters')}
+            ref={(elm) => refs.set('container', elm)}
+        >
             <Filters {...state.get()} />
             <div
                 className={cn(cx('filters-menu'), {
                     visible: visible(),
-                })}>
+                })}
+            >
                 <Zone zone={cx('filter-menu')} state={state} />
             </div>
             <Button
                 onClick={toggleMenu}
                 className='go ml-xs-4'
                 size={Button.ENUMS.SIZE.XS}
-                color={Button.ENUMS.COLOR.CLEAR}>
+                color={Button.ENUMS.COLOR.CLEAR}
+            >
                 <Icon name='Linear.Funnel' size={14} />
             </Button>
         </div>
@@ -127,7 +133,7 @@ export const SearchFilterOptions = ({ state }) => {
     }, [state.get('type')]);
 
     const color = useCallback(
-        k => op.get(Reactium.Content.COLOR, k, Reactium.Content.COLOR.DRAFT),
+        (k) => op.get(Reactium.Content.COLOR, k, Reactium.Content.COLOR.DRAFT),
         [],
     );
 
@@ -155,7 +161,8 @@ export const SearchFilterOptions = ({ state }) => {
                     onClick={toggleFilter({
                         field: 'user',
                         value: Reactium.User.current().objectId,
-                    })}>
+                    })}
+                >
                     <Icon size={11} name='Linear.User' />
                     {__('My %types')
                         .replace(/%types/gi, pluralize(state.get('type')))
@@ -172,7 +179,8 @@ export const SearchFilterOptions = ({ state }) => {
                             <button
                                 key={`${field}-${i}`}
                                 className={cx('filters-menu-item')}
-                                onClick={toggleFilter({ field, value })}>
+                                onClick={toggleFilter({ field, value })}
+                            >
                                 {field === 'status' && (
                                     <span className={cn('ico', clr)} />
                                 )}
@@ -195,7 +203,9 @@ const Filters = ({ route, type }) => {
                 ([field, values]) => {
                     if (!values) return;
                     if (!_.isArray(values)) return;
-                    values.forEach(value => components.push({ field, value }));
+                    values.forEach((value) =>
+                        components.push({ field, value }),
+                    );
                 },
             );
         }
@@ -229,7 +239,8 @@ const Filters = ({ route, type }) => {
                     className='filter'
                     key={`${field}-${i}`}
                     size={Button.ENUMS.SIZE.XS}
-                    onClick={onClick(field, value)}>
+                    onClick={onClick(field, value)}
+                >
                     {label}
                     <Icon name='Feather.X' size={14} />
                 </Button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import IconImg from './IconImg';
 import { Button } from 'reactium-ui';
-import { __ } from 'reactium-core/sdk';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -16,7 +16,8 @@ const Empty = () => (
             className='hide-xs show-md'
             size={Button.ENUMS.SIZE.LG}
             type={Button.ENUMS.TYPE.LINK}
-            to='/admin/type/new'>
+            to='/admin/type/new'
+        >
             {__('New Content Type')}
         </Button>
         <Button
@@ -24,7 +25,8 @@ const Empty = () => (
             className='hide-md'
             size={Button.ENUMS.SIZE.MD}
             type={Button.ENUMS.TYPE.LINK}
-            to='/admin/type/new'>
+            to='/admin/type/new'
+        >
             {__('New Content Type')}
         </Button>
     </div>

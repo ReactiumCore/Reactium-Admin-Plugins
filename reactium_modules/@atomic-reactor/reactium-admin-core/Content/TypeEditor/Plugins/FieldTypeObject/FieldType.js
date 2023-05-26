@@ -8,15 +8,15 @@ import Reactium, {
     __,
     useDerivedState,
     useHookComponent,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
-const options = opt =>
+const options = (opt) =>
     Object.entries(opt).map(([key, value]) => ({
         key,
         value,
     }));
 
-const types = arr => {
+const types = (arr) => {
     Reactium.Hook.runSync('cte-object-types', arr);
     arr.sort();
     return arr;
@@ -27,7 +27,7 @@ const types = arr => {
  * Functional Component: FieldType
  * -----------------------------------------------------------------------------
  */
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { id } = props;
 
     const refs = useRef({});
@@ -70,7 +70,7 @@ export const FieldType = props => {
         if (fieldId === id) op.set(fieldValue, 'options', state.options);
     };
 
-    const onChange = e => {
+    const onChange = (e) => {
         const { options = {} } = state;
         const { value } = e.currentTarget;
         const { field, key } = e.currentTarget.dataset;
@@ -78,7 +78,7 @@ export const FieldType = props => {
         setState({ options });
     };
 
-    const onDelete = key => {
+    const onDelete = (key) => {
         let { options = {} } = state;
         op.del(options, key);
 
@@ -89,7 +89,7 @@ export const FieldType = props => {
         setState({ options });
     };
 
-    const onDragEnd = e => {
+    const onDragEnd = (e) => {
         const { options } = state;
 
         const index = {
@@ -114,7 +114,7 @@ export const FieldType = props => {
         setState({ options: newOptions });
     };
 
-    const onEnterPress = e => {
+    const onEnterPress = (e) => {
         if (e.which === 13) {
             e.preventDefault();
             onAddClick();
@@ -135,7 +135,7 @@ export const FieldType = props => {
         ];
 
         return () => {
-            hooks.forEach(hookId => Reactium.Hook.unregister(hookId));
+            hooks.forEach((hookId) => Reactium.Hook.unregister(hookId));
         };
     };
 
@@ -145,7 +145,7 @@ export const FieldType = props => {
         <FieldTypeDialog {...props} showHelpText={false}>
             <div className={cx()}>
                 <div className='input-group'>
-                    <select ref={elm => op.set(refs.current, 'type', elm)}>
+                    <select ref={(elm) => op.set(refs.current, 'type', elm)}>
                         <option value='null'>{__('Type')}</option>
                         {state.types.map((type, i) => (
                             <option key={`type-${i}`}>{type}</option>
@@ -153,19 +153,19 @@ export const FieldType = props => {
                     </select>
                     <input
                         type='text'
-                        ref={elm => op.set(refs.current, 'key', elm)}
+                        ref={(elm) => op.set(refs.current, 'key', elm)}
                         placeholder={__('Key')}
                         onKeyDown={onEnterPress}
                     />
                     <input
                         type='text'
-                        ref={elm => op.set(refs.current, 'placeholder', elm)}
+                        ref={(elm) => op.set(refs.current, 'placeholder', elm)}
                         placeholder={__('Placeholder')}
                         onKeyDown={onEnterPress}
                     />
                     <input
                         type='text'
-                        ref={elm => op.set(refs.current, 'value', elm)}
+                        ref={(elm) => op.set(refs.current, 'value', elm)}
                         placeholder={__('Default value')}
                         onKeyDown={onEnterPress}
                     />
@@ -173,7 +173,8 @@ export const FieldType = props => {
                         color={Button.ENUMS.COLOR.TERTIARY}
                         onClick={onAddClick}
                         className='add-btn'
-                        style={{ padding: 0, height: 41, flexShrink: 0 }}>
+                        style={{ padding: 0, height: 41, flexShrink: 0 }}
+                    >
                         <Icon
                             name='Feather.Plus'
                             size={22}
@@ -184,11 +185,12 @@ export const FieldType = props => {
                 </div>
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId={cx('droppable')}>
-                        {provided => (
+                        {(provided) => (
                             <ul
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
-                                className={cx('list')}>
+                                className={cx('list')}
+                            >
                                 {options(state.options).map(
                                     ({ key, value }, i) => (
                                         <ListItem
@@ -212,7 +214,7 @@ export const FieldType = props => {
     );
 };
 
-const ListItem = props => {
+const ListItem = (props) => {
     const { onChange, onDelete, index, k: key, types, value } = props;
     const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
@@ -224,13 +226,15 @@ const ListItem = props => {
                     ref={provided.innerRef}
                     className={cn('list-item', {
                         dragging: snapshot.isDragging,
-                    })}>
+                    })}
+                >
                     <div className='input-group'>
                         <select
                             data-key={key}
                             data-field='type'
                             onChange={onChange}
-                            value={op.get(value, 'type', 'null')}>
+                            value={op.get(value, 'type', 'null')}
+                        >
                             <option value='null'>{__('Type')}</option>
                             {types.map((type, i) => (
                                 <option key={`type-${i}`}>{type}</option>
@@ -266,7 +270,8 @@ const ListItem = props => {
                             className='del-btn'
                             color={Button.ENUMS.COLOR.DANGER}
                             onClick={() => onDelete(key)}
-                            style={{ padding: 0, height: 41 }}>
+                            style={{ padding: 0, height: 41 }}
+                        >
                             <Icon
                                 className='hide-xs show-md'
                                 name='Feather.X'

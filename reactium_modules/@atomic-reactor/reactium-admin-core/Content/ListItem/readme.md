@@ -16,7 +16,7 @@ You can dispatch the `list-filter` event from your component:
 // MyStatusComponent.js
 
 import React from 'react';
-import Reactium, { useDispatcher, useStateEffect } from 'reactium-core/sdk';
+import Reactium, { useDispatcher, useStateEffect } from '@atomic-reactor/reactium-core/sdk';
 
 export const MyStatusComponent = () => {
     const dispatch = useDispatcher();

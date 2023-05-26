@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import Reactium, { Zone } from 'reactium-core/sdk';
+import Reactium, { Zone } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Collapsible, Icon } from 'reactium-ui';
 
 const ListWidgets = ({ user, list }) => {
@@ -18,7 +18,8 @@ const ListWidgets = ({ user, list }) => {
                 block
                 color={Button.ENUMS.COLOR.CLEAR}
                 onClick={toggle}
-                style={buttonProps}>
+                style={buttonProps}
+            >
                 <Icon name='Feather.MoreVertical' size={16} />
             </Button>
             <Collapsible ref={ref} expanded={false}>

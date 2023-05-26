@@ -1,6 +1,9 @@
 import { Editor } from './Editor';
 import { FieldType } from './FieldType';
-import Reactium, { __, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ID = 'Boolean';
 

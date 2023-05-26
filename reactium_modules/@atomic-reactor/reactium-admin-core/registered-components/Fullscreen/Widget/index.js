@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { Button, Icon } from 'reactium-ui';
 import React, { useState, useEffect, forwardRef } from 'react';
 
@@ -28,11 +28,12 @@ let Widget = ({ children, className, icon, namespace, ...props }, ref) => {
             ref={ref}
             className={cname}
             {...props}
-            onClick={e => {
+            onClick={(e) => {
                 e.currentTarget.blur();
                 toggle();
             }}
-            type='button'>
+            type='button'
+        >
             {children && <>{children}</>}
             {!children && (
                 <Icon name={expanded ? icon.collapse : icon.expand} />

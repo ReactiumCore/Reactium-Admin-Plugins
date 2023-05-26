@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import op from 'object-path';
 import { Icon } from 'reactium-ui';
-import Reactium, { useHandle } from 'reactium-core/sdk';
+import Reactium, { useHandle } from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -34,7 +34,8 @@ const Toggle = () => {
             <button
                 className={cn(Sidebar.cx('toggle'), { expanded })}
                 onClick={() => Sidebar.toggle()}
-                type='button'>
+                type='button'
+            >
                 <div className='button'>
                     {expanded && (
                         <Icon

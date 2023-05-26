@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import uuid from 'uuid/v4';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import React, { useEffect, useState } from 'react';
 import useRouteParams from 'reactium_modules/@atomic-reactor/reactium-admin-core/Tools/useRouteParams';
 import { Pagination as PaginationUI } from 'reactium-ui';
@@ -24,7 +24,7 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
     const { state = {} } = list;
     const { page, pages } = state;
 
-    const nav = p => list.setState({ page: p });
+    const nav = (p) => list.setState({ page: p });
 
     const onChange = (e, p) => nav(p);
 
@@ -66,7 +66,7 @@ const PaginationComponent = ({ list, path, zone: zones, ...props }) => {
     return render();
 };
 
-const Pagination = props => {
+const Pagination = (props) => {
     const list = op.get(props, 'list');
     const { path } = useRouteParams(['path']);
     const isVisible = () =>

@@ -2,7 +2,7 @@ import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 import { Checkbox, Dialog } from 'reactium-ui';
 
 /**
@@ -10,7 +10,7 @@ import { Checkbox, Dialog } from 'reactium-ui';
  * Functional Component: FieldTypeText
  * -----------------------------------------------------------------------------
  */
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { DragHandle } = props;
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
 
@@ -93,7 +93,7 @@ export const FieldType = props => {
     );
 };
 
-export const Editor = props => {
+export const Editor = (props) => {
     let {
         defaultValue,
         editor,
@@ -169,7 +169,7 @@ export const Editor = props => {
         return context;
     };
 
-    const onSave = e => {
+    const onSave = (e) => {
         let val = e.value[fieldName];
 
         val = _.isString(val) ? val : String(val).trim();
@@ -215,7 +215,7 @@ export const QuickEditor = () => {
     return 'Text QuickEditor';
 };
 
-export const Comparison = props => {
+export const Comparison = (props) => {
     const field = op.get(props, 'field', {});
     const value = op.get(props, 'value');
     const { fieldName: title } = field;

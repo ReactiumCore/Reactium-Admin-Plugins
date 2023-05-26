@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import op from 'object-path';
 import { useState, useEffect } from 'react';
-import Reactium, { useAsyncEffect } from 'reactium-core/sdk';
+import Reactium, { useAsyncEffect } from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * @api {ReactHook} useAvatar(user) useAvatar()
@@ -23,7 +23,7 @@ const useAvatar = (initialUser = {}) => {
         return newAvatar === null ? defaultAvatar : newAvatar;
     };
 
-    useAsyncEffect(async mounted => {
+    useAsyncEffect(async (mounted) => {
         const context = await Reactium.Hook.run('profile-avatar', avatar, user);
 
         if (!mounted()) return;

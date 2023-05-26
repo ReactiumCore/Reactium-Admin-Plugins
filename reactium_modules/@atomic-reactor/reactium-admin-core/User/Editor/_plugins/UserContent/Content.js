@@ -11,7 +11,7 @@ import Reactium, {
     useAsyncEffect,
     useEventHandle,
     useWindowSize,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 import {
     Button,
@@ -62,7 +62,7 @@ const Content = ({ editor, data }) => {
 
     const getTypes = () => Reactium.ContentType.types();
 
-    const isExpanded = group => {
+    const isExpanded = (group) => {
         if (op.get(expanded, group)) {
             return op.get(expanded, group);
         } else {
@@ -70,7 +70,7 @@ const Content = ({ editor, data }) => {
         }
     };
 
-    const getCount = contentType => {
+    const getCount = (contentType) => {
         if (contentType) {
             return Object.values(op.get(data, [contentType], {})).length;
         }
@@ -96,7 +96,7 @@ const Content = ({ editor, data }) => {
         setExpanded({ [group]: true });
     };
 
-    const setExpanded = newExpanded => {
+    const setExpanded = (newExpanded) => {
         const exp = JSON.parse(JSON.stringify(expanded));
         Object.entries(newExpanded).forEach(([key, value]) =>
             op.set(exp, key, value),
@@ -106,7 +106,7 @@ const Content = ({ editor, data }) => {
     };
 
     const stats = () => {
-        let list = Object.values(types).map(type => {
+        let list = Object.values(types).map((type) => {
             type = JSON.parse(JSON.stringify(type));
             op.set(type, 'count', getCount(type.objectId));
             return type;
@@ -159,13 +159,13 @@ const Content = ({ editor, data }) => {
         if (!_.isEqual(newHandle, handle)) setHandle(newHandle);
     }, [carouselRef.current]);
 
-    useAsyncEffect(async mounted => {
+    useAsyncEffect(async (mounted) => {
         if (!types) {
             const response = await getTypes();
             if (mounted()) {
                 setTypes(
                     _.chain(
-                        response.map(item => {
+                        response.map((item) => {
                             const { icon, label } = op.get(item, 'meta');
 
                             if (!icon || !label) return null;
@@ -218,14 +218,16 @@ const Content = ({ editor, data }) => {
                         className='nav nav-left'
                         color={Button.ENUMS.COLOR.CLEAR}
                         onClick={() => carouselRef.current.prev()}
-                        size={Button.ENUMS.SIZE.MD}>
+                        size={Button.ENUMS.SIZE.MD}
+                    >
                         <Icon name='Feather.ChevronLeft' />
                     </Button>
                     <Button
                         className='nav nav-right'
                         color={Button.ENUMS.COLOR.CLEAR}
                         onClick={() => carouselRef.current.next()}
-                        size={Button.ENUMS.SIZE.MD}>
+                        size={Button.ENUMS.SIZE.MD}
+                    >
                         <Icon name='Feather.ChevronRight' />
                     </Button>
                 </div>
@@ -248,13 +250,14 @@ const Content = ({ editor, data }) => {
                                 />
                                 <Collapsible
                                     expanded={isExpanded(group)}
-                                    onCollapse={e => onCollapse(e, group)}
-                                    onExpand={e => onExpand(e, group)}
-                                    ref={elm => {
+                                    onCollapse={(e) => onCollapse(e, group)}
+                                    onExpand={(e) => onExpand(e, group)}
+                                    ref={(elm) => {
                                         if (elm)
                                             op.set(refs.current, group, elm);
-                                    }}>
-                                    {items.map(item => (
+                                    }}
+                                >
+                                    {items.map((item) => (
                                         <ListItem
                                             {...item}
                                             key={`ugc-${item.typeID}-${item.contentID}`}
@@ -275,11 +278,12 @@ const Content = ({ editor, data }) => {
 
 const ListHeading = ({ editor, type, ...props }) => (
     <button
-        onClick={e => props.toggleGroup(e, type.group)}
+        onClick={(e) => props.toggleGroup(e, type.group)}
         className={cn({
             [editor.cx('content-list-heading')]: true,
             collapsed: !props.isExpanded(type.group),
-        })}>
+        })}
+    >
         <div className='icon'>
             <Icon className='mr-xs-8' name={type.icon} size={22} />
         </div>
@@ -296,10 +300,10 @@ const ListHeading = ({ editor, type, ...props }) => (
     </button>
 );
 
-const ListItem = props => {
+const ListItem = (props) => {
     const cx = Reactium.Utils.cxFactory('admin-content-list');
 
-    const columnClassName = field =>
+    const columnClassName = (field) =>
         cn(
             cx('column'),
             cx(`column-${field}`),
@@ -328,7 +332,8 @@ const ListItem = props => {
                                 outline
                                 readOnly={true}
                                 size={Button.ENUMS.SIZE.XS}
-                                type={Button.ENUMS.TYPE.BUTTON}>
+                                type={Button.ENUMS.TYPE.BUTTON}
+                            >
                                 {props.status}
                             </Button>
                         </div>
@@ -336,7 +341,8 @@ const ListItem = props => {
                             <Button
                                 to={props.url}
                                 color={Button.ENUMS.COLOR.CLEAR}
-                                type={Button.ENUMS.TYPE.LINK}>
+                                type={Button.ENUMS.TYPE.LINK}
+                            >
                                 <Icon name='Feather.Edit2' />
                             </Button>
                         </div>

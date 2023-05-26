@@ -6,7 +6,7 @@
 
 import _ from 'underscore';
 import { Editor } from './index';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 (async () => {
     await Reactium.Plugin.register('FieldTypePublish');
@@ -15,7 +15,7 @@ import Reactium from 'reactium-core/sdk';
 
     Reactium.Hook.registerSync(
         'content-editor-elements',
-        fields => {
+        (fields) => {
             const isField = !!_.findWhere(fields, { fieldId: 'publish' });
             if (isField) return;
 

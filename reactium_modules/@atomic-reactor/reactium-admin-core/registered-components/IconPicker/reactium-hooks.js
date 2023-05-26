@@ -1,7 +1,7 @@
 import Component from '.';
 import domain from './domain';
 import IconSelect from './IconSelect';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { Icon } from 'reactium-ui';
 
 Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
@@ -54,7 +54,7 @@ Reactium.Plugin.register(domain.name, Reactium.Enums.priority.highest).then(
  * @apiParam (Event) {PickerEvent} touchstart dispatched when an icon is touched (mobile only).
  * @apiParam (Event) {PickerEvent} unselect dispatched when an icon is unselected. Only applicable when `multiselect=true`.
  * @apiExample useHookComponent() hook import
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const MyComponent = () => {
     const IconPicker = useHookComponent('IconPicker');

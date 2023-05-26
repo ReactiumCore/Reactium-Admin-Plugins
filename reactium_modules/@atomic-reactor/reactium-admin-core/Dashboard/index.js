@@ -4,7 +4,11 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import domain from './domain';
 
-import Reactium, { __, Zone, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    Zone,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 // import { useReduxState } from '@atomic-reactor/use-select';
 
@@ -21,7 +25,7 @@ const ENUMS = {
  * Hook Component: Dashboard
  * -----------------------------------------------------------------------------
  */
-let Dashboard = props => {
+let Dashboard = (props) => {
     const { title, namespace } = props;
     const Helmet = useHookComponent('Helmet');
     const cx = Reactium.Utils.cxFactory(namespace);

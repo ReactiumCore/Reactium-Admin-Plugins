@@ -2,7 +2,7 @@ import op from 'object-path';
 import UserList from './List';
 import UserEditor from './Editor';
 import Breadcrumbs from './Breadcrumbs';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import HeaderWidget from './HeaderWidget';
 import SidebarWidget from './SidebarWidget';
 
@@ -163,7 +163,7 @@ Reactium.Plugin.register(
 
     Reactium.Hook.register(
         'user.auth',
-        async u => {
+        async (u) => {
             const prefs = op.get(u, 'pref', {}) || {};
             localStorage.setItem('ar-prefs', JSON.stringify(prefs));
         },

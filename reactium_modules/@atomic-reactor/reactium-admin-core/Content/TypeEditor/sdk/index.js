@@ -1,4 +1,4 @@
-import Reactium, { Registry } from 'reactium-core/sdk';
+import Reactium, { Registry } from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -23,7 +23,7 @@ ContentType.types = async (params = {}, debug) => {
 
     if (request) return request;
 
-    request = Reactium.Cloud.run('types', params).then(response =>
+    request = Reactium.Cloud.run('types', params).then((response) =>
         op.get(response, 'types', []),
     );
 
@@ -82,7 +82,7 @@ ContentType.save = async (id, type = {}) => {
  * @apiName ContentType.retrieve
  * @apiGroup Reactium.ContentType
  */
-ContentType.retrieve = async options => {
+ContentType.retrieve = async (options) => {
     let requestOptions = {};
 
     if (typeof options === 'string') requestOptions.uuid = options;
@@ -125,7 +125,7 @@ ContentType.retrieve = async options => {
  * @apiName ContentType.delete
  * @apiGroup Reactium.ContentType
  */
-ContentType.delete = async options => {
+ContentType.delete = async (options) => {
     let requestOptions = {};
 
     if (typeof options === 'string') requestOptions.uuid = options;

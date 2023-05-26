@@ -11,11 +11,11 @@ import Reactium, {
     useAsyncEffect,
     useHookComponent,
     useStatus,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const getToast = () => Reactium.State.Tools.Toast;
 
-export default props => {
+export default (props) => {
     // prettier-ignore
     const { Alert, Button, Dropdown, Icon, Spinner, Toast } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
@@ -55,12 +55,12 @@ export default props => {
         setNewErrorText(_.compact(Array.from(newErrorText)).join(' '));
     };
 
-    const setURLS = newURLS => {
+    const setURLS = (newURLS) => {
         if (editor.unMounted()) return;
         setNewURLS(newURLS);
     };
 
-    const isRoute = route => {
+    const isRoute = (route) => {
         const routes = Reactium.Routing.get();
 
         return (
@@ -100,7 +100,7 @@ export default props => {
         }));
     };
 
-    const addURL = route => {
+    const addURL = (route) => {
         route = route || refs.add.value;
 
         if (!route) return;
@@ -207,27 +207,27 @@ export default props => {
         return results;
     };
 
-    const normalizeURL = url => {
+    const normalizeURL = (url) => {
         if (String(url).length < 1) return url;
 
         url = url.split(' ').join('-');
         url = String(url)
             .toLowerCase()
             .split('/')
-            .map(str => slugify(str))
+            .map((str) => slugify(str))
             .join('/');
 
         return String(url).substr(0, 1) === '/' ? url : `/${url}`;
     };
 
-    const onEnter = e => {
+    const onEnter = (e) => {
         if (e.which === 13) {
             e.preventDefault();
             addURL();
         }
     };
 
-    const onKeyUp = e => {
+    const onKeyUp = (e) => {
         let url = normalizeURL(e.target.value);
         e.target.value = url;
     };
@@ -257,7 +257,7 @@ export default props => {
 
     const validate = ({ context }) => {
         let urls = Object.values(URLS).filter(
-            url => op.get(url, 'delete') !== true,
+            (url) => op.get(url, 'delete') !== true,
         );
 
         if (urls.length > 0 || !required) return context;
@@ -357,7 +357,8 @@ export default props => {
                 {errorText && (
                     <Alert
                         color={Alert.ENUMS.COLOR.DANGER}
-                        icon={<Icon name='Feather.AlertOctagon' />}>
+                        icon={<Icon name='Feather.AlertOctagon' />}
+                    >
                         {errorText}
                     </Alert>
                 )}
@@ -371,11 +372,13 @@ export default props => {
                                     data={taxonomy()}
                                     onItemSelect={({ item }) =>
                                         setTax(item.value)
-                                    }>
+                                    }
+                                >
                                     <button
                                         type='button'
                                         data-dropdown-element
-                                        className='dropdown-btn'>
+                                        className='dropdown-btn'
+                                    >
                                         {`/${tax}`}
                                     </button>
                                 </Dropdown>
@@ -385,7 +388,7 @@ export default props => {
                                 onKeyUp={onKeyUp}
                                 onKeyDown={onEnter}
                                 placeholder={placeholder}
-                                ref={elm => op.set(refs, 'add', elm)}
+                                ref={(elm) => op.set(refs, 'add', elm)}
                             />
                             <Button
                                 className='add-btn'
@@ -396,12 +399,13 @@ export default props => {
                                     height: 41,
                                     padding: 0,
                                     flexShrink: 0,
-                                }}>
+                                }}
+                            >
                                 <Icon name='Feather.Plus' size={22} />
                             </Button>
                         </div>
                         <ul className={cx('list')}>
-                            {Object.values(URLS).map(url => (
+                            {Object.values(URLS).map((url) => (
                                 <ListItem
                                     {...url}
                                     status={status}

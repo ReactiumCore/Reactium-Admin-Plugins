@@ -3,7 +3,7 @@ import Reactium, {
     useStateEffect,
     useSyncState,
     useRefs,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 import _ from 'underscore';
 import { Modal, Toast, Tooltip } from 'reactium-ui';
@@ -42,7 +42,7 @@ const Tools = () => {
 
     useStateEffect(
         {
-            set: e => {
+            set: (e) => {
                 const p = _.isString(e.path)
                     ? e.path
                     : _.isObject(e.value)
@@ -75,8 +75,8 @@ const Tools = () => {
 
     return (
         <>
-            <Modal ref={elm => refs.set('Modal', elm)} />
-            <Tooltip ref={elm => refs.set('Tooltip', elm)} />
+            <Modal ref={(elm) => refs.set('Modal', elm)} />
+            <Tooltip ref={(elm) => refs.set('Tooltip', elm)} />
             <Toast />
         </>
     );

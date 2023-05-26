@@ -1,9 +1,13 @@
 import _ from 'underscore';
 import op from 'object-path';
-import Reactium, { useAsyncEffect, useHandle, __ } from 'reactium-core/sdk';
+import Reactium, {
+    useAsyncEffect,
+    useHandle,
+    __,
+} from '@atomic-reactor/reactium-core/sdk';
 import { useRef, useState, useEffect } from 'react';
 
-const getRole = user => {
+const getRole = (user) => {
     const roles = Object.entries(op.get(user, 'roles', {})).map(
         ([role, level]) => ({
             role,
@@ -11,10 +15,7 @@ const getRole = user => {
         }),
     );
 
-    const role = _.chain(roles)
-        .sortBy('level')
-        .value()
-        .pop();
+    const role = _.chain(roles).sortBy('level').value().pop();
 
     return op.get(role, 'role', 'anonymous');
 };
@@ -37,7 +38,7 @@ const useProfileAvatar = (initialUser = {}) => {
     // Reactium.User.current() ||
 
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             if (avatar !== getAvatar()) {
                 const context = await Reactium.Hook.run(
                     'profile-avatar',
@@ -69,7 +70,7 @@ const useProfileAvatar = (initialUser = {}) => {
  * @apiGroup ReactHook
  * @apiParam {Object} [user=Reactium.User.current] The user object.
  */
-const useProfileGreeting = user => {
+const useProfileGreeting = (user) => {
     user = user || Reactium.User.current() || {};
     const defaultGreeting = __('Hello %name%');
     const ref = useRef('');
@@ -78,7 +79,7 @@ const useProfileGreeting = user => {
 
     const Profile = useHandle('ProfileEditor');
 
-    const setState = greeting => {
+    const setState = (greeting) => {
         if (greeting !== ref.current) {
             ref.current = greeting;
             updateRef(ref.current);
@@ -86,7 +87,7 @@ const useProfileGreeting = user => {
     };
 
     useAsyncEffect(
-        async isMounted => {
+        async (isMounted) => {
             const name = op.get(user, 'fname') || op.get(user, 'username', '');
             let greeting = defaultGreeting;
             try {
@@ -115,12 +116,12 @@ const useProfileGreeting = user => {
  * @apiGroup ReactHook
  * @apiParam {Object} [user=Reactium.User.current] The user object.
  */
-const useProfileRole = initialUser => {
+const useProfileRole = (initialUser) => {
     const [role, setRole] = useState();
     const [user, setUser] = useState(initialUser);
 
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             if (role) {
                 const context = await Reactium.Hook.run(
                     'profile-role-name',

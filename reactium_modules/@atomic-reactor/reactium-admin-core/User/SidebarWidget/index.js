@@ -1,6 +1,6 @@
 import React from 'react';
 import op from 'object-path';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const isActive = (match = {}) =>
     String(op.get(match, 'url', '/'))

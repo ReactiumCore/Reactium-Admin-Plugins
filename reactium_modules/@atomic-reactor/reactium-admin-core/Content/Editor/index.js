@@ -21,7 +21,7 @@ import Reactium, {
     useHookComponent,
     useRefs,
     useSyncState,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const min = 0;
 const iw = 400;
@@ -39,7 +39,8 @@ export const NewContentButton = () => {
                 color='primary'
                 appearance='pill'
                 className='mr-xs-24'
-                onClick={() => Reactium.Content.newObject(type)}>
+                onClick={() => Reactium.Content.newObject(type)}
+            >
                 <Icon name='Feather.Plus' size={18} />
                 <span className='hide-xs show-md ml-xs-12'>
                     {__('New %type').replace(/%type/gi, type)}
@@ -132,7 +133,7 @@ export const ContentEditor = ({ className, namespace }) => {
     }, [isReady]);
 
     const retrieve = useCallback(
-        async mounted => {
+        async (mounted) => {
             if (isReady) return;
 
             const type = op.get(params, 'type');
@@ -176,7 +177,7 @@ export const ContentEditor = ({ className, namespace }) => {
         [isReady],
     );
 
-    const onChange = e => {
+    const onChange = (e) => {
         if (!isReady) return;
         // console.log(e.target.value);
     };
@@ -200,7 +201,7 @@ export const ContentEditor = ({ className, namespace }) => {
     }, [types, params]);
 
     const onReady = useCallback(
-        async mounted => {
+        async (mounted) => {
             if (isReady) return;
 
             const type = op.get(params, 'type');
@@ -222,7 +223,7 @@ export const ContentEditor = ({ className, namespace }) => {
     );
 
     const onSubmit = useCallback(
-        async e => {
+        async (e) => {
             if (!isReady) return;
 
             let { meta, slug, status, user, uuid, title, ...data } = _.clone(
@@ -238,7 +239,7 @@ export const ContentEditor = ({ className, namespace }) => {
                 'type',
                 'user',
             ];
-            cleanseData.forEach(field => op.del(data, field));
+            cleanseData.forEach((field) => op.del(data, field));
 
             const type = state.get('params.type');
             user = op.get(user, 'objectId');
@@ -264,7 +265,7 @@ export const ContentEditor = ({ className, namespace }) => {
         [isReady],
     );
 
-    const onComplete = useCallback(async e => {
+    const onComplete = useCallback(async (e) => {
         const object = e.results;
 
         console.log(object.get('uuid'));
@@ -292,11 +293,11 @@ export const ContentEditor = ({ className, namespace }) => {
         }
     }, []);
 
-    const onValidate = useCallback(e => {
+    const onValidate = useCallback((e) => {
         console.log('Editor', e.type);
     }, []);
 
-    const setForm = useCallback(elm => {
+    const setForm = useCallback((elm) => {
         if (state.Form) return;
         state.Form = elm;
         state.update();
@@ -367,16 +368,13 @@ export const ContentEditor = ({ className, namespace }) => {
 
         Reactium.Hook.runSync(`content-editor-elements-${type}`, fields, state);
 
-        fields = fields.map(item => {
+        fields = fields.map((item) => {
             const { component } = Reactium.Content.Editor.get(item.fieldType);
             if (component && !item.Component) item.Component = component;
             return item.Component ? item : null;
         });
 
-        return _.chain(fields)
-            .compact()
-            .groupBy('region')
-            .value();
+        return _.chain(fields).compact().groupBy('region').value();
     }, [state.get('type')]);
 
     useEffect(onChangeUUID, [params]);
@@ -421,11 +419,13 @@ export const ContentEditor = ({ className, namespace }) => {
             onChange={onChange}
             onComplete={onComplete}
             onSubmit={onSubmit}
-            onValidate={onValidate}>
+            onValidate={onValidate}
+        >
             {state.Form && (
                 <div
-                    ref={elm => refs.set('container', elm)}
-                    className={cn(cx(), cx(state.get('type')), className)}>
+                    ref={(elm) => refs.set('container', elm)}
+                    className={cn(cx(), cx(state.get('type')), className)}
+                >
                     {regions.map((region, i) =>
                         String(region.id).startsWith('sidebar') ? (
                             <ResizeWrap
@@ -436,10 +436,11 @@ export const ContentEditor = ({ className, namespace }) => {
                                     initialSidebarWidth()
                                 }
                                 onResizeStop={onResized}
-                                onResize={onResize}>
+                                onResize={onResize}
+                            >
                                 <div
                                     className={cx('sidebar-placeholder')}
-                                    ref={elm =>
+                                    ref={(elm) =>
                                         refs.set('sidebarContainer', elm)
                                     }
                                 />
@@ -447,7 +448,8 @@ export const ContentEditor = ({ className, namespace }) => {
                                     className={cn(
                                         cx('sidebar'),
                                         cx(`sidebar-${region.id}`),
-                                    )}>
+                                    )}
+                                >
                                     {elements[region.id].map(
                                         ({ Component, ...item }) => (
                                             <div
@@ -457,7 +459,8 @@ export const ContentEditor = ({ className, namespace }) => {
                                                     cx(
                                                         `sidebar-element-${item.fieldId}`,
                                                     ),
-                                                )}>
+                                                )}
+                                            >
                                                 <Component
                                                     {...item}
                                                     key={item.fieldId}
@@ -471,12 +474,14 @@ export const ContentEditor = ({ className, namespace }) => {
                         ) : (
                             <div
                                 key={`region-${i}`}
-                                className={cn(cx('column'))}>
+                                className={cn(cx('column'))}
+                            >
                                 <div
                                     className={cn(
                                         cx(region.id),
                                         `content-editor-${region.id}`,
-                                    )}>
+                                    )}
+                                >
                                     {elements[region.id].map(
                                         ({ Component, ...item }) => (
                                             <div
@@ -486,7 +491,8 @@ export const ContentEditor = ({ className, namespace }) => {
                                                     cx(
                                                         `element-${item.fieldId}`,
                                                     ),
-                                                )}>
+                                                )}
+                                            >
                                                 <Component
                                                     {...item}
                                                     editor={state}

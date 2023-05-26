@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { __, useHookComponent } from 'reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 import { useDoesMatchPath } from 'reactium-admin-core';
 
 export default () => {
@@ -13,7 +13,8 @@ export default () => {
                     className='px-0'
                     color={Button.ENUMS.COLOR.CLEAR}
                     size={Button.ENUMS.SIZE.SM}
-                    type={Button.ENUMS.TYPE.BUTTON}>
+                    type={Button.ENUMS.TYPE.BUTTON}
+                >
                     <Icon name='Linear.Equalizer' className='mr-xs-12' />
                     {__('Settings')}
                 </Button>

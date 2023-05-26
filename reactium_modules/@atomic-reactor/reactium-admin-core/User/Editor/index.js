@@ -21,7 +21,7 @@ import Reactium, {
     useHookComponent,
     useRegisterHandle,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const noop = () => {};
 
@@ -70,7 +70,7 @@ export class UserEvent extends CustomEvent {
 }
 
 const ErrorMessages = ({ editor, errors }) => {
-    const canFocus = element => typeof element.focus === 'function';
+    const canFocus = (element) => typeof element.focus === 'function';
 
     const jumpTo = (e, element) => {
         e.preventDefault();
@@ -88,7 +88,7 @@ const ErrorMessages = ({ editor, errors }) => {
                 message = !canFocus(focus) ? (
                     message
                 ) : (
-                    <a href='#' onClick={e => jumpTo(e, focus)}>
+                    <a href='#' onClick={(e) => jumpTo(e, focus)}>
                         {message}
                         <Icon
                             name='Feather.CornerRightDown'
@@ -161,19 +161,19 @@ let UserEditor = (
         setUpdated(Date.now());
     };
 
-    const setAlert = newAlert => {
+    const setAlert = (newAlert) => {
         if (unMounted()) return;
         setNewAlert(newAlert);
         forceUpdate(Date.now());
     };
 
-    const setAvatar = avatar => {
+    const setAvatar = (avatar) => {
         if (unMounted()) return;
         const value = { ...state.value, avatar };
         setState({ value });
     };
 
-    const setState = newState => {
+    const setState = (newState) => {
         if (unMounted()) return;
         setPrevState(JSON.parse(JSON.stringify(state)));
         update(newState);
@@ -225,7 +225,7 @@ let UserEditor = (
         }
     };
 
-    const getData = async objectId => {
+    const getData = async (objectId) => {
         if (unMounted()) return;
         if (formRef.current) formRef.current.setValue(null);
 
@@ -332,7 +332,7 @@ let UserEditor = (
         if (isMounted()) setState({ value: {} });
     };
 
-    const save = async value => {
+    const save = async (value) => {
         value = { ...value, ...state.value };
 
         if (!state.editing) return;
@@ -354,17 +354,17 @@ let UserEditor = (
         await Reactium.Hook.run('user-submit', value);
 
         return Reactium.User.save(value)
-            .then(async response => {
+            .then(async (response) => {
                 if (_.isError(response)) {
                     return Promise.reject(response);
                 } else {
                     return _onSuccess({ user: response });
                 }
             })
-            .catch(error => _onFail({ error, value }));
+            .catch((error) => _onFail({ error, value }));
     };
 
-    const saveHotkey = e => {
+    const saveHotkey = (e) => {
         if (e) e.preventDefault();
         if (!state.editing) return;
         submit();
@@ -382,7 +382,7 @@ let UserEditor = (
 
     const unMounted = () => !containerRef.current;
 
-    const _onError = async context => {
+    const _onError = async (context) => {
         const { error } = context;
         const errors = Object.values(error);
 
@@ -405,7 +405,7 @@ let UserEditor = (
         return context;
     };
 
-    const _onFail = async e => {
+    const _onFail = async (e) => {
         const { error, value } = e;
         if (error) {
             const alertObj = {
@@ -443,7 +443,7 @@ let UserEditor = (
         return Promise.resolve(e);
     };
 
-    const _onFormChange = e => {
+    const _onFormChange = (e) => {
         if (state.status === ENUMS.STATUS.LOADED) return;
 
         const { value: currentValue } = state;
@@ -454,12 +454,12 @@ let UserEditor = (
         setState({ value });
     };
 
-    const _onFormSubmit = e => {
+    const _onFormSubmit = (e) => {
         let value = { ...state.value, ...JSON.parse(JSON.stringify(e.value)) };
         return save(value);
     };
 
-    const _onSuccess = async e => {
+    const _onSuccess = async (e) => {
         const { user } = e;
 
         // If current user is being updated -> update cache
@@ -507,7 +507,7 @@ let UserEditor = (
         return Promise.resolve(e);
     };
 
-    const _onValidate = async e => {
+    const _onValidate = async (e) => {
         const { value, ...context } = e;
 
         // check password
@@ -593,7 +593,7 @@ let UserEditor = (
 
     // State change
     useAsyncEffect(
-        async mounted => {
+        async (mounted) => {
             if (state.initialized !== true) return;
 
             const changed = {};
@@ -602,7 +602,7 @@ let UserEditor = (
             const cstate = JSON.parse(JSON.stringify(op.get(state)));
             const pstate = JSON.parse(JSON.stringify(op.get(prevState)));
 
-            watch.forEach(field => {
+            watch.forEach((field) => {
                 const current = op.get(cstate, field);
                 const previous = op.get(pstate, field);
 
@@ -695,7 +695,8 @@ let UserEditor = (
                         onSubmit={_onFormSubmit}
                         ref={formRef}
                         validator={_onValidate}
-                        value={value}>
+                        value={value}
+                    >
                         <Helmet>
                             <title>{parseTitle()}</title>
                         </Helmet>

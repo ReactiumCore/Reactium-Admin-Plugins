@@ -5,7 +5,7 @@
  */
 
 import './sdk';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { ElementDialog } from './ElementDialog';
 import { ContentEditor, NewContentButton } from './index';
 
@@ -28,7 +28,7 @@ import { ContentEditor, NewContentButton } from './index';
         zone: ['admin-logo', 'admin-content-actions'],
     });
 
-    Reactium.Hook.register('blueprints', async Blueprint => {
+    Reactium.Hook.register('blueprints', async (Blueprint) => {
         [
             {
                 ID: 'Content-Editor',
@@ -68,6 +68,6 @@ import { ContentEditor, NewContentButton } from './index';
                     namespace: 'admin-page',
                 },
             },
-        ].forEach(bp => Blueprint.register(bp.ID, bp));
+        ].forEach((bp) => Blueprint.register(bp.ID, bp));
     });
 })();

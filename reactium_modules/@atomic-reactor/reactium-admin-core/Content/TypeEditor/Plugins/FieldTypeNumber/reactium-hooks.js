@@ -1,6 +1,6 @@
 import React from 'react';
 import { Editor, FieldType, Comparison } from '.';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 
 const ID = 'Number';
 const fieldType = {

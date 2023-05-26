@@ -3,7 +3,13 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Button, Icon } from 'reactium-ui';
 import React, { useCallback, useState } from 'react';
-import { __, cxFactory, useDispatcher, useRefs, Zone } from 'reactium-core/sdk';
+import {
+    __,
+    cxFactory,
+    useDispatcher,
+    useRefs,
+    Zone,
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -49,7 +55,7 @@ export const SearchBar = ({
     }, []);
 
     const submit = useCallback(
-        v => {
+        (v) => {
             v = typeof v !== 'string' ? value : v;
             if (typeof onSubmit === 'function') return onSubmit({ value: v });
             dispatch(cx(), { value: v });
@@ -57,14 +63,14 @@ export const SearchBar = ({
         [value],
     );
 
-    const onChange = useCallback(e => {
+    const onChange = useCallback((e) => {
         dispatch(cx('change'), { details: e });
         setValue(e.target.value);
         submit(e.target.value);
     }, []);
 
     const onKeyUp = useCallback(
-        e => {
+        (e) => {
             if (e.keyCode !== 13) return;
             submit();
         },
@@ -91,7 +97,8 @@ export const SearchBar = ({
                     className='clear'
                     size={Button.ENUMS.SIZE.XS}
                     color={Button.ENUMS.COLOR.DANGER}
-                    appearance={Button.ENUMS.APPEARANCE.CIRCLE}>
+                    appearance={Button.ENUMS.APPEARANCE.CIRCLE}
+                >
                     <Icon name='Feather.X' size={13} />
                 </Button>
             ) : (
@@ -104,7 +111,7 @@ export const SearchBar = ({
                 onChange={onChange}
                 defaultValue={value}
                 style={{ marginBottom: 0 }}
-                ref={elm => refs.set('input', elm)}
+                ref={(elm) => refs.set('input', elm)}
             />
             <div className={cx('actions')}>
                 <Zone zone={cx('actions')} {...handle} />

@@ -7,7 +7,7 @@ import Reactium, {
     useEventEffect,
     useHookComponent,
     useRefs,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ let TypeDelete = () => {
 
     const cancel = () => Reactium.State.Tools.Modal.hide();
 
-    const confirm = async item => {
+    const confirm = async (item) => {
         const confirmed = refs.get('confirmed');
         if (confirmed.value !== item.machineName) {
             confirmed.focus();
@@ -62,7 +62,7 @@ let TypeDelete = () => {
         dispatch('content-type-deleted', { details: item });
     };
 
-    const onDelete = e => {
+    const onDelete = (e) => {
         const { Toast } = Reactium.State.Tools;
 
         const message = __('%name content type deleted').replace(
@@ -78,7 +78,7 @@ let TypeDelete = () => {
         });
     };
 
-    const showModal = e =>
+    const showModal = (e) =>
         Reactium.State.Tools.Modal.show(
             <ConfirmBox
                 onCancel={cancel}
@@ -87,7 +87,7 @@ let TypeDelete = () => {
                 message={
                     <Message
                         details={e.details}
-                        ref={elm => refs.set('confirmed', elm)}
+                        ref={(elm) => refs.set('confirmed', elm)}
                     />
                 }
             />,

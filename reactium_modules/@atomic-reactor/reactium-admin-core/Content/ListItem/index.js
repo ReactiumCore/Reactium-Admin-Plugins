@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
 import React, { useEffect, useMemo, useState } from 'react';
-import Reactium, { __, useDispatcher } from 'reactium-core/sdk';
+import Reactium, { __, useDispatcher } from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -17,14 +17,15 @@ export const ListItemIcon = ({ cx, meta, path, idField, ...props }) => {
     return (
         <Link
             className={cn(cx('icon'), 'ico')}
-            to={`${path}/${op.get(props, idField)}`}>
+            to={`${path}/${op.get(props, idField)}`}
+        >
             <Icon name={op.get(meta, 'icon', 'Feather.Typewriter')} />
             <Icon name='Linear.Pencil2' />
         </Link>
     );
 };
 
-export const ListItemTitle = props => {
+export const ListItemTitle = (props) => {
     let p;
 
     switch (op.get(props, 'data-zone-ns')) {
@@ -39,7 +40,7 @@ export const ListItemTitle = props => {
     return <div className={props.cx('item-title')}>{op.get(props, p)}</div>;
 };
 
-export const ListItemMeta = props => {
+export const ListItemMeta = (props) => {
     const slug = useMemo(() => {
         let s;
 
@@ -67,7 +68,7 @@ export const ListItemMeta = props => {
     );
 };
 
-export const ListItemCount = props => {
+export const ListItemCount = (props) => {
     const count = _.compact(op.get(props, 'slugs', [])).length;
     return (
         <Button
@@ -82,7 +83,8 @@ export const ListItemCount = props => {
                 Reactium.Routing.history.push(
                     `/admin/content/${props.machineName}/page/1`,
                 )
-            }>
+            }
+        >
             {count}
         </Button>
     );
@@ -130,7 +132,8 @@ export const ListItemDelete = ({ dispatch, title, ...props }) => {
                     dispatch(e, {
                         details: props,
                     })
-                }>
+                }
+            >
                 <Icon name='Feather.Trash2' />
             </button>
         </div>
@@ -174,10 +177,10 @@ export const ListItem = ({ registry, ...props }) => {
 
     const [components, setComponents] = useState(registry.list);
 
-    const filter = str => {
+    const filter = (str) => {
         const z = String(props.cx(`${zone}-${str}`)).toLowerCase();
         return _.sortBy(
-            components.filter(item => item.zones.includes(z)),
+            components.filter((item) => item.zones.includes(z)),
             'order',
         );
     };
@@ -202,7 +205,8 @@ export const ListItem = ({ registry, ...props }) => {
 
             <Link
                 to={`${path}/${op.get(props, idField)}`}
-                className={props.cx('item-info')}>
+                className={props.cx('item-info')}
+            >
                 {filter('center').map(({ Component }, i) => (
                     <Component
                         key={`${zone}-center-${i}`}
@@ -216,7 +220,8 @@ export const ListItem = ({ registry, ...props }) => {
                 {filter('right').map(({ Component }, i) => (
                     <div
                         key={`${zone}-right-${i}`}
-                        className={props.cx('item-actions-child')}>
+                        className={props.cx('item-actions-child')}
+                    >
                         <Component dispatch={dispatch} {...props} />
                     </div>
                 ))}

@@ -1,6 +1,6 @@
 import Widget from './Widget';
 import Fullscreen from './sdk';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Plugin.register('Fullscreen').then(() => {
     Reactium.Utils.Fullscreen = new Fullscreen();

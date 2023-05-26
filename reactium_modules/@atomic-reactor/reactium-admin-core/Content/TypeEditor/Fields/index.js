@@ -4,7 +4,7 @@ import Reactium, {
     __,
     useSyncHandle,
     useHookComponent,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 import { Droppable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import op from 'object-path';
@@ -16,7 +16,7 @@ import _ from 'underscore';
  * -----------------------------------------------------------------------------
  */
 const noop = () => {};
-const Fields = props => {
+const Fields = (props) => {
     const CTE = useSyncHandle('CTE');
     const ui = CTE.get('contentType', {});
 
@@ -28,7 +28,7 @@ const Fields = props => {
 
     const regions = op.get(ui, 'regions', {});
     const fields = _.compact(
-        op.get(ui, ['regionFields', region], []).map(fieldId => {
+        op.get(ui, ['regionFields', region], []).map((fieldId) => {
             return op.get(ui, ['fields', fieldId]);
         }),
     );
@@ -82,13 +82,15 @@ const Fields = props => {
                         'types-fields-empty': isEmpty,
                     })}
                     {...droppableProps}
-                    ref={innerRef}>
+                    ref={innerRef}
+                >
                     <div
                         className={cn({
                             'field-drop': true,
                             active: CTE.isActiveRegion(region),
                         })}
-                        onClick={() => CTE.setActiveRegion(region)}>
+                        onClick={() => CTE.setActiveRegion(region)}
+                    >
                         {typeof regionLabel !== 'undefined' && (
                             <div className='region-label'>
                                 <div
@@ -96,16 +98,17 @@ const Fields = props => {
                                         error:
                                             regionLabel.length < 1 ||
                                             Object.values(regions).find(
-                                                reg =>
+                                                (reg) =>
                                                     reg.id !== region &&
                                                     reg.slug === regionSlug,
                                             ),
-                                    })}>
+                                    })}
+                                >
                                     <input
                                         type='text'
                                         value={regionLabel}
                                         placeholder={__('Region Label')}
-                                        onChange={e =>
+                                        onChange={(e) =>
                                             onRegionLabelChange(e.target.value)
                                         }
                                     />
@@ -118,7 +121,8 @@ const Fields = props => {
                                                 : Button.ENUMS.COLOR.DANGER
                                         }
                                         onClick={onRemoveRegion}
-                                        disabled={immutable}>
+                                        disabled={immutable}
+                                    >
                                         <span className='sr-only'>
                                             {deleteLabel}
                                         </span>

@@ -1,9 +1,12 @@
 import ENUMS from './enums';
 import op from 'object-path';
 import React, { useState } from 'react';
-import Reactium, { useAsyncEffect, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    useAsyncEffect,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
-const CTCapabilityEditor = props => {
+const CTCapabilityEditor = (props) => {
     const CapabilityEditor = useHookComponent('CapabilityEditor');
 
     const [defaultCapabilities, setDefaults] = useState(
@@ -17,7 +20,7 @@ const CTCapabilityEditor = props => {
     );
 
     useAsyncEffect(
-        async isMounted => {
+        async (isMounted) => {
             if (!props.type) return;
 
             const caps = ENUMS.capabilities(props);

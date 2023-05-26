@@ -4,7 +4,11 @@ import op from 'object-path';
 import { Redirect, Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Spinner, WebForm } from 'reactium-ui';
-import Reactium, { __, useHandle, useHookComponent } from 'reactium-core/sdk';
+import Reactium, {
+    __,
+    useHandle,
+    useHookComponent,
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -52,14 +56,14 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
         setState({ ...value, error: {}, status: ENUMS.STATUS.SUBMITTING });
 
         return Reactium.User.auth(username, password)
-            .then(user => {
+            .then((user) => {
                 setState({ status: ENUMS.STATUS.SUCCESS });
                 setTimeout(
                     () => setState({ status: ENUMS.STATUS.COMPLETE }),
                     1000,
                 );
             })
-            .catch(err => {
+            .catch((err) => {
                 const error = {
                     field: 'password',
                     message: ENUMS.TEXT.ERROR.INVALID,
@@ -69,7 +73,7 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
             });
     };
 
-    const onChange = e => {
+    const onChange = (e) => {
         const { name, value } = e.target;
         setState({ [name]: value });
     };
@@ -109,7 +113,8 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                         onError={onError}
                         value={{ username, password }}
                         required={['username', 'password']}
-                        showError={false}>
+                        showError={false}
+                    >
                         <div className='flex center mb-xs-40'>
                             <Link to='/'>
                                 <Logo width={80} height={80} />
@@ -119,7 +124,8 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             className={cn({
                                 'form-group': true,
                                 error: op.get(error, 'field') === 'username',
-                            })}>
+                            })}
+                        >
                             <input
                                 type='text'
                                 placeholder={ENUMS.TEXT.LABEL.USERNAME}
@@ -137,7 +143,8 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                             className={cn({
                                 'form-group': true,
                                 error: op.get(error, 'field') === 'password',
-                            })}>
+                            })}
+                        >
                             <input
                                 type='password'
                                 placeholder={ENUMS.TEXT.LABEL.PASSWORD}
@@ -158,7 +165,8 @@ const Login = ({ className, forgot, redirect, signup, ...props }) => {
                                 size='lg'
                                 type='submit'
                                 appearance='pill'
-                                disabled={status === ENUMS.STATUS.SUBMITTING}>
+                                disabled={status === ENUMS.STATUS.SUBMITTING}
+                            >
                                 {status === ENUMS.STATUS.SUBMITTING ? (
                                     <>{ENUMS.TEXT.BUTTON.SIGNING_IN}...</>
                                 ) : (

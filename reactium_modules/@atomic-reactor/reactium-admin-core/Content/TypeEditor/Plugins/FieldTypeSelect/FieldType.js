@@ -6,14 +6,14 @@ import Reactium, {
     __,
     useDerivedState,
     useHookComponent,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
  * Functional Component: FieldType
  * -----------------------------------------------------------------------------
  */
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { id } = props;
 
     const refs = useRef({});
@@ -46,7 +46,7 @@ export const FieldType = props => {
         setState({ options });
     };
 
-    const onChange = e => {
+    const onChange = (e) => {
         let { options } = state;
         const { value } = e.currentTarget;
         const { index, key } = e.currentTarget.dataset;
@@ -54,20 +54,20 @@ export const FieldType = props => {
         setState({ options });
     };
 
-    const onDelete = index => {
+    const onDelete = (index) => {
         let { options = [] } = state;
         options.splice(index, 1);
         setState({ options });
     };
 
-    const onEnterPress = e => {
+    const onEnterPress = (e) => {
         if (e.which === 13) {
             e.preventDefault();
             onAddClick();
         }
     };
 
-    const beforeSave = params => {
+    const beforeSave = (params) => {
         const { fieldId, fieldType } = params;
 
         if (fieldId === id) {
@@ -89,7 +89,7 @@ export const FieldType = props => {
         ];
 
         return () => {
-            hooks.forEach(hookId => Reactium.Hook.unregister(hookId));
+            hooks.forEach((hookId) => Reactium.Hook.unregister(hookId));
         };
     };
 
@@ -125,26 +125,28 @@ export const FieldType = props => {
             <div className={cn('input-group', cx('slide'))}>
                 <input
                     type='text'
-                    ref={elm => op.set(refs.current, 'label', elm)}
+                    ref={(elm) => op.set(refs.current, 'label', elm)}
                     placeholder={__('Label')}
                     onKeyDown={onEnterPress}
                 />
                 <input
                     type='text'
-                    ref={elm => op.set(refs.current, 'value', elm)}
+                    ref={(elm) => op.set(refs.current, 'value', elm)}
                     placeholder={__('Value')}
                     onKeyDown={onEnterPress}
                 />
                 <Button
                     color={Button.ENUMS.COLOR.TERTIARY}
                     onClick={onAddClick}
-                    style={{ padding: 0, width: 41, height: 41 }}>
+                    style={{ padding: 0, width: 41, height: 41 }}
+                >
                     <Icon name='Feather.Plus' size={22} />
                 </Button>
             </div>
             <ul
                 className={cx('list')}
-                ref={elm => op.set(refs.current, 'list', elm)}>
+                ref={(elm) => op.set(refs.current, 'list', elm)}
+            >
                 {options().map((item, i) => (
                     <ListItem
                         key={`page-template-${i}`}
@@ -159,7 +161,7 @@ export const FieldType = props => {
     );
 };
 
-const ListItem = props => {
+const ListItem = (props) => {
     const { index, item, onChange, onDelete } = props;
     const { Button, Icon } = useHookComponent('ReactiumUI');
     return (
@@ -184,7 +186,8 @@ const ListItem = props => {
                 <Button
                     color={Button.ENUMS.COLOR.DANGER}
                     onClick={() => onDelete(index)}
-                    style={{ padding: 0, width: 41, height: 41 }}>
+                    style={{ padding: 0, width: 41, height: 41 }}
+                >
                     <Icon name='Feather.X' size={22} />
                 </Button>
             </div>

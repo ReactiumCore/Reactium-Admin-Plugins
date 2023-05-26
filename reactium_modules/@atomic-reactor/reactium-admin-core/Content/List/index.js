@@ -15,7 +15,7 @@ import Reactium, {
     useStateEffect,
     useSyncState,
     Zone,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
 const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
     const params = useRouteParams();
@@ -42,7 +42,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         const { limit, page, search, type } = state.get();
 
         // apply search
-        const matcher = item => {
+        const matcher = (item) => {
             let match = String(op.get(item, 'title', ''))
                 .toLowerCase()
                 .includes(search);
@@ -62,7 +62,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         let filters = op.get(Reactium.Content.filters, type, {});
 
         if (Reactium.Content.isFiltered(type)) {
-            results = results.filter(item => {
+            results = results.filter((item) => {
                 let valid = true;
 
                 Object.entries(filters).forEach(([field, values]) => {
@@ -93,7 +93,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
             })
         ) {
             results = results.filter(
-                item =>
+                (item) =>
                     op.get(item, 'status') !==
                     Reactium.Content.STATUS.DELETED.value,
             );
@@ -107,7 +107,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         });
     }, [data, state.get('search'), state.get('updated')]);
 
-    const onSearch = useCallback(e => {
+    const onSearch = useCallback((e) => {
         state.set('search', String(e.value || '').toLowerCase(), true);
         state.set('updated', Date.now());
     }, []);
@@ -184,7 +184,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
                                 data-zone-ns={cx()}
                                 data-handle={handle}
                             />
-                            {filtered.map(item => (
+                            {filtered.map((item) => (
                                 <ListItem
                                     cx={cx}
                                     {...item}

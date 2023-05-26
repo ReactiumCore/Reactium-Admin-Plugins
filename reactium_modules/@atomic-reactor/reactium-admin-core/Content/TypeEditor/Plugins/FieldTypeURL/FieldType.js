@@ -5,9 +5,9 @@ import Reactium, {
     useAsyncEffect,
     useHookComponent,
     useStatus,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 
-export default props => {
+export default (props) => {
     const { DragHandle } = props;
     const { Checkbox } = useHookComponent('ReactiumUI');
     const FieldTypeDialog = useHookComponent('FieldTypeDialog', DragHandle);
@@ -15,7 +15,7 @@ export default props => {
     const [taxonomy, setTaxonomy] = useState([]);
     const [, setStatus, isStatus] = useStatus('init');
 
-    const load = async mounted => {
+    const load = async (mounted) => {
         if (!isStatus('init')) return;
 
         setStatus('loading');

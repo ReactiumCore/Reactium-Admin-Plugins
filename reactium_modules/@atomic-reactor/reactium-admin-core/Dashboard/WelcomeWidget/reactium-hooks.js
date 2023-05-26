@@ -5,7 +5,7 @@
  */
 
 import Widget from './index';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 const WIDGET_ID = 'DASHBOARD_WELCOME_WIDGET';
 Reactium.Plugin.register(WIDGET_ID).then(() => {

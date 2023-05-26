@@ -6,12 +6,12 @@ import Reactium, {
     useHookComponent,
     useDispatcher,
     useStateEffect,
-} from 'reactium-core/sdk';
+} from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import cn from 'classnames';
 import IconPicker from '../IconPicker';
 
-export default props => {
+export default (props) => {
     const id = op.get(props, 'id', 'new');
     const error = op.get(props, 'error', false);
     const isNew = id === 'new';
@@ -20,7 +20,7 @@ export default props => {
     const ConfirmBox = useHookComponent('ConfirmBox');
     const dispatch = useDispatcher({ props });
     useStateEffect({
-        'content-type-deleted': e => {
+        'content-type-deleted': (e) => {
             Reactium.Routing.history.push('/admin/types');
         },
     });
@@ -76,7 +76,8 @@ export default props => {
                     data-tooltip={deleteLabel}
                     style={{ width: 50, height: 50 }}
                     color={Button.ENUMS.COLOR.DANGER}
-                    onClick={showModal}>
+                    onClick={showModal}
+                >
                     <span className='sr-only'>{deleteLabel}</span>
                     <Icon.Feather.X />
                 </Button>

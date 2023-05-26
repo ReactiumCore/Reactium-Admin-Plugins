@@ -2,16 +2,19 @@ import _ from 'underscore';
 import moment from 'moment';
 import op from 'object-path';
 import React, { useCallback, useEffect } from 'react';
-import { useHookComponent, useSyncState } from 'reactium-core/sdk';
+import {
+    useHookComponent,
+    useSyncState,
+} from '@atomic-reactor/reactium-core/sdk';
 
-const formatDate = d => {
+const formatDate = (d) => {
     if (typeof d === 'string') {
         d = new Date(d);
     }
     return d ? moment(d).format('L') : null;
 };
 
-const Editor = props => {
+const Editor = (props) => {
     const { editor, fieldName, options } = props;
 
     const state = useSyncState({
@@ -29,13 +32,13 @@ const Editor = props => {
         };
     });
 
-    const onSave = useCallback(e => {
+    const onSave = useCallback((e) => {
         const { value } = state.get();
         const formatted = value ? new Date(value) : null;
         op.set(e.value, fieldName, formatted);
     }, []);
 
-    const onSelectDate = useCallback(e => {
+    const onSelectDate = useCallback((e) => {
         const selected = _.compact(e.selected || []);
         const date = selected.length > 0 ? _.first(selected) : null;
         state.set('value', date);

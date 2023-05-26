@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { useHookComponent } from 'reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 import op from 'object-path';
 import _ from 'underscore';
 
@@ -20,7 +20,7 @@ const MediaSetting = ({
     const directory = op.get(config, 'directory', 'uploads') || 'uploads';
     const pickerOptions = op.get(config, 'pickerOptions', defaultPickerOptions);
 
-    const onSelected = values => {
+    const onSelected = (values) => {
         const selection = mediaToolRef.current.selection(values);
         updateValue(selection, false);
     };

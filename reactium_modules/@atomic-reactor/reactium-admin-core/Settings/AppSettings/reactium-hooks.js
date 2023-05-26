@@ -2,7 +2,7 @@ import React from 'react';
 import Enums from './enums';
 import op from 'object-path';
 import AppSettings from './index';
-import Reactium, { __ } from 'reactium-core/sdk';
+import Reactium, { __ } from '@atomic-reactor/reactium-core/sdk';
 import useCapabilitySettings from './useCapabilitySettings';
 import MenuItem from 'reactium-admin-core/registered-components/MenuItem';
 
@@ -30,7 +30,7 @@ Reactium.Hook.register('plugin-dependencies', async () => {
     });
 });
 
-Reactium.Hook.register('blueprints', async Blueprints => {
+Reactium.Hook.register('blueprints', async (Blueprints) => {
     const bp = {
         sections: {
             sidebar: {
@@ -113,7 +113,7 @@ Reactium.Capability.Settings.register('shortcodes-manage', {
  * @apiExample Usage
 import React from 'react';
 import _ from 'underscore';
-import Reactium from 'reactium-core/sdk';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 const CapabilityList = ({ zone = 'my-zone' }) => {
 
