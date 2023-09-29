@@ -350,7 +350,7 @@ export const ContentEditor = ({ className, namespace }) => {
     const regions = useMemo(() => {
         if (!isType) return [];
 
-        return Array.from(Object.values(state.get('type.regions')));
+        return Array.from(Object.values(state.get('type.regions', {})));
     }, [state.get('type')]);
 
     const elements = useMemo(() => {
@@ -369,9 +369,16 @@ export const ContentEditor = ({ className, namespace }) => {
         Reactium.Hook.runSync(`content-editor-elements-${type}`, fields, state);
 
         fields = fields.map((item) => {
-            const { component } = Reactium.Content.Editor.get(item.fieldType);
-            if (component && !item.Component) item.Component = component;
-            return item.Component ? item : null;
+            try {
+                const { component } = Reactium.Content.Editor.get(
+                    item.fieldType,
+                );
+                if (component && !item.Component) item.Component = component;
+                return item.Component ? item : null;
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
         });
 
         return _.chain(fields).compact().groupBy('region').value();
@@ -450,8 +457,9 @@ export const ContentEditor = ({ className, namespace }) => {
                                         cx(`sidebar-${region.id}`),
                                     )}
                                 >
-                                    {elements[region.id].map(
-                                        ({ Component, ...item }) => (
+                                    {op
+                                        .get(elements, [region.id], [])
+                                        .map(({ Component, ...item }) => (
                                             <div
                                                 key={item.fieldId}
                                                 className={cn(
@@ -467,8 +475,7 @@ export const ContentEditor = ({ className, namespace }) => {
                                                     editor={state}
                                                 />
                                             </div>
-                                        ),
-                                    )}
+                                        ))}
                                 </div>
                             </ResizeWrap>
                         ) : (
@@ -482,8 +489,9 @@ export const ContentEditor = ({ className, namespace }) => {
                                         `content-editor-${region.id}`,
                                     )}
                                 >
-                                    {elements[region.id].map(
-                                        ({ Component, ...item }) => (
+                                    {op
+                                        .get(elements, [region.id], [])
+                                        .map(({ Component, ...item }) => (
                                             <div
                                                 key={item.fieldId}
                                                 className={cn(
@@ -498,8 +506,7 @@ export const ContentEditor = ({ className, namespace }) => {
                                                     editor={state}
                                                 />
                                             </div>
-                                        ),
-                                    )}
+                                        ))}
                                 </div>
                             </div>
                         ),
