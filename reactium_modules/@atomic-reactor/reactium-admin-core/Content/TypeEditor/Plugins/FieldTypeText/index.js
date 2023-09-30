@@ -1,9 +1,7 @@
-import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
+import { Checkbox, Dialog } from 'reactium-ui';
 import React, { useEffect, useRef } from 'react';
 import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
-import { Checkbox, Dialog } from 'reactium-ui';
 
 /**
  * -----------------------------------------------------------------------------
@@ -125,66 +123,54 @@ export const Editor = (props) => {
 
     if (multiline === true) op.set(inputProps, 'rows', rows);
 
-    const { errors } = editor;
-    const errorText = op.get(errors, [fieldName, 'message']);
-    const className = cn('form-group', { error: !!errorText });
-    const replacers = {
-        '%fieldName': fieldName,
-        '%max': max,
-        '%min': min,
-    };
-
-    const validate = ({ context, value }) => {
-        const v = value[fieldName];
-
-        const err = {
-            field: fieldName,
-            focus: inputRef.current,
-            message: null,
-            value: v,
+    const parseError = (str) => {
+        const replacers = {
+            '%fieldName': fieldName,
+            '%max': max,
+            '%min': min,
         };
 
-        if (required === true && !v) {
-            err.message = __('%fieldName is required');
-        }
+        str = String(str);
 
-        if (v && min) {
-            if (String(v).length < Number(min)) {
-                err.message = __('%fieldName minimum character count is %min');
-            }
-        }
+        Object.entries(replacers).forEach(([s, v]) => {
+            str = str.replace(new RegExp(s, 'gi'), v);
+        });
 
-        if (v && max) {
-            if (String(v).length > Number(max)) {
-                err.message = __('%fieldName maximum character count is %max');
-            }
-        }
-
-        if (err.message !== null) {
-            err.message = editor.parseErrorMessage(err.message, replacers);
-            context.error[fieldName] = err;
-            context.valid = false;
-        }
-
-        return context;
+        return str;
     };
 
-    const onSave = (e) => {
-        let val = e.value[fieldName];
+    const validate = ({ values }) => {
+        let err;
 
-        val = _.isString(val) ? val : String(val).trim();
-        val = val === 'null' ? null : val;
+        const v = values[fieldName];
 
-        op.set(e.value, fieldName, val);
+        if (required === true && !v) {
+            err = parseError(__('%fieldName is required'));
+        }
+
+        if (v && min && !err) {
+            if (String(v).length < Number(min)) {
+                err = parseError(
+                    __('%fieldName minimum character count is %min'),
+                );
+            }
+        }
+
+        if (v && max && !err) {
+            if (String(v).length > Number(max)) {
+                err = parseError(
+                    __('%fieldName maximum character count is %max'),
+                );
+            }
+        }
+
+        if (err) editor.setError(fieldName, err);
     };
 
     useEffect(() => {
         editor.addEventListener('validate', validate);
-        editor.addEventListener('before-save', onSave);
-
         return () => {
             editor.removeEventListener('validate', validate);
-            editor.removeEventListener('before-save', onSave);
         };
     }, [editor]);
 
@@ -192,7 +178,7 @@ export const Editor = (props) => {
         <FormRegister>
             <ElementDialog {...props}>
                 <div className='p-xs-20'>
-                    <div className={className}>
+                    <div className='form-group'>
                         <label>
                             <span className='sr-only'>
                                 {placeholder || fieldName}

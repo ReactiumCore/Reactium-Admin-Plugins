@@ -11,8 +11,9 @@ $ar-picker-color-bg: $color-white;
     > input {
         @include inputStyle();
 
-        z-index: $ar-picker-z-input;
+        // z-index: $ar-picker-z-input;
         margin: 0;
+        margin-bottom: 0 !important;
         padding-right: 40px;
 
         &:read-only {
@@ -23,6 +24,8 @@ $ar-picker-color-bg: $color-white;
     &.focus {
         > input {
             @include inputStyleFocus();
+            margin: 0;
+            margin-bottom: 0 !important;
         }
     }
 

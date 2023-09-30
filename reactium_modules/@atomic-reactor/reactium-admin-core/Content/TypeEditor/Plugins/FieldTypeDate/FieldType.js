@@ -20,16 +20,11 @@ export const FieldType = (props) => {
         ? op.get(Editor.getValue(), ['fields', id, 'options'], {})
         : {};
 
-    const state = useSyncState({
-        options: {
-            min: op.get(val, 'min'),
-            max: op.get(val, 'max'),
-        },
-    });
+    const state = useSyncState({ options: { ...val } });
 
     const FieldTypeDialog = useHookComponent('FieldTypeDialog');
 
-    const { DatePicker } = useHookComponent('ReactiumUI');
+    const { Toggle, DatePicker } = useHookComponent('ReactiumUI');
 
     const onSelectDate = (e) => {
         let { id: ID, selected = [] } = e;
@@ -42,6 +37,8 @@ export const FieldType = (props) => {
 
         state.set(`options.${ID}`, date);
     };
+
+    const onChange = (e) => state.set('options.required', e.target.checked);
 
     const onBeforeSave = (params) => {
         const { fieldId } = params;
@@ -95,6 +92,22 @@ export const FieldType = (props) => {
                             </label>
                         </div>
                     </div>
+                </div>
+                <div className='mt-xs-20'>
+                    <Toggle
+                        onChange={onChange}
+                        defaultChecked={state.get('options.required')}
+                        label={
+                            <>
+                                <strong>{__('Required:')}</strong>{' '}
+                                <em>
+                                    {String(
+                                        state.get('options.required', false),
+                                    )}
+                                </em>
+                            </>
+                        }
+                    />
                 </div>
             </div>
         </FieldTypeDialog>

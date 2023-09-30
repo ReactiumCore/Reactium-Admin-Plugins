@@ -63,34 +63,35 @@ export const FieldType = (props) => {
 };
 
 const NumberSlider = (props) => {
-    const { editor, fieldName } = props;
+    const { defaultValue, editor, fieldName } = props;
     const min = Number(op.get(props, 'min', 0));
     const max = Number(op.get(props, 'max', 100));
-    const defaultValue = Number(
-        op.get(props, 'defaultValue', Math.ceil(max / 2)),
-    );
-    const value = Number(op.get(editor, ['value', fieldName], defaultValue));
 
-    const _onChange = (e) =>
-        _.defer(() => editor.setValue({ [fieldName]: Number(e.value) }));
+    const median = (arr) => {
+        const mid = Math.floor(arr.length / 2),
+            nums = [...arr].sort((a, b) => a - b);
+        return arr.length % 2 !== 0
+            ? nums[mid]
+            : (nums[mid - 1] + nums[mid]) / 2;
+    };
+
+    const value = editor.isNew ? defaultValue : editor.Form.value[fieldName];
+
+    const _onChange = (e) => editor.setValue(fieldName, Number(e.value));
 
     const onChange = _.throttle(_onChange, 250, { trailing: true });
-    const tick = Math.floor(max * 0.25);
-    const ticks = _.chain([[min], _.range(min, max, tick), [max]])
-        .flatten()
-        .uniq()
-        .value();
+    const ticks = [min, median([min, max]), max];
 
-    return (
-        <div className='pt-xs-40 px-xs-12'>
+    return !editor.Form ? null : (
+        <div className='pt-xs-20 px-xs-12'>
             <Slider
+                snap
                 max={max}
                 min={min}
+                ticks={ticks}
                 name={fieldName}
                 onChange={onChange}
-                snap
-                ticks={ticks}
-                value={value}
+                value={Number(value)}
             />
         </div>
     );
@@ -125,42 +126,41 @@ export const Editor = (props) => {
     const { errors } = editor;
     const errorText = op.get(errors, [fieldName, 'message']);
     const className = cn('form-group', { error: !!errorText });
-    const replacers = {
-        '%fieldName': fieldName,
-        '%type': editor.type,
-        '%max': max,
-        '%min': min,
-    };
 
-    const validate = ({ context, value }) => {
-        const v = value[fieldName];
-
-        const err = {
-            field: fieldName,
-            focus: inputRef.current,
-            message: null,
-            value: v,
+    const parseError = (str) => {
+        const replacers = {
+            '%fieldName': fieldName,
+            '%max': max,
+            '%min': min,
         };
 
-        if (required === true && !v) {
-            err.message = __('%fieldName is required');
+        str = String(str);
+
+        Object.entries(replacers).forEach(([s, v]) => {
+            str = str.replace(new RegExp(s, 'gi'), v);
+        });
+
+        return str;
+    };
+
+    const validate = ({ values }) => {
+        let err;
+
+        const v = values[fieldName];
+
+        if (!err && !v && required === true) {
+            err = parseError(__('%fieldName is required'));
         }
 
-        if (min && Number(v) < Number(min)) {
-            err.message = __('%fieldName minimum value %min');
+        if (!err && v && min && Number(v) < Number(min)) {
+            err = parseError(__('%fieldName minimum value %min'));
         }
 
-        if (max && Number(v) > Number(max)) {
-            err.message = __('%fieldName maximum value %max');
+        if (!err && v && max && Number(v) > Number(max)) {
+            err = parseError(__('%fieldName maximum value %max'));
         }
 
-        if (err.message !== null) {
-            err.message = editor.parseErrorMessage(err.message, replacers);
-            context.error[fieldName] = err;
-            context.valid = false;
-        }
-
-        return context;
+        if (err) editor.setError(fieldName, err);
     };
 
     useEffect(() => {
@@ -171,25 +171,26 @@ export const Editor = (props) => {
     }, [editor]);
 
     return (
-        <ElementDialog {...props}>
-            <div className='p-xs-20'>
-                <div className={className}>
-                    {!slider ? (
-                        <label>
-                            <span className='sr-only'>
-                                {placeholder || fieldName}
-                            </span>
-                            <FormRegister>
+        <FormRegister>
+            <ElementDialog {...props}>
+                <div className='p-xs-20'>
+                    <div className={className}>
+                        {slider && min && max ? (
+                            <NumberSlider {...props} />
+                        ) : (
+                            <label>
+                                <span className='sr-only'>
+                                    {placeholder || fieldName}
+                                </span>
+
                                 <input {...inputProps} />
-                            </FormRegister>
-                        </label>
-                    ) : (
-                        <NumberSlider {...props} />
-                    )}
-                    <FormError name={fieldName} />
+                            </label>
+                        )}
+                        <FormError name={fieldName} />
+                    </div>
                 </div>
-            </div>
-        </ElementDialog>
+            </ElementDialog>
+        </FormRegister>
     );
 };
 

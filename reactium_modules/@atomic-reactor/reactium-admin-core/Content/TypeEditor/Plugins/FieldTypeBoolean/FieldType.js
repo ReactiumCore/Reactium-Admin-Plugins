@@ -18,7 +18,11 @@ export const FieldType = (props) => {
     const { Toggle } = useHookComponent('ReactiumUI');
 
     const val = id
-        ? op.get(Editor.getValue(), ['fields', id, 'options'], {})
+        ? op.get(
+              Editor.getValue(),
+              ['contentType', 'fields', id, 'options'],
+              {},
+          )
         : {};
 
     const state = useSyncState({
@@ -68,6 +72,7 @@ export const FieldType = (props) => {
             <div>
                 <Toggle
                     onChange={onChange}
+                    defaultChecked={state.get('options.defaultChecked')}
                     label={
                         <>
                             <strong>{__('Default:')}</strong>{' '}
@@ -78,7 +83,6 @@ export const FieldType = (props) => {
                             </em>
                         </>
                     }
-                    defaultChecked={state.get('options.defaultChecked')}
                 />
             </div>
         </FieldTypeDialog>

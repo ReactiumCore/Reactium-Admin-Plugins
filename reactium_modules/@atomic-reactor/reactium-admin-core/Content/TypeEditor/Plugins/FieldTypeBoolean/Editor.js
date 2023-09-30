@@ -1,46 +1,45 @@
 import op from 'object-path';
 import React, { useCallback, useEffect } from 'react';
-import {
-    useHookComponent,
-    useSyncState,
-} from '@atomic-reactor/reactium-core/sdk';
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const Editor = (props) => {
-    const { editor, fieldName, options } = props;
+    const { editor, options, fieldName } = props;
 
     const { Checkbox } = useHookComponent('ReactiumUI');
 
-    const onChange = (e) => state.set('value', e.target.checked);
+    const onSubmit = useCallback((e) => {
+        const fieldName =
+            String(props.fieldName).startsWith('data.') ||
+            String(props.fieldName).startsWith('meta.')
+                ? props.fieldName
+                : `data.${props.fieldName}`;
 
-    const onLoad = useCallback(() => {
-        editor.addEventListener('before-save', onSave);
-        return () => {
-            editor.removeEventListener('before-save', onSave);
-        };
-    });
+        let value = op.get(e.value, fieldName, false);
+        value = value === null ? false : value;
 
-    const onSave = useCallback((e) => {
-        const { value } = state.get();
-        op.set(e.value, fieldName, value);
+        op.set(e.value, fieldName, value || false);
     }, []);
 
-    const state = useSyncState({
-        value: op.get(
-            editor.value,
-            fieldName,
-            op.get(options, 'defaultChecked', false),
-        ),
-    });
+    const defaultChecked = op.get(
+        editor.Form.value,
+        fieldName,
+        editor.isNew ? options.defaultChecked : false,
+    );
 
-    useEffect(onLoad, [editor]);
+    useEffect(() => {
+        editor.addEventListener('submit', onSubmit);
+        return () => {
+            editor.removeEventListener('submit', onSubmit);
+        };
+    }, [editor]);
 
     return (
         <div className='field-type-boolean'>
             <div className='ar-dialog-header'>
                 <Checkbox
-                    onChange={onChange}
+                    name={fieldName}
                     className='block'
-                    defaultChecked={state.get('value')}
+                    defaultChecked={defaultChecked}
                     label={op.get(options, 'label', fieldName)}
                 />
             </div>

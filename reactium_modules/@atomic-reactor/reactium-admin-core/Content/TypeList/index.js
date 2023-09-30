@@ -59,7 +59,9 @@ const ContentTypeList = ({ className, namespace, title }) => {
         <Spinner className={cx('spinner')} />
     ) : (
         <div className={cn({ [cx()]: true, [className]: !!className })}>
-            <Helmet>{title}</Helmet>
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
             <div className={cx('content')}>
                 {isEmpty() ? (
                     <Empty />

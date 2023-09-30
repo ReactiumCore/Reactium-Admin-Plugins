@@ -4,10 +4,11 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import ENUMS from './enums';
 
+import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
+
 import React, {
     forwardRef,
     useEffect,
-    useHookComponent,
     useImperativeHandle,
     useRef,
     useState,
@@ -22,7 +23,8 @@ const Label = forwardRef(
                 [`${namespace}-tooltip`]: true,
                 [className]: !!className,
             })}
-            ref={ref}>
+            ref={ref}
+        >
             <div className='container'>{children}</div>
         </div>
     ),
@@ -65,7 +67,7 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
     const [state, setNewState] = useState(stateRef.current);
 
     // Internal Interface
-    const setState = newState => {
+    const setState = (newState) => {
         // Get the previous state
         const prevState = { ...stateRef.current };
 
@@ -80,7 +82,7 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
         setNewState(stateRef.current);
     };
 
-    const offset = el => {
+    const offset = (el) => {
         const rect = el.getBoundingClientRect(),
             scrollLeft =
                 iWindow.pageXOffset || iDocument.documentElement.scrollLeft,
@@ -90,16 +92,9 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
         return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
     };
 
-    const _drag = e => {
-        let {
-            buffer,
-            direction,
-            dragging,
-            max,
-            min,
-            range,
-            value,
-        } = stateRef.current;
+    const _drag = (e) => {
+        let { buffer, direction, dragging, max, min, range, value } =
+            stateRef.current;
 
         if (!dragging) {
             return;
@@ -226,7 +221,7 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
         iDocument.removeEventListener('touchend', _dragEnd);
     };
 
-    const _dragStart = e => {
+    const _dragStart = (e) => {
         setState({ dragging: e.target.dataset.handle, focus: e.target });
         iDocument.addEventListener('mousemove', _drag);
         iDocument.addEventListener('mouseup', _dragEnd);
@@ -295,7 +290,7 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
         });
     };
 
-    const _onKeyPress = e => {
+    const _onKeyPress = (e) => {
         const { keyCode } = e;
         const { handle } = e.target.dataset;
         let { max, min, range, value } = stateRef.current;
@@ -375,21 +370,14 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
 
     // Renderers
     const renderTicks = () => {
-        let {
-            direction,
-            max,
-            min,
-            namespace,
-            tickFormat,
-            ticks = [],
-        } = stateRef.current;
+        let { direction, max, min, namespace, tickFormat, ticks } =
+            stateRef.current;
 
         if (ticks.length < 1) {
             return null;
         }
 
-        ticks = ticks === true ? [min, max] : ticks;
-        ticks.sort();
+        ticks = !ticks ? [min, max] : ticks;
 
         if (direction === ENUMS.DIRECTION.VERTICAL) {
             ticks.reverse();
@@ -397,11 +385,12 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
 
         return (
             <div className={`${namespace}-ticks`}>
-                {ticks.map(tick => (
+                {ticks.map((tick) => (
                     <span
                         className={`${namespace}-tick`}
                         style={_positionFromValue({ value: tick })}
-                        key={`tick-${tick}`}>
+                        key={`tick-${tick}`}
+                    >
                         {tickFormat(tick)}
                     </span>
                 ))}
@@ -457,6 +446,8 @@ let Slider = ({ labelFormat, iDocument, iWindow, value, ...props }, ref) => {
                     )}
                 </FormRegister>
                 <div className={bcname} ref={barRef}>
+                    <span className={`${namespace}-dot-1`} />
+                    <span className={`${namespace}-dot-2`} />
                     <button
                         type='button'
                         className={mincname}
@@ -522,13 +513,13 @@ Slider.propTypes = {
 Slider.defaultProps = {
     buffer: ENUMS.BUFFER,
     direction: ENUMS.DIRECTION.HORIZONTAL,
-    labelFormat: label => label,
+    labelFormat: (label) => label,
     min: 0,
     max: 100,
     namespace: 'ar-slider',
     onChange: noop,
     snap: false,
-    tickFormat: tick => tick,
+    tickFormat: (tick) => tick,
     ticks: [],
     value: 0,
     iDocument: typeof document !== 'undefined' ? document : null,

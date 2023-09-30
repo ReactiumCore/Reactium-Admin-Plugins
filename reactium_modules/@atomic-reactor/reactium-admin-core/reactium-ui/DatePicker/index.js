@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import moment from 'moment';
 import ENUMS from './enums';
 import op from 'object-path';
@@ -7,14 +6,12 @@ import Picker from '../Picker';
 import { Feather } from '../Icon';
 import PropTypes from 'prop-types';
 import Calendar from './Calendar';
-import { TweenMax, Power2 } from 'gsap/umd/TweenMax';
 import uuid from 'uuid/v4';
 
 import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
-    useLayoutEffect,
     useRef,
     useState,
 } from 'react';
@@ -28,7 +25,6 @@ const stateToPickerProps = ({
     iWindow,
     multiple,
     name,
-    namespace,
     onChange,
     picker = {},
     placeholder,
@@ -86,14 +82,13 @@ const stateToCalendarProps = ({
 let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
     // Refs
     const calendarRef = useRef();
-    const containerRef = useRef();
     const pickerRef = useRef();
     const stateRef = useRef({
         ...props,
     });
 
     // State
-    const [state, setNewState] = useState(stateRef.current);
+    const [, setNewState] = useState(stateRef.current);
 
     // Internal Interface
     const setState = (newState, caller) => {
@@ -111,7 +106,7 @@ let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
         setNewState(stateRef.current);
     };
 
-    const _onCalendarChange = e => {
+    const _onCalendarChange = (e) => {
         let { date, multiple, onChange, range, value } = stateRef.current;
 
         if (range) {
@@ -132,17 +127,65 @@ let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
             { date, value, selected: e.selected },
             'DatePicker -> _onCalendarChange()',
         );
+
+        pickerRef.current.hide();
+
         onChange(e);
     };
 
-    const _validate = value => {
-        const {
-            dateFormat,
-            maxDate,
-            minDate,
-            multiple,
-            range,
-        } = stateRef.current;
+    const _onCalendarNav = (e) => {
+        const { date } = e;
+
+        stateRef.current.date = date;
+    };
+
+    const _onPickerInput = (e) => {
+        let { which, keyCode, value } = e;
+
+        const key = which || keyCode;
+
+        const { dateFormat, range } = stateRef.current;
+
+        const specialKeys = [13];
+
+        if (specialKeys.includes(key) && !value) {
+            value = e.target.value;
+            pickerRef.current.hide();
+        }
+
+        if (!value || !_validate(value)) {
+            return;
+        }
+
+        let d, selected;
+
+        if (range) {
+            selected = value
+                .split(' - ')
+                .map((d) => moment(new Date(d)).format(dateFormat));
+            selected.sort();
+            d = new Date(selected[0]);
+        } else {
+            d = new Date(value);
+            selected = [moment(d).format(dateFormat)];
+        }
+
+        const newState = {
+            date: d,
+            selected,
+            value,
+        };
+
+        setState(newState, 'DatePicker -> _onPickerInput()');
+    };
+
+    const _onPickerInputChange = _.throttle(_onPickerInput, 250, {
+        leading: false,
+    });
+
+    const _validate = (value) => {
+        const { dateFormat, maxDate, minDate, multiple, range } =
+            stateRef.current;
 
         const match = range ? `${dateFormat} - ${dateFormat}` : dateFormat;
 
@@ -195,53 +238,6 @@ let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
         return true;
     };
 
-    const _onCalendarNav = e => {
-        const { date, type } = e;
-        const { dateFormat } = stateRef.current;
-
-        stateRef.current.date = date;
-    };
-
-    const _onPickerInput = e => {
-        let { keyCode, type, value } = e;
-        const { date, dateFormat, range } = stateRef.current;
-
-        const specialKeys = [13];
-
-        if (specialKeys.includes(keyCode) && !value) {
-            value = e.target.value;
-        }
-
-        if (!value || !_validate(value)) {
-            return;
-        }
-
-        let d, selected;
-
-        if (range) {
-            selected = value
-                .split(' - ')
-                .map(d => moment(new Date(d)).format(dateFormat));
-            selected.sort();
-            d = new Date(selected[0]);
-        } else {
-            d = new Date(value);
-            selected = [moment(d).format(dateFormat)];
-        }
-
-        const newState = {
-            date: d,
-            selected,
-            value,
-        };
-
-        setState(newState, 'DatePicker -> _onPickerInput()');
-    };
-
-    const _onPickerInputChange = _.throttle(_onPickerInput, 250, {
-        leading: false,
-    });
-
     const _handle = () => ({
         Picker: pickerRef.current,
         setState,
@@ -267,8 +263,8 @@ let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
         Object.values(props),
     );
 
-    const renderUI = (provided, snapshot) => {
-        const { dateFormat, id } = stateRef.current;
+    const renderUI = () => {
+        const { id } = stateRef.current;
         const calendarProps = stateToCalendarProps({
             ...stateRef.current,
             iDocument,
@@ -296,10 +292,10 @@ let DatePicker = ({ iDocument, iWindow, ...props }, ref) => {
 
         return (
             <Picker
-                id={`picker-${id}`}
+                ref={pickerRef}
                 {...pickerProps}
                 children={renderUI}
-                ref={pickerRef}
+                id={`picker-${id}`}
                 onChange={_onPickerInputChange}
                 onKeyDown={_onPickerInputChange}
             />

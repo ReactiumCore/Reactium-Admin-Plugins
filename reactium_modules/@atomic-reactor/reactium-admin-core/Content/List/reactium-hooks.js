@@ -5,9 +5,10 @@
  */
 
 import Component from './index';
-import Reactium from '@atomic-reactor/reactium-core/sdk';
-import { useContent } from './useContent';
+import { Helmet } from 'react-helmet';
 import { SearchBar } from '../SearchBar';
+import { useContent } from './useContent';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 import { SearchFilters, SearchFilterOptions } from '../SearchBar/SearchFilters';
 
 import {
@@ -22,6 +23,8 @@ import {
         'ContentList',
         Reactium.Enums.priority.lowest,
     );
+
+    Reactium.Component.register('Helmet', Helmet);
 
     Reactium.Component.register('useContent', useContent);
 

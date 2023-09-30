@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $ar-slider-color-bar: $color-grey-light !default;
 $ar-slider-color-range: $color-blue !default;
 $ar-slider-color-handle: $color-white !default;
@@ -153,7 +155,34 @@ $ar-slider-shadow-inset: inset 0 0 3px 1px rgba($color-black, 0.125) !default;
                 transparent;
         }
     }
+}
 
+.horizontal {
+    .ar-slider-dot-1 {
+        top: 0;
+        left: 0;
+        content: '';
+        position: absolute;
+        border-radius: 100%;
+        width: math.div($ar-slider-height, 2);
+        height: math.div($ar-slider-height, 2);
+        transform: translate(-50%, 50%);
+        background-color: $ar-slider-color-bar;
+        box-shadow: $ar-slider-shadow-inset;
+    }
+
+    .ar-slider-dot-2 {
+        top: 0;
+        right: 0;
+        content: '';
+        position: absolute;
+        border-radius: 100%;
+        width: math.div($ar-slider-height, 2);
+        height: math.div($ar-slider-height, 2);
+        transform: translate(50%, 50%);
+        background-color: $ar-slider-color-bar;
+        box-shadow: $ar-slider-shadow-inset;
+    }
 }
 
 .vertical {
@@ -250,6 +279,5 @@ $ar-slider-shadow-inset: inset 0 0 3px 1px rgba($color-black, 0.125) !default;
                     transparent;
             }
         }
-
     }
 }

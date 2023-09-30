@@ -4,6 +4,9 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Resizable } from 're-resizable';
 import { Button, Icon, Spinner } from 'reactium-ui';
+import { useRouteParams } from 'reactium-admin-core';
+import { useContentTypes } from '../TypeList/useContentTypes';
+
 import React, {
     forwardRef,
     useCallback,
@@ -11,12 +14,11 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import { useRouteParams } from 'reactium-admin-core';
-import { useContentTypes } from '../TypeList/useContentTypes';
 
 import Reactium, {
     __,
     cxFactory,
+    useDispatcher,
     useAsyncEffect,
     useHookComponent,
     useRefs,
@@ -67,12 +69,16 @@ const initialSidebarWidth = () => {
     return size;
 };
 
-export const ContentEditor = ({ className, namespace }) => {
+export const ContentEditor = (props) => {
+    const { className, namespace, title } = props;
+
     const refs = useRefs();
 
     const params = useRouteParams();
 
     const [types] = useContentTypes(false);
+
+    const Helmet = useHookComponent('Helmet');
 
     const { Form } = useHookComponent('ReactiumUI');
 
@@ -80,16 +86,24 @@ export const ContentEditor = ({ className, namespace }) => {
         params,
         obj: false,
         ready: false,
+        valid: false,
         sidebarSize: initialSidebarWidth(),
     });
 
     const cx = cxFactory(namespace);
+
+    const dispatch = useDispatcher({ props, state });
 
     const isNew = useMemo(() => op.get(params, 'slug') === 'new', [params]);
 
     const isReady = useMemo(() => state.get('ready'), [state.get('ready')]);
 
     const isType = useMemo(() => !!state.get('type'), [state.get('type')]);
+
+    const isValid = () => {
+        if (!state.Form) return false;
+        return Object.keys(state.Form.error()).length < 1;
+    };
 
     const hasElements = useCallback(
         () => _.flatten(Object.values(elements)).length > 0,
@@ -179,7 +193,12 @@ export const ContentEditor = ({ className, namespace }) => {
 
     const onChange = (e) => {
         if (!isReady) return;
-        // console.log(e.target.value);
+
+        if (e.path === 'update' && e.detail === null) return;
+        const detail = e.detail || { changed: { previous: null } };
+        if (op.get(detail, 'changed.previous') === undefined) return;
+
+        dispatch(e.type, e);
     };
 
     const onChangeUUID = useCallback(() => {
@@ -222,53 +241,52 @@ export const ContentEditor = ({ className, namespace }) => {
         [isReady],
     );
 
-    const onSubmit = useCallback(
-        async (e) => {
-            if (!isReady) return;
+    const onSubmit = useCallback(async (e) => {
+        if (!isReady || !isValid()) return;
 
-            let { meta, slug, status, user, uuid, title, ...data } = _.clone(
-                e.value,
-            );
+        let { meta, slug, status, user, uuid, title, ...data } = _.clone(
+            e.value,
+        );
 
-            const cleanseData = [
-                'ACL',
-                'createdAt',
-                'updatedAt',
-                'taxonomy',
-                'objectId',
-                'type',
-                'user',
-            ];
-            cleanseData.forEach((field) => op.del(data, field));
+        const cleanseData = [
+            'ACL',
+            'createdAt',
+            'updatedAt',
+            'taxonomy',
+            'objectId',
+            'type',
+            'user',
+            'children',
+            'parent',
+        ];
+        cleanseData.forEach((field) => op.del(data, field));
 
-            const type = state.get('params.type');
-            user = op.get(user, 'objectId');
+        const type = state.get('params.type');
+        user = op.get(user, 'objectId');
 
-            const values = {
-                data,
-                meta,
-                slug,
-                status,
-                title,
-                type,
-                user,
-                uuid,
-            };
+        const values = {
+            data,
+            meta,
+            slug,
+            status,
+            title,
+            type,
+            user,
+            uuid,
+        };
 
-            try {
-                const results = await Reactium.Content.save(values);
-                e.target.complete(results);
-            } catch (err) {
-                e.target.setError('submit', err.message);
-            }
-        },
-        [isReady],
-    );
+        dispatch('submit', { value: values });
+
+        try {
+            const results = await Reactium.Content.save(values);
+            e.target.complete(results);
+        } catch (err) {
+            e.target.setError('submit', err.message);
+        }
+    });
 
     const onComplete = useCallback(async (e) => {
         const object = e.results;
-
-        console.log(object.get('uuid'));
 
         await Reactium.Hook.run('content-after-save', state);
 
@@ -293,15 +311,25 @@ export const ContentEditor = ({ className, namespace }) => {
         }
     }, []);
 
-    const onValidate = useCallback((e) => {
-        console.log('Editor', e.type);
+    const onValidate = useCallback(({ type, errors, values }) => {
+        dispatch(type, { errors, values });
     }, []);
+
+    const setError = (...args) => {
+        if (!state.Form) return;
+        state.Form.setError(...args);
+    };
 
     const setForm = useCallback((elm) => {
         if (state.Form) return;
         state.Form = elm;
         state.update();
     }, []);
+
+    const setValue = (...args) => {
+        if (!state.Form) return;
+        state.Form.setValue(...args);
+    };
 
     const onResize = useCallback((e, d, ref, s) => {
         if (unMounted()) return;
@@ -404,6 +432,12 @@ export const ContentEditor = ({ className, namespace }) => {
 
     state.extend('update', () => state.set('updated', Date.now()));
 
+    state.extend('isValid', isValid);
+
+    state.extend('setError', setError);
+
+    state.extend('setValue', setValue);
+
     state.isNew = isNew;
 
     state.isReady = isReady;
@@ -418,103 +452,112 @@ export const ContentEditor = ({ className, namespace }) => {
 
     state.refs = refs;
 
-    return !isReady ? (
-        <Spinner className={cx('spinner')} />
-    ) : (
-        <Form
-            ref={setForm}
-            onChange={onChange}
-            onComplete={onComplete}
-            onSubmit={onSubmit}
-            onValidate={onValidate}
-        >
-            {state.Form && (
-                <div
-                    ref={(elm) => refs.set('container', elm)}
-                    className={cn(cx(), cx(state.get('type')), className)}
-                >
-                    {regions.map((region, i) =>
-                        String(region.id).startsWith('sidebar') ? (
-                            <ResizeWrap
-                                key={`region-${i}`}
-                                className={cn(cx('column'), 'resizable')}
-                                size={
-                                    state.get('sidebarSize') ||
-                                    initialSidebarWidth()
-                                }
-                                onResizeStop={onResized}
-                                onResize={onResize}
-                            >
-                                <div
-                                    className={cx('sidebar-placeholder')}
-                                    ref={(elm) =>
-                                        refs.set('sidebarContainer', elm)
+    const render = () => {
+        return !isReady ? (
+            <Spinner className={cx('spinner')} />
+        ) : (
+            <Form
+                ref={setForm}
+                onChange={onChange}
+                onComplete={onComplete}
+                onSubmit={onSubmit}
+                onValidate={onValidate}
+            >
+                <Helmet>
+                    <title>
+                        {String(title).replace('%type', op.get(params, 'type'))}
+                    </title>
+                </Helmet>
+                {state.Form && (
+                    <div
+                        ref={(elm) => refs.set('container', elm)}
+                        className={cn(cx(), cx(state.get('type')), className)}
+                    >
+                        {regions.map((region, i) =>
+                            String(region.id).startsWith('sidebar') ? (
+                                <ResizeWrap
+                                    key={`region-${i}`}
+                                    className={cn(cx('column'), 'resizable')}
+                                    size={
+                                        state.get('sidebarSize') ||
+                                        initialSidebarWidth()
                                     }
-                                />
-                                <div
-                                    className={cn(
-                                        cx('sidebar'),
-                                        cx(`sidebar-${region.id}`),
-                                    )}
+                                    onResizeStop={onResized}
+                                    onResize={onResize}
                                 >
-                                    {op
-                                        .get(elements, [region.id], [])
-                                        .map(({ Component, ...item }) => (
-                                            <div
-                                                key={item.fieldId}
-                                                className={cn(
-                                                    cx('sidebar-element'),
-                                                    cx(
-                                                        `sidebar-element-${item.fieldId}`,
-                                                    ),
-                                                )}
-                                            >
-                                                <Component
-                                                    {...item}
+                                    <div
+                                        className={cx('sidebar-placeholder')}
+                                        ref={(elm) =>
+                                            refs.set('sidebarContainer', elm)
+                                        }
+                                    />
+                                    <div
+                                        className={cn(
+                                            cx('sidebar'),
+                                            cx(`sidebar-${region.id}`),
+                                        )}
+                                    >
+                                        {op
+                                            .get(elements, [region.id], [])
+                                            .map(({ Component, ...item }) => (
+                                                <div
                                                     key={item.fieldId}
-                                                    editor={state}
-                                                />
-                                            </div>
-                                        ))}
-                                </div>
-                            </ResizeWrap>
-                        ) : (
-                            <div
-                                key={`region-${i}`}
-                                className={cn(cx('column'))}
-                            >
+                                                    className={cn(
+                                                        cx('sidebar-element'),
+                                                        cx(
+                                                            `sidebar-element-${item.fieldId}`,
+                                                        ),
+                                                    )}
+                                                >
+                                                    <Component
+                                                        {...item}
+                                                        key={item.fieldId}
+                                                        editor={state}
+                                                    />
+                                                </div>
+                                            ))}
+                                    </div>
+                                </ResizeWrap>
+                            ) : (
                                 <div
-                                    className={cn(
-                                        cx(region.id),
-                                        `content-editor-${region.id}`,
-                                    )}
+                                    key={`region-${i}`}
+                                    className={cn(cx('column'))}
                                 >
-                                    {op
-                                        .get(elements, [region.id], [])
-                                        .map(({ Component, ...item }) => (
-                                            <div
-                                                key={item.fieldId}
-                                                className={cn(
-                                                    cx('element'),
-                                                    cx(
-                                                        `element-${item.fieldId}`,
-                                                    ),
-                                                )}
-                                            >
-                                                <Component
-                                                    {...item}
-                                                    editor={state}
-                                                />
-                                            </div>
-                                        ))}
+                                    <div
+                                        className={cn(
+                                            cx(region.id),
+                                            `content-editor-${region.id}`,
+                                        )}
+                                    >
+                                        {op
+                                            .get(elements, [region.id], [])
+                                            .map(({ Component, ...item }) => (
+                                                <div
+                                                    key={item.fieldId}
+                                                    className={cn(
+                                                        cx('element'),
+                                                        cx(
+                                                            `element-${item.fieldId}`,
+                                                        ),
+                                                    )}
+                                                >
+                                                    <Component
+                                                        {...item}
+                                                        editor={state}
+                                                    />
+                                                </div>
+                                            ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ),
-                    )}
-                </div>
-            )}
-        </Form>
-    );
+                            ),
+                        )}
+                    </div>
+                )}
+            </Form>
+        );
+    };
+
+    return render();
 };
 
 ContentEditor.propTypes = {
@@ -524,6 +567,7 @@ ContentEditor.propTypes = {
 
 ContentEditor.defaultProps = {
     namespace: 'admin-content-editor',
+    title: __('Content Editor / %type'),
 };
 
 const ResizeWrap = forwardRef(

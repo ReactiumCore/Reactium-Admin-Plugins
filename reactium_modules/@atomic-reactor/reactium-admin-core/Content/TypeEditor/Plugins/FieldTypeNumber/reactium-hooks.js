@@ -15,12 +15,11 @@ const fieldType = {
     Reactium.Plugin.register(`CTE-${ID}`).then(() => {
         Reactium.Component.register(fieldType.component, FieldType);
         Reactium.Content.Editor.register(ID, { component: Editor });
+        Reactium.ContentType.FieldType.register(ID, fieldType);
 
         // TODO: Fix Content SDK revisions
         // Reactium.Content.Comparison.register(ID, {
         //     component: Comparison,
         // });
-
-        Reactium.ContentType.FieldType.register(ID, fieldType);
     });
 })();

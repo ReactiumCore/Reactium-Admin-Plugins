@@ -55,10 +55,10 @@ let Picker = (
     });
 
     // State
-    const [state, setNewState] = useState(stateRef.current);
+    const [, setNewState] = useState(stateRef.current);
 
     // Internal Interface
-    const setState = newState => {
+    const setState = (newState) => {
         // Get the previous state
         const prevState = { ...stateRef.current };
 
@@ -73,7 +73,7 @@ let Picker = (
         setNewState(stateRef.current);
     };
 
-    const isChild = child => {
+    const isChild = (child) => {
         if (!child) {
             return true;
         }
@@ -89,7 +89,7 @@ let Picker = (
         return false;
     };
 
-    const dismiss = e => {
+    const dismiss = (e) => {
         if (!e) {
             return hide({ ref });
         }
@@ -99,7 +99,7 @@ let Picker = (
         return !isChild(e.target) ? hide(evt) : Promise.resolve(evt);
     };
 
-    const hide = e => {
+    const hide = (e) => {
         const { disabled } = stateRef.current;
         if (disabled === true) {
             return;
@@ -112,7 +112,7 @@ let Picker = (
         });
     };
 
-    const show = e => {
+    const show = (e) => {
         const { disabled } = stateRef.current;
         if (disabled === true) {
             return;
@@ -126,7 +126,7 @@ let Picker = (
         });
     };
 
-    const toggle = e => {
+    const toggle = (e) => {
         const { visible } = stateRef.current;
         return visible ? hide(e) : show(e);
     };
@@ -166,15 +166,15 @@ let Picker = (
         }
     });
 
-    const _onFocus = e => show(e).then(evt => onFocus(evt));
+    const _onFocus = (e) => show(e).then((evt) => onFocus(evt));
 
-    const _onInputChange = e => {
+    const _onInputChange = (e) => {
         const value = formatter(e.target.value);
         setState({ value });
         onChange({ ...e, value });
     };
 
-    const _onKeyDown = e => {
+    const _onKeyDown = (e) => {
         if (isChild(e.target)) {
             switch (e.keyCode) {
                 case 27:
@@ -272,7 +272,7 @@ Picker.propTypes = {
 };
 
 Picker.defaultProps = {
-    formatter: val => val,
+    formatter: (val) => val,
     icon: {
         closed: <Feather.ChevronDown />,
         opened: <Feather.ChevronUp />,

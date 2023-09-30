@@ -5,8 +5,8 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Spinner } from 'reactium-ui';
 import { ListItem } from '../ListItem';
-import React, { useCallback, useEffect } from 'react';
 import { useRouteParams } from 'reactium-admin-core';
+import React, { useCallback, useEffect } from 'react';
 
 import Reactium, {
     __,
@@ -119,6 +119,13 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
 
     const cx = cxFactory(namespace);
 
+    useStateEffect(
+        {
+            [cx('search')]: onSearch,
+        },
+        [],
+    );
+
     useEffect(() => {
         const path = op.get(Reactium.Routing.currentRoute, 'location.pathname');
         if (!String(path).startsWith('/admin/content')) return;
@@ -131,13 +138,6 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
 
         if (type !== curr) fetch({ page, type });
     }, [params]);
-
-    useStateEffect(
-        {
-            [cx('search')]: onSearch,
-        },
-        [],
-    );
 
     useEffect(() => {
         const type = state.get('type');
@@ -173,7 +173,11 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
             <Spinner className={cx('spinner')} />
         ) : (
             <div className={cn({ [cx()]: true, [className]: !!className })}>
-                <Helmet>{title}</Helmet>
+                <Helmet>
+                    <title>
+                        {String(title).replace('%type', state.get('type'))}
+                    </title>
+                </Helmet>
                 <div className={cx('content')}>
                     {isEmpty() ? (
                         <Empty />
@@ -219,7 +223,7 @@ ContentList.propTypes = {
 ContentList.defaultProps = {
     limit: 50,
     namespace: 'admin-content-list',
-    title: __('Content'),
+    title: __('Content / %type'),
 };
 
 const ContentListShim = () => {
