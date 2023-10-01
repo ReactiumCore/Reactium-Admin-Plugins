@@ -12,9 +12,9 @@ $light: $color-white !default;
 $dark: $color-black !default;
 $tint: $color-tint !default;
 $input-color-focus: $info;
-$input-color-border: $color-grey;
 $input-color-placeholder: $color-gray;
 $input-color-error: $error;
+$input-color-border: $color-grey-light; 
 
 // COLORS
 $color-danger: #e09797 !default;

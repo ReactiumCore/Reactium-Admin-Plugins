@@ -30,7 +30,7 @@
             @include breakpoint(md) {
                 flex-direction: row;
                 flex-wrap: wrap;
-                border-right: 1px solid #F3F3F3;
+                border-right: 1px solid $input-color-border;
                 margin-right: -1px;
 
                 .add-btn,
@@ -43,7 +43,7 @@
                 }
 
                 select {
-                    border: 1px solid #f3f3f3;
+                    border: 1px solid $input-color-border;
                     height: 41px;
                     flex-grow: 0;
                     min-width: 120px;
@@ -51,7 +51,6 @@
                     &:not(:last-child) {
                         margin-right: -1px;
                     }
-
                 }
             }
 
@@ -59,7 +58,7 @@
                 input,
                 select,
                 textarea {
-                    border: 1px solid #f3f3f3;
+                    border: px solid $input-color-border;
                     border-radius: 2px;
                 }
             }
@@ -68,7 +67,7 @@
                 input,
                 select,
                 textarea {
-                    border: 1px solid #f3f3f3;
+                    border: 1px solid $input-color-border;
                     border-radius: 2px;
                 }
             }
@@ -137,6 +136,57 @@
                         opacity: 1;
                         background-color: lighten($color-grey-light, 2%);
                         border-radius: 4px 0px 0px 4px;
+                    }
+                }
+            }
+        }
+
+        &-collection {
+            position: relative;
+
+            &-select-thumb {
+                top: 50%;
+                left: 5px;
+                width: 32px;
+                height: 32px;
+                position: absolute;
+                border-radius: 2px;
+                background-size: cover;
+                transform: translateY(-50%);
+            }
+
+            &-list {
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid $input-color-border;
+
+                &-item {
+                    width: 100%;
+                    padding: 4px;
+                    display: flex;
+                    cursor: pointer;
+                    border-radius: 2px;
+                    align-items: center;
+                    background-color: #fcfcfc;
+                    border: 1px solid transparent;
+
+                    &:focus,
+                    &:hover {
+                        background-color: $color-light;
+                        border: 1px solid $color-primary;
+                        box-shadow: 0 0 4px rgba($color-primary, 0.6);
+                    }
+
+                    &:not(:first-child) {
+                        margin-top: 10px;
+                    }
+
+                    &-thumb {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 2px;
+                        background-size: cover;
+                        margin-right: 10px;
                     }
                 }
             }

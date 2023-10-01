@@ -21,8 +21,7 @@ const fieldType = {
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
-    // TODO: Fix Content SDK
-    // Reactium.Content.Editor.register(ID, { component: Editor });
+    Reactium.Content.Editor.register(ID, { component: Editor });
     Reactium.Component.register(fieldType.component, FieldType);
     Reactium.ContentType.FieldType.register(ID, fieldType);
 });

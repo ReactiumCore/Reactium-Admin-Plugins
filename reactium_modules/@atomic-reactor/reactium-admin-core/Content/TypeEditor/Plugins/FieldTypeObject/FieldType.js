@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import op from 'object-path';
 import camelcase from 'camelcase';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import Reactium, {
@@ -34,7 +34,8 @@ export const FieldType = (props) => {
 
     const [state, setState] = useDerivedState({
         options: {},
-        types: types(['number', 'tags', 'text', 'textarea', 'media']),
+        type: null,
+        types: types(['number', 'string', 'array', 'boolean', 'pointer']),
     });
 
     const { DragHandle } = props;
@@ -59,9 +60,10 @@ export const FieldType = (props) => {
 
         op.set(options, key, { index, key, placeholder, type, value });
 
+        refs.current.key.value = null;
+        refs.current.value.value = null;
+        refs.current.placeholder.value = null;
         refs.current.type.focus();
-        refs.current.key.value = '';
-        refs.current.value.value = '';
 
         setState({ options });
     };
@@ -139,13 +141,18 @@ export const FieldType = (props) => {
         };
     };
 
+    const onTypeChange = (e) => setState({ type: e.target.value });
+
     useEffect(onLoad);
 
     return (
         <FieldTypeDialog {...props} showHelpText={false}>
             <div className={cx()}>
                 <div className='input-group'>
-                    <select ref={(elm) => op.set(refs.current, 'type', elm)}>
+                    <select
+                        ref={(elm) => op.set(refs.current, 'type', elm)}
+                        onChange={onTypeChange}
+                    >
                         <option value='null'>{__('Type')}</option>
                         {state.types.map((type, i) => (
                             <option key={`type-${i}`}>{type}</option>
@@ -154,7 +161,7 @@ export const FieldType = (props) => {
                     <input
                         type='text'
                         ref={(elm) => op.set(refs.current, 'key', elm)}
-                        placeholder={__('Key')}
+                        placeholder={__('Property')}
                         onKeyDown={onEnterPress}
                     />
                     <input
@@ -165,9 +172,13 @@ export const FieldType = (props) => {
                     />
                     <input
                         type='text'
-                        ref={(elm) => op.set(refs.current, 'value', elm)}
-                        placeholder={__('Default value')}
                         onKeyDown={onEnterPress}
+                        ref={(elm) => op.set(refs.current, 'value', elm)}
+                        placeholder={
+                            state.type !== 'pointer'
+                                ? __('Default value')
+                                : __('Collection')
+                        }
                     />
                     <Button
                         color={Button.ENUMS.COLOR.TERTIARY}
@@ -194,13 +205,13 @@ export const FieldType = (props) => {
                                 {options(state.options).map(
                                     ({ key, value }, i) => (
                                         <ListItem
-                                            index={i}
                                             k={key}
+                                            index={i}
+                                            value={value}
                                             key={`key-${key}`}
                                             onChange={onChange}
                                             onDelete={onDelete}
                                             types={state.types}
-                                            value={value}
                                         />
                                     ),
                                 )}
@@ -217,6 +228,13 @@ export const FieldType = (props) => {
 const ListItem = (props) => {
     const { onChange, onDelete, index, k: key, types, value } = props;
     const { Button, Icon } = useHookComponent('ReactiumUI');
+    const [type, setType] = useState(op.get(value, 'type'));
+
+    const onTypeChange = (e) => {
+        setType(e.target.value);
+        onChange(e);
+    };
+
     return (
         <Draggable draggableId={key} index={index}>
             {(provided, snapshot) => (
@@ -232,7 +250,7 @@ const ListItem = (props) => {
                         <select
                             data-key={key}
                             data-field='type'
-                            onChange={onChange}
+                            onChange={onTypeChange}
                             value={op.get(value, 'type', 'null')}
                         >
                             <option value='null'>{__('Type')}</option>
@@ -242,10 +260,10 @@ const ListItem = (props) => {
                         </select>
 
                         <input
-                            type='text'
-                            placeholder={__('Key')}
-                            value={key}
                             readOnly
+                            value={key}
+                            type='text'
+                            placeholder={__('Property')}
                         />
 
                         <input
@@ -261,15 +279,19 @@ const ListItem = (props) => {
                             type='text'
                             data-key={key}
                             data-field='value'
-                            placeholder={__('Default Value')}
-                            value={op.get(value, 'value') || ''}
                             onChange={onChange}
+                            value={op.get(value, 'value') || ''}
+                            placeholder={
+                                type !== 'pointer'
+                                    ? __('Default value')
+                                    : __('Collection')
+                            }
                         />
 
                         <Button
                             className='del-btn'
-                            color={Button.ENUMS.COLOR.DANGER}
                             onClick={() => onDelete(key)}
+                            color={Button.ENUMS.COLOR.DANGER}
                             style={{ padding: 0, height: 41 }}
                         >
                             <Icon
