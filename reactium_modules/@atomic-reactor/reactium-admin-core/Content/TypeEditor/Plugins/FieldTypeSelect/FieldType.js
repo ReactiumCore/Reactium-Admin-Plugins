@@ -4,8 +4,8 @@ import op from 'object-path';
 import React, { useEffect, useRef } from 'react';
 import Reactium, {
     __,
-    useDerivedState,
     useHookComponent,
+    useSyncState,
 } from '@atomic-reactor/reactium-core/sdk';
 
 /**
@@ -18,9 +18,11 @@ export const FieldType = (props) => {
 
     const refs = useRef({});
 
-    const [state, setState] = useDerivedState({
+    const state = useSyncState({
         options: [],
     });
+
+    const setState = (...args) => state.set(...args);
 
     const { DragHandle } = props;
     const { Button, Checkbox, Icon } = useHookComponent('ReactiumUI');
@@ -32,7 +34,7 @@ export const FieldType = (props) => {
         const label = op.get(refs.current, 'label').value;
         const value = op.get(refs.current, 'value').value;
 
-        let { options = [] } = state;
+        let options = state.get('options') || [];
 
         options = _.flatten([options]);
         options.push({ label, value });
@@ -47,7 +49,9 @@ export const FieldType = (props) => {
     };
 
     const onChange = (e) => {
-        let { options } = state;
+        console.log(e);
+        let options = state.get('options') || [];
+
         const { value } = e.currentTarget;
         const { index, key } = e.currentTarget.dataset;
         op.set(options, [index, key], value);
@@ -55,7 +59,8 @@ export const FieldType = (props) => {
     };
 
     const onDelete = (index) => {
-        let { options = [] } = state;
+        let options = state.get('options') || [];
+
         options.splice(index, 1);
         setState({ options });
     };
@@ -71,7 +76,9 @@ export const FieldType = (props) => {
         const { fieldId, fieldType } = params;
 
         if (fieldId === id) {
-            op.set(params, 'fieldValue.options', state.options);
+            let options = state.get('options') || [];
+
+            op.set(params, 'fieldValue.options', options);
             if (op.get(params, 'fieldValue.multiple') === true) {
                 params.fieldType = `${fieldType}Array`;
             }
@@ -94,7 +101,7 @@ export const FieldType = (props) => {
     };
 
     const options = () => {
-        let options = op.get(state, 'options');
+        let options = state.get('options') || [];
         options = _.compact(options);
         return options;
     };
@@ -113,10 +120,17 @@ export const FieldType = (props) => {
                         />
                     </div>
                 </div>
-                <div className='pl-xs-0 pl-md-20'>
+                <div className='pl-xs-0 pl-md-20 flex'>
                     <Checkbox
                         name='multiple'
                         label={__('Multiple')}
+                        labelAlign='right'
+                        value={true}
+                        style={{ marginRight: 20 }}
+                    />
+                    <Checkbox
+                        name='required'
+                        label={__('Required')}
                         labelAlign='right'
                         value={true}
                     />
