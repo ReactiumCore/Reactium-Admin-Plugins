@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
     __,
     useHookComponent,
@@ -9,14 +9,14 @@ import {
 } from '@atomic-reactor/reactium-core/sdk';
 
 export const Editor = (props) => {
-    const {
-        editor,
-        fieldName,
-        placeholder,
-        required = true,
-        options = [],
-        multiple,
-    } = props;
+    const { editor, fieldName, placeholder, required = true, multiple } = props;
+
+    const options = useMemo(() => {
+        const opts = _.isString(props.options)
+            ? JSON.parse(props.options)
+            : props.options;
+        return Object.values(opts);
+    }, [props.options]);
 
     const { FormRegister, FormError, Toggle } = useHookComponent('ReactiumUI');
     const ElementDialog = useHookComponent('ElementDialog');
