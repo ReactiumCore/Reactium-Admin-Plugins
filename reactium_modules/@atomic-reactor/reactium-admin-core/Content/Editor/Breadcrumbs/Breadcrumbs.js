@@ -27,7 +27,7 @@ const Render = () => {
             types === null
                 ? null
                 : _.findWhere(types, { machineName: op.get(params, 'type') }),
-        [types],
+        [types, op.get(params, 'type')],
     );
 
     const slug = useMemo(
@@ -42,7 +42,7 @@ const Render = () => {
                 : Reactium.Routing.history.push(
                       `/admin/content/${params.type}/page/1`,
                   ),
-        [slug],
+        [slug, op.get(params, 'type')],
     );
 
     return !type ? null : (
