@@ -15,15 +15,17 @@ export default (props) => {
     const [taxonomy, setTaxonomy] = useState([]);
     const [, setStatus, isStatus] = useStatus('init');
 
+    const isTaxonomy = op.has(Reactium, 'Taxonomy.Type.list');
+
     const load = async (mounted) => {
         if (!isStatus('init')) return;
 
-        setStatus('loading');
-
-        if (!op.has(Reactium, 'Taxonomy.Type.list')) {
-            setStatus('ready', true);
+        if (!isTaxonomy) {
+            setStatus('ready');
             return;
         }
+
+        setStatus('loading');
 
         const { results } = await Reactium.Taxonomy.Type.list();
         if (!mounted()) return;
@@ -39,18 +41,23 @@ export default (props) => {
             <div className='field-type-url'>
                 {isStatus('ready') && (
                     <>
-                        <div className='form-group'>
-                            <select name='prefix'>
-                                <option value='null'>
-                                    {__('Taxonomy Prefix')}
-                                </option>
-                                {taxonomy.map(({ slug, name }) => (
-                                    <option key={`tax-${slug}`} value={slug}>
-                                        {name}
+                        {isTaxonomy && (
+                            <div className='form-group'>
+                                <select name='prefix'>
+                                    <option value='null'>
+                                        {__('Taxonomy Prefix')}
                                     </option>
-                                ))}
-                            </select>
-                        </div>
+                                    {taxonomy.map(({ slug, name }) => (
+                                        <option
+                                            key={`tax-${slug}`}
+                                            value={slug}
+                                        >
+                                            {name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                         <div className='form-group'>
                             <input
                                 type='text'
