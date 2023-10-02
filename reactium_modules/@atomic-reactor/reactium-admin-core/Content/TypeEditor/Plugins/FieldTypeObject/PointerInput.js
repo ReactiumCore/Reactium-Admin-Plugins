@@ -10,7 +10,7 @@ import Reactium, {
 } from '@atomic-reactor/reactium-core/sdk';
 
 const PointerInput = forwardRef((props, ref) => {
-    const { collection, fieldName, value: defaultValue } = props;
+    const { collection, fieldName, value: defaultValue = null } = props;
 
     const refs = useRefs();
 
@@ -18,6 +18,7 @@ const PointerInput = forwardRef((props, ref) => {
         search: {},
         searchString: null,
         value: defaultValue,
+        previous: null,
     });
 
     const value = state.get('value');
@@ -77,12 +78,8 @@ const PointerInput = forwardRef((props, ref) => {
     state.extend('dispatch', dispatch);
 
     useEffect(() => {
-        const previous = JSON.parse(
-            JSON.stringify(state.get('previous') || {}),
-        );
         state.value = state.get('value');
-        state.set('previous', state.value);
-        dispatch('change', { previous, value: state.value });
+        dispatch('change', { value: state.value });
     }, [state.get('value')]);
 
     useImperativeHandle(ref, () => state);
@@ -112,6 +109,7 @@ const PointerInput = forwardRef((props, ref) => {
                 </span>
             </div>
             <PointerSearchResults
+                {...props}
                 onSelect={onCollectionSelect}
                 value={state.get('search.results')}
                 ref={(elm) => refs.set('results', elm)}
@@ -164,13 +162,21 @@ const PointerSearchResults = forwardRef((props, ref) => {
 
     const dispatch = useDispatcher({ props, state });
 
-    const onSelect = (item) => () => {
+    const _onSelect = (item) => () => {
         const { onSelect } = props;
         if (!_.isFunction(onSelect)) return;
 
-        state.set('value', item, false);
-        dispatch('select', { value: item });
+        const value = {
+            ...item,
+            className: props.collection,
+        };
+
+        state.set('value', null, false);
+        state.set('value', value, false);
+        dispatch('select', { value });
     };
+
+    const onSelect = _.throttle(_onSelect, 1000, { trailing: false });
 
     state.results = results;
 
@@ -183,10 +189,13 @@ const PointerSearchResults = forwardRef((props, ref) => {
     }, [state.get('results')]);
 
     useEffect(() => {
-        if (!_.isFunction(props.onSelect)) return;
-        state.addEventListener('select', props.onSelect);
+        if (_.isFunction(props.onSelect)) {
+            state.addEventListener('select', props.onSelect);
+        }
         return () => {
-            state.removeEventListener('select', props.onSelect);
+            if (_.isFunction(props.onSelect)) {
+                state.removeEventListener('select', props.onSelect);
+            }
         };
     }, [props.onSelect]);
 

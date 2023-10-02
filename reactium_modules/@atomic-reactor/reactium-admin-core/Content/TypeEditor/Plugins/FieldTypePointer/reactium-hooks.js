@@ -6,23 +6,23 @@ import Reactium, {
     useHookComponent,
 } from '@atomic-reactor/reactium-core/sdk';
 
-const ID = 'Select';
+const ID = 'Pointer';
 
 const Ico = () => {
     const { Icon } = useHookComponent('ReactiumUI');
-    return <Icon name='Linear.ChevronDownSquare' />;
+    return <Icon name='Linear.PointerUp' />;
 };
 
 const fieldType = {
     icon: Ico,
-    label: __('Select Field'),
-    component: 'FieldTypeSelect',
-    tooltip: __('Adds a select element'),
-    order: Reactium.Enums.priority.highest + 1,
+    label: __('Pointer Field'),
+    component: 'FieldTypePointer',
+    tooltip: __('Adds an Pointer field type'),
+    order: Reactium.Enums.priority.neutral,
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
+    Reactium.ContentType.FieldType.register(ID, fieldType);
     Reactium.Content.Editor.register(ID, { component: Editor });
     Reactium.Component.register(fieldType.component, FieldType);
-    Reactium.ContentType.FieldType.register(ID, fieldType);
 });

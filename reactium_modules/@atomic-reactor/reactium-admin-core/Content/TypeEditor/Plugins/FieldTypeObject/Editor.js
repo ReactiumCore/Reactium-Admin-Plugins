@@ -17,7 +17,8 @@ export const Editor = (props) => {
     );
 
     const onPointerChange = (key) => (e) => {
-        editor.Form.setValue(`${fieldName}.${key}`, e.value);
+        const value = _.isArray(e.value) ? _.first(e.value) : e.value;
+        editor.Form.setValue(`${fieldName}.${key}`, value);
     };
 
     const onSubmit = useCallback((e) => {
@@ -114,6 +115,7 @@ export const Editor = (props) => {
                         </div>
                         {type === 'pointer' && (
                             <PointerInput
+                                {...item}
                                 {...props}
                                 value={v}
                                 fieldName={name}

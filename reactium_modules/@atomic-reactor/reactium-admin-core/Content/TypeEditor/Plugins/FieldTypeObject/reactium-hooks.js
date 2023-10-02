@@ -17,7 +17,7 @@ const fieldType = {
     label: __('Object Field'),
     component: 'FieldTypeObject',
     tooltip: __('Adds an Object field type'),
-    order: Reactium.Enums.priority.neutral + 1,
+    order: Reactium.Enums.priority.neutral + 2,
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
