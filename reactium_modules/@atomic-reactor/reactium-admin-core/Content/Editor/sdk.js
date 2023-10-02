@@ -260,7 +260,7 @@ class SDK {
             try {
                 return Reactium.Cloud.run('content-save', req.object);
             } catch (err) {
-                throw new Error(err.message);
+                return new Error(err.message);
             }
         };
     }

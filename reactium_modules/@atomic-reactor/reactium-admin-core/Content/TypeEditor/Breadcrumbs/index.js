@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import uuid from 'uuid/v4';
 import op from 'object-path';
 import React, { useState, useEffect } from 'react';
 import { Button, Icon } from 'reactium-ui';
@@ -58,7 +57,7 @@ export default () => {
                 {id && <li className='uppercase'>{type || __('New')}</li>}
                 {id && type && (
                     <li className='hide-xs show-md'>
-                        {id === 'new' ? 'NEW' : id}
+                        {id === 'new' ? __('NEW') : id}
                     </li>
                 )}
             </ul>

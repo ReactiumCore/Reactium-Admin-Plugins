@@ -1,8 +1,8 @@
 import SDK from './sdk';
 import Dashboard from './index';
 import Breadcrumbs from './Breadcrumbs';
-import Reactium from '@atomic-reactor/reactium-core/sdk';
 import SidebarWidget from './SidebarWidget';
+import Reactium from '@atomic-reactor/reactium-core/sdk';
 
 const AdminDashboardPlugin = async () => {
     await Reactium.Plugin.register(

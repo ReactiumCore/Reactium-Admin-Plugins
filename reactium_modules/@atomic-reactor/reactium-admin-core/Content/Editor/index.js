@@ -277,11 +277,13 @@ export const ContentEditor = (props) => {
 
         dispatch('submit', { value: values });
 
-        try {
-            const results = await Reactium.Content.save(values);
+        const results = await Reactium.Content.save(values);
+
+        if (_.isError(results)) {
+            e.target.setError('submit', results.message);
+            dispatch('submit-error', { error: results, values });
+        } else {
             e.target.complete(results);
-        } catch (err) {
-            e.target.setError('submit', err.message);
         }
     });
 
@@ -301,7 +303,7 @@ export const ContentEditor = (props) => {
             message,
             autoClose: 2500,
             type: Toast.TYPE.SUCCESS,
-            icon: <Icon name='Feather.Check' style={{ marginRight: 12 }} />,
+            icon: <Icon name='Feather.Check' style={{ marginRight: 20 }} />,
         });
 
         if (isNew) {

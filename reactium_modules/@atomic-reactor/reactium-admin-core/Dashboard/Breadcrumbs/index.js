@@ -1,6 +1,6 @@
 import React from 'react';
-import { __ } from '@atomic-reactor/reactium-core/sdk';
 import { Button, Icon } from 'reactium-ui';
+import { __ } from '@atomic-reactor/reactium-core/sdk';
 import { useDoesMatchPath } from 'reactium-admin-core';
 
 export default () => {
