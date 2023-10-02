@@ -15,16 +15,7 @@ const fieldType = {
 };
 
 Reactium.Plugin.register(`CTE-${ID}`).then(() => {
-    // TODO: Fix Content SDK
     Reactium.Content.Editor.register(ID, { component: Editor });
-    // Reactium.Content.Editor.register(`${ID}Array`, { component: Editor });
     Reactium.Component.register(fieldType.component, FieldType);
     Reactium.ContentType.FieldType.register(ID, fieldType);
-
-    Reactium.Hook.registerSync('content-type-field-type-list', (list) => {
-        const Select = op.get(list, 'Select');
-        if (!op.get(list, 'SelectArray') && op.get(list, 'Select')) {
-            op.set(list, 'SelectArray', { ...Select, type: 'SelectArray' });
-        }
-    });
 });

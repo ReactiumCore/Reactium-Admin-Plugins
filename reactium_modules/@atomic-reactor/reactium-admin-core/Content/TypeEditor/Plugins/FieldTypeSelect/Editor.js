@@ -9,7 +9,13 @@ import {
 } from '@atomic-reactor/reactium-core/sdk';
 
 export const Editor = (props) => {
-    const { editor, fieldName, placeholder, required = true, multiple } = props;
+    const {
+        editor,
+        fieldName,
+        placeholder,
+        required = false,
+        multiple,
+    } = props;
 
     const options = useMemo(() => {
         const opts = _.isString(props.options)
