@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import React from 'react';
 import op from 'object-path';
 import Reactium, {
@@ -40,7 +41,7 @@ const AppSettings = ({
         });
 
     return (
-        <div className={className}>
+        <div className={cn(className, 'px-xs-20 pt-xs-80 pb-xs-20')}>
             {title && (
                 <Helmet>
                     <meta charSet='utf-8' />
