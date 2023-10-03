@@ -13,6 +13,24 @@ import Reactium, { __, useDispatcher } from '@atomic-reactor/reactium-core/sdk';
  * Functional Component: ListItem
  * -----------------------------------------------------------------------------
  */
+
+const updatedObj = (obj) => {
+    const { type, uuid } = obj;
+    const ck = `content.${type}.${uuid}`;
+    const cached = Reactium.Cache.get(ck);
+
+    if (cached) {
+        const cupd = cached.updatedAt;
+        const upd = obj.updatedAt;
+
+        if (moment(cupd).isAfter(moment(upd))) {
+            return { ...obj, ...cached };
+        }
+    }
+
+    return obj;
+};
+
 export const ListItemIcon = ({ cx, meta, path, idField, ...props }) => {
     return (
         <Link
@@ -170,7 +188,9 @@ export const ListItemStatus = ({ status, handle }) => {
     );
 };
 
-export const ListItem = ({ registry, ...props }) => {
+export const ListItem = ({ registry, ...initialProps }) => {
+    const props = updatedObj(initialProps);
+
     const dispatch = useDispatcher({ props });
 
     const { className, idField, path, zone } = props;

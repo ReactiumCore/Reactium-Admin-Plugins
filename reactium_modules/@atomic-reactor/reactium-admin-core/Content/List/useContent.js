@@ -1,5 +1,6 @@
+import _ from 'underscore';
 import op from 'object-path';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Reactium, { useAsyncEffect } from '@atomic-reactor/reactium-core/sdk';
 
 export const useContent = (type, defaultValue = []) => {
@@ -11,14 +12,19 @@ export const useContent = (type, defaultValue = []) => {
 
     const refresh = () => fetch({ page, type, refresh: true });
 
-    useEffect(
-        () =>
-            Reactium.Cache.subscribe(`content.${type}`, async ({ op }) => {
-                if (['set', 'del'].includes(op)) {
-                    update(Date.now());
-                }
-            }),
-        [updated],
+    useAsyncEffect(
+        async (mounted) =>
+            Reactium.Cache.subscribe(
+                `content.${type}`,
+                async ({ op: oper, value }) => {
+                    if (['set', 'del'].includes(oper)) {
+                        const changed = op.get(value, type);
+                        if (mounted()) setContent(changed);
+                        update(Date.now());
+                    }
+                },
+            ),
+        [type, updated],
     );
 
     useAsyncEffect(

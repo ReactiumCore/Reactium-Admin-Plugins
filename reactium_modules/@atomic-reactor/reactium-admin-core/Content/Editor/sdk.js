@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import moment from 'moment';
 import op from 'object-path';
 import { Button } from 'reactium-ui';
 import Reactium, { __, Registry } from '@atomic-reactor/reactium-core/sdk';
@@ -258,7 +259,19 @@ class SDK {
             ]);
 
             try {
-                return Reactium.Cloud.run('content-save', req.object);
+                const newObj = await Reactium.Cloud.run(
+                    'content-save',
+                    req.object,
+                );
+                if (!_.isError(newObj)) {
+                    const cached = Reactium.Cache.get('content') || {
+                        [type]: {},
+                    };
+                    op.set(cached, [type, newObj.get('uuid')], newObj.toJSON());
+                    Reactium.Cache.set('content', cached);
+                }
+
+                return newObj;
             } catch (err) {
                 return new Error(err.message);
             }

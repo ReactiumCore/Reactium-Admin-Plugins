@@ -36,12 +36,16 @@ const Render = () => {
     );
 
     const onClick = useCallback(
-        () =>
-            !slug
-                ? null
-                : Reactium.Routing.history.push(
-                      `/admin/content/${params.type}/page/1`,
-                  ),
+        (e) => {
+            e.target.blur();
+            e.preventDefault();
+
+            if (slug) {
+                Reactium.Routing.history.push(
+                    `/admin/content/${params.type}/page/1`,
+                );
+            }
+        },
         [slug, op.get(params, 'type')],
     );
 
@@ -55,7 +59,7 @@ const Render = () => {
             </li>
             {type && (
                 <li className='uppercase'>
-                    <a href='javascript:void(0)' onClick={onClick}>
+                    <a href='#' onClick={onClick}>
                         {type.machineName}
                     </a>
                 </li>

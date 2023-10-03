@@ -37,7 +37,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         updated: null,
     });
 
-    const filter = useCallback(() => {
+    const filter = () => {
         if (!data || data === false) return;
         const { limit, page, search, type } = state.get();
 
@@ -105,7 +105,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
             filtered: items,
             pages: Math.ceil(results.length / limit),
         });
-    }, [data, state.get('search'), state.get('updated')]);
+    };
 
     const onSearch = useCallback((e) => {
         state.set('search', String(e.value || '').toLowerCase(), true);
@@ -194,7 +194,7 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
                                     {...item}
                                     {...handle}
                                     handle={state}
-                                    key={item.uuid}
+                                    key={`${item.uuid}.${Date.now()}`}
                                     registry={Reactium.Content.ListComponents}
                                 />
                             ))}
