@@ -112,10 +112,9 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         state.set('updated', Date.now());
     }, []);
 
-    const isEmpty = useCallback(
-        () => Boolean(data !== false && data.length < 1),
-        [data],
-    );
+    const isEmpty = useCallback(() => {
+        return Boolean(data !== false && Object.values(data).length < 1);
+    }, [data]);
 
     const cx = cxFactory(namespace);
 
@@ -152,7 +151,9 @@ const ContentList = ({ className, limit: initialLimit, namespace, title }) => {
         );
     }, [state.get('type')]);
 
-    useEffect(() => filter(), [data, state.get('updated')]);
+    useEffect(() => filter(), [data]);
+
+    useEffect(() => filter(), [state.get('updated')]);
 
     const render = () => {
         const { filtered, type } = state.get();

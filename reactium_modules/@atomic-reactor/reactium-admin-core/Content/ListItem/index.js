@@ -5,8 +5,15 @@ import op from 'object-path';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'reactium-ui';
-import React, { useEffect, useMemo, useState } from 'react';
-import Reactium, { __, useDispatcher } from '@atomic-reactor/reactium-core/sdk';
+import React, { forwardRef, useEffect, useMemo, useState } from 'react';
+
+import Reactium, {
+    __,
+    useDispatcher,
+    useHookComponent,
+    useRefs,
+    useSyncState,
+} from '@atomic-reactor/reactium-core/sdk';
 
 /**
  * -----------------------------------------------------------------------------
@@ -121,42 +128,192 @@ export const ListItemAdd = ({ type }) => (
     />
 );
 
-export const ListItemDelete = ({ dispatch, title, ...props }) => {
-    let e;
+export const ListItemDelete = (props) => {
+    const refs = useRefs();
 
-    switch (op.get(props, 'data-zone-ns')) {
-        case 'admin-content-type-list':
-            e = 'content-type-delete';
-            break;
+    let { handle, status, title, type, uuid } = props;
 
-        default:
-            e = 'content-delete';
-    }
+    const state = useSyncState({
+        status: 'READY',
+        confirmInput: null,
+        confirmMatch: __('purge content'),
+    });
 
-    title = String(__('Delete %title')).replace(/%title/gi, title);
+    const ConfirmBox = useHookComponent('ConfirmBox');
+
+    const isStatus = (str) =>
+        Boolean(
+            String(str).toUpperCase() ===
+                String(state.get('status')).toUpperCase(),
+        );
+
+    const tooltip =
+        status !== Reactium.Content.STATUS.DELETED.value
+            ? String(__('Delete %title')).replace(/%title/gi, title)
+            : String(__('Purge %title')).replace(/%title/gi, title);
 
     const tip = {
-        title,
+        title: tooltip,
+        type: 'button',
         'data-align': 'left',
-        'data-tooltip': title,
+        'data-tooltip': tooltip,
         'data-vertical-align': 'middle',
     };
 
-    return (
-        <div className='delete'>
-            <button
-                {...tip}
-                onClick={() =>
-                    dispatch(e, {
-                        details: props,
-                    })
+    const onClick = () => {
+        const evt =
+            op.get(props, 'data-zone-ns') === 'admin-content-type-list'
+                ? 'content-type-delete'
+                : status !== Reactium.Content.STATUS.DELETED.value
+                ? 'content-delete'
+                : 'content-purge';
+
+        handle.dispatch(evt, {
+            detail: props,
+        });
+    };
+
+    const onDelete = async (e) => {
+        if (isStatus('PENDING')) return;
+
+        if (e.detail.uuid !== uuid) return;
+
+        const { Toast } = Reactium.State.Tools;
+
+        state.set('status', 'PENDING');
+
+        state.set('confirmInput', null);
+
+        let icon, message, result, toastType;
+
+        const isPurge = Boolean(
+            props.status === Reactium.Content.STATUS.DELETED.value,
+        );
+
+        try {
+            result = !isPurge
+                ? await Reactium.Content.setStatus({
+                      type,
+                      uuid,
+                      status: Reactium.Content.STATUS.DELETED.value,
+                  })
+                : await Reactium.Content.delete({
+                      type,
+                      uuid,
+                  });
+
+            icon = 'Feather.Check';
+
+            toastType = Toast.TYPE.SUCCESS;
+
+            message = isPurge
+                ? __('Purged %title').replace(/%title/gi, title)
+                : __('Deleted %title').replace(/%title/gi, title);
+        } catch (err) {
+            icon = 'Feather.X';
+
+            toastType = Toast.TYPE.ERROR;
+
+            message = _isPurge
+                ? _('Unable to purge %title').replace(/%title/gi, title)
+                : _('Unable to delete %title').replace(/%title/gi, title);
+
+            console.log(err);
+        }
+
+        Toast.show({
+            message,
+            autoClose: 2500,
+            type: toastType,
+            icon: <Icon name={icon} />,
+        });
+
+        state.set('status', 'READY');
+
+        return result;
+    };
+
+    const onPurge = (e) => {
+        state.set('confirmInput', null);
+
+        const cancel = () => {
+            Reactium.State.Tools.Modal.dismiss();
+        };
+
+        const confirm = () => {
+            const input = String(state.get('confirmInput'));
+            const match = String(state.get('confirmMatch'));
+
+            if (input === match) {
+                Reactium.State.Tools.Modal.dismiss();
+                onDelete(e);
+            }
+        };
+
+        return Reactium.State.Tools.Modal.show(
+            <ConfirmBox
+                onCancel={cancel}
+                onConfirm={confirm}
+                title={__('Purge Content')}
+                message={
+                    <ConfirmMessage
+                        state={state}
+                        ref={(elm) => refs.set('confirmed', elm)}
+                    />
                 }
-            >
-                <Icon name='Feather.Trash2' />
-            </button>
+            />,
+        ).then(() => {
+            const input = refs.get('confirmed');
+            if (input) input.focus();
+        });
+    };
+
+    useEffect(() => {
+        handle.addEventListener('content-delete', onDelete);
+        handle.addEventListener('content-purge', onPurge);
+        return () => {
+            handle.removeEventListener('content-delete', onDelete);
+            handle.removeEventListener('content-purge', onPurge);
+        };
+    }, []);
+
+    return (
+        <div className={isStatus('PENDING') ? 'delete-visible' : 'delete'}>
+            {isStatus('PENDING') ? (
+                <button disabled {...tip}>
+                    <Icon name={'Linear.Sync'} className='spin' />
+                </button>
+            ) : (
+                <button {...tip} onClick={onClick}>
+                    <Icon
+                        name={
+                            status === Reactium.Content.STATUS.DELETED.value
+                                ? 'Linear.Recycle'
+                                : 'Feather.Trash2'
+                        }
+                    />
+                </button>
+            )}
         </div>
     );
 };
+
+const ConfirmMessage = forwardRef(({ state, ...props }, ref) => (
+    <div className='form-group'>
+        <div className='mb-xs-12'>
+            {__('Enter')} "{state.get('confirmMatch')}" {__('below')}
+        </div>
+        <input
+            ref={ref}
+            {...props}
+            type='text'
+            className='text-center'
+            placeholder={state.get('confirmMatch')}
+            onChange={(e) => state.set('confirmInput', e.target.value, false)}
+        />
+        <small>{__('Purging content cannot be undone')}</small>
+    </div>
+));
 
 export const ListItemStatus = ({ status, handle }) => {
     const onClick = () => {

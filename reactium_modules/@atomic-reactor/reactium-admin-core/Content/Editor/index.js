@@ -303,7 +303,7 @@ export const ContentEditor = (props) => {
             message,
             autoClose: 2500,
             type: Toast.TYPE.SUCCESS,
-            icon: <Icon name='Feather.Check' style={{ marginRight: 20 }} />,
+            icon: <Icon name='Feather.Check' />,
         });
 
         if (isNew) {

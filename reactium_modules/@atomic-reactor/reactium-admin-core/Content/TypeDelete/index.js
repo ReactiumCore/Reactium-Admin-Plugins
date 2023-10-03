@@ -74,7 +74,7 @@ let TypeDelete = () => {
             message,
             autoClose: 2500,
             type: Toast.TYPE.SUCCESS,
-            icon: <Icon name='Feather.Check' style={{ marginRight: 12 }} />,
+            icon: <Icon name='Feather.Check' />,
         });
     };
 

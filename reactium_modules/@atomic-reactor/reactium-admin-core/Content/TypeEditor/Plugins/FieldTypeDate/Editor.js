@@ -2,7 +2,7 @@ import _ from 'underscore';
 import moment from 'moment';
 import cn from 'classnames';
 import React, { useCallback, useEffect } from 'react';
-import { useHookComponent } from '@atomic-reactor/reactium-core/sdk';
+import { __, useHookComponent } from '@atomic-reactor/reactium-core/sdk';
 
 const formatDate = (d) => {
     if (typeof d === 'string') {

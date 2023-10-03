@@ -111,13 +111,13 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
             }
         }
 
-        .delete {
-            display: none;
+        .delete,
+        .delete-visible {
             height: 71px;
             padding-left: 20px;
 
             button {
-                color: $color-danger;
+                color: $color-gray;
                 background-color: $color-light;
                 border: none;
                 height: 100%;
@@ -130,6 +130,14 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
                 &:hover {
                     cursor: pointer;
                 }
+            }
+        }
+
+        .delete {
+            display: none;
+
+            button {
+                color: $color-danger;
             }
         }
 
@@ -288,7 +296,6 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
                         border: 2px solid $color-white;
 
                         &.btn-danger {
-
                             svg {
                                 width: 8px;
                                 height: 8px;
@@ -297,9 +304,9 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
                             }
                         }
                     }
-                    
+
                     .ar-icon {
-                        margin-left: 2px; 
+                        margin-left: 2px;
                         margin-right: 10px;
                     }
                 }
@@ -324,5 +331,19 @@ $height-admin-content-type-list: calc(100vh - #{$height-admin-header}) !default;
             transform: translateY(-50%);
             z-index: 10;
         }
+    }
+}
+
+.spin {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }

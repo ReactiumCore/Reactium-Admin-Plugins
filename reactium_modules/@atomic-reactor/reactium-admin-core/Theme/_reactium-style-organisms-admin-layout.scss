@@ -89,15 +89,26 @@ body {
 }
 
 .Toastify {
+    &__close-button {
+        height: auto;
+        padding: 8px 8px 0 8px;
+    }
+
     &__toast {
         &-body {
+            display: flex;
+            line-height: 1.2;
+            align-items: flex-start;
+
+            svg {
+                flex-shrink: 0;
+            }
+
             .ar-icon {
                 width: 18px;
                 height: 18px;
                 margin-right: 12px;
-                margin-top: -4px;
             }
-            line-height: 24px;
         }
 
         &-container {

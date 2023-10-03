@@ -350,7 +350,7 @@ const ContentType = (props) => {
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: __('Error loading content type.'),
-                icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
+                icon: <Icon.Feather.AlertOctagon />,
                 autoClose: 1000,
             });
             console.error(error);
@@ -494,7 +494,7 @@ const ContentType = (props) => {
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: nameTakenError,
-                icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
+                icon: <Icon.Feather.AlertOctagon />,
                 autoClose: 1000,
             });
         }
@@ -551,11 +551,7 @@ const ContentType = (props) => {
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: errorMessage,
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
+                    icon: <Icon.Feather.AlertOctagon />,
                     autoClose: 1000,
                 });
 
@@ -583,11 +579,7 @@ const ContentType = (props) => {
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: errorMessage,
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
+                    icon: <Icon.Feather.AlertOctagon />,
                     autoClose: 2000,
                 });
 
@@ -705,7 +697,7 @@ const ContentType = (props) => {
             Toast.show({
                 type: Toast.TYPE.SUCCESS,
                 message: __('Content type saved'),
-                icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                icon: <Icon.Feather.Check />,
                 autoClose: 1000,
             });
 
@@ -719,7 +711,7 @@ const ContentType = (props) => {
             Toast.show({
                 type: Toast.TYPE.ERROR,
                 message: __('Error saving content type.'),
-                icon: <Icon.Feather.AlertOctagon style={{ marginRight: 12 }} />,
+                icon: <Icon.Feather.AlertOctagon />,
                 autoClose: 1000,
             });
             console.error(error);
@@ -871,7 +863,7 @@ const ContentType = (props) => {
                 Toast.show({
                     type: Toast.TYPE.SUCCESS,
                     message: __('Content type deleted.'),
-                    icon: <Icon.Feather.Check style={{ marginRight: 12 }} />,
+                    icon: <Icon.Feather.Check />,
                     autoClose: 1000,
                 });
 
@@ -882,11 +874,7 @@ const ContentType = (props) => {
                 Toast.show({
                     type: Toast.TYPE.ERROR,
                     message: __('Error deleting content type.'),
-                    icon: (
-                        <Icon.Feather.AlertOctagon
-                            style={{ marginRight: 12 }}
-                        />
-                    ),
+                    icon: <Icon.Feather.AlertOctagon />,
                     autoClose: 1000,
                 });
                 console.error(error);

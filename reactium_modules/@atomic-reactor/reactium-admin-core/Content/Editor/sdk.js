@@ -1,7 +1,6 @@
 import _ from 'underscore';
-import moment from 'moment';
 import op from 'object-path';
-import { Button } from 'reactium-ui';
+import { Button, Icon } from 'reactium-ui';
 import Reactium, { __, Registry } from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Cache.set('content', {});
@@ -28,23 +27,6 @@ class SDK {
         });
     }
 
-    filterCleanse() {
-        let cleansed = false;
-        const filters = this.filters;
-        Object.keys(filters).forEach((ns) => {
-            const fields = Object.keys(filters[ns]);
-            fields.forEach((field) => {
-                const value = op.get(filters, [ns, field]);
-                if (_.isArray(value) && value.length < 1) {
-                    op.del(filters, [ns, field]);
-                    cleansed = true;
-                }
-            });
-        });
-
-        if (cleansed) Reactium.Cache.set('content-filters', filters);
-    }
-
     get Editor() {
         return this.__editorComponents;
     }
@@ -59,6 +41,25 @@ class SDK {
 
     get data() {
         return _.clone(Reactium.Cache.get('content', {}));
+    }
+
+    get filterCleanse() {
+        return () => {
+            let cleansed = false;
+            const filters = this.filters;
+            Object.keys(filters).forEach((ns) => {
+                const fields = Object.keys(filters[ns]);
+                fields.forEach((field) => {
+                    const value = op.get(filters, [ns, field]);
+                    if (_.isArray(value) && value.length < 1) {
+                        op.del(filters, [ns, field]);
+                        cleansed = true;
+                    }
+                });
+            });
+
+            if (cleansed) Reactium.Cache.set('content-filters', filters);
+        };
     }
 
     get filterOptions() {
@@ -312,15 +313,83 @@ class SDK {
     }
 
     get retrieve() {
-        return (uuid) => {
+        return async (uuid) => {
             if (!uuid) {
                 throw new Error(
                     `Reactium.Content.retrive() ${ENUMS.ERROR.UUID}`,
                 );
             }
 
-            const params = _.isString(uuid) ? { uuid } : uuid;
+            let params = _.isString(uuid) ? { uuid } : uuid;
+
+            await Reactium.Hook.run('content-retrieve', params);
+
             return Reactium.Cloud.run('content-retrieve', params);
+        };
+    }
+
+    get delete() {
+        return async ({ type, uuid }) => {
+            // required fields
+            Object.entries({ type, uuid }).forEach(([k, v]) => {
+                if (!v) {
+                    throw new Error(
+                        `Reactium.Content.setStatus({ status, type, uuid }) ${k} ${ENUMS.ERROR.REQUIRED}`,
+                    );
+                }
+            });
+
+            // Fetch the object to destroy
+            const obj = await this.retrieve(uuid);
+            obj.set('status', status);
+
+            return obj
+                .destroy()
+                .then((result) => {
+                    const ck = `content.${type}`;
+                    const cache = Reactium.Cache.get(ck);
+                    if (cache && op.get(cache, uuid)) {
+                        this.utils.store(type, { uuid }, true);
+                    }
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error(err.message);
+                });
+        };
+    }
+
+    get setStatus() {
+        return async ({ status, type, uuid }) => {
+            // required fields
+            Object.entries({ status, type, uuid }).forEach(([k, v]) => {
+                if (!v) {
+                    throw new Error(
+                        `Reactium.Content.setStatus({ status, type, uuid }) ${k} ${ENUMS.ERROR.REQUIRED}`,
+                    );
+                }
+            });
+
+            // Fetch the object and update the status
+            const obj = await this.retrieve(uuid);
+            obj.set('status', status);
+
+            return obj
+                .save()
+                .then((result) => {
+                    const ck = `content.${type}`;
+                    const cache = Reactium.Cache.get(ck);
+                    if (cache && op.get(cache, uuid)) {
+                        op.set(cache, [uuid, 'status'], status);
+                        op.set(cache, [uuid, 'updatedAt'], moment().toString());
+                        this.utils.store(type, cache[uuid]);
+                    }
+
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error(err.message);
+                });
         };
     }
 
@@ -328,18 +397,22 @@ class SDK {
         return {
             serialize: (obj) => (op.get(obj, 'id') ? obj.toJSON() : obj),
 
-            store: (type, item) => {
+            store: (type, item, remove = false) => {
                 if (!type) {
                     throw new Error(
                         'Reactium.Content.store() type is a required parameter',
                     );
                 }
                 if (item) {
-                    item = item.toJSON();
+                    item = _.isFunction(item.toJSON) ? item.toJSON() : item;
 
                     const data = this.data;
 
-                    op.set(data, [type, item.uuid], item);
+                    if (remove === true) {
+                        op.del(data, [type, item.uuid]);
+                    } else {
+                        op.set(data, [type, item.uuid], item);
+                    }
 
                     Reactium.Cache.set('content', data);
                 }

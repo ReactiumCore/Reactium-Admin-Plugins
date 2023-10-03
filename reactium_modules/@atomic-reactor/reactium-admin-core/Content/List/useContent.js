@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import op from 'object-path';
 import { useState } from 'react';
 import Reactium, { useAsyncEffect } from '@atomic-reactor/reactium-core/sdk';
@@ -19,7 +18,7 @@ export const useContent = (type, defaultValue = []) => {
                 async ({ op: oper, value }) => {
                     if (['set', 'del'].includes(oper)) {
                         const changed = op.get(value, type);
-                        if (mounted()) setContent(changed);
+                        if (mounted()) setContent(Object.values(changed));
                         update(Date.now());
                     }
                 },
