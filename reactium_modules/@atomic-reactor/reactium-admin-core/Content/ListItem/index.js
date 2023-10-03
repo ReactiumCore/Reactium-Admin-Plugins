@@ -134,6 +134,7 @@ export const ListItemDelete = (props) => {
     let { handle, status, title, type, uuid } = props;
 
     const state = useSyncState({
+        uuid: props.uuid,
         status: 'READY',
         confirmInput: null,
         confirmMatch: __('purge content'),
@@ -234,24 +235,32 @@ export const ListItemDelete = (props) => {
     };
 
     const onPurge = (e) => {
-        state.set('confirmInput', null);
+        if (e.detail.uuid !== uuid) return;
+
+        state.set('status', 'READY');
+        state.set('confirmInput', null, false);
 
         const cancel = () => {
             Reactium.State.Tools.Modal.dismiss();
         };
 
         const confirm = () => {
-            const input = String(state.get('confirmInput'));
-            const match = String(state.get('confirmMatch'));
+            const i = String(state.get('confirmInput')).trim().toLowerCase();
 
-            if (input === match) {
-                Reactium.State.Tools.Modal.dismiss();
+            const m = String(state.get('confirmMatch')).trim().toLowerCase();
+
+            if (i === m) {
                 onDelete(e);
+                Reactium.State.Tools.Modal.dismiss();
+            } else {
+                const input = refs.get('confirmed');
+                if (input) input.select();
             }
         };
 
         return Reactium.State.Tools.Modal.show(
             <ConfirmBox
+                key={e.detail.uuid}
                 onCancel={cancel}
                 onConfirm={confirm}
                 title={__('Purge Content')}
