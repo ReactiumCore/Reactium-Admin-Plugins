@@ -9,7 +9,7 @@ import {
     useSyncState,
 } from 'reactium-core/sdk';
 
-export const FieldType = props => {
+export const FieldType = (props) => {
     const { id } = props;
 
     const refs = useRefs();
@@ -17,7 +17,11 @@ export const FieldType = props => {
     const Editor = useHandle('ContentTypeEditor');
 
     const val = id
-        ? op.get(Editor.getValue(), ['fields', id, 'options'], {})
+        ? op.get(
+              Editor.getValue(),
+              ['contentType', 'fields', id, 'options'],
+              {},
+          )
         : {};
 
     const state = useSyncState({
@@ -31,12 +35,10 @@ export const FieldType = props => {
 
     const { DatePicker } = useHookComponent('ReactiumUI');
 
-    const onSelectDate = e => {
+    const onSelectDate = (e) => {
         let { id: ID, selected = [] } = e;
 
-        ID = String(ID)
-            .replace('calendar-', '')
-            .substr(0, 3);
+        ID = String(ID).replace('calendar-', '').substr(0, 3);
 
         selected = _.compact(selected);
 
@@ -45,7 +47,7 @@ export const FieldType = props => {
         state.set(`options.${ID}`, date);
     };
 
-    const onBeforeSave = params => {
+    const onBeforeSave = (params) => {
         const { fieldId } = params;
         if (fieldId !== id) return;
         op.set(params, 'fieldValue.options', state.get('options'));
@@ -57,7 +59,7 @@ export const FieldType = props => {
         ];
 
         return () => {
-            hooks.forEach(hookId => Reactium.Hook.unregister(hookId));
+            hooks.forEach((hookId) => Reactium.Hook.unregister(hookId));
         };
     };
 
@@ -77,7 +79,7 @@ export const FieldType = props => {
                                     align='right'
                                     onChange={onSelectDate}
                                     value={state.get('options.min')}
-                                    ref={elm => refs.set('min', elm)}
+                                    ref={(elm) => refs.set('min', elm)}
                                 />
                             </label>
                         </div>
@@ -92,7 +94,7 @@ export const FieldType = props => {
                                     align='right'
                                     onChange={onSelectDate}
                                     value={state.get('options.max')}
-                                    ref={elm => refs.set('max', elm)}
+                                    ref={(elm) => refs.set('max', elm)}
                                 />
                             </label>
                         </div>

@@ -17,7 +17,11 @@ export const FieldType = (props) => {
     const Editor = useHandle('CTE');
 
     const val = id
-        ? op.get(Editor.getValue(), ['fields', id, 'options'], {})
+        ? op.get(
+              Editor.getValue(),
+              ['contentType', 'fields', id, 'options'],
+              {},
+          )
         : {};
 
     const state = useSyncState({ options: { ...val } });
