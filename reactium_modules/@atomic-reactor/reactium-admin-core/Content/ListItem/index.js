@@ -131,7 +131,7 @@ export const ListItemAdd = ({ type }) => (
 export const ListItemDelete = (props) => {
     const refs = useRefs();
 
-    let { handle, status, title, type, uuid } = props;
+    let { dispatch, handle, machineName, status, title, type, uuid } = props;
 
     const state = useSyncState({
         uuid: props.uuid,
@@ -150,8 +150,14 @@ export const ListItemDelete = (props) => {
 
     const tooltip =
         status !== Reactium.Content.STATUS.DELETED.value
-            ? String(__('Delete %title')).replace(/%title/gi, title)
-            : String(__('Purge %title')).replace(/%title/gi, title);
+            ? String(__('Delete %title')).replace(
+                  /%title/gi,
+                  title || machineName,
+              )
+            : String(__('Purge %title')).replace(
+                  /%title/gi,
+                  title || machineName,
+              );
 
     const tip = {
         title: tooltip,
@@ -169,9 +175,13 @@ export const ListItemDelete = (props) => {
                 ? 'content-delete'
                 : 'content-purge';
 
-        handle.dispatch(evt, {
-            detail: props,
-        });
+        if (handle) {
+            handle.dispatch(evt, {
+                detail: props,
+            });
+        } else if (dispatch) {
+            dispatch(evt, { detail: props });
+        }
     };
 
     const onDelete = async (e) => {
@@ -278,13 +288,15 @@ export const ListItemDelete = (props) => {
     };
 
     useEffect(() => {
+        if (!handle) return;
+
         handle.addEventListener('content-delete', onDelete);
         handle.addEventListener('content-purge', onPurge);
         return () => {
             handle.removeEventListener('content-delete', onDelete);
             handle.removeEventListener('content-purge', onPurge);
         };
-    }, []);
+    }, [handle]);
 
     return (
         <div className={isStatus('PENDING') ? 'delete-visible' : 'delete'}>

@@ -16,14 +16,16 @@ import Reactium, {
  */
 const DEBUG = true;
 
-const Message = forwardRef(({ details, ...props }, ref) => (
+const Message = forwardRef(({ detail, ...props }, ref) => (
     <div className='form-group'>
-        <div>{__('enter content type')}</div>
+        <div className='mb-xs-12'>
+            {__('Enter')} "{detail.machineName}" {__('below')}
+        </div>
         <input
             ref={ref}
             type='text'
             className='text-center'
-            placeholder={details.machineName}
+            placeholder={detail.machineName}
             {...props}
         />
         <small>{__('Deleting a content type cannot be undone')}</small>
@@ -59,7 +61,7 @@ let TypeDelete = () => {
 
         if (DEBUG !== true) await Reactium.ContentType.delete(item.uuid);
 
-        dispatch('content-type-deleted', { details: item });
+        dispatch('content-type-deleted', { detail: item });
     };
 
     const onDelete = (e) => {
@@ -67,7 +69,7 @@ let TypeDelete = () => {
 
         const message = __('%name content type deleted').replace(
             /%name/gi,
-            e.details.meta.label,
+            e.detail.meta.label,
         );
 
         Toast.show({
@@ -78,15 +80,15 @@ let TypeDelete = () => {
         });
     };
 
-    const showModal = (e) =>
+    const showModal = (e) => {
         Reactium.State.Tools.Modal.show(
             <ConfirmBox
                 onCancel={cancel}
-                onConfirm={() => confirm(e.details)}
+                onConfirm={() => confirm(e.detail)}
                 title={__('Delete Content Type')}
                 message={
                     <Message
-                        details={e.details}
+                        detail={e.detail}
                         ref={(elm) => refs.set('confirmed', elm)}
                     />
                 }
@@ -95,6 +97,7 @@ let TypeDelete = () => {
             const input = refs.get('confirmed');
             if (input) input.focus();
         });
+    };
 
     useEventEffect(Reactium.State, {
         'content-type-delete': showModal,
