@@ -1,0 +1,106 @@
+$ar-field-type-file-thumb-size: 40px !default;
+
+.ar-dropzone {
+    z-index: 5;
+    height: 100%;
+    padding: 20px;
+    position: relative;
+}
+
+.ar-field-type-file {
+    &.empty {
+        cursor: pointer;
+    }
+
+    &-box-placeholder {
+        z-index: 1;
+        width: 100%;
+        height: 60vw;
+        display: flex;
+        text-align: center;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        user-select: none;
+        color: $color-gray;
+        pointer-events: none;
+        border: 3px dashed $color-grey-light;
+
+        @include breakpoint(sm) {
+            height: 400px;
+        }
+
+        @include breakpoint(md) {
+            height: 480px;
+        }
+    }
+
+    &-preview-list {
+        &:empty {
+            display: none;
+        }
+
+        &-item {
+            width: 100%;
+            display: flex;
+            align-items: stretch;
+
+            &:nth-child(odd) {
+                background-color: $color-white-dark;
+            }
+
+            &-col {
+                display: flex;
+                align-items: center;
+
+                &.info {
+                    flex-shrink: 1;
+                    flex-grow: 1;
+                    padding: 0 8px;
+                    font-size: 14px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    justify-content: center;
+                    font-weight: 500;
+
+                    small, .small {
+                        margin-top: -4px;
+                        font-style: normal;
+                        font-weight: normal;
+                    }
+                }
+
+                &.action {
+                    button {
+                        padding: 0;
+                        width: $ar-field-type-file-thumb-size;
+                        height: $ar-field-type-file-thumb-size;
+                    }
+                }
+
+                &:first-child {
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    justify-content: center;
+                    padding: 4px;
+                }
+
+                &:last-child {
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    justify-content: center;
+                    padding: 4px;
+                }
+            }
+
+            .thumb {
+                overflow: hidden;
+                border-radius: 2px;
+                background-size: cover;
+                width: $ar-field-type-file-thumb-size;
+                height: $ar-field-type-file-thumb-size;
+            }
+        }
+    }
+}

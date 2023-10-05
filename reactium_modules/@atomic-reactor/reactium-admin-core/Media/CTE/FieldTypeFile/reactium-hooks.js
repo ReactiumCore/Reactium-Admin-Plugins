@@ -1,5 +1,6 @@
-// import { Editor } from './Editor';
+import { Editor } from './Editor';
 import { FieldType } from './FieldType';
+
 import Reactium, {
     __,
     useHookComponent,
@@ -25,6 +26,6 @@ const fieldType = {
     await Reactium.Plugin.register(`CTE-${ID}`);
 
     Reactium.Component.register(fieldType.component, FieldType);
-    // Reactium.Content.Editor.register(ID, { component: Editor });
+    Reactium.Content.Editor.register(ID, { component: Editor });
     Reactium.ContentType.FieldType.register(ID, fieldType);
 })();
