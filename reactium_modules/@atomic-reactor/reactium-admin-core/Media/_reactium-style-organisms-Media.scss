@@ -1,3 +1,14 @@
 .media {
     
 }
+
+.input-note {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    font-size: 11px;
+    font-style: italic;
+    color: $color-grey;
+    pointer-events: none;
+    transform: translateY(-50%);
+}

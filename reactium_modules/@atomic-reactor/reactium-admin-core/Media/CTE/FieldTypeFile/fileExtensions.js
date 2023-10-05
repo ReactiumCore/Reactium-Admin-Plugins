@@ -4,7 +4,7 @@ export const fileExtensions = [
     { type: 'image', value: 'gif' },
     { type: 'image', value: 'webp' },
     { type: 'image', value: 'svg' },
-    { type: 'image', value: 'mp4' },
+    { type: 'video', value: 'mp4' },
     { type: 'video', value: 'mpg' },
     { type: 'video', value: 'mov' },
     { type: 'video', value: 'wmv' },

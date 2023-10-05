@@ -87,6 +87,7 @@ export const ContentEditor = (props) => {
         obj: false,
         ready: false,
         valid: false,
+        disabled: false,
         sidebarSize: initialSidebarWidth(),
     });
 
@@ -242,7 +243,7 @@ export const ContentEditor = (props) => {
     );
 
     const onSubmit = useCallback(async (e) => {
-        if (!isReady || !isValid()) return;
+        if (!isReady || !isValid() || state.get('disabled') === true) return;
 
         let { meta, slug, status, user, uuid, title, ...data } = _.clone(
             e.value,
@@ -439,6 +440,12 @@ export const ContentEditor = (props) => {
     state.extend('setError', setError);
 
     state.extend('setValue', setValue);
+
+    state.extend('disable', () => state.set('disabled', true));
+
+    state.extend('enable', () => state.set('disabled', false));
+
+    state.extend('submit', () => state.Form.submit());
 
     state.isNew = isNew;
 

@@ -90,7 +90,7 @@ let Dropzone = (
         return cn({ [className]: !!className, [namespace]: !!namespace });
     };
 
-    const cx = cls => {
+    const cx = (cls) => {
         const { namespace } = state();
         return _.compact([namespace, cls]).join('-');
     };
@@ -105,17 +105,14 @@ let Dropzone = (
 
     const mapconfig = () => {};
 
-    const getType = filename =>
-        String(filename)
-            .split('.')
-            .pop();
+    const getType = (filename) => String(filename).split('.').pop();
 
-    const isImage = filename =>
+    const isImage = (filename) =>
         ['png', 'svg', 'gif', 'jpg', 'jpeg'].includes(getType(filename));
 
-    const _onFileAdded = file => addFiles([file]);
+    const _onFileAdded = (file) => addFiles([file]);
 
-    const _onFileRemoved = file => removeFiles([file]);
+    const _onFileRemoved = (file) => removeFiles([file]);
 
     const _onFileError = (file, error) => {
         const reader = new FileReader();
@@ -143,7 +140,7 @@ let Dropzone = (
         reader.readAsDataURL(file);
     };
 
-    const addFiles = files => {
+    const addFiles = (files) => {
         let Q = state('files', {});
         files = !Array.isArray(files) ? [files] : files;
         files = _.compact(files);
@@ -152,10 +149,9 @@ let Dropzone = (
             return Promise.resolve(Q);
         }
 
-        const dropzone = state('dropzone');
         const added = [];
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const ival = setInterval(() => {
                 if (added.length === files.length) {
                     clearInterval(ival);
@@ -183,7 +179,7 @@ let Dropzone = (
                 }
             }, 1);
 
-            files.forEach(file => {
+            files.forEach((file) => {
                 if (file.status === ENUMS.EVENT.ERROR) {
                     added.push(null);
                     return;
@@ -216,7 +212,7 @@ let Dropzone = (
         });
     };
 
-    const removeFiles = files => {
+    const removeFiles = (files) => {
         files = !Array.isArray(files) ? [files] : files;
         files = _.compact(files);
 
@@ -227,7 +223,7 @@ let Dropzone = (
         const Q = state('files', {});
         const dropzone = state('dropzone');
 
-        files.forEach(file => {
+        files.forEach((file) => {
             const ID = file.ID;
 
             if (!Q[ID]) {
@@ -298,7 +294,7 @@ let Dropzone = (
 
         setState({ config, dropzone, initialized: true, input }, 'initialize');
 
-        addFiles(Object.values(files)).then(files => {
+        addFiles(Object.values(files)).then((files) => {
             onInitialize({
                 type: ENUMS.EVENT.INIT,
                 dropzone,
@@ -321,7 +317,7 @@ let Dropzone = (
 
     useEffect(() => {
         // Remove any errored files
-        const staged = Object.values(state('files')).filter(file =>
+        const staged = Object.values(state('files')).filter((file) =>
             Boolean(file.status === ENUMS.EVENT.ERROR),
         );
         if (staged.length > 0) {
