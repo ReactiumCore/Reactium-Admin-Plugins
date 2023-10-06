@@ -151,7 +151,7 @@
                 min-height: 45px;
                 margin-right: -8px;
                 align-self: stretch;
-                opacity: 0.5;
+                color: rgba($color-sidebar-text, .5);
 
                 &:hover {
                     opacity: 1;
