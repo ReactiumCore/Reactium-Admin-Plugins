@@ -4,7 +4,6 @@
  * -----------------------------------------------------------------------------
  */
 
-import _ from 'underscore';
 import { Editor } from './index';
 import Reactium from '@atomic-reactor/reactium-core/sdk';
 
@@ -15,11 +14,8 @@ import Reactium from '@atomic-reactor/reactium-core/sdk';
 
     Reactium.Hook.registerSync(
         'content-editor-elements',
-        (fields) => {
-            const isField = !!_.findWhere(fields, { fieldId: 'publish' });
-            if (isField) return;
-
-            fields.push({
+        ({ fields }) => {
+            fields.add({
                 region: 'sidebar',
                 fieldId: 'publish',
                 fieldName: 'publish',

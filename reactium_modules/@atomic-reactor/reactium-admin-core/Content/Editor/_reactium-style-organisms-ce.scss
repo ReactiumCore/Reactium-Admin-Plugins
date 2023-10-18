@@ -79,6 +79,7 @@
                 bottom: 0;
                 width: 100%;
                 position: sticky;
+                z-index: map-get($z-indexes, 'overlay');
 
                 button {
                     font-size: 20px;
@@ -146,5 +147,11 @@
 
     .resizable {
         transition: width 0.125s ease-in-out;
+    }
+}
+
+.ar-dialog-content {
+    > .error-message {
+        padding: 12px 20px 0 20px;
     }
 }

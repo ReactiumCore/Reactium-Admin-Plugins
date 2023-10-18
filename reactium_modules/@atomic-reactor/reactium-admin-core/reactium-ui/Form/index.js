@@ -111,12 +111,18 @@ const FormError = ({ children, name, ...props }) => {
         setError(Form.error(name));
     };
 
+    const _onErrorClear = ({ detail }) => {
+        const { fieldName } = detail;
+        if (fieldName === name) setError(null);
+    };
+
     const clear = () => setError(null);
 
     useEventEffect(Form, {
+        reset: clear,
         error: _onError,
         'before-submit': clear,
-        reset: clear,
+        'clear-error': _onErrorClear,
     });
 
     return error ? <div {...props} children={children || error} /> : null;
@@ -347,7 +353,7 @@ let Form = (
         return obj[key];
     }, []);
 
-    const getElements = useCallback(() => {
+    const getElements = () => {
         const keys = [];
 
         const elms = _.compact(
@@ -397,7 +403,7 @@ let Form = (
         }, []);
 
         return output;
-    }, []);
+    };
 
     const getFormValues = useCallback(() => {
         if (!refs.get('form')) return {};
@@ -494,6 +500,24 @@ let Form = (
 
         return state;
     }, []);
+
+    const clearError = (fieldName) => {
+        if (!fieldName) {
+            return setError();
+        } else {
+            const errors = state.get('errors') || {};
+
+            op.del(errors, fieldName);
+
+            state.set('errors', null, false);
+
+            state.set('errors', errors);
+
+            dispatch('clear-error', { detail: { fieldName } });
+
+            return state;
+        }
+    };
 
     const setValue = useCallback((key, value = null) => {
         if (!key || (_.isObject(key) && Object.keys(key).length < 1)) {
@@ -713,6 +737,7 @@ let Form = (
 
     state.extend('childrenMap', childrenMap);
     state.extend('childClone', childClone);
+    state.extend('clearError', clearError);
     state.extend('complete', complete);
     state.extend('dispatch', dispatch);
     state.extend('elements', getElements);

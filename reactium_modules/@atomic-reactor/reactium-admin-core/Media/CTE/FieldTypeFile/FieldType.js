@@ -78,7 +78,7 @@ export const FieldType = (props) => {
                             <div className='form-group'>
                                 <label>
                                     <span style={{ fontWeight: 600 }}>
-                                        {__('Max Number Files')}:
+                                        {__('Max Files')}:
                                     </span>
 
                                     <input
@@ -136,7 +136,7 @@ export const FieldType = (props) => {
                             <div className='form-group'>
                                 <label>
                                     <span style={{ fontWeight: 600 }}>
-                                        {__('Select File Button Label')}:
+                                        {__('Browse Button Label')}:
                                     </span>
                                     <textarea
                                         rows={2}
@@ -166,68 +166,101 @@ export const FieldType = (props) => {
                         </div>
                     </div>
 
-                    <div className='mt-xs-20'>
-                        <Toggle
-                            value={true}
-                            name='serialize'
-                            onChange={onChange}
-                            defaultChecked={state.get('serialze') || true}
-                            label={
-                                <>
-                                    <strong>
-                                        {__('Serialize File Names')}:
-                                    </strong>{' '}
-                                    <em>
-                                        {String(
-                                            state.get('serialize') || false,
-                                        )}
-                                    </em>
-                                </>
-                            }
-                        />
+                    <div className='row'>
+                        <div className='col-xs-12 col-md-6 pr-xs-0 pr-md-12 mt-xs-20'>
+                            <Toggle
+                                value={true}
+                                name='required'
+                                onChange={onChange}
+                                defaultChecked={state.get('required') || false}
+                                label={
+                                    <>
+                                        <strong>{__('Required')}:</strong>{' '}
+                                        <em>
+                                            {String(
+                                                state.get('required') || false,
+                                            )}
+                                        </em>
+                                    </>
+                                }
+                            />
+                        </div>
+
+                        <div className='col-xs-12 col-md-6 pl-xs-0 pl-md-12 mt-xs-20'>
+                            <Toggle
+                                value={true}
+                                name='autoUpload'
+                                onChange={onChange}
+                                defaultChecked={
+                                    state.get('autoUpload') || false
+                                }
+                                label={
+                                    <>
+                                        <strong>
+                                            {__('Automatic Upload')}:
+                                        </strong>{' '}
+                                        <em>
+                                            {String(
+                                                state.get('autoUpload') ||
+                                                    false,
+                                            )}
+                                        </em>
+                                    </>
+                                }
+                            />
+                        </div>
                     </div>
-                    <div className='mt-xs-20'>
-                        <Toggle
-                            value={true}
-                            name='required'
-                            onChange={onChange}
-                            defaultChecked={state.get('required') || false}
-                            label={
-                                <>
-                                    <strong>{__('Required')}:</strong>{' '}
-                                    <em>
-                                        {String(state.get('required') || false)}
-                                    </em>
-                                </>
-                            }
-                        />
-                    </div>
-                    <div className='mt-xs-20'>
-                        <Toggle
-                            value={true}
-                            onChange={onChange}
-                            name='allExtensions'
-                            defaultChecked={state.get('allExtensions')}
-                            label={
-                                <>
-                                    <strong>
-                                        {__('All File Extensions')}:
-                                    </strong>{' '}
-                                    <em>
-                                        {String(
-                                            state.get('allExtensions') || false,
-                                        )}
-                                    </em>
-                                </>
-                            }
-                        />
+
+                    <div className='row'>
+                        <div className='col-xs-12 col-md-6 pr-xs-0 pr-md-12 mt-xs-20'>
+                            <Toggle
+                                value={true}
+                                name='serialize'
+                                onChange={onChange}
+                                defaultChecked={state.get('serialze') || true}
+                                label={
+                                    <>
+                                        <strong>
+                                            {__('Serialize File Names')}:
+                                        </strong>{' '}
+                                        <em>
+                                            {String(
+                                                state.get('serialize') || false,
+                                            )}
+                                        </em>
+                                    </>
+                                }
+                            />
+                        </div>
+
+                        <div className='col-xs-12 col-md-6 pl-xs-0 pl-md-12 mt-xs-20'>
+                            <Toggle
+                                value={true}
+                                onChange={onChange}
+                                name='allExtensions'
+                                defaultChecked={state.get('allExtensions')}
+                                label={
+                                    <>
+                                        <strong>
+                                            {__('All File Extensions')}:
+                                        </strong>{' '}
+                                        <em>
+                                            {String(
+                                                state.get('allExtensions') ||
+                                                    false,
+                                            )}
+                                        </em>
+                                    </>
+                                }
+                            />
+                        </div>
                     </div>
                     <div
                         style={{
                             flexWrap: 'wrap',
                             display: state.get('allExtensions') ? 'none' : null,
                         }}
-                        className='flex-sm flex-sm-stretch wrap mt-xs-20'
+                        className='flex-sm flex-sm-stretch wrap mt-xs-40'
                     >
                         {Object.entries(extensions).map(([k, v]) => (
                             <div
