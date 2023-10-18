@@ -16,7 +16,10 @@ export const Editor = ({ className, ...props }) => {
             <div className='p-xs-20'>
                 <div className={className}>
                     <FormRegister>
-                        <select name='status'>
+                        <select
+                            name={props.fieldId}
+                            defaultValue={props.defaultValue}
+                        >
                             {Object.values(Reactium.Content.STATUS).map(
                                 ({ label, value }) => (
                                     <option

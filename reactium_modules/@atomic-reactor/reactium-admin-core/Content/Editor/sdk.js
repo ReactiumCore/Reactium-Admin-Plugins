@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import op from 'object-path';
-import { Button, Icon } from 'reactium-ui';
+import { Button } from 'reactium-ui';
 import Reactium, { __, Registry } from '@atomic-reactor/reactium-core/sdk';
 
 Reactium.Cache.set('content', {});

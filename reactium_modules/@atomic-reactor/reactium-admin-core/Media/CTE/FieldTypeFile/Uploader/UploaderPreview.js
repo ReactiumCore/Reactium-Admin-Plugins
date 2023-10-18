@@ -1,12 +1,18 @@
 import _ from 'underscore';
 import cn from 'classnames';
+import op from 'object-path';
 import PropTypes from 'prop-types';
-import React, { useMemo } from 'react';
 import { fileExtensions } from '../fileExtensions';
+import React, {
+    forwardRef,
+    useCallback,
+    useImperativeHandle,
+    useMemo,
+} from 'react';
 
 import Reactium, {
-    __,
     useHookComponent,
+    useSyncState,
 } from '@atomic-reactor/reactium-core/sdk';
 
 export const fileSize = (x) => {
@@ -22,89 +28,149 @@ export const fileSize = (x) => {
     return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
 };
 
-const UploaderPreviewThumbnail = ({ className, file }) => {
-    const { Icon } = useHookComponent('ReactiumUI');
-    const ext = String(file.name).toLowerCase().split('.').pop();
-    let { type } = _.findWhere(fileExtensions, { value: ext });
+export const UploaderPreview = forwardRef((props, ref) => {
+    const { count, namespace, fieldName, files, serialize, uploader, uploads } =
+        props;
 
-    switch (type) {
-        case 'image':
-            return (
-                <div
-                    className={className}
-                    style={{ backgroundImage: `url(${file.dataURL})` }}
-                />
-            );
+    const state = useSyncState({
+        uploading: [],
+    });
 
-        case 'archive':
-            return (
-                <div
-                    className={className}
-                    children={<Icon name='Linear.Cube' />}
-                />
-            );
-
-        case 'audio':
-            return (
-                <div
-                    className={className}
-                    children={<Icon name='Linear.Mic' />}
-                />
-            );
-
-        case 'video':
-            return (
-                <div
-                    className={className}
-                    children={<Icon name='Linear.ClapboardPlay' />}
-                />
-            );
-
-        default:
-            return (
-                <div
-                    className={className}
-                    children={<Icon name='Linear.Document2' />}
-                />
-            );
-    }
-};
-
-UploaderPreviewThumbnail.defaultProps = {
-    className: 'thumb',
-};
-
-export const UploaderPreview = ({ namespace, files, uploads, uploader }) => {
-    const { Button, Icon } = useHookComponent('ReactiumUI');
+    const Zone = useHookComponent('Zone');
 
     const cx = useMemo(() => Reactium.Utils.cxFactory(namespace), [namespace]);
 
-    const visible = useMemo(
-        () => uploader && (files.length > 0 || uploads.length > 0),
-        [uploader, uploads, files],
+    const visible = useMemo(() => count > 0, [count]);
+
+    const getType = useCallback((name) => {
+        const value = String(name).toLowerCase().split('.').pop();
+        const { type } = _.findWhere(fileExtensions, { value });
+        return type;
+    }, []);
+
+    const uploading = (FILEID) =>
+        Array.from(state.get('uploading') || []).includes(FILEID);
+
+    const upload = (FILEIDS) => {
+        const _uploading = Array.from(state.get('uploading') || []);
+
+        FILEIDS = _.chain([FILEIDS]).flatten().compact().uniq().value();
+
+        FILEIDS.forEach((FILEID) => _uploading.push(FILEID));
+
+        state.set('uploading', _uploading);
+
+        return state;
+    };
+
+    state.extend('uploading', upload);
+
+    uploader.extend('getType', getType);
+
+    uploader.extend('uploading', uploading);
+
+    const zoneProps = useMemo(
+        () => ({
+            count,
+            cx,
+            fieldName,
+            files,
+            namespace,
+            serialize,
+            uploader,
+            uploads,
+            visible,
+        }),
+        [props],
     );
+
+    useImperativeHandle(ref, () => state);
 
     return !visible ? null : (
         <div className={cx('list')}>
+            <Zone {...zoneProps} zone={'media-editor-preview-top'} />
+            <Zone
+                {...zoneProps}
+                zone={`media-editor-preview-top-${uploader.getAttribute(
+                    'fieldName',
+                )}`}
+            />
             {uploads.map((item, i) => (
-                <div key={cx(`list-item-${i}`)} className={cx('list-item')}>
+                <div
+                    key={cx(`list-item-${i}-${uploading(item.ID)}`)}
+                    className={cn(cx('list-item'), getType(item.name))}
+                >
                     <div className={cn(cx('list-item-col'))}>
-                        <UploaderPreviewThumbnail file={item} />
+                        <Zone
+                            file={item}
+                            {...zoneProps}
+                            zone='media-editor-upload-item-thumbnail'
+                        />
                     </div>
                     <div className={cn(cx('list-item-col'), 'info')}>
-                        <div>{item.name}</div>
-                        <small>{fileSize(item.size)}</small>
+                        <Zone
+                            file={item}
+                            {...zoneProps}
+                            zone='media-editor-upload-item-info'
+                        />
                     </div>
                     <div className={cn(cx('list-item-col'), 'action')}>
-                        <button className='btn-danger-md' type='button'>
-                            <Icon name='Feather.X' />
-                        </button>
+                        <Zone
+                            file={item}
+                            {...zoneProps}
+                            zone='media-editor-upload-item-action'
+                        />
                     </div>
                 </div>
             ))}
+            {files.map((item, i) => {
+                return !item ? null : (
+                    <div
+                        key={cx(`list-item-file-${i}`)}
+                        className={cn(
+                            cx('list-item'),
+                            getType(op.get(item, '_name', item.name)),
+                        )}
+                    >
+                        <div className={cn(cx('list-item-col'), 'thumb')}>
+                            <Zone
+                                {...zoneProps}
+                                zone='media-editor-file-item-thumbnail'
+                                file={{
+                                    name: op.get(item, '_name', item.name),
+                                    dataURL: item.upload
+                                        ? item.upload.dataURL
+                                        : op.get(item, '_url', item.url),
+                                }}
+                            />
+                        </div>
+                        <div className={cn(cx('list-item-col'), 'info')}>
+                            <Zone
+                                file={item}
+                                {...zoneProps}
+                                zone='media-editor-file-item-info'
+                            />
+                        </div>
+                        <div className={cn(cx('list-item-col'), 'action')}>
+                            <Zone
+                                file={item}
+                                {...zoneProps}
+                                zone='media-editor-file-item-action'
+                            />
+                        </div>
+                    </div>
+                );
+            })}
+            <Zone {...zoneProps} zone={'media-editor-preview-bottom'} />
+            <Zone
+                {...zoneProps}
+                zone={`media-editor-preview-bottom-${uploader.getAttribute(
+                    'fieldName',
+                )}`}
+            />
         </div>
     );
-};
+});
 
 export default UploaderPreview;
 

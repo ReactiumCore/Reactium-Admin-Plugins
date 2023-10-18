@@ -53,6 +53,7 @@ let Dropzone = (
     const stateRef = useRef({
         ...props,
         config: { ...Dropzone.defaultProps.config, ...props.config },
+        initialConfig: { ...props.config },
         dropzone: null,
         initialized: false,
         input: null,
@@ -102,8 +103,6 @@ let Dropzone = (
             input.parentNode.removeChild(input);
         }
     };
-
-    const mapconfig = () => {};
 
     const getType = (filename) => String(filename).split('.').pop();
 
@@ -324,6 +323,12 @@ let Dropzone = (
             removeFiles(staged);
         }
     }, [state('updated')]);
+
+    useEffect(() => {
+        if (_.isEqual(props.config, state('initialConfig'))) return;
+        const config = { ...state('config'), ...props.config };
+        setState('config', config);
+    }, [props.config]);
 
     // External Interface
     useImperativeHandle(ref, () => ({

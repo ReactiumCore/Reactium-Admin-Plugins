@@ -28,47 +28,6 @@ import Reactium, {
 const min = 0;
 const iw = 400;
 
-export const NewContentButton = () => {
-    const params = useRouteParams();
-    const type = op.get(params, 'type');
-
-    return (
-        type &&
-        params && (
-            <Button
-                outline
-                size='xs'
-                color='primary'
-                appearance='pill'
-                className='mr-xs-24'
-                onClick={() => Reactium.Content.newObject(type)}
-            >
-                <Icon name='Feather.Plus' size={18} />
-                <span className='hide-xs show-md ml-xs-12'>
-                    {__('New %type').replace(/%type/gi, type)}
-                </span>
-            </Button>
-        )
-    );
-};
-
-const initialSidebarWidth = () => {
-    const size = Reactium.Prefs.get('content-editor-sidebar') || {
-        width: iw,
-    };
-
-    const max =
-        window.innerWidth > 990 ? window.innerWidth / 2 : window.innerWidth;
-
-    let w = op.get(size, 'width', iw);
-    w = w < min ? min : w;
-    w = w > max ? max : w;
-
-    size.width = w;
-
-    return size;
-};
-
 export const ContentEditor = (props) => {
     const { className, namespace, title } = props;
 
@@ -93,7 +52,51 @@ export const ContentEditor = (props) => {
 
     const cx = cxFactory(namespace);
 
-    const dispatch = useDispatcher({ props, state });
+    const _dispatch = useDispatcher({ props, state });
+
+    const dispatch = (...args) => {
+        const evt = String(args.shift());
+        const hook = evt.startsWith('content-') ? evt : `content-${evt}`;
+
+        const hooks = runHookSync(hook, ...args);
+
+        _dispatch(evt, ...args);
+
+        return hooks;
+    };
+
+    const dispatchAsync = async (...args) => {
+        const evt = String(args.shift());
+        const hook = evt.startsWith('content-') ? evt : `content-${evt}`;
+
+        const hooks = await runHook(hook, ...args);
+
+        dispatch(evt, ...args);
+
+        return hooks;
+    };
+
+    const runHook = useCallback((hook, args) => {
+        const type = op.get(params, 'type');
+
+        const detail = { type, state, params, ...args };
+
+        return Promise.all([
+            Reactium.Hook.run(hook, detail),
+            Reactium.Hook.run(`${hook}-${type}`, detail),
+        ]);
+    });
+
+    const runHookSync = useCallback((hook, args) => {
+        const type = op.get(params, 'type');
+
+        const detail = { type, state, params, ...args };
+
+        return [
+            Reactium.Hook.runSync(hook, detail),
+            Reactium.Hook.runSync(`${hook}-${type}`, detail),
+        ];
+    });
 
     const isNew = useMemo(() => op.get(params, 'slug') === 'new', [params]);
 
@@ -147,59 +150,62 @@ export const ContentEditor = (props) => {
         state.Form.setValue(value);
     }, [isReady]);
 
-    const retrieve = useCallback(
-        async (mounted) => {
-            if (isReady) return;
+    const retrieve = useCallback(async () => {
+        if (isReady || isNew) return state.set('ready', true);
 
-            const type = op.get(params, 'type');
-            const uuid = op.get(params, 'slug');
+        const uuid = op.get(params, 'slug');
 
-            if (!uuid) return;
+        if (!uuid) return state.set('ready', true);
 
-            const obj =
-                !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
+        const obj =
+            !isNew && uuid ? await Reactium.Content.retrieve(uuid) : null;
 
-            if (!mounted()) return;
+        state.set(
+            {
+                obj,
+                isNew,
+                params,
+                updated: Date.now(),
+                uuid: isNew ? null : uuid,
+            },
+            true,
+        );
 
-            state.set(
-                {
-                    obj,
-                    isNew,
-                    params,
-                    updated: Date.now(),
-                    uuid: isNew ? null : uuid,
-                },
-                true,
-            );
+        state.set('ready', true);
+    }, [isNew, isReady, params]);
 
-            await Promise.all([
-                Reactium.Hook.run('content-editor-load', {
-                    state,
-                    params,
-                    mounted,
-                }),
-                Reactium.Hook.run(`content-editor-load-${type}`, {
-                    state,
-                    params,
-                    mounted,
-                }),
-            ]);
+    const clearError = (...args) => {
+        if (!state.Form) return;
+        state.Form.clearError(...args);
+        return state;
+    };
 
-            if (!mounted()) return;
+    const setError = (...args) => {
+        if (!state.Form) return;
+        state.Form.setError(...args);
+        return state;
+    };
 
-            state.set('ready', true);
-        },
-        [isReady],
-    );
+    const setForm = useCallback((elm) => {
+        if (state.Form) return;
+        state.Form = elm;
+        state.update();
+    }, []);
 
-    const onChange = (e) => {
+    const setValue = (...args) => {
+        if (!state.Form) return state;
+        state.Form.setValue(...args);
+        return state;
+    };
+
+    const onChange = async (e) => {
         if (!isReady) return;
 
         if (e.path === 'update' && e.detail === null) return;
         const detail = e.detail || { changed: { previous: null } };
         if (op.get(detail, 'changed.previous') === undefined) return;
 
-        dispatch(e.type, e);
+        await dispatchAsync(e.type, e);
     };
 
     const onChangeUUID = useCallback(() => {
@@ -222,32 +228,34 @@ export const ContentEditor = (props) => {
 
     const onReady = useCallback(
         async (mounted) => {
-            if (isReady) return;
+            if (!isReady) return;
+            if (!mounted()) return;
+            if (!state.Form) return;
 
-            const type = op.get(params, 'type');
-
-            await Promise.all([
-                Reactium.Hook.run('content-editor-ready', {
-                    state,
-                    params,
-                    mounted,
-                }),
-                Reactium.Hook.run(`content-editor-ready-${type}`, {
-                    state,
-                    params,
-                    mounted,
-                }),
-            ]);
+            if (!isNew) await dispatchAsync('editor-load', { mounted });
+            await dispatchAsync('editor-ready', { mounted });
         },
-        [isReady],
+        [isReady, state.Form],
     );
+
+    const onBeforeSubmit = async (e) => {
+        await dispatchAsync(e.type, { values: e.target.value });
+    };
 
     const onSubmit = useCallback(async (e) => {
         if (!isReady || !isValid() || state.get('disabled') === true) return;
 
-        let { meta, slug, status, user, uuid, title, ...data } = _.clone(
-            e.value,
-        );
+        let {
+            objectId,
+            meta,
+            slug,
+            status,
+            uuid,
+            title,
+            file,
+            parent,
+            ...data
+        } = _.clone(e.value);
 
         const cleanseData = [
             'ACL',
@@ -259,30 +267,39 @@ export const ContentEditor = (props) => {
             'user',
             'children',
             'parent',
+            'file',
         ];
+
         cleanseData.forEach((field) => op.del(data, field));
 
         const type = state.get('params.type');
-        user = op.get(user, 'objectId');
 
         const values = {
+            objectId,
             data,
             meta,
             slug,
             status,
             title,
             type,
-            user,
             uuid,
+            parent,
+            file,
         };
 
-        dispatch('submit', { value: values });
+        await Promise.all([
+            dispatchAsync('submit', { value: values }),
+            dispatchAsync('save', { value: values }),
+        ]);
 
         const results = await Reactium.Content.save(values);
 
         if (_.isError(results)) {
             e.target.setError('submit', results.message);
-            dispatch('submit-error', { error: results, values });
+            await Promise.all([
+                dispatchAsync('submit-error', { error: results, values }),
+                dispatchAsync('save-error', { error: results, values }),
+            ]);
         } else {
             e.target.complete(results);
         }
@@ -291,7 +308,7 @@ export const ContentEditor = (props) => {
     const onComplete = useCallback(async (e) => {
         const object = e.results;
 
-        await Reactium.Hook.run('content-after-save', state);
+        await dispatchAsync('after-save', { object });
 
         const { Toast } = Reactium.State.Tools;
 
@@ -314,25 +331,12 @@ export const ContentEditor = (props) => {
         }
     }, []);
 
-    const onValidate = useCallback(({ type, errors, values }) => {
-        dispatch(type, { errors, values });
+    const onValidate = useCallback(async (e) => {
+        await dispatchAsync(e.type, {
+            errors: e.target.get('errors'),
+            values: e.target.value,
+        });
     }, []);
-
-    const setError = (...args) => {
-        if (!state.Form) return;
-        state.Form.setError(...args);
-    };
-
-    const setForm = useCallback((elm) => {
-        if (state.Form) return;
-        state.Form = elm;
-        state.update();
-    }, []);
-
-    const setValue = (...args) => {
-        if (!state.Form) return;
-        state.Form.setValue(...args);
-    };
 
     const onResize = useCallback((e, d, ref, s) => {
         if (unMounted()) return;
@@ -346,6 +350,8 @@ export const ContentEditor = (props) => {
 
         Reactium.Prefs.set('content-editor-sidebar', size);
         state.set('sidebarSize', size);
+
+        dispatch('resize', { detail: { size } });
     }, []);
 
     const onResized = useCallback((e, d, ref, s) => {
@@ -374,6 +380,8 @@ export const ContentEditor = (props) => {
 
         Reactium.Prefs.set('content-editor-sidebar', size);
         state.set('sidebarSize', size);
+
+        dispatch('resized', { detail: { size } });
     }, []);
 
     const unMounted = () => !refs.get('container');
@@ -387,32 +395,17 @@ export const ContentEditor = (props) => {
     const elements = useMemo(() => {
         if (!isType) return {};
 
-        const type = state.get('type.machineName');
+        if (!state.get('type.fields')) return {};
 
-        let fields = _.clone(state.get('type.fields'));
-        if (!fields) return {};
-        op.del(fields, 'publisher');
+        const fields = new FieldRegistry(
+            Object.values(_.clone(state.get('type.fields'))),
+        );
 
-        fields = Array.from(Object.values(fields));
+        fields.remove('publisher');
 
-        Reactium.Hook.runSync('content-editor-elements', fields, state);
+        runHookSync('content-editor-elements', { fields });
 
-        Reactium.Hook.runSync(`content-editor-elements-${type}`, fields, state);
-
-        fields = fields.map((item) => {
-            try {
-                const { component } = Reactium.Content.Editor.get(
-                    item.fieldType,
-                );
-                if (component && !item.Component) item.Component = component;
-                return item.Component ? item : null;
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
-        });
-
-        return _.chain(fields).compact().groupBy('region').value();
+        return fields.regions;
     }, [state.get('type')]);
 
     useEffect(onChangeUUID, [params]);
@@ -429,11 +422,26 @@ export const ContentEditor = (props) => {
 
     state.extend('cx', cx);
 
+    state.extend('clearError', clearError);
+
+    state.extend('dispatch', dispatch);
+
+    state.extend('dispatchAsync', dispatchAsync);
+
+    state.extend('runHook', runHook);
+
+    state.extend('runHookSync', runHookSync);
+
+    state.extend('getAttribute', (...args) => op.get(props, ...args));
+
     state.extend('hasElements', hasElements);
 
     state.extend('unMounted', unMounted);
 
-    state.extend('update', () => state.set('updated', Date.now()));
+    state.extend('update', () => {
+        state.set('updated', Date.now());
+        return state;
+    });
 
     state.extend('isValid', isValid);
 
@@ -441,11 +449,22 @@ export const ContentEditor = (props) => {
 
     state.extend('setValue', setValue);
 
-    state.extend('disable', () => state.set('disabled', true));
+    state.extend('disable', () => {
+        state.set('disabled', true);
+        return state;
+    });
 
-    state.extend('enable', () => state.set('disabled', false));
+    state.extend('enable', () => {
+        state.set('disabled', false);
+        return state;
+    });
 
-    state.extend('submit', () => state.Form.submit());
+    state.extend('submit', () => {
+        state.Form.submit();
+        return state;
+    });
+
+    state.extend('retrieve', retrieve);
 
     state.isNew = isNew;
 
@@ -459,6 +478,8 @@ export const ContentEditor = (props) => {
 
     state.types = types;
 
+    state.props = props;
+
     state.refs = refs;
 
     const render = () => {
@@ -468,9 +489,10 @@ export const ContentEditor = (props) => {
             <Form
                 ref={setForm}
                 onChange={onChange}
-                onComplete={onComplete}
                 onSubmit={onSubmit}
+                onComplete={onComplete}
                 onValidate={onValidate}
+                onBeforeSubmit={onBeforeSubmit}
             >
                 <Helmet>
                     <title>
@@ -520,6 +542,7 @@ export const ContentEditor = (props) => {
                                                 >
                                                     <Component
                                                         {...item}
+                                                        params={params}
                                                         key={item.fieldId}
                                                         editor={state}
                                                     />
@@ -552,6 +575,7 @@ export const ContentEditor = (props) => {
                                                 >
                                                     <Component
                                                         {...item}
+                                                        params={params}
                                                         editor={state}
                                                     />
                                                 </div>
@@ -632,3 +656,114 @@ const ResizeWrap = forwardRef(
         );
     },
 );
+
+class FieldRegistry {
+    constructor(fields) {
+        this.__fields = Array.from(fields || []);
+    }
+
+    get list() {
+        return _.compact(
+            this.__fields.map((item) => {
+                try {
+                    const { component } = Reactium.Content.Editor.get(
+                        item.fieldType,
+                    );
+                    if (component && !item.Component) {
+                        item.Component = component;
+                    }
+                    return item.Component ? item : null;
+                } catch (error) {
+                    console.error(error);
+                    return null;
+                }
+            }),
+        );
+    }
+
+    get regions() {
+        return _.chain(this.list).compact().groupBy('region').value();
+    }
+
+    get isField() {
+        return (fieldId) => !!_.findWhere(this.list, { fieldId });
+    }
+
+    get add() {
+        return (params, uniq = true) => {
+            const { index = -1, ...field } = params;
+
+            if (uniq && this.isField(op.get(params, 'fieldId'))) return;
+
+            if (index < 0) this.__fields.push(field);
+            else this.__fields.splice(index, 0, field);
+
+            return this;
+        };
+    }
+
+    get replace() {
+        return (params) => {
+            const fieldId = op.get(params, 'fieldId');
+            const index = _.findIndex(this.__fields, { fieldId });
+            if (index < 0) return;
+
+            this.__fields.splice(index, 1, params);
+
+            return this;
+        };
+    }
+
+    get remove() {
+        return (fieldId) => {
+            const index = _.findIndex(this.__fields, { fieldId });
+
+            if (index < 0) return;
+
+            this.__fields.splice(index, 1);
+
+            return this;
+        };
+    }
+}
+
+export const NewContentButton = () => {
+    const params = useRouteParams();
+    const type = op.get(params, 'type');
+
+    return (
+        type &&
+        params && (
+            <Button
+                outline
+                size='xs'
+                color='primary'
+                appearance='pill'
+                className='mr-xs-24'
+                onClick={() => Reactium.Content.newObject(type)}
+            >
+                <Icon name='Feather.Plus' size={18} />
+                <span className='hide-xs show-md ml-xs-12'>
+                    {__('New %type').replace(/%type/gi, type)}
+                </span>
+            </Button>
+        )
+    );
+};
+
+const initialSidebarWidth = () => {
+    const size = Reactium.Prefs.get('content-editor-sidebar') || {
+        width: iw,
+    };
+
+    const max =
+        window.innerWidth > 990 ? window.innerWidth / 2 : window.innerWidth;
+
+    let w = op.get(size, 'width', iw);
+    w = w < min ? min : w;
+    w = w > max ? max : w;
+
+    size.width = w;
+
+    return size;
+};

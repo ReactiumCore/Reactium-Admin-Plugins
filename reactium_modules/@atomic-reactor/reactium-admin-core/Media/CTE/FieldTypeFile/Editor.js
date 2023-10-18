@@ -1,78 +1,120 @@
 import _ from 'underscore';
-import cn from 'classnames';
 import op from 'object-path';
 import { Uploader } from './Uploader';
-import React, { useEffect, useMemo } from 'react';
-import {
+import React, { useCallback, useEffect, useMemo } from 'react';
+
+import Reactium, {
     __,
-    useRefs,
-    useHookComponent,
     useSyncState,
+    useHookComponent,
 } from '@atomic-reactor/reactium-core/sdk';
 
 export const Editor = (props) => {
-    const refs = useRefs();
-
     let {
         allExtensions,
+        autoUpload,
         editor,
         ext = [],
         fieldName,
+        params,
         placeholder,
         required,
         buttonLabel,
         maxFiles,
         maxFileSize,
+        serialize,
     } = props;
 
     const state = useSyncState();
 
     const ElementDialog = useHookComponent('ElementDialog');
+
     const { FormRegister, FormError } = useHookComponent('ReactiumUI');
+
+    const vkey = useMemo(() => {
+        return fieldName === 'file' ||
+            String(fieldName).startsWith('meta') ||
+            String(fieldName).startsWith('data')
+            ? fieldName
+            : `data.${fieldName}`;
+    }, [fieldName]);
 
     const cx = Reactium.Utils.cxFactory('ar-field-type-file');
 
-    const uploaderProps = useMemo(() => {
+    const uploaderProps = (() => {
         let acceptedFileTypes = allExtensions === true ? [] : ext;
         acceptedFileTypes = _.chain(acceptedFileTypes)
             .flatten()
             .compact()
             .value();
 
+        let value = op.get(editor, ['Form', 'value', fieldName], []);
+        value = !_.isArray(value) ? [value] : value;
+        value = _.compact(value);
+
         return {
             acceptedFileTypes,
+            autoUpload,
             buttonLabel,
+            editor,
+            fieldName,
             maxFiles,
             maxFileSize,
+            params,
             placeholder,
+            serialize,
+            value,
+            vkey,
         };
-    }, [allExtensions, ext, placeholder]);
+    })();
 
-    const parseError = (str) => {
-        const replacers = {
-            '%fieldName': fieldName,
-        };
+    const onFileUploadAdded = useCallback(() => {
+        editor.clearError(fieldName);
+        editor.disable();
+    }, [editor]);
 
-        str = String(str);
+    const onUploaded = useCallback(
+        (e) => {
+            editor.setValue(fieldName, e.value);
+            editor.enable();
+        },
+        [editor, fieldName, vkey],
+    );
 
-        Object.entries(replacers).forEach(([s, v]) => {
-            str = str.replace(new RegExp(s, 'gi'), v);
-        });
+    const parseError = useCallback(
+        (str) => {
+            const replacers = {
+                '%fieldName': fieldName,
+            };
 
-        return str;
-    };
+            str = String(str);
 
-    const validate = ({ values }) => {
-        let err;
+            Object.entries(replacers).forEach(([s, v]) => {
+                str = str.replace(new RegExp(s, 'gi'), v);
+            });
 
-        const v = values[fieldName];
+            return str;
+        },
+        [fieldName],
+    );
 
-        if (required === true && !v) {
-            err = parseError(__('%fieldName is required'));
-        }
+    const validate = useCallback(
+        ({ values }) => {
+            let err;
 
-        if (err) editor.setError(fieldName, err);
-    };
+            const v = values[fieldName];
+
+            if (
+                (required === true && !v) ||
+                (required && Array.isArray(v) && v.length < 1)
+            ) {
+                err = parseError(__('%fieldName is required'));
+            }
+
+            if (err) editor.setError(fieldName, err, true);
+        },
+        [editor, fieldName, required],
+    );
 
     useEffect(() => {
         editor.addEventListener('validate', validate);
@@ -86,11 +128,13 @@ export const Editor = (props) => {
     return (
         <FormRegister>
             <ElementDialog {...props}>
+                <FormError name={fieldName} />
                 <Uploader
                     {...uploaderProps}
-                    ref={(elm) => refs.set('uploader', elm)}
+                    onUploaded={onUploaded}
+                    onFileUploadAdded={onFileUploadAdded}
+                    ref={(elm) => editor.refs.set(`uploader.${fieldName}`, elm)}
                 />
-                <FormError name={fieldName} />
             </ElementDialog>
         </FormRegister>
     );
