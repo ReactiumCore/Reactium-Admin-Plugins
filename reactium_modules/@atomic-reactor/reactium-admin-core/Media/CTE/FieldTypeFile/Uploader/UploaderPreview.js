@@ -3,6 +3,8 @@ import cn from 'classnames';
 import op from 'object-path';
 import PropTypes from 'prop-types';
 import { fileExtensions } from '../fileExtensions';
+import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd';
+
 import React, {
     forwardRef,
     useCallback,
@@ -63,12 +65,6 @@ export const UploaderPreview = forwardRef((props, ref) => {
         return state;
     };
 
-    state.extend('uploading', upload);
-
-    uploader.extend('getType', getType);
-
-    uploader.extend('uploading', uploading);
-
     const zoneProps = useMemo(
         () => ({
             count,
@@ -84,7 +80,72 @@ export const UploaderPreview = forwardRef((props, ref) => {
         [props],
     );
 
+    const onDragEnd = (e) => {
+        if (!e) return;
+        if (!e.source) return;
+        if (!e.destination) return;
+
+        const from = e.source.index;
+        const to = e.destination.index;
+
+        uploader.move({ from, to });
+    };
+
+    state.extend('uploading', upload);
+
+    uploader.extend('getType', getType);
+
+    uploader.extend('uploading', uploading);
+
     useImperativeHandle(ref, () => state);
+
+    const FileListItem = ({ item, provided }) => {
+        const p = provided
+            ? {
+                  ...provided.draggableProps,
+                  ...provided.dragHandleProps,
+              }
+            : {};
+
+        return !item ? null : (
+            <li
+                {...p}
+                ref={provided ? provided.innerRef : null}
+                className={cn(
+                    cx('list-item'),
+                    getType(op.get(item, '_name', item.name)),
+                )}
+            >
+                <div className={cn(cx('list-item-col'), 'thumb')}>
+                    <Zone
+                        {...zoneProps}
+                        zone='media-editor-file-item-thumbnail'
+                        file={{
+                            name: op.get(item, '_name', item.name),
+                            dataURL: item.upload
+                                ? item.upload.dataURL
+                                : op.get(item, '_url', item.url),
+                        }}
+                    />
+                    {provided && <div className='drag-handle' />}
+                </div>
+                <div className={cn(cx('list-item-col'), 'info')}>
+                    <Zone
+                        file={item}
+                        {...zoneProps}
+                        zone='media-editor-file-item-info'
+                    />
+                </div>
+                <div className={cn(cx('list-item-col'), 'action')}>
+                    <Zone
+                        file={item}
+                        {...zoneProps}
+                        zone='media-editor-file-item-action'
+                    />
+                </div>
+            </li>
+        );
+    };
 
     return !visible ? null : (
         <div className={cx('list')}>
@@ -95,6 +156,7 @@ export const UploaderPreview = forwardRef((props, ref) => {
                     'fieldName',
                 )}`}
             />
+
             {uploads.map((item, i) => (
                 <div
                     key={cx(`list-item-${i}-${uploading(item.ID)}`)}
@@ -123,45 +185,47 @@ export const UploaderPreview = forwardRef((props, ref) => {
                     </div>
                 </div>
             ))}
-            {files.map((item, i) => {
-                return !item ? null : (
-                    <div
-                        key={cx(`list-item-file-${i}`)}
-                        className={cn(
-                            cx('list-item'),
-                            getType(op.get(item, '_name', item.name)),
+
+            {files.length > 1 ? (
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId={cx('droppable')}>
+                        {(provided) => (
+                            <ul
+                                tabIndex={-1}
+                                ref={provided.innerRef}
+                                {...provided.droppableProps}
+                            >
+                                {files.map((item, index) => (
+                                    <Draggable
+                                        index={index}
+                                        tabIndex={-1}
+                                        key={`file-${index}`}
+                                        draggableId={`file-${index}`}
+                                    >
+                                        {(provided, snapshot) => (
+                                            <FileListItem
+                                                item={item}
+                                                provided={provided}
+                                                snapshot={snapshot}
+                                            />
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </ul>
                         )}
-                    >
-                        <div className={cn(cx('list-item-col'), 'thumb')}>
-                            <Zone
-                                {...zoneProps}
-                                zone='media-editor-file-item-thumbnail'
-                                file={{
-                                    name: op.get(item, '_name', item.name),
-                                    dataURL: item.upload
-                                        ? item.upload.dataURL
-                                        : op.get(item, '_url', item.url),
-                                }}
-                            />
-                        </div>
-                        <div className={cn(cx('list-item-col'), 'info')}>
-                            <Zone
-                                file={item}
-                                {...zoneProps}
-                                zone='media-editor-file-item-info'
-                            />
-                        </div>
-                        <div className={cn(cx('list-item-col'), 'action')}>
-                            <Zone
-                                file={item}
-                                {...zoneProps}
-                                zone='media-editor-file-item-action'
-                            />
-                        </div>
-                    </div>
-                );
-            })}
+                    </Droppable>
+                </DragDropContext>
+            ) : (
+                <ul>
+                    {files.map((item, index) => (
+                        <FileListItem item={item} key={`file-${index}`} />
+                    ))}
+                </ul>
+            )}
+
             <Zone {...zoneProps} zone={'media-editor-preview-bottom'} />
+
             <Zone
                 {...zoneProps}
                 zone={`media-editor-preview-bottom-${uploader.getAttribute(
@@ -171,8 +235,6 @@ export const UploaderPreview = forwardRef((props, ref) => {
         </div>
     );
 });
-
-export default UploaderPreview;
 
 UploaderPreview.propTypes = {
     files: PropTypes.array,
@@ -185,3 +247,5 @@ UploaderPreview.defaultProps = {
     namespace: 'ar-field-type-file-preview',
     uploads: [],
 };
+
+export default UploaderPreview;

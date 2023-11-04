@@ -21,25 +21,29 @@ export const UploaderPlaceholder = ({
     maxFiles,
     namespace,
     empty,
+    uploader,
     ...props
 }) => {
+    const { Button } = useHookComponent('ReactiumUI');
+
     const cx = useMemo(() => Reactium.Utils.cxFactory(namespace), [namespace]);
 
     const visible = useMemo(() => Boolean(count < maxFiles), [count, maxFiles]);
+
+    const btnSize = empty ? Button.ENUMS.SIZE.MD : Button.ENUMS.SIZE.SM;
+
+    const btnAppearance = empty ? Button.ENUMS.APPEARANCE.PILL : null;
 
     return !visible ? null : (
         <div className={cn(cx('box-placeholder'), { empty })}>
             {empty && <Ico {...props} />}
             <div className='placeholder'>{children}</div>
-            <div
-                className={cn({
-                    'btn-primary-md-pill': empty,
-                    'btn-primary-sm-pill': !empty,
-                    browse: !empty,
-                })}
-            >
-                {buttonLabel}
-            </div>
+            <Button
+                size={btnSize}
+                children={buttonLabel}
+                onClick={uploader.browse}
+                appearance={btnAppearance}
+            />
         </div>
     );
 };

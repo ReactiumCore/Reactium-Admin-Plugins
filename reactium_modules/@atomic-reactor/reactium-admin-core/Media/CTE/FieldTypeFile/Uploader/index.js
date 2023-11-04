@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import cn from 'classnames';
 import op from 'object-path';
-import { v4 as UUID } from 'uuid';
 import PropTypes from 'prop-types';
 import { Dropfile } from './Dropfile';
 import { UploaderPreview } from './UploaderPreview';
@@ -24,11 +23,8 @@ import Reactium, {
 } from '@atomic-reactor/reactium-core/sdk';
 
 export const Uploader = forwardRef((props, ref) => {
-    const refs = useRefs();
-
     const {
         autoUpload,
-        namespace,
         params,
         parallelUploads,
         serialize,
@@ -36,6 +32,8 @@ export const Uploader = forwardRef((props, ref) => {
         editor,
         value: defaultValue,
     } = props;
+
+    const refs = useRefs();
 
     const state = useSyncState({
         errors: [],
@@ -49,28 +47,41 @@ export const Uploader = forwardRef((props, ref) => {
     });
 
     const clear = () => {
+        state.set({ uploads: null });
         const dz = refs.get('dropzone');
         if (dz) dz.clear();
-        state.set({ uploads: null });
     };
 
-    const dispatch = useDispatcher({ props, state });
+    const browse = useCallback(() => {
+        const dz = refs.get('dropzone');
+        dz.browse();
+        return state;
+    }, []);
 
-    const count = () => {
+    const count = useCallback(() => {
         const value = state.get('value') || [];
         const uploads = state.get('uploads') || [];
         return value.length + uploads.length;
-    };
+    }, []);
+
+    const dispatch = useDispatcher({ props, state });
 
     const empty = useMemo(() => count() < 1);
 
-    const dzConfig = useMemo(
-        () => ({
-            paramName: null,
-            uploadMultiple: true,
-            parallelUploads: op.get(props, 'parallelUploads', 1),
-        }),
-        [op.get(props, 'parallelUploads')],
+    const getUploads = useCallback(
+        () => Array.from(state.get('uploads') || []),
+        [],
+    );
+
+    const getValue = useCallback(
+        () =>
+            Array.from(
+                _.chain([state.get('value')])
+                    .flatten()
+                    .compact()
+                    .value(),
+            ),
+        [],
     );
 
     const isUploading = useMemo(
@@ -78,47 +89,28 @@ export const Uploader = forwardRef((props, ref) => {
         [state.get('uploading')],
     );
 
-    const getUploads = () => Array.from(state.get('uploads') || []);
+    const move = useCallback(({ from, to }) => {
+        const vals = Array.from(state.get('value'));
 
-    const getValue = () =>
-        Array.from(
-            _.chain([state.get('value')])
-                .flatten()
-                .compact()
-                .value(),
-        );
+        const item = vals[from];
 
-    const removeFile = (FILEID) => {
-        const value = getValue();
+        vals.splice(from, 1);
+        vals.splice(to, 0, item);
 
-        const idx = _.findIndex(value, (file) =>
-            Boolean(op.get(file, 'metadata.ID') === FILEID),
-        );
+        vals.forEach((v, i) => {
+            v.index = i;
+            op.set(v, 'metadata.index', i);
+        });
 
-        if (idx > -1) {
-            value.splice(idx, 1);
-            state.set('value', value);
-        }
-    };
+        state.value = vals;
+        state.set('value', vals);
+    }, []);
 
-    const removeUpload = (upload) => {
-        const uploads = state.get('uploads');
-        const idx = _.findIndex(uploads, { ID: upload.ID });
-        if (idx > -1) {
-            uploads.splice(idx, 1);
-            state.set('uploads', uploads);
-        }
-
-        const dz = refs.get('dropzone');
-        if (!dz) return;
-        dz.removeFile(upload);
-    };
-
-    const onError = (e) => {
+    const onError = useCallback((e) => {
         console.log(state.get('errors'), e);
-    };
+    }, []);
 
-    const onFileAdded = (e) => {
+    const onFileAdded = useCallback((e) => {
         if (!validateAddedFiles(e.added)) return;
 
         const max = op.get(props, 'maxFiles', 1);
@@ -136,8 +128,35 @@ export const Uploader = forwardRef((props, ref) => {
         dispatch('file-upload-added', { added: e.added, files: e.files });
 
         state.set('uploads', uploads);
-        if (autoUpload === true) upload();
-    };
+        if (autoUpload === true) return upload();
+    }, []);
+
+    const removeFile = useCallback((FILEID) => {
+        const value = getValue();
+
+        const idx = _.findIndex(value, (file) =>
+            Boolean(op.get(file, 'metadata.ID') === FILEID),
+        );
+
+        if (idx > -1) {
+            value.splice(idx, 1);
+            state.set('value', value);
+        }
+        return state;
+    }, []);
+
+    const removeUpload = useCallback((upload) => {
+        const uploads = state.get('uploads');
+        const idx = _.findIndex(uploads, { ID: upload.ID });
+        if (idx > -1) {
+            uploads.splice(idx, 1);
+            state.set('uploads', uploads);
+        }
+
+        const dz = refs.get('dropzone');
+        if (dz) dz.removeFile(upload);
+        return state;
+    }, []);
 
     const _upload = () =>
         new Promise(async (resolve) => {
@@ -149,9 +168,12 @@ export const Uploader = forwardRef((props, ref) => {
 
             const output = [];
 
-            while (getUploads().length > 0) {
-                const uploads = getUploads();
+            let uploads = getUploads();
+
+            while (uploads.length > 0) {
                 let chunk = uploads.splice(0, parallelUploads);
+
+                state.set('uploads', uploads, false);
 
                 previews.uploading(_.pluck(chunk, 'ID'));
 
@@ -168,17 +190,19 @@ export const Uploader = forwardRef((props, ref) => {
                     const file = new Reactium.File(name, item);
 
                     const meta = op.get(editor, 'Form.value.meta', {
-                        file: { [fieldName]: { meta: {}, tags: {} } },
+                        file: {
+                            [fieldName]: { [item.ID]: { meta: {}, tags: {} } },
+                        },
                     });
 
-                    op.set(meta, ['file', fieldName, 'meta'], {
+                    op.set(meta, ['file', fieldName, item.ID, 'meta'], {
                         size: item.size,
                         fieldName: fieldName,
                         ID: item.ID,
                         name,
                     });
 
-                    op.set(meta, ['file', fieldName, 'tags'], {
+                    op.set(meta, ['file', fieldName, item.ID, 'tags'], {
                         fieldName: fieldName,
                         type: params.type,
                     });
@@ -187,13 +211,20 @@ export const Uploader = forwardRef((props, ref) => {
                         file.save().then((f) => {
                             removeUpload(item);
 
+                            f.upload = item;
+
                             f.metadata = op.get(meta, [
                                 'file',
                                 fieldName,
+                                item.ID,
                                 'meta',
                             ]);
-                            f.tags = op.get(meta, ['file', fieldName, 'tags']);
-                            f.upload = item;
+                            f.tags = op.get(meta, [
+                                'file',
+                                fieldName,
+                                item.ID,
+                                'tags',
+                            ]);
 
                             dispatch('uploaded-file', { value: f, fieldName });
 
@@ -207,7 +238,7 @@ export const Uploader = forwardRef((props, ref) => {
                 files = await Promise.all(files);
                 files.forEach((item) => output.push(item));
 
-                state.set('uploads', uploads);
+                uploads = getUploads();
             }
 
             state.set('uploading', false);
@@ -220,7 +251,7 @@ export const Uploader = forwardRef((props, ref) => {
             resolve(value);
         });
 
-    const upload = _.debounce(_upload, 1000, false);
+    const upload = useMemo(() => _.debounce(_upload, 1000, false), []);
 
     const validateAddedFiles = (files) => {
         state.set('errors', []);
@@ -238,11 +269,19 @@ export const Uploader = forwardRef((props, ref) => {
 
     state.value = state.get('value');
 
+    state.extend('move', move);
+
     state.extend('clear', clear);
+
+    state.extend('count', count);
+
+    state.extend('browse', browse);
 
     state.extend('dispatch', dispatch);
 
     state.extend('removeFile', removeFile);
+
+    state.extend('empty', () => count() < 1);
 
     state.extend('removeUpload', removeUpload);
 
@@ -294,6 +333,7 @@ export const Uploader = forwardRef((props, ref) => {
             <UploaderPlaceholder
                 empty={empty}
                 count={count()}
+                uploader={state}
                 maxFiles={props.maxFiles}
                 namespace={props.namespace}
                 children={props.placeholder}
@@ -317,6 +357,7 @@ Uploader.propTypes = {
     acceptedFileTypes: PropTypes.arrayOf(PropTypes.string),
     autoUpload: PropTypes.bool,
     buttonLabel: PropTypes.node,
+    clickable: PropTypes.bool,
     maxFiles: PropTypes.number,
     maxFileSize: PropTypes.number,
     namespace: PropTypes.string,
@@ -328,6 +369,7 @@ Uploader.propTypes = {
 Uploader.defaultProps = {
     acceptedFileTypes: [],
     autoUpload: false,
+    clickable: false,
     buttonLabel: PropTypes.node,
     maxFiles: 1,
     maxFileSize: 512,

@@ -89,6 +89,7 @@ let Dropfile = ({ onChange, ...props }, ref) => {
     const clear = useCallback(() => {
         state.set('value', null, false);
         state.set({ value: [], count: 0 });
+        return state;
     }, []);
 
     const disable = useCallback(() => state.set('disabled', true), []);

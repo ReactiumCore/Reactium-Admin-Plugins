@@ -12,9 +12,10 @@ export const UploaderPreviewInfo = ({ file, serialize }) => {
     const fileName = serialize ? [ID, ext].join('.') : name;
 
     const s = op.get(file, 'size', op.get(file, 'metadata.size', 0));
+
     const size = s && s > 0 ? fileSize(s) : null;
 
-    return (
+    return !ID ? null : (
         <>
             {fileName && <div>{fileName}</div>}
             {size && <small>{size}</small>}
